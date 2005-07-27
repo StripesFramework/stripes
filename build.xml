@@ -1,0 +1,40 @@
+<!-- ======================================================================= -->
+<!-- Master Build file for the Stripes project.                              -->
+<!-- Author: Tim Fennell                                                     -->
+<!-- ======================================================================= -->
+
+<project name="Stripes-Master" basedir="." default="build">
+
+  <!-- =================================================================== -->
+  <!-- Clean the build directory                                           -->
+  <!-- =================================================================== -->
+  <target name="build">
+  	<ant dir="stripes" target="jar"/>
+  	<copy todir="examples/web/WEB-INF/lib">
+      <fileset dir="stripes/dist">
+      	<include name="stripes.jar"/>
+      </fileset>
+  	</copy>
+  	<copy todir="examples/web/WEB-INF/lib">
+      <fileset dir="stripes/lib/deploy">
+        <include name="*.jar"/>
+      </fileset>
+  	</copy>
+  	<copy todir="examples/web/WEB-INF">
+      <fileset dir="stripes/taglib">
+      	<include name="*.tld"/>
+      </fileset>
+  	</copy>
+  	<ant dir="examples" target="war"/>
+  </target>
+  
+  <target name="clean">
+  	<ant dir="stripes" target="clean"/>
+  	<ant dir="examples" target="clean"/>
+  </target>
+  
+  <target name="deploy" depends="build">
+    <ant dir="examples" target="redeploy"/>
+  </target>
+  
+</project>

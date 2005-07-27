@@ -1,0 +1,394 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE taglib PUBLIC "-//Sun Microsystems, Inc.//DTD JSP Tag Library 1.2//EN"
+  "http://java.sun.com/dtd/web-jsptaglibrary_1_2.dtd">
+
+
+<taglib>
+    <tlib-version>1.0</tlib-version>
+    <jsp-version>1.2</jsp-version>
+    <short-name>Stripes</short-name>
+    <uri>http://stripes.sourceforge.net/stripes.tld</uri>
+    <display-name>Stripes Tag Library</display-name>
+    <description>
+		Blah blah blah.
+    </description>
+
+	<tag>
+		<name>form</name>
+		<tag-class>net.sourceforge.stripes.tag.FormTag</tag-class>
+		<body-content>JSP</body-content>
+		<display-name>form</display-name>
+		<description>
+			Blah Blah Blah
+		</description>
+		<!-- Start: Standard HTML attributes -->
+		<attribute><name>accesskey</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+		<attribute><name>class</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+		<attribute><name>dir</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+		<attribute><name>id</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+		<attribute><name>lang</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+		<attribute><name>onblur</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+		<attribute><name>onchange</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+		<attribute><name>onclick</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+		<attribute><name>ondblclick</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+		<attribute><name>onfocus</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+		<attribute><name>onkeydown</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+		<attribute><name>onkeypress</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+		<attribute><name>onkeyup</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+		<attribute><name>onmousedown</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+		<attribute><name>onmousemove</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+		<attribute><name>onmouseout</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+		<attribute><name>onmouseover</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+		<attribute><name>onmouseup</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+		<attribute><name>onselect</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+		<attribute><name>style</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+		<attribute><name>tabindex</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+		<attribute><name>title</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+		<!-- End: Standard HTML attributes -->
+        <attribute><name>accept</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>acceptcharset</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>action</name><required>true</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>enctype</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>method</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>name</name><required>true</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>target</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+    </tag>
+
+    <tag>
+        <name>text</name>
+        <tag-class>net.sourceforge.stripes.tag.InputTextTag</tag-class>
+        <body-content>JSP</body-content>
+        <display-name>text</display-name>
+        <description>
+            Blah Blah Blah
+        </description>
+        <!-- Start: Standard HTML attributes -->
+        <attribute><name>accesskey</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>class</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>dir</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>id</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>lang</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onblur</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onchange</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onclick</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>ondblclick</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onfocus</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onkeydown</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onkeypress</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onkeyup</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onmousedown</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onmousemove</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onmouseout</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onmouseover</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onmouseup</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onselect</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>style</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>tabindex</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>title</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <!-- End: Standard HTML attributes -->
+
+        <!-- Start: Standard Form Input attributes -->
+        <attribute><name>name</name><required>true</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>size</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>value</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>disabled</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <!-- End: Standard Form Input   attributes -->
+
+        <attribute><name>readonly</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>maxlength</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+    </tag>
+
+    <tag>
+        <name>radio</name>
+        <tag-class>net.sourceforge.stripes.tag.InputRadioButtonTag</tag-class>
+        <body-content>JSP</body-content>
+        <display-name>text</display-name>
+        <description>
+            Blah Blah Blah
+        </description>
+        <!-- Start: Standard HTML attributes -->
+        <attribute><name>accesskey</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>class</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>dir</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>id</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>lang</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onblur</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onchange</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onclick</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>ondblclick</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onfocus</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onkeydown</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onkeypress</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onkeyup</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onmousedown</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onmousemove</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onmouseout</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onmouseover</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onmouseup</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onselect</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>style</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>tabindex</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>title</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <!-- End: Standard HTML attributes -->
+
+        <!-- Start: Standard Form Input attributes -->
+        <attribute><name>name</name><required>true</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>size</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>value</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>disabled</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <!-- End: Standard Form Input   attributes -->
+
+        <attribute><name>checked</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+    </tag>
+
+    <tag>
+        <name>checkbox</name>
+        <tag-class>net.sourceforge.stripes.tag.InputCheckBoxTag</tag-class>
+        <body-content>JSP</body-content>
+        <display-name>text</display-name>
+        <description>
+            Blah Blah Blah
+        </description>
+        <!-- Start: Standard HTML attributes -->
+        <attribute><name>accesskey</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>class</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>dir</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>id</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>lang</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onblur</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onchange</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onclick</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>ondblclick</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onfocus</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onkeydown</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onkeypress</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onkeyup</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onmousedown</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onmousemove</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onmouseout</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onmouseover</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onmouseup</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onselect</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>style</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>tabindex</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>title</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <!-- End: Standard HTML attributes -->
+
+        <!-- Start: Standard Form Input attributes -->
+        <attribute><name>name</name><required>true</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>size</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>value</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>disabled</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <!-- End: Standard Form Input   attributes -->
+
+        <attribute><name>checked</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+    </tag>
+
+    <tag>
+        <name>select</name>
+        <tag-class>net.sourceforge.stripes.tag.InputSelectTag</tag-class>
+        <body-content>JSP</body-content>
+        <display-name>select</display-name>
+        <description>
+            Blah Blah Blah
+        </description>
+        <!-- Start: Standard HTML attributes -->
+        <attribute><name>accesskey</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>class</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>dir</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>id</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>lang</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onblur</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onchange</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onclick</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>ondblclick</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onfocus</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onkeydown</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onkeypress</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onkeyup</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onmousedown</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onmousemove</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onmouseout</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onmouseover</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onmouseup</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onselect</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>style</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>tabindex</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>title</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <!-- End: Standard HTML attributes -->
+
+        <!-- Start: Standard Form Input attributes -->
+        <attribute><name>name</name><required>true</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>size</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>value</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>disabled</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <!-- End: Standard Form Input   attributes -->
+
+        <attribute><name>multiple</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+    </tag>
+
+    <tag>
+        <name>option</name>
+        <tag-class>net.sourceforge.stripes.tag.InputOptionTag</tag-class>
+        <body-content>JSP</body-content>
+        <display-name>option</display-name>
+        <description>
+            Blah Blah Blah
+        </description>
+        <!-- Start: Standard HTML attributes -->
+        <attribute><name>accesskey</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>class</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>dir</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>id</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>lang</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onblur</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onchange</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onclick</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>ondblclick</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onfocus</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onkeydown</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onkeypress</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onkeyup</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onmousedown</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onmousemove</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onmouseout</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onmouseover</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onmouseup</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onselect</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>style</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>tabindex</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>title</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <!-- End: Standard HTML attributes -->
+
+        <attribute><name>value</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>disabled</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>label</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>selected</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+    </tag>
+
+    <tag>
+        <name>options-collection</name>
+        <tag-class>net.sourceforge.stripes.tag.InputOptionsCollectionTag</tag-class>
+        <body-content>JSP</body-content>
+        <display-name>options-collection</display-name>
+        <description>
+            Blah Blah Blah
+        </description>
+        <!-- Start: Standard HTML attributes -->
+        <attribute><name>accesskey</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>class</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>dir</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>id</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>lang</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onblur</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onchange</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onclick</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>ondblclick</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onfocus</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onkeydown</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onkeypress</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onkeyup</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onmousedown</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onmousemove</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onmouseout</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onmouseover</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onmouseup</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onselect</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>style</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>tabindex</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>title</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <!-- End: Standard HTML attributes -->
+
+        <attribute><name>collection</name><required>true</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>value</name><required>true</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>label</name><required>true</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>selected</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+    </tag>
+
+    <tag>
+        <name>file</name>
+        <tag-class>net.sourceforge.stripes.tag.InputFileTag</tag-class>
+        <body-content>JSP</body-content>
+        <display-name>file</display-name>
+        <description>
+            Blah Blah Blah
+        </description>
+        <!-- Start: Standard HTML attributes -->
+        <attribute><name>accesskey</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>class</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>dir</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>id</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>lang</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onblur</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onchange</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onclick</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>ondblclick</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onfocus</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onkeydown</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onkeypress</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onkeyup</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onmousedown</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onmousemove</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onmouseout</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onmouseover</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onmouseup</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onselect</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>style</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>tabindex</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>title</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <!-- End: Standard HTML attributes -->
+
+        <!-- Start: Standard Form Input attributes -->
+        <attribute><name>name</name><required>true</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>size</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>disabled</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <!-- End: Standard Form Input   attributes -->
+
+        <attribute><name>accepts</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+    </tag>
+
+    <tag>
+        <name>textarea</name>
+        <tag-class>net.sourceforge.stripes.tag.InputTextAreaTag</tag-class>
+        <body-content>JSP</body-content>
+        <display-name>textarea</display-name>
+        <description>
+            Blah Blah Blah
+        </description>
+        <!-- Start: Standard HTML attributes -->
+        <attribute><name>accesskey</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>class</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>dir</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>id</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>lang</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onblur</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onchange</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onclick</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>ondblclick</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onfocus</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onkeydown</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onkeypress</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onkeyup</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onmousedown</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onmousemove</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onmouseout</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onmouseover</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onmouseup</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onselect</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>style</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>tabindex</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>title</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <!-- End: Standard HTML attributes -->
+
+        <!-- Start: Standard Form Input attributes -->
+        <attribute><name>name</name><required>true</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>value</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>disabled</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <!-- End: Standard Form Input   attributes -->
+
+        <attribute><name>readonly</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>rows</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>cols</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+    </tag>
+
+</taglib>

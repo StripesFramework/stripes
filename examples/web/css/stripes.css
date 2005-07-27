@@ -1,0 +1,93 @@
+/******************************************************************************
+/* Example CSS file used by Stripes.
+/* Author: Tim Fennell
+******************************************************************************/
+
+body{
+	background-color: #fff;
+    padding: 1px 5px 1px 5px;
+    margin:0 0 0 0;
+}
+
+body, input, select, td, textarea{
+	font-family:Verdana, Geneva, Arial, Helvetica, sans-serif;
+	font-size: 11px;
+}
+
+h1 {
+    margin: 0px 0px 10px 0px;
+	font-size: 2em;
+}
+
+table {
+	border: 1px solid #a9a9a9;
+    border-collapse: collapse;
+}
+
+p {
+    padding: 0px 0px 0px 0px;
+    margin: 0px 0px 0px 0px;
+}
+td, th {
+    border: 1px solid #a9a9a9;
+    padding: 2px 2px 2px 2px;
+	text-align: left;
+	vertical-align: top;
+}
+
+th {
+    border-color: #d3d3d3;
+    background-color: #a9a9a9;
+    font-size: small;
+    color: white;
+}
+
+th a, th a:visited {
+  color: black;
+}
+
+th a:hover {
+  text-decoration: underline;
+  color: black;
+}
+
+tr.odd {
+  background-color: #fff
+}
+
+tr.tableRowEven, tr.even {
+  background-color: #fea
+}
+
+
+a, a:visited, a:hover {
+	color:#666; text-decoration:none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+img {
+	border:none;
+}
+
+hr {
+	height: 1px;
+	color: #000;
+	clear:both;
+}
+
+textarea {
+	width:80%;
+	height:200px;
+}
+
+select {
+    width: 200px;
+    height: 5em;
+}
+
+input.text  {
+    width: 200px;
+}
