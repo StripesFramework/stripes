@@ -4,6 +4,7 @@ import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.action.ActionBeanContext;
 import net.sourceforge.stripes.action.ForwardResolution;
 import net.sourceforge.stripes.action.Resolution;
+import net.sourceforge.stripes.action.DontValidate;
 import net.sourceforge.stripes.config.BootstrapPropertyResolver;
 import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.config.DefaultConfiguration;
@@ -132,9 +133,9 @@ public class DispatcherServlet extends HttpServlet {
             // Lookup the bean class, handler method and hook everything together
             ActionBeanContext context = createActionBeanContext(request, response);
 
-            String beanName = this.actionResolver.getActionBeanName(context);
+            String beanName         = this.actionResolver.getActionBeanName(context);
             Class<ActionBean> clazz = this.actionResolver.getActionBean(beanName);
-            String eventName = this.actionResolver.getEventName(clazz, context);
+            String eventName        = this.actionResolver.getEventName(clazz, context);
             context.setEventName(eventName);
 
             Method handler = null;
@@ -145,13 +146,22 @@ public class DispatcherServlet extends HttpServlet {
                 handler = this.actionResolver.getDefaultHandler(clazz);
             }
 
+            // Insist that we have a handler
+            if (handler == null) {
+                throw new StripesServletException("No handler method found for request with " +
+                    "ActionBean name [" + beanName + "] and eventName [ " + eventName + "]");
+            }
+
+            // Instantiate and set us up the bean
             ActionBean bean = clazz.newInstance();
             bean.setContext(context);
             request.setAttribute(beanName, bean);
             request.setAttribute(StripesConstants.REQ_ATTR_ACTION_BEAN, bean);
 
             // Bind the value to the bean - this includes performing field level validation
-            ValidationErrors errors = bindValues(bean, context);
+            ValidationErrors errors = bindValues(bean,
+                                                 context,
+                                                 handler.getAnnotation(DontValidate.class) == null);
 
             if (errors.size() == 0 && bean instanceof Validatable) {
                 ((Validatable) bean).validate(errors);
@@ -167,7 +177,7 @@ public class DispatcherServlet extends HttpServlet {
                 bean.getContext().setValidationErrors(errors);
                 getErrorResolution(request).execute(request, response);
             }
-            else  {
+            else {
                 Object returnValue = handler.invoke(bean);
 
                 if (returnValue != null && returnValue instanceof Resolution) {
@@ -225,8 +235,10 @@ public class DispatcherServlet extends HttpServlet {
      * @param bean the bean to be populated
      * @param context the ActionBeanContext containing the request and other information
      */
-    protected ValidationErrors bindValues(ActionBean bean, ActionBeanContext context) {
-        return this.propertyBinder.bind(bean, context);
+    protected ValidationErrors bindValues(ActionBean bean,
+                                          ActionBeanContext context,
+                                          boolean validate) {
+        return this.propertyBinder.bind(bean, context, validate);
     }
 
     /**

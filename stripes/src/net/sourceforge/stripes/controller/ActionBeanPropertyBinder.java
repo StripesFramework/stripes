@@ -33,8 +33,10 @@ public interface ActionBeanPropertyBinder {
      *
      * @param bean the ActionBean to bind properties to
      * @param context the ActionBeanContext containing the current request
+     * @param validate true indicates that validation should be run, false indicates that only
+     *        type conversion should occur
      */
-    ValidationErrors bind(ActionBean bean, ActionBeanContext context);
+    ValidationErrors bind(ActionBean bean, ActionBeanContext context, boolean validate);
 
     /**
      * Bind an individual property with the name specified to the bean supplied.

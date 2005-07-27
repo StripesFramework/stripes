@@ -8,6 +8,7 @@ import net.sourceforge.stripes.action.HandlesEvent;
 import net.sourceforge.stripes.action.RedirectResolution;
 import net.sourceforge.stripes.action.Resolution;
 import net.sourceforge.stripes.action.FileBean;
+import net.sourceforge.stripes.action.DontValidate;
 import net.sourceforge.stripes.validation.Validate;
 import net.sourceforge.stripes.validation.ValidateNestedProperties;
 import org.apache.commons.logging.Log;
@@ -67,7 +68,11 @@ public class CatDetailActionBean implements ActionBean {
         this.inlineBiography = inlineBiography;
     }
 
-    @HandlesEvent("Edit")
+    /**
+     * Pre-populates the form with a cat to be edited.  Doesn't run validation since we won't
+     * have all the fields submitted, just the ID to use for pre-population.
+     */
+    @HandlesEvent("Edit") @DontValidate
     public Resolution prepCatForEdit() throws Exception {
         this.cat = new CatController().getCat(this.cat.getName());
         return new ForwardResolution("/ex1/CatDetails.jsp");

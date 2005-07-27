@@ -136,11 +136,24 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="HandlesEvent.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/action/HandlesEvent.java">
+      <file leaf-file-name="DontValidate.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/action/DontValidate.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="21" column="0" selection-start="729" selection-end="729" vertical-scroll-proportion="0.34744525">
-              <folding />
+            <state line="15" column="3" selection-start="580" selection-end="580" vertical-scroll-proportion="0.4805492">
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="OgnlActionBeanPropertyBinder.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/controller/OgnlActionBeanPropertyBinder.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="362" column="0" selection-start="17698" selection-end="17698" vertical-scroll-proportion="0.15789473">
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -148,7 +161,25 @@
       <file leaf-file-name="CatDetailActionBean.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/examples/src/net/sourceforge/stripes/examples/ex1/CatDetailActionBean.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="76" column="26" selection-start="2261" selection-end="2261" vertical-scroll-proportion="0.75620437">
+            <state line="74" column="26" selection-start="2280" selection-end="2280" vertical-scroll-proportion="1.8581235">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="DispatcherServlet.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/controller/DispatcherServlet.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="240" column="39" selection-start="10983" selection-end="10987" vertical-scroll-proportion="1.375286">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ActionBeanPropertyBinder.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/controller/ActionBeanPropertyBinder.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="37" column="0" selection-start="1484" selection-end="1622" vertical-scroll-proportion="0.9908467">
               <folding />
             </state>
           </provider>
@@ -573,6 +604,7 @@
   </component>
   <component name="RecentsManager">
     <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="net.sourceforge.stripes.action" />
       <recent name="net.sourceforge.stripes.tag" />
       <recent name="net.sourceforge.stripes.validation" />
       <recent name="net.sourceforge.stripes.exception" />
@@ -742,10 +774,10 @@
     <layout>
       <window_info id="CVS" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.33" order="12" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32789117" order="7" />
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="docked" type="docked" visible="true" weight="0.33193278" order="0" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="docked" type="docked" visible="true" weight="0.33193278" order="0" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32789117" order="1" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.25462186" order="1" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32789117" order="9" />
+      <window_info id="Messages" active="true" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="true" weight="0.32789117" order="9" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.4" order="6" />
       <window_info id="Module Dependencies" active="false" anchor="right" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.33" order="3" />
       <window_info id="Dependency Viewer" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.33" order="10" />
@@ -782,11 +814,12 @@
     <option name="REFORMAT_BEFORE_FILE_COMMIT" value="false" />
     <option name="FILE_HISTORY_DIALOG_COMMENTS_SPLITTER_PROPORTION" value="0.8" />
     <option name="FILE_HISTORY_DIALOG_SPLITTER_PROPORTION" value="0.5" />
-    <option name="ERROR_OCCURED" value="false" />
+    <option name="ERROR_OCCURED" value="true" />
     <option name="ACTIVE_VCS_NAME" value="svn" />
     <option name="UPDATE_GROUP_BY_PACKAGES" value="false" />
     <option name="SHOW_FILE_HISTORY_AS_TREE" value="false" />
     <option name="FILE_HISTORY_SPLITTER_PROPORTION" value="0.6" />
+    <MESSAGE value="Implemented the ability to turn off validation for specific events." />
   </component>
   <component name="VssConfiguration">
     <option name="CLIENT_PATH" value="" />
@@ -827,20 +860,6 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/tag/InputCheckBoxTag.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="62" column="46" selection-start="2103" selection-end="2103" vertical-scroll-proportion="0.81751823">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/tag/FormTag.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="136" column="74" selection-start="5586" selection-end="5586" vertical-scroll-proportion="0.7547445">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/tag/DefaultPopulationStrategy.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="39" column="28" selection-start="1935" selection-end="1935" vertical-scroll-proportion="0.5912409">
@@ -862,23 +881,9 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/controller/ActionBeanPropertyBinder.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="48" column="0" selection-start="2107" selection-end="2109" vertical-scroll-proportion="0.8569343">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/tag/InputOptionTag.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="67" column="0" selection-start="2242" selection-end="2243" vertical-scroll-proportion="0.79562044">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/controller/DispatcherServlet.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="171" column="0" selection-start="7813" selection-end="7813" vertical-scroll-proportion="0.14306569">
           <folding />
         </state>
       </provider>
@@ -918,17 +923,49 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/examples/src/net/sourceforge/stripes/examples/ex1/CatDetailActionBean.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="76" column="26" selection-start="2261" selection-end="2261" vertical-scroll-proportion="0.75620437">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/action/HandlesEvent.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="21" column="0" selection-start="729" selection-end="729" vertical-scroll-proportion="0.34744525">
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/controller/ActionBeanPropertyBinder.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="37" column="0" selection-start="1484" selection-end="1622" vertical-scroll-proportion="0.9908467">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/controller/DispatcherServlet.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="240" column="39" selection-start="10983" selection-end="10987" vertical-scroll-proportion="1.375286">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/examples/src/net/sourceforge/stripes/examples/ex1/CatDetailActionBean.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="74" column="26" selection-start="2280" selection-end="2280" vertical-scroll-proportion="1.8581235">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/controller/OgnlActionBeanPropertyBinder.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="362" column="0" selection-start="17698" selection-end="17698" vertical-scroll-proportion="0.15789473">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/action/DontValidate.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="15" column="3" selection-start="580" selection-end="580" vertical-scroll-proportion="0.4805492">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

@@ -3,6 +3,7 @@ package net.sourceforge.stripes.controller;
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.action.ActionBeanContext;
 import net.sourceforge.stripes.action.FileBean;
+import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.util.OgnlUtil;
 import net.sourceforge.stripes.validation.ScopedLocalizableError;
 import net.sourceforge.stripes.validation.TypeConverter;
@@ -11,8 +12,6 @@ import net.sourceforge.stripes.validation.Validate;
 import net.sourceforge.stripes.validation.ValidateNestedProperties;
 import net.sourceforge.stripes.validation.ValidationError;
 import net.sourceforge.stripes.validation.ValidationErrors;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -42,7 +41,7 @@ import java.util.regex.Pattern;
  * @author Tim Fennell
  */
 public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
-    private static Log log = LogFactory.getLog(OgnlActionBeanPropertyBinder.class);
+    private static Log log = Log.getInstance(OgnlActionBeanPropertyBinder.class);
     private static Set<String> SPECIAL_KEYS = new HashSet<String>();
 
     static {
@@ -79,7 +78,7 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
                     Validate[] validations = nested.value();
                     for (Validate nestedValidate : validations) {
                         if ( "".equals(nestedValidate.field()) ) {
-                            log.warn("Nested validation used without field name: " + validation);
+                            log.warn("Nested validation used without field name: ", validation);
                         }
                         else {
                             fieldValidations.put(fieldName + "." + nestedValidate.field(),
@@ -103,7 +102,7 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
                     Validate[] validations = nested.value();
                     for (Validate nestedValidate : validations) {
                         if ( "".equals(nestedValidate.field()) ) {
-                            log.warn("Nested validation used without field name: " + validation);
+                            log.warn("Nested validation used without field name: ", validation);
                         }
                         else {
                             fieldValidations.put(field.getName() + "." + nestedValidate.field(),
@@ -114,7 +113,7 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
             }
 
             this.validations.put(beanClass, fieldValidations);
-            log.info("Loaded validations for ActionBean " + beanClass.getName() + ":" +
+            log.info("Loaded validations for ActionBean ", beanClass.getName(), ":",
                      fieldValidations);
         }
     }
@@ -130,8 +129,10 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
      *
      * @param bean the ActionBean whose properties are to be validated and bound
      * @param context the ActionBeanContext of the current request
+     * @param validate true indicates that validation should be run, false indicates that only
+     *        type conversion should occur
      */
-    public ValidationErrors bind(ActionBean bean, ActionBeanContext context) {
+    public ValidationErrors bind(ActionBean bean, ActionBeanContext context, boolean validate) {
         Map<String,String[]> parameters = context.getRequest().getParameterMap();
         ValidationErrors fieldErrors = new ValidationErrors();
 
@@ -140,14 +141,25 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
             try {
                 String parameter = entry.getKey();
                 if (!SPECIAL_KEYS.contains(parameter) && !context.getEventName().equals(parameter)) {
-                    log.trace("Attempting to bind property with name: " + parameter);
+                    log.trace("Attempting to bind property with name: ", parameter);
 
                     Class type = (Class) OgnlUtil.getValue(parameter + ".class", bean);
                     String[] values = entry.getValue();
 
-                    List<ValidationError> errors = new ArrayList<ValidationError>();
-                    List<Object> convertedValues = validate(bean, parameter, type, values, errors);
 
+                    // Do Validation and type conversion
+                    List<ValidationError> errors = new ArrayList<ValidationError>();
+                    Validate validationInfo = this.validations.get(bean.getClass()).get(parameter);
+
+                    if (validate && validationInfo != null) {
+                        doPreConversionValidations(parameter, values, validationInfo, errors);
+                    }
+
+                    List<Object> convertedValues =
+                        convert(bean, parameter, values, type, validationInfo, errors);
+
+
+                    // If we have errors, save them, otherwise bind the parameter to the form
                     if (errors.size() > 0) {
                         fieldErrors.put(parameter, errors);
                     }
@@ -168,11 +180,9 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
                 }
             }
             catch (Exception e) {
-                if (log.isDebugEnabled()) {
-                    log.debug("Could not bind property with name [" + entry.getKey() + "] and " +
-                        "values " + Arrays.toString(entry.getValue()) + " to bean of type: "
-                        + bean.getClass().getName(), e);
-                }
+                log.debug(e, "Could not bind property with name [", entry.getKey(), "] and values ",
+                    Arrays.toString(entry.getValue()), " to bean of type: ",
+                    bean.getClass().getName());
             }
         }
 
@@ -184,18 +194,16 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
             while (fileParameterNames.hasMoreElements()) {
                 String fileParameterName = fileParameterNames.nextElement();
                 FileBean fileBean = request.getFileParameterValue(fileParameterName);
-                log.trace("Attempting to bind file parameter with name [" + fileParameterName +
-                          "] and value: " + fileBean);
+                log.trace("Attempting to bind file parameter with name [", fileParameterName,
+                          "] and value: ", fileBean);
 
                 if (fileBean != null) {
                     try {
                         bind(bean, fileParameterName, fileBean);
                     }
                     catch (Exception e) {
-                        if (log.isDebugEnabled()) {
-                            log.debug("Could not bind file property with name [" + fileParameterName
-                                + "] and value: " + fileBean, e);
-                        }
+                        log.debug(e, "Could not bind file property with name [", fileParameterName,
+                                  "] and value: ", fileBean);
                     }
                 }
             }
@@ -227,113 +235,87 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
         return methodName.substring(3,4).toLowerCase() + methodName.substring(4);
     }
 
+
     /**
+     * Figures out what is the real type that TypeConversions should target for this property. For
+     * a simple property this will be just the type of the property as declared in the ActionBean.
+     * For Arrays the returned type will be the component type of the array.  For collections, if
+     * a TypeConverter has been specified, the target type of the TypeConverter will be returned,
+     * otherwise we will assume that it is a collection of Strings and hope for the best.
      *
-     * @param bean
-     * @param propertyName
-     * @param propertyType
-     * @param values
-     * @param errors
-     * @return Object[]
+     * @param bean the ActionBean on which the property exists
+     * @param propertyType the declared type of the property
+     * @param propertyName the name of the property
+     *
      */
-    public List<Object> validate(ActionBean bean,
-                                String propertyName,
-                                Class propertyType,
-                                String[] values,
-                                List<ValidationError> errors) throws Exception {
+    protected Class getRealType(ActionBean bean, Class propertyType, String propertyName) {
+        Validate validationInfo = this.validations.get(bean.getClass()).get(propertyName);
 
-        Validate validate = this.validations.get(bean.getClass()).get(propertyName);
-        log.debug("Validating attribute [" + propertyName + "], annotation is: " + validate);
-
-        // If the target type is an array, try to figure out what the underlying type is and use
-        // that for conversions etc.  If the target type is a collection type, for now, we rely on
-        // the developer specifying a converter in the @Validate annotation.  If no converter is
-        // specified, String is used as the property type, and this may lead to exceptions if the
-        // collection is a generic collection with a type variable other than String.
         if (propertyType.isArray()) {
             propertyType = propertyType.getComponentType();
         }
         else if (propertyType.isAssignableFrom(Collection.class)) {
-            if (validate != null && validate.converter() != TypeConverter.class) {
-                TypeVariable[] types = validate.converter().getTypeParameters();
+            if (validationInfo != null && validationInfo.converter() != TypeConverter.class) {
+                TypeVariable[] types = validationInfo.converter().getTypeParameters();
                 propertyType = (Class) types[0].getBounds()[0];
             } else {
                 propertyType = String.class;
             }
         }
-
-        if (validate != null) {
-            // Execute validations on the string form
-            for (String value : values) {
-                doPreConversionValidations(propertyName, value, validate, errors);
-            }
-
-            // Then convert the property using a configured or default converter
-            if (validate.converter() != TypeConverter.class) {
-                TypeConverter converter = TypeConverterFactory.getInstance(validate.converter());
-                return convert(propertyName, values, converter, propertyType, errors);
-            }
-            else {
-                TypeConverter converter = TypeConverterFactory.getTypeConverter(propertyType);
-                return convert(propertyName, values, converter, propertyType, errors);
-            }
-
-            // Then execute post conversion validations
-            // TODO: post conversion validations
-        }
-        else {
-            // If there was no validation annotation, try using a default converter
-            TypeConverter converter = TypeConverterFactory.getTypeConverter(propertyType);
-            return convert(propertyName, values, converter, propertyType, errors);
-        }
+        return propertyType;
     }
+
 
     /**
      * Performs several basic validations on the String value supplied in the HttpServletRequest,
      * based on information provided in annotations on the ActionBean.
      *
      * @param propertyName the name of the property being validated (used for constructing errors)
-     * @param value the value being validated
-     * @param validate the Valiate annotation that was decorating the property being validated
+     * @param values the String[] of values from the request being validated
+     * @param validationInfo the Valiate annotation that was decorating the property being validated
      * @param errors a collection of errors to be populated with any validation errors discovered
      */
     protected void doPreConversionValidations(String propertyName,
-                                              String value,
-                                              Validate validate,
+                                              String[] values,
+                                              Validate validationInfo,
                                               List<ValidationError> errors) {
 
-        if (validate.required() && value.length() == 0) {
-            ValidationError error = new ScopedLocalizableError("validation.required",
-                                                               "valueNotPresent");
-            error.setFieldName(propertyName);
-            error.setFieldValue(value);
-            errors.add( error );
-        }
+        for (String value : values) {
+            if (validationInfo.required() && value.length() == 0) {
+                ValidationError error = new ScopedLocalizableError("validation.required",
+                                                                   "valueNotPresent");
+                error.setFieldName(propertyName);
+                error.setFieldValue(value);
+                errors.add( error );
+            }
 
-        if (validate.minlength() != -1 && value.length() < validate.minlength()) {
-            ValidationError error = new ScopedLocalizableError("validation.minlength",
-                                                               "valueTooShort",
-                                                               validate.minlength());
-            error.setFieldName(propertyName);
-            error.setFieldValue(value);
-            errors.add( error );
-        }
+            if (validationInfo.minlength() != -1 && value.length() < validationInfo.minlength()) {
+                ValidationError error = new ScopedLocalizableError("validation.minlength",
+                                                                   "valueTooShort",
+                                                                   validationInfo.minlength());
+                error.setFieldName(propertyName);
+                error.setFieldValue(value);
+                errors.add( error );
+            }
 
-        if (validate.maxlength() != -1 && value.length() > validate.maxlength()) {
-            ValidationError error = new ScopedLocalizableError("validation.maxlength",
-                                                               "valueTooLong",
-                                                               validate.maxlength());
-            error.setFieldName(propertyName);
-            error.setFieldValue(value);
-            errors.add( error );
-        }
+            if (validationInfo.maxlength() != -1 && value.length() > validationInfo.maxlength()) {
+                ValidationError error = new ScopedLocalizableError("validation.maxlength",
+                                                                   "valueTooLong",
+                                                                   validationInfo.maxlength());
+                error.setFieldName(propertyName);
+                error.setFieldValue(value);
+                errors.add( error );
+            }
 
-        if (validate.mask().length() > 0 && !Pattern.compile(validate.mask()).matcher(value).matches() ) {
-            ValidationError error = new ScopedLocalizableError("validation.mask",
-                                                               "valueDoesNotMatch");
-            error.setFieldName(propertyName);
-            error.setFieldValue(value);
-            errors.add( error );
+            if ( validationInfo.mask().length() > 0 &&
+                !Pattern.compile(validationInfo.mask()).matcher(value).matches() ) {
+
+                ValidationError error = new ScopedLocalizableError("validation.mask",
+                                                                   "valueDoesNotMatch");
+                error.setFieldName(propertyName);
+                error.setFieldValue(value);
+                errors.add( error );
+            }
         }
     }
 
@@ -352,23 +334,34 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
      * in an <b>empty</b> List being returned.  Similarly, if a length three array is passed in
      * with one item equalling the empty String, a List of length two will be returned.</p>
      *
+     * @param bean the ActionBean on which the property to convert exists
      * @param values a String array of values to attempt conversion of
-     * @param converter the TypeConverter instance to use for the conversions, or null if no
-     *        applicable TypeConverter is available.
      * @param errors a List into which ValidationError objects will be populated for any errors
      *        discovered during conversion.
+     * @param validationInfo the @Validate annotation for the property if one exists
      * @return List<Object> a List of objects containing only objects of the desired type. It is
      *         not guaranteed to be the same length as the values array passed in.
      */
-    private List<Object> convert(String propertyName,
-                                String[] values,
-                                TypeConverter converter,
-                                Class propertyType,
-                                List<ValidationError> errors) {
+    private List<Object> convert(ActionBean bean,
+                                 String propertyName,
+                                 String[] values,
+                                 Class propertyType,
+                                 Validate validationInfo,
+                                 List<ValidationError> errors) throws Exception {
 
         List<Object> returns = new ArrayList<Object>();
+        propertyType = getRealType(bean, propertyType, propertyName);
 
-        log.debug("Converting values " + values + " using converter " + converter);
+        // Dig up the type converter
+        TypeConverter converter = null;
+        if (validationInfo !=  null && validationInfo.converter() != TypeConverter.class) {
+            converter = TypeConverterFactory.getInstance(validationInfo.converter());
+        }
+        else {
+            converter = TypeConverterFactory.getTypeConverter(propertyType);
+        }
+
+        log.debug("Converting values ", values, " using converter ", converter);
 
         for (int i=0; i<values.length; ++i) {
             if (!"".equals(values[i])) {
@@ -397,7 +390,7 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
                 }
                 catch(Exception e) {
                     //TODO: figure out what to do, if anything, with these exceptions
-                    log.warn("Looks like type converter " + converter + " threw an exception.", e);
+                    log.warn(e, "Looks like type converter ", converter, " threw an exception.");
                 }
             }
         }
