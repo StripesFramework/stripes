@@ -20,10 +20,11 @@ public class ValidationErrors extends HashMap<String, List<ValidationError>> {
      * @param field the name of the field in error
      * @param error a ValidationError to add to that field
      */
-    void put(String field, ValidationError error) {
+    public void put(String field, ValidationError error) {
         List<ValidationError> errors = get(field);
         if (errors == null) {
             errors = new ArrayList<ValidationError>();
+            put(field, errors);
         }
 
         errors.add(error);
@@ -37,7 +38,7 @@ public class ValidationErrors extends HashMap<String, List<ValidationError>> {
      * @param field the name of the field in error
      * @param error a ValidationError to add to that field
      */
-    void add(String field, ValidationError error) {
+    public void add(String field, ValidationError error) {
         put(field, error);
     }
 }

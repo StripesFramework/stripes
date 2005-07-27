@@ -136,6 +136,11 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
         Map<String,String[]> parameters = context.getRequest().getParameterMap();
         ValidationErrors fieldErrors = new ValidationErrors();
 
+        // Run the required validation first to catch fields that weren't even submitted
+        if (validate) {
+            validateRequiredFields(context, bean.getClass(), fieldErrors);
+        }
+
         // First we bind all the regular parameters
         for (Map.Entry<String,String[]> entry : parameters.entrySet() ) {
             try {
@@ -161,7 +166,7 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
 
                     // If we have errors, save them, otherwise bind the parameter to the form
                     if (errors.size() > 0) {
-                        fieldErrors.put(parameter, errors);
+                        fieldErrors.get(parameter).addAll(errors);
                     }
                     else if (convertedValues.size() > 0) {
                         // If the target type is an array, set it as one, otherwise set as scalar
@@ -267,6 +272,51 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
 
 
     /**
+     *
+     */
+    protected void validateRequiredFields(ActionBeanContext context,
+                                          Class beanClass,
+                                          ValidationErrors errors) {
+
+        log.debug("Running required field validation on bean class ", beanClass.getName(),
+                  " with event ", context.getEventName());
+
+        Map<String,Validate> validationInfos = this.validations.get(beanClass);
+        if (validationInfos != null) {
+
+            for (Map.Entry<String,Validate> entry : validationInfos.entrySet()) {
+                String propertyName = entry.getKey();
+                Validate validationInfo = entry.getValue();
+
+                String[] values = context.getRequest().getParameterValues(propertyName);
+
+                log.debug("Checking required field: ", propertyName, ", with values: ", values);
+
+
+
+                if (values == null || values.length == 0) {
+                    ValidationError error = new ScopedLocalizableError("validation.required",
+                                                                       "valueNotPresent");
+                    error.setFieldName(propertyName);
+                    error.setFieldValue(null);
+                    errors.add( propertyName, error );
+                }
+                else {
+                    for (String value : values) {
+                        if (validationInfo.required() && value.length() == 0) {
+                            ValidationError error = new ScopedLocalizableError("validation.required",
+                                                                               "valueNotPresent");
+                            error.setFieldName(propertyName);
+                            error.setFieldValue(value);
+                            errors.add( propertyName, error );
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
      * Performs several basic validations on the String value supplied in the HttpServletRequest,
      * based on information provided in annotations on the ActionBean.
      *
@@ -281,14 +331,6 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
                                               List<ValidationError> errors) {
 
         for (String value : values) {
-            if (validationInfo.required() && value.length() == 0) {
-                ValidationError error = new ScopedLocalizableError("validation.required",
-                                                                   "valueNotPresent");
-                error.setFieldName(propertyName);
-                error.setFieldValue(value);
-                errors.add( error );
-            }
-
             if (validationInfo.minlength() != -1 && value.length() < validationInfo.minlength()) {
                 ValidationError error = new ScopedLocalizableError("validation.minlength",
                                                                    "valueTooShort",
