@@ -10,6 +10,14 @@
     <servlet>
         <servlet-name>Stripes Dispatcher Servlet</servlet-name>
         <servlet-class>net.sourceforge.stripes.controller.DispatcherServlet</servlet-class>
+        <init-param>
+            <param-name>ActionResolver.UrlFilters</param-name>
+            <param-value>WEB-INF/classes</param-value>
+        </init-param>
+        <init-param>
+            <param-name>ActionResolver.PackageFilters</param-name>
+            <param-value>net.sourceforge.stripes.*</param-value>
+        </init-param>
     </servlet>
 
     <servlet-mapping>

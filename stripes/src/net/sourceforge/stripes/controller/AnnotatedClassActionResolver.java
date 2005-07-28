@@ -5,11 +5,15 @@ import net.sourceforge.stripes.action.ActionBeanContext;
 import net.sourceforge.stripes.action.DefaultHandler;
 import net.sourceforge.stripes.action.FormName;
 import net.sourceforge.stripes.action.HandlesEvent;
+import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.exception.StripesServletException;
+import net.sourceforge.stripes.util.Log;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -20,6 +24,24 @@ import java.util.Set;
  * @author Tim Fennell
  */
 public class AnnotatedClassActionResolver implements ActionResolver {
+    /**
+     * Configuration key used to lookup a comma-separated list of patterns that are used to
+     * restrict the set of URLs in the classpath that are searched for ActionBean classes.
+     */
+    private static final String URL_FILTERS = "ActionResolver.UrlFilters";
+
+    /**
+     * Configuration key used to lookup a comma-separated list of patterns that are used to
+     * restrict the packages that will be scanned for ActionBean classes.
+     */
+    private static final String PACKAGE_FILTERS = "ActionResolver.PackageFilters";
+
+    /** Log instance for use within in this class. */
+    private Log log = Log.getInstance(AnnotatedClassActionResolver.class);
+
+    /** Handle to the configuration. */
+    private Configuration configuration;
+
     /** Map of form names to Class objects representing subclasses of ActionBean. */
     private Map<String,Class<ActionBean>> formBeans = new HashMap<String,Class<ActionBean>>();
 
@@ -30,13 +52,35 @@ public class AnnotatedClassActionResolver implements ActionResolver {
     private Map<Class<ActionBean>,Map<String,Method>> eventMappings =
         new HashMap<Class<ActionBean>,Map<String,Method>>();
 
+
     /**
      * Scans the classpath of the current classloader (not including parents) to find implementations
      * of the ActionBean interface.  Examines annotations on the classes found to determine what
      * forms and events they map to, and stores this information in a pair of maps for fast
      * access during request processing.
      */
-    public AnnotatedClassActionResolver() {
+    public void init(Configuration configuration) {
+        this.configuration = configuration;
+
+        log.warn("this.configuration: " + this.configuration);
+        log.warn("this.configuration.bootstrap: " + this.configuration.getBootstrapPropertyResolver());
+
+        // Set up the ActionClassCache
+        Set<String> urlFilters = new HashSet<String>();
+        Set<String> packageFilters = new HashSet<String>();
+
+        String temp = configuration.getBootstrapPropertyResolver().getProperty(URL_FILTERS);
+        if (temp != null) {
+            urlFilters.addAll(Arrays.asList( temp.split(",")));
+        }
+
+        temp = configuration.getBootstrapPropertyResolver().getProperty(PACKAGE_FILTERS);
+        if (temp != null) {
+            packageFilters.addAll(Arrays.asList( temp.split(",")));
+        }
+
+        ActionClassCache.init(urlFilters, packageFilters);
+
         // Use the actionResolver util to find all ActionBean implementations in the classpath
         Set<Class<ActionBean>> beans = ActionClassCache.getInstance().getActionBeanClasses();
 
@@ -65,7 +109,6 @@ public class AnnotatedClassActionResolver implements ActionResolver {
 
         System.out.println("Mappings initialized: " + this.eventMappings);
     }
-
 
     /**
      * Uses the Maps constructed earlier to resolve the ActionBean class.

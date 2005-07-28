@@ -4,7 +4,6 @@ import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.util.ResolverUtil;
 
 import java.util.Set;
-import java.util.Collections;
 
 /**
  * Quick and dirty class which caches the Class objects representing ActionBeans since it is
@@ -23,23 +22,36 @@ public class ActionClassCache {
     Set<Class<ActionBean>> beans;
 
     /**
-     * Private construtor that initializes the cached set of bean Class objects. While
+     * Protected initializer that initializes the cached set of bean Class objects. While
      * ResolverUtil does not appear to throw any exceptions, it can throw runtime exceptions which
      * would cause classloading to fail if this initalization were done statically.
      */
+    protected static synchronized void init(Set<String> urlFilters, Set<String> packageFilters) {
+
+        ActionClassCache instance = new ActionClassCache();
+        instance.beans = ResolverUtil.getImplementations(ActionBean.class,
+                                                         urlFilters,
+                                                         packageFilters);
+        ActionClassCache.cache = instance;
+
+    }
+
+    /** Private constructor that stops anyone else from initialzing an ActionClassCache. */
     private ActionClassCache() {
-        beans = Collections.unmodifiableSet( ResolverUtil.getImplementations(ActionBean.class) );
+        // Do nothing
     }
 
     /**
      * Gets access to the singleton instance of this class.
      */
-    public static synchronized ActionClassCache getInstance() {
+    public static ActionClassCache getInstance() {
         if (ActionClassCache.cache == null) {
-            ActionClassCache.cache = new ActionClassCache();
+            throw new IllegalStateException
+                    ("Attempt made to access ActionClassCache before it has been initialized.");
         }
-
-        return ActionClassCache.cache;
+        else {
+            return ActionClassCache.cache;
+        }
     }
 
     /**

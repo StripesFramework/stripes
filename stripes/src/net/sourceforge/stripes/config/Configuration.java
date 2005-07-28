@@ -34,20 +34,24 @@ public interface Configuration {
     BootstrapPropertyResolver getBootstrapPropertyResolver();
 
     /**
-     * Returns the Class that will be used to determine which ActionBean will handle a given
-     * request, and which method in the ActionBean will be invoked.
+     * Returns an instance of ActionResolver that will be used by Stripes to lookup and resolve
+     * ActionBeans.  The instance does not need to be cached by the Configuration since the
+     * DispatcherServlet will ask for it once and retain the reference supplied.
      *
      * @return the Class representing the configured ActionResolver
+     * @throws StripesServletException if there is a problem instantiating the implementation
      */
-    Class<? extends ActionResolver> getActionResolver() throws StripesServletException;
+    ActionResolver getActionResolver() throws StripesServletException;
 
     /**
-     * Returns the class which is responsible for binding properties in the incoming request
-     * into the ActionBean that has been bound to the request.
+     * Returns an instance of ACtionBeanPropertyBinder that is responsible for binding all
+     * properties to all ActionBeans at runtime. The instance does not need to be cached by
+     * the Configuration since the DispatcherServlet will ask for it once and retain the reference
+     * supplied.
      *
-     * @return Class the Class object for the ActionBeanPropertyBinder to be used
-     * @throws StripesServletException if there is a problem locatin the Class object
+     * @return ActionBeanPropertyBinder the property binder to be used by Stripes
+     * @throws StripesServletException if there is a problem instantiating the implementation
      */
-    Class<? extends ActionBeanPropertyBinder> getActionBeanPropertyBinder()
+    ActionBeanPropertyBinder getActionBeanPropertyBinder()
          throws StripesServletException;
 }

@@ -12,6 +12,7 @@ import net.sourceforge.stripes.validation.Validate;
 import net.sourceforge.stripes.validation.ValidateNestedProperties;
 import net.sourceforge.stripes.validation.ValidationError;
 import net.sourceforge.stripes.validation.ValidationErrors;
+import net.sourceforge.stripes.config.Configuration;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -52,12 +53,16 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
     /** Map of validation annotations that is built at startup. */
     private Map<Class<ActionBean>, Map<String,Validate>> validations;
 
+    /** Configuration instance passed in at initialization time. */
+    private Configuration configuration;
+
 
     /**
      * Looks up and caches in a useful form the metadata necessary to perform validations as
      * properties are bound to the bean.
      */
-    public void init() throws Exception {
+    public void init(Configuration configuration) throws Exception {
+        this.configuration = configuration;
         Set<Class<ActionBean>> beanClasses = ActionClassCache.getInstance().getActionBeanClasses();
         this.validations = new HashMap<Class<ActionBean>, Map<String,Validate>>();
 

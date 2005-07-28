@@ -16,29 +16,43 @@ import net.sourceforge.stripes.controller.OgnlActionBeanPropertyBinder;
 public class DefaultConfiguration implements Configuration {
     private BootstrapPropertyResolver resolver;
 
-    // Interface method
+    /** Stores a reference to the resolver handed in by the dispatcher. */
     public void init(BootstrapPropertyResolver resolver) throws StripesServletException {
         this.resolver = resolver;
     }
 
-    // Interface method
+    /** Returns a reference to the resolver supplied at initialziation time. */
     public BootstrapPropertyResolver getBootstrapPropertyResolver() {
         return this.resolver;
     }
 
     /**
-     * Will always return the class representing the AnnotatedClassActionResolver.
-     * @return AnnotatedClassActionResolver.class
+     * Will always return an instance of AnnotatedClassActionResolver
+     * @return AnnotatedClassActionResolver an instance of the default resolver
      */
-    public Class<? extends ActionResolver> getActionResolver() {
-        return AnnotatedClassActionResolver.class;
+    public ActionResolver getActionResolver() throws StripesServletException {
+        try {
+            ActionResolver resolver = new AnnotatedClassActionResolver();
+            resolver.init(this);
+            return resolver;
+        }
+        catch (Exception e) {
+            throw new StripesServletException(e);
+        }
     }
 
     /**
-     * Will always return the class representing OgnlActionBeanPropertyBinder.
-     * @return OgnlActionBeanPropertyBinder.class
+     * Will always return an OgnlActionBeanPropertyBinder
+     * @return OgnlActionBeanPropertyBinder an instance of the default binder
      */
-    public Class<? extends ActionBeanPropertyBinder> getActionBeanPropertyBinder() {
-        return OgnlActionBeanPropertyBinder.class;
+    public ActionBeanPropertyBinder getActionBeanPropertyBinder() throws StripesServletException {
+        try {
+            ActionBeanPropertyBinder binder = new OgnlActionBeanPropertyBinder();
+            binder.init(this);
+            return binder;
+        }
+        catch (Exception e) {
+            throw new StripesServletException(e);
+        }
     }
 }

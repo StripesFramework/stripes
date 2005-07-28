@@ -3,6 +3,7 @@ package net.sourceforge.stripes.controller;
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.action.ActionBeanContext;
 import net.sourceforge.stripes.validation.ValidationErrors;
+import net.sourceforge.stripes.config.ConfigurableComponent;
 
 /**
  * <p>Interface for class(es) responsible for taking the String/String[] properties contained in the
@@ -19,13 +20,7 @@ import net.sourceforge.stripes.validation.ValidationErrors;
  *
  * @author Tim Fennell
  */
-public interface ActionBeanPropertyBinder {
-    /**
-     * Perform initialization actions specific to the class/instance.  This will be called once
-     * before the property binder is put into use.
-     */
-    void init() throws Exception;
-
+public interface ActionBeanPropertyBinder extends ConfigurableComponent {
     /**
      * Populates all the properties in the request which have a matching property in the target
      * bean.  If additional properties exist in the request which are not present in the bean a

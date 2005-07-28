@@ -75,28 +75,20 @@ public class DispatcherServlet extends HttpServlet {
         else {
             this.configuration = new DefaultConfiguration();
         }
+        this.configuration.init(bootstrap);
 
-        // Try to instantiate an ActionResolver
+        // Fetch the necessary bits and pieces from the Configuration
+        this.actionResolver = this.configuration.getActionResolver();
+        this.propertyBinder = this.configuration.getActionBeanPropertyBinder();
         try {
-            this.actionResolver = this.configuration.getActionResolver().newInstance();
+            this.propertyBinder.init(this.configuration);
         }
         catch (Exception e) {
-            log.fatal(e, "Could not instantiate specified ActionResolver. Configuration supplied ",
-                "class [", this.configuration.getActionResolver(), "].");
-            throw new StripesServletException("Could not instantiate specified ActionResolver. " +
-                "Configuration supplied class [" + this.configuration.getActionResolver() + "].", e);
-        }
+            log.fatal(e, "Could not initialize specified ActionBeanPropertyBinder. Configuration ",
+                         "returned: ", this.propertyBinder);
 
-        // Try to instantiate an ActionBeanPropertyBinder
-        try {
-            this.propertyBinder = this.configuration.getActionBeanPropertyBinder().newInstance();
-            this.propertyBinder.init();
-        }
-        catch (Exception e) {
-            log.fatal(e, "Could not instantiate specified ActionBeanPropertyBinder. ",
-            "Configuration supplied class [", this.configuration.getActionBeanPropertyBinder(), "].");
             throw new StripesServletException("Could not instantiate specified ActionBeanPropertyBinder. " +
-                "Configuration supplied class [" + this.configuration.getActionResolver() + "].", e);
+                "Configuration supplied: " + this.propertyBinder, e);
         }
 
         // Figure out where the temp directory is

@@ -3,6 +3,7 @@ package net.sourceforge.stripes.controller;
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.action.ActionBeanContext;
 import net.sourceforge.stripes.exception.StripesServletException;
+import net.sourceforge.stripes.config.ConfigurableComponent;
 
 import java.lang.reflect.Method;
 
@@ -13,7 +14,7 @@ import java.lang.reflect.Method;
  *
  * @author Tim Fennell
  */
-public interface ActionResolver {
+public interface ActionResolver extends ConfigurableComponent {
     /**
      * This method should be implemented to return the name of the ActionBean that will be
      * returned for the given request.  Doing so will allow implementations of this interface to

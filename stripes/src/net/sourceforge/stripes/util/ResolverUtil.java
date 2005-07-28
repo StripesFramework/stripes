@@ -2,8 +2,6 @@ package net.sourceforge.stripes.util;
 
 import org.apache.bcel.classfile.ClassParser;
 import org.apache.bcel.classfile.JavaClass;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,6 +11,7 @@ import java.net.URLClassLoader;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.Collections;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
@@ -26,43 +25,99 @@ import java.util.zip.ZipEntry;
  * @author Tim Fennell
  */
 public class ResolverUtil {
-    private static final Log log = LogFactory.getLog(ResolverUtil.class);
+    /** An instance of Log to use for logging in this class. */
+    private static final Log log = Log.getInstance(ResolverUtil.class);
+
 
     /**
-     * Locates all implementations of an interface in the classloader being used by this thread.
-     * Does not scan the full chain of classloaders.
+     * Locates all implementations of an interface, in all packages, in all URLs within the
+     * current ClassLoader.  This can take a really long time, and it is usually sufficient to
+     * limit the search to specific packages.
      *
      * @param anInterface class object representing the interface whose implementations to find
      * @return Set<Class> a set of Class objects, one for each implementation of anInterface
      */
     public static <T> Set<Class<T>> getImplementations(Class<T> anInterface) {
+        return getImplementations(anInterface, Collections.EMPTY_SET, Collections.EMPTY_SET);
+    }
+
+    /**
+     * Locates all implementations of an interface in the classloader being used by this thread.
+     * Does not scan the full chain of classloaders.  Scans only in the URLs in the ClassLoader
+     * which match the filters provided, and within those URLs only checks classes within the
+     * packages defined by the package filters provided.
+     *
+     * @param anInterface class object representing the interface whose implementations to find
+     * @param locationFilters restricts the locations in the classpath that will be searched to
+     *        those who contain one of the specified filters as a substring.
+     * @param packageFilters restricts the classes that will be checked to those whose name
+     *        contains one of the specified filters as a substring
+     * @return Set<Class> a set of Class objects, one for each implementation of anInterface
+     */
+    public static <T> Set<Class<T>> getImplementations(Class<T> anInterface,
+                                                       Set<String> locationFilters,
+                                                       Set<String> packageFilters) {
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
         Set<Class<T>> implementations = new HashSet<Class<T>>();
 
+        // Try and bullet proof this a little by removing any * characters folks
+        // might have added, thinking we actually support wild-carding ;)
+        Set<String> locationPatterns = new HashSet<String>();
+        for (String locationFilter : locationFilters) {
+            locationPatterns.add( locationFilter.replace("*", "") );
+        }
+
+        Set<String> packagePatterns = new HashSet<String>();
+        for (String packageFilter : packageFilters) {
+            packagePatterns.add( packageFilter.replace("*", "").replace(".", "/") );
+        }
+
+        // If it's not a URLClassLoader, we can't deal with it!
         if (!(loader instanceof URLClassLoader)) {
             log.error("The current ClassLoader is not castable to a URLClassLoader. ClassLoader " +
-                "is of type [" + loader.getClass().getName() + "]. Cannot scan ClassLoader for " +
-                "implementations of " + anInterface.getClass().getName() + ".");
+                    "is of type [" + loader.getClass().getName() + "]. Cannot scan ClassLoader for " +
+                    "implementations of " + anInterface.getClass().getName() + ".");
         }
         else {
             URLClassLoader urlLoader = (URLClassLoader) loader;
             URL[] urls = urlLoader.getURLs();
 
             for (URL url : urls) {
-                log.info("Checking URL '" + url + "' for instances of " + anInterface.getName());
                 String path = url.getPath();
                 File location = new File(path);
 
-                if (location.isDirectory()) {
-                    implementations.addAll(getImplementationsInDirectory(anInterface, null, location));
-                }
-                else {
-                    implementations.addAll(getImplementationsInJar(anInterface, location));
+                // Only process the URL if it matches one of our filter strings
+                if ( matchesAny(path, locationPatterns) ) {
+                    log.info("Checking URL '" + url + "' for instances of " + anInterface.getName());
+                    if (location.isDirectory()) {
+                        implementations.addAll(getImplementationsInDirectory(anInterface, null, location, packagePatterns));
+                    }
+                    else {
+                        implementations.addAll(getImplementationsInJar(anInterface, location, packagePatterns));
+                    }
                 }
             }
         }
 
         return implementations;
+    }
+
+    /**
+     * Checks to see if one or more of the filter strings occurs within the string specified. If
+     * so, returns true.  Otherwise returns false.
+     *
+     * @param text the text within which to look for the filter strings
+     * @param filters a set of substrings to look for in the text
+     */
+    static boolean matchesAny(String text, Set<String> filters) {
+        if (filters.size() == 0)
+            return true;
+        for (String filter : filters) {
+            if (text.indexOf(filter) != -1) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -79,7 +134,11 @@ public class ResolverUtil {
      * @return Set the set of classes within the directory, and sub-directories, implementing
      *         anInterface
      */
-    static <T> Set<Class<T>> getImplementationsInDirectory(Class<T> anInterface, String parent, File location) {
+    static <T> Set<Class<T>> getImplementationsInDirectory(Class<T> anInterface,
+                                                           String parent,
+                                                           File location,
+                                                           Set<String> packagePatterns) {
+
         Set<Class<T>> implementations = new HashSet<Class<T>>();
         File[] files = location.listFiles();
         StringBuilder builder = null;
@@ -90,10 +149,11 @@ public class ResolverUtil {
             String packageOrClass = ( parent == null ? file.getName() : builder.toString() );
 
             if (file.isDirectory()) {
-                implementations.addAll(getImplementationsInDirectory(anInterface, packageOrClass, file));
+                implementations.addAll(getImplementationsInDirectory(anInterface, packageOrClass, file, packagePatterns));
             }
             else if (file.getName().endsWith(".class")) {
-                addIfImplements(implementations, anInterface, packageOrClass);
+                if (matchesAny(packageOrClass, packagePatterns))
+                    addIfImplements(implementations, anInterface, packageOrClass);
             }
         }
 
@@ -104,11 +164,15 @@ public class ResolverUtil {
      * Finds implementations of an interface within a jar files that contains a folder structure
      * matching the package structure.  If the File is not a JarFile or does not exist a warning
      * will be logged, but no error will be raised.  In this case an empty Set will be returned.
+     *
      * @param anInterface Class object of the interface whose implementations to return
      * @param location a File object representing a JarFile in the classpath
      * @return Set the set of classes within the JarFile, implementing anInterface
      */
-    static <T> Set<Class<T>> getImplementationsInJar(Class<T> anInterface, File location) {
+    static <T> Set<Class<T>> getImplementationsInJar(Class<T> anInterface,
+                                                     File location,
+                                                     Set<String> packagePatterns) {
+
         Set<Class<T>> implementations = new HashSet<Class<T>>();
 
         try {
@@ -119,13 +183,14 @@ public class ResolverUtil {
                 ZipEntry entry = (ZipEntry) entries.nextElement();
                 String name = entry.getName();
                 if (!entry.isDirectory() && name.endsWith(".class")) {
-                    addIfImplements(implementations, anInterface, name);
+                    if (matchesAny(name, packagePatterns))
+                        addIfImplements(implementations, anInterface, name);
                 }
             }
         }
         catch (IOException ioe) {
-            log.error("Could not search jar file '" + location + "' for implementations of " +
-                anInterface.getName(), ioe);
+            log.error(ioe, "Could not search jar file '", location, "' for implementations of ",
+                      anInterface.getName());
         }
         return implementations;
     }
