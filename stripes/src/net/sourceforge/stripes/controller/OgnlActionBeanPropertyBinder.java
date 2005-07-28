@@ -171,7 +171,7 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
 
                     // If we have errors, save them, otherwise bind the parameter to the form
                     if (errors.size() > 0) {
-                        fieldErrors.get(parameter).addAll(errors);
+                        fieldErrors.addAll(parameter, errors);
                     }
                     else if (convertedValues.size() > 0) {
                         // If the target type is an array, set it as one, otherwise set as scalar
