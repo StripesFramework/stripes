@@ -2,6 +2,7 @@ package net.sourceforge.stripes.validation;
 
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Date;
 
 /**
  *
@@ -11,10 +12,21 @@ public class TypeConverterFactory {
         new HashMap<Class, Class<? extends TypeConverter>>();
 
     static {
-        converters.put(Byte.class, ByteTypeConverter.class);
-        converters.put(Short.class, ShortTypeConverter.class);
+        converters.put(Boolean.class, BooleanTypeConverter.class);
+        converters.put(Boolean.TYPE,  BooleanTypeConverter.class);
+        converters.put(Byte.class,    ByteTypeConverter.class);
+        converters.put(Byte.TYPE,     ByteTypeConverter.class);
+        converters.put(Short.class,   ShortTypeConverter.class);
+        converters.put(Short.TYPE,    ShortTypeConverter.class);
         converters.put(Integer.class, IntegerTypeConverter.class);
-        converters.put(Long.class, LongTypeConverter.class);
+        converters.put(Integer.TYPE,  IntegerTypeConverter.class);
+        converters.put(Long.class,    LongTypeConverter.class);
+        converters.put(Long.TYPE,     LongTypeConverter.class);
+        converters.put(Float.class,   FloatTypeConverter.class);
+        converters.put(Float.TYPE,    FloatTypeConverter.class);
+        converters.put(Double.class,  DoubleTypeConverter.class);
+        converters.put(Double.TYPE,   DoubleTypeConverter.class);
+        converters.put(Date.class,    DateTypeConverter.class);
     }
 
     /**

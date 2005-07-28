@@ -7,6 +7,8 @@ import ognl.OgnlRuntime;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.lang.reflect.Method;
+import java.beans.IntrospectionException;
 
 /**
  * Utility class used to configure and use Ognl in a consistent manner across the pieces of
@@ -56,6 +58,35 @@ public class OgnlUtil {
      */
     public static void setValue(String property, Object root, Object value) throws OgnlException {
         Ognl.setValue(getExpression(property), createContext(), root, value);
+    }
+
+    /**
+     * Retrieves the class type of the specified property without instantiating the property
+     * itself. All earlier properties in a chain will, however, be instantiated.
+     *
+     * @param property an expression for the property to be inspected
+     * @param root the object on which the property lives
+     * @return the Class type of the property
+     * @throws OgnlException thrown when a problem occurs such as one or more properties not
+     *         existing or being inaccessible
+     */
+    public static Class getPropertyClass(String property, Object root) throws OgnlException,
+                                                                              IntrospectionException {
+        int propertyIndex = property.lastIndexOf(".");
+        if (propertyIndex > 0) {
+            String parentProperty = property.substring(0,propertyIndex);
+            String childProperty = property.substring(propertyIndex+1);
+
+            // foo.bar.baz.splat => parent: "foo.bar.baz" and child: "id"
+
+            root = getValue(parentProperty,root);
+            property = childProperty;
+        }
+
+        Method method =
+                OgnlRuntime.getGetMethod(createContext(), root.getClass(), property);
+
+        return method.getReturnType();
     }
 
     /**

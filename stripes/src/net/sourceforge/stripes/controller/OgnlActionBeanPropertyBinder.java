@@ -153,7 +153,7 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
                 if (!SPECIAL_KEYS.contains(parameter) && !context.getEventName().equals(parameter)) {
                     log.trace("Attempting to bind property with name: ", parameter);
 
-                    Class type = (Class) OgnlUtil.getValue(parameter + ".class", bean);
+                    Class type = OgnlUtil.getPropertyClass(parameter, bean);
                     String[] values = entry.getValue();
 
 
