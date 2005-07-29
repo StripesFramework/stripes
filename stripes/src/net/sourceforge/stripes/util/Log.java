@@ -2,6 +2,8 @@ package net.sourceforge.stripes.util;
 
 import org.apache.commons.logging.LogFactory;
 
+import java.util.Arrays;
+
 /**
  * <p>A <em>wafer thin</em> wrapper around Commons logging that uses var-args to make it
  * much more efficient to call the logging methods in commons logging without having to
@@ -181,7 +183,12 @@ public final class Log {
     private String combineParts(Object[] messageParts) {
         StringBuilder builder = new StringBuilder(128);
         for (Object part : messageParts) {
-            builder.append(part);
+            if (part instanceof Object[]) {
+                builder.append( Arrays.toString((Object[])part) );
+            }
+            else {
+                builder.append(part);
+            }
         }
 
         return builder.toString();
