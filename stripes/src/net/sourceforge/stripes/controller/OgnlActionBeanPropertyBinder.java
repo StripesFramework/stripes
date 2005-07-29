@@ -3,16 +3,15 @@ package net.sourceforge.stripes.controller;
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.action.ActionBeanContext;
 import net.sourceforge.stripes.action.FileBean;
+import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.util.OgnlUtil;
 import net.sourceforge.stripes.validation.ScopedLocalizableError;
 import net.sourceforge.stripes.validation.TypeConverter;
-import net.sourceforge.stripes.validation.TypeConverterFactory;
 import net.sourceforge.stripes.validation.Validate;
 import net.sourceforge.stripes.validation.ValidateNestedProperties;
 import net.sourceforge.stripes.validation.ValidationError;
 import net.sourceforge.stripes.validation.ValidationErrors;
-import net.sourceforge.stripes.config.Configuration;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -402,10 +401,11 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
         // Dig up the type converter
         TypeConverter converter = null;
         if (validationInfo !=  null && validationInfo.converter() != TypeConverter.class) {
-            converter = TypeConverterFactory.getInstance(validationInfo.converter());
+            converter = this.configuration.getTypeConverterFactory()
+                                          .getInstance(validationInfo.converter());
         }
         else {
-            converter = TypeConverterFactory.getTypeConverter(propertyType);
+            converter = this.configuration.getTypeConverterFactory().getTypeConverter(propertyType);
         }
 
         log.debug("Converting values ", values, " using converter ", converter);

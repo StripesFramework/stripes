@@ -4,6 +4,7 @@ import net.sourceforge.stripes.exception.StripesServletException;
 import net.sourceforge.stripes.controller.ActionResolver;
 import net.sourceforge.stripes.controller.ActionBeanPropertyBinder;
 import net.sourceforge.stripes.util.Log;
+import net.sourceforge.stripes.validation.TypeConverterFactory;
 
 /**
  * <p>Configuration class that uses the BootstrapPropertyResolver to look for configuration values,
@@ -30,64 +31,77 @@ public class RuntimeConfiguration extends DefaultConfiguration {
     /** The Configuration Key for lookup up the name of the ActionResolver class. */
     public static final String ACTION_BEAN_PROPERTY_BINDER = "ActionBeanPropertyBinder.Class";
 
+    /** The Configuration Key for lookup up the name of the TypeConverterFactory class. */
+    public static final String TYPE_CONVERTER_FACTORY = "TypeConverterFactory.Class";
+
 
     /**
-     * Checks for a configured class name, an if one exists tries to instantiate it. If the
-     * value is present, but the class cannot be instantiated then an exception is thrown and
-     * no ActionResolver is returned.  If the configured value is not present the default
-     * will be used.
+     * Attempts to find names of implementation classes using the BootstrapPropertyResolver and
+     * instantiates any configured classes found.  Then delegates to the DefaultConfiguration to
+     * fill in the blanks.
+     * @throws StripesServletException
      */
-    public ActionResolver getActionResolver() throws StripesServletException {
-        String className = getBootstrapPropertyResolver().getProperty(ACTION_RESOLVER);
+    public void init() throws StripesServletException {
 
-        if (className != null) {
-            log.info("Found configured ActionResolver class [", className, "], attempting ",
-                     "to instantiate.");
+        // Try instantiating the ActionResolver
+        String resolverName = getBootstrapPropertyResolver().getProperty(ACTION_RESOLVER);
+        try {
+            if (resolverName != null) {
+                log.info("Found configured ActionResolver class [", resolverName, "], attempting ",
+                         "to instantiate.");
 
-            try {
-                ActionResolver resolver = (ActionResolver) Class.forName(className).newInstance();
-                resolver.init(this);
-                return resolver;
-            }
-            catch (Exception e) {
-                throw new StripesServletException("Could not instantiate configured ActionResolver "
-                        + " of type [" + className + "]. Please check the configuration "
-                        + "parameters specified in your web.xml.", e);
-            }
+                    ActionResolver actionResolver
+                            = (ActionResolver) Class.forName(resolverName).newInstance();
+                    actionResolver.init(this);
+                    setActionResolver(actionResolver);
+                }
         }
-        else {
-            return super.getActionResolver();
+        catch (Exception e) {
+            throw new StripesServletException("Could not instantiate configured ActionResolver "
+                    + " of type [" + resolverName + "]. Please check the configuration "
+                    + "parameters specified in your web.xml.", e);
         }
-    }
 
-    /**
-     * Checks for a configured class name, an if one exists tries to instantiate it. If the
-     * value is present, but the class cannot be instantiated then an exception is thrown and
-     * no ActionBeanPropertyBinder is returned.  If the configured value is not present the default
-     * will be used.
-     */
-    public ActionBeanPropertyBinder getActionBeanPropertyBinder() throws StripesServletException {
-        String className = getBootstrapPropertyResolver().getProperty(ACTION_BEAN_PROPERTY_BINDER);
+        // Try instantiating the ActionBeanPropertyBinder
+        String binderName = getBootstrapPropertyResolver().getProperty(ACTION_BEAN_PROPERTY_BINDER);
+        try {
+            if (binderName != null) {
+                log.info("Found configured ActionBeanPropertyBinder class [", binderName,
+                         "], attempting to instantiate.");
 
-        if (className != null) {
-            log.info("Found configured ActionBeanPropertyBinder class [", className, "], attempting ",
-                     "to instantiate.");
-
-            try {
-                ActionBeanPropertyBinder binder =
-                        (ActionBeanPropertyBinder) Class.forName(className).newInstance();
-                binder.init(this);
-                return binder;
-            }
-            catch (Exception e) {
-                throw new StripesServletException("Could not instantiate configured "
-                        + "ActionBeanPropertyBinder of type [" + className + "]. Please check the "
-                        + "configuration parameters specified in your web.xml.", e);
+                    ActionBeanPropertyBinder binder =
+                            (ActionBeanPropertyBinder) Class.forName(binderName).newInstance();
+                    binder.init(this);
+                    setActionBeanPropertyBinder(binder);
             }
         }
-        else {
-            return super.getActionBeanPropertyBinder();
+        catch (Exception e) {
+            throw new StripesServletException("Could not instantiate configured "
+                    + "ActionBeanPropertyBinder of type [" + binderName + "]. Please check the "
+                    + "configuration parameters specified in your web.xml.", e);
         }
+
+        // Try instantiating the TypeConverterFactory
+        String converterName = getBootstrapPropertyResolver().getProperty(TYPE_CONVERTER_FACTORY);
+        try {
+            if (converterName != null) {
+                log.info("Found configured TypeConverterFactory class [", converterName,
+                         "], attempting to instantiate.");
+
+                TypeConverterFactory converter =
+                        (TypeConverterFactory) Class.forName(converterName).newInstance();
+                converter.init(this);
+                setTypeConverterFactory(converter);
+            }
+        }
+        catch (Exception e) {
+            throw new StripesServletException("Could not instantiate configured "
+                    + "ActionBeanPropertyBinder of type [" + binderName + "]. Please check the "
+                    + "configuration parameters specified in your web.xml.", e);
+        }
+
+        // And now call super.init to fill in any blanks
+        super.init();
     }
 }
 

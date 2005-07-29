@@ -41,8 +41,7 @@ public class DispatcherServlet extends HttpServlet {
     /** Log used throughout the class. */
     private static Log log = Log.getInstance(DispatcherServlet.class);
 
-    protected ActionResolver actionResolver;
-    protected ActionBeanPropertyBinder propertyBinder;
+    /** A reference to the Configuration class instantiated at initialization time. */
     protected Configuration configuration;
 
     /**
@@ -75,21 +74,8 @@ public class DispatcherServlet extends HttpServlet {
         else {
             this.configuration = new DefaultConfiguration();
         }
-        this.configuration.init(bootstrap);
-
-        // Fetch the necessary bits and pieces from the Configuration
-        this.actionResolver = this.configuration.getActionResolver();
-        this.propertyBinder = this.configuration.getActionBeanPropertyBinder();
-        try {
-            this.propertyBinder.init(this.configuration);
-        }
-        catch (Exception e) {
-            log.fatal(e, "Could not initialize specified ActionBeanPropertyBinder. Configuration ",
-                         "returned: ", this.propertyBinder);
-
-            throw new StripesServletException("Could not instantiate specified ActionBeanPropertyBinder. " +
-                "Configuration supplied: " + this.propertyBinder, e);
-        }
+        this.configuration.setBootstrapPropertyResolver(bootstrap);
+        this.configuration.init();
 
         // Figure out where the temp directory is
         File tempDir = (File) getServletContext().getAttribute("javax.servlet.context.tempdir");
@@ -125,17 +111,18 @@ public class DispatcherServlet extends HttpServlet {
             // Lookup the bean class, handler method and hook everything together
             ActionBeanContext context = createActionBeanContext(request, response);
 
-            String beanName         = this.actionResolver.getActionBeanName(context);
-            Class<ActionBean> clazz = this.actionResolver.getActionBean(beanName);
-            String eventName        = this.actionResolver.getEventName(clazz, context);
+            ActionResolver actionResolver = this.configuration.getActionResolver();
+            String beanName         = actionResolver.getActionBeanName(context);
+            Class<ActionBean> clazz = actionResolver.getActionBean(beanName);
+            String eventName        = actionResolver.getEventName(clazz, context);
             context.setEventName(eventName);
 
             Method handler = null;
             if (eventName != null) {
-                handler = this.actionResolver.getHandler(clazz, eventName);
+                handler = actionResolver.getHandler(clazz, eventName);
             }
             else {
-                handler = this.actionResolver.getDefaultHandler(clazz);
+                handler = actionResolver.getDefaultHandler(clazz);
             }
 
             // Insist that we have a handler
@@ -229,8 +216,8 @@ public class DispatcherServlet extends HttpServlet {
      */
     protected ValidationErrors bindValues(ActionBean bean,
                                           ActionBeanContext context,
-                                          boolean validate) {
-        return this.propertyBinder.bind(bean, context, validate);
+                                          boolean validate) throws StripesServletException {
+        return this.configuration.getActionBeanPropertyBinder().bind(bean, context, validate);
     }
 
     /**

@@ -3,6 +3,7 @@ package net.sourceforge.stripes.config;
 import net.sourceforge.stripes.exception.StripesServletException;
 import net.sourceforge.stripes.controller.ActionResolver;
 import net.sourceforge.stripes.controller.ActionBeanPropertyBinder;
+import net.sourceforge.stripes.validation.TypeConverterFactory;
 
 /**
  * Type safe interface for accessing configuration information used to configure Stripes. All
@@ -15,15 +16,22 @@ import net.sourceforge.stripes.controller.ActionBeanPropertyBinder;
  */
 public interface Configuration {
     /**
+     * Supplies the Configuration with a BootstrapPropertyResolver. This method is guaranteed to
+     * be invoked prior to the init method.
+     * 
+     * @param resolver a BootStrapPropertyResolver which can be used to find any values required
+     *        by the Configuration in order to initialize
+     */
+    void setBootstrapPropertyResolver(BootstrapPropertyResolver resolver);
+
+    /**
      * Called by the DispatcherServlet to initialize the Configuration. Any operations which may
      * fail and cause the Configuration to be inaccessible should be performed here (e.g.
      * opening a configuration file and reading the contents).
      *
-     * @param resolver a BootStrapPropertyResolver which can be used to find any values required
-     *        by the Configuration in order to initialize
      * @throws StripesServletException should be thrown if the Configuration cannot be initialized
      */
-    void init(BootstrapPropertyResolver resolver) throws StripesServletException;
+    void init() throws StripesServletException;
 
     /**
      * Implementations should implement this method to simply return a reference to the
@@ -35,23 +43,34 @@ public interface Configuration {
 
     /**
      * Returns an instance of ActionResolver that will be used by Stripes to lookup and resolve
-     * ActionBeans.  The instance does not need to be cached by the Configuration since the
-     * DispatcherServlet will ask for it once and retain the reference supplied.
+     * ActionBeans.  The instance should be cached by the Configuration since the multiple entities
+     * in the system may access the ActionResolver throughout the lifetime of the application.
      *
      * @return the Class representing the configured ActionResolver
-     * @throws StripesServletException if there is a problem instantiating the implementation
+     * @throws StripesServletException if there is a problem instantiating or locating the
+     *         implementation
      */
     ActionResolver getActionResolver() throws StripesServletException;
 
     /**
      * Returns an instance of ACtionBeanPropertyBinder that is responsible for binding all
-     * properties to all ActionBeans at runtime. The instance does not need to be cached by
-     * the Configuration since the DispatcherServlet will ask for it once and retain the reference
-     * supplied.
+     * properties to all ActionBeans at runtime.  The instance should be cached by the Configuration
+     * since the multiple entities in the system may access the ActionResolver throughout the
+     * lifetime of the application.
      *
      * @return ActionBeanPropertyBinder the property binder to be used by Stripes
-     * @throws StripesServletException if there is a problem instantiating the implementation
+     * @throws StripesServletException if there is a problem instantiating or locating the
+     *         implementation
      */
     ActionBeanPropertyBinder getActionBeanPropertyBinder()
          throws StripesServletException;
+
+    /**
+     * Returns an instance of TypeConverterFactory that is responsible for providing lookups and
+     * instances of TypeConverters for the validation system.  The instance should be cached by the
+     * Configuration since the multiple entities in the system may access the ActionResolver throughout the lifetime of the application.
+     *
+     * @return TypeConverterFactory an instance of a TypeConverterFactory implementation
+     */
+    TypeConverterFactory getTypeConverterFactory() throws StripesServletException;
 }
