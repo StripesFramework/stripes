@@ -23,9 +23,12 @@
 
       <%
           for (Cat cat : new CatController().getCats()) {
+              pageContext.setAttribute("cat", cat);
       %>
               <tr>
-                  <td><%=cat.getName()%></td>
+                  <td>
+                      <%=cat.getName()%><br/>
+                  </td>
                   <td><%=cat.getColor()%></td>
                   <td><%=cat.getAge()%></td>
                   <td><%=cat.getBreed().getName()%></td>
@@ -55,7 +58,8 @@
                   </td>
                   <td>
                     <stripes:form name="ex1/CatDetailsForm" action="/dispatcher">
-                        <input type="hidden" name="cat.name" value="<%=cat.getName()%>"/>
+                        <stripes:hidden name="cat.name" value="${cat.name}"/>
+                        <stripes:hidden name="cat.activities" value="${cat.activities}"/>
                         <input type="submit" name="Edit" value="Edit Kitty"/>
                     </stripes:form>
                   </td>

@@ -90,7 +90,7 @@ public class InputTagSupport extends HtmlTagSupport {
                     "stripes form tag.");
         }
 
-        return (FormTag) parent;
+        return parent;
     }
 
     /**
@@ -100,19 +100,21 @@ public class InputTagSupport extends HtmlTagSupport {
      * options should be selected based on the values contained in the JSP, HttpServletRequest and
      * the ActionBean.
      *
-     * @param value the String value that we are searching for
+     * @param value the value that we are searching for
      * @param selected a String, String[], Object, Object[] or Collection (of scalars) denoting the
      *        selected items
      * @return boolean true if the String can be found, false otherwise
      */
-    protected boolean isItemSelected(String value, Object selected) {
+    protected boolean isItemSelected(Object value, Object selected) {
         // Since this is a checkbox, there could be more than one checked value, which means
         // this could be a single value type, array or collection
         if (selected != null) {
+            String stringValue = (value == null) ? "" : value.toString();
+
             if (selected instanceof Object[]) {
                 Object[] selectedIf = (Object[]) selected;
                 for (Object item : selectedIf) {
-                    if (value.equals(item.toString())) {
+                    if ( (item.toString().equals(stringValue)) ) {
                         return true;
                     }
                 }
@@ -120,13 +122,13 @@ public class InputTagSupport extends HtmlTagSupport {
             else if (selected instanceof Collection) {
                 Collection selectedIf = (Collection) selected;
                 for (Object item : selectedIf) {
-                    if (value.equals(item.toString())) {
+                    if ( (item.toString().equals(stringValue)) ) {
                         return true;
                     }
                 }
             }
             else {
-                if(value.equals(selected.toString())) {
+                if( selected.toString().equals(stringValue) ) {
                     return true;
                 }
             }

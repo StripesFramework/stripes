@@ -16,7 +16,7 @@ public class InputTextTag extends InputTagSupport implements BodyTag {
 
     public int doStartTag() throws JspException {
         evaluateExpressions();
-        set("type", "text");
+        getElAttributes().put("type", "text");
         return EVAL_BODY_BUFFERED;
     }
 
@@ -32,25 +32,20 @@ public class InputTextTag extends InputTagSupport implements BodyTag {
         // Find out if we have a value from the PopulationStrategy
         String body  = getBodyContentAsString();
         Object override = getSingleOverrideValue();
-        String originalValue = getValue();
+        Object originalValue = getElAttributes().get("value");
 
         // Figure out where to pull the value from
         if (override != null) {
-            setValue(override.toString());
+            getElAttributes().put("value", override.toString());
         }
         else if (body != null) {
-            setValue(body);
+            getElAttributes().put("value", body);
         }
 
         writeSingletonTag(getPageContext().getOut(), "input");
 
         // Restore the original state before we mucked with it
-        if (originalValue != null) {
-            setValue(originalValue);
-        }
-        else {
-            getAttributes().remove("value");
-        }
+        getElAttributes().clear();
 
         return EVAL_PAGE;
     }

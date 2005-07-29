@@ -12,22 +12,24 @@ import java.util.Collection;
  *
  */
 public class InputOptionsCollectionTag extends HtmlTagSupport implements Tag {
-    private Collection collection;
-
     public int doStartTag() throws JspException {
-        // Locate the collection and
-        String collectionName = getAttributes().remove("collection");
-        Collection collection = evaluateExpression(collectionName, Collection.class);
-
         // Evaluate the rest of the attributes before we go any further
         evaluateExpressions();
-        String labelProperty = getLabel();
-        String valueProperty = getValue();
+        String labelProperty = getElAttributes().get("label").toString();
+        String valueProperty = getElAttributes().get("value").toString();
+
+        Object collectionWannaBe = getElAttributes().get("collection");
+        if (!(collectionWannaBe instanceof Collection)) {
+            throw new StripesJspException("Property 'collection' on tag options-collection must " +
+                "be an EL expression which resolves to a collection.");
+        }
+        Collection collection = (Collection) collectionWannaBe;
 
         InputOptionTag tag = new InputOptionTag();
         tag.setParent(this);
         tag.setPageContext(getPageContext());
         tag.getAttributes().putAll(getAttributes());
+        tag.getAttributes().remove("collection");
 
         try {
             for (Object item : collection) {

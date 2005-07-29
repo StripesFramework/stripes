@@ -18,7 +18,7 @@ public class InputCheckBoxTag extends InputTagSupport implements BodyTag {
 
     public int doStartTag() throws JspException {
         evaluateExpressions();
-        set("type", "checkbox");
+        getElAttributes().put("type", "checkbox");
         return EVAL_BODY_BUFFERED;
     }
 
@@ -50,19 +50,14 @@ public class InputCheckBoxTag extends InputTagSupport implements BodyTag {
 
         // If the value of this checkbox is contained in the value or override value, check it
         if (isItemSelected(getValue(), checked)) {
-            setChecked("checked");
+            getElAttributes().put("checked", "checked");
         }
 
         writeSingletonTag(getPageContext().getOut(), "input");
 
         // Restore the tags state to before we mucked with it
-        if (originalChecked != null) {
-            setChecked(originalChecked);
-        }
-        else {
-            getAttributes().remove("checked");
-        }
-
+        getElAttributes().clear();
+        
         return EVAL_PAGE;
     }
 }

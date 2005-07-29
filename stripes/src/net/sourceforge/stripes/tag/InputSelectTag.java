@@ -49,7 +49,7 @@ public class InputSelectTag extends InputTagSupport implements BodyTag {
      * @param optionValue the value of the option under consideration
      * @param selectedOnPage true if the page contains selected=... and false otherwise
      */
-    public boolean isOptionSelected(String optionValue, boolean selectedOnPage)
+    public boolean isOptionSelected(Object optionValue, boolean selectedOnPage)
     throws StripesJspException {
         if (getParentFormTag().getActionBean() != null) {
             return isItemSelected(optionValue, this.selectedValueOrValues);
@@ -80,6 +80,7 @@ public class InputSelectTag extends InputTagSupport implements BodyTag {
 
     public int doEndTag() throws JspException {
         writeCloseTag(getPageContext().getOut(), "select");
+        getElAttributes().clear();
         return SKIP_BODY;
     }
 

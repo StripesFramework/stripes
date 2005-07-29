@@ -14,7 +14,7 @@ public class InputFileTag extends InputTagSupport implements Tag {
 
     public int doStartTag() throws JspException {
         evaluateExpressions();
-        set("type", "file");
+        getElAttributes().put("type", "file");
 
         // Make sure the form is setup to do file uploads
         FormTag form = getParentFormTag();
@@ -26,6 +26,7 @@ public class InputFileTag extends InputTagSupport implements Tag {
 
     public int doEndTag() throws JspException {
         writeSingletonTag(getPageContext().getOut(), "input");
+        getElAttributes().clear();
         return EVAL_PAGE;
     }
 }

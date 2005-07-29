@@ -30,6 +30,9 @@ public class HtmlTagSupport {
     /** Map containing all attributes of the tag. */
     private final Map<String,String> attributes = new HashMap<String,String>();
 
+    /** Map containging the results of the EL expression evaluations of the attributes. */
+    private final Map<String,Object> elAttributes = new HashMap<String,Object>();
+
     /** Storage for a PageContext during evaluation. */
     private PageContext pageContext;
 
@@ -90,6 +93,12 @@ public class HtmlTagSupport {
         this.parentTag = null;
         this.bodyContent = null;
         this.attributes.clear();
+        this.elAttributes.clear();
+    }
+
+    /** Fetches the attributes map that has been constructed after EL expression evaluation. */
+    protected Map<String,Object> getElAttributes() {
+        return this.elAttributes;
     }
 
     /**
@@ -98,7 +107,7 @@ public class HtmlTagSupport {
 
      * @return String the value of the body if one was set
      */
-    public String getBodyContentAsString() {
+    protected String getBodyContentAsString() {
         String returnValue = null;
 
         if (this.bodyContent != null) {
@@ -160,7 +169,7 @@ public class HtmlTagSupport {
     }
 
     protected void writeAttributes(JspWriter writer) throws IOException {
-        for (Map.Entry<String,String> attr: getAttributes().entrySet() ) {
+        for (Map.Entry<String,Object> attr: getElAttributes().entrySet() ) {
             writer.print(" ");
             writer.print(attr.getKey());
             writer.print("=\"");
@@ -184,11 +193,11 @@ public class HtmlTagSupport {
 
         for (Map.Entry<String,String> entry : this.attributes.entrySet()) {
             try {
-                String result = (String) evaluator.evaluate(entry.getValue(),
-                                                            String.class,
-                                                            variableResolver,
-                                                            null);
-                entry.setValue(result);
+                Object result = evaluator.evaluate(entry.getValue(),
+                                                   Object.class,
+                                                   variableResolver,
+                                                   null);
+                this.elAttributes.put(entry.getKey(), result);
             }
             catch (ELException ele) {
                 throw new StripesJspException
@@ -242,6 +251,7 @@ public class HtmlTagSupport {
     public String toString() {
         return getClass().getSimpleName()+ "{" +
             "attributes=" + attributes +
+            "elAttributes=" + elAttributes +
             ", parentTag=" + parentTag +
             ", pageContext=" + pageContext +
             "}";

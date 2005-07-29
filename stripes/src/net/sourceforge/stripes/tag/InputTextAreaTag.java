@@ -24,7 +24,6 @@ public class InputTextAreaTag extends InputTagSupport implements BodyTag {
      * be used as the value of this textarea.  Otherwise the value attribute will be used.
      */
     public int doAfterBody() throws JspException {
-        //replaceAttributeValueWithBodyContent("value");
         return SKIP_BODY;
     }
 
@@ -38,12 +37,12 @@ public class InputTextAreaTag extends InputTagSupport implements BodyTag {
             // Find out if we have a value from the PopulationStrategy
             Object override = getSingleOverrideValue();
             String body     = getBodyContentAsString();
-            String originalValue = getAttributes().remove("value");
-            String value = null;
+            Object originalValue = getElAttributes().remove("value");
+            Object value = null;
 
             // Figure out which source to pull from
             if (override != null) {
-                value = override.toString();
+                value = override;
             }
             else if (body != null) {
                 value = body;
@@ -62,9 +61,7 @@ public class InputTextAreaTag extends InputTagSupport implements BodyTag {
             writeCloseTag(getPageContext().getOut(), "textarea");
 
             // Restore the original state of the tag before we mucked with it
-            if (originalValue != null) {
-                setValue(originalValue);
-            }
+            getElAttributes().clear();
 
             return EVAL_PAGE;
         }

@@ -13,7 +13,7 @@ public class InputRadioButtonTag extends InputTagSupport implements BodyTag {
 
     public int doStartTag() throws JspException {
         evaluateExpressions();
-        set("type", "radio");
+        getElAttributes().put("type", "radio");
         return EVAL_BODY_BUFFERED;
     }
 
@@ -29,12 +29,12 @@ public class InputRadioButtonTag extends InputTagSupport implements BodyTag {
         // Find out if we have a value from the PopulationStrategy
         Object override = getSingleOverrideValue();
         String body     = getBodyContentAsString();
-        String originalChecked = getAttributes().remove("checked"); // need to restore this later
-        String checked = null;
+        Object originalChecked = getElAttributes().remove("checked");
+        Object checked = null;
 
         // Decide which source to pull from
         if (override != null) {
-            checked = override.toString();
+            checked = override;
         }
         else if (body != null) {
             checked = body;
@@ -44,19 +44,16 @@ public class InputRadioButtonTag extends InputTagSupport implements BodyTag {
         }
 
         // Now if the "checked" value matches this tags value, check it!
-        if (checked != null && checked.equals(getValue())) {
-            setChecked("checked");
+        Object value = getElAttributes().get("value");
+        if (checked != null && value != null && checked.toString().equals(value.toString())) {
+            getElAttributes().put("checked", "checked");
         }
 
         writeSingletonTag(getPageContext().getOut(), "input");
 
         // Restore the state of the tag to before we mucked with it
-        if (originalChecked != null) {
-            setChecked(originalChecked);
-        }
-        else {
-            getAttributes().remove("checked");
-        }
+        getElAttributes().clear();
+
         return EVAL_PAGE;
     }
 

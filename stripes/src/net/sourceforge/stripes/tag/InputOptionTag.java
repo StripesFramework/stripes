@@ -29,38 +29,29 @@ public class InputOptionTag extends InputTagSupport implements BodyTag {
     }
 
     public int doEndTag() throws JspException {
-        String value = getValue();
-        String originalSelected = getAttributes().remove("selected");  // need to reset this later
+        Object value = getElAttributes().get("value");
+        Object originalSelected = getElAttributes().remove("selected");
 
         InputSelectTag selectTag = getParentTag(InputSelectTag.class);
         if (selectTag.isOptionSelected(value, originalSelected != null)) {
-            setSelected("selected");
+            getElAttributes().put("selected", "selected");
         }
 
         try {
-            String originalLabel = getAttributes().remove("label");
-            String label = originalLabel;
+            Object originalLabel = getElAttributes().remove("label");
+            Object label         = originalLabel;
 
             if (getBodyContent() != null) {
                 label = getBodyContent().getString();
             }
 
             writeOpenTag(getPageContext().getOut(), "option");
-            getPageContext().getOut().write(label);
+            if (label != null) {
+                getPageContext().getOut().write(label.toString());
+            }
             writeCloseTag(getPageContext().getOut(), "option");
 
-            // Done in case "optimizing" tag poolers don't call release() and setXXX() again
-            // for other tags on the page
-            if (originalSelected != null) {
-                setSelected(originalSelected);
-            }
-            else {
-                getAttributes().remove("selected");
-            }
-
-            if (originalLabel != null) {
-                setLabel(label);
-            }
+            getElAttributes().clear();
         }
         catch (IOException ioe) {
             throw new JspException("IOException in InputOptionTag.doEndTag().", ioe);
