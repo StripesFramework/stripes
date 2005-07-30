@@ -93,7 +93,7 @@
               </tr>
               <tr>
                   <td colspan="2">
-                      <input type="submit" name="Update" value="Update Kitty!"/>
+                      <stripes:submit name="Update" value="Update Kitty!"/>
                   </td>
               </tr>
           </table>

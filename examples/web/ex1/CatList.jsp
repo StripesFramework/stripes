@@ -60,7 +60,7 @@
                     <stripes:form name="ex1/CatDetailsForm" action="/dispatcher">
                         <stripes:hidden name="cat.name" value="${cat.name}"/>
                         <stripes:hidden name="cat.activities" value="${cat.activities}"/>
-                        <input type="submit" name="Edit" value="Edit Kitty"/>
+                        <stripes:submit name="Edit" value="Edit Kitty">Really, Edit Kitty</stripes:submit>
                     </stripes:form>
                   </td>
               </tr>

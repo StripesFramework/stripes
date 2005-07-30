@@ -18,6 +18,7 @@
             <param-name>ActionResolver.PackageFilters</param-name>
             <param-value>net.sourceforge.stripes.*</param-value>
         </init-param>
+        <load-on-startup/>
     </servlet>
 
     <servlet-mapping>
