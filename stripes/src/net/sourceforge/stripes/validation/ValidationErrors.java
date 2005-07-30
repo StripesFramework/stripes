@@ -13,6 +13,9 @@ import java.util.ArrayList;
  */
 public class ValidationErrors extends HashMap<String, List<ValidationError>> {
 
+    /** Key that is used to store global (i.e. non-field specific) errors. */
+    public static final String GLOBAL_ERROR = "__stripes_global_error";
+
     /**
      * Adds an error message for the field specified.  Will lazily instantiate a
      * List&lt;ValidationError&gt; and insert it into the map if necessary.
@@ -71,5 +74,14 @@ public class ValidationErrors extends HashMap<String, List<ValidationError>> {
      */
     public void addAll(String field, List<ValidationError> errors) {
         putAll(field, errors);
+    }
+
+    /**
+     * Allows for the addition of errors that are not tied to a specific field. Errors added in
+     * this way will only be displayed as part of the complete list of errors, and never when
+     * showing errors for a specific field.
+     */
+    public void add(ValidationError error) {
+        add(GLOBAL_ERROR, error);
     }
 }
