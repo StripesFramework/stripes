@@ -11,7 +11,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * HttpServletRequestWrapper that is used to make the file upload functionality transparent.
+ * Every request handled by Stripes is wrapped.  Those containing multipart form file uploads
+ * are parsed and treated differently, while normal requests are silently wrapped and all calls
+ * are delgated to the real request.
  *
+ * @author Tim Fennell
  */
 public class StripesRequestWrapper extends HttpServletRequestWrapper {
     /** The Multipart Request that parses out all the pieces. */
