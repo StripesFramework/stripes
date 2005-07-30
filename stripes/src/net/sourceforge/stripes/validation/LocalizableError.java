@@ -1,12 +1,13 @@
 package net.sourceforge.stripes.validation;
 
+import net.sourceforge.stripes.controller.DispatcherServlet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.util.Locale;
-import java.util.ResourceBundle;
-import java.util.MissingResourceException;
 import java.text.MessageFormat;
+import java.util.Locale;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
 
 /**
  * <p>Provides a mechanism for creating localizable error messages for presentation to the user.
@@ -37,9 +38,6 @@ import java.text.MessageFormat;
 public class LocalizableError implements ValidationError {
     /** Log class used to log debugging information. */
     public static final Log log = LogFactory.getLog(ValidationError.class);
-
-    /** The name of the resource bundle in which to lookup messages and field names. */
-    public static final String BUNDLE_NAME = "StripesResources";
 
     private String messageKey;
     private String fieldNameKey;
@@ -83,17 +81,21 @@ public class LocalizableError implements ValidationError {
      * @return String the message stored under the messageKey supplied
      */
     public String getMessage(Locale locale) {
-        ResourceBundle bundle = getBundle(locale);
-        resolveFieldName(bundle);
-
-        // Now get the message itself
-        String messageTemplate = null;
         try {
-            messageTemplate = getMessageTemplate(bundle);
+            ResourceBundle fieldBundle = DispatcherServlet.getConfiguration().
+                    getLocalizationBundleFactory().getFormFieldBundle(locale);
+
+            ResourceBundle messageBundle = DispatcherServlet.getConfiguration().
+                    getLocalizationBundleFactory().getErrorMessageBundle(locale);
+            resolveFieldName(fieldBundle);
+
+            // Now get the message itself
+            String messageTemplate = null;
+            messageTemplate = getMessageTemplate(messageBundle);
             return MessageFormat.format(messageTemplate, this.replacementParameters);
         }
         catch (MissingResourceException mre) {
-            return "One does not appear to have configured an error message with key = " +
+            return "One does not appear to have correctly configured an error message with key = " +
                 messageKey + " and locale = " + locale.toString();
         }
     }
@@ -140,21 +142,6 @@ public class LocalizableError implements ValidationError {
         }
 
         return friendlyName;
-    }
-
-    /**
-     * Fetches the resource bundle for Stripes, using the local supplied
-     *
-     * @param locale the locale specified by the current request
-     * @return a ResourceBundle if one can be found
-     */
-    public static ResourceBundle getBundle(Locale locale) {
-        if (locale == null) {
-            return ResourceBundle.getBundle(BUNDLE_NAME);
-        }
-        else {
-            return ResourceBundle.getBundle(BUNDLE_NAME, locale);
-        }
     }
 
     /**

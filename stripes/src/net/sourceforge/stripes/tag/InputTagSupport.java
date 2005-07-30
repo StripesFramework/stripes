@@ -1,8 +1,12 @@
 package net.sourceforge.stripes.tag;
 
 import net.sourceforge.stripes.exception.StripesJspException;
+import net.sourceforge.stripes.controller.DispatcherServlet;
 
 import java.util.Collection;
+import java.util.ResourceBundle;
+import java.util.MissingResourceException;
+import java.util.Locale;
 
 /**
  * Parent class for all input tags in stripes.  Provides support methods for retrieving all the
@@ -136,5 +140,42 @@ public class InputTagSupport extends HtmlTagSupport {
 
         // If we got this far without returning, then this is not a selected item
         return false;
+    }
+
+    /**
+     * Fetches the localized name for this field if one exists in the resource bundle. Relies on
+     * there being a "name" attribute on the tag, and the pageContext being set on the tag. First
+     * checks for a value of {formName}.{fieldName} in the specified bundle, and if that exists,
+     * returns it.  If that does not exist, will look for just "fieldName".
+     *
+     * @return a localized field name if one can be found, or null if one cannot be found.
+     */
+    protected String getLocalizedFieldName() throws StripesJspException {
+        String name = getElAttributes().get("name").toString();
+        Locale locale = getPageContext().getRequest().getLocale();
+        String localizedValue = null;
+        String formName = getParentFormTag().getElAttributes().get("name").toString();
+        ResourceBundle bundle = null;
+        try {
+            bundle = DispatcherServlet.getConfiguration().getLocalizationBundleFactory()
+                    .getFormFieldBundle(getPageContext().getRequest().getLocale());
+        }
+        catch (MissingResourceException mre) {
+            return null; // not much we can do without a bundle
+        }
+
+        try {
+            localizedValue = bundle.getString(formName + "." + name);
+        }
+        catch (MissingResourceException mre) {
+            try {
+                localizedValue = bundle.getString(name);
+            }
+            catch (MissingResourceException mre2) {
+                // do nothing
+            }
+        }
+
+        return localizedValue;
     }
 }

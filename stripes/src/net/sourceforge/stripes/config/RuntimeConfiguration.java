@@ -1,8 +1,9 @@
 package net.sourceforge.stripes.config;
 
-import net.sourceforge.stripes.exception.StripesServletException;
-import net.sourceforge.stripes.controller.ActionResolver;
 import net.sourceforge.stripes.controller.ActionBeanPropertyBinder;
+import net.sourceforge.stripes.controller.ActionResolver;
+import net.sourceforge.stripes.exception.StripesRuntimeException;
+import net.sourceforge.stripes.localization.LocalizationBundleFactory;
 import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.validation.TypeConverterFactory;
 
@@ -25,23 +26,24 @@ public class RuntimeConfiguration extends DefaultConfiguration {
     /** Log implementation for use within this class. */
     private static final Log log = Log.getInstance(RuntimeConfiguration.class);
 
-    /** The Configuration Key for lookup up the name of the ActionResolver class. */
+    /** The Configuration Key for looking up the name of the ActionResolver class. */
     public static final String ACTION_RESOLVER = "ActionResolver.Class";
 
-    /** The Configuration Key for lookup up the name of the ActionResolver class. */
+    /** The Configuration Key for looking up the name of the ActionResolver class. */
     public static final String ACTION_BEAN_PROPERTY_BINDER = "ActionBeanPropertyBinder.Class";
 
-    /** The Configuration Key for lookup up the name of the TypeConverterFactory class. */
+    /** The Configuration Key for looking up the name of the TypeConverterFactory class. */
     public static final String TYPE_CONVERTER_FACTORY = "TypeConverterFactory.Class";
 
+    /** The Configuration Key for looking up the name of the LocalizationBundleFactory class. */
+    public static final String LOCALIZATION_BUNDLE_FACTORY = "LocalizationBundleFactory.Class";
 
     /**
      * Attempts to find names of implementation classes using the BootstrapPropertyResolver and
      * instantiates any configured classes found.  Then delegates to the DefaultConfiguration to
      * fill in the blanks.
-     * @throws StripesServletException
      */
-    public void init() throws StripesServletException {
+    public void init() {
 
         // Try instantiating the ActionResolver
         String resolverName = getBootstrapPropertyResolver().getProperty(ACTION_RESOLVER);
@@ -57,7 +59,7 @@ public class RuntimeConfiguration extends DefaultConfiguration {
                 }
         }
         catch (Exception e) {
-            throw new StripesServletException("Could not instantiate configured ActionResolver "
+            throw new StripesRuntimeException("Could not instantiate configured ActionResolver "
                     + " of type [" + resolverName + "]. Please check the configuration "
                     + "parameters specified in your web.xml.", e);
         }
@@ -76,7 +78,7 @@ public class RuntimeConfiguration extends DefaultConfiguration {
             }
         }
         catch (Exception e) {
-            throw new StripesServletException("Could not instantiate configured "
+            throw new StripesRuntimeException("Could not instantiate configured "
                     + "ActionBeanPropertyBinder of type [" + binderName + "]. Please check the "
                     + "configuration parameters specified in your web.xml.", e);
         }
@@ -95,9 +97,29 @@ public class RuntimeConfiguration extends DefaultConfiguration {
             }
         }
         catch (Exception e) {
-            throw new StripesServletException("Could not instantiate configured "
+            throw new StripesRuntimeException("Could not instantiate configured "
                     + "ActionBeanPropertyBinder of type [" + binderName + "]. Please check the "
                     + "configuration parameters specified in your web.xml.", e);
+        }
+
+        // Try instantiating the LocalizationBundleFactory
+        String bundleFactoryName =
+                getBootstrapPropertyResolver().getProperty(LOCALIZATION_BUNDLE_FACTORY);
+        try {
+            if (bundleFactoryName != null) {
+                log.info("Found configured LocalizationBundleFactory class [", bundleFactoryName,
+                         "], attempting to instantiate.");
+
+                LocalizationBundleFactory bundleFactory =
+                        (LocalizationBundleFactory) Class.forName(bundleFactoryName).newInstance();
+                bundleFactory.init(this);
+                setLocalizationBundleFactory(bundleFactory);
+            }
+        }
+        catch (Exception e) {
+            throw new StripesRuntimeException("Could not instantiate configured "
+                    + "LocalizationBundleFactory of type [" + bundleFactoryName + "]. Please check "
+                    + "the configuration parameters specified in your web.xml.", e);
         }
 
         // And now call super.init to fill in any blanks

@@ -41,6 +41,17 @@ public class DispatcherServlet extends HttpServlet {
     /** Log used throughout the class. */
     private static Log log = Log.getInstance(DispatcherServlet.class);
 
+    /**
+     * A place to stash the Configuration object so that other classes in Stripes can access it
+     * without resorting to ferrying it, or the request, to every class that needs access to the
+     * Configuration.  Doing this allows multiple Stripes Configurations to exist in a single
+     * Classloader since the Configuration is not located statically.
+     */
+    private static ThreadLocal<Configuration> configurationStash = new ThreadLocal<Configuration>();
+
+    /** Stores a reference to the first Stripes configuraiton loaded. */
+    private static Configuration defaultConfiguration;
+
     /** A reference to the Configuration class instantiated at initialization time. */
     protected Configuration configuration;
 
@@ -77,6 +88,11 @@ public class DispatcherServlet extends HttpServlet {
         this.configuration.setBootstrapPropertyResolver(bootstrap);
         this.configuration.init();
 
+        // FIXME: this feels like a hack, but how can we find config when the dispatcher isn't used?
+        if (DispatcherServlet.defaultConfiguration == null) {
+            DispatcherServlet.defaultConfiguration = this.configuration;
+        }
+
         // Figure out where the temp directory is
         File tempDir = (File) getServletContext().getAttribute("javax.servlet.context.tempdir");
         if (tempDir != null) {
@@ -106,6 +122,7 @@ public class DispatcherServlet extends HttpServlet {
         throws ServletException {
 
         try {
+            DispatcherServlet.configurationStash.set(configuration);
             StripesRequestWrapper request = wrapRequest(servletRequest);
 
             // Lookup the bean class, handler method and hook everything together
@@ -236,5 +253,19 @@ public class DispatcherServlet extends HttpServlet {
      */
     protected Resolution getErrorResolution(HttpServletRequest request) {
         return new ForwardResolution(request.getParameter(StripesConstants.URL_KEY_SOURCE_PAGE));
+    }
+
+    /**
+     * Returns the Configuration that is being used to process the current request.
+     */
+    public static Configuration getConfiguration() {
+        Configuration config = DispatcherServlet.configurationStash.get();
+        if (config != null) {
+            return config;
+        }
+        else {
+            // FIXME: this feels like a hack, but what else can we do?
+            return DispatcherServlet.defaultConfiguration;
+        }
     }
 }

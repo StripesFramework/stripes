@@ -1,16 +1,21 @@
 package net.sourceforge.stripes.config;
 
-import net.sourceforge.stripes.exception.StripesServletException;
-import net.sourceforge.stripes.controller.ActionResolver;
 import net.sourceforge.stripes.controller.ActionBeanPropertyBinder;
+import net.sourceforge.stripes.controller.ActionResolver;
+import net.sourceforge.stripes.localization.LocalizationBundleFactory;
 import net.sourceforge.stripes.validation.TypeConverterFactory;
 
 /**
- * Type safe interface for accessing configuration information used to configure Stripes. All
+ * <p>Type safe interface for accessing configuration information used to configure Stripes. All
  * Configuration implementations are handed a reference to the BootstrapPropertyResolver to
  * enable them to find initial values and fully initialize themselves.  Through the
  * BootstrapPropertyResolver implementations also get access to the ServletConfig of the
- * DispatcherServlet which can be used for locating configuration values if desired.
+ * DispatcherServlet which can be used for locating configuration values if desired.</p>
+ *
+ * <p>Implementations of Configuration should fail fast.  At initialization time they should
+ * detect as many failures as possible and raise an exception.  Since exceptions in Configuration
+ * are considered fatal there are no exception specifications and implementations are expected to
+ * throw runtime exceptions with plenty of details about the failiure and its suspected cause(s).</p>
  *
  * @author Tim Fennell
  */
@@ -28,10 +33,8 @@ public interface Configuration {
      * Called by the DispatcherServlet to initialize the Configuration. Any operations which may
      * fail and cause the Configuration to be inaccessible should be performed here (e.g.
      * opening a configuration file and reading the contents).
-     *
-     * @throws StripesServletException should be thrown if the Configuration cannot be initialized
      */
-    void init() throws StripesServletException;
+    void init();
 
     /**
      * Implementations should implement this method to simply return a reference to the
@@ -43,34 +46,40 @@ public interface Configuration {
 
     /**
      * Returns an instance of ActionResolver that will be used by Stripes to lookup and resolve
-     * ActionBeans.  The instance should be cached by the Configuration since the multiple entities
+     * ActionBeans.  The instance should be cached by the Configuration since multiple entities
      * in the system may access the ActionResolver throughout the lifetime of the application.
      *
      * @return the Class representing the configured ActionResolver
-     * @throws StripesServletException if there is a problem instantiating or locating the
-     *         implementation
      */
-    ActionResolver getActionResolver() throws StripesServletException;
+    ActionResolver getActionResolver();
 
     /**
      * Returns an instance of ACtionBeanPropertyBinder that is responsible for binding all
      * properties to all ActionBeans at runtime.  The instance should be cached by the Configuration
-     * since the multiple entities in the system may access the ActionResolver throughout the
+     * since multiple entities in the system may access the ActionBeanPropertyBinder throughout the
      * lifetime of the application.
      *
      * @return ActionBeanPropertyBinder the property binder to be used by Stripes
-     * @throws StripesServletException if there is a problem instantiating or locating the
-     *         implementation
      */
-    ActionBeanPropertyBinder getActionBeanPropertyBinder()
-         throws StripesServletException;
+    ActionBeanPropertyBinder getActionBeanPropertyBinder();
 
     /**
      * Returns an instance of TypeConverterFactory that is responsible for providing lookups and
      * instances of TypeConverters for the validation system.  The instance should be cached by the
-     * Configuration since the multiple entities in the system may access the ActionResolver throughout the lifetime of the application.
+     * Configuration since multiple entities in the system may access the TypeConverterFactory
+     * throughout the lifetime of the application.
      *
      * @return TypeConverterFactory an instance of a TypeConverterFactory implementation
      */
-    TypeConverterFactory getTypeConverterFactory() throws StripesServletException;
+    TypeConverterFactory getTypeConverterFactory();
+
+    /**
+     * Returns an instance of LocalizationBundleFactory that is responsible for looking up
+     * resource bundles for the varying localization needs ot a web application. The instance should
+     * be cached by the Configuration since multiple entities in the system may access the
+     * LocalizationBundleFactory throughout the lifetime of the application.
+     *
+     * @return LocalizationBundleFactory an instance of a LocalizationBundleFactory implementation
+     */
+    LocalizationBundleFactory getLocalizationBundleFactory();
 }

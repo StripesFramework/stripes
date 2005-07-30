@@ -1,12 +1,14 @@
 package net.sourceforge.stripes.config;
 
-import net.sourceforge.stripes.exception.StripesServletException;
+import net.sourceforge.stripes.controller.ActionBeanPropertyBinder;
 import net.sourceforge.stripes.controller.ActionResolver;
 import net.sourceforge.stripes.controller.AnnotatedClassActionResolver;
-import net.sourceforge.stripes.controller.ActionBeanPropertyBinder;
 import net.sourceforge.stripes.controller.OgnlActionBeanPropertyBinder;
-import net.sourceforge.stripes.validation.TypeConverterFactory;
+import net.sourceforge.stripes.exception.StripesRuntimeException;
+import net.sourceforge.stripes.localization.DefaultLocalizationBundleFactory;
+import net.sourceforge.stripes.localization.LocalizationBundleFactory;
 import net.sourceforge.stripes.validation.DefaultTypeConverterFactory;
+import net.sourceforge.stripes.validation.TypeConverterFactory;
 
 /**
  * <p>Centralized location for defaults for all Configuration properties.  This implementation does
@@ -26,6 +28,7 @@ public class DefaultConfiguration implements Configuration {
     private ActionResolver actionResolver;
     private ActionBeanPropertyBinder actionBeanPropertyBinder;
     private TypeConverterFactory typeConverterFactory;
+    private LocalizationBundleFactory localizationBundleFactory;
 
     /** Gratefully accepts the BootstrapPropertyResolver handed to the Configuration. */
     public void setBootstrapPropertyResolver(BootstrapPropertyResolver resolver) {
@@ -36,7 +39,7 @@ public class DefaultConfiguration implements Configuration {
      * Creates and stores instances of the objects of the type that the Configuration is
      * responsible for providing, except where subclasses have already provided instances.
      */
-    public void init() throws StripesServletException {
+    public void init() {
         try {
             if (this.actionResolver == null) {
                 this.actionResolver = new AnnotatedClassActionResolver();
@@ -52,9 +55,16 @@ public class DefaultConfiguration implements Configuration {
                 this.typeConverterFactory = new DefaultTypeConverterFactory();
                 this.typeConverterFactory.init(this);
             }
+
+            if (this.localizationBundleFactory == null) {
+                this.localizationBundleFactory = new DefaultLocalizationBundleFactory();
+                this.localizationBundleFactory.init(this);
+            }
+
         }
         catch (Exception e) {
-            throw new StripesServletException(e);
+            throw new StripesRuntimeException
+                    ("Problem instantiating default configuration objects.", e);
         }
     }
 
@@ -67,7 +77,7 @@ public class DefaultConfiguration implements Configuration {
      * Will always return an instance of AnnotatedClassActionResolver
      * @return AnnotatedClassActionResolver an instance of the default resolver
      */
-    public ActionResolver getActionResolver() throws StripesServletException {
+    public ActionResolver getActionResolver() {
         return this.actionResolver;
     }
 
@@ -80,7 +90,7 @@ public class DefaultConfiguration implements Configuration {
      * Will always return an OgnlActionBeanPropertyBinder
      * @return OgnlActionBeanPropertyBinder an instance of the default binder
      */
-    public ActionBeanPropertyBinder getActionBeanPropertyBinder() throws StripesServletException {
+    public ActionBeanPropertyBinder getActionBeanPropertyBinder() {
         return this.actionBeanPropertyBinder;
     }
 
@@ -93,7 +103,7 @@ public class DefaultConfiguration implements Configuration {
      * Will always return an instance of DefaultTypeConverterFactory.
      * @return TypeConverterFactory an instance of the default factory.
      */
-    public TypeConverterFactory getTypeConverterFactory() throws StripesServletException {
+    public TypeConverterFactory getTypeConverterFactory() {
         return this.typeConverterFactory;
     }
 
@@ -102,4 +112,16 @@ public class DefaultConfiguration implements Configuration {
         this.typeConverterFactory = typeConverterFactory;
     }
 
+    /**
+     * Returns an instance of a LocalizationBundleFactory.  By default this will be an instance of
+     * DefaultLocalizationBundleFactory unless another type has been configured.
+     */
+    public LocalizationBundleFactory getLocalizationBundleFactory() {
+        return this.localizationBundleFactory;
+    }
+
+    /** Allows subclasses to set the LocalizationBundleFactory instance to be used. */
+    protected void setLocalizationBundleFactory(LocalizationBundleFactory localizationBundleFactory) {
+        this.localizationBundleFactory = localizationBundleFactory;
+    }
 }
