@@ -48,8 +48,7 @@ BLOCKQUOTE {
 }
 
 TT {
-font-size: 90%;
-    font-family: "Courier New", Courier, monospace;
+    font-size: 90%;
     color: #000000;
 }
 
@@ -60,7 +59,6 @@ PRE {
     border-width: 1px;
     border-color: #CCCCCC;
     background-color: #F4F4F4;
-    font-family: Monaco;
 }
 
 UL, OL, LI {
