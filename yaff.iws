@@ -157,7 +157,7 @@
       <file leaf-file-name="stripes.tld" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/stripes/taglib/stripes.tld">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="538" column="19" selection-start="41329" selection-end="41329" vertical-scroll-proportion="0.12238806">
+            <state line="538" column="19" selection-start="41329" selection-end="41329" vertical-scroll-proportion="0.020895522">
               <folding />
             </state>
           </provider>
@@ -175,13 +175,13 @@
       <file leaf-file-name="CatDetails.jsp" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/examples/web/ex1/CatDetails.jsp">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="100" column="55" selection-start="4325" selection-end="4325" vertical-scroll-proportion="2.0895522">
+            <state line="100" column="55" selection-start="4325" selection-end="4325" vertical-scroll-proportion="0.7283582">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="InputButtonTag.java" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="InputButtonTag.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/tag/InputButtonTag.java">
           <provider selected="true" editor-type-id="text-editor">
             <state line="3" column="79" selection-start="121" selection-end="121" vertical-scroll-proportion="0.061313868">
@@ -190,10 +190,28 @@
           </provider>
         </entry>
       </file>
+      <file leaf-file-name="DefaultPopulationStrategy.java" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/tag/DefaultPopulationStrategy.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="21" column="63" selection-start="1121" selection-end="1121" vertical-scroll-proportion="-0.042335767">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="HtmlUtil.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/util/HtmlUtil.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="12" column="53" selection-start="408" selection-end="408" vertical-scroll-proportion="0.24525547">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
       <file leaf-file-name="InputButtonSupportTag.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/tag/InputButtonSupportTag.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="35" column="0" selection-start="1357" selection-end="1357" vertical-scroll-proportion="0.6948905">
+            <state line="35" column="0" selection-start="1357" selection-end="1357" vertical-scroll-proportion="0.020437956">
               <folding />
             </state>
           </provider>
@@ -269,28 +287,6 @@
         <option name="myItemId" value="Examples" />
         <option name="myItemType" value="com.intellij.j2ee.module.view.web.nodes.WebModuleNodeDescriptor" />
       </PATH_ELEMENT>
-      <PATH_ELEMENT>
-        <option name="myItemId" value="web" />
-        <option name="myItemType" value="com.intellij.j2ee.module.view.web.nodes.WebRootNodeDescriptor" />
-      </PATH_ELEMENT>
-      <PATH_ELEMENT>
-        <option name="myItemId" value="ex1" />
-        <option name="myItemType" value="com.intellij.j2ee.module.view.nodes.DirectoryNodeDescriptor" />
-      </PATH_ELEMENT>
-    </PATH>
-    <PATH>
-      <PATH_ELEMENT>
-        <option name="myItemId" value="yaff.ipr" />
-        <option name="myItemType" value="com.intellij.j2ee.module.view.nodes.J2EEProjectNodeDescriptor" />
-      </PATH_ELEMENT>
-      <PATH_ELEMENT>
-        <option name="myItemId" value="Web Modules" />
-        <option name="myItemType" value="com.intellij.j2ee.module.view.web.nodes.WebModuleHolderNodeDescriptor" />
-      </PATH_ELEMENT>
-      <PATH_ELEMENT>
-        <option name="myItemId" value="Examples" />
-        <option name="myItemType" value="com.intellij.j2ee.module.view.web.nodes.WebModuleNodeDescriptor" />
-      </PATH_ELEMENT>
     </PATH>
     <PATH>
       <PATH_ELEMENT>
@@ -350,7 +346,7 @@
         <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
       </PATH_ELEMENT>
       <PATH_ELEMENT>
-        <option name="myItemId" value="net.sourceforge.stripes.validation" />
+        <option name="myItemId" value="net.sourceforge.stripes.util" />
         <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
       </PATH_ELEMENT>
     </PATH>
@@ -597,7 +593,7 @@
     <option name="STATE" value="0" />
   </component>
   <component name="ProjectView">
-    <navigator currentView="J2EEPane" splitterProportion="0.5">
+    <navigator currentView="PackagesPane" splitterProportion="0.5">
       <flattenPackages PackagesPane="true" ProjectPane="true" />
       <showMembers />
       <showModules />
@@ -664,13 +660,6 @@
       <ConfigurationWrapper RunnerId="Run" />
       <ConfigurationWrapper RunnerId="Debug" />
     </tempConfiguration>
-    <configuration selected="false" default="true" type="Remote" factoryName="Remote">
-      <option name="USE_SOCKET_TRANSPORT" value="true" />
-      <option name="SERVER_MODE" value="false" />
-      <option name="SHMEM_ADDRESS" value="javadebug" />
-      <option name="HOST" value="localhost" />
-      <option name="PORT" value="5005" />
-    </configuration>
     <configuration selected="false" default="true" type="#com.intellij.j2ee.web.tomcat.TomcatRunConfigurationFactory" factoryName="Local">
       <option name="WORKING_DIRECTORY" />
       <option name="HOST" value="localhost" />
@@ -679,31 +668,6 @@
       <option name="OPEN_IN_BROWSER" value="true" />
       <option name="OPEN_IN_BROWSER_URL" value="/" />
       <option name="COMMON_VM_ARGUMENTS" value="" />
-    </configuration>
-    <configuration selected="false" default="true" type="JUnit" factoryName="JUnit">
-      <module name="" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
-      <option name="PACKAGE_NAME" />
-      <option name="MAIN_CLASS_NAME" />
-      <option name="METHOD_NAME" />
-      <option name="TEST_OBJECT" value="class" />
-      <option name="VM_PARAMETERS" />
-      <option name="PARAMETERS" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="ADDITIONAL_CLASS_PATH" />
-      <option name="TEST_SEARCH_SCOPE">
-        <value defaultName="wholeProject" />
-      </option>
-    </configuration>
-    <configuration selected="false" default="true" type="Application" factoryName="Application">
-      <option name="MAIN_CLASS_NAME" />
-      <option name="VM_PARAMETERS" />
-      <option name="PROGRAM_PARAMETERS" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
-      <module name="" />
     </configuration>
     <configuration selected="false" default="true" type="Applet" factoryName="Applet">
       <module name="" />
@@ -725,6 +689,38 @@
       <option name="OPEN_IN_BROWSER" value="true" />
       <option name="OPEN_IN_BROWSER_URL" value="/" />
       <option name="COMMON_VM_ARGUMENTS" value="" />
+    </configuration>
+    <configuration selected="false" default="true" type="Remote" factoryName="Remote">
+      <option name="USE_SOCKET_TRANSPORT" value="true" />
+      <option name="SERVER_MODE" value="false" />
+      <option name="SHMEM_ADDRESS" value="javadebug" />
+      <option name="HOST" value="localhost" />
+      <option name="PORT" value="5005" />
+    </configuration>
+    <configuration selected="false" default="true" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" />
+      <option name="VM_PARAMETERS" />
+      <option name="PROGRAM_PARAMETERS" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <module name="" />
+    </configuration>
+    <configuration selected="false" default="true" type="JUnit" factoryName="JUnit">
+      <module name="" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="PACKAGE_NAME" />
+      <option name="MAIN_CLASS_NAME" />
+      <option name="METHOD_NAME" />
+      <option name="TEST_OBJECT" value="class" />
+      <option name="VM_PARAMETERS" />
+      <option name="PARAMETERS" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="ADDITIONAL_CLASS_PATH" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="wholeProject" />
+      </option>
     </configuration>
     <configuration selected="false" default="false" name="DateFormatTest" type="Application" factoryName="Application">
       <option name="MAIN_CLASS_NAME" value="net.sourceforge.stripes.test.DateFormatTest" />
@@ -800,7 +796,7 @@
     <layout>
       <window_info id="CVS" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.33" order="12" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32789117" order="7" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="docked" type="docked" visible="true" weight="0.33109245" order="0" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="docked" type="docked" visible="true" weight="0.3369748" order="0" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32789117" order="1" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.25462186" order="1" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32789117" order="9" />
@@ -894,23 +890,6 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/tag/InputTagSupport.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="149" column="21" selection-start="6318" selection-end="6318" vertical-scroll-proportion="0.3328467">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/tag/InputTextAreaTag.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="76" column="0" selection-start="2381" selection-end="2685" vertical-scroll-proportion="0.85839415">
-          <folding>
-            <element signature="method#setValue#0;class#InputTextAreaTag#0" expanded="true" />
-            <element signature="method#getValue#0;class#InputTextAreaTag#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/tag/InputFileTag.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="7" column="44" selection-start="261" selection-end="261" vertical-scroll-proportion="0.06715328">
@@ -969,9 +948,9 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/tag/InputButtonTag.java">
+    <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/tag/InputResetTag.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="3" column="79" selection-start="121" selection-end="121" vertical-scroll-proportion="0.061313868">
+        <state line="12" column="43" selection-start="604" selection-end="604" vertical-scroll-proportion="0.24525547">
           <folding />
         </state>
       </provider>
@@ -983,30 +962,44 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/examples/web/ex1/CatDetails.jsp">
+    <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/tag/InputButtonTag.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="100" column="55" selection-start="4325" selection-end="4325" vertical-scroll-proportion="2.0895522">
+        <state line="3" column="79" selection-start="121" selection-end="121" vertical-scroll-proportion="0.061313868">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/stripes/taglib/stripes.tld">
+    <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/util/HtmlUtil.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="538" column="19" selection-start="41329" selection-end="41329" vertical-scroll-proportion="0.12238806">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/tag/InputResetTag.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="12" column="43" selection-start="604" selection-end="604" vertical-scroll-proportion="0.24525547">
+        <state line="12" column="53" selection-start="408" selection-end="408" vertical-scroll-proportion="0.24525547">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/tag/InputButtonSupportTag.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="35" column="0" selection-start="1357" selection-end="1357" vertical-scroll-proportion="0.6948905">
+        <state line="35" column="0" selection-start="1357" selection-end="1357" vertical-scroll-proportion="0.020437956">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/tag/DefaultPopulationStrategy.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="21" column="63" selection-start="1121" selection-end="1121" vertical-scroll-proportion="-0.042335767">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/examples/web/ex1/CatDetails.jsp">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="100" column="55" selection-start="4325" selection-end="4325" vertical-scroll-proportion="0.7283582">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/stripes/taglib/stripes.tld">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="538" column="19" selection-start="41329" selection-end="41329" vertical-scroll-proportion="0.020895522">
           <folding />
         </state>
       </provider>
