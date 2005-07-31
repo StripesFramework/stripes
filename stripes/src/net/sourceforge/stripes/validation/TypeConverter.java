@@ -1,6 +1,7 @@
 package net.sourceforge.stripes.validation;
 
 import java.util.Collection;
+import java.util.Locale;
 
 /**
  * Interface for all type converters in the validation system that provide facilities for
@@ -9,6 +10,16 @@ import java.util.Collection;
  * @author Tim Fennell
  */
 public interface TypeConverter<T> {
+
+    /**
+     * Sets the locale that the TypeConverter can expect incoming Strings to be in. This method will
+     * only be called once during a TypeConverter's lifetime, and will be called prior to any
+     * invocations of convert().
+     *
+     * @param locale the locale that the TypeConverter will be converting from.
+     */
+    void setLocale(Locale locale);
+
     /**
      * Convert a String to the target type supported by this converter.
      *

@@ -61,10 +61,6 @@
                       <stripes:radio name="cat.breed" value="<%=Breed.MIX.name()%>"/> Mix |
                       <stripes:radio name="cat.breed" value="<%=Breed.DSH.name()%>"/> DSH |
                       <stripes:radio name="cat.breed" value="<%=Breed.BRITISH_BLUE.name()%>"/> British Blue
-
-                      <stripes:select name="fooey">
-                        <stripes:options-enumeration enum="net.sourceforge.stripes.examples.ex1.Breed" label="name"/>
-                      </stripes:select>
                   </td>
               </tr>
               <tr>

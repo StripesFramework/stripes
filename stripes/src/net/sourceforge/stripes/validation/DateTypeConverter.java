@@ -5,6 +5,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Locale;
 import java.util.regex.Pattern;
 
 /**
@@ -35,6 +36,24 @@ import java.util.regex.Pattern;
  * </p>
  */
 public class DateTypeConverter implements TypeConverter<Date> {
+    private Locale locale;
+    private DateFormat[] formats;
+
+    /**
+     * Used by Stripes to set the input locale.  Once the locale is set a number of DateFormat
+     * instances are created ready to convert any input.
+     */
+    public void setLocale(Locale locale) {
+        this.locale = locale;
+
+        this.formats = new DateFormat[formatStrings.length];
+
+        for (int i=0; i<formatStrings.length; ++i) {
+            this.formats[i] = new SimpleDateFormat(formatStrings[i], locale);
+            this.formats[i].setLenient(true);
+        }
+    }
+
     /**
      * A pattern used to pre-process Strings before the parsing attempt is made.  Since even the
      * &quot;lenient&quot; mode of SimpleDateFormat is not very lenient, this patter is used to
@@ -68,9 +87,8 @@ public class DateTypeConverter implements TypeConverter<Date> {
 
         // Step 2: try really hard to parse the input
         Date date = null;
-        DateFormat[] formats = getDateFormats();
 
-        for (DateFormat format : formats) {
+        for (DateFormat format : this.formats) {
             try {
                 if (date == null) { date = format.parse(parseable); }
             }
@@ -85,22 +103,6 @@ public class DateTypeConverter implements TypeConverter<Date> {
             errors.add( new ScopedLocalizableError("converter.date", "invalidDate") );
             return null;
         }
-    }
-
-    /**
-     * Gets an instance of DateFormat to use to parse the date.  This can be used to override the
-     * format mask used in parsing by sublassing this class and overriding this method.
-     */
-    protected DateFormat[] getDateFormats() {
-        //TODO: implement thread local caching
-        DateFormat[] formats = new DateFormat[formatStrings.length];
-
-        for (int i=0; i<formatStrings.length; ++i) {
-            formats[i] = new SimpleDateFormat(formatStrings[i]);
-            formats[i].setLenient(true);
-        }
-
-        return formats;
     }
 
     /**

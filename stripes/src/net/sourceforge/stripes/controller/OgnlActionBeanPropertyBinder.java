@@ -402,10 +402,11 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
         TypeConverter converter = null;
         if (validationInfo !=  null && validationInfo.converter() != TypeConverter.class) {
             converter = this.configuration.getTypeConverterFactory()
-                                          .getInstance(validationInfo.converter());
+                .getInstance(validationInfo.converter(), bean.getContext().getRequest().getLocale());
         }
         else {
-            converter = this.configuration.getTypeConverterFactory().getTypeConverter(propertyType);
+            converter = this.configuration.getTypeConverterFactory()
+                    .getTypeConverter(propertyType, bean.getContext().getRequest().getLocale());
         }
 
         log.debug("Converting values ", values, " using converter ", converter);

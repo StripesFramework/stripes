@@ -5,6 +5,7 @@ import net.sourceforge.stripes.config.Configuration;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Date;
+import java.util.Locale;
 
 /**
  * Default TypeConverterFactory implementation that simply creates an instance level map of all the
@@ -53,16 +54,16 @@ public class DefaultTypeConverterFactory implements TypeConverterFactory {
      * @return an instance of a TypeConverter which will convert Strings to the desired type
      * @throws Exception if the TypeConverter cannot be instantiated
      */
-    public TypeConverter getTypeConverter(Class forType) throws Exception {
+    public TypeConverter getTypeConverter(Class forType, Locale locale) throws Exception {
         // First take a look in our map of Converters for one registered for this type.
         Class<? extends TypeConverter> clazz = this.converters.get(forType);
 
         if (clazz != null) {
-            return getInstance( clazz );
+            return getInstance(clazz, locale );
         }
         else if (forType.isEnum()) {
             // If we didn't find one, maybe this class is an enum?
-            return getInstance(EnumeratedTypeConverter.class);
+            return getInstance(EnumeratedTypeConverter.class, locale);
         }
         else {
             return null;
@@ -76,9 +77,11 @@ public class DefaultTypeConverterFactory implements TypeConverterFactory {
      * @return an instance of the TypeConverter specified
      * @throws Exception if there is a problem instantiating the TypeConverter
      */
-    public TypeConverter getInstance(Class<? extends TypeConverter> clazz)
+    public TypeConverter getInstance(Class<? extends TypeConverter> clazz, Locale locale)
     throws Exception {
         // TODO: add thread local caching of converter classes
-        return clazz.newInstance();
+        TypeConverter converter = clazz.newInstance();
+        converter.setLocale(locale);
+        return converter;
     }
 }

@@ -2,6 +2,7 @@ package net.sourceforge.stripes.validation;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Locale;
 
 /**
  * Performs a fairly aggressive conversion of a String to a boolean. The String will be deemd to be
@@ -30,6 +31,14 @@ public class BooleanTypeConverter implements TypeConverter<Boolean> {
         truths.add("yes");
         truths.add("y");
         truths.add("on");
+    }
+
+    /**
+     * Does nothing currently due to the fact that there is no localization support for
+     * Booleans in Java.
+     */
+    public void setLocale(Locale locale) {
+        // Do nothing
     }
 
     /**

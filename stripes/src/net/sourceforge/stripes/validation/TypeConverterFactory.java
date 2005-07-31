@@ -2,6 +2,8 @@ package net.sourceforge.stripes.validation;
 
 import net.sourceforge.stripes.config.ConfigurableComponent;
 
+import java.util.Locale;
+
 /**
  * Provides access to a set of TypeConverters for converting Strings to various types.
  * Implementations may use any mechanism desired to map a type to a TypeConverter, and may
@@ -19,17 +21,19 @@ public interface TypeConverterFactory extends ConfigurableComponent {
      * @param forType the type/Class that is the target type of the conversion.  It is assumed that
      *        the input type is String, so to convert a String to a Date object you would supply
      *        java.util.Date.class.
+     * @param locale the locale of the Strings to be converted with the returned converter
      * @return an instance of a TypeConverter which will convert Strings to the desired type
      * @throws Exception if the TypeConverter cannot be instantiated
      */
-    TypeConverter getTypeConverter(Class forType) throws Exception;
+    TypeConverter getTypeConverter(Class forType, Locale locale) throws Exception;
 
     /**
      * Gets an instance of the TypeConverter class specified.
      *
      * @param clazz the Class object representing the desired TypeConverter
+     * @param locale the locale of the Strings to be converted with the returned converter
      * @return an instance of the TypeConverter specified
      * @throws Exception if the TypeConverter cannot be instantiated
      */
-    TypeConverter getInstance(Class<? extends TypeConverter> clazz) throws Exception;
+    TypeConverter getInstance(Class<? extends TypeConverter> clazz, Locale locale) throws Exception;
 }
