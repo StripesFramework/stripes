@@ -80,21 +80,6 @@
     <disable_hints />
   </component>
   <component name="DebuggerManager">
-    <line_breakpoints>
-      <breakpoint url="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/tag/InputHiddenTag.java" line="13" class="net.sourceforge.stripes.tag.InputHiddenTag" package="net.sourceforge.stripes.tag">
-        <option name="ENABLED" value="true" />
-        <option name="SUSPEND_POLICY" value="SuspendAll" />
-        <option name="LOG_ENABLED" value="false" />
-        <option name="LOG_EXPRESSION_ENABLED" value="false" />
-        <option name="COUNT_FILTER_ENABLED" value="false" />
-        <option name="COUNT_FILTER" value="0" />
-        <option name="CONDITION_ENABLED" value="false" />
-        <option name="CLASS_FILTERS_ENABLED" value="false" />
-        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
-        <option name="CONDITION" value="" />
-        <option name="LOG_MESSAGE" value="" />
-      </breakpoint>
-    </line_breakpoints>
     <breakpoint_any>
       <breakpoint>
         <option name="NOTIFY_CAUGHT" value="true" />
@@ -151,10 +136,65 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="stripes.tld" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="stripes.tld" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/stripes/taglib/stripes.tld">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="8" column="70" selection-start="388" selection-end="388" vertical-scroll-proportion="0.041791044">
+            <state line="140" column="96" selection-start="10917" selection-end="10917" vertical-scroll-proportion="0.8134328">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="InputTextAreaTag.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/tag/InputTextAreaTag.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="76" column="0" selection-start="2381" selection-end="2685" vertical-scroll-proportion="0.85839415">
+              <folding>
+                <element signature="method#setValue#0;class#InputTextAreaTag#0" expanded="true" />
+                <element signature="method#getValue#0;class#InputTextAreaTag#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="InputFileTag.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/tag/InputFileTag.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="7" column="44" selection-start="261" selection-end="261" vertical-scroll-proportion="0.06715328">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="InputCheckBoxTag.java" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/tag/InputCheckBoxTag.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="24" column="13" selection-start="1328" selection-end="1328" vertical-scroll-proportion="0.49051094">
+              <folding>
+                <element signature="imports" expanded="true" />
+                <element signature="method#setChecked#0;class#InputCheckBoxTag#0" expanded="true" />
+                <element signature="method#getChecked#0;class#InputCheckBoxTag#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="InputTextTag.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/tag/InputTextTag.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="63" column="18" selection-start="2282" selection-end="2282" vertical-scroll-proportion="1.2671533">
+              <folding>
+                <element signature="method#setValue#0;class#InputTextTag#0" expanded="true" />
+                <element signature="method#getValue#0;class#InputTextTag#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="StripesRequestWrapper.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/controller/StripesRequestWrapper.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="39" column="0" selection-start="1823" selection-end="1823" vertical-scroll-proportion="0.20437956">
               <folding />
             </state>
           </provider>
@@ -428,10 +468,6 @@
         <option name="myItemId" value="yaff.ipr" />
         <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
       </PATH_ELEMENT>
-      <PATH_ELEMENT>
-        <option name="myItemId" value="Test" />
-        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
-      </PATH_ELEMENT>
     </PATH>
     <PATH>
       <PATH_ELEMENT>
@@ -511,28 +547,6 @@
         <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
       </PATH_ELEMENT>
       <PATH_ELEMENT>
-        <option name="myItemId" value="net.sourceforge.stripes.validation" />
-        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-      </PATH_ELEMENT>
-    </PATH>
-    <PATH>
-      <PATH_ELEMENT>
-        <option name="myItemId" value="yaff.ipr" />
-        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-      </PATH_ELEMENT>
-      <PATH_ELEMENT>
-        <option name="myItemId" value="stripes" />
-        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
-      </PATH_ELEMENT>
-      <PATH_ELEMENT>
-        <option name="myItemId" value="stripes" />
-        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-      </PATH_ELEMENT>
-      <PATH_ELEMENT>
-        <option name="myItemId" value="src" />
-        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-      </PATH_ELEMENT>
-      <PATH_ELEMENT>
         <option name="myItemId" value="net.sourceforge.stripes.util" />
         <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
       </PATH_ELEMENT>
@@ -587,62 +601,8 @@
         <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
       </PATH_ELEMENT>
       <PATH_ELEMENT>
-        <option name="myItemId" value="stripes" />
-        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
-      </PATH_ELEMENT>
-      <PATH_ELEMENT>
-        <option name="myItemId" value="stripes" />
-        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-      </PATH_ELEMENT>
-      <PATH_ELEMENT>
-        <option name="myItemId" value="src" />
-        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-      </PATH_ELEMENT>
-      <PATH_ELEMENT>
-        <option name="myItemId" value="net.sourceforge.stripes.config" />
-        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-      </PATH_ELEMENT>
-    </PATH>
-    <PATH>
-      <PATH_ELEMENT>
-        <option name="myItemId" value="yaff.ipr" />
-        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-      </PATH_ELEMENT>
-      <PATH_ELEMENT>
         <option name="myItemId" value="Examples" />
         <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
-      </PATH_ELEMENT>
-    </PATH>
-    <PATH>
-      <PATH_ELEMENT>
-        <option name="myItemId" value="yaff.ipr" />
-        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-      </PATH_ELEMENT>
-      <PATH_ELEMENT>
-        <option name="myItemId" value="Examples" />
-        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
-      </PATH_ELEMENT>
-      <PATH_ELEMENT>
-        <option name="myItemId" value="examples" />
-        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-      </PATH_ELEMENT>
-    </PATH>
-    <PATH>
-      <PATH_ELEMENT>
-        <option name="myItemId" value="yaff.ipr" />
-        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-      </PATH_ELEMENT>
-      <PATH_ELEMENT>
-        <option name="myItemId" value="Examples" />
-        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewModuleNode" />
-      </PATH_ELEMENT>
-      <PATH_ELEMENT>
-        <option name="myItemId" value="examples" />
-        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-      </PATH_ELEMENT>
-      <PATH_ELEMENT>
-        <option name="myItemId" value="src" />
-        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
       </PATH_ELEMENT>
     </PATH>
   </component>
@@ -947,126 +907,147 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/config/Configuration.java">
+    <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/tag/FormTag.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="17" column="101" selection-start="1152" selection-end="1152" vertical-scroll-proportion="0.44851258">
+        <state line="19" column="13" selection-start="732" selection-end="732" vertical-scroll-proportion="-0.81751823">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/config/RuntimeConfiguration.java">
+    <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/tag/InputOptionsCollectionTag.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="119" column="36" selection-start="5875" selection-end="5875" vertical-scroll-proportion="2.98627">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/config/DefaultConfiguration.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="118" column="67" selection-start="5105" selection-end="5105" vertical-scroll-proportion="3.5240273">
+        <state line="15" column="59" selection-start="729" selection-end="729" vertical-scroll-proportion="0.14306569">
           <folding>
-            <element signature="method#setBootstrapPropertyResolver#0;class#DefaultConfiguration#0" expanded="true" />
-            <element signature="method#getBootstrapPropertyResolver#0;class#DefaultConfiguration#0" expanded="true" />
-            <element signature="method#getActionResolver#0;class#DefaultConfiguration#0" expanded="true" />
-            <element signature="method#setActionResolver#0;class#DefaultConfiguration#0" expanded="true" />
-            <element signature="method#getActionBeanPropertyBinder#0;class#DefaultConfiguration#0" expanded="true" />
-            <element signature="method#setActionBeanPropertyBinder#0;class#DefaultConfiguration#0" expanded="true" />
-            <element signature="method#getTypeConverterFactory#0;class#DefaultConfiguration#0" expanded="true" />
-            <element signature="method#setTypeConverterFactory#0;class#DefaultConfiguration#0" expanded="true" />
-            <element signature="method#getLocalizationBundleFactory#0;class#DefaultConfiguration#0" expanded="true" />
-            <element signature="method#setLocalizationBundleFactory#0;class#DefaultConfiguration#0" expanded="true" />
+            <element signature="imports" expanded="true" />
+            <element signature="method#setCollection#0;class#InputOptionsCollectionTag#0" expanded="true" />
+            <element signature="method#getCollection#0;class#InputOptionsCollectionTag#0" expanded="true" />
+            <element signature="method#setValue#0;class#InputOptionsCollectionTag#0" expanded="true" />
+            <element signature="method#getValue#0;class#InputOptionsCollectionTag#0" expanded="true" />
+            <element signature="method#setLabel#0;class#InputOptionsCollectionTag#0" expanded="true" />
+            <element signature="method#getLabel#0;class#InputOptionsCollectionTag#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/tag/InputOptionsEnumerationTag.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="117" column="0" selection-start="4676" selection-end="4676" vertical-scroll-proportion="0.8569343">
+          <folding>
+            <element signature="method#setEnum#0;class#InputOptionsEnumerationTag#0" expanded="true" />
+            <element signature="method#getEnum#0;class#InputOptionsEnumerationTag#0" expanded="true" />
+            <element signature="method#setLabel#0;class#InputOptionsEnumerationTag#0" expanded="true" />
+            <element signature="method#getLabel#0;class#InputOptionsEnumerationTag#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/tag/InputOptionTag.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="78" column="33" selection-start="3238" selection-end="3238" vertical-scroll-proportion="0.14160584">
+          <folding>
+            <element signature="method#setLabel#0;class#InputOptionTag#0" expanded="true" />
+            <element signature="method#getLabel#0;class#InputOptionTag#0" expanded="true" />
+            <element signature="method#setSelected#0;class#InputOptionTag#0" expanded="true" />
+            <element signature="method#getSelected#0;class#InputOptionTag#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/tag/InputHiddenTag.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="24" column="13" selection-start="1104" selection-end="1104" vertical-scroll-proportion="0.44963503">
+          <folding>
+            <element signature="method#setValue#0;class#InputHiddenTag#0" expanded="true" />
+            <element signature="method#getValue#0;class#InputHiddenTag#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/tag/InputRadioButtonTag.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="99" column="5" selection-start="3754" selection-end="3754" vertical-scroll-proportion="0.8379562">
+          <folding>
+            <element signature="method#setChecked#0;class#InputRadioButtonTag#0" expanded="true" />
+            <element signature="method#getChecked#0;class#InputRadioButtonTag#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/tag/InputSelectTag.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="11" column="95" selection-start="549" selection-end="549" vertical-scroll-proportion="0.16350365">
+          <folding>
+            <element signature="method#getValue#0;class#InputSelectTag#0" expanded="true" />
+            <element signature="method#getSelectedValueOrValues#0;class#InputSelectTag#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/tag/InputTagSupport.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="179" column="5" selection-start="7476" selection-end="7476" vertical-scroll-proportion="0.83649635">
+        <state line="149" column="21" selection-start="6318" selection-end="6318" vertical-scroll-proportion="0.3328467">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/tag/InputSubmitTag.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="30" column="41" selection-start="921" selection-end="921" vertical-scroll-proportion="0.550365">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/controller/DispatcherServlet.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="266" column="70" selection-start="11992" selection-end="11992" vertical-scroll-proportion="0.9182482">
+        <state line="54" column="56" selection-start="1870" selection-end="1870" vertical-scroll-proportion="0.3459854">
           <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="method#getTempDirectoryPath#0;class#DispatcherServlet#0" expanded="true" />
+            <element signature="method#setValue#0;class#InputSubmitTag#0" expanded="true" />
+            <element signature="method#getValue#0;class#InputSubmitTag#0" expanded="true" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/examples/web/WEB-INF/web.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="21" column="0" selection-start="819" selection-end="819" vertical-scroll-proportion="0.43880597">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/examples/web/ex1/CatDetails.jsp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="95" column="37" selection-start="3994" selection-end="3994" vertical-scroll-proportion="0.89927006">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/examples/src/StripesResources.properties">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="5" column="26" selection-start="371" selection-end="371" vertical-scroll-proportion="0.10218978">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/examples/web/ex1/CatList.jsp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="59" column="58" selection-start="2016" selection-end="2034" vertical-scroll-proportion="0.4890511">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/controller/StripesRequestWrapper.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="18" column="22" selection-start="732" selection-end="732" vertical-scroll-proportion="-2.0248175">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/validation/LocalizableError.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="41" column="0" selection-start="2039" selection-end="2039" vertical-scroll-proportion="0.08175182">
-          <folding>
-            <element signature="method#setFieldName#0;class#LocalizableError#0" expanded="true" />
-            <element signature="method#getFieldName#0;class#LocalizableError#0" expanded="true" />
-            <element signature="method#setFormName#0;class#LocalizableError#0" expanded="true" />
-            <element signature="method#getFormName#0;class#LocalizableError#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/stripes/src/javadoc.css">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="50" column="4" selection-start="1113" selection-end="1113" vertical-scroll-proportion="0.47007298">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/stripes/build.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="12" column="55" selection-start="664" selection-end="664" vertical-scroll-proportion="0.24525547">
-          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/stripes/taglib/stripes.tld">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="8" column="70" selection-start="388" selection-end="388" vertical-scroll-proportion="0.041791044">
+        <state line="140" column="96" selection-start="10917" selection-end="10917" vertical-scroll-proportion="0.8134328">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/tag/InputTextAreaTag.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="76" column="0" selection-start="2381" selection-end="2685" vertical-scroll-proportion="0.85839415">
+          <folding>
+            <element signature="method#setValue#0;class#InputTextAreaTag#0" expanded="true" />
+            <element signature="method#getValue#0;class#InputTextAreaTag#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/tag/InputTextTag.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="63" column="18" selection-start="2282" selection-end="2282" vertical-scroll-proportion="1.2671533">
+          <folding>
+            <element signature="method#setValue#0;class#InputTextTag#0" expanded="true" />
+            <element signature="method#getValue#0;class#InputTextTag#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/controller/StripesRequestWrapper.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="39" column="0" selection-start="1823" selection-end="1823" vertical-scroll-proportion="0.20437956">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/tag/InputCheckBoxTag.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="24" column="13" selection-start="1328" selection-end="1328" vertical-scroll-proportion="0.49051094">
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="method#setChecked#0;class#InputCheckBoxTag#0" expanded="true" />
+            <element signature="method#getChecked#0;class#InputCheckBoxTag#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/tag/InputFileTag.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="7" column="44" selection-start="261" selection-end="261" vertical-scroll-proportion="0.06715328">
           <folding />
         </state>
       </provider>

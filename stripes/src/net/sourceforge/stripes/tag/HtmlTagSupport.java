@@ -7,8 +7,6 @@ import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.el.ELException;
-import javax.servlet.jsp.el.ExpressionEvaluator;
-import javax.servlet.jsp.el.VariableResolver;
 import javax.servlet.jsp.tagext.BodyContent;
 import javax.servlet.jsp.tagext.Tag;
 import java.io.IOException;
@@ -29,9 +27,6 @@ public class HtmlTagSupport {
 
     /** Map containing all attributes of the tag. */
     private final Map<String,String> attributes = new HashMap<String,String>();
-
-    /** Map containging the results of the EL expression evaluations of the attributes. */
-    private final Map<String,Object> elAttributes = new HashMap<String,Object>();
 
     /** Storage for a PageContext during evaluation. */
     private PageContext pageContext;
@@ -93,12 +88,6 @@ public class HtmlTagSupport {
         this.parentTag = null;
         this.bodyContent = null;
         this.attributes.clear();
-        this.elAttributes.clear();
-    }
-
-    /** Fetches the attributes map that has been constructed after EL expression evaluation. */
-    protected Map<String,Object> getElAttributes() {
-        return this.elAttributes;
     }
 
     /**
@@ -121,6 +110,15 @@ public class HtmlTagSupport {
         return returnValue;
     }
 
+    /**
+     * Writes out an opening tag.  Uses the parameter "tag" to determine the name of the open tag
+     * and then uses the map of attributes assembled through various setter calls to fill in the
+     * tag attributes.
+     *
+     * @param writer the JspWriter to write the open tag to
+     * @param tag the name of the tag to use
+     * @throws JspException if the JspWriter causes an exception
+     */
     protected void writeOpenTag(JspWriter writer, String tag) throws JspException {
         try {
             writer.print("<");
@@ -137,6 +135,13 @@ public class HtmlTagSupport {
         }
     }
 
+    /**
+     * Writes out a close tag using the tag name supplied.
+     *
+     * @param writer the JspWriter to write the open tag to
+     * @param tag the name of the tag to use
+     * @throws JspException if the JspWriter causes an exception
+     */
     protected void writeCloseTag(JspWriter writer, String tag) throws JspException {
         try {
             writer.print("</");
@@ -152,6 +157,14 @@ public class HtmlTagSupport {
         }
     }
 
+    /**
+     * Writes out a singleton tag (aka a bodiless tag or self-closing tag).  Similar to
+     * writeOpenTag except that instead of leaving the tag open, it closes the tag.
+     *
+     * @param writer the JspWriter to write the open tag to
+     * @param tag the name of the tag to use
+     * @throws JspException if the JspWriter causes an exception
+     */
     protected void writeSingletonTag(JspWriter writer, String tag) throws JspException{
         try {
             writer.print("<");
@@ -168,8 +181,15 @@ public class HtmlTagSupport {
         }
     }
 
+    /**
+     * For every attribute stored in the attributes map for this tag, writes out the tag
+     * attributes in the form x="y".
+     *
+     * @param writer the JspWriter to write the open tag to
+     * @throws JspException if the JspWriter causes an exception
+     */
     protected void writeAttributes(JspWriter writer) throws IOException {
-        for (Map.Entry<String,Object> attr: getElAttributes().entrySet() ) {
+        for (Map.Entry<String,String> attr: getAttributes().entrySet() ) {
             writer.print(" ");
             writer.print(attr.getKey());
             writer.print("=\"");
@@ -178,35 +198,6 @@ public class HtmlTagSupport {
         }
     }
 
-
-    /**
-     * Uses the container's built in EL support to evaluate all the attributes set on the tag. The
-     * newly evaluated values are then used to replace the original values input by the user. It is
-     * expected that most tags will call this as the first act in doStartTag in order to translate
-     * the values before any further processing is done.
-     *
-     * @throws StripesJspException when an ELException occurs trying to evaluate an attribute
-     */
-    protected void evaluateExpressions() throws StripesJspException {
-        ExpressionEvaluator evaluator     = this.pageContext.getExpressionEvaluator();
-        VariableResolver variableResolver = this.pageContext.getVariableResolver();
-
-        for (Map.Entry<String,String> entry : this.attributes.entrySet()) {
-            try {
-                Object result = evaluator.evaluate(entry.getValue(),
-                                                   Object.class,
-                                                   variableResolver,
-                                                   null);
-                this.elAttributes.put(entry.getKey(), result);
-            }
-            catch (ELException ele) {
-                throw new StripesJspException
-                    ("Could not evaluate EL expression for tag attribute [" + entry.getKey() +
-                     "] with value[" + entry.getValue() + "] in class of type: " +
-                     getClass().getName(), ele);
-            }
-        }
-    }
 
     /**
      * Evaluates a single expression and returns the result.  If the expression cannot be evaluated
@@ -251,7 +242,6 @@ public class HtmlTagSupport {
     public String toString() {
         return getClass().getSimpleName()+ "{" +
             "attributes=" + attributes +
-            "elAttributes=" + elAttributes +
             ", parentTag=" + parentTag +
             ", pageContext=" + pageContext +
             "}";

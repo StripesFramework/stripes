@@ -181,7 +181,12 @@
         <attribute><name>disabled</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
         <!-- End: Standard Form Input   attributes -->
 
-        <attribute><name>checked</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute>
+            <name>checked</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.Object</type>
+        </attribute>
     </tag>
 
     <tag>
@@ -220,7 +225,12 @@
         <!-- Start: Standard Form Input attributes -->
         <attribute><name>name</name><required>true</required><rtexprvalue>true</rtexprvalue></attribute>
         <attribute><name>size</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
-        <attribute><name>value</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute>
+            <name>value</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.Object</type>
+        </attribute>
         <attribute><name>disabled</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
         <!-- End: Standard Form Input   attributes -->
 
@@ -273,7 +283,7 @@
         <display-name>options-collection</display-name>
         <name>options-collection</name>
         <tag-class>net.sourceforge.stripes.tag.InputOptionsCollectionTag</tag-class>
-        <body-content>JSP</body-content>
+        <body-content>empty</body-content>
         <!-- Start: Standard HTML attributes -->
         <attribute><name>accesskey</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
         <attribute><name>class</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
@@ -299,11 +309,56 @@
         <attribute><name>title</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
         <!-- End: Standard HTML attributes -->
 
-        <attribute><name>collection</name><required>true</required><rtexprvalue>true</rtexprvalue></attribute>
         <attribute><name>value</name><required>true</required><rtexprvalue>true</rtexprvalue></attribute>
         <attribute><name>label</name><required>true</required><rtexprvalue>true</rtexprvalue></attribute>
         <attribute><name>selected</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute>
+            <name>collection</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.util.Collection</type>
+        </attribute>
     </tag>
+
+    <tag>
+        <description>
+            Creates a number of options within a select, representing the values in an enumeration.
+        </description>
+        <display-name>options-enumeration</display-name>
+        <name>options-enumeration</name>
+        <tag-class>net.sourceforge.stripes.tag.InputOptionsEnumerationTag</tag-class>
+        <body-content>empty</body-content>
+
+        <!-- Start: Standard HTML attributes -->
+        <attribute><name>accesskey</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>class</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>dir</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>id</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>lang</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onblur</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onchange</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onclick</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>ondblclick</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onfocus</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onkeydown</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onkeypress</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onkeyup</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onmousedown</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onmousemove</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onmouseout</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onmouseover</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onmouseup</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>onselect</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>style</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>tabindex</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>title</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <!-- End: Standard HTML attributes -->
+
+        <attribute><name>enum</name><required>true</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>label</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>selected</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+    </tag>
+
 
     <tag>
         <description>
@@ -312,7 +367,7 @@
         <display-name>file</display-name>
         <name>file</name>
         <tag-class>net.sourceforge.stripes.tag.InputFileTag</tag-class>
-        <body-content>JSP</body-content>
+        <body-content>empty</body-content>
         <!-- Start: Standard HTML attributes -->
         <attribute><name>accesskey</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
         <attribute><name>class</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
@@ -426,7 +481,12 @@
 
         <!-- Start: Standard Form Input attributes -->
         <attribute><name>name</name><required>true</required><rtexprvalue>true</rtexprvalue></attribute>
-        <attribute><name>value</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute>
+            <name>value</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.Object</type>
+        </attribute>
         <!-- End: Standard Form Input   attributes -->
     </tag>
 

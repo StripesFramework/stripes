@@ -6,10 +6,19 @@ import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.BodyTag;
 
 /**
+ * <p>Coordinates with one or more other tags to produce a well formed HTML select tag with state
+ * repopulation.  The select tag itself really only writes out the basic
+ * {@literal <select name="foo"> ... </select>} piece of the structure, and provides mechanisms
+ * for child options to determine whether or not they should render themselves as selected.</p>
  *
+ * @author Tim Fennell
  *
+ * @see InputOptionTag
+ * @see InputOptionsCollectionTag
+ * @see InputOptionsEnumerationTag
  */
 public class InputSelectTag extends InputTagSupport implements BodyTag {
+    private Object value;
     private Object selectedValueOrValues;
 
     /** Sets the HTML attribute &quot;multiple&quot;. **/
@@ -19,11 +28,11 @@ public class InputSelectTag extends InputTagSupport implements BodyTag {
     public String getMultiple() { return get("multiple"); }
 
     /**
-     * Overrides setValue() in InputTagSupport to store the value attribute in an instance variable
-     * since it is used to determine which options are checked.
-     * @param value
+     * Stores the value attribute in an instance variable since it is used to determine which
+     * options are checked.
      */
-    public void setValue(String value) {
+    public void setValue(Object value) {
+        this.value = value;
         this.selectedValueOrValues = value;
     }
 
@@ -36,6 +45,17 @@ public class InputSelectTag extends InputTagSupport implements BodyTag {
      *         of the field on the ActionBean which could be <em>Collection</em>, <em>Object[]</em>
      *         or <em>Object</em>.
      */
+    public Object getValue() {
+        return this.selectedValueOrValues;
+    }
+
+    /**
+     * Returns the scalar value or Array or Collection of values that are to be selected in the
+     * select tag.  This will either be the value returned by the PopulationStrategy, or the value
+     * supplied by the container to setValue().
+     *
+     * @return an Object, Object[] or Collection<Object> of values that are selected
+     */
     public Object getSelectedValueOrValues() {
         return this.selectedValueOrValues;
     }
@@ -43,7 +63,7 @@ public class InputSelectTag extends InputTagSupport implements BodyTag {
     /**
      * Checks to see if the option value should be rendered as selected or not.  Consults with the
      * override values on the form submission or backing form, if there is one.  If there is no
-     * form object present, then return the values of <em>selectedOnPage</em> supplied by the
+     * ActionBean object present, then return the values of <em>selectedOnPage</em> supplied by the
      * option.
      *
      * @param optionValue the value of the option under consideration
@@ -59,9 +79,15 @@ public class InputSelectTag extends InputTagSupport implements BodyTag {
         }
     }
 
-    /** Writes out the opening &lt;select&gt; tag and includes the body. */
+    /**
+     * Writes out the opening {@literal <select name="foo">} tag. Looks for values in the request
+     * and in the ActionBean if one is present, and caches those values so it can efficiently
+     * determine which child options should be selected or not.
+     *
+     * @return EVAL_BODY_INCLUDE in all cases
+     * @throws JspException if the enclosing form tag cannot be found or output cannot be written
+     */
     public int doStartTag() throws JspException {
-        evaluateExpressions();
         writeOpenTag(getPageContext().getOut(), "select");
         Object override = getOverrideValueOrValues();
         if (override != null) {
@@ -70,20 +96,29 @@ public class InputSelectTag extends InputTagSupport implements BodyTag {
         return EVAL_BODY_INCLUDE;
     }
 
-    /** Does nothing because the body is always included. */
+    /** Does nothing. */
     public void doInitBody() throws JspException { }
 
-    /** Just returns SKIP_BODY to move on to processing the rest of the page. */
+    /**
+     * Does nothing.
+     * @return SKIP_BODY in all cases.
+     */
     public int doAfterBody() throws JspException {
         return SKIP_BODY;
     }
 
+    /**
+     * Writes out the close select tag ({@literal </select>}).
+     * @return EVAL_PAGE in all cases
+     * @throws JspException if output cannot be written.
+     */
     public int doEndTag() throws JspException {
         writeCloseTag(getPageContext().getOut(), "select");
-        getElAttributes().clear();
-        return SKIP_BODY;
+        this.selectedValueOrValues = this.value; // reset incase the tag is reused
+        return EVAL_PAGE;
     }
 
+    /** Releases the discovered selected values and then calls super-release(). */
     public void release() {
         this.selectedValueOrValues = null;
         super.release();

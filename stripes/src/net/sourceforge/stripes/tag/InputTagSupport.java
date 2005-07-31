@@ -28,9 +28,6 @@ public class InputTagSupport extends HtmlTagSupport {
     public void setSize(String size) { set("size", size); }
     public String getSize() { return get("size"); }
 
-    public void setValue(String value) { set("value", value); }
-    public String getValue() { return get("value"); }
-
     /**
      * Gets the value for this tag based on the current population strategy.  The value returned
      * could be a scalar value, or it could be an array or collection depending on what the
@@ -151,10 +148,10 @@ public class InputTagSupport extends HtmlTagSupport {
      * @return a localized field name if one can be found, or null if one cannot be found.
      */
     protected String getLocalizedFieldName() throws StripesJspException {
-        String name = getElAttributes().get("name").toString();
+        String name = getAttributes().get("name").toString();
         Locale locale = getPageContext().getRequest().getLocale();
         String localizedValue = null;
-        String formName = getParentFormTag().getElAttributes().get("name").toString();
+        String formName = getParentFormTag().getAttributes().get("name").toString();
         ResourceBundle bundle = null;
         try {
             bundle = DispatcherServlet.getConfiguration().getLocalizationBundleFactory()

@@ -4,57 +4,98 @@ import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.BodyTag;
 
 /**
- * Created by IntelliJ IDEA. User: tfenne Date: Jun 26, 2005 Time: 3:14:35 PM To change this
- * template use File | Settings | File Templates.
+ * <p>Generates {@literal <input type="radio" value="foo"/>} HTML tags based on the attribute set
+ * on the tag and the state of the form. Since a single radio button widget on a HTML page can
+ * have only a single value, the value tag attribute must always resolve to a String (though this
+ * is somewhat lax since the EL will coerce almost anything to a String). Similarly since radio
+ * button sets can have only a single selected value at a time the checked attribute of the tag
+ * must also be a String.</p>
+ *
+ * <p>Radio buttons perform automatic (re-)population of state.  They prefer, in order, the value
+ * in the HttpServletRequest, the valuee in the ActionBean and lastly the valuee set using
+ * checked="" on the page.  If the value of the current radio button matches the checked value
+ * from the preferred source then the attribute checked="checked" will be written in the HTML
+ * tag.</p>
+ *
+ * <p>The tag may include a body and if present the body is converted to a String and overrides the
+ * <b>checked</b> tag attribute.</p>
+ *
+ * @author Tim Fennell
  */
 public class InputRadioButtonTag extends InputTagSupport implements BodyTag {
-    public void setChecked(String checked) { set("checked", checked); }
-    public String getChecked() { return get("checked"); }
+    private String checked;
 
+    /**
+     * Sets the value amongst a set of radio buttons, that should be "checked" by default.
+     * @param checked the default value for a set of radio buttons
+     */
+    public void setChecked(String checked) { this.checked = checked; }
+
+    /** Returns the value set with setChecked(). */
+    public String getChecked() { return this.checked; }
+
+    /** Sets the String value of this individual checkbox. */
+    public void setValue(String value) { set("value", value); }
+
+    /** Returns the value set with setValue() */
+    public String getValue() { return get("value"); }
+
+    /**
+     * Sets the input tag type to "radio".
+     * @return EVAL_BODY_BUFFERED in all cases.
+     */
     public int doStartTag() throws JspException {
-        evaluateExpressions();
-        getElAttributes().put("type", "radio");
+        getAttributes().put("type", "radio");
         return EVAL_BODY_BUFFERED;
     }
 
-    public void doInitBody() throws JspException {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
+    /** Does nothing. */
+    public void doInitBody() throws JspException { }
 
+    /**
+     * Does nothing.
+     * @return SKIP_BODY in all cases.
+     */
     public int doAfterBody() throws JspException {
         return SKIP_BODY;
     }
 
+    /**
+     * Determines the state of the set of radio buttons and then writes the radio button to the
+     * output stream with checked="checked" or not as appropriate.
+     *
+     * @return EVAL_PAGE in all cases.
+     * @throws JspException if the parent form tag cannot be found, or output cannot be written.
+     */
     public int doEndTag() throws JspException {
         // Find out if we have a value from the PopulationStrategy
-        Object override = getSingleOverrideValue();
-        String body     = getBodyContentAsString();
-        Object originalChecked = getElAttributes().remove("checked");
-        Object checked = null;
+        Object override     = getSingleOverrideValue();
+        String body         = getBodyContentAsString();
+        Object checkedOnTag = this.checked;
+        Object actualChecked = null;
 
         // Decide which source to pull from
         if (override != null) {
-            checked = override;
+            actualChecked = override;
         }
         else if (body != null) {
-            checked = body;
+            actualChecked = body;
         }
         else {
-            checked = originalChecked;
+            actualChecked = checkedOnTag;
         }
 
         // Now if the "checked" value matches this tags value, check it!
-        Object value = getElAttributes().get("value");
-        if (checked != null && value != null && checked.toString().equals(value.toString())) {
-            getElAttributes().put("checked", "checked");
+        String value = getValue();
+        if (actualChecked != null && value != null && value.equals(actualChecked.toString())) {
+            getAttributes().put("checked", "checked");
         }
 
         writeSingletonTag(getPageContext().getOut(), "input");
 
         // Restore the state of the tag to before we mucked with it
-        getElAttributes().clear();
+        getAttributes().remove("checked");
 
         return EVAL_PAGE;
     }
-
 }

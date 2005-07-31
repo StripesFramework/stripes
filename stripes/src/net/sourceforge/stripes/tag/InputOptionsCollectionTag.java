@@ -9,30 +9,100 @@ import javax.servlet.jsp.tagext.Tag;
 import java.util.Collection;
 
 /**
+ * <p>Writes a set of {@literal <option value="foo">bar</option>} tags to the page based on the
+ * contents of a Collection.  Each element in the collection is represented by a single option
+ * tag on the page.  Uses the label and value attributes on the tag to name the properties of the
+ * objects in the Collection that should be used to generate the body of the HTML option tag and
+ * the value attribute of the HTML option tag respectively.</p>
  *
+ * <p>E.g. a tag declaration that looks like:</p>
+ *   <pre>{@literal <stripes:options-collection collection="${cats} value="catId" label="name"/>}</pre>
+ *
+ * <p>would cause the container to look for a Collection called "cats" across the various JSP
+ * scopes and set it on the tag.  The tag would then proceed to iterate through that collection
+ * calling getCatId() and getName() on each cat to produce HTML option tags.</p>
+ *
+ * <p>All other attributes on the tag (other than collection, value and label) are passed directly
+ * through to the InputOptionTag which is used to generate the individual HTML options tags. As a
+ * result the InputOptionsCollectionTag will exhibit the same re-population/selection behaviour
+ * as the regular options tag.</p>
+ *
+ * <p>Since the tag has no use for one it does not allow a body.</p>
+ *
+ * @author Tim Fennell
  */
 public class InputOptionsCollectionTag extends HtmlTagSupport implements Tag {
-    public int doStartTag() throws JspException {
-        // Evaluate the rest of the attributes before we go any further
-        evaluateExpressions();
-        String labelProperty = getElAttributes().get("label").toString();
-        String valueProperty = getElAttributes().get("value").toString();
+    private Collection collection;
+    private String value;
+    private String label;
 
-        Object collectionWannaBe = getElAttributes().get("collection");
-        if (!(collectionWannaBe instanceof Collection)) {
-            throw new StripesJspException("Property 'collection' on tag options-collection must " +
-                "be an EL expression which resolves to a collection.");
-        }
-        Collection collection = (Collection) collectionWannaBe;
+    /** Sets the collection that will be used to generate options. */
+    public void setCollection(Collection collection) {
+        this.collection = collection;
+    }
+
+    /** Returns the value set with setCollection(). */
+    public Collection getCollection() {
+        return this.collection;
+    }
+
+    /** Sets a single value that should be selected, in the generated set of options. */
+    public void setSelected(String selected) { set("selected", selected); }
+
+    /** Gets the value set with setSelected(). */
+    public String getSelected() { return get("selected"); }
+
+    /**
+     * Sets the name of the property that will be fetched on each bean in the collection in
+     * order to generate the value attribute of each option.
+     *
+     * @param value the name of the attribute
+     */
+    public void setValue(String value) {
+        this.value = value;
+    }
+
+    /** Returns the property name set with setValue(). */
+    public String getValue() {
+        return value;
+    }
+
+    /**
+     * Sets the name of the property that will be fetched on each bean in the collection in
+     * order to generate the body of each option (i.e. what is seen by the user).
+     *
+     * @param label the name of the attribute
+     */
+    public void setLabel(String label) {
+        this.label = label;
+    }
+
+    /** Gets the property name set with setLabel(). */
+    public String getLabel() {
+        return label;
+    }
+
+
+    /**
+     * Iterates through the collection and uses an instance of InputOptionTag to generate each
+     * individual option with the correct state.  It is assumed that each element in the collection
+     * has non-null values for the properties specified for generating the label and value.
+     *
+     * @return SKIP_BODY in all cases
+     * @throws JspException if either the label or value attributes specify properties that are
+     *         not present on the beans in the collection, or output cannot be written.
+     */
+    public int doStartTag() throws JspException {
+        String labelProperty = getLabel();
+        String valueProperty = getValue();
 
         InputOptionTag tag = new InputOptionTag();
         tag.setParent(this);
         tag.setPageContext(getPageContext());
         tag.getAttributes().putAll(getAttributes());
-        tag.getAttributes().remove("collection");
 
         try {
-            for (Object item : collection) {
+            for (Object item : this.collection) {
                 Object label = OgnlUtil.getValue(labelProperty, item);
                 Object value = OgnlUtil.getValue(valueProperty, item);
 
@@ -47,51 +117,18 @@ public class InputOptionsCollectionTag extends HtmlTagSupport implements Tag {
         catch (OgnlException oe) {
             throw new StripesJspException("A problem occurred generating an options-collection. " +
                 "Most likely either [" + labelProperty + "] or ["+ valueProperty + "] is not a " +
-                "valid property of the beans in the collection: " + collection);
+                "valid property of the beans in the collection: " + this.collection);
         }
 
         return SKIP_BODY;
     }
 
+    /**
+     * Does nothing.
+     *
+     * @return EVAL_PAGE in all cases.
+     */
     public int doEndTag() throws JspException {
         return EVAL_PAGE;
     }
-
-    /** Sets the EL Expression representing the collection that will be used to generate options. */
-    public void setCollection(String collection) {
-        set("collection", collection);
-    }
-
-    /** Gets the EL Expression representing the collection that will be used to generate options. */
-    public String getCollection() {
-        return get("collection");
-    }
-
-    /** Sets the name of the property that will be used to generate the option value. */
-    public void setValue(String value) {
-        set("value", value);
-    }
-
-    /** Gets the name of the property that will be used to generate the option value. */
-    public String getValue() {
-        return get("value");
-    }
-
-    /** Sets the name of the property that will be used to generate the option's label. */
-    public void setLabel(String label) {
-        set("label", label);
-    }
-
-    /** Gets the name of the property that will be used to generate the option's label. */
-    public String getLabel() {
-        return get("label");
-    }
-
-    /** Sets a single value that should be selected, in the generated set of options. */
-    public void setSelected(String selected) { set("selected", selected); }
-
-    /** Gets a single value that should be selected, in the generated set of options. */
-    public String getSelected() { return get("selected"); }
-
-
 }

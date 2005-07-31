@@ -7,21 +7,60 @@ import javax.servlet.jsp.tagext.BodyTag;
 import java.io.IOException;
 
 /**
+ * <p>Tag that generates HTML form fields of type
+ * {@literal <textarea name="foo"> ... </textarea>}, which can dynamically re-populate their
+ * value. Textareas may have only a single value, whose default may be set using either the body
+ * of the textarea, or using the value="" attribute of the tag. At runtime the contents of the
+ * textarea are determined by looking for the first non-null value in the following list:</p>
  *
+ * <ul>
+ *   <il>A value with the same name in the HttpServletRequest</li>
+ *   <il>A value on the ActionBean if an ActionBean instance is present</li>
+ *   <il>The contents of the body of the textarea</li>
+ *   <il>The value attribute of the tag</li>
+ * </ul>
+ *
+ * @author Tim Fennell
  */
 public class InputTextAreaTag extends InputTagSupport implements BodyTag {
+    private String value;
+
+    /** Sets the default value of the textarea (if no body is present). */
+    public void setValue(String value) { this.value = value; }
+
+    /** Returns the value set using setValue(). */
+    public String getValue() { return this.value; }
+
+
+    /** Sets the HTML attribute of the same name. */
+    public void setCols(String cols) { set("cols", cols); }
+    /** Gets the HTML attribute of the same name. */
+    public String getCols() { return get("cols"); }
+
+    /** Sets the HTML attribute of the same name. */
+    public void setRows(String rows) { set("rows", rows); }
+    /** Gets the HTML attribute of the same name. */
+    public String getRows() { return get("rows"); }
+
+    /** Sets the HTML attribute of the same name. */
+    public void setReadonly(String readonly) { set("readonly", readonly); }
+    /** Gets the HTML attribute of the same name. */
+    public String getReadonly() { return get("readonly"); }
+
+    /**
+     * Does nothing.
+     * @return EVAL_BODY_BUFFERED in all cases.
+     */
     public int doStartTag() throws JspException {
-        evaluateExpressions();
         return EVAL_BODY_BUFFERED;
     }
 
-    public void doInitBody() throws JspException {
-        // Do Nothing
-    }
+    /** Does nothing. */
+    public void doInitBody() throws JspException { }
 
     /**
-     * Examines the contents of the body, and if a non-null, non-empty body was provided it will
-     * be used as the value of this textarea.  Otherwise the value attribute will be used.
+     * Does nothing.
+     * @return SKIP_BODY in all cases.
      */
     public int doAfterBody() throws JspException {
         return SKIP_BODY;
@@ -29,39 +68,38 @@ public class InputTextAreaTag extends InputTagSupport implements BodyTag {
 
 
     /**
-     * Writes out the textarea tag including a body based off either the value attribute, or the
-     * body of the jsp tag.
+     * Determines which source is applicable for the contents of the textarea and then writes
+     * out the textarea tag including the body.
+     *
+     * @return EVAL_PAGE in all cases.
+     * @throws JspException if the enclosing form tag cannot be found, or output cannot be written.
      */
     public int doEndTag() throws JspException {
         try {
             // Find out if we have a value from the PopulationStrategy
-            Object override = getSingleOverrideValue();
-            String body     = getBodyContentAsString();
-            Object originalValue = getElAttributes().remove("value");
-            Object value = null;
+            Object override      = getSingleOverrideValue();
+            String body          = getBodyContentAsString();
+            Object actualValue   = null;
 
             // Figure out which source to pull from
             if (override != null) {
-                value = override;
+                actualValue = override;
             }
             else if (body != null) {
-                value = body;
+                actualValue = body;
             }
-            else {
-                value = originalValue;
+            else if (this.value != null) {
+                actualValue = this.value;
             }
 
             writeOpenTag(getPageContext().getOut(), "textarea");
 
             // Write out the contents of the text area
-            if (value != null) {
-                getPageContext().getOut().write(value.toString());
+            if (actualValue != null) {
+                getPageContext().getOut().write(actualValue.toString());
             }
 
             writeCloseTag(getPageContext().getOut(), "textarea");
-
-            // Restore the original state of the tag before we mucked with it
-            getElAttributes().clear();
 
             return EVAL_PAGE;
         }
@@ -69,17 +107,4 @@ public class InputTextAreaTag extends InputTagSupport implements BodyTag {
             throw new StripesJspException("Could not write out textarea tag.", ioe);
         }
     }
-
-    ///////////////////////////////////////////////////////////////////////////
-    // Additional attribute getters and setters.
-    ///////////////////////////////////////////////////////////////////////////
-    public void setCols(String cols) { set("cols", cols); }
-    public String getCols() { return get("cols"); }
-
-    public void setRows(String rows) { set("rows", rows); }
-    public String getRows() { return get("rows"); }
-
-    public void setReadonly(String readonly) { set("readonly", readonly); }
-    public String getReadonly() { return get("readonly"); }
-
 }

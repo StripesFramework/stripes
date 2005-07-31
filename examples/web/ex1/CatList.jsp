@@ -5,7 +5,7 @@
 <html>
   <head>
       <title>Stripes Examples: Example 1 - Cats</title>
-      <link rel="stylesheet" href="/stripes/css/stripes.css" type="text/css"/>
+      <link rel="stylesheet" href="${pageContext.request.contextPath}/css/stripes.css" type="text/css"/>
       </head>
   <body>
       <h1>Example 1 - Cats</h1>
@@ -73,6 +73,5 @@
       <stripes:form name="ex1/CatDetailinputorm" action="/dispatcher">
           <input type="submit" name="New" value="Add Kitty"/>
       </stripes:form>
-
   </body>
 </html>

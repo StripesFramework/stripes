@@ -72,11 +72,10 @@ public class FormTag extends HtmlTagSupport implements BodyTag {
      * Does nothing except return EVAL_BODY_BUFFERED.  Everything of interest happens in doEndTag.
      */
     public int doStartTag() throws JspException {
-        evaluateExpressions();
         return EVAL_BODY_BUFFERED;
     }
 
-    /** Don't need to do anything here. */
+    /** Np-op method. */
     public void doInitBody() throws JspException { }
 
     /** Just returns SKIP_BODY so that the body is included only once. */
