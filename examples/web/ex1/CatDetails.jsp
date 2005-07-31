@@ -98,6 +98,7 @@
               <tr>
                   <td colspan="2">
                       <stripes:submit name="Update" value="Update Kitty!"/>
+                      <stripes:reset name="resetButton"/>
                   </td>
               </tr>
           </table>
