@@ -1,8 +1,7 @@
 package net.sourceforge.stripes.validation;
 
 import net.sourceforge.stripes.controller.DispatcherServlet;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import net.sourceforge.stripes.util.Log;
 
 import java.text.MessageFormat;
 import java.util.Locale;
@@ -37,7 +36,7 @@ import java.util.ResourceBundle;
  */
 public class LocalizableError implements ValidationError {
     /** Log class used to log debugging information. */
-    public static final Log log = LogFactory.getLog(ValidationError.class);
+    public static final Log log = Log.getInstance(ValidationError.class);
 
     private String messageKey;
     private String fieldNameKey;
@@ -116,7 +115,7 @@ public class LocalizableError implements ValidationError {
      * for message template parameter replacement.
      */
     protected void resolveFieldName(ResourceBundle bundle) {
-        log.debug("Looking up localized field name with messageKey: " + this.fieldNameKey);
+        log.debug("Looking up localized field name with messageKey: ", this.fieldNameKey);
         try {
             this.replacementParameters[0] =
                 bundle.getString(this.formName + "." + this.fieldNameKey);
