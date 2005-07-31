@@ -1,26 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE taglib PUBLIC "-//Sun Microsystems, Inc.//DTD JSP Tag Library 1.2//EN"
-  "http://java.sun.com/dtd/web-jsptaglibrary_1_2.dtd">
+<taglib xmlns="http://java.sun.com/xml/ns/j2ee"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee
+        http://java.sun.com/xml/ns/j2ee/web-jsptaglibrary_2_0.xsd"
+        version="2.0">
 
-
-<taglib>
+    <description>
+        Provides tags for use with the Stripes presentation framework.
+    </description>
+    <display-name>Stripes Tag Library</display-name>
     <tlib-version>1.0</tlib-version>
-    <jsp-version>1.2</jsp-version>
     <short-name>Stripes</short-name>
     <uri>http://stripes.sourceforge.net/stripes.tld</uri>
-    <display-name>Stripes Tag Library</display-name>
-    <description>
-		Blah blah blah.
-    </description>
 
 	<tag>
+        <description>
+            Blah Blah Blah
+        </description>
+        <display-name>form</display-name>
 		<name>form</name>
 		<tag-class>net.sourceforge.stripes.tag.FormTag</tag-class>
 		<body-content>JSP</body-content>
-		<display-name>form</display-name>
-		<description>
-			Blah Blah Blah
-		</description>
 		<!-- Start: Standard HTML attributes -->
 		<attribute><name>accesskey</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
 		<attribute><name>class</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
@@ -55,13 +55,13 @@
     </tag>
 
     <tag>
-        <name>text</name>
-        <tag-class>net.sourceforge.stripes.tag.InputTextTag</tag-class>
-        <body-content>JSP</body-content>
-        <display-name>text</display-name>
         <description>
             Blah Blah Blah
         </description>
+        <display-name>text</display-name>
+        <name>text</name>
+        <tag-class>net.sourceforge.stripes.tag.InputTextTag</tag-class>
+        <body-content>JSP</body-content>
         <!-- Start: Standard HTML attributes -->
         <attribute><name>accesskey</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
         <attribute><name>class</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
@@ -99,13 +99,13 @@
     </tag>
 
     <tag>
+        <description>
+            Blah Blah Blah
+        </description>
+        <display-name>text</display-name>
         <name>radio</name>
         <tag-class>net.sourceforge.stripes.tag.InputRadioButtonTag</tag-class>
         <body-content>JSP</body-content>
-        <display-name>text</display-name>
-        <description>
-            Blah Blah Blah
-        </description>
         <!-- Start: Standard HTML attributes -->
         <attribute><name>accesskey</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
         <attribute><name>class</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
@@ -142,13 +142,13 @@
     </tag>
 
     <tag>
+        <description>
+            Blah Blah Blah
+        </description>
+        <display-name>text</display-name>
         <name>checkbox</name>
         <tag-class>net.sourceforge.stripes.tag.InputCheckBoxTag</tag-class>
         <body-content>JSP</body-content>
-        <display-name>text</display-name>
-        <description>
-            Blah Blah Blah
-        </description>
         <!-- Start: Standard HTML attributes -->
         <attribute><name>accesskey</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
         <attribute><name>class</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
@@ -185,13 +185,13 @@
     </tag>
 
     <tag>
-        <name>select</name>
-        <tag-class>net.sourceforge.stripes.tag.InputSelectTag</tag-class>
-        <body-content>JSP</body-content>
-        <display-name>select</display-name>
         <description>
             Blah Blah Blah
         </description>
+        <display-name>select</display-name>
+        <name>select</name>
+        <tag-class>net.sourceforge.stripes.tag.InputSelectTag</tag-class>
+        <body-content>JSP</body-content>
         <!-- Start: Standard HTML attributes -->
         <attribute><name>accesskey</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
         <attribute><name>class</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
@@ -228,13 +228,13 @@
     </tag>
 
     <tag>
-        <name>option</name>
-        <tag-class>net.sourceforge.stripes.tag.InputOptionTag</tag-class>
-        <body-content>JSP</body-content>
-        <display-name>option</display-name>
         <description>
             Blah Blah Blah
         </description>
+        <display-name>option</display-name>
+        <name>option</name>
+        <tag-class>net.sourceforge.stripes.tag.InputOptionTag</tag-class>
+        <body-content>JSP</body-content>
         <!-- Start: Standard HTML attributes -->
         <attribute><name>accesskey</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
         <attribute><name>class</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
@@ -267,13 +267,13 @@
     </tag>
 
     <tag>
-        <name>options-collection</name>
-        <tag-class>net.sourceforge.stripes.tag.InputOptionsCollectionTag</tag-class>
-        <body-content>JSP</body-content>
-        <display-name>options-collection</display-name>
         <description>
             Blah Blah Blah
         </description>
+        <display-name>options-collection</display-name>
+        <name>options-collection</name>
+        <tag-class>net.sourceforge.stripes.tag.InputOptionsCollectionTag</tag-class>
+        <body-content>JSP</body-content>
         <!-- Start: Standard HTML attributes -->
         <attribute><name>accesskey</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
         <attribute><name>class</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
@@ -306,13 +306,13 @@
     </tag>
 
     <tag>
-        <name>file</name>
-        <tag-class>net.sourceforge.stripes.tag.InputFileTag</tag-class>
-        <body-content>JSP</body-content>
-        <display-name>file</display-name>
         <description>
             Blah Blah Blah
         </description>
+        <display-name>file</display-name>
+        <name>file</name>
+        <tag-class>net.sourceforge.stripes.tag.InputFileTag</tag-class>
+        <body-content>JSP</body-content>
         <!-- Start: Standard HTML attributes -->
         <attribute><name>accesskey</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
         <attribute><name>class</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
@@ -348,13 +348,13 @@
     </tag>
 
     <tag>
-        <name>textarea</name>
-        <tag-class>net.sourceforge.stripes.tag.InputTextAreaTag</tag-class>
-        <body-content>JSP</body-content>
-        <display-name>textarea</display-name>
         <description>
             Blah Blah Blah
         </description>
+        <display-name>textarea</display-name>
+        <name>textarea</name>
+        <tag-class>net.sourceforge.stripes.tag.InputTextAreaTag</tag-class>
+        <body-content>JSP</body-content>
         <!-- Start: Standard HTML attributes -->
         <attribute><name>accesskey</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
         <attribute><name>class</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
@@ -392,13 +392,13 @@
     </tag>
 
     <tag>
-        <name>hidden</name>
-        <tag-class>net.sourceforge.stripes.tag.InputHiddenTag</tag-class>
-        <body-content>JSP</body-content>
-        <display-name>text</display-name>
         <description>
             Blah Blah Blah
         </description>
+        <display-name>text</display-name>
+        <name>hidden</name>
+        <tag-class>net.sourceforge.stripes.tag.InputHiddenTag</tag-class>
+        <body-content>JSP</body-content>
         <!-- Start: Standard HTML attributes -->
         <attribute><name>accesskey</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
         <attribute><name>class</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
@@ -431,13 +431,13 @@
     </tag>
 
     <tag>
-        <name>submit</name>
-        <tag-class>net.sourceforge.stripes.tag.InputSubmitTag</tag-class>
-        <body-content>JSP</body-content>
-        <display-name>submit</display-name>
         <description>
             Blah Blah Blah
         </description>
+        <display-name>submit</display-name>
+        <name>submit</name>
+        <tag-class>net.sourceforge.stripes.tag.InputSubmitTag</tag-class>
+        <body-content>JSP</body-content>
         <!-- Start: Standard HTML attributes -->
         <attribute><name>accesskey</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
         <attribute><name>class</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>

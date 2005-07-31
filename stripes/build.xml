@@ -10,6 +10,7 @@
   <property file="${properties.file}"/>
 
   <property name="src.dir"     value="${basedir}/src"/>
+  <property name="tld.dir"     value="${basedir}/taglib"/>
   <property name="lib.dir"     value="${basedir}/lib"/>
   <property name="classes.dir" value="${basedir}/classes"/>
   <property name="doc.dir"    value="${basedir}/docs"/>
@@ -26,6 +27,7 @@
   <target name="init"
           description="Creates directories needed by the build system.">
 	<mkdir dir="${classes.dir}"/>
+    <mkdir dir="${classes.dir}/META-INF"/>
 	<mkdir dir="${dist.dir}"/>
 	<mkdir dir="${doc.dir}"/>
   </target>
@@ -53,6 +55,12 @@
     <copy todir="${classes.dir}">
       <fileset dir="${src.dir}">
         <include name="**/*.properties"/>
+      </fileset>
+    </copy>
+
+    <copy todir="${classes.dir}/META-INF">
+      <fileset dir="${tld.dir}">
+        <include name="**/*.tld"/>
       </fileset>
     </copy>
   </target>

@@ -20,11 +20,6 @@
         <include name="*.jar"/>
       </fileset>
   	</copy>
-  	<copy todir="examples/web/WEB-INF">
-      <fileset dir="stripes/taglib">
-      	<include name="*.tld"/>
-      </fileset>
-  	</copy>
   	<ant dir="examples" target="war"/>
   </target>
   
