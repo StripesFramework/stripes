@@ -136,67 +136,7 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="CatDetails.jsp" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/examples/web/ex1/CatDetails.jsp">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="62" column="107" selection-start="2688" selection-end="2688" vertical-scroll-proportion="0.28613138">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="TypeConverterFactory.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/validation/TypeConverterFactory.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="34" column="0" selection-start="1660" selection-end="1660" vertical-scroll-proportion="0.6948905">
-              <folding>
-                <element signature="imports" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="TypeConverter.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/validation/TypeConverter.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="18" column="79" selection-start="636" selection-end="636" vertical-scroll-proportion="0.3678832">
-              <folding>
-                <element signature="imports" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="BooleanTypeConverter.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/validation/BooleanTypeConverter.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="38" column="0" selection-start="1215" selection-end="1215" vertical-scroll-proportion="0.6189781">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="EnumeratedTypeConverter.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/validation/EnumeratedTypeConverter.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="15" column="21" selection-start="518" selection-end="518" vertical-scroll-proportion="0.30656934">
-              <folding>
-                <element signature="imports" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="DefaultTypeConverterFactory.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/validation/DefaultTypeConverterFactory.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="84" column="25" selection-start="3959" selection-end="3959" vertical-scroll-proportion="0.93868613">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="OgnlActionBeanPropertyBinder.java" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="OgnlActionBeanPropertyBinder.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/controller/OgnlActionBeanPropertyBinder.java">
           <provider selected="true" editor-type-id="text-editor">
             <state line="408" column="94" selection-start="19759" selection-end="19759" vertical-scroll-proportion="0.41459855">
@@ -205,19 +145,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="DateTypeConverter.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/validation/DateTypeConverter.java">
+      <file leaf-file-name="LocalePicker.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/localization/LocalePicker.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="52" column="45" selection-start="2171" selection-end="2171" vertical-scroll-proportion="0.46861315">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="LocalizableError.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/validation/LocalizableError.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="117" column="70" selection-start="5373" selection-end="5373" vertical-scroll-proportion="1.8102189">
+            <state line="28" column="31" selection-start="1363" selection-end="1363" vertical-scroll-proportion="0.57226276">
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -225,10 +156,81 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="HtmlUtil.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/util/HtmlUtil.java">
+      <file leaf-file-name="DefaultLocalePicker.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/localization/DefaultLocalePicker.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="12" column="53" selection-start="408" selection-end="408" vertical-scroll-proportion="0.24525547">
+            <state line="26" column="66" selection-start="1144" selection-end="1164" vertical-scroll-proportion="0.53138685">
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="web.xml" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/examples/web/WEB-INF/web.xml">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="13" column="0" selection-start="367" selection-end="367" vertical-scroll-proportion="0.26569343">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Configuration.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/config/Configuration.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="92" column="35" selection-start="4526" selection-end="4526" vertical-scroll-proportion="0.8569343">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="DefaultConfiguration.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/config/DefaultConfiguration.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="68" column="33" selection-start="3304" selection-end="3304" vertical-scroll-proportion="1.1445255">
+              <folding>
+                <element signature="method#getLocalePicker#0;class#DefaultConfiguration#0" expanded="true" />
+                <element signature="method#setLocalePicker#0;class#DefaultConfiguration#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="RuntimeConfiguration.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/config/RuntimeConfiguration.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="144" column="61" selection-start="7115" selection-end="7115" vertical-scroll-proportion="0.69343066">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="StripesRequestWrapper.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/controller/StripesRequestWrapper.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="148" column="8" selection-start="5386" selection-end="5386" vertical-scroll-proportion="0.6321168">
+              <folding>
+                <element signature="method#getLocale#0;class#StripesRequestWrapper#0" expanded="true" />
+                <element signature="method#setLocale#0;class#StripesRequestWrapper#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="DispatcherServlet.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/controller/DispatcherServlet.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="167" column="13" selection-start="7820" selection-end="7820" vertical-scroll-proportion="1.6554744">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="BootstrapPropertyResolver.java" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/config/BootstrapPropertyResolver.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="20" column="13" selection-start="703" selection-end="703" vertical-scroll-proportion="0.14890511">
               <folding />
             </state>
           </provider>
@@ -363,7 +365,7 @@
         <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
       </PATH_ELEMENT>
       <PATH_ELEMENT>
-        <option name="myItemId" value="net.sourceforge.stripes.validation" />
+        <option name="myItemId" value="net.sourceforge.stripes.localization" />
         <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
       </PATH_ELEMENT>
     </PATH>
@@ -378,6 +380,20 @@
       </PATH_ELEMENT>
       <PATH_ELEMENT>
         <option name="myItemId" value="net.sourceforge.stripes.controller" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
+      </PATH_ELEMENT>
+    </PATH>
+    <PATH>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="yaff.ipr" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="stripes" />
+        <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
+      </PATH_ELEMENT>
+      <PATH_ELEMENT>
+        <option name="myItemId" value="net.sourceforge.stripes.config" />
         <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
       </PATH_ELEMENT>
     </PATH>
@@ -781,11 +797,11 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="42" y="22" width="1238" height="832" extended-state="6" />
-    <editor active="true" />
+    <editor active="false" />
     <layout>
       <window_info id="CVS" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.33" order="12" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32789117" order="7" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="docked" type="docked" visible="true" weight="0.3369748" order="0" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="docked" type="docked" visible="true" weight="0.3369748" order="0" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32789117" order="1" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.25462186" order="1" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="docked" type="docked" visible="false" weight="0.32789117" order="9" />
@@ -880,80 +896,6 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/stripes/taglib/stripes.tld">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="538" column="19" selection-start="41329" selection-end="41329" vertical-scroll-proportion="0.020895522">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/tag/DefaultPopulationStrategy.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="7" column="0" selection-start="243" selection-end="243" vertical-scroll-proportion="0.14306569">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/examples/web/ex1/CatDetails.jsp">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="62" column="107" selection-start="2688" selection-end="2688" vertical-scroll-proportion="0.28613138">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/util/HtmlUtil.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="12" column="53" selection-start="408" selection-end="408" vertical-scroll-proportion="0.24525547">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/validation/LocalizableError.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="117" column="70" selection-start="5373" selection-end="5373" vertical-scroll-proportion="1.8102189">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/validation/TypeConverterFactory.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="34" column="0" selection-start="1660" selection-end="1660" vertical-scroll-proportion="0.6948905">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/validation/TypeConverter.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="18" column="79" selection-start="636" selection-end="636" vertical-scroll-proportion="0.3678832">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/validation/ByteTypeConverter.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="11" column="13" selection-start="367" selection-end="367" vertical-scroll-proportion="0.22481751">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/validation/NumberTypeConverterSupport.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="30" column="66" selection-start="938" selection-end="938" vertical-scroll-proportion="0.5518248">
-          <folding>
-            <element signature="method#setLocale#0;class#NumberTypeConverterSupport#0" expanded="true" />
-            <element signature="method#getLocale#0;class#NumberTypeConverterSupport#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/validation/DoubleTypeConverter.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="7" column="13" selection-start="99" selection-end="99" vertical-scroll-proportion="0.14306569">
@@ -994,6 +936,79 @@
     <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/controller/OgnlActionBeanPropertyBinder.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="408" column="94" selection-start="19759" selection-end="19759" vertical-scroll-proportion="0.41459855">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/localization/LocalePicker.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="28" column="31" selection-start="1363" selection-end="1363" vertical-scroll-proportion="0.57226276">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/config/BootstrapPropertyResolver.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="20" column="13" selection-start="703" selection-end="703" vertical-scroll-proportion="0.14890511">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/config/DefaultConfiguration.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="68" column="33" selection-start="3304" selection-end="3304" vertical-scroll-proportion="1.1445255">
+          <folding>
+            <element signature="method#getLocalePicker#0;class#DefaultConfiguration#0" expanded="true" />
+            <element signature="method#setLocalePicker#0;class#DefaultConfiguration#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/config/Configuration.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="92" column="35" selection-start="4526" selection-end="4526" vertical-scroll-proportion="0.8569343">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/config/RuntimeConfiguration.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="144" column="61" selection-start="7115" selection-end="7115" vertical-scroll-proportion="0.69343066">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/controller/StripesRequestWrapper.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="148" column="8" selection-start="5386" selection-end="5386" vertical-scroll-proportion="0.6321168">
+          <folding>
+            <element signature="method#getLocale#0;class#StripesRequestWrapper#0" expanded="true" />
+            <element signature="method#setLocale#0;class#StripesRequestWrapper#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/localization/DefaultLocalePicker.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="26" column="66" selection-start="1144" selection-end="1164" vertical-scroll-proportion="0.53138685">
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/stripes/src/net/sourceforge/stripes/controller/DispatcherServlet.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="167" column="13" selection-start="7820" selection-end="7820" vertical-scroll-proportion="1.6554744">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/examples/web/WEB-INF/web.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="13" column="0" selection-start="367" selection-end="367" vertical-scroll-proportion="0.26569343">
           <folding />
         </state>
       </provider>

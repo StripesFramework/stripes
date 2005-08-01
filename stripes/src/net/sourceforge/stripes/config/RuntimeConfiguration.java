@@ -4,6 +4,7 @@ import net.sourceforge.stripes.controller.ActionBeanPropertyBinder;
 import net.sourceforge.stripes.controller.ActionResolver;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
 import net.sourceforge.stripes.localization.LocalizationBundleFactory;
+import net.sourceforge.stripes.localization.LocalePicker;
 import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.validation.TypeConverterFactory;
 
@@ -37,6 +38,9 @@ public class RuntimeConfiguration extends DefaultConfiguration {
 
     /** The Configuration Key for looking up the name of the LocalizationBundleFactory class. */
     public static final String LOCALIZATION_BUNDLE_FACTORY = "LocalizationBundleFactory.Class";
+
+    /** The Configuration Key for looking up the name of the LocalizationBundleFactory class. */
+    public static final String LOCALE_PICKER = "LocalePicker.Class";
 
     /**
      * Attempts to find names of implementation classes using the BootstrapPropertyResolver and
@@ -119,6 +123,26 @@ public class RuntimeConfiguration extends DefaultConfiguration {
         catch (Exception e) {
             throw new StripesRuntimeException("Could not instantiate configured "
                     + "LocalizationBundleFactory of type [" + bundleFactoryName + "]. Please check "
+                    + "the configuration parameters specified in your web.xml.", e);
+        }
+
+        // Try instantiating the LocalePicker
+        String localePickerName =
+                getBootstrapPropertyResolver().getProperty(LOCALE_PICKER);
+        try {
+            if (localePickerName != null) {
+                log.info("Found configured LocalePicker class [", localePickerName,
+                         "], attempting to instantiate.");
+
+                LocalePicker localePicker =
+                        (LocalePicker) Class.forName(localePickerName).newInstance();
+                localePicker.init(this);
+                setLocalePicker(localePicker);
+            }
+        }
+        catch (Exception e) {
+            throw new StripesRuntimeException("Could not instantiate configured "
+                    + "LocalePicker of type [" + localePickerName + "]. Please check "
                     + "the configuration parameters specified in your web.xml.", e);
         }
 

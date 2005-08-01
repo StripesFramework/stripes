@@ -23,6 +23,7 @@ import java.io.File;
 import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Servlet that controls how requests to the Stripes framework are processed.  Uses an instance of
@@ -33,7 +34,7 @@ import java.util.List;
  */
 public class DispatcherServlet extends HttpServlet {
     /** Key used to lookup the name of the Configuration class used to configure Stripes. */
-    public static final String CONFIG_CLASS = "stripes.config";
+    public static final String CONFIG_CLASS = "Configuration.Class";
 
     /** Path to a temporary directory that will be used to process file uploads. */
     protected static String temporaryDirectoryPath;
@@ -123,7 +124,10 @@ public class DispatcherServlet extends HttpServlet {
 
         try {
             DispatcherServlet.configurationStash.set(configuration);
+            Locale locale = this.configuration.getLocalePicker().pickLocale(servletRequest);
             StripesRequestWrapper request = wrapRequest(servletRequest);
+            request.setLocale(locale);
+            log.info("LocalePicker selected locale: ", locale);
 
             // Lookup the bean class, handler method and hook everything together
             ActionBeanContext context = createActionBeanContext(request, response);

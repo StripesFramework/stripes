@@ -22,6 +22,10 @@
             <param-name>ActionResolver.PackageFilters</param-name>
             <param-value>net.sourceforge.stripes.*</param-value>
         </init-param>
+        <!--<init-param>-->
+            <!--<param-name>LocalePicker.Locales</param-name>-->
+            <!--<param-value>en_US,en,es_ES,es</param-value>-->
+        <!--</init-param>-->
         <load-on-startup/>
     </servlet>
 

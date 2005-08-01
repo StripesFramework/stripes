@@ -7,6 +7,8 @@ import net.sourceforge.stripes.controller.OgnlActionBeanPropertyBinder;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
 import net.sourceforge.stripes.localization.DefaultLocalizationBundleFactory;
 import net.sourceforge.stripes.localization.LocalizationBundleFactory;
+import net.sourceforge.stripes.localization.LocalePicker;
+import net.sourceforge.stripes.localization.DefaultLocalePicker;
 import net.sourceforge.stripes.validation.DefaultTypeConverterFactory;
 import net.sourceforge.stripes.validation.TypeConverterFactory;
 
@@ -29,6 +31,7 @@ public class DefaultConfiguration implements Configuration {
     private ActionBeanPropertyBinder actionBeanPropertyBinder;
     private TypeConverterFactory typeConverterFactory;
     private LocalizationBundleFactory localizationBundleFactory;
+    private LocalePicker localePicker;
 
     /** Gratefully accepts the BootstrapPropertyResolver handed to the Configuration. */
     public void setBootstrapPropertyResolver(BootstrapPropertyResolver resolver) {
@@ -61,6 +64,10 @@ public class DefaultConfiguration implements Configuration {
                 this.localizationBundleFactory.init(this);
             }
 
+            if (this.localePicker == null) {
+                this.localePicker = new DefaultLocalePicker();
+                this.localePicker.init(this);
+            }
         }
         catch (Exception e) {
             throw new StripesRuntimeException
@@ -124,4 +131,14 @@ public class DefaultConfiguration implements Configuration {
     protected void setLocalizationBundleFactory(LocalizationBundleFactory localizationBundleFactory) {
         this.localizationBundleFactory = localizationBundleFactory;
     }
+
+    /**
+     * Returns an instance of a LocalePicker. Unless a subclass has picked another implementation
+     * will return an instance of DefaultLocalePicker.
+     */
+    public LocalePicker getLocalePicker() { return this.localePicker; }
+
+    /** Allows subclasses to set the LocalePicker instance to be used. */
+    protected void setLocalePicker(LocalePicker localePicker) { this.localePicker = localePicker; }
+
 }

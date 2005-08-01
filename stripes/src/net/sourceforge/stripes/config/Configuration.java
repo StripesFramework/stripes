@@ -3,6 +3,7 @@ package net.sourceforge.stripes.config;
 import net.sourceforge.stripes.controller.ActionBeanPropertyBinder;
 import net.sourceforge.stripes.controller.ActionResolver;
 import net.sourceforge.stripes.localization.LocalizationBundleFactory;
+import net.sourceforge.stripes.localization.LocalePicker;
 import net.sourceforge.stripes.validation.TypeConverterFactory;
 
 /**
@@ -82,4 +83,12 @@ public interface Configuration {
      * @return LocalizationBundleFactory an instance of a LocalizationBundleFactory implementation
      */
     LocalizationBundleFactory getLocalizationBundleFactory();
+
+    /**
+     * Returns an instance of LocalePicker that is responsible for choosing the Locale for
+     * each request that enters the system.
+     *
+     * @return LocalePicker an instance of a LocalePicker implementation
+     */
+    LocalePicker getLocalePicker();
 }

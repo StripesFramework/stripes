@@ -9,6 +9,10 @@ import javax.servlet.http.HttpServletRequestWrapper;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Locale;
+import java.util.Collections;
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  * HttpServletRequestWrapper that is used to make the file upload functionality transparent.
@@ -22,6 +26,9 @@ import java.util.Map;
 public class StripesRequestWrapper extends HttpServletRequestWrapper {
     /** The Multipart Request that parses out all the pieces. */
     private MultipartRequest multipart;
+
+    /** The Locale that is going to be used to process the request. */
+    private Locale locale;
 
     /**
      * Constructor that will, if the POST is multi-part, parse the POST data and make it
@@ -80,7 +87,9 @@ public class StripesRequestWrapper extends HttpServletRequestWrapper {
             String[] values = this.multipart.getParameterValues(name);
             if (values != null) {
                 for (int i=0; i<values.length; ++i) {
-                    if (values[i] == null) values[i] = "";
+                    if (values[i] == null) {
+                        values[i] = "";
+                    }
                 }
             }
 
@@ -126,10 +135,34 @@ public class StripesRequestWrapper extends HttpServletRequestWrapper {
         }
     }
 
+    /**
+     * Provides access to the Locale being used to process the request.
+     * @return a Locale object representing the chosen locale for the request.
+     * @see net.sourceforge.stripes.localization.LocalePicker
+     */
+    public Locale getLocale() {
+        return locale;
+    }
+
+    /**
+     *  Returns a single element enumeration containing the selected Locale for this request.
+     *  @see net.sourceforge.stripes.localization.LocalePicker
+     */
+    public Enumeration getLocales() {
+        List list = new ArrayList();
+        list.add(this.locale);
+        return Collections.enumeration(list);
+    }
+
     ///////////////////////////////////////////////////////////////////////////
     // The following methods are specific to the StripesRequestWrapper and are
     // not present in the HttpServletRequest interface.
     ///////////////////////////////////////////////////////////////////////////
+
+    /** Used by the dispatcher to set the Locale chosen by the configured LocalePicker. */
+    protected void setLocale(Locale locale) {
+        this.locale = locale;
+    }
 
     /**
      * Returns the names of request parameters that represent files being uploaded by the user. If
