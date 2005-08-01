@@ -5,6 +5,7 @@ import net.sourceforge.stripes.controller.StripesConstants;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Locale;
 
 /**
  * Encapsulates information about the current request.  Also provides access to the underlying
@@ -84,6 +85,18 @@ public class ActionBeanContext {
      */
     public void setValidationErrors(ValidationErrors validationErrors) {
         this.validationErrors = validationErrors;
+    }
+
+    /**
+     * Gets the Locale that is being used to service the current request. This is *not* the value
+     * that was submitted in the request, but the value picked by the configured LocalePicker
+     * which takes into consideration the locales preferred in the request.
+     *
+     * @return Locale the locale being used for the current request
+     * @see net.sourceforge.stripes.localization.LocalePicker
+     */
+    public Locale getLocale() {
+        return this.request.getLocale();
     }
 
     /**
