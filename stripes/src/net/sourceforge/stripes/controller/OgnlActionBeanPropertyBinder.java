@@ -149,7 +149,8 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
         for (Map.Entry<String,String[]> entry : parameters.entrySet() ) {
             try {
                 String parameter = entry.getKey();
-                if (!SPECIAL_KEYS.contains(parameter) && !context.getEventName().equals(parameter)) {
+                if (!SPECIAL_KEYS.contains(parameter) && !context.getEventName().equals(parameter)
+                        && !fieldErrors.containsKey(parameter) ) {
                     log.trace("Attempting to bind property with name: ", parameter);
 
                     Class type = OgnlUtil.getPropertyClass(parameter, bean);
