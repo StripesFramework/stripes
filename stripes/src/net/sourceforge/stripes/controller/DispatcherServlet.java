@@ -2,28 +2,23 @@ package net.sourceforge.stripes.controller;
 
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.action.ActionBeanContext;
+import net.sourceforge.stripes.action.DontValidate;
 import net.sourceforge.stripes.action.ForwardResolution;
 import net.sourceforge.stripes.action.Resolution;
-import net.sourceforge.stripes.action.DontValidate;
-import net.sourceforge.stripes.config.BootstrapPropertyResolver;
-import net.sourceforge.stripes.config.Configuration;
-import net.sourceforge.stripes.config.DefaultConfiguration;
 import net.sourceforge.stripes.exception.StripesServletException;
+import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.validation.Validatable;
 import net.sourceforge.stripes.validation.ValidationError;
 import net.sourceforge.stripes.validation.ValidationErrors;
-import net.sourceforge.stripes.util.Log;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.File;
-import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * Servlet that controls how requests to the Stripes framework are processed.  Uses an instance of
@@ -33,76 +28,8 @@ import java.util.Locale;
  * @author Tim Fennell
  */
 public class DispatcherServlet extends HttpServlet {
-    /** Key used to lookup the name of the Configuration class used to configure Stripes. */
-    public static final String CONFIG_CLASS = "Configuration.Class";
-
-    /** Path to a temporary directory that will be used to process file uploads. */
-    protected static String temporaryDirectoryPath;
-
     /** Log used throughout the class. */
     private static Log log = Log.getInstance(DispatcherServlet.class);
-
-    /**
-     * A place to stash the Configuration object so that other classes in Stripes can access it
-     * without resorting to ferrying it, or the request, to every class that needs access to the
-     * Configuration.  Doing this allows multiple Stripes Configurations to exist in a single
-     * Classloader since the Configuration is not located statically.
-     */
-    private static ThreadLocal<Configuration> configurationStash = new ThreadLocal<Configuration>();
-
-    /** Stores a reference to the first Stripes configuraiton loaded. */
-    private static Configuration defaultConfiguration;
-
-    /** A reference to the Configuration class instantiated at initialization time. */
-    protected Configuration configuration;
-
-    /**
-     * Performs the necessary initialization for the Stripes controller servlet, including:
-     * <ul>
-     *  <li>Loading the specified Configuration classes</li>
-     *  <li>Setting up a ActionResolver instance.</li>
-     * </ul>
-     *
-     * @throws ServletException thrown if a problem is encountered initializing Stripes
-     */
-    public void init() throws ServletException {
-        BootstrapPropertyResolver bootstrap = new BootstrapPropertyResolver(getServletConfig());
-        String configurationClassName = bootstrap.getProperty(CONFIG_CLASS);
-
-        // Set up the Configuration - if one isn't found by the bootstrapper then
-        // we'll just use the DefaultConfiguration
-        if (configurationClassName != null) {
-            try {
-                Class clazz = Class.forName(configurationClassName);
-                this.configuration = (Configuration) clazz.newInstance();
-            }
-            catch (Exception e) {
-                log.fatal(e, "Could not instantiate specified Configuration. Class name specified was ",
-                          "[", configurationClassName, "].");
-                throw new StripesServletException("Could not instantiate specified Configuration. " +
-                    "Class name specified was [" + configurationClassName + "].", e);
-            }
-        }
-        else {
-            this.configuration = new DefaultConfiguration();
-        }
-        this.configuration.setBootstrapPropertyResolver(bootstrap);
-        this.configuration.init();
-
-        // FIXME: this feels like a hack, but how can we find config when the dispatcher isn't used?
-        if (DispatcherServlet.defaultConfiguration == null) {
-            DispatcherServlet.defaultConfiguration = this.configuration;
-        }
-
-        // Figure out where the temp directory is
-        File tempDir = (File) getServletContext().getAttribute("javax.servlet.context.tempdir");
-        if (tempDir != null) {
-            DispatcherServlet.temporaryDirectoryPath = tempDir.getAbsolutePath();
-        }
-        else {
-            DispatcherServlet.temporaryDirectoryPath = System.getProperty("java.io.tmpdir");
-        }
-    }
 
     /** Implemented as a simple call to doPost(request, response). */
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -115,24 +42,18 @@ public class DispatcherServlet extends HttpServlet {
      * the current request.  Instantiates the ActionBean, provides it references to the request and
      * response and then invokes the handler method.
      *
-     * @param servletRequest the HttpServletRequest handed to the class by the container
+     * @param request the HttpServletRequest handed to the class by the container
      * @param response the HttpServletResponse paired to the request
      * @throws ServletException thrown when the system fails to process the request in any way
      */
-    protected void doPost(HttpServletRequest servletRequest, HttpServletResponse response)
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
         throws ServletException {
 
         try {
-            DispatcherServlet.configurationStash.set(configuration);
-            Locale locale = this.configuration.getLocalePicker().pickLocale(servletRequest);
-            StripesRequestWrapper request = wrapRequest(servletRequest);
-            request.setLocale(locale);
-            log.info("LocalePicker selected locale: ", locale);
-
             // Lookup the bean class, handler method and hook everything together
             ActionBeanContext context = createActionBeanContext(request, response);
 
-            ActionResolver actionResolver = this.configuration.getActionResolver();
+            ActionResolver actionResolver = StripesFilter.getConfiguration().getActionResolver();
             String beanName         = actionResolver.getActionBeanName(context);
             Class<ActionBean> clazz = actionResolver.getActionBean(beanName);
             String eventName        = actionResolver.getEventName(clazz, context);
@@ -206,27 +127,6 @@ public class DispatcherServlet extends HttpServlet {
         }
     }
 
-    /**
-     * Wraps the HttpServletRequest with a StripesServletRequest.  This is done to ensure that any
-     * form posts that contain file uploads get handled appropriately.
-     *
-     * @param servletRequest the HttpServletRequest handed to the dispatcher by the container
-     * @return an instance of StripesRequestWrapper, which is an HttpServletRequestWrapper
-     * @throws StripesServletException if the wrapper cannot be constructed
-     */
-    protected StripesRequestWrapper wrapRequest(HttpServletRequest servletRequest)
-        throws StripesServletException {
-        String tempDirPath = getTempDirectoryPath();
-
-        StripesRequestWrapper request =
-            new StripesRequestWrapper(servletRequest, tempDirPath, Integer.MAX_VALUE);
-        return request;
-    }
-
-    /** Returns the path to the temporary directory that is used to store file uploads. */
-    protected String getTempDirectoryPath() {
-        return DispatcherServlet.temporaryDirectoryPath;
-    }
 
     /**
      * Invokes the configured property binder in order to populate the bean's properties from the
@@ -238,7 +138,8 @@ public class DispatcherServlet extends HttpServlet {
     protected ValidationErrors bindValues(ActionBean bean,
                                           ActionBeanContext context,
                                           boolean validate) throws StripesServletException {
-        return this.configuration.getActionBeanPropertyBinder().bind(bean, context, validate);
+        return StripesFilter.getConfiguration()
+                .getActionBeanPropertyBinder().bind(bean, context, validate);
     }
 
     /**
@@ -259,17 +160,4 @@ public class DispatcherServlet extends HttpServlet {
         return new ForwardResolution(request.getParameter(StripesConstants.URL_KEY_SOURCE_PAGE));
     }
 
-    /**
-     * Returns the Configuration that is being used to process the current request.
-     */
-    public static Configuration getConfiguration() {
-        Configuration config = DispatcherServlet.configurationStash.get();
-        if (config != null) {
-            return config;
-        }
-        else {
-            // FIXME: this feels like a hack, but what else can we do?
-            return DispatcherServlet.defaultConfiguration;
-        }
-    }
 }

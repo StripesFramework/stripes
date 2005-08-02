@@ -40,7 +40,7 @@
       pageContext.setAttribute("activites", Activity.getActivities());
       %>
 
-      <stripes:form method="post" action="/dispatcher" name="ex1/CatDetailsForm">
+      <stripes:form method="post" action="/action/CatDetails" name="ex1/CatDetailsForm">
           <table>
               <tr>
                   <td>Cat Name:</td>

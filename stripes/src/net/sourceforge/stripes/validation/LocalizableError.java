@@ -1,6 +1,6 @@
 package net.sourceforge.stripes.validation;
 
-import net.sourceforge.stripes.controller.DispatcherServlet;
+import net.sourceforge.stripes.controller.StripesFilter;
 import net.sourceforge.stripes.util.Log;
 
 import java.text.MessageFormat;
@@ -81,10 +81,10 @@ public class LocalizableError implements ValidationError {
      */
     public String getMessage(Locale locale) {
         try {
-            ResourceBundle fieldBundle = DispatcherServlet.getConfiguration().
+            ResourceBundle fieldBundle = StripesFilter.getConfiguration().
                     getLocalizationBundleFactory().getFormFieldBundle(locale);
 
-            ResourceBundle messageBundle = DispatcherServlet.getConfiguration().
+            ResourceBundle messageBundle = StripesFilter.getConfiguration().
                     getLocalizationBundleFactory().getErrorMessageBundle(locale);
             resolveFieldName(fieldBundle);
 

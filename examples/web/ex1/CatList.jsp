@@ -57,7 +57,7 @@
                       %>
                   </td>
                   <td>
-                    <stripes:form name="ex1/CatDetailsForm" action="/dispatcher">
+                    <stripes:form name="ex1/CatDetailsForm" action="/action/CatDetails" method="post">
                         <stripes:hidden name="cat.name" value="${cat.name}"/>
                         <stripes:hidden name="cat.activities" value="${cat.activities}"/>
                         <stripes:submit name="Edit" value="Edit Kitty">Really, Edit Kitty</stripes:submit>
@@ -70,7 +70,7 @@
 
       </table>
 
-      <stripes:form name="ex1/CatDetailinputorm" action="/dispatcher">
+      <stripes:form name="ex1/CatDetailsForm" action="/action/CatDetails">
           <input type="submit" name="New" value="Add Kitty"/>
       </stripes:form>
   </body>

@@ -1,6 +1,6 @@
 package net.sourceforge.stripes.config;
 
-import javax.servlet.ServletConfig;
+import javax.servlet.FilterConfig;
 
 /**
  * <p>Resolves configuration properties that are used to bootstrap the system.  Essentially this boils
@@ -19,21 +19,21 @@ import javax.servlet.ServletConfig;
  * @author Tim Fennell
  */
 public class BootstrapPropertyResolver {
-    private ServletConfig servletConfig;
+    private FilterConfig filterConfig;
 
     /** Constructs a new BootstrapPropertyResolver with the given ServletConfig. */
-    public BootstrapPropertyResolver(ServletConfig servletConfig) {
-        setServletConfig(servletConfig);
+    public BootstrapPropertyResolver(FilterConfig filterConfig) {
+        setFilterConfig(filterConfig);
     }
 
-    /** Stores a reference to the dispatcher servlet's ServletConfig object. */
-    public void setServletConfig(ServletConfig servletConfig) {
-        this.servletConfig = servletConfig;
+    /** Stores a reference to the filter's FilterConfig object. */
+    public void setFilterConfig(FilterConfig filterConfig) {
+        this.filterConfig = filterConfig;
     }
 
-    /** Returns a reference to the dispatcher servlet's ServletConfig object. */
-    public ServletConfig getServletConfig(ServletConfig servletConfig) {
-        return this.servletConfig;
+    /** Returns a reference to the StripesFilter's FilterConfig object. */
+    public FilterConfig getFilterConfig(FilterConfig filterConfig) {
+        return this.filterConfig;
     }
 
     /**
@@ -44,10 +44,10 @@ public class BootstrapPropertyResolver {
      * @return String the value of the configuration item or null
      */
     public String getProperty(String key) {
-        String value = this.servletConfig.getInitParameter(key);
+        String value = this.filterConfig.getInitParameter(key);
 
         if (value == null) {
-            value = this.servletConfig.getServletContext().getInitParameter(key);
+            value = this.filterConfig.getServletContext().getInitParameter(key);
         }
 
         if (value == null) {

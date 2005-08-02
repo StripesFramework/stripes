@@ -1,12 +1,12 @@
 package net.sourceforge.stripes.tag;
 
+import net.sourceforge.stripes.controller.StripesFilter;
 import net.sourceforge.stripes.exception.StripesJspException;
-import net.sourceforge.stripes.controller.DispatcherServlet;
 
 import java.util.Collection;
-import java.util.ResourceBundle;
-import java.util.MissingResourceException;
 import java.util.Locale;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
 
 /**
  * Parent class for all input tags in stripes.  Provides support methods for retrieving all the
@@ -154,7 +154,7 @@ public class InputTagSupport extends HtmlTagSupport {
         String formName = getParentFormTag().getAttributes().get("name").toString();
         ResourceBundle bundle = null;
         try {
-            bundle = DispatcherServlet.getConfiguration().getLocalizationBundleFactory()
+            bundle = StripesFilter.getConfiguration().getLocalizationBundleFactory()
                     .getFormFieldBundle(getPageContext().getRequest().getLocale());
         }
         catch (MissingResourceException mre) {
