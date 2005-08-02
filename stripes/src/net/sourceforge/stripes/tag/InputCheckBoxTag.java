@@ -25,6 +25,12 @@ import javax.servlet.jsp.tagext.BodyTag;
 public class InputCheckBoxTag extends InputTagSupport implements BodyTag {
     private Object checked;
 
+    /** Basic constructor that sets the input tag's type attribute to "checkbox". */
+    public InputCheckBoxTag() {
+        super();
+        getAttributes().put("type", "checkbox");
+    }
+
     /**
      * Sets the default checked values for checkboxes with this name.
      *
@@ -48,9 +54,8 @@ public class InputCheckBoxTag extends InputTagSupport implements BodyTag {
     public String getValue() { return get("value"); }
 
 
-    /** Sets the tags type to checkbox, and requests buffered body evaluation. */
-    public int doStartTag() throws JspException {
-        getAttributes().put("type", "checkbox");
+    /** Does nothing. */
+    public int doStartInputTag() throws JspException {
         return EVAL_BODY_BUFFERED;
     }
 
@@ -72,7 +77,7 @@ public class InputCheckBoxTag extends InputTagSupport implements BodyTag {
      * @throws JspException if the checkbox is not contained inside a stripes InputFormTag, or has
      *         problems writing to the output.
      */
-    public int doEndTag() throws JspException {
+    public int doEndInputTag() throws JspException {
         // Find out if we have a value from the PopulationStrategy
         Object override = getOverrideValueOrValues();
         String body     = getBodyContentAsString();

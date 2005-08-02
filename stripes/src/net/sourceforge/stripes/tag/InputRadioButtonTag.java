@@ -25,6 +25,12 @@ import javax.servlet.jsp.tagext.BodyTag;
 public class InputRadioButtonTag extends InputTagSupport implements BodyTag {
     private String checked;
 
+    /** Basic constructor that sets the input tag's type attribute to "radio". */
+    public InputRadioButtonTag() {
+        super();
+        getAttributes().put("type", "radio");
+    }
+
     /**
      * Sets the value amongst a set of radio buttons, that should be "checked" by default.
      * @param checked the default value for a set of radio buttons
@@ -44,8 +50,7 @@ public class InputRadioButtonTag extends InputTagSupport implements BodyTag {
      * Sets the input tag type to "radio".
      * @return EVAL_BODY_BUFFERED in all cases.
      */
-    public int doStartTag() throws JspException {
-        getAttributes().put("type", "radio");
+    public int doStartInputTag() throws JspException {
         return EVAL_BODY_BUFFERED;
     }
 
@@ -67,7 +72,7 @@ public class InputRadioButtonTag extends InputTagSupport implements BodyTag {
      * @return EVAL_PAGE in all cases.
      * @throws JspException if the parent form tag cannot be found, or output cannot be written.
      */
-    public int doEndTag() throws JspException {
+    public int doEndInputTag() throws JspException {
         // Find out if we have a value from the PopulationStrategy
         Object override     = getSingleOverrideValue();
         String body         = getBodyContentAsString();

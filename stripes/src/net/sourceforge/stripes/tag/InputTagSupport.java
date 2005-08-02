@@ -3,6 +3,7 @@ package net.sourceforge.stripes.tag;
 import net.sourceforge.stripes.controller.StripesFilter;
 import net.sourceforge.stripes.exception.StripesJspException;
 
+import javax.servlet.jsp.JspException;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.MissingResourceException;
@@ -15,7 +16,7 @@ import java.util.ResourceBundle;
  *
  * @author Tim Fennell
  */
-public class InputTagSupport extends HtmlTagSupport {
+public abstract class InputTagSupport extends HtmlTagSupport {
     /** PopulationStrategy used to find non-default values for input tags. */
     private static PopulationStrategy populationStrategy = new DefaultPopulationStrategy();
 
@@ -175,4 +176,32 @@ public class InputTagSupport extends HtmlTagSupport {
 
         return localizedValue;
     }
+
+    /**
+     * Final implementation of the doStartTag() method that allows the base InputTagSupport class
+     * to insert functionality before and after the tag performs it's doStartTag equivelant
+     * method.
+     *
+     * @return int the value returned by the child class from doStartInputTag()
+     */
+    public final int doStartTag() throws JspException {
+        return doStartInputTag();
+    }
+
+    /** Abstract method implemented in child classes instead of doStartTag(). */
+    public abstract int doStartInputTag() throws JspException;
+
+    /**
+     * Final implementation of the doEndTag() method that allows the base InputTagSupport class
+     * to insert functionality before and after the tag performs it's doEndTag equivelant
+     * method.
+     *
+     * @return int the value returned by the child class from doStartInputTag()
+     */
+    public final int doEndTag() throws JspException {
+        return doEndInputTag();
+    }
+
+    /** Abstract method implemented in child classes instead of doEndTag(). */
+    public abstract int doEndInputTag() throws JspException;
 }

@@ -22,6 +22,12 @@ import javax.servlet.jsp.tagext.BodyTag;
  public class InputTextTag extends InputTagSupport implements BodyTag {
     private String value;
 
+    /** Basic constructor that sets the input tag's type attribute to "text". */
+    public InputTextTag() {
+        super();
+        getAttributes().put("type", "text");
+    }
+
     /** Sets the default value of the textarea (if no body is present). */
     public void setValue(String value) { this.value = value; }
 
@@ -43,7 +49,7 @@ import javax.servlet.jsp.tagext.BodyTag;
      * Sets type input tags type to "text".
      * @return EVAL_BODY_BUFFERED in all cases.
      */
-    public int doStartTag() throws JspException {
+    public int doStartInputTag() throws JspException {
         getAttributes().put("type", "text");
         return EVAL_BODY_BUFFERED;
     }
@@ -66,7 +72,7 @@ import javax.servlet.jsp.tagext.BodyTag;
      * @return EVAL_PAGE in all cases.
      * @throws JspException if the enclosing form tag cannot be found, or output cannot be written.
      */
-    public int doEndTag() throws JspException {
+    public int doEndInputTag() throws JspException {
         // Find out if we have a value from the PopulationStrategy
         String body     = getBodyContentAsString();
         Object override = getSingleOverrideValue();

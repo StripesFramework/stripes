@@ -20,6 +20,12 @@ import javax.servlet.jsp.tagext.Tag;
  */
 public class InputFileTag extends InputTagSupport implements Tag {
 
+    /** Basic constructor that sets the input tag's type attribute to "file". */
+    public InputFileTag() {
+        super();
+        getAttributes().put("type", "file");
+    }
+
     /** Sets the content types accepted for files being uploaded. */
     public void setAccept(String accept) { set("accept", accept); }
 
@@ -32,9 +38,7 @@ public class InputFileTag extends InputTagSupport implements Tag {
      * @return SKIP_BODY because the tag does not allow a body
      * @throws JspException if the enclosing form tag cannot be located
      */
-    public int doStartTag() throws JspException {
-        getAttributes().put("type", "file");
-
+    public int doStartInputTag() throws JspException {
         // Make sure the form is setup to do file uploads
         FormTag form = getParentFormTag();
         form.setMethod("post");
@@ -49,7 +53,7 @@ public class InputFileTag extends InputTagSupport implements Tag {
      * @return EVAL_PAGE is always returned
      * @throws JspException if a problem is encountered writing to the JSP page's output
      */
-    public int doEndTag() throws JspException {
+    public int doEndInputTag() throws JspException {
         writeSingletonTag(getPageContext().getOut(), "input");
         return EVAL_PAGE;
     }

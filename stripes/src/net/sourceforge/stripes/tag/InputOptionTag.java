@@ -54,7 +54,7 @@ public class InputOptionTag extends InputTagSupport implements BodyTag {
      * Does nothing.
      * @return EVAL_BODY_BUFFERED in all cases.
      */
-    public int doStartTag() throws JspException {
+    public int doStartInputTag() throws JspException {
         return EVAL_BODY_BUFFERED;
     }
 
@@ -78,7 +78,7 @@ public class InputOptionTag extends InputTagSupport implements BodyTag {
      * @throws JspException if the option is not contained inside an InputSelectTag or output
      *         cannot be written.
      */
-    public int doEndTag() throws JspException {
+    public int doEndInputTag() throws JspException {
         // Find our mandatory enclosing select tag
         InputSelectTag selectTag = getParentTag(InputSelectTag.class);
         if (selectTag == null) {

@@ -51,7 +51,7 @@ public class InputTextAreaTag extends InputTagSupport implements BodyTag {
      * Does nothing.
      * @return EVAL_BODY_BUFFERED in all cases.
      */
-    public int doStartTag() throws JspException {
+    public int doStartInputTag() throws JspException {
         return EVAL_BODY_BUFFERED;
     }
 
@@ -74,7 +74,7 @@ public class InputTextAreaTag extends InputTagSupport implements BodyTag {
      * @return EVAL_PAGE in all cases.
      * @throws JspException if the enclosing form tag cannot be found, or output cannot be written.
      */
-    public int doEndTag() throws JspException {
+    public int doEndInputTag() throws JspException {
         try {
             // Find out if we have a value from the PopulationStrategy
             Object override      = getSingleOverrideValue();

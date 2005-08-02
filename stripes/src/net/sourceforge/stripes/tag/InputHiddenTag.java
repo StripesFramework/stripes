@@ -25,6 +25,12 @@ import java.util.Collection;
 public class InputHiddenTag extends InputTagSupport implements BodyTag {
     private Object value;
 
+    /** Basic constructor that sets the input tag's type attribute to "hidden". */
+    public InputHiddenTag() {
+        super();
+        getAttributes().put("type", "hidden");
+    }
+
     /**
      * Sets the value that will be used for the hidden field(s) if no body or repopulation
      * value is found.
@@ -45,8 +51,7 @@ public class InputHiddenTag extends InputTagSupport implements BodyTag {
      *
      * @return EVAL_BODY_BUFFERED to always buffer the body (so it can be used as the value)
      */
-    public int doStartTag() throws JspException {
-        getAttributes().put("type", "hidden");
+    public int doStartInputTag() throws JspException {
         return EVAL_BODY_BUFFERED;
     }
 
@@ -70,7 +75,7 @@ public class InputHiddenTag extends InputTagSupport implements BodyTag {
      * @return EVAL_PAGE in all cases.
      * @throws JspException if the enclosing form tag cannot be found, or output cannot be written.
      */
-    public int doEndTag() throws JspException {
+    public int doEndInputTag() throws JspException {
         // Find out if we have a value from the PopulationStrategy
         String body  = getBodyContentAsString();
         Object override = getOverrideValueOrValues();
