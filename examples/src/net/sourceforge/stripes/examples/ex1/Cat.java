@@ -13,14 +13,14 @@ public class Cat {
     private Breed breed;
     private String[] favoriteFoods;
     private String[] activities;
-    private Date birthday;
+    private Date dateOfBirth;
 
-    public Date getBirthday() {
-        return birthday;
+    public Date getDateOfBirth() {
+        return dateOfBirth;
     }
 
-    public void setBirthday(Date birthday) {
-        this.birthday = birthday;
+    public void setDateOfBirth(Date dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
     }
 
     public String[] getFavoriteFoods() {

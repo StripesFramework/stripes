@@ -96,7 +96,7 @@ public class InputOptionsEnumerationTag extends HtmlTagSupport implements Tag {
                 }
 
                 tag.setLabel(label.toString());
-                tag.setValue(value.toString());
+                tag.setValue(value);
                 tag.doStartTag();
                 tag.doInitBody();
                 tag.doAfterBody();

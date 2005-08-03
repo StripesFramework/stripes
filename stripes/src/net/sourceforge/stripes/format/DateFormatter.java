@@ -47,7 +47,7 @@ public class DateFormatter implements Formatter<Date> {
     }
 
     private String formatType;
-    private String formatString;
+    private String formatPattern;
     private Locale locale;
     private DateFormat format;
 
@@ -57,8 +57,8 @@ public class DateFormatter implements Formatter<Date> {
     }
 
     /** Sets the named format string or date pattern to use to format the date. */
-    public void setFormatString(String formatString) {
-        this.formatString = formatString;
+    public void setFormatPattern(String formatPattern) {
+        this.formatPattern = formatPattern;
     }
 
     /** Sets the locale that output String should be in. */
@@ -76,15 +76,15 @@ public class DateFormatter implements Formatter<Date> {
      */
     public void init() {
         // Default these values if they were not supplied
-        if (formatString == null) {
-            formatString = "short";
+        if (formatPattern == null) {
+            formatPattern = "short";
         }
 
         if (formatType == null) {
             formatType = "date";
         }
 
-        String lcFormatString = formatString.toLowerCase();
+        String lcFormatString = formatPattern.toLowerCase();
         String lcFormatType  = formatType.toLowerCase();
 
         // Now figure out how to construct our date format for our locale
@@ -107,7 +107,7 @@ public class DateFormatter implements Formatter<Date> {
             }
         }
         else {
-            format = new SimpleDateFormat(formatString, locale);
+            format = new SimpleDateFormat(formatPattern, locale);
         }
     }
 

@@ -31,12 +31,13 @@ import java.io.IOException;
 public class InputOptionTag extends InputTagSupport implements BodyTag {
     private String selected;
     private String label;
+    private Object value;
 
     /** Sets the value of this option. */
-    public void setValue(String value) { set("value", value); }
+    public void setValue(Object value) { this.value = value; }
 
     /** Returns the value of the opion as set with setValue(). */
-    public String getValue() { return get("value"); }
+    public Object getValue() { return this.value; }
 
     /** Sets the label that will be used as the option body if no body is supplied. */
     public void setLabel(String label) { this.label = label; }
@@ -90,6 +91,8 @@ public class InputOptionTag extends InputTagSupport implements BodyTag {
             getAttributes().put("selected", "selected");
         }
 
+        getAttributes().put("value", format(this.value));
+
         try {
             String actualLabel = getBodyContentAsString();
 
@@ -103,7 +106,9 @@ public class InputOptionTag extends InputTagSupport implements BodyTag {
             }
             writeCloseTag(getPageContext().getOut(), "option");
 
+            // Clean out the attributes we modified
             getAttributes().remove("selected");
+            getAttributes().remove("value");
         }
         catch (IOException ioe) {
             throw new JspException("IOException in InputOptionTag.doEndTag().", ioe);

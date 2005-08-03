@@ -23,13 +23,13 @@ import java.io.IOException;
  * @author Tim Fennell
  */
 public class InputTextAreaTag extends InputTagSupport implements BodyTag {
-    private String value;
+    private Object value;
 
     /** Sets the default value of the textarea (if no body is present). */
-    public void setValue(String value) { this.value = value; }
+    public void setValue(Object value) { this.value = value; }
 
     /** Returns the value set using setValue(). */
-    public String getValue() { return this.value; }
+    public Object getValue() { return this.value; }
 
 
     /** Sets the HTML attribute of the same name. */
@@ -96,7 +96,7 @@ public class InputTextAreaTag extends InputTagSupport implements BodyTag {
 
             // Write out the contents of the text area
             if (actualValue != null) {
-                getPageContext().getOut().write(actualValue.toString());
+                getPageContext().getOut().write( format(actualValue));
             }
 
             writeCloseTag(getPageContext().getOut(), "textarea");

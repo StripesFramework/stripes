@@ -43,7 +43,7 @@ public class NumberFormatter implements Formatter<Number> {
     }
 
     private String formatType;
-    private String formatString;
+    private String formatPattern;
     private Locale locale;
     private NumberFormat format;
 
@@ -53,8 +53,8 @@ public class NumberFormatter implements Formatter<Number> {
     }
 
     /** Sets the named format string or number format pattern to use to format the number. */
-    public void setFormatString(String formatString) {
-        this.formatString = formatString;
+    public void setFormatPattern(String formatPattern) {
+        this.formatPattern = formatPattern;
     }
 
     /** Sets the locale that output String should be in. */
@@ -70,8 +70,8 @@ public class NumberFormatter implements Formatter<Number> {
         }
 
         // Figure out which kind of number formatter to get
-        if (this.formatString == null) {
-            this.formatString = "plain";
+        if (this.formatPattern == null) {
+            this.formatPattern = "plain";
         }
 
         if (this.formatType.equalsIgnoreCase("number")) {
@@ -90,29 +90,29 @@ public class NumberFormatter implements Formatter<Number> {
         }
 
         // Do any extra configuration
-        if (this.formatString.equalsIgnoreCase("plain")) {
+        if (this.formatPattern.equalsIgnoreCase("plain")) {
             this.format.setGroupingUsed(false);
         }
-        else if (this.formatString.equalsIgnoreCase("integer")) {
+        else if (this.formatPattern.equalsIgnoreCase("integer")) {
             this.format.setMaximumFractionDigits(0);
         }
-        else if (this.formatString.equalsIgnoreCase(("decimal"))) {
+        else if (this.formatPattern.equalsIgnoreCase(("decimal"))) {
             this.format.setMinimumFractionDigits(2);
             this.format.setMaximumFractionDigits(6);
         }
         else {
             try {
-                ((DecimalFormat) this.format).applyPattern(this.formatString);
+                ((DecimalFormat) this.format).applyPattern(this.formatPattern);
             }
             catch (Exception e) {
                 throw new StripesRuntimeException("Custom pattern could not be applied to " +
-                    "NumberFormat instance.  Pattern was: " + this.formatString,  e);
+                    "NumberFormat instance.  Pattern was: " + this.formatPattern,  e);
             }
         }
     }
 
     /** Formats the number supplied as a String. */
     public String format(Number input) {
-        return this.format(input);
+        return this.format.format(input);
     }
 }

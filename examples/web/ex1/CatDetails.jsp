@@ -37,6 +37,10 @@
                   <td><stripes:text name="cat.color" class="text"/></td>
               </tr>
               <tr>
+                  <td>Date of Birth:</td>
+                  <td><stripes:text name="cat.dateOfBirth" class="text" formatType="date" formatPattern="medium"/></td>
+              </tr>
+              <tr>
                   <td>Age:</td>
                   <td><stripes:text name="cat.age" class="text"/></td>
               </tr>

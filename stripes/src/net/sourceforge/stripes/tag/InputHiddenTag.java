@@ -97,18 +97,18 @@ public class InputHiddenTag extends InputTagSupport implements BodyTag {
         if (valueWereGoingToUse != null) {
             if (valueWereGoingToUse.getClass().isArray()) {
                 for (Object value : (Object[]) valueWereGoingToUse) {
-                    getAttributes().put("value", value.toString());
+                    getAttributes().put("value", format(value));
                     writeSingletonTag(getPageContext().getOut(), "input");
                 }
             }
             else if (valueWereGoingToUse instanceof Collection) {
                 for (Object value : (Collection) valueWereGoingToUse) {
-                    getAttributes().put("value", value.toString());
+                    getAttributes().put("value", format(value));
                     writeSingletonTag(getPageContext().getOut(), "input");
                 }
             }
             else {
-                getAttributes().put("value", valueWereGoingToUse.toString());
+                getAttributes().put("value", format(valueWereGoingToUse));
                 writeSingletonTag(getPageContext().getOut(), "input");
             }
         }

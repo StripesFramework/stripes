@@ -8,6 +8,7 @@ import net.sourceforge.stripes.localization.LocalizationBundleFactory;
 import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.validation.TypeConverterFactory;
 import net.sourceforge.stripes.tag.TagErrorRendererFactory;
+import net.sourceforge.stripes.format.FormatterFactory;
 
 /**
  * <p>Configuration class that uses the BootstrapPropertyResolver to look for configuration values,
@@ -42,6 +43,9 @@ public class RuntimeConfiguration extends DefaultConfiguration {
 
     /** The Configuration Key for looking up the name of the LocalizationBundleFactory class. */
     public static final String LOCALE_PICKER = "LocalePicker.Class";
+
+    /** The Configuration Key for looking up the name of the FormatterFactory class. */
+    public static final String FORMATTER_FACTORY = "FormatterFactory.Class";
 
     /** The Configuration Key for looking up the name of the TagErrorRendererFactory class */
     public static final String TAG_ERROR_RENDERER_FACTORY = "TagErrorRendererFactory.Class";
@@ -150,6 +154,26 @@ public class RuntimeConfiguration extends DefaultConfiguration {
                     + "the configuration parameters specified in your web.xml.", e);
         }
 
+
+        // Try instantiating the FormatterFactory
+        String formatterFactoryName =
+                getBootstrapPropertyResolver().getProperty(FORMATTER_FACTORY);
+        try {
+            if (formatterFactoryName != null) {
+                log.info("Found configured FormatterFactory class [", formatterFactoryName,
+                         "], attempting to instantiate.");
+
+                FormatterFactory formatterFactory =
+                        (FormatterFactory) Class.forName(formatterFactoryName).newInstance();
+                formatterFactory.init(this);
+                setFormatterFactory(formatterFactory);
+            }
+        }
+        catch (Exception e) {
+            throw new StripesRuntimeException("Could not instantiate configured "
+                    + "FormatterFactory of type [" + formatterFactoryName + "]. Please check "
+                    + "the configuration parameters specified in your web.xml.", e);
+        }
 
         // Try instantiating the TagErrorRendererFactory
         String tagErrorRendererFactoryName =

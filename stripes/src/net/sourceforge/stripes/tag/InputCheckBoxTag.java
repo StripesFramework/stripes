@@ -24,6 +24,7 @@ import javax.servlet.jsp.tagext.BodyTag;
  */
 public class InputCheckBoxTag extends InputTagSupport implements BodyTag {
     private Object checked;
+    private Object value;
 
     /** Basic constructor that sets the input tag's type attribute to "checkbox". */
     public InputCheckBoxTag() {
@@ -48,10 +49,10 @@ public class InputCheckBoxTag extends InputTagSupport implements BodyTag {
     }
 
     /** Sets the value that this checkbox will submit if it is checked. */
-    public void setValue(String value) { set("value", value); }
+    public void setValue(Object value) { this.value = value; }
 
     /** Returns the value that this checkbox will submit if it is checked. */
-    public String getValue() { return get("value"); }
+    public Object getValue() { return this.value; }
 
 
     /** Does nothing. */
@@ -95,7 +96,8 @@ public class InputCheckBoxTag extends InputTagSupport implements BodyTag {
         }
 
         // If the value of this checkbox is contained in the value or override value, check it
-        if (isItemSelected(getValue(), checked)) {
+        getAttributes().put("value", format(this.value));
+        if (isItemSelected(this.value, checked)) {
             getAttributes().put("checked", "checked");
         }
 
@@ -103,7 +105,8 @@ public class InputCheckBoxTag extends InputTagSupport implements BodyTag {
 
         // Restore the tags state to before we mucked with it
         getAttributes().remove("checked");
-        
+        getAttributes().remove("value");
+
         return EVAL_PAGE;
     }
 }

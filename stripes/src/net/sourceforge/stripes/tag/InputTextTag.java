@@ -79,7 +79,7 @@ import javax.servlet.jsp.tagext.BodyTag;
 
         // Figure out where to pull the value from
         if (override != null) {
-            getAttributes().put("value", override.toString());
+            getAttributes().put("value", format(override));
         }
         else if (body != null) {
             getAttributes().put("value", body);

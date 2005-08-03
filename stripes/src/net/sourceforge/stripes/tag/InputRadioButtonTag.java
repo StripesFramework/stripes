@@ -24,6 +24,7 @@ import javax.servlet.jsp.tagext.BodyTag;
  */
 public class InputRadioButtonTag extends InputTagSupport implements BodyTag {
     private String checked;
+    private Object value;
 
     /** Basic constructor that sets the input tag's type attribute to "radio". */
     public InputRadioButtonTag() {
@@ -40,11 +41,11 @@ public class InputRadioButtonTag extends InputTagSupport implements BodyTag {
     /** Returns the value set with setChecked(). */
     public String getChecked() { return this.checked; }
 
-    /** Sets the String value of this individual checkbox. */
-    public void setValue(String value) { set("value", value); }
+    /** Sets the Object value of this individual checkbox. */
+    public void setValue(Object value) { this.value = value; }
 
     /** Returns the value set with setValue() */
-    public String getValue() { return get("value"); }
+    public Object getValue() { return this.value; }
 
     /**
      * Sets the input tag type to "radio".
@@ -78,6 +79,7 @@ public class InputRadioButtonTag extends InputTagSupport implements BodyTag {
         String body         = getBodyContentAsString();
         Object checkedOnTag = this.checked;
         Object actualChecked = null;
+        String formattedValue = format(this.value);
 
         // Decide which source to pull from
         if (override != null) {
@@ -91,15 +93,17 @@ public class InputRadioButtonTag extends InputTagSupport implements BodyTag {
         }
 
         // Now if the "checked" value matches this tags value, check it!
-        String value = getValue();
-        if (actualChecked != null && value != null && value.equals(actualChecked.toString())) {
+        if (actualChecked != null && this.value != null && formattedValue.equals(format(actualChecked))) {
             getAttributes().put("checked", "checked");
         }
+
+        getAttributes().put("value", formattedValue);
 
         writeSingletonTag(getPageContext().getOut(), "input");
 
         // Restore the state of the tag to before we mucked with it
         getAttributes().remove("checked");
+        getAttributes().remove("value");
 
         return EVAL_PAGE;
     }

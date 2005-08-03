@@ -100,13 +100,15 @@
 
         <attribute><name>readonly</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
         <attribute><name>maxlength</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>formatType</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>formatPattern</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
     </tag>
 
     <tag>
         <description>
             Blah Blah Blah
         </description>
-        <display-name>text</display-name>
+        <display-name>radio</display-name>
         <name>radio</name>
         <tag-class>net.sourceforge.stripes.tag.InputRadioButtonTag</tag-class>
         <body-content>JSP</body-content>
@@ -138,18 +140,25 @@
         <!-- Start: Standard Form Input attributes -->
         <attribute><name>name</name><required>true</required><rtexprvalue>true</rtexprvalue></attribute>
         <attribute><name>size</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
-        <attribute><name>value</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute>
+            <name>value</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.Object</type>
+        </attribute>
         <attribute><name>disabled</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
         <!-- End: Standard Form Input   attributes -->
 
         <attribute><name>checked</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>formatType</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>formatPattern</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
     </tag>
 
     <tag>
         <description>
             Blah Blah Blah
         </description>
-        <display-name>text</display-name>
+        <display-name>checkbox</display-name>
         <name>checkbox</name>
         <tag-class>net.sourceforge.stripes.tag.InputCheckBoxTag</tag-class>
         <body-content>JSP</body-content>
@@ -181,7 +190,12 @@
         <!-- Start: Standard Form Input attributes -->
         <attribute><name>name</name><required>true</required><rtexprvalue>true</rtexprvalue></attribute>
         <attribute><name>size</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
-        <attribute><name>value</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute>
+            <name>value</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.Object</type>
+        </attribute>
         <attribute><name>disabled</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
         <!-- End: Standard Form Input   attributes -->
 
@@ -191,6 +205,8 @@
             <rtexprvalue>true</rtexprvalue>
             <type>java.lang.Object</type>
         </attribute>
+        <attribute><name>formatType</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>formatPattern</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
     </tag>
 
     <tag>
@@ -274,10 +290,17 @@
         <attribute><name>title</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
         <!-- End: Standard HTML attributes -->
 
-        <attribute><name>value</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute>
+            <name>value</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.Object</type>
+        </attribute>
         <attribute><name>disabled</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
         <attribute><name>label</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
         <attribute><name>selected</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>formatType</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>formatPattern</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
     </tag>
 
     <tag>
@@ -441,20 +464,27 @@
 
         <!-- Start: Standard Form Input attributes -->
         <attribute><name>name</name><required>true</required><rtexprvalue>true</rtexprvalue></attribute>
-        <attribute><name>value</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute>
+            <name>value</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.Object</type>
+        </attribute>
         <attribute><name>disabled</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
         <!-- End: Standard Form Input   attributes -->
 
         <attribute><name>readonly</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
         <attribute><name>rows</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
         <attribute><name>cols</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>formatType</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>formatPattern</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
     </tag>
 
     <tag>
         <description>
             Blah Blah Blah
         </description>
-        <display-name>text</display-name>
+        <display-name>hidden</display-name>
         <name>hidden</name>
         <tag-class>net.sourceforge.stripes.tag.InputHiddenTag</tag-class>
         <body-content>JSP</body-content>
@@ -492,6 +522,8 @@
             <type>java.lang.Object</type>
         </attribute>
         <!-- End: Standard Form Input   attributes -->
+        <attribute><name>formatType</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>formatPattern</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
     </tag>
 
     <tag>

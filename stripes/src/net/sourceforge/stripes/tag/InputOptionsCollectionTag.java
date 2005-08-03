@@ -107,7 +107,7 @@ public class InputOptionsCollectionTag extends HtmlTagSupport implements Tag {
                 Object value = OgnlUtil.getValue(valueProperty, item);
 
                 tag.setLabel(label.toString());
-                tag.setValue(value.toString());
+                tag.setValue(value);
                 tag.doStartTag();
                 tag.doInitBody();
                 tag.doAfterBody();

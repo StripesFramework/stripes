@@ -6,9 +6,13 @@ import net.sourceforge.stripes.controller.StripesFilter;
 import net.sourceforge.stripes.exception.StripesJspException;
 import net.sourceforge.stripes.validation.ValidationError;
 import net.sourceforge.stripes.validation.ValidationErrors;
-
+import net.sourceforge.stripes.format.FormatterFactory;
+import net.sourceforge.stripes.format.Formatter;
 import javax.servlet.jsp.JspException;
-import java.util.*;
+import java.util.List;
+import java.util.Collection;
+import java.util.ResourceBundle;
+import java.util.MissingResourceException;
 
 /**
  * Parent class for all input tags in stripes.  Provides support methods for retrieving all the
@@ -20,6 +24,9 @@ import java.util.*;
 public abstract class InputTagSupport extends HtmlTagSupport {
     /** PopulationStrategy used to find non-default values for input tags. */
     private static PopulationStrategy populationStrategy = new DefaultPopulationStrategy();
+
+    private String formatType;
+    private String formatPattern;
 
     /** A list of the errors related to this input tag instance */
     protected List<ValidationError> fieldErrors;
@@ -34,6 +41,19 @@ public abstract class InputTagSupport extends HtmlTagSupport {
 
     public void setSize(String size) { set("size", size); }
     public String getSize() { return get("size"); }
+
+    /** Sets the type of ouput to format, e.g. date or time. */
+    public void setFormatType(String formatType) { this.formatType = formatType; }
+
+    /** Returns the value set with setFormatAs() */
+    public String getFormatType() { return this.formatType; }
+
+    /** Sets the named format pattern, or a custom format pattern. */
+    public void setFormatPattern(String formatPattern) { this.formatPattern = formatPattern; }
+
+    /** Returns the value set with setFormatPattern() */
+    public String getFormatPattern() { return this.formatPattern; }
+
 
     /**
      * Gets the value for this tag based on the current population strategy.  The value returned
@@ -117,12 +137,12 @@ public abstract class InputTagSupport extends HtmlTagSupport {
         // Since this is a checkbox, there could be more than one checked value, which means
         // this could be a single value type, array or collection
         if (selected != null) {
-            String stringValue = (value == null) ? "" : value.toString();
+            String stringValue = (value == null) ? "" : format(value);
 
             if (selected instanceof Object[]) {
                 Object[] selectedIf = (Object[]) selected;
                 for (Object item : selectedIf) {
-                    if ( (item.toString().equals(stringValue)) ) {
+                    if ( (format(item).equals(stringValue)) ) {
                         return true;
                     }
                 }
@@ -130,13 +150,13 @@ public abstract class InputTagSupport extends HtmlTagSupport {
             else if (selected instanceof Collection) {
                 Collection selectedIf = (Collection) selected;
                 for (Object item : selectedIf) {
-                    if ( (item.toString().equals(stringValue)) ) {
+                    if ( (format(item).equals(stringValue)) ) {
                         return true;
                     }
                 }
             }
             else {
-                if( selected.toString().equals(stringValue) ) {
+                if( format(selected).equals(stringValue) ) {
                     return true;
                 }
             }
@@ -156,7 +176,6 @@ public abstract class InputTagSupport extends HtmlTagSupport {
      */
     protected String getLocalizedFieldName() throws StripesJspException {
         String name = getAttributes().get("name").toString();
-        Locale locale = getPageContext().getRequest().getLocale();
         String localizedValue = null;
         String formName = getParentFormTag().getAttributes().get("name").toString();
         ResourceBundle bundle = null;
@@ -184,11 +203,28 @@ public abstract class InputTagSupport extends HtmlTagSupport {
     }
 
     /**
+     * Attempts to format an object using the Stripes formatting system.  If no formatter can
+     * be found, then a simple String.valueOf(input) will be returned.
+     */
+    protected String format(Object input) {
+        FormatterFactory factory = StripesFilter.getConfiguration().getFormatterFactory();
+        Formatter formatter = factory.getFormatter(input.getClass(),
+                                                   getPageContext().getRequest().getLocale(),
+                                                   this.formatType,
+                                                   this.formatPattern);
+        if (formatter != null) {
+            return formatter.format(input);
+        }
+        else {
+            return String.valueOf(input);
+        }
+    }
+
+    /**
      * Find errors that are related to the form field this input tag represents and place
      * them in an instance variable to use during error rendering.
      */
     private void loadErrors() {
-        getName();
         // TODO: Find some way to access the action resolver to make sure
         // we're getting the right action name
         String actionName =
@@ -198,7 +234,7 @@ public abstract class InputTagSupport extends HtmlTagSupport {
         if (actionName != null && actionBean != null && getName() != null) {
             ValidationErrors validationErrors = actionBean.getContext().getValidationErrors();
             if (validationErrors != null) {
-                fieldErrors = validationErrors.get(getName());
+                this.fieldErrors = validationErrors.get(getName());
             }
         }
     }
@@ -237,7 +273,7 @@ public abstract class InputTagSupport extends HtmlTagSupport {
      */
     public final int doStartTag() throws JspException {
         loadErrors();
-        if (fieldErrors != null) {
+        if (this.fieldErrors != null) {
             this.errorRenderer = StripesFilter.getConfiguration().getTagErrorRendererFactory().getTagErrorRenderer(this);
             this.errorRenderer.doBeforeStartTag();
         }
@@ -259,12 +295,12 @@ public abstract class InputTagSupport extends HtmlTagSupport {
     public final int doEndTag() throws JspException {
         int result = doEndInputTag();
 
-        if (fieldErrors != null) {
+        if (this.fieldErrors != null) {
             this.errorRenderer.doAfterEndTag();
         }
 
-        errorRenderer = null;
-        fieldErrors = null;
+        this.errorRenderer = null;
+        this.fieldErrors = null;
 
         return result;
     }

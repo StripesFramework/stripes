@@ -24,7 +24,7 @@ public interface Formatter<T> {
     void setFormatType(String formatType);
 
     /** Sets a named format, or format pattern to use in formatting objects. */
-    void setFormatString(String formatString);
+    void setFormatPattern(String formatPattern);
 
     /** Sets the Locale into which the object should be formatted. */
     void setLocale(Locale locale);

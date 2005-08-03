@@ -6,6 +6,7 @@ import net.sourceforge.stripes.localization.LocalizationBundleFactory;
 import net.sourceforge.stripes.localization.LocalePicker;
 import net.sourceforge.stripes.validation.TypeConverterFactory;
 import net.sourceforge.stripes.tag.TagErrorRendererFactory;
+import net.sourceforge.stripes.format.FormatterFactory;
 
 /**
  * <p>Type safe interface for accessing configuration information used to configure Stripes. All
@@ -93,6 +94,13 @@ public interface Configuration {
      */
     LocalePicker getLocalePicker();
 
+    /**
+     * Returns an instance of FormatterFactory that is responsible for creating Formatter objects
+     * for converting rich types into Strings for display on pages.
+     *
+     * @return LocalePicker an instance of a LocalePicker implementation
+     */
+    FormatterFactory getFormatterFactory();
 
     /**
      * Returns an instance of a tag error renderer factory for building custom error renderers

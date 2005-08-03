@@ -13,6 +13,8 @@ import net.sourceforge.stripes.validation.DefaultTypeConverterFactory;
 import net.sourceforge.stripes.validation.TypeConverterFactory;
 import net.sourceforge.stripes.tag.TagErrorRendererFactory;
 import net.sourceforge.stripes.tag.DefaultTagErrorRendererFactory;
+import net.sourceforge.stripes.format.FormatterFactory;
+import net.sourceforge.stripes.format.DefaultFormatterFactory;
 
 /**
  * <p>Centralized location for defaults for all Configuration properties.  This implementation does
@@ -34,6 +36,7 @@ public class DefaultConfiguration implements Configuration {
     private TypeConverterFactory typeConverterFactory;
     private LocalizationBundleFactory localizationBundleFactory;
     private LocalePicker localePicker;
+    private FormatterFactory formatterFactory;
     private TagErrorRendererFactory tagErrorRendererFactory;
 
     /** Gratefully accepts the BootstrapPropertyResolver handed to the Configuration. */
@@ -70,6 +73,11 @@ public class DefaultConfiguration implements Configuration {
             if (this.localePicker == null) {
                 this.localePicker = new DefaultLocalePicker();
                 this.localePicker.init(this);
+            }
+
+            if (this.formatterFactory == null) {
+                this.formatterFactory = new DefaultFormatterFactory();
+                this.formatterFactory.init(this);
             }
 
             if (this.tagErrorRendererFactory == null) {
@@ -149,12 +157,27 @@ public class DefaultConfiguration implements Configuration {
     /** Allows subclasses to set the LocalePicker instance to be used. */
     protected void setLocalePicker(LocalePicker localePicker) { this.localePicker = localePicker; }
 
+    /**
+     * Returns an instance of a FormatterFactory. Unless a subclass has picked another implementation
+     * will return an instance of DefaultFormatterFactory.
+     */
+    public FormatterFactory getFormatterFactory() { return this.formatterFactory; }
 
+    /** Allows subclasses to set the FormatterFactory instance to be used. */
+    protected void setFormatterFactory(FormatterFactory formatterFactory) {
+        this.formatterFactory = formatterFactory;
+    }
+
+    /**
+     * Returns an instance of a TagErrorRendererFactory. Unless a subclass has picked another
+     * implementation,  will return an instance of DefaultTagErrorRendererFactory.
+     */
     public TagErrorRendererFactory getTagErrorRendererFactory() {
         return tagErrorRendererFactory;
     }
 
-    public void setTagErrorRendererFactory(TagErrorRendererFactory tagErrorRendererFactory) {
+    /** Allows subclasses to set the TagErrorRendererFactory instance to be used. */
+    protected void setTagErrorRendererFactory(TagErrorRendererFactory tagErrorRendererFactory) {
         this.tagErrorRendererFactory = tagErrorRendererFactory;
     }
 }
