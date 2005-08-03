@@ -1,8 +1,4 @@
 <%@ page import="net.sourceforge.stripes.examples.ex1.*"%>
-<%@ page import="net.sourceforge.stripes.validation.ValidationError"%>
-<%@ page import="net.sourceforge.stripes.validation.ValidationErrors"%>
-<%@ page import="java.util.List"%>
-<%@ page import="java.util.Iterator"%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://stripes.sourceforge.net/stripes.tld" prefix="stripes" %>
 
@@ -15,30 +11,20 @@
       <h1>Example 1 - Cats</h1>
 
       <%
-          CatDetailActionBean bean = (CatDetailActionBean) request.getAttribute("ex1/CatDetailsForm");
-
-          if (bean != null && bean.getContext().getValidationErrors() != null) {
-              out.write("<div>Validation Errors:</div>");
-              out.write("<ul>");
-              ValidationErrors errors = bean.getContext().getValidationErrors();
-
-              Iterator listIterator = errors.values().iterator();
-              while (listIterator.hasNext()) {
-                  Iterator innerIterator = ((List) listIterator.next()).iterator();
-
-                  while (innerIterator.hasNext()) {
-                      ValidationError error = (ValidationError) innerIterator.next();
-                      out.write("<li>");
-                      out.write(error.getMessage(request.getLocale()));
-                      out.write("</li>");
-                  }
-              }
-
-              out.write("</ul>");
-          }
-
       pageContext.setAttribute("activites", Activity.getActivities());
       %>
+
+      <%-- Output the errors block if there are errors for the form. --%>
+      <stripes:errors>
+          <stripes:errors-header>
+              <div class="errorHeader">Alert!  Errors!</div>
+              <ul type="square">
+          </stripes:errors-header>
+
+          <li>Error #${index}: <stripes:individual-error/></li>
+
+          <stripes:errors-footer></ul></stripes:errors-footer>
+      </stripes:errors>
 
       <stripes:form method="post" action="/action/CatDetails" name="ex1/CatDetailsForm">
           <table>

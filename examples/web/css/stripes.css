@@ -91,3 +91,14 @@ select {
 input.text  {
     width: 200px;
 }
+
+/** Stripes specific classes. **/
+
+.errorHeader {
+    font-size: large;
+    color: red;
+}
+
+input.error {
+    background-color: orange;
+}

@@ -5,6 +5,7 @@ import net.sourceforge.stripes.controller.ActionResolver;
 import net.sourceforge.stripes.localization.LocalizationBundleFactory;
 import net.sourceforge.stripes.localization.LocalePicker;
 import net.sourceforge.stripes.validation.TypeConverterFactory;
+import net.sourceforge.stripes.tag.TagErrorRendererFactory;
 
 /**
  * <p>Type safe interface for accessing configuration information used to configure Stripes. All
@@ -91,4 +92,13 @@ public interface Configuration {
      * @return LocalePicker an instance of a LocalePicker implementation
      */
     LocalePicker getLocalePicker();
+
+
+    /**
+     * Returns an instance of a tag error renderer factory for building custom error renderers
+     * for form input tags that have field errors.
+     *
+     * @return TagErrorRendererFactory an instance of TagErrorRendererFactory
+     */
+    TagErrorRendererFactory getTagErrorRendererFactory();
 }

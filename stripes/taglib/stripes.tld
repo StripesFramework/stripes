@@ -612,4 +612,54 @@
         <attribute><name>disabled</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
         <!-- End: Standard Form Input   attributes -->
     </tag>
+
+    <tag>
+        <description>
+            Outputs validation errors. If a form attribute is specified, will only render errors if
+            the submitted form name matches the specified one. Otherwise, if nested inside a
+            stripes form tag, will only display errors if they are for the enclosing form. Otherwise
+            will display errors for whatever form was submitted.  Can optionally take a field name
+            to limit output to a single field's errors.
+        </description>
+        <display-name>errors</display-name>
+        <name>errors</name>
+        <tag-class>net.sourceforge.stripes.tag.ErrorsTag</tag-class>
+        <tei-class>net.sourceforge.stripes.tag.ErrorsTagExtraInfo</tei-class>
+        <body-content>JSP</body-content>
+        <attribute><name>form</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>field</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+    </tag>
+
+    <tag>
+        <description>
+            Placeholder tag that is to be used only inside of a errors tag.  When nested inside
+            an errors tag, causes the errors tag to operate as an iterator, outputting its body
+            for each error present, placing the text of the error where the individual-error tag
+            is found.
+        </description>
+        <display-name>individual-error</display-name>
+        <name>individual-error</name>
+        <tag-class>net.sourceforge.stripes.tag.IndividualErrorTag</tag-class>
+        <body-content>empty</body-content>
+    </tag>
+
+    <tag>
+        <description>
+            Tag contents are displayed only when showing the first row of an errors tag.
+        </description>
+        <display-name>errors-header</display-name>
+        <name>errors-header</name>
+        <tag-class>net.sourceforge.stripes.tag.ErrorsHeaderTag</tag-class>
+        <body-content>JSP</body-content>
+    </tag>
+
+    <tag>
+        <description>
+            Tag contents are displayed only when showing the last row of an errors tag.
+        </description>
+        <display-name>errors-footer</display-name>
+        <name>errors-footer</name>
+        <tag-class>net.sourceforge.stripes.tag.ErrorsFooterTag</tag-class>
+        <body-content>JSP</body-content>
+    </tag>
 </taglib>

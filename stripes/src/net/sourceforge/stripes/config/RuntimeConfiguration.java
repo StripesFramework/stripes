@@ -3,10 +3,11 @@ package net.sourceforge.stripes.config;
 import net.sourceforge.stripes.controller.ActionBeanPropertyBinder;
 import net.sourceforge.stripes.controller.ActionResolver;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
-import net.sourceforge.stripes.localization.LocalizationBundleFactory;
 import net.sourceforge.stripes.localization.LocalePicker;
+import net.sourceforge.stripes.localization.LocalizationBundleFactory;
 import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.validation.TypeConverterFactory;
+import net.sourceforge.stripes.tag.TagErrorRendererFactory;
 
 /**
  * <p>Configuration class that uses the BootstrapPropertyResolver to look for configuration values,
@@ -41,6 +42,9 @@ public class RuntimeConfiguration extends DefaultConfiguration {
 
     /** The Configuration Key for looking up the name of the LocalizationBundleFactory class. */
     public static final String LOCALE_PICKER = "LocalePicker.Class";
+
+    /** The Configuration Key for looking up the name of the TagErrorRendererFactory class */
+    public static final String TAG_ERROR_RENDERER_FACTORY = "TagErrorRendererFactory.Class";
 
     /**
      * Attempts to find names of implementation classes using the BootstrapPropertyResolver and
@@ -143,6 +147,27 @@ public class RuntimeConfiguration extends DefaultConfiguration {
         catch (Exception e) {
             throw new StripesRuntimeException("Could not instantiate configured "
                     + "LocalePicker of type [" + localePickerName + "]. Please check "
+                    + "the configuration parameters specified in your web.xml.", e);
+        }
+
+
+        // Try instantiating the TagErrorRendererFactory
+        String tagErrorRendererFactoryName =
+                getBootstrapPropertyResolver().getProperty(TAG_ERROR_RENDERER_FACTORY);
+        try {
+            if (tagErrorRendererFactoryName != null) {
+                log.info("Found configured TagErrorRendererFactory class [", tagErrorRendererFactoryName,
+                         "], attempting to instantiate.");
+
+                TagErrorRendererFactory tagErrorRendererFactory =
+                        (TagErrorRendererFactory) Class.forName(tagErrorRendererFactoryName).newInstance();
+                tagErrorRendererFactory.init(this);
+                setTagErrorRendererFactory(tagErrorRendererFactory);
+            }
+        }
+        catch (Exception e) {
+            throw new StripesRuntimeException("Could not instantiate configured "
+                    + "TagErrorRendererFactory of type [" + tagErrorRendererFactoryName + "]. Please check "
                     + "the configuration parameters specified in your web.xml.", e);
         }
 

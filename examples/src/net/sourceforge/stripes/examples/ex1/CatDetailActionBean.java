@@ -43,7 +43,8 @@ public class CatDetailActionBean implements ActionBean {
     @ValidateNestedProperties({
         @Validate(field="name", required=true, minlength=3),
         @Validate(field="age",  required=true,   minlength=1, maxlength=2),
-        @Validate(field="activities", required=true)
+        @Validate(field="activities", required=true),
+        @Validate(field="favoriteFoods", required=true)
     })
     public Cat getCat() {
         return this.cat;

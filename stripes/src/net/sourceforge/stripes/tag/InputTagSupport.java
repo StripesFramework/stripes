@@ -1,13 +1,14 @@
 package net.sourceforge.stripes.tag;
 
+import net.sourceforge.stripes.action.ActionBean;
+import net.sourceforge.stripes.controller.StripesConstants;
 import net.sourceforge.stripes.controller.StripesFilter;
 import net.sourceforge.stripes.exception.StripesJspException;
+import net.sourceforge.stripes.validation.ValidationError;
+import net.sourceforge.stripes.validation.ValidationErrors;
 
 import javax.servlet.jsp.JspException;
-import java.util.Collection;
-import java.util.Locale;
-import java.util.MissingResourceException;
-import java.util.ResourceBundle;
+import java.util.*;
 
 /**
  * Parent class for all input tags in stripes.  Provides support methods for retrieving all the
@@ -19,6 +20,11 @@ import java.util.ResourceBundle;
 public abstract class InputTagSupport extends HtmlTagSupport {
     /** PopulationStrategy used to find non-default values for input tags. */
     private static PopulationStrategy populationStrategy = new DefaultPopulationStrategy();
+
+    /** A list of the errors related to this input tag instance */
+    protected List<ValidationError> fieldErrors;
+    /** The error renderer to be utilized for error output of this input tag */
+    protected TagErrorRenderer errorRenderer;
 
     public void setDisabled(String disabled) { set("disabled", disabled); }
     public String getDisabled() { return get("disabled"); }
@@ -178,13 +184,65 @@ public abstract class InputTagSupport extends HtmlTagSupport {
     }
 
     /**
+     * Find errors that are related to the form field this input tag represents and place
+     * them in an instance variable to use during error rendering.
+     */
+    private void loadErrors() {
+        getName();
+        // TODO: Find some way to access the action resolver to make sure
+        // we're getting the right action name
+        String actionName =
+                getPageContext().getRequest().getParameter(StripesConstants.URL_KEY_FORM_NAME);
+
+        ActionBean actionBean = getActionBean();
+        if (actionName != null && actionBean != null && getName() != null) {
+            ValidationErrors validationErrors = actionBean.getContext().getValidationErrors();
+            if (validationErrors != null) {
+                fieldErrors = validationErrors.get(getName());
+            }
+        }
+    }
+
+    /**
+     * Access for the field errors that occured on the form input this tag represents
+     * @return List<ValidationError> the list of validation errors for this field
+     */
+    public List<ValidationError> getFieldErrors() {
+        return fieldErrors;
+    }
+
+    /**
+     * Fetches the ActionBean associated with the form if one is present.  An ActionBean will not
+     * be created (and hence not present) by default.  An ActionBean will only be present if the
+     * current request got bound to the same ActionBean as the current form uses.  E.g. if we are
+     * re-showing the page as the result of an error, or the same ActionBean is used for a
+     * &quot;pre-Action&quot; and the &quot;post-action&quot;.
+     *
+     * @return ActionBean the ActionBean bound to the form if there is one
+     */
+    protected ActionBean getActionBean() {
+        return (ActionBean) getPageContext().getRequest().
+                getAttribute(StripesConstants.REQ_ATTR_ACTION_BEAN);
+    }
+
+
+
+    /**
      * Final implementation of the doStartTag() method that allows the base InputTagSupport class
      * to insert functionality before and after the tag performs it's doStartTag equivelant
-     * method.
+     * method. Finds errors related to this field and intercepts with a {@link TagErrorRenderer}
+     * if appropriate.
      *
      * @return int the value returned by the child class from doStartInputTag()
      */
     public final int doStartTag() throws JspException {
+        loadErrors();
+        if (fieldErrors != null) {
+            this.errorRenderer = StripesFilter.getConfiguration().getTagErrorRendererFactory().getTagErrorRenderer(this);
+            this.errorRenderer.doBeforeStartTag();
+        }
+
+
         return doStartInputTag();
     }
 
@@ -199,7 +257,16 @@ public abstract class InputTagSupport extends HtmlTagSupport {
      * @return int the value returned by the child class from doStartInputTag()
      */
     public final int doEndTag() throws JspException {
-        return doEndInputTag();
+        int result = doEndInputTag();
+
+        if (fieldErrors != null) {
+            this.errorRenderer.doAfterEndTag();
+        }
+
+        errorRenderer = null;
+        fieldErrors = null;
+
+        return result;
     }
 
     /** Abstract method implemented in child classes instead of doEndTag(). */

@@ -11,6 +11,8 @@ import net.sourceforge.stripes.localization.LocalePicker;
 import net.sourceforge.stripes.localization.DefaultLocalePicker;
 import net.sourceforge.stripes.validation.DefaultTypeConverterFactory;
 import net.sourceforge.stripes.validation.TypeConverterFactory;
+import net.sourceforge.stripes.tag.TagErrorRendererFactory;
+import net.sourceforge.stripes.tag.DefaultTagErrorRendererFactory;
 
 /**
  * <p>Centralized location for defaults for all Configuration properties.  This implementation does
@@ -32,6 +34,7 @@ public class DefaultConfiguration implements Configuration {
     private TypeConverterFactory typeConverterFactory;
     private LocalizationBundleFactory localizationBundleFactory;
     private LocalePicker localePicker;
+    private TagErrorRendererFactory tagErrorRendererFactory;
 
     /** Gratefully accepts the BootstrapPropertyResolver handed to the Configuration. */
     public void setBootstrapPropertyResolver(BootstrapPropertyResolver resolver) {
@@ -67,6 +70,11 @@ public class DefaultConfiguration implements Configuration {
             if (this.localePicker == null) {
                 this.localePicker = new DefaultLocalePicker();
                 this.localePicker.init(this);
+            }
+
+            if (this.tagErrorRendererFactory == null) {
+                this.tagErrorRendererFactory = new DefaultTagErrorRendererFactory();
+                this.tagErrorRendererFactory.init(this);
             }
         }
         catch (Exception e) {
@@ -141,4 +149,12 @@ public class DefaultConfiguration implements Configuration {
     /** Allows subclasses to set the LocalePicker instance to be used. */
     protected void setLocalePicker(LocalePicker localePicker) { this.localePicker = localePicker; }
 
+
+    public TagErrorRendererFactory getTagErrorRendererFactory() {
+        return tagErrorRendererFactory;
+    }
+
+    public void setTagErrorRendererFactory(TagErrorRendererFactory tagErrorRendererFactory) {
+        this.tagErrorRendererFactory = tagErrorRendererFactory;
+    }
 }
