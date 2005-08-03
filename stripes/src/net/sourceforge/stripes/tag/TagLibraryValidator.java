@@ -15,7 +15,7 @@ import java.util.*;
  * This tag library validator verifies that stripes tags are used in the correct hiearchy,
  * for example by checking that the stripes:hidden tag is within a stripes:form tag.
  *
- * @author Greg Hinkle
+ * @author Greg Hinkle, Tim Fennell
  */
 public class TagLibraryValidator extends javax.servlet.jsp.tagext.TagLibraryValidator{
 
@@ -53,44 +53,77 @@ public class TagLibraryValidator extends javax.servlet.jsp.tagext.TagLibraryVali
         /** A map of child tags to their required parents */
         static Map<String,String> requiredParentMap = new HashMap<String, String>();
 
+        /** A static map of child tags to tags they must not be inside of. */
+        static Map<String,String> verbotenParentMap = new HashMap<String,String>();
+
         static {
-            requiredParentMap.put("stripes:text","stripes:form");
-            requiredParentMap.put("stripes:radio","stripes:form");
-            requiredParentMap.put("stripes:checkbox","stripes:form");
-            requiredParentMap.put("stripes:select","stripes:form");
-            requiredParentMap.put("stripes:file","stripes:form");
-            requiredParentMap.put("stripes:textarea","stripes:form");
-            requiredParentMap.put("stripes:submit","stripes:form");
-            requiredParentMap.put("stripes:reset","stripes:form");
-            requiredParentMap.put("stripes:hidden","stripes:form");
-            requiredParentMap.put("stripes:button","stripes:form");
+            // Form fields must be inside forms
+            requiredParentMap.put("stripes:text",     "stripes:form");
+            requiredParentMap.put("stripes:radio",    "stripes:form");
+            requiredParentMap.put("stripes:checkbox", "stripes:form");
+            requiredParentMap.put("stripes:select",   "stripes:form");
+            requiredParentMap.put("stripes:file",     "stripes:form");
+            requiredParentMap.put("stripes:textarea", "stripes:form");
+            requiredParentMap.put("stripes:submit",   "stripes:form");
+            requiredParentMap.put("stripes:reset",    "stripes:form");
+            requiredParentMap.put("stripes:hidden",   "stripes:form");
+            requiredParentMap.put("stripes:button",   "stripes:form");
 
-            requiredParentMap.put("stripes:option","stripes:select");
-            requiredParentMap.put("stripes:options-collection","stripes:select");
-            requiredParentMap.put("stripes:options-enumeration","stripes:select");
+            // Options must be inside selects
+            requiredParentMap.put("stripes:option",              "stripes:select");
+            requiredParentMap.put("stripes:options-collection",  "stripes:select");
+            requiredParentMap.put("stripes:options-enumeration", "stripes:select");
 
+            // Error chunks must be inside the errors tag
+            requiredParentMap.put("stripes:errors-header",    "stripes:errors");
+            requiredParentMap.put("stripes:errors-footer",    "stripes:errors");
+            requiredParentMap.put("stripes:individual-error", "stripes:errors");
 
-            requiredParentMap.put("stripes:errors-header","stripes:errors");
-            requiredParentMap.put("stripes:errors-footer","stripes:errors");
-            requiredParentMap.put("stripes:field-error","stripes:errors");
+            // Now flip things around
+            verbotenParentMap.put("stripes:form", "stripes:form");
         }
 
+        /** Fetches the validation messages that were made when the page was parsed. */
         public List<ValidationMessage> getValidationMessages() {
             return validationMessages;
         }
 
-        public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+        /**
+         * Checks to see if the tag being started is contained within the required parent tag
+         * type, and not contained with an invalid parent type.  If any errors are found, error
+         * objects are created for providing the application developer with feedback.
+         */
+        public void startElement(String uri,
+                                 String localName,
+                                 String qName,
+                                 Attributes attributes) throws SAXException {
+
+            // TODO: tomcat doesn't pass uri of localName.  When it does, fix this class up!
+
             String jspId = attributes.getValue("jsp:id");
-            //TODO: Tomcat doesn't seem to put the uri in for this attribute as per the spec
-            // (it should be http://java.sun.com/JSP/Page)
-            stack.push(qName);
+
+            // Check for a required parent
             String requiredParent = requiredParentMap.get(qName);
             if (requiredParent != null && stack.search(requiredParent) < 0) {
-                ValidationMessage message = new ValidationMessage(jspId,
-                        "The tag [" + qName + "] must be located within the body of the ["
-                        + requiredParent + "] tag.");
+                ValidationMessage message =
+                    new ValidationMessage(jspId, "The tag [" + qName +
+                            "] must be located within the body of the ["
+                                    + requiredParent + "] tag.");
                 validationMessages.add(message);
             }
+
+            // Check for a verboten parent
+            String verbotenParent = verbotenParentMap.get(qName);
+            if (verbotenParent != null && stack.search(verbotenParent) > 0) {
+                ValidationMessage message =
+                        new ValidationMessage(jspId, "The tag [" + qName +
+                                "] may never be located within the body of the ["
+                                + verbotenParent + "] tag.");
+                validationMessages.add(message);
+            }
+
+            // Finally push this tag onto the stack for the next go round
+            stack.push(qName);
         }
 
         public void endElement(String uri, String localName, String qName) throws SAXException {
