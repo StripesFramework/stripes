@@ -107,7 +107,7 @@ public class AnnotatedClassActionResolver implements ActionResolver {
             }
         }
 
-        System.out.println("Mappings initialized: " + this.eventMappings);
+        log.debug("Mappings initialized: ", this.eventMappings);
     }
 
     /**
@@ -141,8 +141,11 @@ public class AnnotatedClassActionResolver implements ActionResolver {
         String actionName =  context.getRequest().getParameter(StripesConstants.URL_KEY_FORM_NAME);
 
         if (actionName == null || "".equals(actionName) ) {
-            throw new StripesServletException("Could not find a parameter called ActionName " +
-                "in the request.  Parameters included: " + context.getRequest().getParameterNames());
+            throw new StripesServletException
+                    ("Could not resolve the name of the ActionBean from the request. This " +
+                     "probably means that there was no request parameter called " +
+                     StripesConstants.URL_KEY_FORM_NAME + "in the supplied request. " +
+                     "Parameters included: " + context.getRequest().getParameterNames());
         }
 
         return actionName;
@@ -186,8 +189,9 @@ public class AnnotatedClassActionResolver implements ActionResolver {
 
         // If we could not find a handler then we should blow up quickly
         if (handler == null) {
-            throw new StripesServletException("Could not find handler method for event name " +
-                eventName);
+            throw new StripesServletException(
+                    "Could not find handler method for event name [" + eventName + "] on class [" +
+                    bean.getName() + "].  Known handler mappings are: " + mappings);
         }
 
         return handler;
