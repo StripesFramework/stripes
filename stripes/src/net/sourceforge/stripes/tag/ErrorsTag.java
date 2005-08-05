@@ -2,6 +2,7 @@ package net.sourceforge.stripes.tag;
 
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.controller.StripesConstants;
+import net.sourceforge.stripes.controller.ActionResolver;
 import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.validation.ValidationError;
 import net.sourceforge.stripes.validation.ValidationErrors;
@@ -9,6 +10,7 @@ import net.sourceforge.stripes.validation.ValidationErrors;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.tagext.BodyTag;
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -21,10 +23,10 @@ import java.util.Locale;
  * in which case this tag iterates over the body, displaying each error in turn in place
  * of the field-error tag.</p>
  *
- * <p>This tag has several ways of being attached to the errors of a specific form request.
- * If the tag is inside a form tag, it will display if the validation errors are associated
- * with that form. If supplied a name attribute, it will display errors only if the name
- * attribute matches the name of the submitted form. Finally, if neither is the case, it
+ * <p>This tag has several ways of being attached to the errors of a specific action request.
+ * If the tag is inside a action tag, it will display if the validation errors are associated
+ * with that action. If supplied a name attribute, it will display errors only if the name
+ * attribute matches the name of the submitted action. Finally, if neither is the case, it
  * will always display as described in the paragraph above.</p>
  *
  * @author Greg Hinkle
@@ -35,7 +37,7 @@ public class ErrorsTag extends HtmlTagSupport implements BodyTag {
 
     /**
      * True if this tag will display errors, otherwise false. This is determined by the logic
-     * laid out in the class level Javadoc around whether this errors tag is for the form
+     * laid out in the class level Javadoc around whether this errors tag is for the action
      * that was submitted in the request.
      */
     private boolean display = false;
@@ -46,8 +48,8 @@ public class ErrorsTag extends HtmlTagSupport implements BodyTag {
      */
     private boolean nestedErrorTagPresent = false;
 
-    /** Sets the name of the form for which errors should be displayed. */
-    private String form;
+    /** Sets the form action for which errors should be displayed. */
+    private String action;
 
     /** An optional attribute that declares a particular field to output errors for. */
     private String field;
@@ -89,14 +91,14 @@ public class ErrorsTag extends HtmlTagSupport implements BodyTag {
         return (this.allErrors.getLast() == currentError);
     }
 
-    /** Sets the (optional) name of the form to display errors for, if they exist. */
-    public void setForm(String form) {
-        this.form = form;
+    /** Sets the (optional) action of the form to display errors for, if they exist. */
+    public void setAction(String action) {
+        this.action = action;
     }
 
-    /** Returns the value set with setForm(). */
-    public String getForm() {
-        return this.form;
+    /** Returns the value set with setAction(). */
+    public String getAction() {
+        return this.action;
     }
 
     /** Sets the (optional) name of a field to display errors for, if errors exist. */
@@ -111,7 +113,7 @@ public class ErrorsTag extends HtmlTagSupport implements BodyTag {
 
 
     /**
-     * Determines if the tag should display errors based on the form that it is displaying for,
+     * Determines if the tag should display errors based on the action that it is displaying for,
      * and then fetches the appropriate list of errors and makes sure it is non-empty.
      *
      * @return SKIP_BODY if the errors are not to be output, or there aren't any<br/>
@@ -120,23 +122,23 @@ public class ErrorsTag extends HtmlTagSupport implements BodyTag {
     public int doStartTag() throws JspException {
 
         // TODO: Find a way to access the action resolver to ensure we're getting the right action name
-        String actionName =
-                getPageContext().getRequest().getParameter(StripesConstants.URL_KEY_FORM_NAME);
+        HttpServletRequest request = (HttpServletRequest) getPageContext().getRequest();
+        String action = (String) request.getAttribute(ActionResolver.RESOLVED_ACTION);
 
-        if (getForm() != null) {
-            // The errors tag was supplied a form name, see if it is the one submitted in the req
-            if (getForm().equals(actionName)) {
+        if (getAction() != null) {
+            // The errors tag was supplied a action name, see if it is the one submitted in the req
+            if (getAction().equals(action)) {
                 this.display = true;
             }
         } else {
-            // See if the enclosing form tag (if any) is the one submitted
+            // See if the enclosing action tag (if any) is the one submitted
             FormTag formTag = getParentTag(FormTag.class);
             if (formTag != null) {
-                if (formTag.getName().equals(actionName)) {
+                if (formTag.getAction().equals(action)) {
                     this.display = true;
                 }
             }
-            // Else if no name was set, and we're not in a form tag, we're global, so display
+            // Else if no name was set, and we're not in a action tag, we're global, so display
             else {
                 this.display = true;
             }
@@ -268,13 +270,13 @@ public class ErrorsTag extends HtmlTagSupport implements BodyTag {
     }
 
     /**
-     * Fetches the ActionBean associated with the form if one is present.  An ActionBean will not
+     * Fetches the ActionBean associated with the action if one is present.  An ActionBean will not
      * be created (and hence not present) by default.  An ActionBean will only be present if the
-     * current request got bound to the same ActionBean as the current form uses.  E.g. if we are
+     * current request got bound to the same ActionBean as the current action uses.  E.g. if we are
      * re-showing the page as the result of an error, or the same ActionBean is used for a
      * &quot;pre-Action&quot; and the &quot;post-action&quot;.
      *
-     * @return ActionBean the ActionBean bound to the form if there is one
+     * @return ActionBean the ActionBean bound to the action if there is one
      */
     protected ActionBean getActionBean() {
         return (ActionBean) getPageContext().getRequest().

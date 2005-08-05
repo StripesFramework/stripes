@@ -19,7 +19,7 @@ import java.util.ResourceBundle;
  * <p>For example, to construct an error message with one additional replacement parameter which is
  * the action the user was trying to perform, you might have a properties file entry like:</p>
  *
- * <pre>myForm.myErrorMessage={1} is not a valid {0} when trying to {2}</pre>
+ * <pre>/action/MyAction.myErrorMessage={1} is not a valid {0} when trying to {2}</pre>
  *
  * <p>At runtime this might get replaced out to result in an error message for the user that looks
  * like &quot;<em>Fixed</em> is not a valid <em>status</em> when trying to create a new
@@ -27,9 +27,9 @@ import java.util.ResourceBundle;
  *
  * <p>One last point of interest is where the user friendly field name comes from. Firstly an
  * attempt is made to look up the localized name in the applicable resource bundle using the
- * String <em>formName.fieldName</em> where formName is the name of the form in the JSP (or equally,
- * the name given in the @FormName annotation in the ActionBeanclass) and fieldName is the name
- * of the field on the form.</p>
+ * String <em>actionPath.fieldName</em> where actionPath is the action of the form in the JSP
+ * (or equally, the path given in the @UrlBindnig annotation in the ActionBean class),
+ * and fieldName is the name of the field on the form.</p>
  *
  * @see java.text.MessageFormat
  * @see java.util.ResourceBundle
@@ -40,7 +40,7 @@ public class LocalizableError implements ValidationError {
 
     private String messageKey;
     private String fieldNameKey;
-    private String formName;
+    private String actionPath;
 
     /**
      * The set of replacement parameters that will be used to create the message from the message
@@ -118,7 +118,7 @@ public class LocalizableError implements ValidationError {
         log.debug("Looking up localized field name with messageKey: ", this.fieldNameKey);
         try {
             this.replacementParameters[0] =
-                bundle.getString(this.formName + "." + this.fieldNameKey);
+                bundle.getString(this.actionPath + "." + this.fieldNameKey);
         }
         catch (MissingResourceException mre) {
             this.replacementParameters[0] = tryToMakeFriendly(this.fieldNameKey);
@@ -152,7 +152,7 @@ public class LocalizableError implements ValidationError {
     }
 
     /** Provides sublcasses access to the field name. */
-    protected String getFieldName() {
+    public String getFieldName() {
         return this.fieldNameKey;
     }
 
@@ -166,13 +166,13 @@ public class LocalizableError implements ValidationError {
         return (String) this.replacementParameters[1];
     }
 
-    /** Sets the name of the form on which the errored field occurs. */
-    public void setFormName(String formName) {
-        this.formName = formName;
+    /** Sets the binding path of the ActionBean on which the errored field occurs. */
+    public void setActionPath(String actionPath) {
+        this.actionPath = actionPath;
     }
 
     /** Provides subclasses access to the name of the form on which the errored field occurs. */
-    protected String getFormName() {
-        return formName;
+    public String getActionPath() {
+        return actionPath;
     }
 }

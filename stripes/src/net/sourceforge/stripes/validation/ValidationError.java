@@ -28,8 +28,18 @@ public interface ValidationError {
     void setFieldValue(String value);
 
     /**
-     * Provides the message with access to the form name within which the error occurred.
+     * Provides the message with access to the unique action path associated with the
+     * ActionBean bound to the current request.
      */
-    void setFormName(String formName);
+    void setActionPath(String actionPath);
+
+    /** Returns the name of the field in error, if one was supplied. */
+    String getFieldName();
+
+    /** Returns the value that is in error, if one was supplied. */
+    String getFieldValue();
+
+    /** Returns the action path of the form/ActionBean, if one was supplied. */
+    String getActionPath();
 }
 

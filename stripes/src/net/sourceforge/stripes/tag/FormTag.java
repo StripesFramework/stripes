@@ -19,6 +19,9 @@ import java.io.IOException;
  */
 public class FormTag extends HtmlTagSupport implements BodyTag {
 
+	/** Stores the value of the action attribute before the context gets appended. */
+	private String actionWithoutContext;
+
     ////////////////////////////////////////////////////////////
     // Additional attributes specific to the form tag
     ////////////////////////////////////////////////////////////
@@ -38,6 +41,8 @@ public class FormTag extends HtmlTagSupport implements BodyTag {
      * @param action the action path, relative to the root of the web application
      */
     public void setAction(String action) {
+    	this.actionWithoutContext = action;
+    
         if (action.startsWith("/")) {
             HttpServletRequest request = (HttpServletRequest) getPageContext().getRequest();
             String contextPath = request.getContextPath();
@@ -50,7 +55,7 @@ public class FormTag extends HtmlTagSupport implements BodyTag {
         set("action", action);
     }
 
-    public String getAction() { return get("action"); }
+    public String getAction() { return this.actionWithoutContext; }
 
     public void   setEnctype(String enctype) { set("enctype", enctype); }
     public String getEnctype() { return get("enctype"); };
@@ -101,13 +106,6 @@ public class FormTag extends HtmlTagSupport implements BodyTag {
             JspWriter out = getPageContext().getOut();
             writeOpenTag(out, "form");
 
-            // Write out a hidden field with the form name
-            out.write("<input type=\"hidden\" name=\"");
-            out.write(StripesConstants.URL_KEY_FORM_NAME);
-            out.write("\" value=\"");
-            out.write(getName());
-            out.write("\"/>");
-
             // Write out a hiddien field with the name of the page in it
             out.write("<input type=\"hidden\" name=\"");
             out.write(StripesConstants.URL_KEY_SOURCE_PAGE);
@@ -136,6 +134,6 @@ public class FormTag extends HtmlTagSupport implements BodyTag {
      * @return ActionBean the ActionBean bound to the form if there is one
      */
     protected ActionBean getActionBean() {
-        return (ActionBean) getPageContext().getRequest().getAttribute(getName());
+        return (ActionBean) getPageContext().getRequest().getAttribute(this.actionWithoutContext);
     }
 }

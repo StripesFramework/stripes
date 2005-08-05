@@ -8,36 +8,30 @@ import net.sourceforge.stripes.config.ConfigurableComponent;
 import java.lang.reflect.Method;
 
 /**
- * Resolvers are responsible for locating ActionBean instances that map to short or user friendly
- * form names, as well as resolving the method on a given ActionBean that is responsible for handling
- * a specific event.
+ * Resolvers are responsible for locating ActionBean instances that can handle the submitted
+ * request.  Once an appropriate ActionBean has been identified the ActionResolver is also
+ * responsible for identifying the individual method on the ActionBean class that should handle
+ * this specific request.
  *
  * @author Tim Fennell
  */
 public interface ActionResolver extends ConfigurableComponent {
     /**
-     * This method should be implemented to return the name of the ActionBean that will be
-     * returned for the given request.  Doing so will allow implementations of this interface to
-     * be easily sub-classed to use different techniques to determine the name of the ActionBean.
-     *
-     * @param context the ActionBeanContext for the current request
-     * @return String the name of the ActionBean that should be used to process the request
-     * @throws StripesServletException thrown if a name cannot be determined.
+     * Key that is to be used by ActionResolvers to store, as a request attribute, the
+     * action that was resolved in the current request. The 'action' stored is always a String.
      */
-    String getActionBeanName(ActionBeanContext context) throws StripesServletException;
+    String RESOLVED_ACTION = "__stripes_resolved_action";
 
     /**
      * Resolves the Class, sublclassing ActionBean, that should be used to handle the request.
-     * If more than one class implements the named form the results of this method are undefined -
-     * implementations may return one of the implementations located or through an exception.
+     * If more than one class can be mapped to the request the results of this method are undefined -
+     * implementations may return one of the implementations located or throw an exception.
      *
-     * @param actionName the logical name of the action bean to be resolved
+     * @param context the ActionBeanContext for the current request
      * @return a Class object representing a subclass of ActionBean - never null
-     * @throws StripesServletException thrown if a ActionBean cannot be resolved for any reason,
-     *         including, but not limited to, when a ActionBean cannot be found for the name
-     *         supplied.
+     * @throws StripesServletException thrown if a ActionBean cannot be resolved for any reason
      */
-    Class<ActionBean> getActionBean(String actionName) throws StripesServletException;
+    Class<ActionBean> getActionBean(ActionBeanContext context) throws StripesServletException;
 
     /**
      * Determines the name of th event fired by the front end.  Allows implementations to

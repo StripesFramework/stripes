@@ -1,18 +1,18 @@
 package net.sourceforge.stripes.tag;
 
 import net.sourceforge.stripes.action.ActionBean;
-import net.sourceforge.stripes.controller.StripesConstants;
 import net.sourceforge.stripes.controller.StripesFilter;
 import net.sourceforge.stripes.exception.StripesJspException;
+import net.sourceforge.stripes.format.Formatter;
+import net.sourceforge.stripes.format.FormatterFactory;
 import net.sourceforge.stripes.validation.ValidationError;
 import net.sourceforge.stripes.validation.ValidationErrors;
-import net.sourceforge.stripes.format.FormatterFactory;
-import net.sourceforge.stripes.format.Formatter;
+
 import javax.servlet.jsp.JspException;
-import java.util.List;
 import java.util.Collection;
-import java.util.ResourceBundle;
+import java.util.List;
 import java.util.MissingResourceException;
+import java.util.ResourceBundle;
 
 /**
  * Parent class for all input tags in stripes.  Provides support methods for retrieving all the
@@ -169,7 +169,7 @@ public abstract class InputTagSupport extends HtmlTagSupport {
     /**
      * Fetches the localized name for this field if one exists in the resource bundle. Relies on
      * there being a "name" attribute on the tag, and the pageContext being set on the tag. First
-     * checks for a value of {formName}.{fieldName} in the specified bundle, and if that exists,
+     * checks for a value of {actionPath}.{fieldName} in the specified bundle, and if that exists,
      * returns it.  If that does not exist, will look for just "fieldName".
      *
      * @return a localized field name if one can be found, or null if one cannot be found.
@@ -177,7 +177,7 @@ public abstract class InputTagSupport extends HtmlTagSupport {
     protected String getLocalizedFieldName() throws StripesJspException {
         String name = getAttributes().get("name").toString();
         String localizedValue = null;
-        String formName = getParentFormTag().getAttributes().get("name").toString();
+        String actionPath = getParentFormTag().getAction();
         ResourceBundle bundle = null;
         try {
             bundle = StripesFilter.getConfiguration().getLocalizationBundleFactory()
@@ -188,7 +188,7 @@ public abstract class InputTagSupport extends HtmlTagSupport {
         }
 
         try {
-            localizedValue = bundle.getString(formName + "." + name);
+            localizedValue = bundle.getString(actionPath + "." + name);
         }
         catch (MissingResourceException mre) {
             try {
@@ -224,15 +224,11 @@ public abstract class InputTagSupport extends HtmlTagSupport {
      * Find errors that are related to the form field this input tag represents and place
      * them in an instance variable to use during error rendering.
      */
-    private void loadErrors() {
-        // TODO: Find some way to access the action resolver to make sure
-        // we're getting the right action name
-        String actionName =
-                getPageContext().getRequest().getParameter(StripesConstants.URL_KEY_FORM_NAME);
-
+    private void loadErrors() throws StripesJspException {
         ActionBean actionBean = getActionBean();
-        if (actionName != null && actionBean != null && getName() != null) {
+        if (actionBean != null) {
             ValidationErrors validationErrors = actionBean.getContext().getValidationErrors();
+
             if (validationErrors != null) {
                 this.fieldErrors = validationErrors.get(getName());
             }
@@ -256,9 +252,8 @@ public abstract class InputTagSupport extends HtmlTagSupport {
      *
      * @return ActionBean the ActionBean bound to the form if there is one
      */
-    protected ActionBean getActionBean() {
-        return (ActionBean) getPageContext().getRequest().
-                getAttribute(StripesConstants.REQ_ATTR_ACTION_BEAN);
+    protected ActionBean getActionBean() throws StripesJspException {
+        return getParentFormTag().getActionBean();
     }
 
 
@@ -274,10 +269,10 @@ public abstract class InputTagSupport extends HtmlTagSupport {
     public final int doStartTag() throws JspException {
         loadErrors();
         if (this.fieldErrors != null) {
-            this.errorRenderer = StripesFilter.getConfiguration().getTagErrorRendererFactory().getTagErrorRenderer(this);
+            this.errorRenderer = StripesFilter.getConfiguration()
+                    .getTagErrorRendererFactory().getTagErrorRenderer(this);
             this.errorRenderer.doBeforeStartTag();
         }
-
 
         return doStartInputTag();
     }

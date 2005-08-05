@@ -4,10 +4,9 @@ import net.sourceforge.stripes.util.OgnlUtil;
 import net.sourceforge.stripes.util.HtmlUtil;
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.exception.StripesJspException;
+import net.sourceforge.stripes.util.Log;
 
 import ognl.OgnlException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * <p>Default implementation of the form input tag population strategy. First looks to see if there
@@ -25,7 +24,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class DefaultPopulationStrategy implements PopulationStrategy {
     /** Log used to log any errors that occur. */
-    private static Log log = LogFactory.getLog(DefaultPopulationStrategy.class);
+    private static Log log = Log.getInstance(DefaultPopulationStrategy.class);
 
     /**
      * Implementation of the interface method that will follow the search described in the class
@@ -50,6 +49,8 @@ public class DefaultPopulationStrategy implements PopulationStrategy {
             // If that's not there, let's look on the ActionBean
             ActionBean action = tag.getParentFormTag().getActionBean();
             Object beanValue = null;
+
+			log.debug("ActionBean found: ", action);
 
             if (action != null) {
                 try {

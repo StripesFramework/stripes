@@ -45,7 +45,6 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
     private static Set<String> SPECIAL_KEYS = new HashSet<String>();
 
     static {
-        SPECIAL_KEYS.add(StripesConstants.URL_KEY_FORM_NAME);
         SPECIAL_KEYS.add(StripesConstants.URL_KEY_SOURCE_PAGE);
     }
 

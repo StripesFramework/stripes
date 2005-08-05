@@ -7,12 +7,6 @@ package net.sourceforge.stripes.controller;
  */
 public interface StripesConstants {
     /**
-     * The name of a URL parameter that is used to hold the name of the form that is being posted
-     * to the server.
-     */
-    String URL_KEY_FORM_NAME = "_formName";
-
-    /**
      * The name of a URL parameter that is used to hold the path (relative to the web application
      * root) from which the current form submission was made.
      */

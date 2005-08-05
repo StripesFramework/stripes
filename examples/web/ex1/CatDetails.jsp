@@ -26,7 +26,7 @@
           <stripes:errors-footer></ul></stripes:errors-footer>
       </stripes:errors>
 
-      <stripes:form method="post" action="/action/CatDetails" name="ex1/CatDetailsForm">
+      <stripes:form method="post" action="/action/CatDetails">
           <table>
               <tr>
                   <td>Cat Name:</td>

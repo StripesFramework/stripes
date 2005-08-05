@@ -11,18 +11,18 @@ package net.sourceforge.stripes.action;
  * response, and other information generated during the pre-processing of the request.</p>
  *
  * <p>How Stripes determines which method to invoke is based on Annotations as opposed to a strict
- * interface.  Firstly, each ActionBean should be annotated with a FormName which specifies the
- * name of the Form that the ActionBean should be bound to.  E.g:</p>
+ * interface.  Firstly, each ActionBean should be annotated with a UrlBinding which specifies the
+ * path within the web application that the ActionBean will be bound to.  E.g:</p>
  *
  * <pre>
- * &#064;FormName("SampleHtmlForm")
+ * &#064;UrlBinding("/action/SampleAction")
  * public SampleActionBean implements ActionBean {
  * ...
  * </pre>
  *
  * <p>At run time Stripes will discover all implementations of ActionBean and, when a form is
- * submitted, will locate the ActionBean to use by matching the name attribute on the form to the
- * FormName annotation on the ActionBean.</p>
+ * submitted, will locate the ActionBean to use by matching the path in the request to the
+ * UrlBinding annotation on the ActionBean.</p>
  *
  * <p>The way in which a specific event is mapped to a &quot;handler&quot; method can vary.  The
  * default method used by Stripes is to identify the <em>name</em> of the button or image button

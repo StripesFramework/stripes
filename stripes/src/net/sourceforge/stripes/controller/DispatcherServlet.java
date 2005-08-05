@@ -54,8 +54,7 @@ public class DispatcherServlet extends HttpServlet {
             ActionBeanContext context = createActionBeanContext(request, response);
 
             ActionResolver actionResolver = StripesFilter.getConfiguration().getActionResolver();
-            String beanName         = actionResolver.getActionBeanName(context);
-            Class<ActionBean> clazz = actionResolver.getActionBean(beanName);
+            Class<ActionBean> clazz = actionResolver.getActionBean(context);
             String eventName        = actionResolver.getEventName(clazz, context);
             context.setEventName(eventName);
 
@@ -70,13 +69,13 @@ public class DispatcherServlet extends HttpServlet {
             // Insist that we have a handler
             if (handler == null) {
                 throw new StripesServletException("No handler method found for request with " +
-                    "ActionBean name [" + beanName + "] and eventName [ " + eventName + "]");
+                    "ActionBean [" + clazz.getName() + "] and eventName [ " + eventName + "]");
             }
 
             // Instantiate and set us up the bean
             ActionBean bean = clazz.newInstance();
             bean.setContext(context);
-            request.setAttribute(beanName, bean);
+            request.setAttribute((String) request.getAttribute(ActionResolver.RESOLVED_ACTION), bean);
             request.setAttribute(StripesConstants.REQ_ATTR_ACTION_BEAN, bean);
 
             // Bind the value to the bean - this includes performing field level validation
@@ -89,10 +88,12 @@ public class DispatcherServlet extends HttpServlet {
             }
 
             if (errors.size() > 0) {
+                String formAction = (String) request.getAttribute(ActionResolver.RESOLVED_ACTION);
+
                 /** Since we don't pass form name down the stack, we add it to the errors here. */
                 for (List<ValidationError> listOfErrors : errors.values()) {
                     for (ValidationError error : listOfErrors) {
-                        error.setFormName(beanName);
+                        error.setActionPath(formAction);
                     }
                 }
                 bean.getContext().setValidationErrors(errors);

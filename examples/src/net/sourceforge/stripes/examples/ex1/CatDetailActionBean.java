@@ -2,13 +2,13 @@ package net.sourceforge.stripes.examples.ex1;
 
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.action.ActionBeanContext;
-import net.sourceforge.stripes.action.FormName;
 import net.sourceforge.stripes.action.ForwardResolution;
 import net.sourceforge.stripes.action.HandlesEvent;
 import net.sourceforge.stripes.action.RedirectResolution;
 import net.sourceforge.stripes.action.Resolution;
 import net.sourceforge.stripes.action.FileBean;
 import net.sourceforge.stripes.action.DontValidate;
+import net.sourceforge.stripes.action.UrlBinding;
 import net.sourceforge.stripes.validation.Validate;
 import net.sourceforge.stripes.validation.ValidateNestedProperties;
 import org.apache.commons.logging.Log;
@@ -22,7 +22,7 @@ import java.io.StringWriter;
  * Created by IntelliJ IDEA. User: tfenne Date: Jun 15, 2005 Time: 7:12:56 PM To change this
  * template use File | Settings | File Templates.
  */
-@FormName("ex1/CatDetailsForm")
+@UrlBinding("/action/CatDetails")
 public class CatDetailActionBean implements ActionBean {
     private static Log log = LogFactory.getLog(CatDetailActionBean.class);
 

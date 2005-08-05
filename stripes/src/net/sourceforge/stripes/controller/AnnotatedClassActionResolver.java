@@ -3,12 +3,13 @@ package net.sourceforge.stripes.controller;
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.action.ActionBeanContext;
 import net.sourceforge.stripes.action.DefaultHandler;
-import net.sourceforge.stripes.action.FormName;
 import net.sourceforge.stripes.action.HandlesEvent;
+import net.sourceforge.stripes.action.UrlBinding;
 import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.exception.StripesServletException;
 import net.sourceforge.stripes.util.Log;
 
+import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
@@ -18,9 +19,16 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Uses Annotations on classes to identify the Forms that FormBeans represent and the events
- * that methods are capable of handling.
+ * <p>Uses Annotations on classes to identify the ActionBean that corresponds to the current
+ * request.  ActionBeans are annotated with an @UrlBinding annotation, which denotes the
+ * web application relative URL that the ActionBean should respond to.
+ * that methods are capable of handling.</p>
  *
+ * <p>Individual methods on ActionBean classes are expected to be annotated with @HandlesEvent
+ * annotations, and potentially a @DefaultHandler annotation.  Using these annotations the
+ * Resolver will determine which method should be executed for the current request.</p>
+ *
+ * @see net.sourceforge.stripes.action.UrlBinding
  * @author Tim Fennell
  */
 public class AnnotatedClassActionResolver implements ActionResolver {
@@ -86,11 +94,11 @@ public class AnnotatedClassActionResolver implements ActionResolver {
 
         // Process each ActionBean
         for (Class<ActionBean> clazz : beans) {
-            FormName name = clazz.getAnnotation(FormName.class);
+            UrlBinding binding = clazz.getAnnotation(UrlBinding.class);
 
             // Only process the class if it's properly annotated
-            if (name != null) {
-                this.formBeans.put(name.value(), clazz);
+            if (binding != null) {
+                this.formBeans.put(binding.value(), clazz);
 
                 // Construct the mapping of event->method for the class
                 Map<String, Method> classMappings = new HashMap<String, Method>();
@@ -111,25 +119,6 @@ public class AnnotatedClassActionResolver implements ActionResolver {
     }
 
     /**
-     * Uses the Maps constructed earlier to resolve the ActionBean class.
-     *
-     * @param beanName the name of the ActionBean to be resolved
-     * @return a Class representing a subclass of ActionBean.
-     * @throws StripesServletException thrown when no ActionBean is present for the name supplied.
-     */
-    public Class<ActionBean> getActionBean(String beanName)
-        throws StripesServletException {
-
-        Class<ActionBean> bean = this.formBeans.get(beanName);
-        if (bean == null) {
-            throw new StripesServletException("Could not find action bean with name matching: " +
-                beanName);
-        }
-
-        return bean;
-    }
-
-    /**
      * Gets the logical name of the ActionBean that should handle the request.  Implemented to look
      * up the name of the form based on the name assigned to the form in the form tag, and
      * encoded in a hidden field.
@@ -137,18 +126,23 @@ public class AnnotatedClassActionResolver implements ActionResolver {
      * @param context the ActionBeanContext for the current request
      * @return the name of the form to be used for this request
      */
-    public String getActionBeanName(ActionBeanContext context) throws StripesServletException {
-        String actionName =  context.getRequest().getParameter(StripesConstants.URL_KEY_FORM_NAME);
+    public Class<ActionBean> getActionBean(ActionBeanContext context) throws StripesServletException {
+        HttpServletRequest request = context.getRequest();
+        String boundUrl =  request.getServletPath() + request.getPathInfo();
+        Class<ActionBean> beanClass = this.formBeans.get(boundUrl);
 
-        if (actionName == null || "".equals(actionName) ) {
-            throw new StripesServletException
-                    ("Could not resolve the name of the ActionBean from the request. This " +
-                     "probably means that there was no request parameter called " +
-                     StripesConstants.URL_KEY_FORM_NAME + "in the supplied request. " +
-                     "Parameters included: " + context.getRequest().getParameterNames());
+        if (beanClass == null) {
+            StripesServletException sse = new StripesServletException(
+                    "Could not locate an ActionBean that is bound to the URL [" + boundUrl +
+                    "]. Full request URL was [" + context.getRequest().getRequestURL() +
+                    "]. Registered ActionBeans are: " + this.formBeans);
+
+            log.debug(sse);
+            throw sse;
         }
 
-        return actionName;
+        request.setAttribute(RESOLVED_ACTION, boundUrl);
+        return beanClass;
     }
 
     /**

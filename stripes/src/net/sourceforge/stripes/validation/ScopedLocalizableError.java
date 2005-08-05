@@ -50,11 +50,11 @@ public class ScopedLocalizableError extends LocalizableError {
      */
     protected String getMessageTemplate(ResourceBundle bundle) {
         try {
-            return bundle.getString(getFormName() + "." + getFieldName() + "." + key);
+            return bundle.getString(getActionPath() + "." + getFieldName() + "." + key);
         }
         catch (MissingResourceException mre) {
             try {
-                return bundle.getString(getFormName() + "." + key);
+                return bundle.getString(getActionPath() + "." + key);
             }
             catch (MissingResourceException mre2) {
                 return super.getMessageTemplate(bundle);

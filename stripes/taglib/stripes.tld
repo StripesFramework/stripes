@@ -54,7 +54,7 @@
         <attribute><name>action</name><required>true</required><rtexprvalue>true</rtexprvalue></attribute>
         <attribute><name>enctype</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
         <attribute><name>method</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
-        <attribute><name>name</name><required>true</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>name</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
         <attribute><name>target</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
     </tag>
 
@@ -651,8 +651,8 @@
 
     <tag>
         <description>
-            Outputs validation errors. If a form attribute is specified, will only render errors if
-            the submitted form name matches the specified one. Otherwise, if nested inside a
+            Outputs validation errors. If an action attribute is specified, will only render errors if
+            the submitted form action matches the specified one. Otherwise, if nested inside a
             stripes form tag, will only display errors if they are for the enclosing form. Otherwise
             will display errors for whatever form was submitted.  Can optionally take a field name
             to limit output to a single field's errors.
@@ -662,7 +662,7 @@
         <tag-class>net.sourceforge.stripes.tag.ErrorsTag</tag-class>
         <tei-class>net.sourceforge.stripes.tag.ErrorsTagExtraInfo</tei-class>
         <body-content>JSP</body-content>
-        <attribute><name>form</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><name>action</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
         <attribute><name>field</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
     </tag>
 
