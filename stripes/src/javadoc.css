@@ -1,8 +1,10 @@
-body { 	font-family: Arial;
+body {
+    font-family: Arial;
 	background-color: white;
 	font-size: 10pt;
  }
-td { 	font-family: Arial;
+td {
+    font-family: Arial;
 	font-size: 10pt;
  }
 
@@ -62,7 +64,10 @@ PRE {
 }
 
 UL, OL, LI {
-    list-style: disc;
+    list-style-position: outside;
+    list-style-type: square;
+    list-style: square;
+    display: block;
 }
 
 HR  {

@@ -6,13 +6,14 @@ import javax.servlet.jsp.tagext.BodyTag;
 /**
  * <p>Generates {@literal <input type="radio" value="foo"/>} HTML tags based on the attribute set
  * on the tag and the state of the form. Since a single radio button widget on a HTML page can
- * have only a single value, the value tag attribute must always resolve to a String (though this
- * is somewhat lax since the EL will coerce almost anything to a String). Similarly since radio
- * button sets can have only a single selected value at a time the checked attribute of the tag
- * must also be a String.</p>
+ * have only a single value, the value tag attribute must be a Scalar object.  The value will be
+ * converted to a String using the Stripes formatting system (with appropriate defaults), or by
+ * calling toString if an appropriate Formatter does not exist. Similarly since radio button sets
+ * can have only a single selected value at a time the checked attribute of the tag must also be
+ * a scalar value.</p>
  *
  * <p>Radio buttons perform automatic (re-)population of state.  They prefer, in order, the value
- * in the HttpServletRequest, the valuee in the ActionBean and lastly the valuee set using
+ * in the HttpServletRequest, the value in the ActionBean and lastly the valuee set using
  * checked="" on the page.  If the value of the current radio button matches the checked value
  * from the preferred source then the attribute checked="checked" will be written in the HTML
  * tag.</p>

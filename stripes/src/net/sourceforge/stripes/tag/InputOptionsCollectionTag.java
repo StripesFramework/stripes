@@ -46,12 +46,6 @@ public class InputOptionsCollectionTag extends HtmlTagSupport implements Tag {
         return this.collection;
     }
 
-    /** Sets a single value that should be selected, in the generated set of options. */
-    public void setSelected(String selected) { set("selected", selected); }
-
-    /** Gets the value set with setSelected(). */
-    public String getSelected() { return get("selected"); }
-
     /**
      * Sets the name of the property that will be fetched on each bean in the collection in
      * order to generate the value attribute of each option.

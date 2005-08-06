@@ -6,8 +6,9 @@ import javax.servlet.jsp.tagext.BodyTag;
 /**
  * <p>Implements an HTML tag that generates form fields of type {@literal <input type="checkbox"/>}.
  * Since a single checkbox widget on a HTML page can have only a single value, the value tag
- * attribute must always resolve to a String (though this is somewhat lax since the EL will coerce
- * almost anything to a String).</p>
+ * attribute must always resolve to a scalar value which will be converted to a String using
+ * the Stripes Formatting system, or by caling toString() if an appropriate Formatter is
+ * not found.</p>
  *
  * <p>Checkboxes perform automatic (re-)population of state.  They prefer, in order, values in the
  * HttpServletRequest, values in the ActionBean and lastly values set using checked="" on the page.

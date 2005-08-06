@@ -11,10 +11,10 @@ import javax.servlet.jsp.tagext.BodyTag;
  * text field are determined by looking for the first non-null value in the following list:</p>
  *
  * <ul>
- *   <il>A value with the same name in the HttpServletRequest</li>
- *   <il>A value on the ActionBean if an ActionBean instance is present</li>
- *   <il>The contents of the body of the tag</li>
- *   <il>The value attribute of the tag</li>
+ *   <li>A value with the same name in the HttpServletRequest</li>
+ *   <li>A value on the ActionBean if an ActionBean instance is present</li>
+ *   <li>The contents of the body of the tag</li>
+ *   <li>The value attribute of the tag</li>
  * </ul>
  *
  * @author Tim Fennell

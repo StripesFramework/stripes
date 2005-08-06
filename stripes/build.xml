@@ -13,7 +13,7 @@
   <property name="tld.dir"     value="${basedir}/taglib"/>
   <property name="lib.dir"     value="${basedir}/lib"/>
   <property name="classes.dir" value="${basedir}/classes"/>
-  <property name="doc.dir"    value="${basedir}/docs"/>
+  <property name="doc.dir"     value="${basedir}/docs"/>
   <property name="dist.dir"    value="${basedir}/dist"/>
 
   <!-- =================================================================== -->
@@ -30,6 +30,8 @@
     <mkdir dir="${classes.dir}/META-INF"/>
 	<mkdir dir="${dist.dir}"/>
 	<mkdir dir="${doc.dir}"/>
+    <mkdir dir="${doc.dir}/api"/>
+    <mkdir dir="${doc.dir}/taglib"/>
   </target>
 
 
@@ -58,7 +60,9 @@
       </fileset>
     </copy>
 
-    <copy todir="${classes.dir}/META-INF">
+
+    <filter filtersfile="${tld.dir}/common-descriptions.properties"/>
+    <copy todir="${classes.dir}/META-INF" filtering="true">
       <fileset dir="${tld.dir}">
         <include name="**/*.tld"/>
       </fileset>
@@ -79,7 +83,7 @@
   <target name="javadoc" depends="init" description="Generates the project javadoc.">
 	<javadoc
 	   sourcepath="${src.dir}"
-	   destdir="${doc.dir}"
+	   destdir="${doc.dir}/api"
 	   classpathref="build.class.path"
 	   packagenames="net.sourceforge.stripes.*"
        stylesheetfile="${src.dir}/javadoc.css"
@@ -95,5 +99,17 @@
 		<link href="http://www.ognl.org/2.6.7/Documentation/javadoc/"/>
 		<link href="http://jakarta.apache.org/bcel/apidocs/"/>
 	</javadoc>
+  </target>
+
+  <target name="tlddoc" depends="init" description="Generates Tag Library Documentation.">
+      <java fork="true" jar="${lib.dir}/build/tlddoc.jar" failonerror="false">
+          <arg line="-d ${doc.dir}/taglib"/>
+          <arg line="-doctitle 'Stripes Tag Library Documentation'"/>
+          <arg line="-windowtitle 'Stripes Tag Library Documentation'"/>
+          <arg value="${classes.dir}/META-INF/stripes.tld"/>
+      </java>
+      <copy file="${src.dir}/javadoc.css"
+            tofile="${doc.dir}/taglib/stylesheet.css"
+            overwrite="true"/>
   </target>
 </project>

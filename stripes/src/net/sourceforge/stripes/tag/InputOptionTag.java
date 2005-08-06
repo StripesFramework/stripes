@@ -11,10 +11,11 @@ import java.io.IOException;
  * enclosing select tag to determine it's state (i.e. whether or not it is selected.)  As a result
  * some of the logic regarding state repopulation is a bit complex.</p>
  *
- * <p>Since options can have only a single value per option the value attribute of the tag is a
- * String - though it can be generated from non-strings using EL.  The presence of a "selected"
- * attribute is used as an indication that this option believes it should be selected by default -
- * the value of the selected attribute is never used.</p>
+ * <p>Since options can have only a single value per option the value attribute of the tag
+ * must be a scalar, which will be converted into a String using a Formatter if an
+ * appropriate one can be found, otherwise the toString() method will be invoked.  The presence of
+ * a "selected" attribute is used as an indication that this option believes it should be selected
+ * by default - the value (as opposed to the presence) of the selected attribute is never used....</p>
  *
  * <p>The option tag delegates to its enclosing select tag to determine whether or not it should
  * be selected.  See the {@link InputSelectTag "select tag"} for documentation on how it
