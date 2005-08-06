@@ -955,13 +955,18 @@
     </tag>
 
     <tag>
-        <description>
-            Outputs validation errors. If an action attribute is specified, will only render errors if
+        <description><![CDATA[
+            <p>Outputs validation errors. If an action attribute is specified, will only render errors if
             the submitted form action matches the specified one. Otherwise, if nested inside a
             stripes form tag, will only display errors if they are for the enclosing form. Otherwise
             will display errors for whatever form was submitted.  Can optionally take a field name
-            to limit output to a single field's errors.
-        </description>
+            to limit output to a single field's errors.</p>
+
+            <p>By default will output a simple header followed by a list of validation errors in an
+            HTML unordered list. This behaviour can be customized by nesting other tags within the
+            errors tag, including stripes:individual-error, stripes:error-header and
+            stripes:error-footer.</p>
+        ]]></description>
         <display-name>errors</display-name>
         <name>errors</name>
         <tag-class>net.sourceforge.stripes.tag.ErrorsTag</tag-class>

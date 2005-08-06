@@ -64,10 +64,7 @@ PRE {
 }
 
 UL, OL, LI {
-    list-style-position: outside;
-    list-style-type: square;
     list-style: square;
-    display: block;
 }
 
 HR  {
