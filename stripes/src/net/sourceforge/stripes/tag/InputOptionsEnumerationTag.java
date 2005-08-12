@@ -77,6 +77,12 @@ public class InputOptionsEnumerationTag extends HtmlTagSupport implements Tag {
                             "class which is a java 1.5 enum.", e);
         }
 
+        if (!clazz.isEnum()) {
+            throw new StripesJspException
+                    ("The class name supplied, [" + this.className + "], does not appear to be " +
+                     "a JDK1.5 enum class.");
+        }
+        
         Enum[] enums = clazz.getEnumConstants();
 
         InputOptionTag tag = new InputOptionTag();
