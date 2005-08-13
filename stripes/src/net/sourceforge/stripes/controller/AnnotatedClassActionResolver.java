@@ -163,8 +163,10 @@ public class AnnotatedClassActionResolver implements ActionResolver {
      */
     public String getEventName(Class<ActionBean> bean, ActionBeanContext context) {
         Map<String,Method> mappings = this.eventMappings.get(bean);
+        Map parameterMap = context.getRequest().getParameterMap();
+
         for (String event : mappings.keySet()) {
-            if (context.getRequest().getParameterMap().containsKey(event)) {
+            if (parameterMap.containsKey(event) || parameterMap.containsKey(event + ".x")) {
                 return event;
             }
         }
