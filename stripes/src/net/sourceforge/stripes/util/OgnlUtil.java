@@ -7,7 +7,10 @@ import ognl.OgnlRuntime;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
+import java.lang.reflect.ParameterizedType;
 import java.beans.IntrospectionException;
 
 /**
@@ -26,6 +29,7 @@ public class OgnlUtil {
     /** Static initializer block that inserts a custom NullHandler into the OgnlRuntime. */
     static {
         OgnlRuntime.setNullHandler(Object.class, new OgnlCustomNullHandler());
+        OgnlRuntime.setPropertyAccessor(List.class, new SafeListPropertyAccessor());
     }
 
     /** Private default constructor to prevent anyone from instantiating the class. */
@@ -44,6 +48,29 @@ public class OgnlUtil {
      */
     public static Object getValue(String property, Object root) throws OgnlException {
         return Ognl.getValue(getExpression(property), createContext(), root);
+    }
+
+    /**
+     * Fetches the value of a named property (nested, indexed etc.) using Ognl. Can optionally
+     * instantiate the final property if it is null, and return a default instance of the
+     * type.
+     *
+     * @param property an expression representing the property desired
+     * @param root the object from which to fetch the property
+     * @param instantiateLeaf if true, an attmept will be made to instantiate the property if it
+     *        is null, and return a default value.
+     * @return Object the value of the property, or null if the property is null
+     * @throws OgnlException thrown when a problem occurs such as one or more properties not
+     *         existing or being inaccessible
+     */
+    public static Object getValue(String property, Object root, boolean instantiateLeaf) throws OgnlException {
+        OgnlContext context = createContext();
+        if (instantiateLeaf) {
+            context.put(OgnlCustomNullHandler.INSTANTIATE_LEAF_NODES,
+                        OgnlCustomNullHandler.INSTANTIATE_LEAF_NODES);
+        }
+
+        return Ognl.getValue(getExpression(property), context, root);
     }
 
     /**
@@ -72,21 +99,60 @@ public class OgnlUtil {
      */
     public static Class getPropertyClass(String property, Object root) throws OgnlException,
                                                                               IntrospectionException {
+        Class propertyClass = null;
+
         int propertyIndex = property.lastIndexOf(".");
         if (propertyIndex > 0) {
+            // foo.bar.baz.splat => parent: "foo.bar.baz" and child: "splat"
             String parentProperty = property.substring(0,propertyIndex);
             String childProperty = property.substring(propertyIndex+1);
 
-            // foo.bar.baz.splat => parent: "foo.bar.baz" and child: "id"
+            // We need to handle the case where the last chunk of the expression references
+            // a List or a Map
+            int listIndexPosition = childProperty.indexOf("[");
 
-            root = getValue(parentProperty,root);
-            property = childProperty;
+            if (listIndexPosition > 0) {
+                Object newRoot = getValue(parentProperty, root, true);
+                Method method = OgnlRuntime.getGetMethod(createContext(),
+                                                         newRoot.getClass(),
+                                                         childProperty.substring(0, listIndexPosition));
+                Type returnType = method.getGenericReturnType();
+                if (returnType instanceof ParameterizedType) {
+                    ParameterizedType ptype = (ParameterizedType) returnType;
+                    Type actualType = null;
+
+                    // Get the right type parameter for List<X> and Map<?,X>
+                    if (List.class.isAssignableFrom((Class) ptype.getRawType())) {
+                        actualType = ptype.getActualTypeArguments()[0];
+                    }
+                    else if (Map.class.isAssignableFrom((Class) ptype.getRawType())) {
+                        actualType = ptype.getActualTypeArguments()[1];
+                    }
+
+                    if (actualType instanceof Class) {
+                        propertyClass = (Class) actualType;
+                    }
+                }
+
+                // If we can't figure it out, let's try String!
+                if (propertyClass == null) {
+                    propertyClass = String.class;
+                }
+            }
+            else {
+                Object newRoot = getValue(parentProperty,root, true);
+                Method method =
+                        OgnlRuntime.getGetMethod(createContext(), newRoot.getClass(), childProperty);
+                propertyClass = method.getReturnType();
+            }
+        }
+        else {
+            Method method =
+                    OgnlRuntime.getGetMethod(createContext(), root.getClass(), property);
+            propertyClass = method.getReturnType();
         }
 
-        Method method =
-                OgnlRuntime.getGetMethod(createContext(), root.getClass(), property);
-
-        return method.getReturnType();
+        return propertyClass;
     }
 
     /**
