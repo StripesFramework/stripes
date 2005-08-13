@@ -105,8 +105,13 @@ public class AnnotatedClassActionResolver implements ActionResolver {
                 Method[] methods = clazz.getMethods();
                 for (Method method : methods) {
                     HandlesEvent mapping = method.getAnnotation(HandlesEvent.class);
+                    DefaultHandler defaultMapping = method.getAnnotation(DefaultHandler.class);
                     if (mapping != null) {
                         classMappings.put(mapping.value(), method);
+                    }
+                    else if (defaultMapping != null) {
+                        // Makes sure we catch the default handler
+                        classMappings.put("__default_handler", method);
                     }
                 }
 
