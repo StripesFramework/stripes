@@ -456,7 +456,9 @@
             represented by a single option tag on the page.  Uses the label and value attributes
             on the tag to name the properties of the objects in the Collection that should be used
             to generate the body of the HTML option tag and the value attribute of the HTML option
-            tag respectively.</p>
+            tag respectively.  If either (or both) of the label or value properties are ommitted
+            the item itself will be used for the label/value instead - this is done to support
+            collections of simple types like Strings and Numbers.</p>
 
             <p>E.g. a tag declaration that looks like:</p>
             <pre>&lt;stripes:options-collection collection=&quot;${cats}&quot; value=&quot;catId&quot; label=&quot;name&quot;/&gt;</pre>
@@ -483,13 +485,13 @@
                 The name of the property (of the beans in the collection) that should be used to
                 generate the value of each option (i.e. the value that is sent to the server).
             </description>
-            <name>value</name><required>true</required><rtexprvalue>true</rtexprvalue></attribute>
+            <name>value</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
         <attribute>
             <description>
                 The name of the property (of the beans in the collection) that should be used to
                 generate the label of each option (i.e. the text displayed to the user).
             </description>
-            <name>label</name><required>true</required><rtexprvalue>true</rtexprvalue>
+            <name>label</name><required>false</required><rtexprvalue>true</rtexprvalue>
         </attribute>
         <attribute>
             <description>
