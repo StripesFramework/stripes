@@ -70,14 +70,15 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
             // Process the methods on the class
             Method[] methods = beanClass.getMethods();
             for (Method method : methods) {
-                String fieldName = getPropertyName(method.getName());
                 Validate validation = method.getAnnotation(Validate.class);
                 if (validation != null) {
+                    String fieldName = getPropertyName(method.getName());
                     fieldValidations.put(fieldName, validation);
                 }
 
                 ValidateNestedProperties nested = method.getAnnotation(ValidateNestedProperties.class);
                 if (nested != null) {
+                    String fieldName = getPropertyName(method.getName());
                     Validate[] validations = nested.value();
                     for (Validate nestedValidate : validations) {
                         if ( "".equals(nestedValidate.field()) ) {
@@ -148,7 +149,7 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
         for (Map.Entry<String,String[]> entry : parameters.entrySet() ) {
             try {
                 String parameter = entry.getKey();
-                if (!SPECIAL_KEYS.contains(parameter) && !context.getEventName().equals(parameter)
+                if (!SPECIAL_KEYS.contains(parameter) && !parameter.equals(context.getEventName())
                         && !fieldErrors.containsKey(parameter) ) {
                     log.trace("Attempting to bind property with name: ", parameter);
 
