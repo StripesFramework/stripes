@@ -78,19 +78,22 @@ public class DispatcherServlet extends HttpServlet {
             request.setAttribute((String) request.getAttribute(ActionResolver.RESOLVED_ACTION), bean);
             request.setAttribute(StripesConstants.REQ_ATTR_ACTION_BEAN, bean);
 
-            // Bind the value to the bean - this includes performing field level validation
-            ValidationErrors errors = bindValues(bean,
-                                                 context,
-                                                 handler.getAnnotation(DontValidate.class) == null);
+            // Find out if we're validating for this event or not
+            boolean doValidate = (handler.getAnnotation(DontValidate.class) == null);
 
-            if (errors.size() == 0 && bean instanceof Validatable) {
+            // Bind the value to the bean - this includes performing field level validation
+            ValidationErrors errors = bindValues(bean, context, doValidate);
+
+            // If blah blah blah, run the bean's validate method
+            if (errors.size() == 0 && bean instanceof Validatable && doValidate) {
                 ((Validatable) bean).validate(errors);
             }
 
+            // If there are errors, head off to the input page
             if (errors.size() > 0) {
                 String formAction = (String) request.getAttribute(ActionResolver.RESOLVED_ACTION);
 
-                /** Since we don't pass form name down the stack, we add it to the errors here. */
+                /** Since we don't pass form action down the stack, we add it to the errors here. */
                 for (List<ValidationError> listOfErrors : errors.values()) {
                     for (ValidationError error : listOfErrors) {
                         error.setActionPath(formAction);
@@ -157,8 +160,18 @@ public class DispatcherServlet extends HttpServlet {
     /**
      * Determines the page to send the user to (and how) in case of validation errors.
      */
-    protected Resolution getErrorResolution(HttpServletRequest request) {
-        return new ForwardResolution(request.getParameter(StripesConstants.URL_KEY_SOURCE_PAGE));
+    protected Resolution getErrorResolution(HttpServletRequest request) throws StripesServletException {
+        String sourcePage = request.getParameter(StripesConstants.URL_KEY_SOURCE_PAGE);
+        if (sourcePage != null) {
+            return new ForwardResolution(sourcePage);
+        }
+        else {
+            throw new StripesServletException("Here's how it is. Your request generated " +
+                "validation errors, but no source page was supplied in the request. When you " +
+                "use a stripes:form tag a hidden field called '" +
+                StripesConstants.URL_KEY_SOURCE_PAGE + "' is included. If you write your own " +
+                "forms or links that could generate validation errors, you must include a value " +
+                "for this parameter. This can be done by calling request.getServletPath().");
+        }
     }
-
 }
