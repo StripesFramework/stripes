@@ -79,6 +79,9 @@ public class TagLibraryValidator extends javax.servlet.jsp.tagext.TagLibraryVali
             requiredParentMap.put("stripes:errors-footer",    "stripes:errors");
             requiredParentMap.put("stripes:individual-error", "stripes:errors");
 
+            // LinkParams must be inside Links
+            requiredParentMap.put("stripes:link-param", "stripes:link");
+
             // Now flip things around
             verbotenParentMap.put("stripes:form", "stripes:form");
         }
