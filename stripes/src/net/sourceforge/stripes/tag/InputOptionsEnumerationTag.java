@@ -94,8 +94,9 @@ public class InputOptionsEnumerationTag extends HtmlTagSupport implements Tag {
         try {
             for (Enum item : enums) {
                 Object value = item.name();
-                Object label = OgnlUtil.getValue(this.label, item);
-                if (label != null) {
+                Object label = null;
+                if (this.label != null) {
+                    label = OgnlUtil.getValue(this.label, item);
                 }
                 else {
                     label = item.toString();
