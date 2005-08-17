@@ -1,9 +1,6 @@
 package net.sourceforge.stripes.util;
 
-import ognl.Ognl;
-import ognl.OgnlContext;
-import ognl.OgnlException;
-import ognl.OgnlRuntime;
+import ognl.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -95,13 +92,15 @@ public class OgnlUtil {
      * @param root the object on which the property lives
      * @return the Class type of the property
      * @throws OgnlException thrown when a problem occurs such as one or more properties not
-     *         existing or being inaccessible
+     *         being inaccessible
+     * @throws NoSuchPropertyException thrown when the property does not exist
      */
     public static Class getPropertyClass(String property, Object root) throws OgnlException,
                                                                               IntrospectionException {
         Class propertyClass = null;
 
-        int propertyIndex = property.lastIndexOf(".");
+        int propertyIndex = propertySplit(property);
+
         if (propertyIndex > 0) {
             // foo.bar.baz.splat => parent: "foo.bar.baz" and child: "splat"
             String parentProperty = property.substring(0,propertyIndex);
@@ -143,16 +142,50 @@ public class OgnlUtil {
                 Object newRoot = getValue(parentProperty,root, true);
                 Method method =
                         OgnlRuntime.getGetMethod(createContext(), newRoot.getClass(), childProperty);
+                if (method == null) {
+                    throw new NoSuchPropertyException(root,property);
+                }
                 propertyClass = method.getReturnType();
             }
         }
         else {
             Method method =
                     OgnlRuntime.getGetMethod(createContext(), root.getClass(), property);
+            if (method == null) {
+                throw new NoSuchPropertyException(root,property);
+            }
             propertyClass = method.getReturnType();
         }
 
         return propertyClass;
+    }
+
+    /**
+     * Finds the split point for the last property of an OGNL expression. If the last
+     * property includes a map reference, the map reference is part of the last property
+     * expression. This method also accounts for literals in single-ticks inside of that
+     * last map expression.
+     * @param property the property expression to evaluate
+     * @return the index of the property splitter for the last property of the expression
+     */
+    private static int propertySplit(String property) {
+        int endTick = property.lastIndexOf("'");
+        int childSplit;
+        if (endTick > 0) {
+            // We have ticks, assume there are two and they're a map literal (e.g. foo.bar['baz.splat'])
+            String first = property.substring(0,endTick);
+            int startTick = first.lastIndexOf("'");
+            assert startTick > 0 : "Ticks in expression don't match";
+
+            childSplit = property.lastIndexOf('.');
+            if (childSplit > startTick && childSplit < endTick) {
+                String beforeTicks = property.substring(0, startTick);
+                childSplit = beforeTicks.lastIndexOf('.');
+            }
+        } else {
+            childSplit = property.lastIndexOf('.');
+        }
+        return childSplit;
     }
 
     /**
