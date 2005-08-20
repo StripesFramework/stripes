@@ -132,8 +132,13 @@ public class AnnotatedClassActionResolver implements ActionResolver {
      * @return the name of the form to be used for this request
      */
     public Class<ActionBean> getActionBean(ActionBeanContext context) throws StripesServletException {
+        // Defensively construct the URL that was used to hit the dispatcher
         HttpServletRequest request = context.getRequest();
-        String boundUrl =  request.getServletPath() + request.getPathInfo();
+        String servletPath = request.getServletPath();
+        String pathInfo    = request.getPathInfo();
+        String boundUrl = (servletPath == null ? "" : servletPath) +
+                            (pathInfo == null ? "" : pathInfo);
+
         Class<ActionBean> beanClass = this.formBeans.get(boundUrl);
 
         if (beanClass == null) {
