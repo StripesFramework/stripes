@@ -366,6 +366,13 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
                         }
                     }
                 }
+                else {
+                    // If the row is full of empty data, get rid of it all to
+                    // prevent problems in downstream validation
+                    for (ParameterName name : row.keySet()) {
+                        parameters.remove(name);
+                    }
+                }
             }
 
         }

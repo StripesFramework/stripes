@@ -67,4 +67,14 @@ public class ParameterName {
     public String getStrippedName() {
         return this.strippedName;
     }
+
+    /**
+     * Checks for equality as efficiently as possible.  First checks for JVM equality to
+     * see if we can short circuit, and then checks for equality of the name attribute for
+     * a real test.
+     */
+    public boolean equals(Object obj) {
+        return (obj instanceof ParameterName) &&
+                (this == obj || this.name.equals(((ParameterName) obj).name) );
+    }
 }
