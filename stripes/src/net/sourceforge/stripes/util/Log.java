@@ -160,7 +160,7 @@ public final class Log {
      */
     public final void debug(Object... messageParts) {
         if (this.realLog.isDebugEnabled()) {
-            this.realLog.fatal(combineParts(messageParts));
+            this.realLog.debug(combineParts(messageParts));
         }
     }
 
