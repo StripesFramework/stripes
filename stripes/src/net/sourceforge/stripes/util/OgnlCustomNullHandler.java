@@ -4,9 +4,6 @@ import ognl.OgnlContext;
 import ognl.OgnlRuntime;
 import ognl.ObjectNullHandler;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.util.Map;
 import java.util.List;
 import java.lang.reflect.Method;
@@ -28,7 +25,7 @@ public class OgnlCustomNullHandler extends ObjectNullHandler {
     protected static final String INSTANTIATE_LEAF_NODES = "leafyBaby";
 
     /** Log object used by the class to log messages. */
-    private Log log = LogFactory.getLog(OgnlCustomNullHandler.class);
+    private Log log = Log.getInstance(OgnlCustomNullHandler.class);
 
     /**
      * Figures out what to do when Ognl encounters a null value in one of the expressions that it
@@ -156,8 +153,8 @@ public class OgnlCustomNullHandler extends ObjectNullHandler {
                 }
             }
             catch (Exception e) { // There's really not a lot we can do about this.
-                log.info("Problem encountered trying to create and set property [" + property +
-                        "] on object of type [" + target.getClass().getName() + "].");
+                log.info("Problem encountered trying to create and set property [", property,
+                        "] on object of type [", target.getClass().getName(), "]. ", e.getMessage());
             }
         }
 
