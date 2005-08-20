@@ -12,6 +12,7 @@ import net.sourceforge.stripes.validation.Validate;
 import net.sourceforge.stripes.validation.ValidateNestedProperties;
 import net.sourceforge.stripes.validation.ValidationError;
 import net.sourceforge.stripes.validation.ValidationErrors;
+import ognl.NoSuchPropertyException;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -137,62 +138,69 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
      *        type conversion should occur
      */
     public ValidationErrors bind(ActionBean bean, ActionBeanContext context, boolean validate) {
-        Map<String,String[]> parameters = context.getRequest().getParameterMap();
         ValidationErrors fieldErrors = new ValidationErrors();
+
+        // Take the ParameterMap and turn the keys into ParameterNames
+        Map<ParameterName,String[]> parameters = getParameters(context);
 
         // Run the required validation first to catch fields that weren't even submitted
         if (validate) {
-            validateRequiredFields(context, bean.getClass(), fieldErrors);
+            validateRequiredFields(parameters, context, bean.getClass(), fieldErrors);
         }
 
         // First we bind all the regular parameters
-        for (Map.Entry<String,String[]> entry : parameters.entrySet() ) {
+        for (Map.Entry<ParameterName,String[]> entry : parameters.entrySet() ) {
             try {
-                String parameter = entry.getKey();
-                if (!SPECIAL_KEYS.contains(parameter) && !parameter.equals(context.getEventName())
-                        && !fieldErrors.containsKey(parameter) ) {
-                    log.trace("Attempting to bind property with name: ", parameter);
+                ParameterName name = entry.getKey();
+                if (!SPECIAL_KEYS.contains(name.getName()) && !name.getName().equals(context.getEventName())
+                        && !fieldErrors.containsKey(name.getName()) ) {
+                    log.trace("Attempting to bind property with name: ", name);
 
-                    Class type = OgnlUtil.getPropertyClass(parameter, bean);
+                    Class type = OgnlUtil.getPropertyClass(name.getName(), bean);
                     String[] values = entry.getValue();
-
 
                     // Do Validation and type conversion
                     List<ValidationError> errors = new ArrayList<ValidationError>();
-                    Validate validationInfo = this.validations.get(bean.getClass()).get(parameter);
+                    Validate validationInfo =
+                            this.validations.get(bean.getClass()).get(name.getStrippedName());
 
                     if (validate && validationInfo != null) {
-                        doPreConversionValidations(parameter, values, validationInfo, errors);
+                        doPreConversionValidations(name, values, validationInfo, errors);
                     }
 
                     List<Object> convertedValues =
-                        convert(bean, parameter, values, type, validationInfo, errors);
+                        convert(bean, name, values, type, validationInfo, errors);
 
 
                     // If we have errors, save them, otherwise bind the parameter to the form
                     if (errors.size() > 0) {
-                        fieldErrors.addAll(parameter, errors);
+                        fieldErrors.addAll(name.getName(), errors);
                     }
                     else if (convertedValues.size() > 0) {
                         // If the target type is an array, set it as one, otherwise set as scalar
                         if (type.isArray()) {
-                            bind(bean, parameter, convertedValues.toArray());
+                            bind(bean, name.getName(), convertedValues.toArray());
                         }
                         else if (type.isAssignableFrom(Collection.class)) {
                             Collection collection = (Collection) type.newInstance();
                             collection.addAll(convertedValues);
-                            bind(bean, parameter, collection);
+                            bind(bean, name.getName(), collection);
                         }
                         else {
-                            bind(bean, parameter, convertedValues.get(0));
+                            bind(bean, name.getName(), convertedValues.get(0));
                         }
                     }
                 }
             }
+            catch (NoSuchPropertyException nspe) {
+                log.debug("Could not bind property with name [", entry.getKey(),
+                          "] to bean of type: ", bean.getClass().getName(), " : ",
+                          nspe.getMessage());
+            }
             catch (Exception e) {
                 log.debug(e, "Could not bind property with name [", entry.getKey(), "] and values ",
-                    Arrays.toString(entry.getValue()), " to bean of type: ",
-                    bean.getClass().getName());
+                          Arrays.toString(entry.getValue()), " to bean of type: ",
+                          bean.getClass().getName());
             }
         }
 
@@ -220,6 +228,20 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
         }
 
         return fieldErrors;
+    }
+
+    /**
+     * Converts the map of parameters in the request into a Map of ParameterName to String[].
+     */
+    protected Map<ParameterName, String[]> getParameters(ActionBeanContext context) {
+        Map<String, String[]> requestParameters = context.getRequest().getParameterMap();
+        Map<ParameterName, String[]> parameters = new HashMap<ParameterName,String[]>();
+
+        for (Map.Entry<String,String[]> entry : requestParameters.entrySet()) {
+            parameters.put(new ParameterName(entry.getKey()), entry.getValue());
+        }
+
+        return parameters;
     }
 
     /**
@@ -258,8 +280,8 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
      * @param propertyName the name of the property
      *
      */
-    protected Class getRealType(ActionBean bean, Class propertyType, String propertyName) {
-        Validate validationInfo = this.validations.get(bean.getClass()).get(propertyName);
+    protected Class getRealType(ActionBean bean, Class propertyType, ParameterName propertyName) {
+        Validate validationInfo = this.validations.get(bean.getClass()).get(propertyName.getStrippedName());
 
         if (propertyType.isArray()) {
             propertyType = propertyType.getComponentType();
@@ -279,12 +301,21 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
     /**
      *
      */
-    protected void validateRequiredFields(ActionBeanContext context,
+    protected void validateRequiredFields(Map<ParameterName,String[]> parameters,
+                                          ActionBeanContext context,
                                           Class beanClass,
                                           ValidationErrors errors) {
 
-        log.debug("Running required field validation on bean class ", beanClass.getName(),
-                  " with event ", context.getEventName());
+        log.debug("Running required field validation on bean class ", beanClass.getName());
+
+        // Assemble a set of names that we know have indexed parameters, so we won't check
+        // for required-ness the regular way
+        Set<String> indexedParams = new HashSet<String>();
+        for (ParameterName name : parameters.keySet()) {
+            if (name.isIndexed()) {
+                indexedParams.add(name.getStrippedName());
+            }
+        }
 
         Map<String,Validate> validationInfos = this.validations.get(beanClass);
         if (validationInfos != null) {
@@ -293,29 +324,86 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
                 String propertyName = entry.getKey();
                 Validate validationInfo = entry.getValue();
 
-                String[] values = context.getRequest().getParameterValues(propertyName);
-
-                log.debug("Checking required field: ", propertyName, ", with values: ", values);
-
-
-
-                if (values == null || values.length == 0) {
-                    ValidationError error = new ScopedLocalizableError("validation.required",
-                                                                       "valueNotPresent");
-                    error.setFieldName(propertyName);
-                    error.setFieldValue(null);
-                    errors.add( propertyName, error );
+                // If the field is required, and we don't have index params that collapse
+                // to that property name, check that it was supplied
+                if (validationInfo.required() && !indexedParams.contains(propertyName)) {
+                    String[] values = context.getRequest().getParameterValues(propertyName);
+                    log.debug("Checking required field: ", propertyName, ", with values: ", values);
+                    checkSingleRequiredField(propertyName, propertyName, values, errors);
                 }
-                else {
-                    for (String value : values) {
-                        if (validationInfo.required() && value.length() == 0) {
-                            ValidationError error = new ScopedLocalizableError("validation.required",
-                                                                               "valueNotPresent");
-                            error.setFieldName(propertyName);
-                            error.setFieldValue(value);
-                            errors.add( propertyName, error );
+            }
+        }
+
+        // Now the easy work is done, figure out which rows of indexed props had values submitted
+        // and what to flag up as failing required field validation
+        if (indexedParams.size() > 0) {
+            Map<String,Row> rows = new HashMap<String,Row>();
+
+            for (Map.Entry<ParameterName,String[]> entry : parameters.entrySet()) {
+                ParameterName name = entry.getKey();
+                String[] values = entry.getValue();
+
+                if (name.isIndexed()) {
+                    String rowKey = name.getName().substring(0, name.getName().indexOf(']')+1);
+                    if (!rows.containsKey(rowKey)) {
+                        rows.put(rowKey, new Row());
+                    }
+
+                    rows.get(rowKey).put(name, values);
+                }
+            }
+
+            for (Row row : rows.values()) {
+                if (row.hasNonEmptyValues()) {
+                    for (Map.Entry<ParameterName,String[]> entry : row.entrySet()) {
+                        ParameterName name = entry.getKey();
+                        String[] values = entry.getValue();
+                        Validate validationInfo = validationInfos.get(name.getStrippedName());
+
+                        if (validationInfo != null && validationInfo.required()) {
+                            checkSingleRequiredField
+                                    (name.getName(), name.getStrippedName(), values, errors);
                         }
                     }
+                }
+            }
+
+        }
+    }
+
+    /**
+     * <p>Checks to see if a single field's set of values are 'present', where that is defined
+     * as having one or more values, and where each value is a non-empty String after it has
+     * had white space trimmed from each end.<p>
+     *
+     * <p>For any fields that fail validation, creates a ScopedLocaliableError that uses the
+     * stripped name of the field to find localized info (e.g. foo.bar instead of foo[1].bar).
+     * The error is bound to the actual field on the form though, e.g. foo[1].bar.</p>
+     *
+     * @param name the name of the parameter verbatim from the request
+     * @param strippedName the name of the parameter with any indexing removed from it
+     * @param values the String[] of values that was submitted in the request
+     * @param errors a ValidationErrors object into which errors can be placed
+     */
+    protected void checkSingleRequiredField(String name,
+                                            String strippedName,
+                                            String[] values,
+                                            ValidationErrors errors) {
+        if (values == null || values.length == 0) {
+            ValidationError error = new ScopedLocalizableError("validation.required",
+                                                               "valueNotPresent");
+            error.setFieldName(strippedName);
+            error.setFieldValue(null);
+            errors.add( name, error );
+        }
+        else {
+            for (String value : values) {
+                if (value.length() == 0) {
+                    ValidationError error = new ScopedLocalizableError("validation.required",
+                                                                       "valueNotPresent");
+                    error.setFieldName(strippedName);
+                    error.setFieldValue(value);
+                    errors.add( name, error );
                 }
             }
         }
@@ -330,7 +418,7 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
      * @param validationInfo the Valiate annotation that was decorating the property being validated
      * @param errors a collection of errors to be populated with any validation errors discovered
      */
-    protected void doPreConversionValidations(String propertyName,
+    protected void doPreConversionValidations(ParameterName propertyName,
                                               String[] values,
                                               Validate validationInfo,
                                               List<ValidationError> errors) {
@@ -340,7 +428,7 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
                 ValidationError error = new ScopedLocalizableError("validation.minlength",
                                                                    "valueTooShort",
                                                                    validationInfo.minlength());
-                error.setFieldName(propertyName);
+                error.setFieldName(propertyName.getStrippedName());
                 error.setFieldValue(value);
                 errors.add( error );
             }
@@ -349,7 +437,7 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
                 ValidationError error = new ScopedLocalizableError("validation.maxlength",
                                                                    "valueTooLong",
                                                                    validationInfo.maxlength());
-                error.setFieldName(propertyName);
+                error.setFieldName(propertyName.getStrippedName());
                 error.setFieldValue(value);
                 errors.add( error );
             }
@@ -359,7 +447,7 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
 
                 ValidationError error = new ScopedLocalizableError("validation.mask",
                                                                    "valueDoesNotMatch");
-                error.setFieldName(propertyName);
+                error.setFieldName(propertyName.getStrippedName());
                 error.setFieldValue(value);
                 errors.add( error );
             }
@@ -390,7 +478,7 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
      *         not guaranteed to be the same length as the values array passed in.
      */
     private List<Object> convert(ActionBean bean,
-                                 String propertyName,
+                                 ParameterName propertyName,
                                  String[] values,
                                  Class propertyType,
                                  Validate validationInfo,
@@ -433,7 +521,7 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
 
                     // Set the field name and value on the error
                     for (ValidationError error : errors) {
-                        error.setFieldName(propertyName);
+                        error.setFieldName(propertyName.getStrippedName());
                         error.setFieldValue(values[i]);
                     }
                 }
@@ -445,5 +533,30 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
         }
 
         return returns;
+    }
+}
+
+class Row extends HashMap<ParameterName,String[]> {
+    private boolean hasNonEmptyValues = false;
+
+    /**
+     * Adds the value to the map, along the way checking to see if there are any
+     * non-null values for the row so far.
+     */
+    public String[] put(ParameterName key, String[] values) {
+        if (!hasNonEmptyValues) {
+            hasNonEmptyValues =  (values != null) &&
+                                 (values.length > 0) &&
+                                 (values[0] != null) &&
+                                 (values[0].trim().length() > 0);
+
+
+        }
+        return super.put(key, values);
+    }
+
+    /** Returns true if the row had any non-empty values in it, otherwise false. */
+    public boolean hasNonEmptyValues() {
+        return this.hasNonEmptyValues;
     }
 }
