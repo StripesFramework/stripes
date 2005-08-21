@@ -9,7 +9,7 @@
   </head>
   <body>
       <h1>Example 1 - Cats</h1>
-
+      
       <%
       pageContext.setAttribute("activites", Activity.getActivities());
       %>
@@ -26,7 +26,7 @@
           <stripes:errors-footer></ul></stripes:errors-footer>
       </stripes:errors>
 
-      <stripes:form method="post" action="/action/CatDetails">
+      <stripes:form action="/action/CatDetails">
           <table>
               <tr>
                   <td>Cat Name:</td>
@@ -82,8 +82,9 @@
                   </td>
               </tr>
               <tr>
-                  <td colspan="2">
+                  <td colspan="2" valign="middle">
                       <stripes:submit name="Update" value="Update Kitty!"/>
+                      <input type="image" name="Update" src="${pageContext.request.contextPath}/ex1/save.png"/>
                       <stripes:reset name="resetButton"/>
                   </td>
               </tr>

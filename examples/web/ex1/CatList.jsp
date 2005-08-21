@@ -73,5 +73,11 @@
       <stripes:form name="ex1/CatDetailsForm" action="/action/CatDetails">
           <input type="submit" name="New" value="Add Kitty"/>
       </stripes:form>
+
+      <stripes:link href="/ex1/BulkAddCat.jsp">
+          <stripes:link-param name="foo" value="foobar"/>
+          <stripes:link-param name="bar" value="barfoo"/>
+          Bulk Add
+      </stripes:link>
   </body>
 </html>
