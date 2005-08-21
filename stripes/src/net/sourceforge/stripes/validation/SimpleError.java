@@ -36,7 +36,7 @@ import java.text.MessageFormat;
  *
  * @see java.text.MessageFormat
  */
-public abstract class SimpleError implements ValidationError {
+public class SimpleError implements ValidationError {
     private String fieldNameKey;
     private String actionPath;
     private String message;
