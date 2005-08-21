@@ -99,15 +99,21 @@ public class SimpleError implements ValidationError {
      */
     protected void resolveFieldName(Locale locale) {
         LocalizableError.log.debug("Looking up localized field name with messageKey: ", this.fieldNameKey);
-        try {
-            ResourceBundle bundle = StripesFilter.getConfiguration().
-                    getLocalizationBundleFactory().getFormFieldBundle(locale);
 
-            this.replacementParameters[0] =
-                bundle.getString(this.actionPath + "." + this.fieldNameKey);
+        if (this.fieldNameKey == null) {
+            this.replacementParameters[0] = "FIELD NAME NOT SUPPLIED IN CODE";
         }
-        catch (MissingResourceException mre) {
-            this.replacementParameters[0] = tryToMakeFriendly(this.fieldNameKey);
+        else {
+            try {
+                ResourceBundle bundle = StripesFilter.getConfiguration().
+                        getLocalizationBundleFactory().getFormFieldBundle(locale);
+
+                this.replacementParameters[0] =
+                    bundle.getString(this.actionPath + "." + this.fieldNameKey);
+            }
+            catch (MissingResourceException mre) {
+                this.replacementParameters[0] = tryToMakeFriendly(this.fieldNameKey);
+            }
         }
     }
 
