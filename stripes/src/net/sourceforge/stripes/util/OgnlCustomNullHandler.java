@@ -6,6 +6,17 @@ import ognl.ObjectNullHandler;
 
 import java.util.Map;
 import java.util.List;
+import java.util.HashMap;
+import java.util.Collection;
+import java.util.ArrayList;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import java.util.TreeMap;
+import java.util.SortedMap;
+import java.util.Queue;
+import java.util.LinkedList;
 import java.lang.reflect.Method;
 import java.lang.reflect.Array;
 import java.lang.reflect.Type;
@@ -23,6 +34,18 @@ import java.lang.reflect.ParameterizedType;
 public class OgnlCustomNullHandler extends ObjectNullHandler {
 
     protected static final String INSTANTIATE_LEAF_NODES = "leafyBaby";
+
+    protected static final Map<Class,Class> interfaceImplementations = new HashMap<Class,Class>();
+
+    static {
+        interfaceImplementations.put(Collection.class, ArrayList.class);
+        interfaceImplementations.put(List.class,       ArrayList.class);
+        interfaceImplementations.put(Set.class,        HashSet.class);
+        interfaceImplementations.put(SortedSet.class,  TreeSet.class);
+        interfaceImplementations.put(Queue.class,      LinkedList.class);
+        interfaceImplementations.put(Map.class,        HashMap.class);
+        interfaceImplementations.put(SortedMap.class,  TreeMap.class);
+    }
 
     /** Log object used by the class to log messages. */
     private Log log = Log.getInstance(OgnlCustomNullHandler.class);
@@ -139,6 +162,9 @@ public class OgnlCustomNullHandler extends ObjectNullHandler {
                     }
                     else if (clazzes[0].isEnum()) {
                         result = clazzes[0].getEnumConstants()[0];
+                    }
+                    else if (interfaceImplementations.containsKey(clazzes[0]) ) {
+                        result = interfaceImplementations.get(clazzes[0]).newInstance();
                     }
                     else {
                         result = clazzes[0].newInstance();
