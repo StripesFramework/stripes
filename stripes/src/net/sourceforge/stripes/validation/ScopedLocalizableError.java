@@ -1,7 +1,10 @@
 package net.sourceforge.stripes.validation;
 
+import net.sourceforge.stripes.controller.StripesFilter;
+
 import java.util.ResourceBundle;
 import java.util.MissingResourceException;
+import java.util.Locale;
 
 /**
  * <p>Provides a slightly more customizable approach to error messages.  Where the LocalizedError
@@ -48,8 +51,13 @@ public class ScopedLocalizableError extends LocalizableError {
      * Overrides getMessageTemplate to perform a scoped search for a message template as defined
      * in the class level javadoc.
      */
-    protected String getMessageTemplate(ResourceBundle bundle) {
+    @Override
+    protected String getMessageTemplate(Locale locale) {
+        ResourceBundle bundle = null;
         try {
+            bundle = StripesFilter.getConfiguration().
+                    getLocalizationBundleFactory().getErrorMessageBundle(locale);
+
             return bundle.getString(getActionPath() + "." + getFieldName() + "." + key);
         }
         catch (MissingResourceException mre) {
@@ -57,7 +65,7 @@ public class ScopedLocalizableError extends LocalizableError {
                 return bundle.getString(getActionPath() + "." + key);
             }
             catch (MissingResourceException mre2) {
-                return super.getMessageTemplate(bundle);
+                return super.getMessageTemplate(locale);
             }
         }
     }
