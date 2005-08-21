@@ -77,4 +77,13 @@ public class ParameterName {
         return (obj instanceof ParameterName) &&
                 (this == obj || this.name.equals(((ParameterName) obj).name) );
     }
+
+    /**
+     * Uses the original name as the string representation of the class. This is probably
+     * the most useful thing to see in log messages, which is the only place toString will
+     * be used.
+     */
+    public String toString() {
+        return this.name;
+    }
 }
