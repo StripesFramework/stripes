@@ -14,6 +14,7 @@
 
     <table class="display">
         <tr>
+            <th>ID</th>
             <th>Component</th>
             <th>Assignee</th>
             <th>Priority</th>
@@ -34,7 +35,10 @@
         <c:forEach items="${list}" var="bug" varStatus="loop">
             <tr>
                 <td>
+                    ${bug.id}
                     <stripes:hidden name="bugs[${loop.index}].id"/>
+                </td>
+                <td>
                     <stripes:select name="bugs[${loop.index}].component.id">
                         <stripes:option value="">Select One</stripes:option>
                         <stripes:options-collection collection="${componentManager.allComponents}"
