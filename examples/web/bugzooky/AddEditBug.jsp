@@ -4,7 +4,7 @@
 
 <div class="sectionTitle">
     <c:choose>
-        <c:when test="${form != null}">Edit Bug</c:when>
+        <c:when test="${actionBean != null}">Edit Bug</c:when>
         <c:otherwise>Add Bug</c:otherwise>
     </c:choose>
 </div>
@@ -21,13 +21,13 @@
         <tr>
             <th>Bug ID:</th>
             <td>
-                ${form.bug.id}
+                ${actionBean.bug.id}
                 <stripes:hidden name="bug.id"/>
             </td>
         </tr>
         <tr>
             <th>Opened On:</th>
-            <td><fmt:formatDate value="${form.bug.openDate}" dateStyle="medium"/></td>
+            <td><fmt:formatDate value="${actionBean.bug.openDate}" dateStyle="medium"/></td>
         </tr>
         <tr>
             <th>Component:</th>
@@ -82,7 +82,7 @@
         <tr>
             <th>Attachments:</th>
             <td>
-                <c:forEach items="${form.bug.attachments}" var="attachment" varStatus="loop">
+                <c:forEach items="${actionBean.bug.attachments}" var="attachment" varStatus="loop">
                     ${attachment.name} (${attachment.size} bytes) -
                     <em>${attachment.preview}...</em><br/>
                 </c:forEach>

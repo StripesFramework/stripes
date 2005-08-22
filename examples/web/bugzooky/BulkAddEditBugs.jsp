@@ -23,14 +23,14 @@
         </tr>
 
         <c:choose>
-            <c:when test="${form != null}">
-                <c:set var="list" value="${form.bugs}" scope="page"/>
+            <c:when test="${actionBean != null}">
+                <c:set var="list" value="${actionBean.bugs}" scope="page"/>
             </c:when>
             <c:otherwise>
                 <c:set var="list" value="<%= new Object[5] %>" scope="page"/>
             </c:otherwise>
         </c:choose>
-        
+
         <c:forEach items="${list}" var="bug" varStatus="loop">
             <tr>
                 <td>

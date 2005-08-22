@@ -16,5 +16,5 @@ public interface StripesConstants {
      * The name under which the ActionBean for a request is stored as a request attribute before
      * forwarding to the JSP.
      */
-    String REQ_ATTR_ACTION_BEAN = "form";
+    String REQ_ATTR_ACTION_BEAN = "actionBean";
 }
