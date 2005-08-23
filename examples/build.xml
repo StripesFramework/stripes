@@ -77,25 +77,26 @@
   <!-- =================================================================== -->
   <!-- Generate the javadoc for all the sources in the project.            -->
   <!-- =================================================================== -->
-  <target name="javadoc" depends="init" description="Generates the project javadoc.">
-	<javadoc
-	   sourcepath="${src.dir}"
-	   destdir="${doc.dir}"
-	   classpathref="build.class.path"
-	   packagenames="net.sourceforge.stripes.*"
-	   windowtitle="Stripes Framework API Documentation"
-	   doctitle="&lt;h1&gt;Stripes Framework API Documentation&lt;/h1&gt;"
-	   bottom="Nothing to see here, please move along."
-	   author="true"
-	   protected="true"
-	   use="true"
-	   version="true">
-		<link href="http://java.sun.com/j2se/1.5.0/docs/api/"/>
-		<link href="http://java.sun.com/j2ee/1.4/docs/api/"/>
-		<link href="http://www.ognl.org/2.6.7/Documentation/javadoc/"/>
-		<link href="http://jakarta.apache.org/bcel/apidocs/"/>
-	</javadoc>
-  </target>
+    <target name="javadoc" depends="init" description="Generates the project javadoc.">
+        <javadoc
+                sourcepath="${src.dir}"
+                destdir="${doc.dir}/api"
+                classpathref="build.class.path"
+                packagenames="net.sourceforge.stripes.*"
+                stylesheetfile="${src.dir}/javadoc.css"
+                windowtitle="Stripes Examples API Documentation"
+                doctitle="&lt;h1&gt;Stripes Examples API Documentation&lt;/h1&gt;"
+                bottom="&#169; Copyright 2005, Stripes Development Team."
+                author="true"
+                protected="true"
+                use="true"
+                version="true">
+            <link href="http://java.sun.com/j2se/1.5.0/docs/api/"/>
+            <link href="http://java.sun.com/j2ee/1.4/docs/api/"/>
+            <link href="http://www.ognl.org/2.6.7/Documentation/javadoc/"/>
+            <link href="http://jakarta.apache.org/bcel/apidocs/"/>
+        </javadoc>
+    </target>
   
   <!-- =================================================================== -->
   <!-- Tasks to deploy the application in Tomcat.                          -->
