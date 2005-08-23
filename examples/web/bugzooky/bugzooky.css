@@ -87,4 +87,6 @@ div.buttons {
 /* Styles used for form fields in error. */
 input.error, textarea.error, select.error {
     background-color: #ffd700;
+    border: 2px solid red;
+    color: red;
 }
