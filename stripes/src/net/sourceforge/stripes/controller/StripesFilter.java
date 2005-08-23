@@ -84,6 +84,10 @@ public class StripesFilter implements Filter {
         else {
             this.temporaryDirectoryPath = System.getProperty("java.io.tmpdir");
         }
+
+        Package pkg = getClass().getPackage();
+        log.info("Stripes Initialization Complete. Version: ", pkg.getSpecificationVersion(),
+                 ", Build: ", pkg.getImplementationVersion());
     }
 
     /**

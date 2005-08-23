@@ -1,24 +1,20 @@
 package net.sourceforge.stripes.util;
 
-import org.apache.bcel.classfile.ClassParser;
-import org.apache.bcel.classfile.JavaClass;
-
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.Collections;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
 /**
  * Scans the classpath of its parent ClassLoader in order to locate all instances of a given
- * interface.  Uses Jakarta's BCEL to load and examine the classes thus ensuring that no
- * static initializers are called and no side-affects ensue.  Since it scans the entire set of
+ * interface.  Loads the classes without invoking the static initalizers for the classes, thus
+ * ensuring there are no negative side-affects ensue.  Since it scans the entire set of
  * URLs belonging to its parent ClassLoader it can take some time - call it only as often
  * as you need.
  *
@@ -74,9 +70,9 @@ public class ResolverUtil {
 
         // If it's not a URLClassLoader, we can't deal with it!
         if (!(loader instanceof URLClassLoader)) {
-            log.error("The current ClassLoader is not castable to a URLClassLoader. ClassLoader " +
-                    "is of type [" + loader.getClass().getName() + "]. Cannot scan ClassLoader for " +
-                    "implementations of " + anInterface.getClass().getName() + ".");
+            log.error("The current ClassLoader is not castable to a URLClassLoader. ClassLoader ",
+                    "is of type [", loader.getClass().getName(), "]. Cannot scan ClassLoader for ",
+                    "implementations of ", anInterface.getClass().getName(), ".");
         }
         else {
             URLClassLoader urlLoader = (URLClassLoader) loader;
@@ -88,7 +84,7 @@ public class ResolverUtil {
 
                 // Only process the URL if it matches one of our filter strings
                 if ( matchesAny(path, locationPatterns) ) {
-                    log.info("Checking URL '" + url + "' for instances of " + anInterface.getName());
+                    log.info("Checking URL '", url, "' for instances of ", anInterface.getName());
                     if (location.isDirectory()) {
                         implementations.addAll(getImplementationsInDirectory(anInterface, null, location, packagePatterns));
                     }
@@ -110,8 +106,9 @@ public class ResolverUtil {
      * @param filters a set of substrings to look for in the text
      */
     static boolean matchesAny(String text, Set<String> filters) {
-        if (filters.size() == 0)
+        if (filters.size() == 0) {
             return true;
+        }
         for (String filter : filters) {
             if (text.indexOf(filter) != -1) {
                 return true;
@@ -152,8 +149,9 @@ public class ResolverUtil {
                 implementations.addAll(getImplementationsInDirectory(anInterface, packageOrClass, file, packagePatterns));
             }
             else if (file.getName().endsWith(".class")) {
-                if (matchesAny(packageOrClass, packagePatterns))
+                if (matchesAny(packageOrClass, packagePatterns)) {
                     addIfImplements(implementations, anInterface, packageOrClass);
+                }
             }
         }
 
@@ -183,8 +181,9 @@ public class ResolverUtil {
                 ZipEntry entry = (ZipEntry) entries.nextElement();
                 String name = entry.getName();
                 if (!entry.isDirectory() && name.endsWith(".class")) {
-                    if (matchesAny(name, packagePatterns))
+                    if (matchesAny(name, packagePatterns)) {
                         addIfImplements(implementations, anInterface, name);
+                    }
                 }
             }
         }
@@ -204,28 +203,18 @@ public class ResolverUtil {
      */
     static <T> void addIfImplements(Set<Class<T>> impls, Class<T> iface, String name) {
         try {
-            log.trace("Checking to see if class '" + name + "' implements " + iface.getName());
-            InputStream stream = Thread.currentThread().getContextClassLoader().getResourceAsStream(name);
+            log.trace("Checking to see if class '", name, "' implements ", iface.getName());
+            ClassLoader loader = Thread.currentThread().getContextClassLoader();
+            String externalName = name.substring(0, name.indexOf('.')).replace('/', '.');
 
-            if (stream == null) {
-                log.warn("Input stream was null for class '" + name + "'");
-            }
-            else {
-                JavaClass clazz = new ClassParser(stream, name).parse();
-                String interfaceName = iface.getName();
-                JavaClass[] interfaces = clazz.getAllInterfaces();
-
-                for (JavaClass anInterface : interfaces) {
-                    if (interfaceName.equals(anInterface.getClassName())) {
-                        Class<T> type = iface.getClass().cast( Class.forName(clazz.getClassName()) );
-                        impls.add(type);
-                        break;
-                    }
-                }
+            Class uninitializedClass = Class.forName(externalName, false, loader);
+            if (iface.isAssignableFrom(uninitializedClass) ) {
+                Class<T> type = iface.getClass().cast( Class.forName(externalName) );
+                impls.add(type);
             }
         }
         catch (Throwable t) {
-            log.warn("Could not examine class '" + name + "'", t);
+            log.warn(t, "Could not examine class '", name, "'");
         }
     }
 }
