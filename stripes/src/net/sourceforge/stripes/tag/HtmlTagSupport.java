@@ -268,7 +268,7 @@ public class HtmlTagSupport {
 
     public void setClass(String cssClass) { set("class", cssClass); }
     public void setCssClass(String cssClass) { set("class", cssClass); }
-    public String getCssClass() { return get(" class"); }
+    public String getCssClass() { return get("class"); }
 
     public void setTitle(String  title) { set("title",  title); }
     public String getTitle() { return get("title"); }

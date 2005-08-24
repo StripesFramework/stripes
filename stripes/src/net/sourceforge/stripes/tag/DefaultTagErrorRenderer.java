@@ -17,7 +17,11 @@ package net.sourceforge.stripes.tag;
 
 /**
  * <p>This default implementation of the TagErrorRenderer interface sets the html class
- * attribute to 'error'.  This allows applications to define a single style for all input
+ * attribute to 'error'.  More specifically, if the tag had no previous CSS class, it
+ * will have its class attribute set to error. If it previously had a CSS class attribute,
+ * e.g. class="foo", then it's class attribute will be re-written as class="foo error",
+ * which instructs the browser to apply both styles, with error taking precedence. The
+ * use of a single class name allows applications to define a single style for all input
  * fields, and then override it for specific fields as they choose.</p>
  *
  * <p>An example of the css definition to set backgrounds to yellow by default, but
@@ -44,8 +48,12 @@ public class DefaultTagErrorRenderer implements TagErrorRenderer {
      */
     public void doBeforeStartTag() {
         this.oldCssClass = tag.getCssClass();
-        tag.setCssClass("error");
-
+        if (this.oldCssClass != null && this.oldCssClass.length() > 0) {
+            tag.setCssClass("error " + this.oldCssClass);
+        }
+        else {
+            tag.setCssClass("error");
+        }
     }
 
     /**
