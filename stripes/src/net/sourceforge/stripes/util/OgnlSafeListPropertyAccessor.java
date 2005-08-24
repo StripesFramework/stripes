@@ -13,32 +13,29 @@
  * You should have received a copy of the license with this software. If not,
  * it can be found online at http://www.fsf.org/licensing/licenses/lgpl.html
  */
-package net.sourceforge.stripes.validation;
+package net.sourceforge.stripes.util;
 
-import java.util.Collection;
+import ognl.ListPropertyAccessor;
+import ognl.OgnlException;
+
+import java.util.Map;
 
 /**
- * Basic type converter for converting strings to integers.
+ * Used to override the default ListPropertyAccessor in Ognl to return nulls instead of throw
+ * IndexOutOfBoundExceptions, when an attmept is made to access a List property that is not
+ * within the bounds of the list.  Doing this allows the NullHandler a shot at filling in the
+ * list (where possible).
  *
  * @author Tim Fennell
  */
-public class LongTypeConverter extends NumberTypeConverterSupport implements TypeConverter<Long> {
-    /**
-     *
-     * @param input
-     * @param errors
-     * @return Integer an Integer object if one can be parsed from the input
-     */
-    public Long convert(String input,
-                        Class<? extends Long> targetType,
-                        Collection<ValidationError> errors) {
-
-        Number number = parse(input, errors);
-        Long retval = null;
-        if (errors.size() == 0) {
-            retval = new Long(number.longValue());
+public class OgnlSafeListPropertyAccessor extends ListPropertyAccessor {
+    
+    public Object getProperty(Map map, Object object, Object object1) throws OgnlException {
+        try {
+            return super.getProperty(map, object, object1);
         }
-
-        return retval;
+        catch (IndexOutOfBoundsException ioobe) {
+            return null;
+        }
     }
 }
