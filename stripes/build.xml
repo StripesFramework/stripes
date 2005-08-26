@@ -119,6 +119,7 @@
 	   classpathref="build.class.path"
 	   packagenames="net.sourceforge.stripes.*"
        stylesheetfile="${src.dir}/javadoc.css"
+       overview="${src.dir}/overview.html"
        windowtitle="Stripes API Documentation"
 	   doctitle="&lt;h1&gt;Stripes API Documentation&lt;/h1&gt;"
 	   bottom="&#169; Copyright 2005, Stripes Development Team."
@@ -130,7 +131,25 @@
 		<link href="http://java.sun.com/j2ee/1.4/docs/api/"/>
 		<link href="http://www.ognl.org/2.6.7/Documentation/javadoc/"/>
 		<link href="http://jakarta.apache.org/bcel/apidocs/"/>
-	</javadoc>
+        <group>
+            <title>Core API</title>
+            <package name="net.sourceforge.stripes.action"/>
+            <package name="net.sourceforge.stripes.validation"/>
+        </group>
+        <group>
+            <title>Extension API</title>
+            <package name="net.sourceforge.stripes.config"/>
+            <package name="net.sourceforge.stripes.format"/>
+            <package name="net.sourceforge.stripes.localization"/>
+            <package name="net.sourceforge.stripes.tag"/>
+        </group>
+        <group>
+            <title>Internal Implementation</title>
+            <package name="net.sourceforge.stripes.controller"/>
+            <package name="net.sourceforge.stripes.exception"/>
+            <package name="net.sourceforge.stripes.util"/>
+        </group>
+    </javadoc>
   </target>
 
   <target name="tlddoc" depends="init" description="Generates Tag Library Documentation.">
