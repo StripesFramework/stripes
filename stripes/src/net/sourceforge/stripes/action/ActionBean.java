@@ -80,8 +80,17 @@ package net.sourceforge.stripes.action;
  * is to return nothing, and simply use the Servlet API (available through the ActionBeanContext) to
  * render a response to the user directly.</p>
  *
+ * <p>There are two interfaces in the validation package that an ActionBean may optionally
+ * implement in order to provide additional functionality.  The first is the
+ * {@link net.sourceforge.stripes.validation.Validatable} interface, which allows an ActionBean
+ * to perform custom validations after validation and binding has run.  The second is the
+ * {@link net.sourceforge.stripes.validation.ValidationErrorHandler} interface which allows the
+ * ActionBean to modify what happens when validation errors occur.</p>
+ *
  * @see Resolution
  * @see ActionBeanContext
+ * @see net.sourceforge.stripes.validation.Validatable
+ * @see net.sourceforge.stripes.validation.ValidationErrorHandler
  * @author Tim Fennell
  */
 public interface ActionBean {

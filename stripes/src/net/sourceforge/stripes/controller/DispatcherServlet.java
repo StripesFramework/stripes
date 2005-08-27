@@ -25,6 +25,7 @@ import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.validation.Validatable;
 import net.sourceforge.stripes.validation.ValidationError;
 import net.sourceforge.stripes.validation.ValidationErrors;
+import net.sourceforge.stripes.validation.ValidationErrorHandler;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -67,6 +68,7 @@ public class DispatcherServlet extends HttpServlet {
         try {
             // Lookup the bean class, handler method and hook everything together
             ActionBeanContext context = createActionBeanContext(request, response);
+            Resolution resolution = null;
 
             ActionResolver actionResolver = StripesFilter.getConfiguration().getActionResolver();
             Class<ActionBean> clazz = actionResolver.getActionBean(context);
@@ -99,9 +101,12 @@ public class DispatcherServlet extends HttpServlet {
             // Bind the value to the bean - this includes performing field level validation
             ValidationErrors errors = bindValues(bean, context, doValidate);
 
-            // If blah blah blah, run the bean's validate method
+            // If blah blah blah, run the bean's validate method, or maybe handleErrors
             if (errors.size() == 0 && bean instanceof Validatable && doValidate) {
                 ((Validatable) bean).validate(errors);
+            }
+            else if (bean instanceof ValidationErrorHandler) {
+                resolution = ((ValidationErrorHandler) bean).handleValidationErrors(errors);
             }
 
             // If there are errors, head off to the input page
@@ -115,14 +120,17 @@ public class DispatcherServlet extends HttpServlet {
                     }
                 }
                 bean.getContext().setValidationErrors(errors);
-                getErrorResolution(request).execute(request, response);
+
+                // If we didn't get a resolution from handleValidationErrors, get a default one
+                if (resolution == null) {
+                    resolution  = getErrorResolution(request);
+                }
             }
             else {
                 Object returnValue = handler.invoke(bean);
 
                 if (returnValue != null && returnValue instanceof Resolution) {
-                    Resolution resolution = (Resolution) returnValue;
-                    resolution.execute(request, response);
+                    resolution = (Resolution) returnValue;
                 }
                 else {
                     log.warn("Expected handler method ", handler.getName(), " on class ",
@@ -130,6 +138,9 @@ public class DispatcherServlet extends HttpServlet {
                              "returned: ", returnValue);
                 }
             }
+
+            // Finally, execute the resolution
+            resolution.execute(request, response);
         }
         catch (ServletException se) { throw se; }
         catch (InvocationTargetException ite) {
