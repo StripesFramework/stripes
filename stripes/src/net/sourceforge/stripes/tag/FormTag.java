@@ -24,6 +24,8 @@ import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.tagext.BodyTag;
 import java.io.IOException;
+import java.util.Set;
+import java.util.HashSet;
 
 /**
  * <p>Form tag for use with the Stripes framework.  Supports all of the HTML attributes applicable
@@ -34,17 +36,11 @@ import java.io.IOException;
  */
 public class FormTag extends HtmlTagSupport implements BodyTag {
 
-	/** Stores the value of the action attribute before the context gets appended. */
-	private String actionWithoutContext;
+    /** Stores the value of the action attribute before the context gets appended. */
+    private String actionWithoutContext;
 
-    ////////////////////////////////////////////////////////////
-    // Additional attributes specific to the form tag
-    ////////////////////////////////////////////////////////////
-    public void   setAccept(String accept) { set("accept", accept); }
-    public String getAccept() { return get("accept"); }
-
-    public void   setAcceptCharset(String acceptCharset) { set("accept-charset", acceptCharset); }
-    public String getAcceptCharset() { return get("accept-charset"); }
+    /** The set of input field names that have been registered in the tag body. */
+    private Set<String> fieldNamesPresent = new HashSet<String>();
 
     /**
      * Sets the action for the form.  If the form action begins with a slash, the context path of
@@ -56,8 +52,8 @@ public class FormTag extends HtmlTagSupport implements BodyTag {
      * @param action the action path, relative to the root of the web application
      */
     public void setAction(String action) {
-    	this.actionWithoutContext = action;
-    
+        this.actionWithoutContext = action;
+
         if (action.startsWith("/")) {
             HttpServletRequest request = (HttpServletRequest) getPageContext().getRequest();
             String contextPath = request.getContextPath();
@@ -71,6 +67,15 @@ public class FormTag extends HtmlTagSupport implements BodyTag {
     }
 
     public String getAction() { return this.actionWithoutContext; }
+
+    ////////////////////////////////////////////////////////////
+    // Additional attributes specific to the form tag
+    ////////////////////////////////////////////////////////////
+    public void   setAccept(String accept) { set("accept", accept); }
+    public String getAccept() { return get("accept"); }
+
+    public void   setAcceptCharset(String acceptCharset) { set("accept-charset", acceptCharset); }
+    public String getAcceptCharset() { return get("accept-charset"); }
 
     public void   setEnctype(String enctype) { set("enctype", enctype); }
     public String getEnctype() { return get("enctype"); };
@@ -150,5 +155,27 @@ public class FormTag extends HtmlTagSupport implements BodyTag {
      */
     protected ActionBean getActionBean() {
         return (ActionBean) getPageContext().getRequest().getAttribute(this.actionWithoutContext);
+    }
+
+    /**
+     * Used by nested tags to notify the form that a field with the specified name has been
+     * written to the form.
+     *
+     * @param name the name of the form field written to the page
+     */
+    public void registerField(String name) {
+        this.fieldNamesPresent.add(name);
+    }
+
+    /**
+     * Gets the set of all field names for which fields have been refered withing the form up
+     * until the point of calling this method. If this is called during doEndTag it will contain
+     * all field names, if it is called during the body of the tag it will only contain the
+     * input elements which have been processed up until that point.
+     *
+     * @return Set<String> - the set of field names seen so far
+     */
+    public Set<String> getRegisteredFields() {
+        return this.fieldNamesPresent;
     }
 }

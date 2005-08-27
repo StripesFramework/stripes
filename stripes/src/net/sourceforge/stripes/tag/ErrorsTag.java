@@ -1,5 +1,3 @@
-package net.sourceforge.stripes.tag;
-
 /* Copyright (C) 2005 Tim Fennell
  *
  * This library is free software; you can redistribute it and/or modify it
@@ -15,6 +13,8 @@ package net.sourceforge.stripes.tag;
  * You should have received a copy of the license with this software. If not,
  * it can be found online at http://www.fsf.org/licensing/licenses/lgpl.html
  */
+package net.sourceforge.stripes.tag;
+
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.controller.StripesConstants;
 import net.sourceforge.stripes.controller.ActionResolver;

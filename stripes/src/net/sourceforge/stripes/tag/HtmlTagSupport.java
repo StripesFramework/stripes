@@ -20,10 +20,8 @@ import net.sourceforge.stripes.util.Log;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
-import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.el.ELException;
 import javax.servlet.jsp.tagext.BodyContent;
-import javax.servlet.jsp.tagext.Tag;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -36,18 +34,12 @@ import java.util.Map;
  *
  * @author Tim Fennell
  */
-public class HtmlTagSupport {
+public abstract class HtmlTagSupport extends StripesTagSupport {
     /** Log implementation used to log errors during tag writing. */
     private final Log log = Log.getInstance(HtmlTagSupport.class);
 
     /** Map containing all attributes of the tag. */
     private final Map<String,String> attributes = new HashMap<String,String>();
-
-    /** Storage for a PageContext during evaluation. */
-    private PageContext pageContext;
-
-    /** Storage for the parent tag of this tag. */
-    private Tag parentTag;
 
     /** Storage for a BodyContent instance, should the eventual child class implement BodyTag. */
     private BodyContent bodyContent;
@@ -65,26 +57,6 @@ public class HtmlTagSupport {
     /** Gets the map containing the attributes of the tag. */
     protected final Map<String,String> getAttributes() {
         return this.attributes;
-    }
-
-    /** Called by the Servlet container to set the page context on the tag. */
-    public void setPageContext(PageContext pageContext) {
-        this.pageContext = pageContext;
-    }
-
-    /** Retrieves the pageContext handed to the tag by the container. */
-    public PageContext getPageContext() {
-        return this.pageContext;
-    }
-
-    /** From the Tag interface - allows the container to set the parent tag on the JSP. */
-    public void setParent(Tag tag) {
-        this.parentTag = tag;
-    }
-
-    /** From the Tag interface - allows fetching the parent tag on the JSP. */
-    public Tag getParent() {
-        return this.parentTag;
     }
 
     /** Returns the BodyContent of the tag if one has been provided by the JSP container. */
@@ -201,7 +173,7 @@ public class HtmlTagSupport {
      * attributes in the form x="y".
      *
      * @param writer the JspWriter to write the open tag to
-     * @throws JspException if the JspWriter causes an exception
+     * @throws IOException if the JspWriter causes an exception
      */
     protected void writeAttributes(JspWriter writer) throws IOException {
         for (Map.Entry<String,String> attr: getAttributes().entrySet() ) {
@@ -232,21 +204,6 @@ public class HtmlTagSupport {
                 ("Could not evaluate EL expression  [" + expression + "] with result type [" +
                     resultType.getName() + "] in tag class of type: " + getClass().getName(), ele);
         }
-    }
-
-    /**
-     * <p>Locates the enclosing tag of the type supplied.  If no enclosing tag of the type supplied
-     * can be found anywhere in the ancestry of this tag, null is returned..</p>
-     *
-     * @return T Tag of the type supplied, or null if none can be found
-     */
-    protected <T extends Tag> T getParentTag(Class<T> tagType) {
-        Tag parent = getParent();
-        while (parent != null && !tagType.isAssignableFrom(parent.getClass())) {
-            parent = parent.getParent();
-        }
-
-        return parent==null ? null : (T) parent;
     }
 
 

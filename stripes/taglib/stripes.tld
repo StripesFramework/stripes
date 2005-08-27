@@ -1156,4 +1156,32 @@
         <tag-class>net.sourceforge.stripes.tag.ErrorsFooterTag</tag-class>
         <body-content>JSP</body-content>
     </tag>
+
+    <tag>
+        <description><![CDATA[
+            <p>Examines the request and include hidden fields for all parameters that have do
+            not have form fields in the current form. Will include multiple values for
+            parameters that have them.  Excludes 'special' parameters like the source
+            page parameter, and the paramter that conveyed the event name.</p>
+
+            <p>Very useful for implementing basic wizard flow without relying on session
+            scoping of ActionBeans, and without having to name all the parameters that
+            should be carried forward in the form.</p>
+        ]]></description>
+        <display-name>wizard-fields</display-name>
+        <name>wizard-fields</name>
+        <tag-class>net.sourceforge.stripes.tag.WizardFieldsTag</tag-class>
+        <body-content>empty</body-content>
+        <attribute>
+            <description>
+                If set to true, hidden fields will only be written if the form in which the tag
+                is nested was the same form (or more specifically has the same action) as the
+                form that was submitted in the request being processed. Can be used to ensure
+                that wizarding only occurs withing a specific form and does not spill-over into
+                other forms if that is undesirable.
+            </description>
+            <name>currentFormOnly</name>
+            <type>boolean</type>
+        </attribute>
+    </tag>
 </taglib>

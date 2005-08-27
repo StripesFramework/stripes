@@ -282,6 +282,10 @@ public abstract class InputTagSupport extends HtmlTagSupport {
      * @return int the value returned by the child class from doStartInputTag()
      */
     public final int doStartTag() throws JspException {
+        // Register with the parent form tag
+        getParentFormTag().registerField(getName());
+
+        // Deal with any error rendering
         loadErrors();
         if (this.fieldErrors != null) {
             this.errorRenderer = StripesFilter.getConfiguration()
