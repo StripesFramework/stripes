@@ -169,7 +169,7 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
                 ParameterName name = entry.getKey();
                 if (!SPECIAL_KEYS.contains(name.getName()) && !name.getName().equals(context.getEventName())
                         && !fieldErrors.containsKey(name.getName()) ) {
-                    log.trace("Attempting to bind property with name: ", name);
+                    log.trace("Running binding for property with name: ", name);
 
                     Class type = OgnlUtil.getPropertyClass(name.getName(), bean);
                     String[] values = entry.getValue();
@@ -520,7 +520,7 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
                     .getTypeConverter(propertyType, bean.getContext().getRequest().getLocale());
         }
 
-        log.debug("Converting values ", values, " using converter ", converter);
+        log.debug("Converting ", values.length, " value(s) using converter ", converter);
 
         for (int i=0; i<values.length; ++i) {
             if (!"".equals(values[i])) {

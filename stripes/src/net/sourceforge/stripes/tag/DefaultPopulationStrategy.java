@@ -65,8 +65,6 @@ public class DefaultPopulationStrategy implements PopulationStrategy {
             ActionBean action = tag.getParentFormTag().getActionBean();
             Object beanValue = null;
 
-			log.debug("ActionBean found: ", action);
-
             if (action != null) {
                 try {
                     beanValue = OgnlUtil.getValue(tag.getName(), action);
