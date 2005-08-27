@@ -25,8 +25,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 /**
- * Created by IntelliJ IDEA. User: tfenne Date: Aug 20, 2005 Time: 12:26:03 PM To change this
- * template use File | Settings | File Templates.
+ * ActionBean that provides method for editing a single bug in detail. Includes an
+ * event for pre-populating the ActionBean on the way in to an edit screen, and a
+ * single event for saving an existing or new bug.  Uses a FileBean property to
+ * support the uploading of a File concurrent with other edits.
+ *
+ * @author Tim Fennell
  */
 @UrlBinding("/bugzooky/SingleBug.action")
 public class SingleBugActionBean extends BugzookyActionBean implements Validatable {
@@ -80,6 +84,7 @@ public class SingleBugActionBean extends BugzookyActionBean implements Validatab
             Attachment attachment = new Attachment();
             attachment.setName(this.newAttachment.getFileName());
             attachment.setSize(this.newAttachment.getSize());
+            attachment.setContentType(this.newAttachment.getContentType());
 
             BufferedReader reader = new BufferedReader
                     ( new InputStreamReader(this.newAttachment.getInputStream()) );
@@ -87,7 +92,7 @@ public class SingleBugActionBean extends BugzookyActionBean implements Validatab
             String line;
 
             while ( (line = reader.readLine()) != null ) {
-                builder.append(line);
+                builder.append(line).append('\n');
             }
 
             attachment.setData(builder.toString());

@@ -1,37 +1,28 @@
 package net.sourceforge.stripes.examples.bugzooky.biz;
 
 /**
- * Created by IntelliJ IDEA. User: tfenne Date: Aug 21, 2005 Time: 2:45:57 PM To change this
- * template use File | Settings | File Templates.
+ * Very simple wrapper for file attachments uploaded for bugs.  Assumes that the attachment
+ * contains some type of textual data.
+ *
+ * @author Tim Fennell
  */
 public class Attachment {
     private String name;
     private long size;
     private String data;
+    private String contentType;
 
-    public String getName() {
-        return name;
-    }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+    public long getSize() { return size; }
+    public void setSize(long size) { this.size = size; }
 
-    public long getSize() {
-        return size;
-    }
+    public String getData() { return data; }
+    public void setData(String data) { this.data = data; }
 
-    public void setSize(long size) {
-        this.size = size;
-    }
-
-    public String getData() {
-        return data;
-    }
-
-    public void setData(String data) {
-        this.data = data;
-    }
+    public String getContentType() { return contentType; }
+    public void setContentType(String contentType) { this.contentType = contentType; }
 
     public String getPreview() {
         int endIndex = Math.min(data.length(), 30);

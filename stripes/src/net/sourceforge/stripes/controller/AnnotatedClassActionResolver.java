@@ -160,7 +160,9 @@ public class AnnotatedClassActionResolver implements ActionResolver {
             StripesServletException sse = new StripesServletException(
                     "Could not locate an ActionBean that is bound to the URL [" + boundUrl +
                     "]. Full request URL was [" + context.getRequest().getRequestURL() +
-                    "]. Registered ActionBeans are: " + this.formBeans);
+                    "]. Commons reasons for this include mis-matched URLs and forgetting " +
+                    "to implement ActionBean in your class. Registered ActionBeans are: " +
+                    this.formBeans);
 
             log.debug(sse);
             throw sse;
