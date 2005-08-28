@@ -25,12 +25,19 @@ import java.util.Locale;
 import java.util.Collections;
 
 /**
- * Default locale picker that uses a comma separated list of locales in the servlet init
+ * <p>Default locale picker that uses a comma separated list of locales in the servlet init
  * parameters to determine the set of locales that are supported by the application.  Then at
  * request time matches the user's preference order list as specified by the headers included
- * in the request until it finds one of those localse in the system list.  If a match cannot be
+ * in the request until it finds one of those locales in the system list.  If a match cannot be
  * found, the first locale in the system list will be picked.  If there is no list of configured
- * locales then the picker will default the list to a one entry list containing the system locale.
+ * locales then the picker will default the list to a one entry list containing the system locale.</p>
+ *
+ * <p>Locales are hierarchical, with up to three levels designating language, country and
+ * variant.  Only the first level (language) is required.  To provide the best match possible the
+ * DefaultLocalePicker tracks the one-level matches, two-level matches and three-level matches. If
+ * a three level match is found, it will be returned.  If not the first two-level match will be
+ * returned if one was found.  If not, the first one-level match will be returned.  If not even a
+ * one-level match is found, the first locale supported by the system is returned.</p>
  *
  * @author Tim Fennell
  */
@@ -69,7 +76,7 @@ public class DefaultLocalePicker implements LocalePicker {
             // Split apart the Locales on commas, and then parse the local strings into their bits
             String[] localeStrings = configuredLocales.split(",");
             for (String localeString : localeStrings) {
-                String[] parts = localeString.split("-");
+                String[] parts = localeString.split("[-_]");
                 if (parts.length == 1) {
                     this.locales.add( new Locale(parts[0].trim().toLowerCase()));
                 }
@@ -87,6 +94,8 @@ public class DefaultLocalePicker implements LocalePicker {
                               "that split into more than three parts! The parts were: ", parts);
                 }
             }
+
+            log.debug("Configured DefaultLocalPicker with locales: ", this.locales);
         }
     }
 
