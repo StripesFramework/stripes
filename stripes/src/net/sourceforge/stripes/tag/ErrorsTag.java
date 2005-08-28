@@ -16,21 +16,23 @@
 package net.sourceforge.stripes.tag;
 
 import net.sourceforge.stripes.action.ActionBean;
-import net.sourceforge.stripes.controller.StripesConstants;
 import net.sourceforge.stripes.controller.ActionResolver;
+import net.sourceforge.stripes.controller.StripesConstants;
 import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.validation.ValidationError;
 import net.sourceforge.stripes.validation.ValidationErrors;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.tagext.BodyTag;
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 /**
  * <p>The errors tag has two modes, one where it displays all validation errors in a list
@@ -69,8 +71,8 @@ public class ErrorsTag extends HtmlTagSupport implements BodyTag {
     /** An optional attribute that declares a particular field to output errors for. */
     private String field;
 
-    /** The list of errors that match the filtering conditions */
-    private LinkedList<ValidationError> allErrors;
+    /** The collection of errors that match the filtering conditions */
+    private SortedSet<ValidationError> allErrors;
 
     /** An iterator of the list of matched errors */
     private Iterator<ValidationError> errorIterator;
@@ -96,14 +98,14 @@ public class ErrorsTag extends HtmlTagSupport implements BodyTag {
      * Returns true if the error displayed is the first matching error.
      */
     public boolean isFirst() {
-        return (this.allErrors.getFirst() == this.currentError);
+        return (this.allErrors.first() == this.currentError);
     }
 
     /**
      * Returns true if the error displayed is the last matching error.
      */
     public boolean isLast() {
-        return (this.allErrors.getLast() == currentError);
+        return (this.allErrors.last() == currentError);
     }
 
     /** Sets the (optional) action of the form to display errors for, if they exist. */
@@ -167,7 +169,9 @@ public class ErrorsTag extends HtmlTagSupport implements BodyTag {
                 this.display = false;
             }
             else {
-                this.allErrors = new LinkedList<ValidationError>();
+                // Using a set ensures that duplicate messages get filtered out, which can
+                // happen during multi-row validation
+                this.allErrors = new TreeSet<ValidationError>(new ErrorComparator());
 
                 if (this.field != null) {
                     // we're filtering for a specific field
@@ -190,8 +194,8 @@ public class ErrorsTag extends HtmlTagSupport implements BodyTag {
                 }
 
                 // Setup the objects needed for iteration
-                errorIterator = allErrors.iterator();
-                currentError = errorIterator.next(); // load up the first error
+                this.errorIterator = this.allErrors.iterator();
+                this.currentError = this.errorIterator.next(); // load up the first error
                 return EVAL_BODY_BUFFERED;
             }
         }
@@ -298,5 +302,25 @@ public class ErrorsTag extends HtmlTagSupport implements BodyTag {
                 getAttribute(StripesConstants.REQ_ATTR_ACTION_BEAN);
     }
 
+    /**
+     * Inner class Comparator used to provide a consistent ordering of validation errors.
+     * Sorting is done by field name (the programmatic one, not the user visible one). Errors
+     * without field names sort to the top since it is assumed that these are global errors
+     * as oppose to field specific ones.
+     */
+    private static class ErrorComparator implements Comparator<ValidationError> {
+        public int compare(ValidationError e1, ValidationError e2) {
+            if (e1.getFieldName() == null && e2.getFieldName() != null) {
+                return -1;
+            }
+            if (e2.getFieldName() == null && e1.getFieldName() != null) {
+                return 1;
+            }
+            if (e1.getFieldName() == null && e2.getFieldName() == null) {
+                return 0;
+            }
 
+            return e1.getFieldName().compareTo(e2.getFieldName());
+        }
+    }
 }

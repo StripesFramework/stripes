@@ -80,4 +80,32 @@ public class LocalizableError extends SimpleError {
 
         return bundle.getString(messageKey);
     }
+
+    /** Generated equals method that compares each field and super.equals(). */
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+
+        final LocalizableError that = (LocalizableError) o;
+
+        if (messageKey != null ? !messageKey.equals(that.messageKey) : that.messageKey != null) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /** Generated hashCode method. */
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 29 * result + (messageKey != null ? messageKey.hashCode() : 0);
+        return result;
+    }
 }

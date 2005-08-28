@@ -20,6 +20,7 @@ import net.sourceforge.stripes.controller.StripesFilter;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.MissingResourceException;
+import java.util.Arrays;
 import java.text.MessageFormat;
 
 /**
@@ -68,6 +69,11 @@ public class SimpleError implements ValidationError {
         this.message = message;
     }
 
+    /**
+     * Helper constructor that is used to store the paraemters supplied into
+     * an array that also contains the field name and field value if they exist.
+     * @param parameter
+     */
     protected SimpleError(Object... parameter) {
         if (parameter == null) {
             this.replacementParameters = new Object[2];
@@ -179,5 +185,41 @@ public class SimpleError implements ValidationError {
     /** Provides subclasses access to the name of the form on which the errored field occurs. */
     public String getActionPath() {
         return actionPath;
+    }
+
+    /** Generated equals method that checks all fields for equality. */
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        final SimpleError that = (SimpleError) o;
+
+        if (actionPath != null ? !actionPath.equals(that.actionPath) : that.actionPath != null) {
+            return false;
+        }
+        if (fieldNameKey != null ? !fieldNameKey.equals(that.fieldNameKey) : that.fieldNameKey != null) {
+            return false;
+        }
+        if (message != null ? !message.equals(that.message) : that.message != null) {
+            return false;
+        }
+        if (!Arrays.equals(replacementParameters, that.replacementParameters)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /** Generated hashCode() method. */
+    public int hashCode() {
+        int result;
+        result = (fieldNameKey != null ? fieldNameKey.hashCode() : 0);
+        result = 29 * result + (actionPath != null ? actionPath.hashCode() : 0);
+        result = 29 * result + (message != null ? message.hashCode() : 0);
+        return result;
     }
 }
