@@ -187,9 +187,31 @@
             to limit output to a single field's errors.</p>
 
             <p>By default will output a simple header followed by a list of validation errors in an
-            HTML unordered list. This behaviour can be customized by nesting other tags within the
-            errors tag, including stripes:individual-error, stripes:error-header and
-            stripes:error-footer.</p>
+            HTML unordered list. This behaviour can be customized in two ways.  The first will
+            affect the default output of the errors tag on all pages within the application. The
+            errors tag will consult the error messages resource bundle (probably
+            StripesResources.properties unless you have configured it differently) for four String
+            resources which it will use to construct the output.  The four properties, and their
+            default values are:</p>
+
+            <ul>
+                <li>stripes.errors.header=&lt;div class=&quot;errorHeader&quot;&gt;Validation Errors&lt;/div&gt;&lt;ul&gt;</li>
+                <li>stripes.errors.footer=&lt;/ul&gt;</li>
+                <li>stripes.errors.beforeError=&lt;li&gt;</li>
+                <li>stripes.errors.afterError=&lt;/li&gt;</li>
+            </ul>
+
+            <p>The second way to customize the output affects only the output on a specific page.
+            The nestable tags are: stripes:individual-error, stripes:error-header and
+            stripes:error-footer. An example, re-creating the default output using this
+            technique follow:</p>
+
+<pre>&lt;stripes:errors&gt;
+     &lt;stripes:errors-header&gt;&lt;div class=&quot;errorHeader&quot;&gt;Validation Errors&lt;/div&gt;&lt;ul&gt;&lt;/stripes:errors-header&gt;
+     &lt;li&gt;&lt;stripes:individual-error/&gt;&lt;/li&gt;
+     &lt;stripes:errors-footer&gt;&lt;/ul&gt;&lt;/stripes:errors-footer&gt;
+&lt;/stripes:errors&gt;
+</pre>
         ]]></description>
         <display-name>errors</display-name>
         <name>errors</name>

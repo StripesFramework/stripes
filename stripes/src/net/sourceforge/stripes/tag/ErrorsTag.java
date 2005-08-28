@@ -18,6 +18,7 @@ package net.sourceforge.stripes.tag;
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.controller.ActionResolver;
 import net.sourceforge.stripes.controller.StripesConstants;
+import net.sourceforge.stripes.controller.StripesFilter;
 import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.validation.ValidationError;
 import net.sourceforge.stripes.validation.ValidationErrors;
@@ -33,12 +34,28 @@ import java.util.List;
 import java.util.Locale;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.ResourceBundle;
+import java.util.MissingResourceException;
 
 /**
  * <p>The errors tag has two modes, one where it displays all validation errors in a list
  * and a second mode when there is a single enclosed field-error tag that has no name attribute
  * in which case this tag iterates over the body, displaying each error in turn in place
  * of the field-error tag.</p>
+ *
+ * <p>In the first mode, where the default output is used, it is possible to change the output
+ * for the entire application using a set of resources in the error messages bundle
+ * (StripesResources.properties unless you have configured another).  If the properties are
+ * undefined, the tag will output the text "Validation Errors" in a div with css class errorHeader,
+ * then output an unordered list of error messages.  The following four resource strings
+ * (shown with their default values) can be modified to create different default ouput:</p>
+ *
+ * <ul>
+ *   <li>stripes.errors.header={@literal <div class="errorHeader">Validation Errors</div><ul>}</li>
+ *   <li>stripes.errors.footer={@literal </ul>}</li>
+ *   <li>stripes.errors.beforeError={@literal <li>}</li>
+ *   <li>stripes.errors.afterError={@literal </li>}</li>
+ * </ul>
  *
  * <p>This tag has several ways of being attached to the errors of a specific action request.
  * If the tag is inside a action tag, it will display if the validation errors are associated
@@ -51,6 +68,14 @@ import java.util.TreeSet;
 public class ErrorsTag extends HtmlTagSupport implements BodyTag {
 
     private final Log log = Log.getInstance(ErrorsTag.class);
+
+    /** The header that will be emitted if no header is defined in the resource bundle. */
+    public static final String DEFAULT_HEADER =
+            "<div class=\"errorHeader\">Validation Errors</div><ul>";
+
+    /** The footer that will be emitted if no footer is defined in the resource bundle. */
+    public static final String DEFAULT_FOOTER = "</ul>";
+
 
     /**
      * True if this tag will display errors, otherwise false. This is determined by the logic
@@ -249,20 +274,33 @@ public class ErrorsTag extends HtmlTagSupport implements BodyTag {
             if (this.display && !this.nestedErrorTagPresent) {
                 // Output all errors in a standard format
                 Locale locale = getPageContext().getRequest().getLocale();
+                ResourceBundle bundle = StripesFilter.getConfiguration()
+                        .getLocalizationBundleFactory().getErrorMessageBundle(locale);
 
-                writer.write("<div class=\"errorHeader\">");
-                writer.write("Validation Errors");
-                writer.write("</div>");
+                // Fetch the header and footer
+                String header, footer, openElement, closeElement;
+                try { header = bundle.getString("stripes.errors.header"); }
+                catch (MissingResourceException mre) { header = DEFAULT_HEADER; }
 
-                writer.write("<ul>");
+                try { footer = bundle.getString("stripes.errors.footer"); }
+                catch (MissingResourceException mre) { footer = DEFAULT_FOOTER; }
+
+                try { openElement = bundle.getString("stripes.errors.beforeError"); }
+                catch (MissingResourceException mre) { openElement = "<li>"; }
+
+                try { closeElement = bundle.getString("stripes.errors.afterError"); }
+                catch (MissingResourceException mre) { closeElement = "</li>"; }
+
+                // Write out the error messages
+                writer.write(header);
 
                 for (ValidationError fieldError : this.allErrors) {
-                    writer.write("<li>");
+                    writer.write(openElement);
                     writer.write(fieldError.getMessage(locale));
-                    writer.write("</li>");
+                    writer.write(closeElement);
                 }
 
-                writer.write("</ul>");
+                writer.write(footer);
             }
             else if (this.display && this.nestedErrorTagPresent) {
                 // Output the collective body content
