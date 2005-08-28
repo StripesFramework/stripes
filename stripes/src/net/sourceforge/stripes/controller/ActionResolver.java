@@ -49,6 +49,16 @@ public interface ActionResolver extends ConfigurableComponent {
     Class<ActionBean> getActionBean(ActionBeanContext context) throws StripesServletException;
 
     /**
+     * Returns the ActionBean class that is bound to the UrlBinding supplied.
+     *
+     * @param urlBinding the URL to which the ActionBean has been bound
+     * @return a Class<ActionBean> for the ActionBean requested
+     * @throws StripesServletException if the UrlBinding does not match an ActionBean binding
+     */
+    public Class<ActionBean> getActionBean(String urlBinding) throws StripesServletException;
+
+
+    /**
      * Determines the name of th event fired by the front end.  Allows implementations to
      * easiliy vary their strategy for specifying event names (e.g. button names, hidden field
      * rewrites via JavaScript etc.).

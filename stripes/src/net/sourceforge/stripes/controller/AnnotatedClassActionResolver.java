@@ -173,6 +173,31 @@ public class AnnotatedClassActionResolver implements ActionResolver {
     }
 
     /**
+     * Returns the ActionBean class that is bound to the UrlBinding supplied.
+     *
+     * @param urlBinding the URL to which the ActionBean has been bound
+     * @return a Class<ActionBean> for the ActionBean requested
+     * @throws StripesServletException if the UrlBinding does not match an ActionBean binding
+     */
+    public Class<ActionBean> getActionBean(String urlBinding) throws StripesServletException {
+        Class<ActionBean> beanClass = this.formBeans.get(urlBinding);
+
+        if (beanClass == null) {
+            StripesServletException sse = new StripesServletException(
+                    "Could not locate an ActionBean that is bound to the URL [" + urlBinding +
+                            "]. Commons reasons for this include mis-matched URLs and forgetting " +
+                            "to implement ActionBean in your class. Registered ActionBeans are: " +
+                            this.formBeans);
+
+            log.debug(sse);
+            throw sse;
+        }
+
+        return beanClass;
+    }
+
+
+    /**
      * Searched for a parameter in the request whose name matches one of the named events handled
      * by the ActionBean.  For example, if the ActionBean can handle events foo and bar, this
      * method will scan the request for foo=somevalue and bar=somevalue.  If it find a request

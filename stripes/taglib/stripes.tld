@@ -37,6 +37,58 @@
     </validator>
 
     <tag>
+        <description><![CDATA[
+            <p>Puts the ActionBean with the specified binding into page context under the
+            supplied name. If the ActionBean does not already exist, it will be instantiated
+            and binding will be run to bind values from the HttpServletRequest onto the
+            ActionBean.  Validation will not be run, and any error messages produced from
+            the binding/type conversion process will be discarded.  The ActionBean will
+            then be placed in request scope, just as done by the DispatcherServlet.</p>
+
+            <p>If the ActionBean did not previously exist, and an event is specified, the event
+            handler will be executed on the ActionBean.  If the ActionBean already existed,
+            supplying the event attribute has no effect.</p>
+
+            <p>Lastly, if the var or id attribute is supplied (they are synonymous and only
+            one should be supplied) the ActionBean is bound in to page context using the name
+            supplied.  This is true in all cases, regardless of whether the ActionBean is newly
+            instantiated, or pre-existing.  This allows the tag to be used to provide an easier
+            name for the ActionBean than referring to it by binding.</p>
+        ]]></description>
+        <display-name>useActionBean</display-name>
+        <name>useActionBean</name>
+        <tag-class>net.sourceforge.stripes.tag.UseActionBeanTag</tag-class>
+        <body-content>empty</body-content>
+        <attribute>
+            <description>
+                The URL to which the action bean is bound, as specified in the @UrlBinding
+                for the ActionBean in question.
+            </description>
+            <name>binding</name><required>true</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>
+                The (optional) name of an event to execute. If no event is provided, the
+                ActionBean is instantiated and bound, but no event is executed. To execute the
+                default event handler you must give it a name in the ActionBean and name it here.
+            </description>
+            <name>event</name><required>false</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>
+                The (optional) name of an attribute to bind the bean to in page context.
+            </description>
+            <name>var</name><required>false</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>
+                Synonym for var.
+            </description>
+            <name>id</name><required>false</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
         <description>
             Stripes' HTML form field tag. Provides a standard HTML form tag interface, but allows
             other stripes input tags to re-populate their values.  Also includes a hidden field in
