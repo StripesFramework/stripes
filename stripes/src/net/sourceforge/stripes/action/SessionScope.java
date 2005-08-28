@@ -37,6 +37,11 @@ import java.lang.annotation.Documented;
  * that the ActionBean implement the ValidationErrorHandler interface to find out about the
  * validation errors generated, and take action accordingly.</p>
  *
+ * <p>Lastly, an alternative to session scoping for wizard pattern/page-spanning forms that
+ * ActionBean authors may wish to consider is the use of the
+ * {@link net.sourceforge.stripes.tag.WizardFieldsTag} which will carry all the fields submitted
+ * in the request into the next request by writing hidden form fields.</p>
+ *
  * @see net.sourceforge.stripes.validation.ValidationErrorHandler
  * @author Tim Fennell
  */
