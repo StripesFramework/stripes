@@ -20,6 +20,7 @@ import net.sourceforge.stripes.action.ActionBeanContext;
 import net.sourceforge.stripes.action.DontValidate;
 import net.sourceforge.stripes.action.ForwardResolution;
 import net.sourceforge.stripes.action.Resolution;
+import net.sourceforge.stripes.action.SessionScope;
 import net.sourceforge.stripes.exception.StripesServletException;
 import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.validation.Validatable;
@@ -90,7 +91,7 @@ public class DispatcherServlet extends HttpServlet {
             }
 
             // Instantiate and set us up the bean
-            ActionBean bean = clazz.newInstance();
+            ActionBean bean = getActionBeanInstance(clazz, request);
             bean.setContext(context);
             request.setAttribute((String) request.getAttribute(ActionResolver.RESOLVED_ACTION), bean);
             request.setAttribute(StripesConstants.REQ_ATTR_ACTION_BEAN, bean);
@@ -155,6 +156,36 @@ public class DispatcherServlet extends HttpServlet {
         catch (Exception e) {
             throw new StripesServletException("Exception encountered processing request.", e);
         }
+    }
+
+    /**
+     * Gets an instance of the specified ActionBean.  In the default case, the ActionBean will
+     * be instantiated and returned.  If the ActionBean class is marked with a SessionScope
+     * annotation, then the bean instance will be looked for in session scope and, if not found,
+     * instantiated and put in session scope.
+     *
+     * @param clazz the ActionBean class being instantiated/looked up
+     * @return an instance of the ActionBean specified
+     * @throws Exception if the ActionBean cannot be instantiated
+     */
+    protected ActionBean getActionBeanInstance(Class<ActionBean> clazz,
+                                               HttpServletRequest request) throws Exception {
+        ActionBean bean = null;
+
+        if (clazz.isAnnotationPresent(SessionScope.class)) {
+            String action = (String) request.getAttribute(ActionResolver.RESOLVED_ACTION);
+            bean = (ActionBean) request.getSession().getAttribute(action);
+
+            if (bean == null) {
+                bean = clazz.newInstance();
+                request.getSession().setAttribute(action, bean);
+            }
+        }
+        else {
+            bean = clazz.newInstance();
+        }
+
+        return bean;
     }
 
 
