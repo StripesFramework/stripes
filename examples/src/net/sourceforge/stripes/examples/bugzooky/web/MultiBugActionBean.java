@@ -1,11 +1,11 @@
 package net.sourceforge.stripes.examples.bugzooky.web;
 
 import net.sourceforge.stripes.action.DefaultHandler;
+import net.sourceforge.stripes.action.DontValidate;
 import net.sourceforge.stripes.action.ForwardResolution;
 import net.sourceforge.stripes.action.HandlesEvent;
 import net.sourceforge.stripes.action.Resolution;
 import net.sourceforge.stripes.action.UrlBinding;
-import net.sourceforge.stripes.action.DontValidate;
 import net.sourceforge.stripes.examples.bugzooky.biz.Bug;
 import net.sourceforge.stripes.examples.bugzooky.biz.BugManager;
 import net.sourceforge.stripes.examples.bugzooky.biz.ComponentManager;
@@ -19,7 +19,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * ActionBean that deals with setting up and saving edits to multiple bugs at once. Can also
+ * deal with adding multiple new bugs at once.
  *
+ * @author Tim Fennell
  */
 @UrlBinding("/bugzooky/MultiBug.action")
 public class MultiBugActionBean extends BugzookyActionBean {
@@ -35,6 +38,10 @@ public class MultiBugActionBean extends BugzookyActionBean {
     /** Sets the array of bug IDs the user selected for edit. */
     public void setBugIds(int[] bugIds) { this.bugIds = bugIds; }
 
+    /**
+     * Simple getter that returns the List of Bugs.  Not the use of generics syntax - this is
+     * necessary to let Stripes know what type of object to create and insert into the list.
+     */
     @ValidateNestedProperties({
         @Validate(field="shortDescription", required=true, maxlength=75),
         @Validate(field="longDescription", required=true, minlength=25),
@@ -47,6 +54,7 @@ public class MultiBugActionBean extends BugzookyActionBean {
         return bugs;
     }
 
+    /** Setter for the list of bugs. */
     public void setBugs(List<Bug> bugs) {
         this.bugs = bugs;
     }
