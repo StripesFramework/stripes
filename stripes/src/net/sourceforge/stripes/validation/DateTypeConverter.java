@@ -65,7 +65,7 @@ public class DateTypeConverter implements TypeConverter<Date> {
 
         for (int i=0; i<formatStrings.length; ++i) {
             this.formats[i] = new SimpleDateFormat(formatStrings[i], locale);
-            this.formats[i].setLenient(true);
+            this.formats[i].setLenient(false);
         }
     }
 
