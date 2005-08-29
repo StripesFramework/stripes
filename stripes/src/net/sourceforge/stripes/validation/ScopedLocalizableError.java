@@ -50,13 +50,17 @@ public class ScopedLocalizableError extends LocalizableError {
 
     /**
      * Constructs a ScopedLocalizableError with the supplied information.
+     *
+     * @param fieldName the name of the field in error. Null values are permissable for global
+     *        errors, or in situtations where the field name is not available (e.g. in custom
+     *        TypeConverters).
      * @param defaultScope the default scope under which to look for the error message should more
      *        specificly scoped lookups fail
      * @param key the name of the message to lookup
      * @param parameters an optional number of replacement parameters to be used in the message
      */
-    public ScopedLocalizableError(String defaultScope, String key, Object... parameters) {
-        super(defaultScope + "." + key, parameters);
+    public ScopedLocalizableError(String fieldName, String defaultScope, String key, Object... parameters) {
+        super(fieldName, defaultScope + "." + key, parameters);
         this.defaultScope = defaultScope;
         this.key = key;
     }

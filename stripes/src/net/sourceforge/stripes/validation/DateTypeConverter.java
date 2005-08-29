@@ -115,7 +115,7 @@ public class DateTypeConverter implements TypeConverter<Date> {
             return date;
         }
         else {
-            errors.add( new ScopedLocalizableError("converter.date", "invalidDate") );
+            errors.add( new ScopedLocalizableError(null, "converter.date", "invalidDate") );
             return null;
         }
     }

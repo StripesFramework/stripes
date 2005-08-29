@@ -96,7 +96,7 @@ public class ValidationErrors extends HashMap<String, List<ValidationError>> {
      * this way will only be displayed as part of the complete list of errors, and never when
      * showing errors for a specific field.
      */
-    public void add(ValidationError error) {
+    public void addGlobalError(ValidationError error) {
         add(GLOBAL_ERROR, error);
     }
 }

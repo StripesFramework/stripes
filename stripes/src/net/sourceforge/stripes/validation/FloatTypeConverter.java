@@ -40,7 +40,7 @@ public class FloatTypeConverter extends NumberTypeConverterSupport implements Ty
         if (errors.size() == 0) {
             double output = number.doubleValue();
             if (output > Float.MAX_VALUE || output < Float.MIN_VALUE) {
-                errors.add( new ScopedLocalizableError("converter.float", "outOfRange",
+                errors.add( new ScopedLocalizableError(null, "converter.float", "outOfRange",
                                                        Float.MIN_VALUE, Float.MAX_VALUE));
             }
             else {

@@ -56,7 +56,7 @@ public class NumberTypeConverterSupport {
             return getNumberFormat().parse(input);
         }
         catch (ParseException pe) {
-            errors.add( new ScopedLocalizableError("converter.number", "invalidNumber"));
+            errors.add( new ScopedLocalizableError(null, "converter.number", "invalidNumber"));
             return null;
         }
     }

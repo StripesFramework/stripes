@@ -59,11 +59,15 @@ public class LocalizableError extends SimpleError {
      * parameters provided here can be referenced in the error message <b>starting with number
      * 2</b>.
      *
+     * @param fieldName the name of the field in error. Null values are permissable for global
+     *        errors, or in situtations where the field name is not available (e.g. in custom
+     *        TypeConverters).
      * @param messageKey a key to lookup a message in the resource bundle
      * @param parameter one or more replacement parameters to insert into the message
      */
-    public LocalizableError(String messageKey, Object... parameter) {
+    public LocalizableError(String fieldName, String messageKey, Object... parameter) {
         super(parameter);
+        setFieldName(fieldName);
         this.messageKey = messageKey;
 
     }

@@ -412,18 +412,18 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
                                             String[] values,
                                             ValidationErrors errors) {
         if (values == null || values.length == 0) {
-            ValidationError error = new ScopedLocalizableError("validation.required",
+            ValidationError error = new ScopedLocalizableError(strippedName,
+                                                               "validation.required",
                                                                "valueNotPresent");
-            error.setFieldName(strippedName);
             error.setFieldValue(null);
             errors.add( name, error );
         }
         else {
             for (String value : values) {
                 if (value.length() == 0) {
-                    ValidationError error = new ScopedLocalizableError("validation.required",
+                    ValidationError error = new ScopedLocalizableError(strippedName,
+                                                                       "validation.required",
                                                                        "valueNotPresent");
-                    error.setFieldName(strippedName);
                     error.setFieldValue(value);
                     errors.add( name, error );
                 }
@@ -447,19 +447,22 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
 
         for (String value : values) {
             if (validationInfo.minlength() != -1 && value.length() < validationInfo.minlength()) {
-                ValidationError error = new ScopedLocalizableError("validation.minlength",
-                                                                   "valueTooShort",
-                                                                   validationInfo.minlength());
-                error.setFieldName(propertyName.getStrippedName());
+                ValidationError error =
+                        new ScopedLocalizableError (propertyName.getStrippedName(),
+                                                    "validation.minlength",
+                                                    "valueTooShort",
+                                                    validationInfo.minlength());
+
                 error.setFieldValue(value);
                 errors.add( error );
             }
 
             if (validationInfo.maxlength() != -1 && value.length() > validationInfo.maxlength()) {
-                ValidationError error = new ScopedLocalizableError("validation.maxlength",
-                                                                   "valueTooLong",
-                                                                   validationInfo.maxlength());
-                error.setFieldName(propertyName.getStrippedName());
+                ValidationError error =
+                        new ScopedLocalizableError(propertyName.getStrippedName(),
+                                                   "validation.maxlength",
+                                                   "valueTooLong",
+                                                   validationInfo.maxlength());
                 error.setFieldValue(value);
                 errors.add( error );
             }
@@ -467,9 +470,11 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
             if ( validationInfo.mask().length() > 0 &&
                 !Pattern.compile(validationInfo.mask()).matcher(value).matches() ) {
 
-                ValidationError error = new ScopedLocalizableError("validation.mask",
-                                                                   "valueDoesNotMatch");
-                error.setFieldName(propertyName.getStrippedName());
+                ValidationError error =
+                        new ScopedLocalizableError(propertyName.getStrippedName(),
+                                                   "validation.mask",
+                                                   "valueDoesNotMatch");
+
                 error.setFieldValue(value);
                 errors.add( error );
             }

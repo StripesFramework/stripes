@@ -80,7 +80,7 @@ public class MultiBugActionBean extends BugzookyActionBean {
         // If the user didn't select any bugs to edit, bad user.
         if (this.bugIds == null || this.bugIds.length < 1) {            
             ValidationErrors errors = new ValidationErrors();
-            errors.add( new SimpleError("You must select at least one bug to edit.") );
+            errors.addGlobalError( new SimpleError(null, "You must select at least one bug to edit.") );
             getContext().setValidationErrors(errors);
             return getContext().getSourcePageResolution();
         }
