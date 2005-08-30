@@ -28,6 +28,9 @@ import java.util.Locale;
 import java.util.Collections;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
+import java.io.IOException;
 
 /**
  * HttpServletRequestWrapper that is used to make the file upload functionality transparent.
@@ -39,6 +42,11 @@ import java.util.ArrayList;
  */
 @SuppressWarnings("CLASS") // Request has some deprecated methods we don't touch, so don't warn us!
 public class StripesRequestWrapper extends HttpServletRequestWrapper {
+
+    /** Pattern used to parse useful info out of the IOException cos throws. */
+    private static Pattern exceptionPattern =
+            Pattern.compile("Posted content length of (\\d*) exceeds limit of (\\d*)");
+
     /** The Multipart Request that parses out all the pieces. */
     private MultipartRequest multipart;
 
@@ -54,6 +62,8 @@ public class StripesRequestWrapper extends HttpServletRequestWrapper {
      * @param pathToTempDir the path to a temporary directory in which to store files during upload
      * @param maxTotalPostSize a limit on how much can be uploaded in a single request. Note that
      *        this is not a file size limit, but a post size limit.
+     * @throws FileUploadLimitExceededException if the total post size is larger than the limit
+     * @throws StripesServletException if any other error occurs constructing the wrapper
      */
     public StripesRequestWrapper(HttpServletRequest request,
                                  String pathToTempDir,
@@ -67,8 +77,16 @@ public class StripesRequestWrapper extends HttpServletRequestWrapper {
                 this.multipart = new MultipartRequest(request, pathToTempDir, maxTotalPostSize);
             }
         }
-        catch (Exception e) {
-            throw new StripesServletException("Could not construct request wrapper.", e);
+        catch (IOException e) {
+            Matcher matcher = exceptionPattern.matcher(e.getMessage());
+
+            if (matcher.matches()) {
+                throw new FileUploadLimitExceededException(Integer.parseInt(matcher.group(2)),
+                                                           Integer.parseInt(matcher.group(1)));
+            }
+            else {
+                throw new StripesServletException("Could not construct request wrapper.", e);
+            }
         }
     }
 

@@ -31,14 +31,24 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.File;
 import java.util.Locale;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 /**
- * Created by IntelliJ IDEA. User: tfenne Date: Aug 1, 2005 Time: 6:29:52 PM To change this template
- * use File | Settings | File Templates.
+ * The Stripes filter is used to ensure that all requests coming to a Stripes application
+ * are handled in the same way.  It detects and wraps any requests that contain multipart/form
+ * data, so that they may be treated much like any other request.  Also ensures that
+ * all downstream components have access to essential configuration and services whether
+ * the request goes through the dispatcher, or straight to a JSP.
+ *
+ * @author Tim Fennell
  */
 public class StripesFilter implements Filter {
     /** Key used to lookup the name of the Configuration class used to configure Stripes. */
     public static final String CONFIG_CLASS = "Configuration.Class";
+
+    /** Key used to lookup the name of the maximum post size. */
+    public static final String MAX_POST = "FileUpload.MaximumPostSize";
 
     /** Path to a temporary directory that will be used to process file uploads. */
     protected String temporaryDirectoryPath;
@@ -49,6 +59,9 @@ public class StripesFilter implements Filter {
     /** The configuration instance for Stripes. */
     private Configuration configuration;
 
+    /** Stores the maximum post size for a form upload request. */
+    private int maxPostSize = 1024 * 1024 * 10;
+
     /**
      * A place to stash the Configuration object so that other classes in Stripes can access it
      * without resorting to ferrying it, or the request, to every class that needs access to the
@@ -56,8 +69,6 @@ public class StripesFilter implements Filter {
      * Classloader since the Configuration is not located statically.
      */
     private static ThreadLocal<Configuration> configurationStash = new ThreadLocal<Configuration>();
-
-
 
     /**
      * Performs the necessary initialization for the StripesFilter.  Mainly this involved deciding
@@ -100,6 +111,31 @@ public class StripesFilter implements Filter {
             this.temporaryDirectoryPath = System.getProperty("java.io.tmpdir");
         }
 
+        // See if a maximum post size was configured
+        String limit = bootstrap.getProperty(MAX_POST);
+        if (limit != null) {
+            Pattern pattern = Pattern.compile("([\\d,]+)([kKmMgG]?).*");
+            Matcher matcher = pattern.matcher(limit);
+            if (!matcher.matches()) {
+                log.warn("Did not understand value of configuration parameter ", MAX_POST,
+                         " You supplied: ", limit, ". Valid values are any string of numbers ",
+                         "optionally followed by (case insensitive) [k|kb|m|mb|g|gb]. ",
+                         "Default value of ", this.maxPostSize, " bytes will be used instead.");
+            }
+            else {
+                String digits = matcher.group(1);
+                String suffix = matcher.group(2).toLowerCase();
+                int number = Integer.parseInt(digits);
+
+                if ("k".equals(suffix)) { number = number * 1024; }
+                else if ("m".equals(suffix)) {  number = number * 1024 * 1024; }
+                else if ("g".equals(suffix)) { number = number * 1024 * 1024 * 1024; }
+
+                this.maxPostSize = number;
+                log.info("Configured file upload post size limit: ", number, " bytes.");
+            }
+        }
+
         Package pkg = getClass().getPackage();
         log.info("Stripes Initialization Complete. Version: ", pkg.getSpecificationVersion(),
                  ", Build: ", pkg.getImplementationVersion());
@@ -112,35 +148,34 @@ public class StripesFilter implements Filter {
         return StripesFilter.configurationStash.get();
     }
 
-
     /**
-     *
-     * @param servletRequest
-     * @param servletResponse
-     * @param filterChain
-     * @throws IOException
-     * @throws ServletException
+     * Performs the primary work of the filter, including constructing a StripesRequestWrapper to
+     * wrap the HttpServletRequest, and using the configured LocalePicker to decide which
+     * Locale will be used to process the request.
      */
     public void doFilter(ServletRequest servletRequest,
                          ServletResponse servletResponse,
                          FilterChain filterChain) throws IOException, ServletException {
 
-        HttpServletRequest httpRequest = (HttpServletRequest) servletRequest;
+        try {
+            HttpServletRequest httpRequest = (HttpServletRequest) servletRequest;
 
-        // Pop the configuration into thread local
-        StripesFilter.configurationStash.set(this.configuration);
+            // Pop the configuration into thread local
+            StripesFilter.configurationStash.set(this.configuration);
 
-        // Figure out the locale to use, and then wrap the request
-        Locale locale = this.configuration.getLocalePicker().pickLocale(httpRequest);
-        StripesRequestWrapper request = wrapRequest(httpRequest);
-        request.setLocale(locale);
-        log.info("LocalePicker selected locale: ", locale);
+            // Figure out the locale to use, and then wrap the request
+            Locale locale = this.configuration.getLocalePicker().pickLocale(httpRequest);
+            StripesRequestWrapper request = wrapRequest(httpRequest);
+            request.setLocale(locale);
+            log.info("LocalePicker selected locale: ", locale);
 
-        // Execute the rest of the chain
-        filterChain.doFilter(request, servletResponse);
-
-        // Once the request is processed, take the Configuration back out of thread local
-        StripesFilter.configurationStash.remove();
+            // Execute the rest of the chain
+            filterChain.doFilter(request, servletResponse);
+        }
+        finally {
+            // Once the request is processed, take the Configuration back out of thread local
+            StripesFilter.configurationStash.remove();
+        }
     }
 
     /**
@@ -156,7 +191,7 @@ public class StripesFilter implements Filter {
         String tempDirPath = getTempDirectoryPath();
 
         StripesRequestWrapper request =
-                new StripesRequestWrapper(servletRequest, tempDirPath, Integer.MAX_VALUE);
+                new StripesRequestWrapper(servletRequest, tempDirPath, this.maxPostSize);
         return request;
     }
 
