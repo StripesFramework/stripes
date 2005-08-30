@@ -17,6 +17,7 @@ package net.sourceforge.stripes.config;
 
 import net.sourceforge.stripes.controller.ActionBeanPropertyBinder;
 import net.sourceforge.stripes.controller.ActionResolver;
+import net.sourceforge.stripes.controller.ActionBeanContextFactory;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
 import net.sourceforge.stripes.localization.LocalePicker;
 import net.sourceforge.stripes.localization.LocalizationBundleFactory;
@@ -49,6 +50,9 @@ public class RuntimeConfiguration extends DefaultConfiguration {
 
     /** The Configuration Key for looking up the name of the ActionResolver class. */
     public static final String ACTION_BEAN_PROPERTY_BINDER = "ActionBeanPropertyBinder.Class";
+
+    /** The Configuration Key for looking up the name of an ActionBeanContextFactory class. */
+    public static final String ACTION_BEAN_CONTEXT_FACTORY = "ActionBeanContextFactory.Class";
 
     /** The Configuration Key for looking up the name of the TypeConverterFactory class. */
     public static final String TYPE_CONVERTER_FACTORY = "TypeConverterFactory.Class";
@@ -108,6 +112,25 @@ public class RuntimeConfiguration extends DefaultConfiguration {
             throw new StripesRuntimeException("Could not instantiate configured "
                     + "ActionBeanPropertyBinder of type [" + binderName + "]. Please check the "
                     + "configuration parameters specified in your web.xml.", e);
+        }
+
+        // Try instantiating the ActionBeanContextFactory
+        String contextFactoryName = getBootstrapPropertyResolver().getProperty(ACTION_BEAN_CONTEXT_FACTORY);
+        try {
+            if (contextFactoryName != null) {
+                log.info("Found configured ActionBeanContextFactory class [", contextFactoryName,
+                         "], attempting to instantiate.");
+
+                ActionBeanContextFactory contextFactory =
+                        (ActionBeanContextFactory) Class.forName(contextFactoryName).newInstance();
+                contextFactory.init(this);
+                setActionBeanContextFactory(contextFactory);
+            }
+        }
+        catch (Exception e) {
+            throw new StripesRuntimeException("Could not instantiate configured "
+                    + "ActionBeanContextFactory of type [" + contextFactoryName + "]. Please check "
+                    + "the configuration parameters specified in your web.xml.", e);
         }
 
         // Try instantiating the TypeConverterFactory

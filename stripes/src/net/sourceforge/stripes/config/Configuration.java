@@ -17,6 +17,7 @@ package net.sourceforge.stripes.config;
 
 import net.sourceforge.stripes.controller.ActionBeanPropertyBinder;
 import net.sourceforge.stripes.controller.ActionResolver;
+import net.sourceforge.stripes.controller.ActionBeanContextFactory;
 import net.sourceforge.stripes.localization.LocalizationBundleFactory;
 import net.sourceforge.stripes.localization.LocalePicker;
 import net.sourceforge.stripes.validation.TypeConverterFactory;
@@ -124,4 +125,13 @@ public interface Configuration {
      * @return TagErrorRendererFactory an instance of TagErrorRendererFactory
      */
     TagErrorRendererFactory getTagErrorRendererFactory();
+
+    /**
+     * Returns an instance of an action bean context factory which will used throughout Stripes
+     * to manufacture ActionBeanContext objects. This allows projects to extend ActionBeanContext
+     * and provide additional type safe methods for accessing contextual information cleanly.
+     *
+     * @return ActionBeanContextFactory an instance of ActionBeanContextFactory
+     */
+    ActionBeanContextFactory getActionBeanContextFactory();
 }

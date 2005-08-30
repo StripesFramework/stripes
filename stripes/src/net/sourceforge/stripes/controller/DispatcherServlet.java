@@ -68,7 +68,8 @@ public class DispatcherServlet extends HttpServlet {
 
         try {
             // Lookup the bean class, handler method and hook everything together
-            ActionBeanContext context = createActionBeanContext(request, response);
+            ActionBeanContext context =  StripesFilter.getConfiguration()
+                    .getActionBeanContextFactory().getContextInstance(request, response);
             Resolution resolution = null;
 
             ActionResolver actionResolver = StripesFilter.getConfiguration().getActionResolver();
@@ -201,17 +202,6 @@ public class DispatcherServlet extends HttpServlet {
                                           boolean validate) throws StripesServletException {
         return StripesFilter.getConfiguration()
                 .getActionBeanPropertyBinder().bind(bean, context, validate);
-    }
-
-    /**
-     * Creates the ActionBeanContext for the current request.
-     */
-    protected ActionBeanContext createActionBeanContext(HttpServletRequest request,
-                                                        HttpServletResponse response) {
-        ActionBeanContext context = new ActionBeanContext();
-        context.setRequest(request);
-        context.setResponse(response);
-        return context;
     }
 
     /**

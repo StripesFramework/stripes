@@ -76,9 +76,11 @@ public class UseActionBeanTag extends StripesTagSupport {
                 Class<ActionBean> actionBeanClass = resolver.getActionBean(binding);
                 actionBean = actionBeanClass.newInstance();
 
-                ActionBeanContext tempContext = new ActionBeanContext();
-                tempContext.setRequest((HttpServletRequest) pageContext.getRequest());
-                tempContext.setResponse((HttpServletResponse)  pageContext.getResponse());
+                HttpServletRequest request = (HttpServletRequest) getPageContext().getRequest();
+                HttpServletResponse response = (HttpServletResponse) getPageContext().getResponse();
+
+                ActionBeanContext tempContext = StripesFilter.getConfiguration()
+                    .getActionBeanContextFactory().getContextInstance(request, response);
                 actionBean.setContext(tempContext);
 
                 // Bind applicable request parameters to the ActionBean

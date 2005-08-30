@@ -19,6 +19,8 @@ import net.sourceforge.stripes.controller.ActionBeanPropertyBinder;
 import net.sourceforge.stripes.controller.ActionResolver;
 import net.sourceforge.stripes.controller.AnnotatedClassActionResolver;
 import net.sourceforge.stripes.controller.OgnlActionBeanPropertyBinder;
+import net.sourceforge.stripes.controller.ActionBeanContextFactory;
+import net.sourceforge.stripes.controller.DefaultActionBeanContextFactory;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
 import net.sourceforge.stripes.localization.DefaultLocalizationBundleFactory;
 import net.sourceforge.stripes.localization.LocalizationBundleFactory;
@@ -48,6 +50,7 @@ public class DefaultConfiguration implements Configuration {
     private BootstrapPropertyResolver resolver;
     private ActionResolver actionResolver;
     private ActionBeanPropertyBinder actionBeanPropertyBinder;
+    private ActionBeanContextFactory actionBeanContextFactory;
     private TypeConverterFactory typeConverterFactory;
     private LocalizationBundleFactory localizationBundleFactory;
     private LocalePicker localePicker;
@@ -73,6 +76,11 @@ public class DefaultConfiguration implements Configuration {
             if (this.actionBeanPropertyBinder == null) {
                 this.actionBeanPropertyBinder = new OgnlActionBeanPropertyBinder();
                 this.actionBeanPropertyBinder.init(this);
+            }
+
+            if (this.actionBeanContextFactory == null) {
+                this.actionBeanContextFactory = new DefaultActionBeanContextFactory();
+                this.actionBeanContextFactory.init(this);
             }
 
             if (this.typeConverterFactory == null) {
@@ -135,6 +143,21 @@ public class DefaultConfiguration implements Configuration {
     /** Allows subclasses to set the ActionBeanPropertyBinder instance to be used. */
     protected void setActionBeanPropertyBinder(ActionBeanPropertyBinder propertyBinder) {
         this.actionBeanPropertyBinder = propertyBinder;
+    }
+
+    /**
+     * Returns the configured ActionBeanContextFactory. Unless a subclass has configured a custom
+     * one, the instance will be a DefaultActionBeanContextFactory.
+     *
+     * @return ActionBeanContextFactory an instance of a factory for creating ActionBeanContexts
+     */
+    public ActionBeanContextFactory getActionBeanContextFactory() {
+        return this.actionBeanContextFactory;
+    }
+
+    /** Allows subclasses to set the ActionBeanContextFactory instance to be used. */
+    protected void setActionBeanContextFactory(ActionBeanContextFactory contextFactory) {
+        this.actionBeanContextFactory = contextFactory;
     }
 
     /**
