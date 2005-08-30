@@ -40,7 +40,7 @@ public class ShortTypeConverter extends NumberTypeConverterSupport implements Ty
             long output = number.longValue();
 
             if (output < Short.MIN_VALUE || output > Short.MAX_VALUE) {
-                errors.add( new ScopedLocalizableError(null, "converter.short", "outOfRange",
+                errors.add( new ScopedLocalizableError("converter.short", "outOfRange",
                                                        Short.MIN_VALUE, Short.MAX_VALUE) );
             }
             else {

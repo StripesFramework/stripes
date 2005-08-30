@@ -42,7 +42,7 @@ public class EnumeratedTypeConverter implements TypeConverter<Enum> {
             return Enum.valueOf(targetType, input);
         }
         catch (IllegalArgumentException iae) {
-            errors.add(new ScopedLocalizableError(null, "converter.enum", "notAnEnumeratedValue"));
+            errors.add(new ScopedLocalizableError("converter.enum", "notAnEnumeratedValue"));
             return null;
         }
     }

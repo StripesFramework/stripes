@@ -412,8 +412,7 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
                                             String[] values,
                                             ValidationErrors errors) {
         if (values == null || values.length == 0) {
-            ValidationError error = new ScopedLocalizableError(strippedName,
-                                                               "validation.required",
+            ValidationError error = new ScopedLocalizableError("validation.required",
                                                                "valueNotPresent");
             error.setFieldValue(null);
             errors.add( name, error );
@@ -421,8 +420,7 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
         else {
             for (String value : values) {
                 if (value.length() == 0) {
-                    ValidationError error = new ScopedLocalizableError(strippedName,
-                                                                       "validation.required",
+                    ValidationError error = new ScopedLocalizableError("validation.required",
                                                                        "valueNotPresent");
                     error.setFieldValue(value);
                     errors.add( name, error );
@@ -448,8 +446,7 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
         for (String value : values) {
             if (validationInfo.minlength() != -1 && value.length() < validationInfo.minlength()) {
                 ValidationError error =
-                        new ScopedLocalizableError (propertyName.getStrippedName(),
-                                                    "validation.minlength",
+                        new ScopedLocalizableError ("validation.minlength",
                                                     "valueTooShort",
                                                     validationInfo.minlength());
 
@@ -459,8 +456,7 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
 
             if (validationInfo.maxlength() != -1 && value.length() > validationInfo.maxlength()) {
                 ValidationError error =
-                        new ScopedLocalizableError(propertyName.getStrippedName(),
-                                                   "validation.maxlength",
+                        new ScopedLocalizableError("validation.maxlength",
                                                    "valueTooLong",
                                                    validationInfo.maxlength());
                 error.setFieldValue(value);
@@ -471,8 +467,7 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
                 !Pattern.compile(validationInfo.mask()).matcher(value).matches() ) {
 
                 ValidationError error =
-                        new ScopedLocalizableError(propertyName.getStrippedName(),
-                                                   "validation.mask",
+                        new ScopedLocalizableError("validation.mask",
                                                    "valueDoesNotMatch");
 
                 error.setFieldValue(value);

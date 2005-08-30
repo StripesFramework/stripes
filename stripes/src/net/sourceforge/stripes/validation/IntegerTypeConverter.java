@@ -40,7 +40,7 @@ public class IntegerTypeConverter extends NumberTypeConverterSupport implements 
             long output = number.longValue();
 
             if (output < Integer.MIN_VALUE || output > Integer.MAX_VALUE) {
-                errors.add( new ScopedLocalizableError(null, "converter.integer", "outOfRange",
+                errors.add( new ScopedLocalizableError("converter.integer", "outOfRange",
                                                        Integer.MIN_VALUE, Integer.MAX_VALUE) );
             }
             else {

@@ -65,16 +65,13 @@ public class SimpleError implements ValidationError {
     protected Object[] replacementParameters;
 
     /**
-     * Constructs a simple error message.  If the error message is not specific to a field (i.e.
-     * it is global) the fieldName is optional.
+     * Constructs a simple error message.
      *
-     * @param fieldName the programmatic name of the field in error, or null
      * @param message the String message (template) to display
      * @param parameter zero or more parameters for replacement into the message
      */
-    public SimpleError(String fieldName, String message, Object... parameter) {
+    public SimpleError(String message, Object... parameter) {
         this(parameter);
-        setFieldName(fieldName);
         this.message = message;
     }
 

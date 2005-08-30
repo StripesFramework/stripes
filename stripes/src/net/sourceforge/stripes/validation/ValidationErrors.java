@@ -15,9 +15,11 @@
  */
 package net.sourceforge.stripes.validation;
 
+import net.sourceforge.stripes.controller.ParameterName;
+
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.ArrayList;
 
 /**
  * Container class for ValidationErrors that are tied to form fields.  All of the regular Map
@@ -45,6 +47,7 @@ public class ValidationErrors extends HashMap<String, List<ValidationError>> {
             put(field, errors);
         }
 
+        error.setFieldName( new ParameterName(field).getStrippedName() );
         errors.add(error);
     }
 
@@ -70,12 +73,9 @@ public class ValidationErrors extends HashMap<String, List<ValidationError>> {
      * @param errors a non-null list of errors to add for the field
      */
     public void putAll(String field, List<ValidationError> errors) {
-        List<ValidationError> errorList = get(field);
-        if (errorList == null) {
-            errorList = new ArrayList<ValidationError>();
-            put(field,errors);
+        for (ValidationError error : errors) {
+            put(field, error);
         }
-        errorList.addAll(errors);
     }
 
     /**
@@ -98,5 +98,22 @@ public class ValidationErrors extends HashMap<String, List<ValidationError>> {
      */
     public void addGlobalError(ValidationError error) {
         add(GLOBAL_ERROR, error);
+    }
+
+    /**
+     * Replaces the list of errors for a given field with the list supplied.
+     *
+     * @param field the name of the field in error
+     * @param errors the list of validation errors for the field
+     * @return the previous errors for the field, or null if there were none
+     */
+    public List<ValidationError> put(String field, List<ValidationError> errors) {
+        String strippedName = new ParameterName(field).getStrippedName();
+
+        for (ValidationError error : errors) {
+            error.setFieldName(strippedName);
+        }
+
+        return super.put(field, errors);
     }
 }

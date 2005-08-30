@@ -55,8 +55,7 @@ public class SingleBugActionBean extends BugzookyActionBean implements Validatab
     public void validate(ValidationErrors errors) {
         Float percentComplete = this.bug.getPercentComplete();
         if (percentComplete != null && (percentComplete > 1 || percentComplete < 0)) {
-            SimpleError error =  new SimpleError("bug.percentComplete",
-                                                 "Percent complete must be in the range 0-100%.");
+            SimpleError error =  new SimpleError("Percent complete must be in the range 0-100%.");
             errors.add("bug.percentComplete", error);
         }
     }

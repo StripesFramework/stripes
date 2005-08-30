@@ -40,7 +40,7 @@ public class ByteTypeConverter extends NumberTypeConverterSupport implements Typ
             long output = number.longValue();
 
             if (output < Byte.MIN_VALUE || output > Byte.MAX_VALUE) {
-                errors.add( new ScopedLocalizableError(null, "converter.byte", "outOfRange",
+                errors.add( new ScopedLocalizableError("converter.byte", "outOfRange",
                                                        Byte.MIN_VALUE, Byte.MAX_VALUE) );
             }
             else {
