@@ -1,0 +1,121 @@
+<!-- ======================================================================= -->
+<!-- Build file for the Stripes Examples project                             -->
+<!-- Author: Tim Fennell                                                     -->
+<!-- ======================================================================= -->
+
+<project name="Stripes-Examples" basedir="." default="war">
+
+  <!-- Properties file for the environment, and some global properties -->
+  <property name="properties.file" value="ant.properties"/>
+  <property file="${properties.file}"/>
+    
+  <property name="src.dir"     value="${basedir}/src"/>
+  <property name="web.dir"     value="${basedir}/web"/>
+  <property name="lib.dir"     value="${web.dir}/WEB-INF/lib"/>
+  <property name="classes.dir" value="${web.dir}/WEB-INF/classes"/>
+  <property name="doc.dir"    value="${basedir}/docs"/>
+  <property name="dist.dir"    value="${basedir}/dist"/>
+ 
+  <!-- Additional task defitions -->
+  <taskdef name="tomcat-deploy"    classname="org.apache.catalina.ant.DeployTask"/>
+  <taskdef name="tomcat-reload"    classname="org.apache.catalina.ant.ReloadTask"/>
+  <taskdef name="tomcat-start"     classname="org.apache.catalina.ant.StartTask"/>
+  <taskdef name="tomcat-stop"      classname="org.apache.catalina.ant.StopTask"/>
+  <taskdef name="tomcat-undeploy"  classname="org.apache.catalina.ant.UndeployTask"/>
+
+
+  <!-- =================================================================== -->
+  <!-- Classpaths and internal initialization targets                      -->
+  <!-- =================================================================== -->
+  <path id="build.class.path">
+    <pathelement location="${classes.dir}"/>
+    <fileset dir="${lib.dir}" includes="*.jar"/>
+  </path>
+
+  <target name="init"
+          description="Creates directories needed by the build system.">
+	<mkdir dir="${classes.dir}"/>
+	<mkdir dir="${dist.dir}"/>
+	<mkdir dir="${doc.dir}"/>
+  </target>
+
+
+  <!-- =================================================================== -->
+  <!-- Clean the build directory                                           -->
+  <!-- =================================================================== -->
+  <target name="clean">
+    <delete dir="${classes.dir}"/>
+    <delete dir="${dist.dir}"/>
+    <delete dir="${doc.dir}"/>
+  </target>
+
+  <!-- =================================================================== -->
+  <!-- Compile the code into the web abb and move any resources into the   -->
+  <!-- classpath.                                                          -->
+  <!-- =================================================================== -->
+  <target name="compile" depends="init">
+    <javac destdir="${classes.dir}" debug="on">
+      <src path="${src.dir}"/>
+      <classpath refid="build.class.path"/>
+    </javac>
+
+    <copy todir="${classes.dir}">
+      <fileset dir="${src.dir}">
+        <include name="**/*.properties"/>
+      </fileset>
+    </copy>
+  </target>
+
+  <!-- =================================================================== -->
+  <!-- Creates a deployable WAR file for the examples app.                 -->
+  <!-- =================================================================== -->
+  <target name="war" depends="compile"
+          description="Builds a deployabye war file.">
+    <jar destfile="${dist.dir}/stripes-examples.war" basedir="${web.dir}"/>
+  </target>
+
+  <!-- =================================================================== -->
+  <!-- Generate the javadoc for all the sources in the project.            -->
+  <!-- =================================================================== -->
+    <target name="javadoc" depends="init" description="Generates the project javadoc.">
+        <javadoc
+                sourcepath="${src.dir}"
+                destdir="${doc.dir}/api"
+                classpathref="build.class.path"
+                packagenames="net.sourceforge.stripes.*"
+                stylesheetfile="${src.dir}/javadoc.css"
+                windowtitle="Stripes Examples API Documentation"
+                doctitle="&lt;h1&gt;Stripes Examples API Documentation&lt;/h1&gt;"
+                bottom="&#169; Copyright 2005, Stripes Development Team."
+                author="true"
+                protected="true"
+                use="true"
+                version="true">
+            <link href="http://java.sun.com/j2se/1.5.0/docs/api/"/>
+            <link href="http://java.sun.com/j2ee/1.4/docs/api/"/>
+            <link href="http://www.ognl.org/2.6.7/Documentation/javadoc/"/>
+            <link href="http://jakarta.apache.org/bcel/apidocs/"/>
+        </javadoc>
+    </target>
+  
+  <!-- =================================================================== -->
+  <!-- Tasks to deploy the application in Tomcat.                          -->
+  <!-- =================================================================== -->
+  <target name="deploy" description="Deploy web application to Tomcat" depends="war">
+    <tomcat-deploy url="${tomcat.url}"
+                   username="${tomcat.username}"
+                   password="${tomcat.password}"
+                   path="${tomcat.context}"
+                   localWar="file:${dist.dir}/stripes-examples.war"/>
+  </target>
+
+  <target name="undeploy" description="Undeploy web application from Tomcat">
+    <tomcat-undeploy url="${tomcat.url}"
+                     username="${tomcat.username}"
+                     password="${tomcat.password}"
+                     path="${tomcat.context}"/>
+  </target>
+
+  <target name="redeploy" description="Redeploy web application in Tomcat"
+  		  depends="undeploy, deploy"/>
+</project>

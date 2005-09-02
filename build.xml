@@ -1,0 +1,94 @@
+<!--
+ * Copyright (C) 2005 Tim Fennell
+ *
+ * This library is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published by the
+ * Free Software Foundation; either version 2.1 of the License, or (at your
+ * option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
+ *
+ * You should have received a copy of the license with this software. If not,
+ * it can be found online at http://www.fsf.org/licensing/licenses/lgpl.html
+ *
+-->
+
+<!-- ======================================================================= -->
+<!-- Master Build file for the Stripes project.                              -->
+<!-- Author: Tim Fennell                                                     -->
+<!-- ======================================================================= -->
+
+<project name="Stripes-Master" basedir="." default="build">
+
+    <property name="stripes.dir"  value="${basedir}/stripes"/>
+    <property name="examples.dir" value="${basedir}/examples"/>
+
+    <!-- =================================================================== -->
+    <!-- Builds Stripes, then copies dependencies over into the examples.    -->
+    <!-- =================================================================== -->
+    <target name="build">
+        <ant dir="${stripes.dir}" target="jar"/>
+        <copy todir="${examples.dir}/web/WEB-INF/lib">
+            <fileset dir="${stripes.dir}/dist" includes="stripes.jar"/>
+        </copy>
+        <copy todir="${examples.dir}/web/WEB-INF/lib">
+            <fileset dir="${stripes.dir}/lib/deploy" includes="*.jar"/>
+        </copy>
+        <ant dir="${examples.dir}" target="war"/>
+    </target>
+
+    <!-- =================================================================== -->
+    <!-- Runs the clean target of both Stripes and the Examples project.     -->
+    <!-- =================================================================== -->
+    <target name="clean">
+        <ant dir="${stripes.dir}"  target="clean"/>
+        <ant dir="${examples.dir}" target="clean"/>
+        <delete file="dist/stripes-dist.zip" failonerror="false" quiet="true"/>
+    </target>
+
+
+    <!-- =================================================================== -->
+    <!-- Generates the documentation for the stripes and examples projects.  -->
+    <!-- =================================================================== -->
+    <target name="doc">
+        <ant dir="${stripes.dir}" target="javadoc"/>
+        <ant dir="${stripes.dir}" target="tlddoc"/>
+        <ant dir="${examples.dir}" target="javadoc"/>
+    </target>
+
+    <!-- =================================================================== -->
+    <!-- Builds the full Stripes distribution file.                          -->
+    <!-- =================================================================== -->
+    <target name="dist" depends="build,doc">
+        <mkdir dir="dist"/>
+        <zip destfile="dist/stripes-dist.zip">
+            <zipfileset dir="${stripes.dir}" includes="src/**/*"/>
+            <zipfileset dir="${stripes.dir}/docs/api" includes="**/*" prefix="docs/javadoc"/>
+            <zipfileset dir="${stripes.dir}/docs/taglib" includes="**/*" prefix="docs/taglib"/>
+            <zipfileset dir="${stripes.dir}/dist" includes="stripes.jar" prefix="lib"/>
+            <zipfileset dir="${stripes.dir}/lib/deploy" includes="*.jar" prefix="lib"/>
+            <zipfileset dir="${stripes.dir}/lib/deploy" includes="*.license" prefix="lib"/>
+            <zipfileset dir="${examples.dir}/dist" includes="stripes-examples.war" prefix="examples"/>
+            <zipfileset dir="${examples.dir}" includes="src/**/*" prefix="examples"/>
+            <zipfileset dir="${examples.dir}/docs/api" includes="**/*" prefix="examples/javadoc"/>
+            <zipfileset dir="${examples.dir}/web" prefix="examples/webapp">
+                <exclude name="**/WEB-INF/classes**"/>
+                <exclude name="**/WEB-INF/lib**"/>
+            </zipfileset>
+            <zipfileset dir="." includes="license.txt"/>
+            <zipfileset dir="." includes="readme.txt"/>
+        </zip>
+    </target>
+
+    <!-- =================================================================== -->
+    <!-- Uses the redeploy target of the Examples to redploy the web app.    -->
+    <!-- =================================================================== -->
+    <target name="deploy" depends="build">
+        <ant dir="examples" target="redeploy"/>
+    </target>
+
+
+</project>
