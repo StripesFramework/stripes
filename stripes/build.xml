@@ -102,7 +102,7 @@
     <jar destfile="${dist.dir}/stripes.jar" basedir="${classes.dir}">
       <manifest>
           <attribute name="Implementation-Title" value="Stripes"/>
-          <attribute name="Specification-Version" value="1.0"/>
+          <attribute name="Specification-Version" value="1.0.1"/>
           <attribute name="Implementation-Version" value="${repository.version}"/>
           <attribute name="Implementation-URL" value="http://stripes.sourceforge.net/"/>
       </manifest>
