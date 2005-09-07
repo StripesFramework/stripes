@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -94,8 +95,14 @@ public class ResolverUtil {
             URL[] urls = urlLoader.getURLs();
 
             for (URL url : urls) {
-                String path = url.getPath();
-                File location = new File(path);
+                String path = url.getFile();
+                File location = null;
+                try {
+                    location = new File(url.toURI());
+                } catch (URISyntaxException e) {
+                    log.error(e);//shouldn't happen
+                    continue;
+                }
 
                 // Only process the URL if it matches one of our filter strings
                 if ( matchesAny(path, locationPatterns) ) {
@@ -157,7 +164,7 @@ public class ResolverUtil {
 
         for (File file : files) {
             builder = new StringBuilder(100);
-            builder.append(parent).append(File.separator).append(file.getName());
+            builder.append(parent).append("/").append(file.getName());
             String packageOrClass = ( parent == null ? file.getName() : builder.toString() );
 
             if (file.isDirectory()) {
