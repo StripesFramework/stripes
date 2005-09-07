@@ -16,6 +16,7 @@
 package net.sourceforge.stripes.validation;
 
 import net.sourceforge.stripes.controller.StripesFilter;
+import net.sourceforge.stripes.util.Log;
 
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -53,6 +54,8 @@ import java.text.MessageFormat;
  * @see java.text.MessageFormat
  */
 public class SimpleError implements ValidationError {
+    private static Log log = Log.getInstance(SimpleError.class);
+
     private String fieldNameKey;
     private String actionPath;
     private String message;
@@ -125,7 +128,7 @@ public class SimpleError implements ValidationError {
      * for message template parameter replacement.
      */
     protected void resolveFieldName(Locale locale) {
-        LocalizableError.log.debug("Looking up localized field name with messageKey: ", this.fieldNameKey);
+        log.debug("Looking up localized field name with messageKey: ", this.fieldNameKey);
 
         if (this.fieldNameKey == null) {
             this.replacementParameters[0] = "FIELD NAME NOT SUPPLIED IN CODE";

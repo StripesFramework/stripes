@@ -15,11 +15,10 @@
  */
 package net.sourceforge.stripes.validation;
 
-import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.controller.StripesFilter;
 
-import java.util.ResourceBundle;
 import java.util.Locale;
+import java.util.ResourceBundle;
 
 /**
  * <p>Provides a mechanism for creating localizable error messages for presentation to the user.
@@ -48,9 +47,6 @@ import java.util.Locale;
  * @see java.util.ResourceBundle
  */
 public class LocalizableError extends SimpleError {
-    /** Log class used to log debugging information. */
-    public static final Log log = Log.getInstance(ValidationError.class);
-
     private String messageKey;
 
     /**
