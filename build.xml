@@ -71,11 +71,11 @@
             <zipfileset dir="${stripes.dir}/docs/taglib" includes="**/*" prefix="${zip-prefix}/docs/taglib"/>
             <zipfileset dir="${stripes.dir}/dist" includes="stripes.jar" prefix="${zip-prefix}/lib"/>
             <zipfileset dir="${stripes.dir}/lib/deploy" includes="*.jar" prefix="${zip-prefix}/lib"/>
-            <zipfileset dir="${stripes.dir}/lib/deploy" includes="*.license" prefix="${zip-prefix}lib"/>
-            <zipfileset dir="${examples.dir}/dist" includes="stripes-examples.war" prefix="${zip-prefix}examples"/>
-            <zipfileset dir="${examples.dir}" includes="src/**/*" prefix="${zip-prefix}examples"/>
-            <zipfileset dir="${examples.dir}/docs/api" includes="**/*" prefix="${zip-prefix}examples/javadoc"/>
-            <zipfileset dir="${examples.dir}/web" prefix="${zip-prefix}examples/webapp">
+            <zipfileset dir="${stripes.dir}/lib/deploy" includes="*.license" prefix="${zip-prefix}/lib"/>
+            <zipfileset dir="${examples.dir}/dist" includes="stripes-examples.war" prefix="${zip-prefix}/examples"/>
+            <zipfileset dir="${examples.dir}" includes="src/**/*" prefix="${zip-prefix}/examples"/>
+            <zipfileset dir="${examples.dir}/docs/api" includes="**/*" prefix="${zip-prefix}/examples/javadoc"/>
+            <zipfileset dir="${examples.dir}/web" prefix="${zip-prefix}/examples/webapp">
                 <exclude name="**/WEB-INF/classes**"/>
                 <exclude name="**/WEB-INF/lib**"/>
             </zipfileset>
