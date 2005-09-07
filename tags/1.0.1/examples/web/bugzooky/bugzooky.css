@@ -1,0 +1,92 @@
+/* Default style information for the page. */
+
+* {
+    font-family: sans-serif;
+    font-size: 12px;
+}
+
+body {
+    padding: 0px;
+    margin: 0px;
+}
+
+div.pageContent {
+    margin: 5px 5px 5px 5px;
+}
+
+a {
+    color: red;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+a:active {
+    color: white;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Style used to display the page header. */
+div.pageheader {
+    font-size: large;
+    color: #483D8B;
+    font-variant: small-caps;
+    margin: 10px;
+}
+
+div.sectionTitle {
+    font-size: larger;
+    font-style: italic;
+    color: #ff8c00;
+    margin: 0px 0px 15px 0px;
+}
+
+div.subtitle {
+    font-weight: bold;
+    color: #ff8c00;
+    margin: 10px 0px 5px 0px;
+}
+
+/* Styles used to make tables for displaying data. */
+table.display, table.display th, table.display td {
+    vertical-align: top;
+    padding: 2px 2px 2px 2px;
+    border-collapse: collapse;
+    border: 1px solid #999999;
+}
+
+table.display th {
+    vertical-align: middle;
+    background-color: #dcdcdc;
+}
+
+/* Style of the navigation list. */
+ul.topnav {
+    width: 90%;
+    background-color: #dcdcdc;
+}
+
+ul.topnav li {
+    display: inline;
+    list-style-type: none;
+    padding-right: 20px;
+}
+
+/* Default styles for form fields. */
+select {
+    width: 125px;
+}
+
+div.buttons {
+    margin: 5px 0px 5px 0px;
+    text-align: left;
+}
+
+/* Styles used for form fields in error. */
+input.error, textarea.error, select.error {
+    background-color: #ffd700;
+    border: 2px solid red;
+    color: red;
+}
