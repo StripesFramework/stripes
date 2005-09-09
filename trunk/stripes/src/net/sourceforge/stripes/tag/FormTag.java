@@ -126,13 +126,17 @@ public class FormTag extends HtmlTagSupport implements BodyTag {
             JspWriter out = getPageContext().getOut();
             writeOpenTag(out, "form");
 
-            // Write out a hiddien field with the name of the page in it
+            // Write out a hiddien field with the name of the page in it....
+            // The div is necessary in order to be XHTML compliant, where a form can contain
+            // only block level elements (which seems stupid, but whatever).
+            out.write("<div style=\"display: none;\">");
             out.write("<input type=\"hidden\" name=\"");
             out.write(StripesConstants.URL_KEY_SOURCE_PAGE);
             out.write("\" value=\"");
             HttpServletRequest request = (HttpServletRequest) getPageContext().getRequest();
             out.write( request.getServletPath());
-            out.write("\"/>");
+            out.write("\" />");
+            out.write("</div>");
 
             getBodyContent().writeOut( getPageContext().getOut() );
             writeCloseTag(getPageContext().getOut(), "form");
