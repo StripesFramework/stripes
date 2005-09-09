@@ -112,7 +112,6 @@ public abstract class HtmlTagSupport extends StripesTagSupport {
             writer.print(tag);
             writeAttributes(writer);
             writer.print(">");
-            writer.println();
         }
         catch (IOException ioe) {
             JspException jspe = new JspException("IOException encountered while writing open tag <" +
@@ -134,7 +133,6 @@ public abstract class HtmlTagSupport extends StripesTagSupport {
             writer.print("</");
             writer.print(tag);
             writer.print(">");
-            writer.println();
         }
         catch (IOException ioe) {
             JspException jspe = new JspException("IOException encountered while writing close tag </" +
@@ -157,8 +155,7 @@ public abstract class HtmlTagSupport extends StripesTagSupport {
             writer.print("<");
             writer.print(tag);
             writeAttributes(writer);
-            writer.print("/>");
-            writer.println();
+            writer.print(" />");
         }
         catch (IOException ioe) {
             JspException jspe = new JspException("IOException encountered while writing singleton tag <" +
