@@ -70,11 +70,24 @@ public class DefaultLocalizationBundleFactory implements LocalizationBundleFacto
      * @throws MissingResourceException if a suitable bundle cannot be found
      */
     public ResourceBundle getErrorMessageBundle(Locale locale) throws MissingResourceException {
-        if (locale == null) {
-            return ResourceBundle.getBundle(this.errorBundleName);
+        try {
+            if (locale == null) {
+                return ResourceBundle.getBundle(this.errorBundleName);
+            }
+            else {
+                return ResourceBundle.getBundle(this.errorBundleName, locale);
+            }
         }
-        else {
-            return ResourceBundle.getBundle(this.errorBundleName, locale);
+        catch (MissingResourceException mre) {
+            MissingResourceException mre2 = new MissingResourceException(
+                    "Could not find the error message resource bundle needed by Stripes. This " +
+                    "almost certainly means that a properties file called '" +
+                    this.errorBundleName + ".properties' could not be found in the classpath. " +
+                    "This properties file is needed to lookup validation error messages. Please " +
+                    "ensure the file exists in WEB-INF/classes or elsewhere in your classpath.",
+                    this.errorBundleName, "");
+            mre2.setStackTrace(mre.getStackTrace());
+            throw mre2;
         }
     }
 
@@ -87,11 +100,24 @@ public class DefaultLocalizationBundleFactory implements LocalizationBundleFacto
      * @throws MissingResourceException if a suitable bundle cannot be found
      */
     public ResourceBundle getFormFieldBundle(Locale locale) throws MissingResourceException {
-        if (locale == null) {
-            return ResourceBundle.getBundle(this.fieldBundleName);
+        try {
+            if (locale == null) {
+                return ResourceBundle.getBundle(this.fieldBundleName);
+            }
+            else {
+                return ResourceBundle.getBundle(this.fieldBundleName, locale);
+            }
         }
-        else {
-            return ResourceBundle.getBundle(this.fieldBundleName, locale);
+        catch (MissingResourceException mre) {
+            MissingResourceException mre2 = new MissingResourceException(
+                    "Could not find the form field resource bundle needed by Stripes. This " +
+                    "almost certainly means that a properties file called '" +
+                    this.fieldBundleName + ".properties' could not be found in the classpath. " +
+                    "This properties file is needed to lookup form field names. Please " +
+                    "ensure the file exists in WEB-INF/classes or elsewhere in your classpath.",
+                    this.fieldBundleName, "");
+            mre2.setStackTrace(mre.getStackTrace());
+            throw mre2;
         }
     }
 }
