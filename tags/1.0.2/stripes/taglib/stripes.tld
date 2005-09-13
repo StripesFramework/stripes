@@ -1,0 +1,1268 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+ * Copyright (C) 2005 Tim Fennell
+ *
+ * This library is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published by the
+ * Free Software Foundation; either version 2.1 of the License, or (at your
+ * option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
+ *
+ * You should have received a copy of the license with this software. If not,
+ * it can be found online at http://www.fsf.org/licensing/licenses/lgpl.html
+ *
+-->
+
+<taglib xmlns="http://java.sun.com/xml/ns/j2ee"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee
+        http://java.sun.com/xml/ns/j2ee/web-jsptaglibrary_2_0.xsd"
+        version="2.0">
+
+    <description>
+        Provides tags for use with the Stripes presentation framework.  There are three main
+        groups of tags in this tag library.  First come the HTML form tags.  These include
+        the form tag itself as well as tags for most of the input tag variants.  The second
+        is a set of tags for output error information, including 'errors', 'individual-error'
+        and others.  Last is a set of utility tags.  These include the wizard-fields tag which
+        can write out hidden fields for values in the request, the useActionBean tag to use
+        ActionBeans as view helpers and the link tags for generating links similar to forms.
+    </description>
+    <display-name>Stripes Tag Library</display-name>
+    <tlib-version>1.0</tlib-version>
+    <short-name>stripes</short-name>
+    <uri>http://stripes.sourceforge.net/stripes.tld</uri>
+
+    <validator>
+        <description>Performs basic validations that tags are nested correctly.</description>
+        <validator-class>net.sourceforge.stripes.tag.TagLibraryValidator</validator-class>
+    </validator>
+
+
+    <tag>
+        <description><![CDATA[
+            <p>Tag that generates HTML form fields of type
+            &lt;input type=&quot;button&quot; ... /&gt; which render buttons for submitting forms.
+            The only capability offered above and beyond a pure html tag is the ability to lookup
+            the value of the button (i.e. the text on the button that the user sees) from a
+            localized resource bundle.</p>
+
+            <p>The tag will set it's value using the first non-null result from the following list:</p>
+            <ul>
+              <li>formName.buttonName from the localized resource bundle</li>
+              <li>buttonName from the localized resource bundle</li>
+              <li>the body of the tag</li>
+              <li>the value attribute of the tag</li>
+            </ul>
+        ]]></description>
+        <display-name>button</display-name>
+        <name>button</name>
+        <tag-class>net.sourceforge.stripes.tag.InputButtonTag</tag-class>
+        <body-content>JSP</body-content>
+
+        <!-- Start: Standard Form Input attributes -->
+        <attribute><description>@name@</description><name>name</name><required>true</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@size@</description><name>size</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@value@</description><name>value</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@disabled@</description><name>disabled</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <!-- End: Standard Form Input   attributes -->
+
+        <!-- Start: Standard HTML attributes -->
+        <attribute><description>@accesskey@</description><name>accesskey</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@class@</description><name>class</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@dir@</description><name>dir</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@id@</description><name>id</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@lang@</description><name>lang</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onblur@</description><name>onblur</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onchange@</description><name>onchange</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onclick@</description><name>onclick</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@ondblclick@</description><name>ondblclick</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onfocus@</description><name>onfocus</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onkeydown@</description><name>onkeydown</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onkeypress@</description><name>onkeypress</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onkeyup@</description><name>onkeyup</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmousedown@</description><name>onmousedown</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmousemove@</description><name>onmousemove</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmouseout@</description><name>onmouseout</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmouseover@</description><name>onmouseover</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmouseup@</description><name>onmouseup</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onselect@</description><name>onselect</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@style@</description><name>style</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@tabindex@</description><name>tabindex</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@title@</description><name>title</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <!-- End: Standard HTML attributes -->
+    </tag>
+
+    <tag>
+        <description><![CDATA[
+            <p>Implements an HTML tag that generates form fields of type &lt;input type=&quot;
+            checkbox&quot;/&gt;.
+            Since a single checkbox widget on a HTML page can have only a single value, the value tag
+            attribute must always resolve to a scalar value which will be converted to a String using
+            the Stripes Formatting system, or by caling toString() if an appropriate Formatter is
+            not found.</p>
+
+            <p>Checkboxes perform automatic (re-)population of state.  They prefer, in order, values
+            in the HttpServletRequest, values in the ActionBean and lastly values set using
+            checked=&quot;&quot; on the page. The &quot;checked&quot; attribute is a complex
+            attribute and may be a Collection, an Array or a scalar Java Object.  In the first
+            two cases a check is performed to see if the value in the value=&quot;foo&quot;
+            attribute is one of the elements in the checked collection or array.  In the last case,
+            the value is matched directly against the String form of the checked attribute.
+            If in any case a checkbox's value matches then a checked=&quot;checked&quot;
+            attribute will be added to the HTML written.</p>
+
+            <p>The tag may include a body and if present the body is converted to a String and
+            overrides the <b>checked</b> tag attribute.</p>
+        ]]></description>
+        <display-name>checkbox</display-name>
+        <name>checkbox</name>
+        <tag-class>net.sourceforge.stripes.tag.InputCheckBoxTag</tag-class>
+        <body-content>JSP</body-content>
+
+        <attribute>
+            <description>
+                References either a scalar object/String or an Array or a Collection. If the value
+                of the checkbox is found to equal or be contained by the 'checked' object then the
+                checkbox will default to rendering as checked.
+            </description>
+            <name>checked</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.Object</type>
+        </attribute>
+        <attribute><description>@formatType@</description><name>formatType</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@formatPattern@</description><name>formatPattern</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+
+        <!-- Start: Standard Form Input attributes -->
+        <attribute>
+            <description>@value@</description>
+            <name>value</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.Object</type>
+        </attribute>
+        <attribute><description>@name@</description><name>name</name><required>true</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@size@</description><name>size</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@disabled@</description><name>disabled</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <!-- End: Standard Form Input   attributes -->
+
+        <!-- Start: Standard HTML attributes -->
+        <attribute><description>@accesskey@</description><name>accesskey</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@class@</description><name>class</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@dir@</description><name>dir</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@id@</description><name>id</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@lang@</description><name>lang</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onblur@</description><name>onblur</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onchange@</description><name>onchange</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onclick@</description><name>onclick</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@ondblclick@</description><name>ondblclick</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onfocus@</description><name>onfocus</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onkeydown@</description><name>onkeydown</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onkeypress@</description><name>onkeypress</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onkeyup@</description><name>onkeyup</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmousedown@</description><name>onmousedown</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmousemove@</description><name>onmousemove</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmouseout@</description><name>onmouseout</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmouseover@</description><name>onmouseover</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmouseup@</description><name>onmouseup</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onselect@</description><name>onselect</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@style@</description><name>style</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@tabindex@</description><name>tabindex</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@title@</description><name>title</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <!-- End: Standard HTML attributes -->
+    </tag>
+
+    <tag>
+        <description><![CDATA[
+            <p>Outputs validation errors. If an action attribute is specified, will only render errors if
+            the submitted form action matches the specified one. Otherwise, if nested inside a
+            stripes form tag, will only display errors if they are for the enclosing form. Otherwise
+            will display errors for whatever form was submitted.  Can optionally take a field name
+            to limit output to a single field's errors.</p>
+
+            <p>By default will output a simple header followed by a list of validation errors in an
+            HTML unordered list. This behaviour can be customized in two ways.  The first will
+            affect the default output of the errors tag on all pages within the application. The
+            errors tag will consult the error messages resource bundle (probably
+            StripesResources.properties unless you have configured it differently) for four String
+            resources which it will use to construct the output.  The four properties, and their
+            default values are:</p>
+
+            <ul>
+                <li>stripes.errors.header=&lt;div class=&quot;errorHeader&quot;&gt;Validation Errors&lt;/div&gt;&lt;ul&gt;</li>
+                <li>stripes.errors.footer=&lt;/ul&gt;</li>
+                <li>stripes.errors.beforeError=&lt;li&gt;</li>
+                <li>stripes.errors.afterError=&lt;/li&gt;</li>
+            </ul>
+
+            <p>The second way to customize the output affects only the output on a specific page.
+            The nestable tags are: stripes:individual-error, stripes:error-header and
+            stripes:error-footer. An example, re-creating the default output using this
+            technique follow:</p>
+
+<pre>&lt;stripes:errors&gt;
+     &lt;stripes:errors-header&gt;&lt;div class=&quot;errorHeader&quot;&gt;Validation Errors&lt;/div&gt;&lt;ul&gt;&lt;/stripes:errors-header&gt;
+     &lt;li&gt;&lt;stripes:individual-error/&gt;&lt;/li&gt;
+     &lt;stripes:errors-footer&gt;&lt;/ul&gt;&lt;/stripes:errors-footer&gt;
+&lt;/stripes:errors&gt;
+</pre>
+        ]]></description>
+        <display-name>errors</display-name>
+        <name>errors</name>
+        <tag-class>net.sourceforge.stripes.tag.ErrorsTag</tag-class>
+        <tei-class>net.sourceforge.stripes.tag.ErrorsTagExtraInfo</tei-class>
+        <body-content>JSP</body-content>
+        <attribute>
+            <description>
+                If supplied, the errors tag will only output errors for a form that posted to the
+                supplied action path. Can be used when there are multiple forms on the page and
+                you wish to display errors in different places for each form, but not necessarily
+                inside of the form tags.
+            </description>
+            <name>action</name><required>false</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>
+                If supplied, the errors tag will only output errors associated with the
+                named field.
+            </description>
+            <name>field</name><required>false</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <description>
+            Tag contents are displayed only when showing the last row of an errors tag.
+        </description>
+        <display-name>errors-footer</display-name>
+        <name>errors-footer</name>
+        <tag-class>net.sourceforge.stripes.tag.ErrorsFooterTag</tag-class>
+        <body-content>JSP</body-content>
+    </tag>
+
+    <tag>
+        <description>
+            Tag contents are displayed only when showing the first row of an errors tag.
+        </description>
+        <display-name>errors-header</display-name>
+        <name>errors-header</name>
+        <tag-class>net.sourceforge.stripes.tag.ErrorsHeaderTag</tag-class>
+        <body-content>JSP</body-content>
+    </tag>
+
+    <tag>
+        <description><![CDATA[
+            <p>Tag that generates HTML form fields of type &lt;input type=&quot;file&quot ... /&gt;.
+            The only functionality provided above and beyond a straight HTML input tag is that the
+            tag will find its enclosing form tag and ensure that the for is set to POST instead of
+            GET, and that the encoding type of the form is properly set to multipart/form-data as
+            both these settings are necessary to correctly perform file uploads.</p>
+
+            <p>Does not perform repopulation because default values for
+            &lt;input type=&quot;file&quot;/&gt; are not allowed by the HTML specification.  One
+            can only imagine this is because a malicous page author could steal a user's files by
+            defaulting the value and using JavaScript to auto-submit forms!  As a result the tag
+            does not accept a body because it would have no use for any generated content.</p>
+        ]]></description>
+        <display-name>file</display-name>
+        <name>file</name>
+        <tag-class>net.sourceforge.stripes.tag.InputFileTag</tag-class>
+        <body-content>empty</body-content>
+
+        <!-- Start: Standard Form Input attributes -->
+        <attribute><description>@name@</description><name>name</name><required>true</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@size@</description><name>size</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@disabled@</description><name>disabled</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <!-- End: Standard Form Input   attributes -->
+
+        <attribute>
+            <description>A comma separated list of mime-types accepted for file uploads. (HTML Pass-through)</description>
+            <name>accepts</name><required>false</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
+
+        <!-- Start: Standard HTML attributes -->
+        <attribute><description>@accesskey@</description><name>accesskey</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@class@</description><name>class</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@dir@</description><name>dir</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@id@</description><name>id</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@lang@</description><name>lang</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onblur@</description><name>onblur</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onchange@</description><name>onchange</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onclick@</description><name>onclick</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@ondblclick@</description><name>ondblclick</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onfocus@</description><name>onfocus</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onkeydown@</description><name>onkeydown</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onkeypress@</description><name>onkeypress</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onkeyup@</description><name>onkeyup</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmousedown@</description><name>onmousedown</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmousemove@</description><name>onmousemove</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmouseout@</description><name>onmouseout</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmouseover@</description><name>onmouseover</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmouseup@</description><name>onmouseup</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onselect@</description><name>onselect</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@style@</description><name>style</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@tabindex@</description><name>tabindex</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@title@</description><name>title</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <!-- End: Standard HTML attributes -->
+    </tag>
+
+    <tag>
+        <description>
+            Stripes' HTML form field tag. Provides a standard HTML form tag interface, but allows
+            other stripes input tags to re-populate their values.  Also includes a hidden field in
+            the form for the page name that the form is being rendered on (to allow forwarding to
+            the same page in the case of a validation error.
+        </description>
+        <display-name>form</display-name>
+        <name>form</name>
+        <tag-class>net.sourceforge.stripes.tag.FormTag</tag-class>
+        <body-content>JSP</body-content>
+
+        <attribute>
+            <description>
+                The URL to which this form will post. Expected to be a web-app relative path - the tag will pre-pend the context path
+                to any action that begins with a slash. Should match a URL to which an ActionBean has been bound.
+            </description>
+            <name>action</name><required>true</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>A comma separated list of content types that it is acceptable to submit through this form. (HTML Pass-through)</description>
+            <name>accept</name><required>false</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>A comma separated list of possible character sets for form data. Will be written to the page as accept-charset. (HTML Pass-through)</description>
+            <name>acceptcharset</name><required>false</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>
+                The mime type used to encode the content of this form. This value will be overridden if one or more Stripes
+                file input tags is used within the body of the form.
+            </description>
+            <name>enctype</name><required>false</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>The HTTP method used for sending data to the server. Options are GET and PUT. Default is GET. (HTML Pass-through)</description>
+            <name>method</name><required>false</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>The unique name of the form. (HTML Pass-through)</description>
+            <name>name</name><required>false</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>Where the target URL is to be opened. One of _blank, _self, _parent and _top. (HTML Pass-through)</description>
+            <name>target</name><required>false</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
+
+        <!-- Start: Standard HTML attributes -->
+        <attribute><description>@accesskey@</description><name>accesskey</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@class@</description><name>class</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@dir@</description><name>dir</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@id@</description><name>id</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@lang@</description><name>lang</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onblur@</description><name>onblur</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onchange@</description><name>onchange</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onclick@</description><name>onclick</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@ondblclick@</description><name>ondblclick</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onfocus@</description><name>onfocus</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onkeydown@</description><name>onkeydown</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onkeypress@</description><name>onkeypress</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onkeyup@</description><name>onkeyup</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmousedown@</description><name>onmousedown</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmousemove@</description><name>onmousemove</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmouseout@</description><name>onmouseout</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmouseover@</description><name>onmouseover</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmouseup@</description><name>onmouseup</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onselect@</description><name>onselect</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@style@</description><name>style</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@tabindex@</description><name>tabindex</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@title@</description><name>title</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <!-- End: Standard HTML attributes -->
+    </tag>
+
+    <tag>
+        <description><![CDATA[
+            <p>Generates one or more &lt;input type=&quot;hidden&quot; ... /&gt; HTML tags based on
+            the value supplied. The hidden tag assigns the value attribute by scanning in the
+            following order:
+            <ul>
+              <li>for one or more values with the same name in the HttpServletRequest</li>
+              <li>for a field on the ActionBean with the same name (if a bean instance is present)</li>
+              <li>by collapsing the body content to a String, if a body is present</li>
+              <li>referring to the result of the EL expression contained in the value attribute of the tag.</li>
+            </ul>
+            </p>
+
+            <p>The result of this scan can produce either a Collection, an Array or any other
+            Object. In the first two cases the tag will output an HTML hidden form field tag for
+            each value in the Collection or Array.  In all other cases the Object is toString()'d
+            (unless it is null) and a single hidden field will be written.</p>
+        ]]></description>
+        <display-name>hidden</display-name>
+        <name>hidden</name>
+        <tag-class>net.sourceforge.stripes.tag.InputHiddenTag</tag-class>
+        <body-content>JSP</body-content>
+
+        <!-- Start: Standard Form Input attributes -->
+        <attribute><description>@name@</description><name>name</name><required>true</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute>
+            <description>@value@</description>
+            <name>value</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.Object</type>
+        </attribute>
+        <!-- End: Standard Form Input   attributes -->
+        <attribute><description>@formatType@</description><name>formatType</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@formatPattern@</description><name>formatPattern</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+
+        <!-- Start: Standard HTML attributes -->
+        <attribute><description>@accesskey@</description><name>accesskey</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@class@</description><name>class</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@dir@</description><name>dir</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@id@</description><name>id</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@lang@</description><name>lang</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onblur@</description><name>onblur</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onchange@</description><name>onchange</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onclick@</description><name>onclick</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@ondblclick@</description><name>ondblclick</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onfocus@</description><name>onfocus</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onkeydown@</description><name>onkeydown</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onkeypress@</description><name>onkeypress</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onkeyup@</description><name>onkeyup</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmousedown@</description><name>onmousedown</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmousemove@</description><name>onmousemove</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmouseout@</description><name>onmouseout</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmouseover@</description><name>onmouseover</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmouseup@</description><name>onmouseup</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onselect@</description><name>onselect</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@style@</description><name>style</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@tabindex@</description><name>tabindex</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@title@</description><name>title</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <!-- End: Standard HTML attributes -->
+    </tag>
+
+    <tag>
+        <description>
+            Placeholder tag that is to be used only inside of a errors tag.  When nested inside
+            an errors tag, causes the errors tag to operate as an iterator, outputting its body
+            for each error present, placing the text of the error where the individual-error tag
+            is found.
+        </description>
+        <display-name>individual-error</display-name>
+        <name>individual-error</name>
+        <tag-class>net.sourceforge.stripes.tag.IndividualErrorTag</tag-class>
+        <body-content>empty</body-content>
+    </tag>
+
+    <tag>
+        <description><![CDATA[
+            <p>Tag that generates HTML links, used for linking to pages and ActionBean events
+            within a Stripes application. Works in concert with zero or more nested link-param tags
+            in order to allow addition of arbitrary parameters to any URL. The body of the tag,
+            minus any link-param tags, is trimmed for whitespace at either end, and is then used
+            as the contents of the link body.
+        ]]></description>
+        <display-name>link</display-name>
+        <name>link</name>
+        <tag-class>net.sourceforge.stripes.tag.LinkTag</tag-class>
+        <body-content>JSP</body-content>
+
+        <attribute>
+            <description>The character set used to encode the referenced page. (HTML Pass-through)</description>
+            <name>charset</name><required>false</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>Used to define a region for clicking in an image map. (HTML Pass-through)</description>
+            <name>coords</name><required>false</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>
+                The target URL. If the start of the URL does not match the current web application
+                context, then the context path will be prepended to the URL. (HTML Pass-through)
+            </description>
+            <name>href</name><required>false</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>The language of the target page. (HTML Pass-through)</description>
+            <name>hreflang</name><required>false</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>The name of an anchor.  (HTML Pass-through)</description>
+            <name>name</name><required>false</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>
+                Specified the relationship between the current page and the target URL.
+                (HTML Pass-through)
+            </description>
+            <name>rel</name><required>false</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>Like rel, but in reverse.</description>
+            <name>rev</name><required>false</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>Used to define a shape within an image map.</description>
+            <name>shape</name><required>false</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>The frame or window in which the link will open.</description>
+            <name>target</name><required>false</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>The MIME type of the target URL.</description>
+            <name>type</name><required>false</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
+
+        <!-- Start: Standard HTML attributes -->
+        <attribute><description>@accesskey@</description><name>accesskey</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@class@</description><name>class</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@dir@</description><name>dir</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@id@</description><name>id</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@lang@</description><name>lang</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onblur@</description><name>onblur</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onchange@</description><name>onchange</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onclick@</description><name>onclick</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@ondblclick@</description><name>ondblclick</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onfocus@</description><name>onfocus</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onkeydown@</description><name>onkeydown</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onkeypress@</description><name>onkeypress</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onkeyup@</description><name>onkeyup</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmousedown@</description><name>onmousedown</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmousemove@</description><name>onmousemove</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmouseout@</description><name>onmouseout</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmouseover@</description><name>onmouseover</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmouseup@</description><name>onmouseup</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onselect@</description><name>onselect</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@style@</description><name>style</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@tabindex@</description><name>tabindex</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@title@</description><name>title</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <!-- End: Standard HTML attributes -->
+    </tag>
+
+    <tag>
+        <description><![CDATA[
+            Used to add parameters to a link that has been created with a stripes:link tag. If
+            the value attribute is present it will be used. If the value attribute is not present,
+            then the body of the tag will be used as the parameter value.  The value attribute
+            may identify either a scalar value, an Array or a Collection.  In the latter two cases
+            a URL parameter will be added per value in the Array or Collection.
+        ]]></description>
+        <display-name>link-param</display-name>
+        <name>link-param</name>
+        <tag-class>net.sourceforge.stripes.tag.LinkParamTag</tag-class>
+        <body-content>JSP</body-content>
+        <attribute>
+            <description>The name of the URL parameter.</description>
+            <name>name</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>The value (or values) of the URL parameter.</description>
+            <name>value</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.Object</type>
+        </attribute>
+    </tag>
+
+    <tag>
+        <description><![CDATA[
+            <p>Generates an &lt;option value=&quot;foo&quot;&gt;Fooey&lt;/option&gt; HTML tag.
+            Coordinates with an enclosing select tag to determine it's state (i.e. whether or not
+            it is selected.)  As a result some of the logic regarding state repopulation is a bit
+            complex.</p>
+
+            <p>Since options can have only a single value per option the value attribute of the tag
+            must be a scalar, which will be converted into a String using a Formatter if an
+            appropriate one can be found, otherwise the toString() method will be invoked.The
+            presence of a &quot;selected&quot; attribute is used as an indication that this option
+            believes it should be selected by default - the value (as opposed to the presence)
+            of the selected attribute is never used....</p>
+
+            <p>The option tag delegates to its enclosing select tag to determine whether or not it
+            should be selected.  See the stripes:select for documentation on how it determines
+            selection status.  If the select tag <em>has no opinion</em> on selection state
+            (note that this is not the same as select tag deeming the option should not be selected)
+            then the presence of the selected attribute (or lack thereof) is used to turn selection
+            on or off.</p>
+
+            <p>If the option has a body then the String value of that body will be used to generate
+            the body of the generated HTML option.  If the body is empty or not present then the
+            label attribute will be written into the body of the tag.</p>
+        ]]></description>
+        <display-name>option</display-name>
+        <name>option</name>
+        <tag-class>net.sourceforge.stripes.tag.InputOptionTag</tag-class>
+        <body-content>JSP</body-content>
+
+        <attribute>
+            <description>
+                The value that will be submitted to the server if this option is selected. Will be
+                rendered as a String using the Stripes Formatting service, which will apply a
+                formatter if an applicable one is found, or call toString() if one is not.
+            </description>
+            <name>value</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.Object</type>
+        </attribute>
+        <attribute>
+            <description>A value to use as the body of the generated HTML label tag.</description>
+            <name>label</name><required>false</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>
+                If present, and the parent select tag had no value= attribute, causes
+                the option to be selected by default.  The value is ignored, only presence in meaningful.
+            </description>
+            <name>selected</name><required>false</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute><description>@disabled@</description><name>disabled</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@formatType@</description><name>formatType</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@formatPattern@</description><name>formatPattern</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+
+        <!-- Start: Standard HTML attributes -->
+        <attribute><description>@accesskey@</description><name>accesskey</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@class@</description><name>class</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@dir@</description><name>dir</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@id@</description><name>id</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@lang@</description><name>lang</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onblur@</description><name>onblur</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onchange@</description><name>onchange</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onclick@</description><name>onclick</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@ondblclick@</description><name>ondblclick</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onfocus@</description><name>onfocus</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onkeydown@</description><name>onkeydown</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onkeypress@</description><name>onkeypress</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onkeyup@</description><name>onkeyup</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmousedown@</description><name>onmousedown</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmousemove@</description><name>onmousemove</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmouseout@</description><name>onmouseout</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmouseover@</description><name>onmouseover</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmouseup@</description><name>onmouseup</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onselect@</description><name>onselect</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@style@</description><name>style</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@tabindex@</description><name>tabindex</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@title@</description><name>title</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <!-- End: Standard HTML attributes -->
+    </tag>
+
+    <tag>
+        <description><![CDATA[
+            <p>Writes a set of &lt;option value=&quot;foo&quot;&gt;bar&lt;/option&gt; tags to the
+            page based on the contents of a Collection.  Each element in the collection is
+            represented by a single option tag on the page.  Uses the label and value attributes
+            on the tag to name the properties of the objects in the Collection that should be used
+            to generate the body of the HTML option tag and the value attribute of the HTML option
+            tag respectively.  If either (or both) of the label or value properties are ommitted
+            the item itself will be used for the label/value instead - this is done to support
+            collections of simple types like Strings and Numbers.</p>
+
+            <p>E.g. a tag declaration that looks like:</p>
+            <pre>&lt;stripes:options-collection collection=&quot;${cats}&quot; value=&quot;catId&quot; label=&quot;name&quot;/&gt;</pre>
+
+            <p>would cause the container to look for a Collection called &quot;cats&quot; across
+            the various JSP scopes and set it on the tag.  The tag would then proceed to iterate
+            through that collection calling getCatId() and getName() on each cat to produce
+            HTML option tags.</p>
+
+            <p>All other attributes on the tag (other than collection, value and label) are passed
+            directly through to the stripes:option tag which is used to generate the individual
+            HTML options tags. As a result the stripes:options-collection will exhibit the
+            same re-population/selection behaviour as the regular options tag.</p>
+
+            <p>Since the tag has no use for one it does not allow a body.</p>
+        ]]></description>
+        <display-name>options-collection</display-name>
+        <name>options-collection</name>
+        <tag-class>net.sourceforge.stripes.tag.InputOptionsCollectionTag</tag-class>
+        <body-content>empty</body-content>
+
+        <attribute>
+            <description>
+                The name of the property (of the beans in the collection) that should be used to
+                generate the value of each option (i.e. the value that is sent to the server).
+            </description>
+            <name>value</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute>
+            <description>
+                The name of the property (of the beans in the collection) that should be used to
+                generate the label of each option (i.e. the text displayed to the user).
+            </description>
+            <name>label</name><required>false</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>
+                The collection of beans to use to generate options.  This value must resolve to
+                a Collection, and therefore it will most often be an EL expression
+                (or a scriptlet, if you must).
+            </description>
+            <name>collection</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.util.Collection</type>
+        </attribute>
+
+        <!-- Start: Standard HTML attributes -->
+        <attribute><description>@accesskey@</description><name>accesskey</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@class@</description><name>class</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@dir@</description><name>dir</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@id@</description><name>id</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@lang@</description><name>lang</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onblur@</description><name>onblur</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onchange@</description><name>onchange</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onclick@</description><name>onclick</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@ondblclick@</description><name>ondblclick</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onfocus@</description><name>onfocus</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onkeydown@</description><name>onkeydown</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onkeypress@</description><name>onkeypress</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onkeyup@</description><name>onkeyup</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmousedown@</description><name>onmousedown</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmousemove@</description><name>onmousemove</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmouseout@</description><name>onmouseout</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmouseover@</description><name>onmouseover</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmouseup@</description><name>onmouseup</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onselect@</description><name>onselect</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@style@</description><name>style</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@tabindex@</description><name>tabindex</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@title@</description><name>title</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <!-- End: Standard HTML attributes -->
+    </tag>
+
+    <tag>
+        <description><![CDATA[
+            <p>Writes a set of &lt;option value=&quot;foo&quot;&gt;bar&lt;/option&gt; tags to the
+            page based on the values of a enum.  Each value in the enum is represented by a single
+            option tag on the page. The options will be generated in ordinal value order (i.e. the
+            order they are declared in the enum). Uses the label attribute on the tag to name the
+            property of the enum that should be used to generate the body of the HTML option tag.
+            If the label attribute is not set then the tag will call toString() on the enum value
+            and use that as the body of the tag.</p>
+
+            <p>E.g. a tag declaration that looks like:</p>
+              <pre>&lt;stripes:options-enumeration collection=&quot;net.kitty.EyeColor&quot;/&gt;}</pre>
+
+            <p>would result in the tag attempting to invoke
+            <tt>Class.forName(&quot;net.kitty.EyeColor&quot;)</tt> and cast the result to type
+            Class&lt;Enum&gt;. If that fails, a JspException will be raised.  The tag will then
+            proceed to call name() in order to fetch the value of the enum and use that for the
+            value of the option, and call toString() to provide the body of the option because a
+            label attribute was not specified.</p>
+
+            <p>All other attributes on the tag (other than enum and label) are passed directly
+            through to the stripes:option which is used to generate the individual HTML options
+            tags. As a result the stripes:options-enumeration will exhibit the same
+            re-population/selection behaviour as the regular option tag.</p>
+
+            <p>Since the tag has no use for one it does not allow a body.</p>
+        ]]></description>
+        <display-name>options-enumeration</display-name>
+        <name>options-enumeration</name>
+        <tag-class>net.sourceforge.stripes.tag.InputOptionsEnumerationTag</tag-class>
+        <body-content>empty</body-content>
+
+        <attribute>
+            <description>
+                The fully qualified name of a Class that is a JDK1.5 enum.
+            </description>
+            <name>enum</name><required>true</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>
+                The name of the property to be used at the label of each option. If not specifed
+                the toString() method will be called on the enumerated objects to supply the
+                user-visible text.
+            </description>
+            <name>label</name><required>false</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
+
+        <!-- Start: Standard HTML attributes -->
+        <attribute><description>@accesskey@</description><name>accesskey</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@class@</description><name>class</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@dir@</description><name>dir</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@id@</description><name>id</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@lang@</description><name>lang</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onblur@</description><name>onblur</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onchange@</description><name>onchange</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onclick@</description><name>onclick</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@ondblclick@</description><name>ondblclick</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onfocus@</description><name>onfocus</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onkeydown@</description><name>onkeydown</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onkeypress@</description><name>onkeypress</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onkeyup@</description><name>onkeyup</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmousedown@</description><name>onmousedown</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmousemove@</description><name>onmousemove</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmouseout@</description><name>onmouseout</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmouseover@</description><name>onmouseover</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmouseup@</description><name>onmouseup</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onselect@</description><name>onselect</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@style@</description><name>style</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@tabindex@</description><name>tabindex</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@title@</description><name>title</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <!-- End: Standard HTML attributes -->
+    </tag>
+
+    <tag>
+        <description><![CDATA[
+            <p>Generates &lt;input type=&quot;radio&quot; value=&quot;foo&quot;/&gt; HTML tags
+            based on the attribute set on the tag and the state of the form. Since a single radio
+            button widget on a HTML page can have only a single value, the value tag attribute must
+            be a Scalar object.  The value will be converted to a String using the Stripes
+            formatting system (with appropriate defaults), or by calling toString if an appropriate
+            Formatter does not exist. Similarly since radio button sets can have only a single
+            selected value at a time the checked attribute of the tag must also be a scalar value.</p>
+
+            <p>Radio buttons perform automatic (re-)population of state.  They prefer, in order, the value
+            in the HttpServletRequest, the value in the ActionBean and lastly the valuee set using
+            checked="" on the page.  If the value of the current radio button matches the checked value
+            from the preferred source then the attribute checked="checked" will be written in the HTML
+            tag.</p>
+
+            <p>The tag may include a body and if present the body is converted to a String and overrides the
+            <b>checked</b> tag attribute.</p>
+        ]]></description>
+        <display-name>radio</display-name>
+        <name>radio</name>
+        <tag-class>net.sourceforge.stripes.tag.InputRadioButtonTag</tag-class>
+        <body-content>JSP</body-content>
+
+        <attribute>
+            <description>
+                When the form is first rendered, if this attribute is present then checked=checked
+                will be written to the HTML tag to select it by default.
+            </description>
+            <name>checked</name><required>false</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute><description>@formatType@</description><name>formatType</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@formatPattern@</description><name>formatPattern</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+
+        <!-- Start: Standard Form Input attributes -->
+        <attribute>
+            <description>@value@</description>
+            <name>value</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.Object</type>
+        </attribute>
+        <attribute><description>@name@</description><name>name</name><required>true</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@size@</description><name>size</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@disabled@</description><name>disabled</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <!-- End: Standard Form Input   attributes -->
+
+
+        <!-- Start: Standard HTML attributes -->
+        <attribute><description>@accesskey@</description><name>accesskey</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@class@</description><name>class</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@dir@</description><name>dir</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@id@</description><name>id</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@lang@</description><name>lang</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onblur@</description><name>onblur</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onchange@</description><name>onchange</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onclick@</description><name>onclick</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@ondblclick@</description><name>ondblclick</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onfocus@</description><name>onfocus</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onkeydown@</description><name>onkeydown</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onkeypress@</description><name>onkeypress</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onkeyup@</description><name>onkeyup</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmousedown@</description><name>onmousedown</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmousemove@</description><name>onmousemove</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmouseout@</description><name>onmouseout</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmouseover@</description><name>onmouseover</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmouseup@</description><name>onmouseup</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onselect@</description><name>onselect</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@style@</description><name>style</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@tabindex@</description><name>tabindex</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@title@</description><name>title</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <!-- End: Standard HTML attributes -->
+    </tag>
+
+    <tag>
+        <description><![CDATA[
+            <p>Tag that generates HTML form fields of type
+            &lt;input type=&quot;reset&quot; ... /&gt; which render buttons for resetting forms.
+            The only capability offered above and beyond a pure html tag is the ability to lookup
+            the value of the button (i.e. the text on the button that the user sees) from a
+            localized resource bundle.</p>
+
+            <p>The tag will set it's value using the first non-null result from the following list:</p>
+            <ul>
+              <li>formName.buttonName from the localized resource bundle</li>
+              <li>buttonName from the localized resource bundle</li>
+              <li>the body of the tag</li>
+              <li>the value attribute of the tag</li>
+            </ul>
+        ]]></description>
+        <display-name>reset</display-name>
+        <name>reset</name>
+        <tag-class>net.sourceforge.stripes.tag.InputResetTag</tag-class>
+        <body-content>JSP</body-content>
+
+        <!-- Start: Standard Form Input attributes -->
+        <attribute><description>@name@</description><name>name</name><required>true</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@size@</description><name>size</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@value@</description><name>value</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@disabled@</description><name>disabled</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <!-- End: Standard Form Input   attributes -->
+
+        <!-- Start: Standard HTML attributes -->
+        <attribute><description>@accesskey@</description><name>accesskey</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@class@</description><name>class</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@dir@</description><name>dir</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@id@</description><name>id</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@lang@</description><name>lang</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onblur@</description><name>onblur</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onchange@</description><name>onchange</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onclick@</description><name>onclick</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@ondblclick@</description><name>ondblclick</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onfocus@</description><name>onfocus</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onkeydown@</description><name>onkeydown</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onkeypress@</description><name>onkeypress</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onkeyup@</description><name>onkeyup</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmousedown@</description><name>onmousedown</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmousemove@</description><name>onmousemove</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmouseout@</description><name>onmouseout</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmouseover@</description><name>onmouseover</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmouseup@</description><name>onmouseup</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onselect@</description><name>onselect</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@style@</description><name>style</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@tabindex@</description><name>tabindex</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@title@</description><name>title</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <!-- End: Standard HTML attributes -->
+    </tag>
+
+    <tag>
+        <description><![CDATA[
+            <p>Coordinates with one or more other tags to produce a well formed HTML select tag
+            with state repopulation. The select tag itself really only writes out the basic
+            &lt;select&gt; name=&quot;foo&quot;&gt; ... &lt;/select&gt; piece of the structure,
+            and provides mechanisms for child options to determine whether or not they should
+            render themselves as selected.</p>
+        ]]></description>
+        <display-name>select</display-name>
+        <name>select</name>
+        <tag-class>net.sourceforge.stripes.tag.InputSelectTag</tag-class>
+        <body-content>JSP</body-content>
+
+        <!-- Start: Standard Form Input attributes -->
+        <attribute><description>@name@</description><name>name</name><required>true</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@size@</description><name>size</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute>
+            <description>
+                Determines what options within the select are rendered by default. May be a String,
+                Object, Array or Collection.  In the first two cases, any option with a matching
+                value will be rendered as selected. In the second two cases any option with a value
+                matching one of potentially many values will be rendered as selected.
+            </description>
+            <name>value</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.Object</type>
+        </attribute>
+        <attribute><description>@disabled@</description><name>disabled</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute>
+            <description>
+                The presence of this attribute will make the select render as a multi-select list
+                instead of a drop-down single-select widget. (HTML Pass-through)
+            </description>
+            <name>multiple</name><required>false</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <!-- End: Standard Form Input   attributes -->
+
+        <!-- Start: Standard HTML attributes -->
+        <attribute><description>@accesskey@</description><name>accesskey</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@class@</description><name>class</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@dir@</description><name>dir</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@id@</description><name>id</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@lang@</description><name>lang</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onblur@</description><name>onblur</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onchange@</description><name>onchange</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onclick@</description><name>onclick</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@ondblclick@</description><name>ondblclick</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onfocus@</description><name>onfocus</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onkeydown@</description><name>onkeydown</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onkeypress@</description><name>onkeypress</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onkeyup@</description><name>onkeyup</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmousedown@</description><name>onmousedown</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmousemove@</description><name>onmousemove</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmouseout@</description><name>onmouseout</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmouseover@</description><name>onmouseover</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmouseup@</description><name>onmouseup</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onselect@</description><name>onselect</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@style@</description><name>style</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@tabindex@</description><name>tabindex</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@title@</description><name>title</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <!-- End: Standard HTML attributes -->
+    </tag>
+
+    <tag>
+        <description><![CDATA[
+            <p>Tag that generates HTML form fields of type
+            &lt;input type=&quot;submit&quot; ... /&gt; which render buttons for submitting forms.
+            The only capability offered above and beyond a pure html tag is the ability to lookup
+            the value of the button (i.e. the text on the button that the user sees) from a
+            localized resource bundle.</p>
+
+            <p>The tag will set it's value using the first non-null result from the following list:</p>
+            <ul>
+              <li>formName.buttonName from the localized resource bundle</li>
+              <li>buttonName from the localized resource bundle</li>
+              <li>the body of the tag</li>
+              <li>the value attribute of the tag</li>
+            </ul>
+        ]]></description>
+        <display-name>submit</display-name>
+        <name>submit</name>
+        <tag-class>net.sourceforge.stripes.tag.InputSubmitTag</tag-class>
+        <body-content>JSP</body-content>
+
+        <!-- Start: Standard Form Input attributes -->
+        <attribute><description>@name@</description><name>name</name><required>true</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@size@</description><name>size</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@value@</description><name>value</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@disabled@</description><name>disabled</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <!-- End: Standard Form Input   attributes -->
+
+        <!-- Start: Standard HTML attributes -->
+        <attribute><description>@accesskey@</description><name>accesskey</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@class@</description><name>class</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@dir@</description><name>dir</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@id@</description><name>id</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@lang@</description><name>lang</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onblur@</description><name>onblur</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onchange@</description><name>onchange</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onclick@</description><name>onclick</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@ondblclick@</description><name>ondblclick</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onfocus@</description><name>onfocus</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onkeydown@</description><name>onkeydown</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onkeypress@</description><name>onkeypress</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onkeyup@</description><name>onkeyup</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmousedown@</description><name>onmousedown</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmousemove@</description><name>onmousemove</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmouseout@</description><name>onmouseout</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmouseover@</description><name>onmouseover</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmouseup@</description><name>onmouseup</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onselect@</description><name>onselect</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@style@</description><name>style</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@tabindex@</description><name>tabindex</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@title@</description><name>title</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <!-- End: Standard HTML attributes -->
+    </tag>
+
+    <tag>
+        <description><![CDATA[
+            <p>Tag that generates HTML form fields of type
+            &lt;input type=&quot;text&quot; name=&quot;foo&quot; value=&quot;bar&quot;/&gt;, which can
+            dynamically re-populate their value. Text tags may have only a single value, whose
+            default may be set using either the body of the tag, or using the value=&quot;&quot;
+            attribute of the tag. At runtime the contents of the text field are determined by
+            looking for the first non-null value in the following list:</p>
+
+            <ul>
+              <li>A value with the same name in the HttpServletRequest</li>
+              <li>A value on the ActionBean if an ActionBean instance is present</li>
+              <li>The contents of the body of the tag</li>
+              <li>The value attribute of the tag</li>
+            </ol>
+        ]]></description>
+        <display-name>text</display-name>
+        <name>text</name>
+        <tag-class>net.sourceforge.stripes.tag.InputTextTag</tag-class>
+        <body-content>JSP</body-content>
+
+        <!-- Start: Standard Form Input attributes -->
+        <attribute><description>@name@</description><name>name</name><required>true</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@size@</description><name>size</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@value@</description><name>value</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@disabled@</description><name>disabled</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <!-- End: Standard Form Input   attributes -->
+
+        <attribute><description>@readonly@</description><name>readonly</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@maxlength@</description><name>maxlength</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@formatType@</description><name>formatType</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@formatPattern@</description><name>formatPattern</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+
+        <!-- Start: Standard HTML attributes -->
+        <attribute><description>@accesskey@</description><name>accesskey</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@class@</description><name>class</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@dir@</description><name>dir</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@id@</description><name>id</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@lang@</description><name>lang</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onblur@</description><name>onblur</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onchange@</description><name>onchange</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onclick@</description><name>onclick</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@ondblclick@</description><name>ondblclick</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onfocus@</description><name>onfocus</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onkeydown@</description><name>onkeydown</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onkeypress@</description><name>onkeypress</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onkeyup@</description><name>onkeyup</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmousedown@</description><name>onmousedown</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmousemove@</description><name>onmousemove</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmouseout@</description><name>onmouseout</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmouseover@</description><name>onmouseover</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmouseup@</description><name>onmouseup</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onselect@</description><name>onselect</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@style@</description><name>style</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@tabindex@</description><name>tabindex</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@title@</description><name>title</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <!-- End: Standard HTML attributes -->
+    </tag>
+
+    <tag>
+        <description><![CDATA[
+            <p>Tag that generates HTML form fields of type
+            &lt;textarea name=&quot;foo&quot;&gt; ... &lt;/textarea&gt;, which can dynamically
+            re-populate their value. Textareas may have only a single value, whose default may be
+            set using either the body of the textarea, or using the value=&quot;&quot; attribute
+            of the tag. At runtime the contents of the textarea are determined by looking for the
+            first non-null value in the following list:</p>
+
+            <ul>
+              <il>A value with the same name in the HttpServletRequest</li>
+              <il>A value on the ActionBean if an ActionBean instance is present</li>
+              <il>The contents of the body of the textarea</li>
+              <il>The value attribute of the tag</li>
+            </ul>
+        ]]></description>
+        <display-name>textarea</display-name>
+        <name>textarea</name>
+        <tag-class>net.sourceforge.stripes.tag.InputTextAreaTag</tag-class>
+        <body-content>JSP</body-content>
+
+        <!-- Start: Standard Form Input attributes -->
+        <attribute><description>@name@</description><name>name</name><required>true</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute>
+            <description>@value@</description>
+            <name>value</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.Object</type>
+        </attribute>
+        <attribute><description>@disabled@</description><name>disabled</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <!-- End: Standard Form Input   attributes -->
+
+        <attribute><description>@readonly@</description><name>readonly</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute>
+            <description>The number of rows high to make the textarea. (HTML Pass-through)</description>
+            <name>rows</name><required>false</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>The number of columns wide to make the textarea. (HTML Pass-through)</description>
+            <name>cols</name><required>false</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute><description>@formatType@</description><name>formatType</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@formatPattern@</description><name>formatPattern</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+
+        <!-- Start: Standard HTML attributes -->
+        <attribute><description>@accesskey@</description><name>accesskey</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@class@</description><name>class</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@dir@</description><name>dir</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@id@</description><name>id</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@lang@</description><name>lang</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onblur@</description><name>onblur</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onchange@</description><name>onchange</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onclick@</description><name>onclick</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@ondblclick@</description><name>ondblclick</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onfocus@</description><name>onfocus</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onkeydown@</description><name>onkeydown</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onkeypress@</description><name>onkeypress</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onkeyup@</description><name>onkeyup</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmousedown@</description><name>onmousedown</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmousemove@</description><name>onmousemove</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmouseout@</description><name>onmouseout</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmouseover@</description><name>onmouseover</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmouseup@</description><name>onmouseup</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onselect@</description><name>onselect</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@style@</description><name>style</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@tabindex@</description><name>tabindex</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@title@</description><name>title</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <!-- End: Standard HTML attributes -->
+    </tag>
+
+    <tag>
+        <description><![CDATA[
+            <p>Puts the ActionBean with the specified binding into page context under the
+            supplied name. If the ActionBean does not already exist, it will be instantiated
+            and binding will be run to bind values from the HttpServletRequest onto the
+            ActionBean.  Validation will not be run, and any error messages produced from
+            the binding/type conversion process will be discarded.  The ActionBean will
+            then be placed in request scope, just as done by the DispatcherServlet.</p>
+
+            <p>If the ActionBean did not previously exist, and an event is specified, the event
+            handler will be executed on the ActionBean.  If the ActionBean already existed,
+            supplying the event attribute has no effect.</p>
+
+            <p>Lastly, if the var or id attribute is supplied (they are synonymous and only
+            one should be supplied) the ActionBean is bound in to page context using the name
+            supplied.  This is true in all cases, regardless of whether the ActionBean is newly
+            instantiated, or pre-existing.  This allows the tag to be used to provide an easier
+            name for the ActionBean than referring to it by binding.</p>
+        ]]></description>
+        <display-name>useActionBean</display-name>
+        <name>useActionBean</name>
+        <tag-class>net.sourceforge.stripes.tag.UseActionBeanTag</tag-class>
+        <body-content>empty</body-content>
+        <attribute>
+            <description>
+                The URL to which the action bean is bound, as specified in the @UrlBinding
+                for the ActionBean in question.
+            </description>
+            <name>binding</name><required>true</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>
+                The (optional) name of an event to execute. If no event is provided, the
+                ActionBean is instantiated and bound, but no event is executed. To execute the
+                default event handler you must give it a name in the ActionBean and name it here.
+            </description>
+            <name>event</name><required>false</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>
+                The (optional) name of an attribute to bind the bean to in page context.
+            </description>
+            <name>var</name><required>false</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>
+                Synonym for var.
+            </description>
+            <name>id</name><required>false</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <description><![CDATA[
+            <p>Examines the request and include hidden fields for all parameters that have do
+            not have form fields in the current form. Will include multiple values for
+            parameters that have them.  Excludes 'special' parameters like the source
+            page parameter, and the paramter that conveyed the event name.</p>
+
+            <p>Very useful for implementing basic wizard flow without relying on session
+            scoping of ActionBeans, and without having to name all the parameters that
+            should be carried forward in the form.</p>
+        ]]></description>
+        <display-name>wizard-fields</display-name>
+        <name>wizard-fields</name>
+        <tag-class>net.sourceforge.stripes.tag.WizardFieldsTag</tag-class>
+        <body-content>empty</body-content>
+        <attribute>
+            <description>
+                If set to true, hidden fields will only be written if the form in which the tag
+                is nested was the same form (or more specifically has the same action) as the
+                form that was submitted in the request being processed. Can be used to ensure
+                that wizarding only occurs withing a specific form and does not spill-over into
+                other forms if that is undesirable.
+            </description>
+            <name>currentFormOnly</name>
+            <type>boolean</type>
+        </attribute>
+    </tag>
+</taglib>
