@@ -1,14 +1,14 @@
 package net.sourceforge.stripes.examples.bugzooky.web;
 
 import net.sourceforge.stripes.action.DefaultHandler;
-import net.sourceforge.stripes.action.ForwardResolution;
 import net.sourceforge.stripes.action.HandlesEvent;
+import net.sourceforge.stripes.action.RedirectResolution;
 import net.sourceforge.stripes.action.Resolution;
 import net.sourceforge.stripes.action.UrlBinding;
 import net.sourceforge.stripes.examples.bugzooky.biz.Component;
 import net.sourceforge.stripes.examples.bugzooky.biz.ComponentManager;
-import net.sourceforge.stripes.validation.ValidateNestedProperties;
 import net.sourceforge.stripes.validation.Validate;
+import net.sourceforge.stripes.validation.ValidateNestedProperties;
 
 import java.util.List;
 
@@ -58,6 +58,6 @@ public class AdministerComponentsActionBean extends BugzookyActionBean {
             }
         }
 
-        return new ForwardResolution("/bugzooky/AdministerBugzooky.jsp");
+        return new RedirectResolution("/bugzooky/AdministerBugzooky.jsp");
     }
 }
