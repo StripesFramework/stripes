@@ -35,12 +35,14 @@ public class DefaultTypeConverterFactory implements TypeConverterFactory {
         new HashMap<Class, Class<? extends TypeConverter>>();
 
     /** Stores a reference to the Configuration passed in at initialization time. */
-    protected Configuration configuration;
+    private Configuration configuration;
 
     /**
      * Places all the known convertible types and type converters into an instance level Map.
      */
     public void init(Configuration configuration) {
+        this.configuration = configuration;
+
         converters.put(Boolean.class, BooleanTypeConverter.class);
         converters.put(Boolean.TYPE,  BooleanTypeConverter.class);
         converters.put(Byte.class,    ByteTypeConverter.class);
@@ -56,6 +58,32 @@ public class DefaultTypeConverterFactory implements TypeConverterFactory {
         converters.put(Double.class,  DoubleTypeConverter.class);
         converters.put(Double.TYPE,   DoubleTypeConverter.class);
         converters.put(Date.class,    DateTypeConverter.class);
+    }
+
+    /** Provides subclasses with access to the configuration provided at initialization. */
+    protected Configuration getConfiguration() {
+        return this.configuration;
+    }
+
+    /**
+     * Gets the (rather confusing) Map of TypeConverter objects.  The Map uses the target class
+     * as the key in the Map, and the Class object representing the TypeConverter as the value.
+     *
+     * @return the Map of TypeConverter classes
+     */
+    protected Map<Class,Class<? extends TypeConverter>> getTypeConverters() {
+        return this.converters;
+    }
+
+    /**
+     * Adds a TypeConverter to the set of registered TypeConverters, overriding an existing
+     * converter if one was registered for the type.
+     *
+     * @param targetType the type for which the converter will handle conversions
+     * @param converterClass the implementation class that will handle the conversions
+     */
+    protected void add(Class targetType, Class<? extends TypeConverter> converterClass) {
+        this.converters.put(targetType, converterClass);
     }
 
     /**
