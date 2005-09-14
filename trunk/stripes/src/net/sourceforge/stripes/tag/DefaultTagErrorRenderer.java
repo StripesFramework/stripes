@@ -34,7 +34,6 @@ package net.sourceforge.stripes.tag;
  * @author Greg Hinkle, Tim Fennell
  */
 public class DefaultTagErrorRenderer implements TagErrorRenderer {
-
     private InputTagSupport tag;
     private String oldCssClass;
 
@@ -44,7 +43,17 @@ public class DefaultTagErrorRenderer implements TagErrorRenderer {
     }
 
     /**
-     * Changes the tag's class attribute to "error".
+     * Returns the tag which is being rendered. Useful mostly when subclassing the default
+     * renderer to add further functionality.
+     *
+     * @return the input tag being rendered
+     */
+    protected InputTagSupport getTag() {
+        return this.tag;
+    }
+
+    /**
+     * Ensures that the tag's list of CSS classes includes the "error" class.
      */
     public void doBeforeStartTag() {
         this.oldCssClass = tag.getCssClass();
@@ -62,5 +71,4 @@ public class DefaultTagErrorRenderer implements TagErrorRenderer {
     public void doAfterEndTag() {
         tag.setCssClass(oldCssClass);
     }
-
 }
