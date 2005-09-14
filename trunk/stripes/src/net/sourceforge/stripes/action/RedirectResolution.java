@@ -21,21 +21,41 @@ import javax.servlet.ServletException;
 import java.io.IOException;
 
 /**
- * Resolution that uses the Servlet API to <em>redirect</em> the user to another path by issuing
+ * <p>Resolution that uses the Servlet API to <em>redirect</em> the user to another path by issuing
  * a client side redirect. Unlike the ForwardResolution the RedirectResolution can send the user to
  * any URL anywhere on the web - though it is more commonly used to send the user to a location
- * within the same application.
+ * within the same application.<p>
+ *
+ * <p>By default the RedirectResolution will prepend the context path of the web application to
+ * any URL before redirecting the request. To prevent the context path from being prepended
+ * use the constructor: {@code RedirectResolution(String,boolean)}.</p>
  *
  * @see ForwardResolution
  * @author Tim Fennell
  */
 public class RedirectResolution extends OnwardResolution implements Resolution {
+    private boolean prependContext;
+
     /**
-     * Simple constructor that takes the URL to which to forward the user.
+     * Simple constructor that takes the URL to which to forward the user. Defaults to
+     * prepending the context path to the url supplied before redirecting.
+     *
      * @param url the URL to which the user's browser should be re-directed.
      */
     public RedirectResolution(String url) {
+        this(url, true);
+    }
+
+    /**
+     * Constructor that allows explicit control over whether or not the context path is
+     * prepended to the URL before redirecting.
+     *
+     * @param url the URL to which the user's browser should be re-directed.
+     * @param prependContext true if the context should be prepended, false otherwise
+     */
+    public RedirectResolution(String url, boolean prependContext) {
         setPath(url);
+        this.prependContext = prependContext;
     }
 
     /**
@@ -46,6 +66,12 @@ public class RedirectResolution extends OnwardResolution implements Resolution {
      */
     public void execute(HttpServletRequest request, HttpServletResponse response)
         throws ServletException, IOException {
-        response.sendRedirect(request.getContextPath() + getPath());
+
+        String path = getPath();
+        if (this.prependContext) {
+            path = request.getContextPath() + path;
+        }
+
+        response.sendRedirect(path);
     }
 }
