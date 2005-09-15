@@ -222,10 +222,9 @@ public class ResolverUtil {
             ClassLoader loader = Thread.currentThread().getContextClassLoader();
             String externalName = name.substring(0, name.indexOf('.')).replace('/', '.');
 
-            Class uninitializedClass = Class.forName(externalName, false, loader);
-            if (iface.isAssignableFrom(uninitializedClass) ) {
-                Class<T> type = iface.getClass().cast( Class.forName(externalName) );
-                impls.add(type);
+            Class type = loader.loadClass(externalName);
+            if (iface.isAssignableFrom(type) ) {
+                impls.add( (Class<T>) type);
             }
         }
         catch (Throwable t) {
