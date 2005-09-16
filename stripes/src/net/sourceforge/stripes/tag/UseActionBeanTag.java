@@ -73,14 +73,13 @@ public class UseActionBeanTag extends StripesTagSupport {
             ActionResolver resolver = StripesFilter.getConfiguration().getActionResolver();
 
             try {
-                Class<ActionBean> actionBeanClass = resolver.getActionBean(binding);
-                actionBean = actionBeanClass.newInstance();
-
                 HttpServletRequest request = (HttpServletRequest) getPageContext().getRequest();
                 HttpServletResponse response = (HttpServletResponse) getPageContext().getResponse();
 
                 ActionBeanContext tempContext = StripesFilter.getConfiguration()
-                    .getActionBeanContextFactory().getContextInstance(request, response);
+                        .getActionBeanContextFactory().getContextInstance(request, response);
+
+                actionBean= resolver.getActionBean(tempContext, binding);
                 actionBean.setContext(tempContext);
 
                 // Bind applicable request parameters to the ActionBean
@@ -91,11 +90,10 @@ public class UseActionBeanTag extends StripesTagSupport {
                 pageContext.getRequest().setAttribute(binding, actionBean);
 
                 // If an event is named, invoke the handler, but ignore the resolution
-                if (event == null) {
-                    Method handler = resolver.getDefaultHandler(actionBeanClass);
+                if (event != null) {
+                    Method handler = resolver.getHandler(actionBean.getClass(), event);
                     handler.invoke(actionBean);
                 }
-
             }
             catch(Exception e) {
                 throw new StripesJspException("Unabled to prepare ActionBean for JSP Usage",e);

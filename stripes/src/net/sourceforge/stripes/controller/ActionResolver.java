@@ -43,19 +43,21 @@ public interface ActionResolver extends ConfigurableComponent {
      * implementations may return one of the implementations located or throw an exception.
      *
      * @param context the ActionBeanContext for the current request
-     * @return a Class object representing a subclass of ActionBean - never null
+     * @return an instance of ActionBean to handle the current request
      * @throws StripesServletException thrown if a ActionBean cannot be resolved for any reason
      */
-    Class<ActionBean> getActionBean(ActionBeanContext context) throws StripesServletException;
+    ActionBean getActionBean(ActionBeanContext context) throws StripesServletException;
 
     /**
      * Returns the ActionBean class that is bound to the UrlBinding supplied.
      *
+     * @param context the current action bean context
      * @param urlBinding the URL to which the ActionBean has been bound
-     * @return a Class<ActionBean> for the ActionBean requested
+     * @return an instance of ActionBean that is bound to the URL supplied
      * @throws StripesServletException if the UrlBinding does not match an ActionBean binding
      */
-    public Class<ActionBean> getActionBean(String urlBinding) throws StripesServletException;
+    ActionBean getActionBean(ActionBeanContext context, String urlBinding)
+            throws StripesServletException;
 
 
     /**
@@ -67,7 +69,7 @@ public interface ActionResolver extends ConfigurableComponent {
      * @param context the ActionBeanContext for the current request
      * @return the name of the event fired by the front end, or null if none is found
      */
-    String getEventName(Class<ActionBean> bean, ActionBeanContext context);
+    String getEventName(Class<? extends ActionBean> bean, ActionBeanContext context);
 
     /**
      * Resolves the Method which handles the named event.  If more than one method is declared as
@@ -80,7 +82,7 @@ public interface ActionResolver extends ConfigurableComponent {
      * @throws StripesServletException thrown if a method cannot be resolved for any reason,
      *         including but not limited to, when a Method does not exist that handles the event.
      */
-    Method getHandler(Class<ActionBean> bean, String eventName) throws StripesServletException;
+    Method getHandler(Class<? extends ActionBean> bean, String eventName) throws StripesServletException;
 
     /**
      * Locates and returns the default handler method that should be invoked when no specific
@@ -91,5 +93,5 @@ public interface ActionResolver extends ConfigurableComponent {
      * @return a Method object representing the handling method - never null
      * @throws StripesServletException thrown if a default handler method cannot be found.
      */
-    Method getDefaultHandler(Class<ActionBean> bean) throws StripesServletException;
+    Method getDefaultHandler(Class<? extends ActionBean> bean) throws StripesServletException;
 }

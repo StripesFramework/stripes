@@ -20,6 +20,7 @@ import net.sourceforge.stripes.action.ActionBeanContext;
 import net.sourceforge.stripes.action.DefaultHandler;
 import net.sourceforge.stripes.action.HandlesEvent;
 import net.sourceforge.stripes.action.UrlBinding;
+import net.sourceforge.stripes.action.SessionScope;
 import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.exception.StripesServletException;
 import net.sourceforge.stripes.util.Log;
@@ -66,14 +67,15 @@ public class AnnotatedClassActionResolver implements ActionResolver {
     private Configuration configuration;
 
     /** Map of form names to Class objects representing subclasses of ActionBean. */
-    private Map<String,Class<ActionBean>> formBeans = new HashMap<String,Class<ActionBean>>();
+    private Map<String,Class<? extends ActionBean>> formBeans =
+            new HashMap<String,Class<? extends ActionBean>>();
 
     /**
      * Map used to resolve the methods handling events within form beans. Maps the class
      * representing a subclass of ActionBean to a Map of event names to Method objects.
      */
-    private Map<Class<ActionBean>,Map<String,Method>> eventMappings =
-        new HashMap<Class<ActionBean>,Map<String,Method>>();
+    private Map<Class<? extends ActionBean>,Map<String,Method>> eventMappings =
+        new HashMap<Class<? extends ActionBean>,Map<String,Method>>();
 
 
     /**
@@ -146,7 +148,7 @@ public class AnnotatedClassActionResolver implements ActionResolver {
      * @param context the ActionBeanContext for the current request
      * @return the name of the form to be used for this request
      */
-    public Class<ActionBean> getActionBean(ActionBeanContext context) throws StripesServletException {
+    public ActionBean getActionBean(ActionBeanContext context) throws StripesServletException {
         // Defensively construct the URL that was used to hit the dispatcher
         HttpServletRequest request = context.getRequest();
         String servletPath = request.getServletPath();
@@ -154,33 +156,23 @@ public class AnnotatedClassActionResolver implements ActionResolver {
         String boundUrl = (servletPath == null ? "" : servletPath) +
                             (pathInfo == null ? "" : pathInfo);
 
-        Class<ActionBean> beanClass = this.formBeans.get(boundUrl);
-
-        if (beanClass == null) {
-            StripesServletException sse = new StripesServletException(
-                    "Could not locate an ActionBean that is bound to the URL [" + boundUrl +
-                    "]. Full request URL was [" + context.getRequest().getRequestURL() +
-                    "]. Commons reasons for this include mis-matched URLs and forgetting " +
-                    "to implement ActionBean in your class. Registered ActionBeans are: " +
-                    this.formBeans);
-
-            log.debug(sse);
-            throw sse;
-        }
-
         request.setAttribute(RESOLVED_ACTION, boundUrl);
-        return beanClass;
+        return getActionBean(context, boundUrl);
     }
 
     /**
      * Returns the ActionBean class that is bound to the UrlBinding supplied.
      *
      * @param urlBinding the URL to which the ActionBean has been bound
+     * @param context the current ActionBeanContext
      * @return a Class<ActionBean> for the ActionBean requested
      * @throws StripesServletException if the UrlBinding does not match an ActionBean binding
      */
-    public Class<ActionBean> getActionBean(String urlBinding) throws StripesServletException {
-        Class<ActionBean> beanClass = this.formBeans.get(urlBinding);
+    public ActionBean getActionBean(ActionBeanContext context, String urlBinding)
+            throws StripesServletException {
+
+        Class<? extends ActionBean> beanClass = this.formBeans.get(urlBinding);
+        ActionBean bean;
 
         if (beanClass == null) {
             StripesServletException sse = new StripesServletException(
@@ -189,11 +181,48 @@ public class AnnotatedClassActionResolver implements ActionResolver {
                             "to implement ActionBean in your class. Registered ActionBeans are: " +
                             this.formBeans);
 
-            log.debug(sse);
+            log.error(sse);
             throw sse;
         }
 
-        return beanClass;
+        try {
+            if (beanClass.isAnnotationPresent(SessionScope.class)) {
+                HttpServletRequest request = context.getRequest();
+                bean = (ActionBean) request.getSession().getAttribute(urlBinding);
+
+                if (bean == null) {
+                    bean = makeNewActionBean(beanClass, context);
+                    request.getSession().setAttribute(urlBinding, bean);
+                }
+            }
+            else {
+                bean = makeNewActionBean(beanClass, context);
+            }
+
+            return bean;
+        }
+        catch (Exception e) {
+            StripesServletException sse = new StripesServletException(
+                "Could not create instance of ActionBean type [" + beanClass.getName() + "].", e);
+            log.error(sse);
+            throw sse;
+        }
+    }
+
+    /**
+     * Helper method to construct and return a new ActionBean instance. Called whenever a new
+     * instance needs to be manufactured.  Provides a convenient point for subclasses to add
+     * specific behaviour during action bean creation.
+     *
+     * @param type the type of ActionBean to create
+     * @param context the current ActionBeanContext
+     * @return the new ActionBean instance
+     * @throws Exception if anything goes wrong!
+     */
+    protected ActionBean makeNewActionBean(Class<? extends ActionBean> type, ActionBeanContext context)
+        throws Exception {
+
+        return type.newInstance();
     }
 
 
@@ -208,7 +237,7 @@ public class AnnotatedClassActionResolver implements ActionResolver {
      * @param context the ActionBeanContect for the current request
      * @return String the name of the event submitted, or null if none can be found
      */
-    public String getEventName(Class<ActionBean> bean, ActionBeanContext context) {
+    public String getEventName(Class<? extends ActionBean> bean, ActionBeanContext context) {
         Map<String,Method> mappings = this.eventMappings.get(bean);
         Map parameterMap = context.getRequest().getParameterMap();
 
@@ -230,7 +259,7 @@ public class AnnotatedClassActionResolver implements ActionResolver {
      * @return a Method object representing the handling method.
      * @throws StripesServletException thrown when no method handles the named event.
      */
-    public Method getHandler(Class<ActionBean> bean, String eventName)
+    public Method getHandler(Class<? extends ActionBean> bean, String eventName)
         throws StripesServletException {
         Map<String,Method> mappings = this.eventMappings.get(bean);
         Method handler = mappings.get(eventName);
@@ -255,7 +284,7 @@ public class AnnotatedClassActionResolver implements ActionResolver {
      * @return Method object that should handle the request
      * @throws StripesServletException if no default handler could be located
      */
-    public Method getDefaultHandler(Class<ActionBean> bean) throws StripesServletException {
+    public Method getDefaultHandler(Class<? extends ActionBean> bean) throws StripesServletException {
         Collection<Method> handlers = this.eventMappings.get(bean).values();
         if (handlers.size() == 1) {
             return handlers.iterator().next();
