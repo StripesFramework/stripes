@@ -1254,15 +1254,89 @@
         <tag-class>net.sourceforge.stripes.tag.WizardFieldsTag</tag-class>
         <body-content>empty</body-content>
         <attribute>
-            <description>
+            <description><![CDATA[
                 If set to true, hidden fields will only be written if the form in which the tag
                 is nested was the same form (or more specifically has the same action) as the
                 form that was submitted in the request being processed. Can be used to ensure
                 that wizarding only occurs withing a specific form and does not spill-over into
                 other forms if that is undesirable.
-            </description>
+            ]]></description>
             <name>currentFormOnly</name>
             <type>boolean</type>
         </attribute>
+    </tag>
+
+
+    <!-- Layout Tags. -->
+    <tag>
+        <description><![CDATA[
+            <p>Defines a reusable layout. This tag is designed to wrap the entire contents of a
+            JSP that is to be re-used to manage the layout of multiple pages. It can contain
+            HTML, JSP content, scriptlets etc.  It may also contain stripes:layout-component
+            tags.  The stripes:layout-component names a section of the layout that can be
+            supplied during rendering (it may be empty, or have default contents).</p>
+
+            <p>Layout definitions will also have access to, through PageContext,
+            any attributes/parameters supplied at rendering time.  These can be referenced in the layout
+            definition using EL, for example as ${myCustomParameter}.  This allows layouts not
+            only to templatize look and feel, but to potentially render differently based on
+            the values of parameters passed in at rendering time.</p>
+        ]]></description>
+        <name>layout-definition</name>
+        <tag-class>net.sourceforge.stripes.tag.layout.LayoutDefinitionTag</tag-class>
+        <body-content>JSP</body-content>
+    </tag>
+
+    <tag>
+        <description><![CDATA[
+            <p>Used to define or supply a component of a layout.  The stripes:layout-component
+            tag can be nested inside both the stripes:layout-definition and
+            stripes:layout-render tags.  In the former case it defines a named component in the
+            layout, and the (optional) body provides a default for the component. When nested in
+            a stripes:layout-render tag, the body overrides the named component defined in the
+            layout.</p>
+
+            <p>The vanilla case would be to have a layout which defines the header/footer etc. for
+            your site and that has a component named "body" or "contents" or something similar,
+            which wraps the area where page content would normally be displayed.  Then, when
+            using that layout through a stripes:layout-render tag, you would use a
+            stripes:layout-component tag to provide a value for the "body" or "contents"
+            component of the layout.</p>
+        ]]></description>
+        <name>layout-component</name>
+        <tag-class>net.sourceforge.stripes.tag.layout.LayoutComponentTag</tag-class>
+        <body-content>JSP</body-content>
+        <attribute>
+            <description>
+                The name of the component being defined (in the layout definition) or overridden
+                (when rendering the layout).
+            </description>
+            <name>name</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <description><![CDATA[
+            <p>Renders the named layout, supplying it with any specified parameters and overridden
+            components.  In addition to being able to supply nested stripes:layout-component tags,
+            you may also supply any number of dynamic or arbitrary parameters to this tag. All
+            parameters (except name) will be made available to the layout definition through the
+            page context.</p>
+        ]]></description>
+        <name>layout-render</name>
+        <tag-class>net.sourceforge.stripes.tag.layout.LayoutRenderTag</tag-class>
+        <body-content>JSP</body-content>
+        <attribute>
+            <description>
+                The name of the layout.  Since only JSP layouts are supported, this should be the
+                web application relative path to the JSP that defines the layout.
+            </description>
+            <name>name</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <dynamic-attributes>true</dynamic-attributes>
     </tag>
 </taglib>
