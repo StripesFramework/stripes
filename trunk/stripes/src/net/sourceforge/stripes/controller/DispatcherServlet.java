@@ -67,32 +67,30 @@ public class DispatcherServlet extends HttpServlet {
         throws ServletException {
 
         try {
-            // Lookup the bean class, handler method and hook everything together
+            // Lookup the bean, handler method and hook everything together
             ActionBeanContext context =  StripesFilter.getConfiguration()
                     .getActionBeanContextFactory().getContextInstance(request, response);
             Resolution resolution = null;
 
             ActionResolver actionResolver = StripesFilter.getConfiguration().getActionResolver();
-            Class<ActionBean> clazz = actionResolver.getActionBean(context);
-            String eventName        = actionResolver.getEventName(clazz, context);
+            ActionBean bean = actionResolver.getActionBean(context);
+            String eventName = actionResolver.getEventName(bean.getClass(), context);
             context.setEventName(eventName);
 
             Method handler = null;
             if (eventName != null) {
-                handler = actionResolver.getHandler(clazz, eventName);
+                handler = actionResolver.getHandler(bean.getClass(), eventName);
             }
             else {
-                handler = actionResolver.getDefaultHandler(clazz);
+                handler = actionResolver.getDefaultHandler(bean.getClass());
             }
 
             // Insist that we have a handler
             if (handler == null) {
                 throw new StripesServletException("No handler method found for request with " +
-                    "ActionBean [" + clazz.getName() + "] and eventName [ " + eventName + "]");
+                    "ActionBean [" + bean.getClass().getName() + "] and eventName [ " + eventName + "]");
             }
 
-            // Instantiate and set us up the bean
-            ActionBean bean = getActionBeanInstance(clazz, request);
             bean.setContext(context);
             request.setAttribute((String) request.getAttribute(ActionResolver.RESOLVED_ACTION), bean);
             request.setAttribute(StripesConstants.REQ_ATTR_ACTION_BEAN, bean);
@@ -136,7 +134,7 @@ public class DispatcherServlet extends HttpServlet {
                 }
                 else {
                     log.warn("Expected handler method ", handler.getName(), " on class ",
-                             clazz.getSimpleName(), " to return a Resolution. Instead it ",
+                             bean.getClass().getSimpleName(), " to return a Resolution. Instead it ",
                              "returned: ", returnValue);
                 }
             }
