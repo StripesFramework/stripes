@@ -190,7 +190,7 @@ public class ErrorsTag extends HtmlTagSupport implements BodyTag {
         // display and see if there are any
         if (this.display) {
             ValidationErrors validationErrors = getActionBean().getContext().getValidationErrors();
-            if (validationErrors == null) {
+            if (validationErrors == null || validationErrors.size() == 0) {
                 this.display = false;
             }
             else {
