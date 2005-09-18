@@ -20,13 +20,12 @@ import net.sourceforge.stripes.action.ActionBeanContext;
 import net.sourceforge.stripes.action.DontValidate;
 import net.sourceforge.stripes.action.ForwardResolution;
 import net.sourceforge.stripes.action.Resolution;
-import net.sourceforge.stripes.action.SessionScope;
 import net.sourceforge.stripes.exception.StripesServletException;
 import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.validation.Validatable;
 import net.sourceforge.stripes.validation.ValidationError;
-import net.sourceforge.stripes.validation.ValidationErrors;
 import net.sourceforge.stripes.validation.ValidationErrorHandler;
+import net.sourceforge.stripes.validation.ValidationErrors;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -100,16 +99,14 @@ public class DispatcherServlet extends HttpServlet {
 
             // Bind the value to the bean - this includes performing field level validation
             ValidationErrors errors = bindValues(bean, context, doValidate);
+            bean.getContext().setValidationErrors(errors);
 
             // If blah blah blah, run the bean's validate method, or maybe handleErrors
             if (errors.size() == 0 && bean instanceof Validatable && doValidate) {
                 ((Validatable) bean).validate(errors);
             }
-            else if (bean instanceof ValidationErrorHandler) {
-                resolution = ((ValidationErrorHandler) bean).handleValidationErrors(errors);
-            }
 
-            // If there are errors, head off to the input page
+            // If we have errors, add the action path to them
             if (errors.size() > 0) {
                 String formAction = (String) request.getAttribute(ActionResolver.RESOLVED_ACTION);
 
@@ -119,14 +116,18 @@ public class DispatcherServlet extends HttpServlet {
                         error.setActionPath(formAction);
                     }
                 }
-                bean.getContext().setValidationErrors(errors);
-
-                // If we didn't get a resolution from handleValidationErrors, get a default one
-                if (resolution == null) {
-                    resolution  = getErrorResolution(request);
-                }
             }
-            else {
+
+            // Now if we have errors and the bean wants to handle them...
+            if (errors.size() > 0 && bean instanceof ValidationErrorHandler) {
+                resolution = ((ValidationErrorHandler) bean).handleValidationErrors(errors);
+            }
+
+            // If there are still errors see if we need to lookup the resolution
+            if (errors.size() > 0 && resolution == null) {
+                resolution  = getErrorResolution(request);
+            }
+            else if (errors.size() == 0) {
                 Object returnValue = handler.invoke(bean);
 
                 if (returnValue != null && returnValue instanceof Resolution) {
@@ -155,36 +156,6 @@ public class DispatcherServlet extends HttpServlet {
         catch (Exception e) {
             throw new StripesServletException("Exception encountered processing request.", e);
         }
-    }
-
-    /**
-     * Gets an instance of the specified ActionBean.  In the default case, the ActionBean will
-     * be instantiated and returned.  If the ActionBean class is marked with a SessionScope
-     * annotation, then the bean instance will be looked for in session scope and, if not found,
-     * instantiated and put in session scope.
-     *
-     * @param clazz the ActionBean class being instantiated/looked up
-     * @return an instance of the ActionBean specified
-     * @throws Exception if the ActionBean cannot be instantiated
-     */
-    protected ActionBean getActionBeanInstance(Class<ActionBean> clazz,
-                                               HttpServletRequest request) throws Exception {
-        ActionBean bean = null;
-
-        if (clazz.isAnnotationPresent(SessionScope.class)) {
-            String action = (String) request.getAttribute(ActionResolver.RESOLVED_ACTION);
-            bean = (ActionBean) request.getSession().getAttribute(action);
-
-            if (bean == null) {
-                bean = clazz.newInstance();
-                request.getSession().setAttribute(action, bean);
-            }
-        }
-        else {
-            bean = clazz.newInstance();
-        }
-
-        return bean;
     }
 
 
