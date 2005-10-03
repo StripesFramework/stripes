@@ -45,6 +45,14 @@ public @interface Validate {
     boolean required() default false;
 
     /**
+     * If set to true will cause the property to be ignore by binding and validation even if it
+     * was somehow submitted in the request.
+     *
+     * @since Stripes 1.1
+     */
+    boolean ignore() default false;
+
+    /**
      * Specifies a minimum length of characters that must be submitted. This validation is performed
      * on the String value before any other validations or conversions are made.
      */
