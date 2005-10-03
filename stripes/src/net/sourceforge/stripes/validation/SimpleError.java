@@ -15,14 +15,12 @@
  */
 package net.sourceforge.stripes.validation;
 
-import net.sourceforge.stripes.controller.StripesFilter;
+import net.sourceforge.stripes.localization.LocalizationUtility;
 import net.sourceforge.stripes.util.Log;
 
-import java.util.Locale;
-import java.util.ResourceBundle;
-import java.util.MissingResourceException;
-import java.util.Arrays;
 import java.text.MessageFormat;
+import java.util.Arrays;
+import java.util.Locale;
 
 /**
  * <p>Validation error message that allows for supplying the error message at the time of
@@ -134,33 +132,16 @@ public class SimpleError implements ValidationError {
             this.replacementParameters[0] = "FIELD NAME NOT SUPPLIED IN CODE";
         }
         else {
-            try {
-                ResourceBundle bundle = StripesFilter.getConfiguration().
-                        getLocalizationBundleFactory().getFormFieldBundle(locale);
+            this.replacementParameters[0] =
+                    LocalizationUtility.getLocalizedFieldName(this.fieldNameKey,
+                                                              this.actionPath,
+                                                              locale);
 
+            if (this.replacementParameters[0] == null) {
                 this.replacementParameters[0] =
-                    bundle.getString(this.actionPath + "." + this.fieldNameKey);
-            }
-            catch (MissingResourceException mre) {
-                this.replacementParameters[0] = tryToMakeFriendly(this.fieldNameKey);
+                        LocalizationUtility.makePseudoFriendlyName(this.fieldNameKey);
             }
         }
-    }
-
-    /**
-     * Makes a half hearted attempt to convert the property name of the field into a human
-     * friendly name by breaking it on periods and capitablizing each word.  This is only used
-     * when developers do not provide names for their fields.
-     */
-    private String tryToMakeFriendly(String fieldNameKey) {
-        String[] words = fieldNameKey.split("\\.");
-
-        String friendlyName = words[0].substring(0,1).toUpperCase() + words[0].substring(1);
-        for (int i=1; i<words.length; ++i) {
-            friendlyName += " " + words[i].substring(0,1).toUpperCase() + words[i].substring(1);
-        }
-
-        return friendlyName;
     }
 
     /**
