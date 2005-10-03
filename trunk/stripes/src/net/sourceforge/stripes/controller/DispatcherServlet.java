@@ -144,9 +144,13 @@ public class DispatcherServlet extends HttpServlet {
             resolution.execute(request, response);
         }
         catch (ServletException se) { throw se; }
+        catch (RuntimeException re) { throw re; }
         catch (InvocationTargetException ite) {
             if (ite.getTargetException() instanceof ServletException) {
                 throw (ServletException) ite.getTargetException();
+            }
+            else if (ite.getTargetException() instanceof RuntimeException) {
+                throw (RuntimeException) ite.getTargetException();
             }
             else {
                 throw new StripesServletException
