@@ -143,7 +143,7 @@
         <attribute>
             <description>@value@</description>
             <name>value</name>
-            <required>false</required>
+            <required>true</required>
             <rtexprvalue>true</rtexprvalue>
             <type>java.lang.Object</type>
         </attribute>
@@ -1031,7 +1031,7 @@
         <attribute>
             <description>@value@</description>
             <name>value</name>
-            <required>false</required>
+            <required>true</required>
             <rtexprvalue>true</rtexprvalue>
             <type>java.lang.Object</type>
         </attribute>
