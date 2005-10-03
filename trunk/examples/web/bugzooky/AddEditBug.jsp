@@ -1,3 +1,4 @@
+<%@ page import="net.sourceforge.stripes.examples.bugzooky.biz.Status"%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ include file="/bugzooky/taglibs.jsp" %>
 
@@ -25,7 +26,7 @@
                     <td><fmt:formatDate value="${actionBean.bug.openDate}" dateStyle="medium"/></td>
                 </tr>
                 <tr>
-                    <th>Component:</th>
+                    <th><stripes:label for="bug.component.id"/>:</th>
                     <td>
                         <stripes:select name="bug.component.id">
                             <stripes:options-collection collection="${componentManager.allComponents}"
@@ -34,7 +35,7 @@
                     </td>
                 </tr>
                 <tr>
-                    <th>Assigned To:</th>
+                    <th><stripes:label for="bug.owner.id"/>:</th>
                     <td>
                         <stripes:select name="bug.owner.id">
                             <stripes:options-collection collection="${personManager.allPeople}"
@@ -43,7 +44,7 @@
                     </td>
                 </tr>
                 <tr>
-                    <th>Priority:</th>
+                    <th><stripes:label for="bug.priority"/>:</th>
                     <td>
                         <stripes:select name="bug.priority">
                             <stripes:options-enumeration enum="net.sourceforge.stripes.examples.bugzooky.biz.Priority"/>
@@ -51,27 +52,32 @@
                     </td>
                 </tr>
                 <tr>
-                    <th>Status:</th>
+                    <th><stripes:label for="bug.status"/>:</th>
                     <td>
-                        <stripes:select name="bug.status">
-                            <stripes:options-enumeration enum="net.sourceforge.stripes.examples.bugzooky.biz.Status"/>
-                        </stripes:select>
+                        <c:forEach var="status" items="<%=Status.values()%>">
+                            <stripes:radio id="bug.status.${stripes:enumName(status)}"
+                                           name="bug.status"
+                                           value="${stripes:enumName(status)}"
+                                           checked="New"/>
+                            <stripes:label for="bug.status.${stripes:enumName(status)}">${stripes:enumName(status)}</stripes:label>
+                        </c:forEach>
+
                     </td>
                 </tr>
                 <tr>
-                    <th>Due Date:</th>
+                    <th><stripes:label for="bug.dueDate"/>:</th>
                     <td><stripes:text name="bug.dueDate" formatPattern="medium"/></td>
                 </tr>
                 <tr>
-                    <th>Percent Complete:</th>
+                    <th><stripes:label for="bug.percentComplete"/>:</th>
                     <td><stripes:text name="bug.percentComplete" formatType="percentage"/></td>
                 </tr>
                 <tr>
-                    <th>Short Description:</th>
+                    <th><stripes:label for="bug.shortDescription"/>:</th>
                     <td><stripes:text size="75" name="bug.shortDescription"/></td>
                 </tr>
                 <tr>
-                    <th>Long Description:</th>
+                    <th><stripes:label for="bug.longDescription"/>:</th>
                     <td><stripes:textarea cols="75" rows="10" name="bug.longDescription"/></td>
                 </tr>
                 <tr>
