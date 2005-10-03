@@ -15,12 +15,12 @@
             <table class="display">
                 <tr>
                     <th>ID</th>
-                    <th>Component</th>
-                    <th>Assignee</th>
-                    <th>Priority</th>
-                    <th>Status</th>
-                    <th>Short Description</th>
-                    <th>Long Description:</th>
+                    <th><stripes:label name="bugs.component.id"/></th>
+                    <th><stripes:label name="bugs.owner.id"/></th>
+                    <th><stripes:label name="bugs.priority"/></th>
+                    <th><stripes:label name="bugs.status"/></th>
+                    <th><stripes:label name="bugs.shortDescription"/></th>
+                    <th><stripes:label name="bugs.longDescription"/></th>
                 </tr>
 
                 <c:choose>

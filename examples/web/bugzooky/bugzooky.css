@@ -90,3 +90,8 @@ input.error, textarea.error, select.error {
     border: 2px solid red;
     color: red;
 }
+
+label.error {
+    color: red;
+    border-bottom: 1px dashed red;   
+}
