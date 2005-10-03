@@ -20,14 +20,14 @@ import net.sourceforge.stripes.controller.StripesFilter;
 import net.sourceforge.stripes.exception.StripesJspException;
 import net.sourceforge.stripes.format.Formatter;
 import net.sourceforge.stripes.format.FormatterFactory;
+import net.sourceforge.stripes.localization.LocalizationUtility;
 import net.sourceforge.stripes.validation.ValidationError;
 import net.sourceforge.stripes.validation.ValidationErrors;
 
 import javax.servlet.jsp.JspException;
 import java.util.Collection;
 import java.util.List;
-import java.util.MissingResourceException;
-import java.util.ResourceBundle;
+import java.util.Locale;
 
 /**
  * Parent class for all input tags in stripes.  Provides support methods for retrieving all the
@@ -190,31 +190,16 @@ public abstract class InputTagSupport extends HtmlTagSupport {
      * @return a localized field name if one can be found, or null if one cannot be found.
      */
     protected String getLocalizedFieldName() throws StripesJspException {
-        String name = getAttributes().get("name").toString();
-        String localizedValue = null;
-        String actionPath = getParentFormTag().getAction();
-        ResourceBundle bundle = null;
-        try {
-            bundle = StripesFilter.getConfiguration().getLocalizationBundleFactory()
-                    .getFormFieldBundle(getPageContext().getRequest().getLocale());
-        }
-        catch (MissingResourceException mre) {
-            return null; // not much we can do without a bundle
-        }
+        String name = getAttributes().get("name");
+        Locale locale = getPageContext().getRequest().getLocale();
+        String actionPath = null;
 
         try {
-            localizedValue = bundle.getString(actionPath + "." + name);
+            actionPath = getParentFormTag().getAction();
         }
-        catch (MissingResourceException mre) {
-            try {
-                localizedValue = bundle.getString(name);
-            }
-            catch (MissingResourceException mre2) {
-                // do nothing
-            }
-        }
+        catch (StripesJspException sje) { /* Do nothing. */}
 
-        return localizedValue;
+        return LocalizationUtility.getLocalizedFieldName(name, actionPath, locale);
     }
 
     /**
@@ -239,7 +224,7 @@ public abstract class InputTagSupport extends HtmlTagSupport {
      * Find errors that are related to the form field this input tag represents and place
      * them in an instance variable to use during error rendering.
      */
-    private void loadErrors() throws StripesJspException {
+    protected void loadErrors() throws StripesJspException {
         ActionBean actionBean = getActionBean();
         if (actionBean != null) {
             ValidationErrors validationErrors = actionBean.getContext().getValidationErrors();
@@ -282,8 +267,7 @@ public abstract class InputTagSupport extends HtmlTagSupport {
      * @return int the value returned by the child class from doStartInputTag()
      */
     public final int doStartTag() throws JspException {
-        // Register with the parent form tag
-        getParentFormTag().registerField(getName());
+        registerWithParentForm();
 
         // Deal with any error rendering
         loadErrors();
@@ -294,6 +278,14 @@ public abstract class InputTagSupport extends HtmlTagSupport {
         }
 
         return doStartInputTag();
+    }
+
+    /**
+     * Registers the field with the parent form within which it must be enclosed.
+     * @throws StripesJspException if the parent form tag is not found
+     */
+    protected void registerWithParentForm() throws StripesJspException {
+        getParentFormTag().registerField(getName());
     }
 
     /** Abstract method implemented in child classes instead of doStartTag(). */

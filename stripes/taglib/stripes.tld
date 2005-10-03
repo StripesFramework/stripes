@@ -462,6 +462,119 @@
 
     <tag>
         <description><![CDATA[
+            <p>Label tag that can look up localized field labels and render differently when the
+            labelled field is in error.  While the label field is usually used to generated form
+            field labels, it can be used to generate HTML label tags with arbitrary localized or
+            non-localized values.</p>
+
+            <p>It is important to understand the relationship between the <tt>name</tt> and
+            <tt>for</tt> attributes of the <tt>stripes:label</tt> tag.  The <tt>for</tt> attribute
+            is used directly to generated the <tt>for</tt> attribute of the generated HTML
+            <tt>label</tt> tag, and as such should correspond to the HTML <tt>id</tt> attribute
+            of the input tag for which it is a label.  If the <tt>name</tt> attribute is omitted
+            then the value of the <tt>for</tt> attribute will also be used as the <tt>name</tt>
+            attribute.</p>
+
+            <p>The value of the label is set by searching for a non-null value in the following
+             order:</p>
+
+            <ul>
+                <li>{formAction}.{name} in the form field localization bundle</li>
+                <li>{name} in the form field localization bundle</li>
+                <li>The body of the label tag</li>
+                <li>A warning message telling you to supply a label value somewhere!</li>
+            </ul>
+
+            <p>In the case of indexed or mapped form fields (e.g. <tt>foo[3].bar</tt>) the
+            indexing and mapping will be removed from the name prior to using it to lookup
+            labels (e.g. <tt>foo.bar</tt>).  This is done to remain consistent with the way
+            field names are looked up for error messages.</p>
+
+            <p>It should be noted that in cases where a form field and HTML control are
+            one-to-one (e.g. text, password, select) the name of the label will usually equal
+            the name of the control.  However, this need not be the case.  You may use any value
+            for the name of the label, <b>but</b> the label will only perform error rendering
+            correctly if the name is equal to the name of the form field being labelled. To
+            illustrate this point consider the following example:</p>
+
+<pre>
+&lt;th&gt;
+    &lt;stripes:label for="bug.status"/&gt;:
+&lt;/th&gt;
+&lt;td&gt;
+	&lt;c:forEach var="status" items="&lt;%=Status.values()%&gt;"&gt;
+		&lt;stripes:radio id="bug.status.${stripes:enumName(status)}"
+		               name="bug.status"
+		               value="${stripes:enumName(status)}"/&gt;
+		&lt;stripes:label for="bug.status.${stripes:enumName(status)}"&gt;
+			${stripes:enumName(status)}
+		&lt;/stripes:label&gt;
+	&lt;/c:forEach&gt;
+&lt;/td&gt;
+</pre>
+
+        <p>The above example uses one label tag at the top (with <tt>for="bug.status"</tt>) that
+        labels a row in the table and will display differently when the <tt>bug.status</tt> field
+        is in error.  It then employs a label tag for each radio button.  These are bound to the
+        individual radio buttons (clicking on the label will select the appropriate radio button),
+        and default to the name of the enum value if a localized name isn't found.  Since these
+        labels do not match the field name exactly, they will not render differently when the
+        field is in error.</p>
+        ]]></description>
+        <display-name>label</display-name>
+        <name>label</name>
+        <tag-class>net.sourceforge.stripes.tag.InputLabelTag</tag-class>
+        <body-content>JSP</body-content>
+
+        <attribute>
+            <description>
+                The name of the field being labelled (or of the label if it is not specific to a
+                field) if the name of the field is not the same as the HTML id of the field. If the
+                name and id are the same, the for attribute should be used alone.
+            </description>
+            <name>name</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+
+        <attribute>
+            <description>
+                The HTML id of the field/control being labelled.  If the name attribute is
+                omitted, the value of this attribute will also be used as the name.
+            </description>
+            <name>for</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+
+        <!-- Start: Standard HTML attributes -->
+        <attribute><description>@accesskey@</description><name>accesskey</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@class@</description><name>class</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@dir@</description><name>dir</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@id@</description><name>id</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@lang@</description><name>lang</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onblur@</description><name>onblur</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onchange@</description><name>onchange</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onclick@</description><name>onclick</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@ondblclick@</description><name>ondblclick</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onfocus@</description><name>onfocus</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onkeydown@</description><name>onkeydown</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onkeypress@</description><name>onkeypress</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onkeyup@</description><name>onkeyup</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmousedown@</description><name>onmousedown</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmousemove@</description><name>onmousemove</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmouseout@</description><name>onmouseout</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmouseover@</description><name>onmouseover</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmouseup@</description><name>onmouseup</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onselect@</description><name>onselect</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@style@</description><name>style</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@tabindex@</description><name>tabindex</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@title@</description><name>title</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <!-- End: Standard HTML attributes -->
+    </tag>
+
+    <tag>
+        <description><![CDATA[
             <p>Tag that generates HTML links, used for linking to pages and ActionBean events
             within a Stripes application. Works in concert with zero or more nested link-param tags
             in order to allow addition of arbitrary parameters to any URL. The body of the tag,
@@ -782,6 +895,76 @@
                 user-visible text.
             </description>
             <name>label</name><required>false</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
+
+        <!-- Start: Standard HTML attributes -->
+        <attribute><description>@accesskey@</description><name>accesskey</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@class@</description><name>class</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@dir@</description><name>dir</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@id@</description><name>id</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@lang@</description><name>lang</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onblur@</description><name>onblur</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onchange@</description><name>onchange</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onclick@</description><name>onclick</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@ondblclick@</description><name>ondblclick</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onfocus@</description><name>onfocus</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onkeydown@</description><name>onkeydown</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onkeypress@</description><name>onkeypress</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onkeyup@</description><name>onkeyup</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmousedown@</description><name>onmousedown</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmousemove@</description><name>onmousemove</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmouseout@</description><name>onmouseout</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmouseover@</description><name>onmouseover</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmouseup@</description><name>onmouseup</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onselect@</description><name>onselect</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@style@</description><name>style</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@tabindex@</description><name>tabindex</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@title@</description><name>title</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <!-- End: Standard HTML attributes -->
+    </tag>
+
+    <tag>
+        <description><![CDATA[
+            <p>Tag that generates HTML form fields of type
+            &lt;input type=&quot;password&quot; name=&quot;foo&quot; value=&quot;bar&quot;/&gt;,
+            which can optionally re-populate their value, and provide error display/formatting
+            consistent with the rest of the Stripes input tags. Password tags may have only a single
+            value, whose default may be set using either the body of the tag, or using the
+            value=&quot;&quot; attribute of the tag. At runtime the contents of the text field are
+            determined by looking first for a non-null body and if one is not found, then a
+            non-null value attribute.</p>
+
+            <p>Repopulation of values for password tags is optional, and by default is <b>not</b>
+            performed. To control this behaviour explicitly use the <tt>repopluate</tt> tag
+            attribute.</p>
+
+        ]]></description>
+        <display-name>password</display-name>
+        <name>password</name>
+        <tag-class>net.sourceforge.stripes.tag.InputPasswordTag</tag-class>
+        <body-content>JSP</body-content>
+
+        <!-- Start: Standard Form Input attributes -->
+        <attribute><description>@name@</description><name>name</name><required>true</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@size@</description><name>size</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@value@</description><name>value</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@disabled@</description><name>disabled</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <!-- End: Standard Form Input   attributes -->
+
+        <attribute><description>@readonly@</description><name>readonly</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@maxlength@</description><name>maxlength</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@formatType@</description><name>formatType</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@formatPattern@</description><name>formatPattern</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute>
+            <description>
+                Determines whether value repopulation will occur. If set to true the values will be repopulated
+                in a manner identical to regular text fields.  If set to false (the default) then repopluation
+                will not occur.
+            </description>
+            <name>repopulate</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+            <type>boolean</type>
         </attribute>
 
         <!-- Start: Standard HTML attributes -->
@@ -1339,4 +1522,15 @@
         </attribute>
         <dynamic-attributes>true</dynamic-attributes>
     </tag>
+
+    <function>
+        <description>
+            Returns the name of the supplied Java 5 enumeration value; useful since EL will
+            only access JavaBean style properties, and the name attribute of an enum is always
+            accessed using the function name(), not getName().
+        </description>
+        <name>enumName</name>
+        <function-class>net.sourceforge.stripes.tag.ElFunctions</function-class>
+        <function-signature>java.lang.String name(java.lang.Enum)</function-signature>
+    </function>
 </taglib>
