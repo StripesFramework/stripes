@@ -6,7 +6,7 @@
 <project name="Stripes-Examples" basedir="." default="war">
 
   <!-- Properties file for the environment, and some global properties -->
-  <property name="properties.file" value="ant.properties"/>
+  <property name="properties.file" value="../build.properties"/>
   <property file="${properties.file}"/>
     
   <property name="src.dir"     value="${basedir}/src"/>

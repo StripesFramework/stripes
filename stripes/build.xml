@@ -24,7 +24,7 @@
 <project name="Stripes" basedir="." default="jar">
 
   <!-- Properties file for the environment, and some global properties -->
-  <property name="properties.file" value="ant.properties"/>
+  <property name="properties.file" value="../build.properties"/>
   <property file="${properties.file}"/>
 
   <property name="src.dir"     value="${basedir}/src"/>
@@ -56,6 +56,7 @@
           failonerror="false" failifexecutionfails="false">
         <arg value="."/>
     </exec>
+    <echo message="Specification Version is: ${stripes.version}"/>
     <echo message="Repository Version is: ${repository.version}"/>
   </target>
 
@@ -102,9 +103,9 @@
     <jar destfile="${dist.dir}/stripes.jar" basedir="${classes.dir}">
       <manifest>
           <attribute name="Implementation-Title" value="Stripes"/>
-          <attribute name="Specification-Version" value="1.0.1"/>
+          <attribute name="Specification-Version" value="${stripes.version}"/>
           <attribute name="Implementation-Version" value="${repository.version}"/>
-          <attribute name="Implementation-URL" value="http://stripes.sourceforge.net/"/>
+          <attribute name="Implementation-URL" value="http://stripes.mc4j.org/"/>
       </manifest>
     </jar>
   </target>
@@ -120,8 +121,8 @@
 	   packagenames="net.sourceforge.stripes.*"
        stylesheetfile="${src.dir}/javadoc.css"
        overview="${src.dir}/overview.html"
-       windowtitle="Stripes API Documentation"
-	   doctitle="&lt;h1&gt;Stripes API Documentation&lt;/h1&gt;"
+       windowtitle="Stripes ${stripes.version} API Documentation"
+	   doctitle="&lt;h1&gt;Stripes ${stripes.version} API Documentation&lt;/h1&gt;"
 	   bottom="&#169; Copyright 2005, Stripes Development Team."
 	   author="true"
 	   protected="true"
@@ -138,10 +139,13 @@
         </group>
         <group>
             <title>Extension API</title>
+            <package name="net.sourceforge.stripes.ajax"/>
             <package name="net.sourceforge.stripes.config"/>
             <package name="net.sourceforge.stripes.format"/>
+            <package name="net.sourceforge.stripes.integration.spring"/>
             <package name="net.sourceforge.stripes.localization"/>
             <package name="net.sourceforge.stripes.tag"/>
+            <package name="net.sourceforge.stripes.tag.layout"/>
         </group>
         <group>
             <title>Internal Implementation</title>
@@ -155,8 +159,8 @@
   <target name="tlddoc" depends="init" description="Generates Tag Library Documentation.">
       <java fork="true" jar="${lib.dir}/build/tlddoc.jar" failonerror="false">
           <arg line="-d ${doc.dir}/taglib"/>
-          <arg line="-doctitle 'Stripes Tag Library Documentation'"/>
-          <arg line="-windowtitle 'Stripes Tag Library Documentation'"/>
+          <arg line="-doctitle 'Stripes ${stripes.version} Tag Library Documentation'"/>
+          <arg line="-windowtitle 'Stripes ${stripes.version} Tag Library Documentation'"/>
           <arg value="${classes.dir}/META-INF/stripes.tld"/>
       </java>
       <copy file="${src.dir}/javadoc.css"
