@@ -179,6 +179,11 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
                     Validate validationInfo =
                             this.validations.get(bean.getClass()).get(name.getStrippedName());
 
+                    // If the property should be ignored, skip to the next property
+                    if (validationInfo != null && validationInfo.ignore()) {
+                        continue;
+                    }
+
                     if (validate && validationInfo != null) {
                         doPreConversionValidations(name, values, validationInfo, errors);
                     }
