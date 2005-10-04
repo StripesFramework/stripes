@@ -65,7 +65,6 @@ import javax.servlet.jsp.tagext.BodyTag;
      * @return EVAL_BODY_BUFFERED in all cases.
      */
     public int doStartInputTag() throws JspException {
-        getAttributes().put("type", "text");
         return EVAL_BODY_BUFFERED;
     }
 
