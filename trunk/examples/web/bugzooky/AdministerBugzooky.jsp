@@ -21,6 +21,7 @@
                     <th>First Name</th>
                     <th>Last Name</th>
                     <th>Email</th>
+                    <th>Password</th>
                 </tr>
                 <c:forEach items="${personManager.allPeople}" var="person" varStatus="loop">
                     <tr>
@@ -34,6 +35,7 @@
                         <td><stripes:text name="people[${loop.index}].firstName" value="${person.firstName}"/></td>
                         <td><stripes:text name="people[${loop.index}].lastName"  value="${person.lastName}"/></td>
                         <td><stripes:text name="people[${loop.index}].email"     value="${person.email}"/></td>
+                        <td><stripes:password name="people[${loop.index}].password"/></td>
                     </tr>
                     <c:set var="newIndex" value="${loop.index + 1}" scope="page"/>
                 </c:forEach>
@@ -45,6 +47,7 @@
                     <td><stripes:text name="people[${newIndex}].firstName"/></td>
                     <td><stripes:text name="people[${newIndex}].lastName"/></td>
                     <td><stripes:text name="people[${newIndex}].email"/></td>
+                    <td><stripes:password name="people[${newIndex}].password"/></td>
                 </tr>
             </table>
 
