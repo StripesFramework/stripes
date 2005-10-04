@@ -11,6 +11,7 @@ public class Person {
     private String firstName;
     private String lastName;
     private String email;
+    private String password;
 
     /** Default constructor. */
     public Person() { }
@@ -52,6 +53,16 @@ public class Person {
 
     /** Sets the person's email address. */
     public void setEmail(String email) { this.email = email; }
+
+    /** Gets the person's unencrypted password. */
+    public String getPassword() {
+        return password;
+    }
+
+    /** Sets the person's unencrypted password. */
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
     /** Equality is determined to be when the ID numbers match. */
     public boolean equals(Object obj) {

@@ -29,6 +29,7 @@ public class AdministerPeopleActionBean extends BugzookyActionBean {
 
     @ValidateNestedProperties ({
         @Validate(field="username", required=true, minlength=3, maxlength=15),
+        @Validate(field="password", minlength=6, maxlength=20),
         @Validate(field="firstName", required=true, maxlength=25),
         @Validate(field="lastName", required=true,  maxlength=25),
         @Validate(field="email", mask="[\\w\\.]+@[\\w\\.]+\\.\\w+")
@@ -54,6 +55,11 @@ public class AdministerPeopleActionBean extends BugzookyActionBean {
             realPerson.setFirstName(person.getFirstName());
             realPerson.setLastName(person.getLastName());
             realPerson.setUsername(person.getUsername());
+
+            if (person.getPassword() != null) {
+                realPerson.setPassword(person.getPassword());
+            }
+            
             pm.saveOrUpdate(realPerson);
         }
 
