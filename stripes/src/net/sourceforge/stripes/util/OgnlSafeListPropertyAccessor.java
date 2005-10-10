@@ -19,6 +19,7 @@ import ognl.ListPropertyAccessor;
 import ognl.OgnlException;
 
 import java.util.Map;
+import java.util.List;
 
 /**
  * Used to override the default ListPropertyAccessor in Ognl to return nulls instead of throw
@@ -29,7 +30,11 @@ import java.util.Map;
  * @author Tim Fennell
  */
 public class OgnlSafeListPropertyAccessor extends ListPropertyAccessor {
-    
+
+    /**
+     * Simply wraps the parent list accessor and returns null when an index out of
+     * bounds exception occurrs.
+     */
     public Object getProperty(Map map, Object object, Object object1) throws OgnlException {
         try {
             return super.getProperty(map, object, object1);
@@ -37,5 +42,25 @@ public class OgnlSafeListPropertyAccessor extends ListPropertyAccessor {
         catch (IndexOutOfBoundsException ioobe) {
             return null;
         }
+    }
+
+    /**
+     * Auto-expands the list until it is large enough for set(index) to be called on it,
+     * then delegates to the parent ListPropertyAccessor to do the rest.
+     *
+     * @param map the OgnlContext
+     * @param target the List into which an item is being inserted
+     * @param property the index at which an item is being inserted
+     * @param parent the parent object which contains the List
+     */
+    public void setProperty(Map map, Object target, Object property, Object parent) throws OgnlException {
+        List list = (List) target;
+        int index = (Integer) property;
+
+        for (int i=list.size(); i<=index; ++i) {
+            list.add(null);
+        }
+
+        super.setProperty(map, target, property, parent);
     }
 }
