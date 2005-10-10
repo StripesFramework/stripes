@@ -13,7 +13,7 @@ import net.sourceforge.stripes.test.TestEnum;
  */
 public class OgnlUtilTest {
 
-     @Test
+     @Test(groups="fast")
      public void testGetSimpleProperties() throws Exception {
          TestBean root = new TestBean();
          root.setStringProperty("testValue");
@@ -27,7 +27,7 @@ public class OgnlUtilTest {
          Assert.assertEquals(TestEnum.Seventh, OgnlUtil.getValue("enumProperty", root));
      }
 
-    @Test
+    @Test(groups="fast")
     public void testGetNestedProperties() throws Exception {
         TestBean root = new TestBean();
         TestBean nested = new TestBean();
@@ -43,7 +43,7 @@ public class OgnlUtilTest {
         Assert.assertEquals(TestEnum.Seventh, OgnlUtil.getValue("nestedBean.enumProperty", root));
     }
 
-    @Test
+    @Test(groups="fast")
     public void testGetNullProperties() throws Exception {
         TestBean root = new TestBean();
 
@@ -62,7 +62,7 @@ public class OgnlUtilTest {
         Assert.assertNull( OgnlUtil.getValue("stringMap", root));
     }
 
-    @Test
+    @Test(groups="fast")
     public void testSetThenGetSimpleProperties() throws Exception {
         TestBean root = new TestBean();
 
@@ -85,7 +85,7 @@ public class OgnlUtilTest {
 
     }
 
-    @Test
+    @Test(groups="fast")
     public void testSetThenGetNestedProperties() throws Exception {
         TestBean root = new TestBean();
 
@@ -109,7 +109,7 @@ public class OgnlUtilTest {
         Assert.assertTrue(root.getNestedBean() == OgnlUtil.getValue("nestedBean", root));
     }
 
-    @Test
+    @Test(groups="fast")
     public void testListProperties() throws Exception {
         TestBean root = new TestBean();
 
@@ -141,7 +141,7 @@ public class OgnlUtilTest {
         }
     }
 
-    @Test
+    @Test(groups="fast")
     public void testMapProperties() throws Exception {
         TestBean root = new TestBean();
 
@@ -165,5 +165,4 @@ public class OgnlUtilTest {
         Assert.assertNotNull(root.getBeanMap().get("testKey"));
         Assert.assertEquals(TestEnum.Fifth, root.getBeanMap().get("testKey").getEnumProperty());
     }
-
 }
