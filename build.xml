@@ -29,6 +29,7 @@
 
     <property name="stripes.dir"  value="${basedir}/stripes"/>
     <property name="examples.dir" value="${basedir}/examples"/>
+    <property name="test.dir" value="${basedir}/tests"/>
     <property name="zip.prefix" value="stripes-${stripes.version}"/>
     <property name="zip.file"   value="${zip.prefix}.zip"/>
 
@@ -55,6 +56,12 @@
         <delete file="dist/${zip.file}" failonerror="false" quiet="true"/>
     </target>
 
+    <!-- =================================================================== -->
+    <!-- Runs the Stripes unit tests.                                        -->
+    <!-- =================================================================== -->
+    <target name="test" depends="build">
+    	<ant dir="${test.dir}" target="test"/>
+    </target>
 
     <!-- =================================================================== -->
     <!-- Generates the documentation for the stripes and examples projects.  -->
