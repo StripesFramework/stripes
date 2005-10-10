@@ -94,7 +94,8 @@ public class OgnlCustomNullHandler extends ObjectNullHandler {
         int maxIndex = ctx.getRootEvaluation().getNode().jjtGetNumChildren() -1 ;
 
         // If the null value isn't the terminal value in the expression...
-        if (indexInParent != maxIndex || context.containsKey(INSTANTIATE_LEAF_NODES)) {
+        if ( (indexInParent != -1 && indexInParent < maxIndex)
+                || context.containsKey(INSTANTIATE_LEAF_NODES) ) {
 
             try {
                 if (target instanceof List) {
