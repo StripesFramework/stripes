@@ -18,7 +18,6 @@ package net.sourceforge.stripes.controller;
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.action.ActionBeanContext;
 import net.sourceforge.stripes.action.DontValidate;
-import net.sourceforge.stripes.action.ForwardResolution;
 import net.sourceforge.stripes.action.Resolution;
 import net.sourceforge.stripes.exception.StripesServletException;
 import net.sourceforge.stripes.util.Log;
@@ -125,7 +124,7 @@ public class DispatcherServlet extends HttpServlet {
 
             // If there are still errors see if we need to lookup the resolution
             if (errors.size() > 0 && resolution == null) {
-                resolution  = getErrorResolution(request);
+                resolution  = context.getSourcePageResolution();
             }
             else if (errors.size() == 0) {
                 Object returnValue = handler.invoke(bean);
@@ -175,23 +174,5 @@ public class DispatcherServlet extends HttpServlet {
                                           boolean validate) throws StripesServletException {
         return StripesFilter.getConfiguration()
                 .getActionBeanPropertyBinder().bind(bean, context, validate);
-    }
-
-    /**
-     * Determines the page to send the user to (and how) in case of validation errors.
-     */
-    protected Resolution getErrorResolution(HttpServletRequest request) throws StripesServletException {
-        String sourcePage = request.getParameter(StripesConstants.URL_KEY_SOURCE_PAGE);
-        if (sourcePage != null) {
-            return new ForwardResolution(sourcePage);
-        }
-        else {
-            throw new StripesServletException("Here's how it is. Your request generated " +
-                "validation errors, but no source page was supplied in the request. When you " +
-                "use a stripes:form tag a hidden field called '" +
-                StripesConstants.URL_KEY_SOURCE_PAGE + "' is included. If you write your own " +
-                "forms or links that could generate validation errors, you must include a value " +
-                "for this parameter. This can be done by calling request.getServletPath().");
-        }
     }
 }
