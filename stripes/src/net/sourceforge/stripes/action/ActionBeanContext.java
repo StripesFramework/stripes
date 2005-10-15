@@ -17,6 +17,7 @@ package net.sourceforge.stripes.action;
 
 import net.sourceforge.stripes.validation.ValidationErrors;
 import net.sourceforge.stripes.controller.StripesConstants;
+import net.sourceforge.stripes.util.Log;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -29,6 +30,8 @@ import java.util.Locale;
  * @author Tim Fennell
  */
 public class ActionBeanContext {
+    private static Log log = Log.getInstance(ActionBeanContext.class);
+
     private HttpServletRequest request;
     private HttpServletResponse response;
     private String eventName;
@@ -122,10 +125,27 @@ public class ActionBeanContext {
      * this method.</p>
      *
      * @return Resolution a resolution that will forward the user to the page they came from
+     * @throws IllegalStateException if the information required to construct a source page
+     *         resolution cannot be found in the request.
+     *
      */
     public Resolution getSourcePageResolution() {
         String sourcePage = request.getParameter(StripesConstants.URL_KEY_SOURCE_PAGE);
-        return new ForwardResolution(sourcePage);
+
+        if (sourcePage == null) {
+            throw new IllegalStateException(
+                    "Here's how it is. Someone (quite possible the Stripes Dispatcher) needed " +
+                    "to get the source page resolution. But no source page was supplied in the " +
+                    "request, and unless you override ActionBeanContext.getSourcePageResolution() " +
+                    "you're going to need that value. When you use a <stripes:form> tag a hidden " +
+                    "field called '" + StripesConstants.URL_KEY_SOURCE_PAGE + "' is included. " +
+                    "If you write your own forms or links that could generate validation errors, " +
+                    "you must include a value  for this parameter. This can be done by calling " +
+                    "request.getServletPath().");
+        }
+        else {
+            return new ForwardResolution(sourcePage);
+        }
     }
 
 
