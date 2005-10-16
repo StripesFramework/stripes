@@ -86,7 +86,7 @@ public class InputSelectTag extends InputTagSupport implements BodyTag {
      */
     public boolean isOptionSelected(Object optionValue, boolean selectedOnPage)
     throws StripesJspException {
-        if (getParentFormTag().getActionBean() != null) {
+        if (this.selectedValueOrValues != null) {
             return isItemSelected(optionValue, this.selectedValueOrValues);
         }
         else {
