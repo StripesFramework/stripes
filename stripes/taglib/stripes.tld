@@ -107,6 +107,30 @@
             the Stripes Formatting system, or by caling toString() if an appropriate Formatter is
             not found.</p>
 
+            <p>Checkboxes are commonly used in two ways.  The first and simplest case uses a single
+            checkbox to set a boolean or Boolean value on the ActionBean.  To do this use the
+            following syntax:</p>
+
+            <pre>&lt;stripes:checkbox name="likesChocolate"/&gt;</pre>
+
+            <p>When the <tt>value</tt> attribute is omitted, as above, the checkbox defaults to
+            the simple behaviour of sending "true" to the server when checked and nothing to the
+            server when unchecked.  For this reason it is best to use <tt>boolean</tt> values,
+            or <tt>Boolean</tt> values initialized to Boolean.FALSE.</p>
+
+            <p>The other common usage is to use checkboxes in a manner similar to a multi-select.
+            For example:</p>
+
+<pre>
+&lt;stripes:checkbox name="likes" value="chocolate"/&gt;
+&lt;stripes:checkbox name="likes" value="marshmallows"/&gt;
+&lt;stripes:checkbox name="likes" value="ice cream"/&gt;
+</pre>
+
+            <p>In this case there are multiple checkboxes each with the same name, but different
+            values.  A value is submitted to the server for each checked checkbox, and normally
+            bound to an array or List property on the ActionBean.</p>
+
             <p>Checkboxes perform automatic (re-)population of state.  They prefer, in order, values
             in the HttpServletRequest, values in the ActionBean and lastly values set using
             checked=&quot;&quot; on the page. The &quot;checked&quot; attribute is a complex
@@ -141,9 +165,15 @@
 
         <!-- Start: Standard Form Input attributes -->
         <attribute>
-            <description>@value@</description>
+            <description><![CDATA[
+                The value that will be submitted to the server if this checkbox is in the checked state
+                when clicked.  If no value is specified, the value defaults to <b>true</b> (or more
+                correctly Boolean.TRUE).  While other inputs like text and password repopulate their
+                state into the value attribute, this is not the case with checkbox, where the value
+                is an invariant.
+            ]]></description>
             <name>value</name>
-            <required>true</required>
+            <required>false</required>
             <rtexprvalue>true</rtexprvalue>
             <type>java.lang.Object</type>
         </attribute>
