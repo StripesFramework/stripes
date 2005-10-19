@@ -17,8 +17,9 @@ public class Person {
     public Person() { }
 
     /** Constructs a well formed person. */
-    public Person(String username, String first, String last, String email) {
+    public Person(String username, String password, String first, String last, String email) {
         this.username = username;
+        this.password = password;
         this.firstName = first;
         this.lastName = last;
         this.email = email;

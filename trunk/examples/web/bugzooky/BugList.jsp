@@ -23,8 +23,8 @@
                     <th>Owner</th>
                     <th></th>
                 </tr>
-                <c:forEach items="${bugManager.allBugs}" var="bug">
-                    <tr>
+                <c:forEach items="${bugManager.allBugs}" var="bug" varStatus="rowstat">
+                    <tr class="${rowstat.count mod 2 == 0 ? "even" : "odd"}">
                         <td><stripes:checkbox name="bugIds" value="${bug.id}"
                                               onclick="handleCheckboxRangeSelection(this, event);"/></td>
                         <td>${bug.id}</td>

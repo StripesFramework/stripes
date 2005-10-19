@@ -17,28 +17,39 @@ public class PersonManager {
     private static Map<Integer,Person> people = new TreeMap<Integer,Person>();
 
     static {
-        Person person = new Person("scooby", "Scooby", "Doo", "scooby@mystery.machine.tv");
+        Person person = new Person("scooby", "scooby", "Scooby", "Doo", "scooby@mystery.machine.tv");
         saveOrUpdateInternal(person);
 
-        person = new Person("shaggy", "Shaggy", "Rogers", "shaggy@mystery.machine.tv");
+        person = new Person("shaggy", "shaggy", "Shaggy", "Rogers", "shaggy@mystery.machine.tv");
         saveOrUpdateInternal(person);
 
-        person = new Person("scrappy", "Scrappy", "Doo", "scrappy@mystery.machine.tv");
+        person = new Person("scrappy", "scrappy", "Scrappy", "Doo", "scrappy@mystery.machine.tv");
         saveOrUpdateInternal(person);
 
-        person = new Person("daphne", "Daphne", "Blake", "daphne@mystery.machine.tv");
+        person = new Person("daphne", "daphne", "Daphne", "Blake", "daphne@mystery.machine.tv");
         saveOrUpdateInternal(person);
 
-        person = new Person("velma", "Velma", "Dinkly", "velma@mystery.machine.tv");
+        person = new Person("velma", "velma", "Velma", "Dinkly", "velma@mystery.machine.tv");
         saveOrUpdateInternal(person);
 
-        person = new Person("fred", "Fred", "Jones", "fred@mystery.machine.tv");
+        person = new Person("fred", "fred", "Fred", "Jones", "fred@mystery.machine.tv");
         saveOrUpdateInternal(person);
     }
 
     /** Returns the person with the specified ID, or null if no such person exists. */
     public Person getPerson(int id) {
         return people.get(id);
+    }
+
+    /** Returns a person with the specified username, if one exists. */
+    public Person getPerson(String username) {
+        for (Person person : PersonManager.people.values()) {
+            if (person.getUsername().equalsIgnoreCase(username)) {
+                return person;
+            }
+        }
+
+        return null;
     }
 
     /** Gets a list of all the people in the system. */

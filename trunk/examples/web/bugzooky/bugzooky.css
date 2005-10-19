@@ -1,21 +1,84 @@
-/* Default style information for the page. */
+/**
+ * Style sheet for bugzooky, the stripes demo application.
+ * @author Tim Fennell
+ */
 
-* {
-    font-family: sans-serif;
-    font-size: 12px;
+/** Set the default padding and margin for block level elements to be zero everywhere. */
+body, div, dd, dt, dl, img, table, tr, td, h1, h2, h3, h4, h5, form, hr, fieldset {
+	margin: 0px;
+	padding: 0px;
 }
 
+/** Styles that affect the layout of the major chunks of the page. */
 body {
-    padding: 0px;
-    margin: 0px;
+    font-family: sans-serif;
+    font-size: 10pt;
+	position: relative;
+	width: 777px;
+	height: 100%;
+	margin-left: auto;
+	margin-right: auto;
+    background-color: #e6eadb;
 }
 
-div.pageContent {
+/* Style used to display the page header. */
+#imageHeader {
+    margin: 0px;
+    background-image: url("bug.png");
+    height: 197px;
+    width: 775px;
+}
+
+#pageHeader {
+    font-size: large;
+    color: #446644;
+}
+
+#navLinks {
+    margin: 0px;
+    padding: 0px;
+}
+
+#navLinks a {
+    display: block;
+    width: 85px;
+    padding: 4px 4px 4px 10px;
+    margin: 5px 5px 5px 0px;
+    border-right: 1px solid #a9a9a9;
+    border-top: 1px solid #a9a9a9;
+    border-bottom: 1px solid #a9a9a9;
+    background-color: #4a7520;
+    color: white;
+}
+
+#loginInfo, #loginInfo a{
+    text-align: right;
+    color: #446644;
+}
+
+#contentPanel { /* this is the div in the body that contains *everything* */
+    float: left;
+    border: 1px solid #a9a9a9;
+    background-color: white;
+}
+
+#pageContent {
     margin: 5px 5px 5px 5px;
 }
 
+#footer, #footer a {
+    text-align: center;
+    background-color: #4a7520;
+    color: white;
+}
+
+#footer {
+    padding: 4px;
+}
+
+/** Default styles for link elements. */
 a {
-    color: red;
+    color: green;
     font-weight: bold;
     text-decoration: none;
 }
@@ -28,70 +91,79 @@ a:hover {
     text-decoration: underline;
 }
 
-/* Style used to display the page header. */
-div.pageheader {
-    font-size: large;
-    color: #483D8B;
-    font-variant: small-caps;
-    margin: 10px;
-}
-
+/** Styles used to created headings within the content of the page. */
 div.sectionTitle {
     font-size: larger;
-    font-style: italic;
-    color: #ff8c00;
+    color: #446644;
     margin: 0px 0px 15px 0px;
 }
 
 div.subtitle {
+    color: #444444;
     font-weight: bold;
-    color: #ff8c00;
     margin: 10px 0px 5px 0px;
 }
 
 /* Styles used to make tables for displaying data. */
+table.display {
+    width: 100%;
+}
+
 table.display, table.display th, table.display td {
-    vertical-align: top;
-    padding: 2px 2px 2px 2px;
+    vertical-align: middle;
     border-collapse: collapse;
-    border: 1px solid #999999;
+    border: 1px solid #a9a9a9;
+    padding: 3px;
+}
+
+table.display tr.even {
+    background-color: #ffffe9;
 }
 
 table.display th {
-    vertical-align: middle;
     background-color: #dcdcdc;
 }
 
-/* Style of the navigation list. */
-ul.topnav {
-    width: 90%;
-    background-color: #dcdcdc;
+/** Styles for controlling how simple two column forms are laid out. */
+table.leftRightForm td {
+    padding-bottom: 5px;
 }
 
-ul.topnav li {
-    display: inline;
-    list-style-type: none;
-    padding-right: 20px;
+table.leftRightForm th {
+    font-weight: bold;
+    text-align: right;
+    vertical-align: top;
+    padding: 3px;
+    background-color: #eeeeee;
 }
 
 /* Default styles for form fields. */
+input, select, textarea {
+    font-size: 10pt;
+    font-family: sans-serif;
+}
+
 select {
-    width: 125px;
+    width: 100px;
 }
 
 div.buttons {
-    margin: 5px 0px 5px 0px;
+    margin: 7px 0px 7px 0px;
     text-align: left;
+}
+
+textarea {
+    width: 200px;
+    height: 3em;
 }
 
 /* Styles used for form fields in error. */
 input.error, textarea.error, select.error {
-    background-color: #ffd700;
-    border: 2px solid red;
-    color: red;
+    background-color: #fafad2;
+    color: #b72222;
 }
 
 label.error {
-    color: red;
-    border-bottom: 1px dashed red;   
+    color: #b72222;
+    border-bottom: 1px dashed #b72222;
 }

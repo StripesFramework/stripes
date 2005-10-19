@@ -18,7 +18,6 @@
                     <th><stripes:label name="bugs.component.id"/></th>
                     <th><stripes:label name="bugs.owner.id"/></th>
                     <th><stripes:label name="bugs.priority"/></th>
-                    <th><stripes:label name="bugs.status"/></th>
                     <th><stripes:label name="bugs.shortDescription"/></th>
                     <th><stripes:label name="bugs.longDescription"/></th>
                 </tr>
@@ -58,14 +57,8 @@
                                 <stripes:options-enumeration enum="net.sourceforge.stripes.examples.bugzooky.biz.Priority"/>
                             </stripes:select>
                         </td>
-                        <td>
-                            <stripes:select name="bugs[${loop.index}].status">
-                                <stripes:option value="">Select One</stripes:option>
-                                <stripes:options-enumeration enum="net.sourceforge.stripes.examples.bugzooky.biz.Status"/>
-                            </stripes:select>
-                        </td>
-                        <td><stripes:textarea cols="25" rows="3" name="bugs[${loop.index}].shortDescription"/></td>
-                        <td><stripes:textarea cols="25" rows="3" name="bugs[${loop.index}].longDescription"/></td>
+                        <td><stripes:textarea name="bugs[${loop.index}].shortDescription"/></td>
+                        <td><stripes:textarea name="bugs[${loop.index}].longDescription"/></td>
                     </tr>
                 </c:forEach>
             </table>
