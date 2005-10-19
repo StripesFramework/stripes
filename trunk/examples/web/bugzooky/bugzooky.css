@@ -126,7 +126,7 @@ table.display th {
 
 /** Styles for controlling how simple two column forms are laid out. */
 table.leftRightForm td {
-    padding-bottom: 5px;
+    padding: 3px;
 }
 
 table.leftRightForm th {
