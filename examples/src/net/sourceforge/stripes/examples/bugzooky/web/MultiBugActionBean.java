@@ -47,7 +47,6 @@ public class MultiBugActionBean extends BugzookyActionBean {
         @Validate(field="longDescription", required=true, minlength=25),
         @Validate(field="component.id", required=true),
         @Validate(field="owner.id", required=true),
-        @Validate(field="status", required=true),
         @Validate(field="priority", required=true)
     })
     public List<Bug> getBugs() {
@@ -68,6 +67,7 @@ public class MultiBugActionBean extends BugzookyActionBean {
 
         for (Bug bug : bugs) {
             Bug newBug = populateBug(bug);
+
             bm.saveOrUpdate(newBug);
         }
 

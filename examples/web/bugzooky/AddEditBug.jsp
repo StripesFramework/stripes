@@ -13,17 +13,18 @@
         <stripes:form action="/bugzooky/SingleBug.action">
             <stripes:errors/>
 
-            <table class="display">
+            <table class="leftRightForm">
                 <tr>
                     <th>Bug ID:</th>
                     <td>
-                        ${actionBean.bug.id}
+                        ${empty actionBean.bug.id ? "n/a" : actionBean.bug.id}
                         <stripes:hidden name="bug.id"/>
                     </td>
                 </tr>
                 <tr>
                     <th>Opened On:</th>
-                    <td><fmt:formatDate value="${actionBean.bug.openDate}" dateStyle="medium"/></td>
+                    <td><fmt:formatDate value="${actionBean.bug.openDate}"
+                                        dateStyle="medium"/></td>
                 </tr>
                 <tr>
                     <th><stripes:label for="bug.component.id"/>:</th>
@@ -46,7 +47,7 @@
                 <tr>
                     <th><stripes:label for="bug.priority"/>:</th>
                     <td>
-                        <stripes:select name="bug.priority">
+                        <stripes:select name="bug.priority" value="Medium">
                             <stripes:options-enumeration enum="net.sourceforge.stripes.examples.bugzooky.biz.Priority"/>
                         </stripes:select>
                     </td>
@@ -74,11 +75,11 @@
                 </tr>
                 <tr>
                     <th><stripes:label for="bug.shortDescription"/>:</th>
-                    <td><stripes:text size="75" name="bug.shortDescription"/></td>
+                    <td><stripes:text style="width: 500px;" name="bug.shortDescription"/></td>
                 </tr>
                 <tr>
                     <th><stripes:label for="bug.longDescription"/>:</th>
-                    <td><stripes:textarea cols="75" rows="10" name="bug.longDescription"/></td>
+                    <td><stripes:textarea style="width:500px; height:3em;" name="bug.longDescription"/></td>
                 </tr>
                 <tr>
                     <th>Attachments:</th>

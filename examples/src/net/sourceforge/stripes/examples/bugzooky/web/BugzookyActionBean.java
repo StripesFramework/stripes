@@ -6,6 +6,7 @@ import net.sourceforge.stripes.examples.bugzooky.biz.Bug;
 import net.sourceforge.stripes.examples.bugzooky.biz.BugManager;
 import net.sourceforge.stripes.examples.bugzooky.biz.ComponentManager;
 import net.sourceforge.stripes.examples.bugzooky.biz.PersonManager;
+import net.sourceforge.stripes.examples.bugzooky.biz.Status;
 
 import java.util.Date;
 
@@ -16,14 +17,14 @@ import java.util.Date;
  * @author Tim Fennell
  */
 public class BugzookyActionBean implements ActionBean {
-    private ActionBeanContext context;
+    private BugzookyActionBeanContext context;
 
     public void setContext(ActionBeanContext context) {
-        this.context = context;
+        this.context = (BugzookyActionBeanContext) context;
     }
 
     /** Gets the ActionBeanContext set by Stripes during initialization. */
-    public ActionBeanContext getContext() {
+    public BugzookyActionBeanContext getContext() {
         return this.context;
     }
 
@@ -55,9 +56,16 @@ public class BugzookyActionBean implements ActionBean {
         newBug.setLongDescription( bug.getLongDescription() );
         newBug.setPriority( bug.getPriority());
         newBug.setShortDescription( bug.getShortDescription() );
-        newBug.setStatus( bug.getStatus() );
         newBug.setDueDate( bug.getDueDate() );
         newBug.setPercentComplete( bug.getPercentComplete() );
+
+        // If it's a new bug, status isn't mandatory, so default it
+        if (bug.getStatus() == null) {
+            newBug.setStatus(Status.New);
+        }
+        else {
+            newBug.setStatus( bug.getStatus() );
+        }
 
         // Link in the full component and person based on their IDs
         newBug.setComponent( cm.getComponent(bug.getComponent().getId()) );

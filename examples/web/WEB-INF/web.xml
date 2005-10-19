@@ -32,6 +32,15 @@
             <param-name>ActionResolver.PackageFilters</param-name>
             <param-value>net.sourceforge.stripes.*</param-value>
         </init-param>
+
+        <init-param>
+            <param-name>Configuration.Class</param-name>
+            <param-value>net.sourceforge.stripes.config.RuntimeConfiguration</param-value>
+        </init-param>
+        <init-param>
+            <param-name>ActionBeanContext.Class</param-name>
+            <param-value>net.sourceforge.stripes.examples.bugzooky.web.BugzookyActionBeanContext</param-value>
+        </init-param>
     </filter>
 
     <filter-mapping>
@@ -43,6 +52,21 @@
     <filter-mapping>
         <filter-name>StripesFilter</filter-name>
         <servlet-name>StripesDispatcher</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+    </filter-mapping>
+
+    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    <!--         Configuration of Bugzooky security filter.                  -->
+    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    <filter>
+        <description>Provides login security for Bugzooky</description>
+        <filter-name>BugzookySecurityFilter</filter-name>
+        <filter-class>net.sourceforge.stripes.examples.bugzooky.web.SecurityFilter</filter-class>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>BugzookySecurityFilter</filter-name>
+        <url-pattern>/bugzooky/*</url-pattern>
         <dispatcher>REQUEST</dispatcher>
     </filter-mapping>
 

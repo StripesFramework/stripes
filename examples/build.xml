@@ -30,6 +30,8 @@
   <path id="build.class.path">
     <pathelement location="${classes.dir}"/>
     <fileset dir="${lib.dir}" includes="*.jar"/>
+    <pathelement location="${basedir}/../stripes/lib/build/servlet-api.jar"/>
+    <pathelement location="${basedir}/../stripes/lib/build/jsp-api.jar"/>
   </path>
 
   <target name="init"
@@ -71,7 +73,10 @@
   <!-- =================================================================== -->
   <target name="war" depends="compile"
           description="Builds a deployabye war file.">
-    <jar destfile="${dist.dir}/stripes-examples.war" basedir="${web.dir}"/>
+      <copy todir="${web.dir}/WEB-INF/src" flatten="true" overwrite="true">
+          <fileset dir="${src.dir}" includes="**/*.java"/>
+      </copy>
+      <jar destfile="${dist.dir}/stripes-examples.war" basedir="${web.dir}"/>
   </target>
 
   <!-- =================================================================== -->
