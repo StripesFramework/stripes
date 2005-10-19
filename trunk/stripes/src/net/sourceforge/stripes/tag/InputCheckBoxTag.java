@@ -40,7 +40,7 @@ import javax.servlet.jsp.tagext.BodyTag;
  */
 public class InputCheckBoxTag extends InputTagSupport implements BodyTag {
     private Object checked;
-    private Object value;
+    private Object value = Boolean.TRUE; // default value to supply true/false checkbox behaviour
 
     /** Basic constructor that sets the input tag's type attribute to "checkbox". */
     public InputCheckBoxTag() {
