@@ -132,4 +132,13 @@ public class InputOptionTag extends InputTagSupport implements BodyTag {
 
         return EVAL_PAGE;
     }
+
+    /**
+     * Overridden to make sure that options do not try and register themselves with
+     * the form tag. This is done because options are not standalone input tags, but
+     * always part of a select tag (which gets registered).
+     */
+    protected void registerWithParentForm() throws StripesJspException {
+        // Do nothing, options are not standalone fields and should not register
+    }
 }
