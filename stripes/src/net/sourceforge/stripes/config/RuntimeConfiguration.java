@@ -15,15 +15,15 @@
  */
 package net.sourceforge.stripes.config;
 
-import net.sourceforge.stripes.controller.ActionBeanPropertyBinder;
-import net.sourceforge.stripes.controller.ActionResolver;
-import net.sourceforge.stripes.controller.ActionBeanContextFactory;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
-import net.sourceforge.stripes.localization.LocalePicker;
-import net.sourceforge.stripes.localization.LocalizationBundleFactory;
-import net.sourceforge.stripes.util.Log;
-import net.sourceforge.stripes.validation.TypeConverterFactory;
 import net.sourceforge.stripes.tag.TagErrorRendererFactory;
+import net.sourceforge.stripes.util.Log;
+import net.sourceforge.stripes.controller.ActionResolver;
+import net.sourceforge.stripes.controller.ActionBeanPropertyBinder;
+import net.sourceforge.stripes.controller.ActionBeanContextFactory;
+import net.sourceforge.stripes.validation.TypeConverterFactory;
+import net.sourceforge.stripes.localization.LocalizationBundleFactory;
+import net.sourceforge.stripes.localization.LocalePicker;
 import net.sourceforge.stripes.format.FormatterFactory;
 
 /**
@@ -36,7 +36,7 @@ import net.sourceforge.stripes.format.FormatterFactory;
  *   <li>If the value exists, the configuration will attempt to use it (usually to instantiate
  *       a class). If an exception occurs, the RuntimeConfiguration will throw an exception and
  *       not provide a value.  In most cases this will be fatal!</li>
- *   <li>If the value does not exist, the default from DefaultConfiguration will be returned.</li>
+ *   <li>If the value does not exist, the default from DefaultConfiguration will be used.</li>
  * </ul>
  *
  * @author Tim Fennell
@@ -69,172 +69,77 @@ public class RuntimeConfiguration extends DefaultConfiguration {
     /** The Configuration Key for looking up the name of the TagErrorRendererFactory class */
     public static final String TAG_ERROR_RENDERER_FACTORY = "TagErrorRendererFactory.Class";
 
+    /** Looks for a class name in config and uses that to create the component. */
+    @Override protected ActionResolver initActionResolver() {
+        return initializeComponent(ActionResolver.class, ACTION_RESOLVER);
+    }
+
+    /** Looks for a class name in config and uses that to create the component. */
+    @Override protected ActionBeanPropertyBinder initActionBeanPropertyBinder() {
+        return initializeComponent(ActionBeanPropertyBinder.class, ACTION_BEAN_PROPERTY_BINDER);
+    }
+
+    /** Looks for a class name in config and uses that to create the component. */
+    @Override protected ActionBeanContextFactory initActionBeanContextFactory() {
+        return initializeComponent(ActionBeanContextFactory.class, ACTION_BEAN_CONTEXT_FACTORY);
+    }
+
+    /** Looks for a class name in config and uses that to create the component. */
+    @Override protected TypeConverterFactory initTypeConverterFactory() {
+        return initializeComponent(TypeConverterFactory.class, TYPE_CONVERTER_FACTORY);
+    }
+
+    /** Looks for a class name in config and uses that to create the component. */
+    @Override protected LocalizationBundleFactory initLocalizationBundleFactory() {
+        return initializeComponent(LocalizationBundleFactory.class, LOCALIZATION_BUNDLE_FACTORY);
+    }
+
+    /** Looks for a class name in config and uses that to create the component. */
+    @Override protected LocalePicker initLocalePicker() {
+        return initializeComponent(LocalePicker.class, LOCALE_PICKER);
+    }
+
+    /** Looks for a class name in config and uses that to create the component. */
+    @Override protected FormatterFactory initFormatterFactory() {
+        return initializeComponent(FormatterFactory.class, FORMATTER_FACTORY);
+    }
+
+    /** Looks for a class name in config and uses that to create the component. */
+    @Override protected TagErrorRendererFactory initTagErrorRendererFactory() {
+        return initializeComponent(TagErrorRendererFactory.class, TAG_ERROR_RENDERER_FACTORY);
+    }
+
     /**
-     * Attempts to find names of implementation classes using the BootstrapPropertyResolver and
-     * instantiates any configured classes found.  Then delegates to the DefaultConfiguration to
-     * fill in the blanks.
+     * Internal utility method that is used to implement the main pattern of this class: lookup
+     * the name of a class based on a property name, instantiate the named class and initialize it.
+     *
+     * @param componentType a Class object representing a subclass of ConfigurableComponent
+     * @param propertyName the name of the property to look up for the class name
+     * @return an instance of the component, or null if one was not configured.
      */
-    public void init() {
+    protected <T extends ConfigurableComponent> T initializeComponent(Class<T> componentType,
+                                                                      String propertyName) {
+        String className = getBootstrapPropertyResolver().getProperty(propertyName);
 
-        // Try instantiating the ActionResolver
-        String resolverName = getBootstrapPropertyResolver().getProperty(ACTION_RESOLVER);
-        try {
-            if (resolverName != null) {
-                log.info("Found configured ActionResolver class [", resolverName, "], attempting ",
-                         "to instantiate.");
+        if (className != null) {
+            String componentTypeName = componentType.getSimpleName();
+            try {
+                log.info("Found configured ", componentTypeName, " class [", className,
+                         "], attempting to instantiate and initialize.");
 
-                    ActionResolver actionResolver
-                            = (ActionResolver) Class.forName(resolverName).newInstance();
-                    actionResolver.init(this);
-                    setActionResolver(actionResolver);
-                }
-        }
-        catch (Exception e) {
-            throw new StripesRuntimeException("Could not instantiate configured ActionResolver "
-                    + " of type [" + resolverName + "]. Please check the configuration "
-                    + "parameters specified in your web.xml.", e);
-        }
-
-        // Try instantiating the ActionBeanPropertyBinder
-        String binderName = getBootstrapPropertyResolver().getProperty(ACTION_BEAN_PROPERTY_BINDER);
-        try {
-            if (binderName != null) {
-                log.info("Found configured ActionBeanPropertyBinder class [", binderName,
-                         "], attempting to instantiate.");
-
-                    ActionBeanPropertyBinder binder =
-                            (ActionBeanPropertyBinder) Class.forName(binderName).newInstance();
-                    binder.init(this);
-                    setActionBeanPropertyBinder(binder);
+                T component = (T) Class.forName(className).newInstance();
+                component.init(this);
+                return component;
+            }
+            catch (Exception e) {
+                throw new StripesRuntimeException("Could not instantiate configured "
+                        + componentTypeName + " of type [" + className + "]. Please check "
+                        + "the configuration parameters specified in your web.xml.", e);
             }
         }
-        catch (Exception e) {
-            throw new StripesRuntimeException("Could not instantiate configured "
-                    + "ActionBeanPropertyBinder of type [" + binderName + "]. Please check the "
-                    + "configuration parameters specified in your web.xml.", e);
+        else {
+            return null;
         }
-
-        // Try instantiating the ActionBeanContextFactory
-        String contextFactoryName = getBootstrapPropertyResolver().getProperty(ACTION_BEAN_CONTEXT_FACTORY);
-        try {
-            if (contextFactoryName != null) {
-                log.info("Found configured ActionBeanContextFactory class [", contextFactoryName,
-                         "], attempting to instantiate.");
-
-                ActionBeanContextFactory contextFactory =
-                        (ActionBeanContextFactory) Class.forName(contextFactoryName).newInstance();
-                contextFactory.init(this);
-                setActionBeanContextFactory(contextFactory);
-            }
-        }
-        catch (Exception e) {
-            throw new StripesRuntimeException("Could not instantiate configured "
-                    + "ActionBeanContextFactory of type [" + contextFactoryName + "]. Please check "
-                    + "the configuration parameters specified in your web.xml.", e);
-        }
-
-        // Try instantiating the TypeConverterFactory
-        String converterName = getBootstrapPropertyResolver().getProperty(TYPE_CONVERTER_FACTORY);
-        try {
-            if (converterName != null) {
-                log.info("Found configured TypeConverterFactory class [", converterName,
-                         "], attempting to instantiate.");
-
-                TypeConverterFactory converter =
-                        (TypeConverterFactory) Class.forName(converterName).newInstance();
-                converter.init(this);
-                setTypeConverterFactory(converter);
-            }
-        }
-        catch (Exception e) {
-            throw new StripesRuntimeException("Could not instantiate configured "
-                    + "ActionBeanPropertyBinder of type [" + binderName + "]. Please check the "
-                    + "configuration parameters specified in your web.xml.", e);
-        }
-
-        // Try instantiating the LocalizationBundleFactory
-        String bundleFactoryName =
-                getBootstrapPropertyResolver().getProperty(LOCALIZATION_BUNDLE_FACTORY);
-        try {
-            if (bundleFactoryName != null) {
-                log.info("Found configured LocalizationBundleFactory class [", bundleFactoryName,
-                         "], attempting to instantiate.");
-
-                LocalizationBundleFactory bundleFactory =
-                        (LocalizationBundleFactory) Class.forName(bundleFactoryName).newInstance();
-                bundleFactory.init(this);
-                setLocalizationBundleFactory(bundleFactory);
-            }
-        }
-        catch (Exception e) {
-            throw new StripesRuntimeException("Could not instantiate configured "
-                    + "LocalizationBundleFactory of type [" + bundleFactoryName + "]. Please check "
-                    + "the configuration parameters specified in your web.xml.", e);
-        }
-
-        // Try instantiating the LocalePicker
-        String localePickerName =
-                getBootstrapPropertyResolver().getProperty(LOCALE_PICKER);
-        try {
-            if (localePickerName != null) {
-                log.info("Found configured LocalePicker class [", localePickerName,
-                         "], attempting to instantiate.");
-
-                LocalePicker localePicker =
-                        (LocalePicker) Class.forName(localePickerName).newInstance();
-                localePicker.init(this);
-                setLocalePicker(localePicker);
-            }
-        }
-        catch (Exception e) {
-            throw new StripesRuntimeException("Could not instantiate configured "
-                    + "LocalePicker of type [" + localePickerName + "]. Please check "
-                    + "the configuration parameters specified in your web.xml.", e);
-        }
-
-
-        // Try instantiating the FormatterFactory
-        String formatterFactoryName =
-                getBootstrapPropertyResolver().getProperty(FORMATTER_FACTORY);
-        try {
-            if (formatterFactoryName != null) {
-                log.info("Found configured FormatterFactory class [", formatterFactoryName,
-                         "], attempting to instantiate.");
-
-                FormatterFactory formatterFactory =
-                        (FormatterFactory) Class.forName(formatterFactoryName).newInstance();
-                formatterFactory.init(this);
-                setFormatterFactory(formatterFactory);
-            }
-        }
-        catch (Exception e) {
-            throw new StripesRuntimeException("Could not instantiate configured "
-                    + "FormatterFactory of type [" + formatterFactoryName + "]. Please check "
-                    + "the configuration parameters specified in your web.xml.", e);
-        }
-
-        // Try instantiating the TagErrorRendererFactory
-        String tagErrorRendererFactoryName =
-                getBootstrapPropertyResolver().getProperty(TAG_ERROR_RENDERER_FACTORY);
-        try {
-            if (tagErrorRendererFactoryName != null) {
-                log.info("Found configured TagErrorRendererFactory class [", tagErrorRendererFactoryName,
-                         "], attempting to instantiate.");
-
-                TagErrorRendererFactory tagErrorRendererFactory =
-                        (TagErrorRendererFactory) Class.forName(tagErrorRendererFactoryName).newInstance();
-                tagErrorRendererFactory.init(this);
-                setTagErrorRendererFactory(tagErrorRendererFactory);
-            }
-        }
-        catch (Exception e) {
-            throw new StripesRuntimeException("Could not instantiate configured "
-                    + "TagErrorRendererFactory of type [" + tagErrorRendererFactoryName + "]. Please check "
-                    + "the configuration parameters specified in your web.xml.", e);
-        }
-
-        // And now call super.init to fill in any blanks
-        super.init();
     }
 }
 
