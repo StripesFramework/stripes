@@ -288,7 +288,7 @@ public abstract class InputTagSupport extends HtmlTagSupport {
      * @throws StripesJspException if the parent form tag is not found
      */
     protected void registerWithParentForm() throws StripesJspException {
-        getParentFormTag().registerField(getName());
+        getParentFormTag().registerField(this);
     }
 
     /** Abstract method implemented in child classes instead of doStartTag(). */
