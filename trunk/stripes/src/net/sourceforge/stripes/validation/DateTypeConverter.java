@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
 
 /**
  * <p>A TypeConverter that aggressively attempts to convert a String to a java.util.Date object.
- * Under the cover it uses DateFormat instances to do the heavy lifting, but since
+ * Under the covers it uses DateFormat instances to do the heavy lifting, but since
  * SimpleDateFormat is quite picky about its input a couple of measures are taken to improve our
  * chances of parsing a Date.  First the String is pre-processed to collapse white spaces into
  * single spaces, and to remove commas from the String.  Then an array of DateFormat instances
@@ -35,8 +35,8 @@ import java.util.regex.Pattern;
  *
  * <p>This class is designed to be overridden in order to change its behaviour.  Subclasses can
  * override the preProcessInput() method to change the pre-processing behavior if desired. Similarly,
- * subclasses can override getDateFormats() to return a different set of DateFormats as applicable
- * for the given application.</p>
+ * subclasses can override getFormatStrings() to change the set of format strings used in parsing,
+ * or even override getDateFormats() to change how the DateFormat objects get constructed.</p>
  *
  * <p>The default set of patterns used (on the processed input) are:
  *   <ul>
@@ -60,13 +60,7 @@ public class DateTypeConverter implements TypeConverter<Date> {
      */
     public void setLocale(Locale locale) {
         this.locale = locale;
-
-        this.formats = new DateFormat[formatStrings.length];
-
-        for (int i=0; i<formatStrings.length; ++i) {
-            this.formats[i] = new SimpleDateFormat(formatStrings[i], locale);
-            this.formats[i].setLenient(false);
-        }
+        this.formats = getDateFormats();
     }
 
     /**
@@ -87,6 +81,33 @@ public class DateTypeConverter implements TypeConverter<Date> {
         "MMMM d yy",
         "d MMMM yy",
     };
+
+    /**
+     * Returns an array of format strings that will be used, in order, to try and parse the date.
+     * This method can be overridden to make DateTypeConverter use a different set of format
+     * Strings.
+     */
+    protected String[] getFormatStrings() {
+        return DateTypeConverter.formatStrings;
+    }
+
+    /**
+     * Returns an array of DateFormat objects that will be used in sequence to try and parse the
+     * date String. This method will be called once when the DateTypeConverter instance is
+     * initialized.  By default it cycles through the list of format strings returned by
+     * getFormatStrings() and constructs a DateFormat object for each one.
+     */
+    protected DateFormat[] getDateFormats() {
+        String[] formatStrings = getFormatStrings();
+        DateFormat[] dateFormats = new DateFormat[formatStrings.length];
+
+        for (int i=0; i<formatStrings.length; ++i) {
+            dateFormats[i] = new SimpleDateFormat(formatStrings[i], locale);
+            dateFormats[i].setLenient(false);
+        }
+
+        return dateFormats;
+    }
 
     /**
      * Attempts to convert a String to a Date object.  Pre-processes the input by invoking the
