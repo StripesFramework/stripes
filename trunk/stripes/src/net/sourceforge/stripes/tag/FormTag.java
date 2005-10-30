@@ -15,15 +15,18 @@
  */
 package net.sourceforge.stripes.tag;
 
+import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.controller.StripesConstants;
 import net.sourceforge.stripes.exception.StripesJspException;
-import net.sourceforge.stripes.action.ActionBean;
+import net.sourceforge.stripes.util.HtmlUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.tagext.BodyTag;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.HashSet;
 
@@ -39,8 +42,8 @@ public class FormTag extends HtmlTagSupport implements BodyTag {
     /** Stores the value of the action attribute before the context gets appended. */
     private String actionWithoutContext;
 
-    /** The set of input field names that have been registered in the tag body. */
-    private Set<String> fieldNamesPresent = new HashSet<String>();
+    /** A map of field name to field type for all fields registered with the form. */
+    private Map<String,Class> fieldsPresent = new HashMap<String,Class>();
 
     /**
      * Sets the action for the form.  If the form action begins with a slash, the context path of
@@ -136,6 +139,8 @@ public class FormTag extends HtmlTagSupport implements BodyTag {
             HttpServletRequest request = (HttpServletRequest) getPageContext().getRequest();
             out.write( request.getServletPath());
             out.write("\" />");
+
+            writeFieldsPresentHiddenField(out);
             out.write("</div>");
 
             getBodyContent().writeOut( getPageContext().getOut() );
@@ -146,6 +151,35 @@ public class FormTag extends HtmlTagSupport implements BodyTag {
         }
 
         return EVAL_PAGE;
+    }
+
+    /**
+     * Examines the form tag to determine what fields are present in the form and might
+     * not get submitted to the server. Writes out a hidden field that contains the names
+     * of all those fields so that we can detect non-submission when the request comes back.
+     * Outputs only the names of checkboxes and select tags as these are the only HTML input
+     * types that do not get submitted if no value is chosen.
+     *
+     * @param out the output  writer into which the hidden tag should be written
+     * @throws IOException if the writer throws one
+     */
+    protected void writeFieldsPresentHiddenField(JspWriter out) throws IOException {
+        // Write out an encoded list of the field names in the form
+        Set<String> namesToInclude = new HashSet<String>();
+        for (Map.Entry<String,Class> entry : this.fieldsPresent.entrySet()) {
+            Class fieldClass = entry.getValue();
+            if (InputSelectTag.class.isAssignableFrom(fieldClass)
+                    || InputCheckBoxTag.class.isAssignableFrom(fieldClass)) {
+                namesToInclude.add(entry.getKey());
+            }
+        }
+
+        String hiddenFieldValue = HtmlUtil.combineValues(namesToInclude);
+        out.write("<input type=\"hidden\" name=\"");
+        out.write(StripesConstants.URL_KEY_FIELDS_PRESENT);
+        out.write("\" value=\"");
+        out.write(hiddenFieldValue);
+        out.write("\" />");
     }
 
     /**
@@ -165,10 +199,10 @@ public class FormTag extends HtmlTagSupport implements BodyTag {
      * Used by nested tags to notify the form that a field with the specified name has been
      * written to the form.
      *
-     * @param name the name of the form field written to the page
+     * @param tag the input field tag being registered
      */
-    public void registerField(String name) {
-        this.fieldNamesPresent.add(name);
+    public void registerField(InputTagSupport tag) {
+        this.fieldsPresent.put(tag.getName(), tag.getClass());
     }
 
     /**
@@ -180,6 +214,6 @@ public class FormTag extends HtmlTagSupport implements BodyTag {
      * @return Set<String> - the set of field names seen so far
      */
     public Set<String> getRegisteredFields() {
-        return this.fieldNamesPresent;
+        return this.fieldsPresent.keySet();
     }
 }

@@ -21,6 +21,8 @@ import net.sourceforge.stripes.action.FileBean;
 import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.util.OgnlUtil;
+import net.sourceforge.stripes.util.ReflectUtil;
+import net.sourceforge.stripes.util.HtmlUtil;
 import net.sourceforge.stripes.validation.ScopedLocalizableError;
 import net.sourceforge.stripes.validation.TypeConverter;
 import net.sourceforge.stripes.validation.Validate;
@@ -28,7 +30,9 @@ import net.sourceforge.stripes.validation.ValidateNestedProperties;
 import net.sourceforge.stripes.validation.ValidationError;
 import net.sourceforge.stripes.validation.ValidationErrors;
 import ognl.NoSuchPropertyException;
+import ognl.OgnlException;
 
+import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -62,6 +66,7 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
 
     static {
         SPECIAL_KEYS.add(StripesConstants.URL_KEY_SOURCE_PAGE);
+        SPECIAL_KEYS.add(StripesConstants.URL_KEY_FIELDS_PRESENT);
     }
 
     /** Map of validation annotations that is built at startup. */
@@ -197,18 +202,10 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
                         fieldErrors.addAll(name.getName(), errors);
                     }
                     else if (convertedValues.size() > 0) {
-                        // If the target type is an array, set it as one, otherwise set as scalar
-                        if (type.isArray()) {
-                            bind(bean, name.getName(), convertedValues.toArray());
-                        }
-                        else if (type.isAssignableFrom(Collection.class)) {
-                            Collection collection = (Collection) type.newInstance();
-                            collection.addAll(convertedValues);
-                            bind(bean, name.getName(), collection);
-                        }
-                        else {
-                            bind(bean, name.getName(), convertedValues.get(0));
-                        }
+                        bindNonNullValue(bean, name.getName(), convertedValues, type);
+                    }
+                    else {
+                        bindNullValue(bean, name.getName(), type);
                     }
                 }
             }
@@ -223,6 +220,8 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
                           bean.getClass().getName());
             }
         }
+
+        bindMissingValuesAsNull(bean, context);
 
         // Then we figure out if any files were uploaded and bind those too
         StripesRequestWrapper request = (StripesRequestWrapper) context.getRequest();
@@ -249,6 +248,95 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
 
         return fieldErrors;
     }
+
+    /**
+     * Uses a hidden field to deterine what (if any) fields were present in the form but did
+     * not get submitted to the server. For each such field the value is "softly" set to null
+     * on the ActionBean.  This is not uncommon for checkboxes, and also for multi-selects.
+     *
+     * @param bean the ActionBean being bound to
+     * @param context the current ActionBeanContext
+     */
+    protected void bindMissingValuesAsNull(ActionBean bean, ActionBeanContext context) {
+        HttpServletRequest request = context.getRequest();
+        Set<String> paramatersSubmitted = request.getParameterMap().keySet();
+        String fieldsPresent = request.getParameter(StripesConstants.URL_KEY_FIELDS_PRESENT);
+
+        for (String name: HtmlUtil.splitValues(fieldsPresent)) {
+            if (!paramatersSubmitted.contains(name)) {
+                try {
+                    bindNullValue(bean, name, OgnlUtil.getPropertyClass(name, bean));
+                }
+                catch (Exception e) {
+                    log.warn(e, "Could not set property '", name, "' to null on ActionBean of",
+                             "type '", bean.getClass(), "'.");
+                }
+            }
+        }
+    }
+
+    /**
+     * Internal helper method to bind one or more values to a single property on an
+     * ActionBean. If the target type is an array of Collection, then all values are bound.
+     * If the target type is a scalar type then the first value in the List of values is bound.
+     *
+     * @param bean the ActionBean instance to which the property is being bound
+     * @param property the name of the property being bound
+     * @param valueOrValues a List containing one or more values
+     * @param targetType the declared type of the property on the ActionBean
+     * @throws Exception if the property cannot be bound for any reason
+     */
+    protected void bindNonNullValue(ActionBean bean,
+                                    String property,
+                                    List<Object> valueOrValues,
+                                    Class targetType) throws Exception {
+        // If the target type is an array, set it as one, otherwise set as scalar
+        if (targetType.isArray()) {
+            OgnlUtil.setValue(property, bean, valueOrValues.toArray());
+        }
+        else if (Collection.class.isAssignableFrom(targetType)) {
+            Collection collection = null;
+            if (targetType.isInterface()) {
+                collection = (Collection) ReflectUtil.getInterfaceInstance(targetType);
+            }
+            else {
+                collection = (Collection) targetType.newInstance();
+            }
+
+            collection.addAll(valueOrValues);
+            OgnlUtil.setValue(property, bean, collection);
+        }
+        else {
+            OgnlUtil.setValue(property, bean, valueOrValues.get(0));
+        }
+    }
+
+
+    /**
+     * Internal helper method that determines what to do when no value was supplied for a
+     * given form field (but the field was present on the page). In all cases if the property
+     * is already null, or intervening objects in a nested property are null, nothing is done.
+     * If the property is non-null, it will be set to null.  Unless the property is a collection,
+     * in which case it will be clear()'d.
+     *
+     * @param bean the ActionBean to which properties are being bound
+     * @param property the name of the property  being bound
+     * @param type the declared type of the property on the ActionBean
+     * @throws OgnlException if the value cannot be manipulated for any reason
+     */
+    protected void bindNullValue(ActionBean bean, String property, Class type) throws OgnlException {
+        // If the class is a collection, try fetching it and setting it and clearing it
+        if (Collection.class.isAssignableFrom(type)) {
+            Collection collection = (Collection) OgnlUtil.getValue(property, bean);
+            if (collection != null) {
+                collection.clear();
+            }
+        }
+        else {
+            OgnlUtil.setNullValue(property, bean);
+        }
+    }
+
 
     /**
      * Converts the map of parameters in the request into a Map of ParameterName to String[].
@@ -319,7 +407,9 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
 
 
     /**
-     *
+     * Validates that all required fields have been submitted. This is done by looping through
+     * throw the set of validation annotations and checking that each field marked as required
+     * was submitted in the request and submitted with a non-empty value.
      */
     protected void validateRequiredFields(Map<ParameterName,String[]> parameters,
                                           ActionBeanContext context,
@@ -486,7 +576,7 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
 
     /**
      * <p>Converts the String[] of values for a given parameter in the HttpServletRequest into the
-     * desired type of Object.  If a converter is decalred using an annotation for the property
+     * desired type of Object.  If a converter is declared using an annotation for the property
      * (or getter/setter) then that converter will be used - if it does not convert to the right
      * type an exception will be logged and values will not be converted. If no Converter was
      * specified then a default converter will be looked up based on the target type of the

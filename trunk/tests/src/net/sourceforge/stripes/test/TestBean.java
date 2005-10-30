@@ -14,6 +14,7 @@ public class TestBean {
     private int intProperty;
     private Long longProperty;
     private TestEnum enumProperty;
+    private boolean booleanProperty;
 
     private String[] stringArray;
     private List<String> stringList;
@@ -46,6 +47,14 @@ public class TestBean {
 
     public void setLongProperty(Long longProperty) {
         this.longProperty = longProperty;
+    }
+
+    public boolean isBooleanProperty() {
+        return booleanProperty;
+    }
+
+    public void setBooleanProperty(boolean booleanProperty) {
+        this.booleanProperty = booleanProperty;
     }
 
     public TestEnum getEnumProperty() {

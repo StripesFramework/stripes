@@ -5,6 +5,8 @@ import org.testng.Assert;
 import net.sourceforge.stripes.test.TestBean;
 import net.sourceforge.stripes.test.TestEnum;
 
+import java.util.ArrayList;
+
 /**
  * TestNG test class that exercises the OgnlUtil class to ensure that the
  * custom null handling and list index handling is working properly.
@@ -164,5 +166,58 @@ public class OgnlUtilTest {
         Assert.assertNotNull(root.getBeanMap());
         Assert.assertNotNull(root.getBeanMap().get("testKey"));
         Assert.assertEquals(TestEnum.Fifth, root.getBeanMap().get("testKey").getEnumProperty());
+    }
+
+    @Test(groups="fast")
+    public void testSetNull() throws Exception {
+        TestBean root = new TestBean();
+
+        // Try setting a null on a null nested property and make sure the nested
+        // property doesn't get instantiated
+        Assert.assertNull(root.getNestedBean());
+        OgnlUtil.setNullValue("nestedBean.stringProperty", root);
+        Assert.assertNull(root.getNestedBean());
+
+        // Now set the property set the nest bean and do it again
+        root.setNestedBean( new TestBean() );
+        OgnlUtil.setNullValue("nestedBean.stringProperty", root);
+        Assert.assertNotNull(root.getNestedBean());
+        Assert.assertNull(root.getNestedBean().getStringProperty());
+
+        // Now set the string property and null it out for real
+        root.getNestedBean().setStringProperty("Definitely Not Null");
+        OgnlUtil.setNullValue("nestedBean.stringProperty", root);
+        Assert.assertNotNull(root.getNestedBean());
+        Assert.assertNull(root.getNestedBean().getStringProperty());
+
+        // Now use setNullValue to trim the nestedBean
+        OgnlUtil.setNullValue("nestedBean", root);
+        Assert.assertNull(root.getNestedBean());
+
+        // Now try some nulling out of indexed properties
+        root.setStringList(new ArrayList<String>());
+        root.getStringList().add("foo");
+        root.getStringList().add("bar");
+        Assert.assertNotNull(root.getStringList().get(0));
+        Assert.assertNotNull(root.getStringList().get(1));
+        OgnlUtil.setNullValue("stringList[1]", root);
+        Assert.assertNotNull(root.getStringList().get(0));
+        Assert.assertNull(root.getStringList().get(1));
+    }
+
+    @Test(groups="fast")
+    public void testSetNullPrimitives() throws Exception {
+        TestBean root = new TestBean();
+        root.setBooleanProperty(true);
+        root.setIntProperty(77);
+
+        Assert.assertEquals(77, root.getIntProperty());
+        Assert.assertEquals(true, root.isBooleanProperty());
+
+        OgnlUtil.setNullValue("intProperty", root);
+        OgnlUtil.setNullValue("booleanProperty", root);
+
+        Assert.assertEquals(0, root.getIntProperty());
+        Assert.assertEquals(false, root.isBooleanProperty());
     }
 }

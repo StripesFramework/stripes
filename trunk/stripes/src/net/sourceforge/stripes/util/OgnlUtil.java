@@ -100,6 +100,28 @@ public class OgnlUtil {
     }
 
     /**
+     * Sets the value of a named property to null. If there are intermediate null values then
+     * objects are not instantiated and the method returns. If there are no intermediate
+     * nulls then the appropriate set method will be invoked with null.
+     *
+     * @param property an expression representing the property to set
+     * @param root the object on which the proeprty is to be set back to null
+     */
+    public static void setNullValue(String property, Object root) throws OgnlException {
+        OgnlContext context = createContext();
+        context.put(OgnlCustomNullHandler.INSTANTIATE_NOTHING,
+                    OgnlCustomNullHandler.INSTANTIATE_NOTHING);
+        try {
+            Ognl.setValue(getExpression(property), context, root, null);
+        }
+        catch (OgnlException oe) {
+            // Ognl is slighly retarded in that if there is an intermediate null in a nested
+            // property there is no way to abort processing without Ognl throwing an OgnlException.
+            // So, if we get here, it just means things were already null, and it's ok.
+        }
+    }
+
+    /**
      * Retrieves the class type of the specified property without instantiating the property
      * itself. All earlier properties in a chain will, however, be instantiated.
      *

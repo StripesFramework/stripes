@@ -28,6 +28,12 @@ public interface StripesConstants {
     String URL_KEY_SOURCE_PAGE = "_sourcePage";
 
     /**
+     * The name of a URL parameter that is used to hold the path (relative to the web application
+     * root) from which the current form submission was made.
+     */
+    String URL_KEY_FIELDS_PRESENT = "_stripes_fieldsPresent";
+
+    /**
      * The name under which the ActionBean for a request is stored as a request attribute before
      * forwarding to the JSP.
      */
