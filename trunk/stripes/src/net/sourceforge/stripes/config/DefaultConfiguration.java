@@ -38,11 +38,12 @@ import net.sourceforge.stripes.format.DefaultFormatterFactory;
  * not lookup configuration information anywhere!  It returns hard-coded defaults that will result
  * in a working system without any user intervention.</p>
  *
- * <p>The DefaultConfiguration is designed to be easily extended as needed. Subclasses should simply
- * implement their own init() method which instantiates the ConfigurableComponents in the manner
- * required and then call super.setXXX() to set them on the configuration.  The last step should be
- * to call super.init(), which will allow the DefaultConfiguration to fill in any implementations
- * that were not set by the child class.</p>
+ * <p>The DefaultConfiguration is designed to be easily extended as needed.  The init() method
+ * ensures that compoments are initialized in the correct order (taking dependencies into account),
+ * and should generally not be overridden. It invokes a number of initXXX() methods, one per
+ * configurable component. Subclasses should override any of the initXXX() methods desirable to
+ * return a fully initialized instance of the relevant component type, or null if the default is
+ * desired.</p>
  *
  * @author Tim Fennell
  */
@@ -68,41 +69,49 @@ public class DefaultConfiguration implements Configuration {
      */
     public void init() {
         try {
+            this.actionResolver = initActionResolver();
             if (this.actionResolver == null) {
                 this.actionResolver = new AnnotatedClassActionResolver();
                 this.actionResolver.init(this);
             }
 
+            this.actionBeanPropertyBinder = initActionBeanPropertyBinder();
             if (this.actionBeanPropertyBinder == null) {
                 this.actionBeanPropertyBinder = new OgnlActionBeanPropertyBinder();
                 this.actionBeanPropertyBinder.init(this);
             }
 
+            this.actionBeanContextFactory = initActionBeanContextFactory();
             if (this.actionBeanContextFactory == null) {
                 this.actionBeanContextFactory = new DefaultActionBeanContextFactory();
                 this.actionBeanContextFactory.init(this);
             }
 
+            this.typeConverterFactory = initTypeConverterFactory();
             if (this.typeConverterFactory == null) {
                 this.typeConverterFactory = new DefaultTypeConverterFactory();
                 this.typeConverterFactory.init(this);
             }
 
+            this.localizationBundleFactory = initLocalizationBundleFactory();
             if (this.localizationBundleFactory == null) {
                 this.localizationBundleFactory = new DefaultLocalizationBundleFactory();
                 this.localizationBundleFactory.init(this);
             }
 
+            this.localePicker = initLocalePicker();
             if (this.localePicker == null) {
                 this.localePicker = new DefaultLocalePicker();
                 this.localePicker.init(this);
             }
 
+            this.formatterFactory = initFormatterFactory();
             if (this.formatterFactory == null) {
                 this.formatterFactory = new DefaultFormatterFactory();
                 this.formatterFactory.init(this);
             }
 
+            this.tagErrorRendererFactory = initTagErrorRendererFactory();
             if (this.tagErrorRendererFactory == null) {
                 this.tagErrorRendererFactory = new DefaultTagErrorRendererFactory();
                 this.tagErrorRendererFactory.init(this);
@@ -127,10 +136,8 @@ public class DefaultConfiguration implements Configuration {
         return this.actionResolver;
     }
 
-    /** Allows subclasses to set the ActionResolver instance to be used. */
-    protected void setActionResolver(ActionResolver actionResolver) {
-        this.actionResolver = actionResolver;
-    }
+    /** Allows subclasses to initialize a non-default ActionResovler. */
+    protected ActionResolver initActionResolver() { return null; }
 
     /**
      * Will always return an OgnlActionBeanPropertyBinder
@@ -140,10 +147,8 @@ public class DefaultConfiguration implements Configuration {
         return this.actionBeanPropertyBinder;
     }
 
-    /** Allows subclasses to set the ActionBeanPropertyBinder instance to be used. */
-    protected void setActionBeanPropertyBinder(ActionBeanPropertyBinder propertyBinder) {
-        this.actionBeanPropertyBinder = propertyBinder;
-    }
+    /** Allows subclasses to initizlize a non-default ActionBeanPropertyBinder. */
+    protected ActionBeanPropertyBinder initActionBeanPropertyBinder() { return null; }
 
     /**
      * Returns the configured ActionBeanContextFactory. Unless a subclass has configured a custom
@@ -155,10 +160,8 @@ public class DefaultConfiguration implements Configuration {
         return this.actionBeanContextFactory;
     }
 
-    /** Allows subclasses to set the ActionBeanContextFactory instance to be used. */
-    protected void setActionBeanContextFactory(ActionBeanContextFactory contextFactory) {
-        this.actionBeanContextFactory = contextFactory;
-    }
+    /** Allows subclasses to initialize a non-default ActionBeanContextFactory. */
+    protected ActionBeanContextFactory initActionBeanContextFactory() { return null; }
 
     /**
      * Will always return an instance of DefaultTypeConverterFactory.
@@ -168,10 +171,8 @@ public class DefaultConfiguration implements Configuration {
         return this.typeConverterFactory;
     }
 
-    /** Allows subclasses to set the TypeConverterFactory instance to be used. */
-    protected void setTypeConverterFactory(TypeConverterFactory typeConverterFactory) {
-        this.typeConverterFactory = typeConverterFactory;
-    }
+    /** Allows subclasses to initizlize a non-default TypeConverterFactory. */
+    protected TypeConverterFactory initTypeConverterFactory() { return null; }
 
     /**
      * Returns an instance of a LocalizationBundleFactory.  By default this will be an instance of
@@ -181,10 +182,8 @@ public class DefaultConfiguration implements Configuration {
         return this.localizationBundleFactory;
     }
 
-    /** Allows subclasses to set the LocalizationBundleFactory instance to be used. */
-    protected void setLocalizationBundleFactory(LocalizationBundleFactory localizationBundleFactory) {
-        this.localizationBundleFactory = localizationBundleFactory;
-    }
+    /** Allows subclasses to initialize a non-default LocalizationBundleFactory. */
+    protected LocalizationBundleFactory initLocalizationBundleFactory() { return null; }
 
     /**
      * Returns an instance of a LocalePicker. Unless a subclass has picked another implementation
@@ -192,8 +191,8 @@ public class DefaultConfiguration implements Configuration {
      */
     public LocalePicker getLocalePicker() { return this.localePicker; }
 
-    /** Allows subclasses to set the LocalePicker instance to be used. */
-    protected void setLocalePicker(LocalePicker localePicker) { this.localePicker = localePicker; }
+    /** Allows subclasses to initialize a non-default LocalePicker. */
+    protected LocalePicker initLocalePicker() { return null; }
 
     /**
      * Returns an instance of a FormatterFactory. Unless a subclass has picked another implementation
@@ -201,10 +200,8 @@ public class DefaultConfiguration implements Configuration {
      */
     public FormatterFactory getFormatterFactory() { return this.formatterFactory; }
 
-    /** Allows subclasses to set the FormatterFactory instance to be used. */
-    protected void setFormatterFactory(FormatterFactory formatterFactory) {
-        this.formatterFactory = formatterFactory;
-    }
+    /** Allows subclasses to initialize a non-default FormatterFactory. */
+    protected FormatterFactory initFormatterFactory() { return null; }
 
     /**
      * Returns an instance of a TagErrorRendererFactory. Unless a subclass has picked another
@@ -214,8 +211,6 @@ public class DefaultConfiguration implements Configuration {
         return tagErrorRendererFactory;
     }
 
-    /** Allows subclasses to set the TagErrorRendererFactory instance to be used. */
-    protected void setTagErrorRendererFactory(TagErrorRendererFactory tagErrorRendererFactory) {
-        this.tagErrorRendererFactory = tagErrorRendererFactory;
-    }
+    /** Allows subclasses to initialize a non-default TagErrorRendererFactory instance to be used. */
+    protected TagErrorRendererFactory initTagErrorRendererFactory() { return null; }
 }
