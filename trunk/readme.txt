@@ -61,7 +61,7 @@ Contents
         -> lib/stripes.jar
         -> lib/commons-logging.jar
         -> lib/cos.jar
-        -> ognl-2.6.7.jar
+        -> lib/ognl-2.6.7.jar
         
    -> Include the following in your web.xml
    
