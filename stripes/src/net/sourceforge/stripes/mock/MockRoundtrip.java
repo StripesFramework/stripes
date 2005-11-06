@@ -166,6 +166,18 @@ public class MockRoundtrip {
     }
 
     /**
+     * Executes the request in the servlet context that was provided in the constructor. Sets up
+     * the request so that it mimics the submission of a specific event, named by the 'event'
+     * parameter to this method. If the request throws an Exception then that will be thrown from
+     * this method. Otherwise, once the execution has completed you can use the other methods on
+     * this class to examine the outcome.
+     */
+    public void execute(String event) throws Exception {
+        setParameter(event, "");
+        execute();
+    }
+
+    /**
      * Gets the instance of the ActionBean type provided that was instantiated by Stripes to
      * handle the request. If a bean of this type was not instantiated, this method will
      * return null.
