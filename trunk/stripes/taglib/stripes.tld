@@ -377,7 +377,7 @@
             <name>enctype</name><required>false</required><rtexprvalue>true</rtexprvalue>
         </attribute>
         <attribute>
-            <description>The HTTP method used for sending data to the server. Options are GET and PUT. Default is GET. (HTML Pass-through)</description>
+            <description>The HTTP method used for sending data to the server. Options are GET and POST. Default is GET. (HTML Pass-through)</description>
             <name>method</name><required>false</required><rtexprvalue>true</rtexprvalue>
         </attribute>
         <attribute>
