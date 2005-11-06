@@ -224,7 +224,7 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
         bindMissingValuesAsNull(bean, context);
 
         // Then we figure out if any files were uploaded and bind those too
-        StripesRequestWrapper request = (StripesRequestWrapper) context.getRequest();
+        StripesRequestWrapper request = StripesRequestWrapper.findStripesWrapper(context.getRequest());
         if ( request.isMultipart() ) {
             Enumeration<String> fileParameterNames = request.getFileParameterNames();
 

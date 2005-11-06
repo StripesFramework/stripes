@@ -21,6 +21,7 @@ import net.sourceforge.stripes.exception.StripesServletException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
+import javax.servlet.ServletRequest;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -52,6 +53,38 @@ public class StripesRequestWrapper extends HttpServletRequestWrapper {
 
     /** The Locale that is going to be used to process the request. */
     private Locale locale;
+
+    /**
+     * Looks for the StripesRequesetWrapper for the specific request and returns it. This is done
+     * by checking to see if the request is a StripesRequestWrapper, and if not, successively
+     * unwrapping the request until the StripesRequestWrapper is found.
+     *
+     * @param request the ServletRequest that is wrapped by a StripesRequestWrapper
+     * @return the StripesRequestWrapper that is wrapping the supplied request
+     * @throws IllegalStateException if the request is not wrapped by Stripes
+     */
+    public static StripesRequestWrapper findStripesWrapper(ServletRequest request) {
+        // Loop through any request wrappers looking for the stripes one
+        while ( !(request instanceof StripesRequestWrapper)
+                && request != null
+                && request instanceof HttpServletRequestWrapper) {
+            request = ((HttpServletRequestWrapper) request).getRequest();
+        }
+
+        // If we have our wrapper after the loop exits, we're good; otherwise...
+        if (request instanceof StripesRequestWrapper) {
+            return (StripesRequestWrapper) request;
+        }
+
+        else {
+            throw new IllegalStateException("A request made it through to some part of Stripes " +
+                "without being wrapped in a StripesRequestWrapper. The StripesFilter is " +
+                "responsible for wrapping the request, so it is likely that either the " +
+                "StripesFilter is not deployed, or that it's mappings do not include the " +
+                "DispatcherServlet _and_ *.jsp. Stripes does not requiire that the Stripes " +
+                "wrapper is the only request wrapper, or the outermost; only that is is present.");
+        }
+    }
 
     /**
      * Constructor that will, if the POST is multi-part, parse the POST data and make it
