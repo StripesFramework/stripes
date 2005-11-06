@@ -167,5 +167,8 @@
       <copy file="${src.dir}/javadoc.css"
             tofile="${doc.dir}/taglib/stylesheet.css"
             overwrite="true"/>
+      <replace file="${doc.dir}/taglib/index.html"
+               token="overview-summary.html"
+               value="stripes/tld-summary.html"/>
   </target>
 </project>
