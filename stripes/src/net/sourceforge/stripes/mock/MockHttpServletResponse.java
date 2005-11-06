@@ -184,10 +184,16 @@ public class MockHttpServletResponse implements HttpServletResponse {
     public PrintWriter getWriter() throws IOException { return this.writer; }
 
     /** Gets the output that was written to the output stream, as a byte[]. */
-    public byte[] getOutputBytes() { return this.out.getBytes(); }
+    public byte[] getOutputBytes() {
+        this.writer.flush();
+        return this.out.getBytes();
+    }
 
     /** Gets the output that was written to the output stream, as a character String. */
-    public String getOutputString() { return this.out.getString(); }
+    public String getOutputString() {
+        this.writer.flush();
+        return this.out.getString();
+    }
 
     /** Sets a custom content length on the response. */
     public void setContentLength(int contentLength) { this.contentLength = contentLength; }
