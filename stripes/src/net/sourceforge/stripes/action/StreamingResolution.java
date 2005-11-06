@@ -88,7 +88,7 @@ public class StreamingResolution implements Resolution {
             PrintWriter out = response.getWriter();
 
             while ( (length = this.reader.read(buffer)) != -1 ) {
-                out.print(buffer);
+                out.write(buffer, 0, length);
             }
             this.reader.close();
         }
