@@ -21,6 +21,8 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.Date;
 import java.util.Locale;
+import java.math.BigInteger;
+import java.math.BigDecimal;
 
 /**
  * Default TypeConverterFactory implementation that simply creates an instance level map of all the
@@ -58,6 +60,8 @@ public class DefaultTypeConverterFactory implements TypeConverterFactory {
         converters.put(Double.class,  DoubleTypeConverter.class);
         converters.put(Double.TYPE,   DoubleTypeConverter.class);
         converters.put(Date.class,    DateTypeConverter.class);
+        converters.put(BigInteger.class, BigIntegerTypeConverter.class);
+        converters.put(BigDecimal.class, BigDecimalTypeConverter.class);
     }
 
     /** Provides subclasses with access to the configuration provided at initialization. */
