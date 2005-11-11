@@ -27,4 +27,12 @@ public class LayoutContext {
     public Map<String, Object> getParameters() {
         return parameters;
     }
+
+    /** To String implementation the parameters, and the component names. */
+    public String toString() {
+        return "LayoutContext{" +
+                "component names=" + components.keySet() +
+                ", parameters=" + parameters +
+                '}';
+    }
 }

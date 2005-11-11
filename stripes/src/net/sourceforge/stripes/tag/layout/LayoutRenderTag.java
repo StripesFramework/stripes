@@ -9,6 +9,7 @@ import javax.servlet.jsp.tagext.BodyContent;
 import javax.servlet.jsp.tagext.BodyTag;
 import javax.servlet.jsp.tagext.DynamicAttributes;
 import java.util.Stack;
+import java.net.URL;
 
 /**
  * Renders a named layout, optionally overriding one or more components in the layout. Any
@@ -86,11 +87,22 @@ public class LayoutRenderTag extends StripesTagSupport implements BodyTag, Dynam
                 request.setAttribute(attributeName, stack);
             }
 
+            // Check that the page named is actually there, because some containers will
+            // just quietly ignore includes of non-existent pages!
+            URL target = request.getSession().getServletContext().getResource(this.name);
+            if (target == null) {
+                throw new StripesJspException(
+                    "Attempt made to render a layout that does not exist. The layout name " +
+                    "provided was '" + this.name + "'. Please check that a JSP exists at " +
+                    "that location within your web application."
+                );
+            }
+
             stack.push(this.context);
 
             // Now wrap the JSPWriter, and include the target JSP
             BodyContent content = getPageContext().pushBody();
-            getPageContext().include(this.name);
+            getPageContext().include(this.name, false);
             getPageContext().popBody();
             getPageContext().getOut().write(content.getString());
 
@@ -99,8 +111,12 @@ public class LayoutRenderTag extends StripesTagSupport implements BodyTag, Dynam
             // Clean up in case the tag gets pooled
             this.context = new LayoutContext();
         }
+        catch (StripesJspException sje) { throw sje; }
         catch (Exception e) {
-            throw new StripesJspException("Exception while processing layout.", e);
+            throw new StripesJspException(
+                "An exception was raised while invoking a layout. The layout used was " +
+                "'" + this.name + "'. The following information was supplied to the render " +
+                "tag: " + this.context.toString(), e);
         }
 
         return EVAL_PAGE;
