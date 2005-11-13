@@ -48,7 +48,7 @@ public class UrlBuilder {
      */
     public UrlBuilder(String url) {
         this.url.append(url);
-        this.seenQuestionMark = this.url.indexOf("?") > 0;
+        this.seenQuestionMark = this.url.indexOf("?") != -1;
     }
 
     /**
@@ -106,13 +106,13 @@ public class UrlBuilder {
      *
      * @param parameters a non-null Map as described above
      */
-    public void addParameters(Map<Object,Object> parameters) {
-        for (Map.Entry<Object,Object> parameter : parameters.entrySet()) {
+    public void addParameters(Map<? extends Object,? extends Object> parameters) {
+        for (Map.Entry<? extends Object,? extends Object> parameter : parameters.entrySet()) {
             String name = parameter.getKey().toString();
             Object valueOrValues = parameter.getValue();
 
             if (valueOrValues == null) {
-                addParameter(name, null);
+                addParameter(name, (Object) null);
             }
             else if (valueOrValues.getClass().isArray()) {
                 Object[] values = (Object[]) valueOrValues;
