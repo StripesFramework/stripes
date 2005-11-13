@@ -100,7 +100,7 @@ public class SingleBugActionBean extends BugzookyActionBean implements Validatab
 
         bm.saveOrUpdate(newBug);
 
-        return new ForwardResolution("/bugzooky/BugList.jsp");
+        return new RedirectResolution("/bugzooky/BugList.jsp");
     }
 
     /** Saves or updates a bug, and then returns to the edit page to add another just like it. */
