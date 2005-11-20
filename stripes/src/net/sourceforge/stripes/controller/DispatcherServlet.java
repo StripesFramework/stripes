@@ -140,7 +140,7 @@ public class DispatcherServlet extends HttpServlet {
             }
 
             // Finally, execute the resolution
-            resolution.execute(request, response);
+            if (resolution != null) resolution.execute(request, response);
         }
         catch (ServletException se) { throw se; }
         catch (RuntimeException re) { throw re; }
