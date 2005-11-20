@@ -19,10 +19,10 @@ import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.action.ActionBeanContext;
 import net.sourceforge.stripes.action.FileBean;
 import net.sourceforge.stripes.config.Configuration;
+import net.sourceforge.stripes.util.HtmlUtil;
 import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.util.OgnlUtil;
 import net.sourceforge.stripes.util.ReflectUtil;
-import net.sourceforge.stripes.util.HtmlUtil;
 import net.sourceforge.stripes.validation.ScopedLocalizableError;
 import net.sourceforge.stripes.validation.TypeConverter;
 import net.sourceforge.stripes.validation.Validate;
@@ -36,7 +36,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -388,20 +387,40 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
      * @param propertyName the name of the property
      *
      */
-    protected Class getRealType(ActionBean bean, Class propertyType, ParameterName propertyName) {
-        Validate validationInfo = this.validations.get(bean.getClass()).get(propertyName.getStrippedName());
+    protected Class getRealType(ActionBean bean, Class propertyType, ParameterName propertyName)
+        throws Exception {
 
         if (propertyType.isArray()) {
             propertyType = propertyType.getComponentType();
         }
-        else if (propertyType.isAssignableFrom(Collection.class)) {
-            if (validationInfo != null && validationInfo.converter() != TypeConverter.class) {
-                TypeVariable[] types = validationInfo.converter().getTypeParameters();
-                propertyType = (Class) types[0].getBounds()[0];
-            } else {
-                propertyType = String.class;
+        else if (Collection.class.isAssignableFrom(propertyType)) {
+            // Try to get the information from the property's return type...
+            propertyType = OgnlUtil.getCollectionPropertyComponentClass(bean, propertyName.getName());
+
+            if (propertyType == null) {
+                // We couldn't figure it out from generics, so see if it was specified
+                Map<String, Validate> map = this.validations.get(bean.getClass());
+                Validate validationInfo = map.get(propertyName.getStrippedName());
+
+                if (validationInfo != null && validationInfo.converter() != TypeConverter.class) {
+                    Method method = validationInfo.converter().getMethod
+                            ("convert", String.class, Class.class, Collection.class);
+                    propertyType = method.getReturnType();
+                }
+                else {
+                    log.warn("Unable to determine type of objects held in collection, on ",
+                             "ActionBean class [", bean.getClass(), "] property [",
+                             propertyName.getName(), "]. To fix this either modify the getter ",
+                             "method for this property to use generics, e.g. List<Foo> get(), ",
+                             "or specify the appropriate converter in the @Validate annotation ",
+                             "for this property on the ActionBean. Assuming type is String, ",
+                             "which may or may not work!");
+
+                    propertyType = String.class;
+                }
             }
         }
+
         return propertyType;
     }
 

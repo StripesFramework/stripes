@@ -15,15 +15,20 @@
  */
 package net.sourceforge.stripes.util;
 
-import ognl.*;
+import net.sourceforge.stripes.action.ActionBean;
+import ognl.NoSuchPropertyException;
+import ognl.Ognl;
+import ognl.OgnlContext;
+import ognl.OgnlException;
+import ognl.OgnlRuntime;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.List;
-import java.lang.reflect.Method;
-import java.lang.reflect.Type;
-import java.lang.reflect.ParameterizedType;
 import java.beans.IntrospectionException;
+import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Utility class used to configure and use Ognl in a consistent manner across the pieces of
@@ -192,6 +197,37 @@ public class OgnlUtil {
                 throw new NoSuchPropertyException(root,property);
             }
             propertyClass = method.getReturnType();
+        }
+
+        return propertyClass;
+    }
+
+    /**
+     * Returns the Class representing the type that is stored inside the named collection
+     * property.  For example, for a property of type Set&lt;Long&gt; this will return
+     * Long.class.  If the collection in question is without type parameters then the method
+     * will simply return null to indicate that it cannot infer type.
+     *
+     * @param bean the ActionBean with a collection typed property
+     * @param propertyName the name (potentially nested) of the list property
+     * @return the class representing the type of object stored in the list, or null
+     * @throws OgnlException if Ognl throws an OgnlException
+     * @throws IntrospectionException if Ognl throws an IntrospectionException
+     */
+    public static Class getCollectionPropertyComponentClass(ActionBean bean, String propertyName)
+        throws OgnlException, IntrospectionException {
+        // The eventual holder of the real type
+        Class propertyClass = null;
+
+        Method method = OgnlRuntime.getGetMethod(createContext(), bean.getClass(), propertyName);
+        Type returnType = method.getGenericReturnType();
+        if (returnType instanceof ParameterizedType) {
+            ParameterizedType ptype = (ParameterizedType) returnType;
+            Type actualType = ptype.getActualTypeArguments()[0];
+
+            if (actualType instanceof Class) {
+                propertyClass = (Class) actualType;
+            }
         }
 
         return propertyClass;
