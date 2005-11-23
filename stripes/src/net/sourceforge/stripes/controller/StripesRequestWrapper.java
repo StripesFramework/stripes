@@ -107,7 +107,10 @@ public class StripesRequestWrapper extends HttpServletRequestWrapper {
             String contentType = request.getContentType();
 
             if (contentType != null && contentType.startsWith("multipart/form-data")) {
-                this.multipart = new MultipartRequest(request, pathToTempDir, maxTotalPostSize);
+                this.multipart = new MultipartRequest(request,
+                                                      pathToTempDir,
+                                                      maxTotalPostSize,
+                                                      request.getCharacterEncoding());
             }
         }
         catch (IOException e) {
