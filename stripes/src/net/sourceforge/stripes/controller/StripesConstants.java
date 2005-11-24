@@ -38,4 +38,10 @@ public interface StripesConstants {
      * forwarding to the JSP.
      */
     String REQ_ATTR_ACTION_BEAN = "actionBean";
+
+    /**
+     * The attribute key that is used to store the default set of non-error messages for
+     * display to the user.
+     */
+    String REQ_ATTR_MESSAGES = "_stripes_defaultMessages";
 }

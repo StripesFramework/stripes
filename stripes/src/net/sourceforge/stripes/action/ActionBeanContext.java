@@ -22,6 +22,8 @@ import net.sourceforge.stripes.util.Log;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Locale;
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  * Encapsulates information about the current request.  Also provides access to the underlying
@@ -103,6 +105,58 @@ public class ActionBeanContext {
      */
     public void setValidationErrors(ValidationErrors validationErrors) {
         this.validationErrors = validationErrors;
+    }
+
+    /**
+     * <p>Returns the default set of non-error messages associated with the current request.
+     * Guaranteed to always return a List, though the list may be empty. It is envisaged that
+     * messages will normally be added to the request as follows:</p>
+     *
+     *<pre>
+     *getContext().getMessages().add( ... );
+     *</pre>
+     *
+     * <p>To remove messages from the current request fetch the list of messages and invoke
+     * remove() or clear().</p>
+     *
+     * @return a List of Message objects associated with the current request, never null.
+     * @see ActionBeanContext#getMessages(String)
+     */
+    public List<Message> getMessages() {
+        return getMessages(StripesConstants.REQ_ATTR_MESSAGES);
+    }
+
+    /**
+     * <p>Returns the set of non-error messages associated with the current request under the
+     * specified key. Can be used to manage multiple lists of messages, for different purposes.
+     * Guaranteed to always return a List, though the list may be empty. It is envisaged that
+     * messages will normally be added to the request as follows:</p>
+     *
+     *<pre>
+     *getContext().getMessages(key).add( ... );
+     *</pre>
+     *
+     * <p>To remove messages from the current request fetch the list of messages and invoke
+     * remove() or clear().</p>
+     *
+     * <p>It should be noted that messages are, by default, stored in request attributes. To
+     * make messages available after a redirect it is (unfortunately) necessary to store those
+     * messages in session.  To do this, simply override this method to fetch the lists from
+     * (and lazily create them in) session attributes instead of request attributes. For more
+     * information on using your own subclass of ActionBeanContext the Stripes documentation on
+     * <a href="http://stripes.mc4j.org/confluence/display/stripes/State+Management">State Management</a>.</p>
+     *
+     * @return a List of Message objects associated with the current request, never null.
+     */
+    public List<Message> getMessages(String key) {
+        List<Message> messages = (List<Message>) this.request.getAttribute(key);
+
+        if (messages == null) {
+            messages = new ArrayList<Message>();
+            this.request.setAttribute(key, messages);
+        }
+
+        return messages;
     }
 
     /**
