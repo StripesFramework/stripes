@@ -21,6 +21,7 @@ import net.sourceforge.stripes.exception.StripesJspException;
 import net.sourceforge.stripes.util.HtmlUtil;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.tagext.BodyTag;
@@ -66,7 +67,8 @@ public class FormTag extends HtmlTagSupport implements BodyTag {
             }
         }
 
-        set("action", action);
+        HttpServletResponse response = (HttpServletResponse) getPageContext().getResponse();
+        set("action", response.encodeURL(action));
     }
 
     public String getAction() { return this.actionWithoutContext; }

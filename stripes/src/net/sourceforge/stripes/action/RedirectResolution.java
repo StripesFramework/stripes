@@ -131,6 +131,6 @@ public class RedirectResolution extends OnwardResolution implements Resolution {
         }
         builder.addParameters(this.parameters);
 
-        response.sendRedirect(builder.toString());
+        response.sendRedirect( response.encodeRedirectURL(builder.toString()) );
     }
 }

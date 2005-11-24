@@ -20,6 +20,7 @@ import net.sourceforge.stripes.exception.StripesJspException;
 import net.sourceforge.stripes.util.UrlBuilder;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.BodyTag;
 import java.io.IOException;
@@ -77,6 +78,7 @@ public class LinkTag extends HtmlTagSupport implements BodyTag {
      */
     public int doEndTag() throws JspException {
         HttpServletRequest request = (HttpServletRequest) getPageContext().getRequest();
+        HttpServletResponse response = (HttpServletResponse) getPageContext().getResponse();
         String originalHref = getHref(); // Save for later, so we can restore the value
 
         if (originalHref != null) {
@@ -90,7 +92,7 @@ public class LinkTag extends HtmlTagSupport implements BodyTag {
             UrlBuilder builder = new UrlBuilder(href);
             builder.addParameter(StripesConstants.URL_KEY_SOURCE_PAGE, request.getServletPath());
             builder.addParameters(this.parameters);
-            setHref(builder.toString());
+            setHref(response.encodeURL(builder.toString()));
         }
 
         try {
