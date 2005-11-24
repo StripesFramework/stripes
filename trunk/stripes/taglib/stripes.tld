@@ -718,6 +718,56 @@
 
     <tag>
         <description><![CDATA[
+            <p>Displays a list of non-error messages to the user. The list of messages can come from
+            either the request (preferred) or the session (checked 2nd).  Lists of messages can be stored
+            under any arbitrary key in request or session and the key can be specified to the messages
+            tag.  If no key is specified then the default key is used.</p>
+
+            <p>It should be noted that the default ActionBeanContext only stores messages in request.
+            In order to stored messages into session it is necessary to subclass ActionBeanContext
+            and override the behaviour of the getMessages(String key) method. If the messages tag
+            finds messages stored in session it will remove them prior to displaying them. This is
+            done to ensure that the messages are displayed only once, on the appropriate page.</p>
+
+            <p>While similar in concept to the &lt;stripes:errors&gt;, the messages tag is significantly
+            simpler. It deals with a List of Message objects, and does not understand any association
+            between messages and form fields, or even between messages and forms.  It is designed to be
+            used to show arbitrary messages to the user, the prime example being a confirmation message
+            displayed on the subsequent page, following an action.</p>
+
+            <p>The messages tag outputs a header before the messages, the messages themselves, and a footer
+            after the messages.  Default values are set for each of these four items.  Different values
+            can be specified in the error messages resource bundle (StripesResources.properties unless you
+            have configured another). The default configuration would look like this:
+
+            <ul>
+              <li>stripes.messages.header=&lt;ul class="messages"&gt;</li>
+              <li>stripes.messages.footer=&lt;/ul&gt;</li>
+              <li>stripes.messages.beforeMessage=&lt;li&gt;</li>
+              <li>stripes.messages.afterMessage=&lt;/li&gt;</li>
+            </ul>
+
+            <p>It should also be noted that while the errors tag supports custom headers and footers
+            through the use of nested tags, the messages tag does not support this. In fact the
+            messages tag does not support body content at all - it will simply be ignored.</p>
+        ]]></description>
+        <display-name>messages</display-name>
+        <name>messages</name>
+        <tag-class>net.sourceforge.stripes.tag.MessagesTag</tag-class>
+        <body-content>empty</body-content>
+        <attribute>
+            <description>
+                The name of the request or session attribute that the tag will use to find
+                messages for display.
+            </description>
+            <name>key</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+    <tag>
+        <description><![CDATA[
             <p>Generates an &lt;option value=&quot;foo&quot;&gt;Fooey&lt;/option&gt; HTML tag.
             Coordinates with an enclosing select tag to determine it's state (i.e. whether or not
             it is selected.)  As a result some of the logic regarding state repopulation is a bit

@@ -15,6 +15,8 @@
  */
 package net.sourceforge.stripes.validation;
 
+import net.sourceforge.stripes.action.Message;
+
 import java.util.Locale;
 
 /**
@@ -22,14 +24,7 @@ import java.util.Locale;
  *
  * @author Tim Fennell
  */
-public interface ValidationError {
-    /**
-     * The error message to display.  This object will be toString()&apos;d in order to display
-     * it on the page.
-     * @return Object an object containing the error message to display
-     */
-    String getMessage(Locale locale);
-
+public interface ValidationError extends Message {
     /**
      * Provides the message with access to the name of the field in which the error occurred. This
      * is the name the system uses for the field (e.g. cat.name) and not necessarily something that
