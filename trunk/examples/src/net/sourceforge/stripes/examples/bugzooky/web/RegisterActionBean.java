@@ -1,17 +1,17 @@
 package net.sourceforge.stripes.examples.bugzooky.web;
 
-import net.sourceforge.stripes.examples.bugzooky.biz.Person;
-import net.sourceforge.stripes.examples.bugzooky.biz.PersonManager;
-import net.sourceforge.stripes.action.UrlBinding;
 import net.sourceforge.stripes.action.DefaultHandler;
 import net.sourceforge.stripes.action.HandlesEvent;
-import net.sourceforge.stripes.action.Resolution;
 import net.sourceforge.stripes.action.RedirectResolution;
-import net.sourceforge.stripes.validation.ValidateNestedProperties;
-import net.sourceforge.stripes.validation.Validate;
-import net.sourceforge.stripes.validation.Validatable;
-import net.sourceforge.stripes.validation.ValidationErrors;
+import net.sourceforge.stripes.action.Resolution;
+import net.sourceforge.stripes.action.UrlBinding;
+import net.sourceforge.stripes.examples.bugzooky.biz.Person;
+import net.sourceforge.stripes.examples.bugzooky.biz.PersonManager;
 import net.sourceforge.stripes.validation.LocalizableError;
+import net.sourceforge.stripes.validation.Validatable;
+import net.sourceforge.stripes.validation.Validate;
+import net.sourceforge.stripes.validation.ValidateNestedProperties;
+import net.sourceforge.stripes.validation.ValidationErrors;
 
 /**
  * ActionBean that handles the registration of new users.
@@ -69,6 +69,10 @@ public class RegisterActionBean extends BugzookyActionBean implements Validatabl
         PersonManager pm = new PersonManager();
         pm.saveOrUpdate(this.user);
         getContext().setUser(this.user);
+        getContext().getMessages().add(
+                new LocalizableError("/bugzooky/Register.action.successMessage",
+                                     this.user.getFirstName(),
+                                     this.user.getUsername()));
 
         return new RedirectResolution("/bugzooky/BugList.jsp");
     }
