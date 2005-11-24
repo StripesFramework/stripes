@@ -104,6 +104,15 @@ div.subtitle {
     margin: 10px 0px 5px 0px;
 }
 
+/** Style that control the format of non-error messages. */
+ul.messages, ul.messages li {
+    list-style: none;
+    color: green;
+    font-style: italic;
+    font-size: 11pt;
+}
+
+
 /* Styles used to make tables for displaying data. */
 table.display {
     width: 100%;

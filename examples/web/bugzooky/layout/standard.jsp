@@ -21,6 +21,7 @@
 
                 <div id="pageContent">
                     <div class="sectionTitle">${title}</div>
+                    <stripes:messages/>
                     <stripes:layout-component name="contents"/>
                 </div>
 
