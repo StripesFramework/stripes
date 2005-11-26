@@ -141,58 +141,56 @@ public class OgnlUtil {
                                                                               IntrospectionException {
         Class propertyClass = null;
 
+        String childProperty = null;
+        Object newRoot = null;
         int propertyIndex = propertySplit(property);
 
+        // If we have a nested property, grab the penultimate object, and the last property name
         if (propertyIndex > 0) {
             // foo.bar.baz.splat => parent: "foo.bar.baz" and child: "splat"
             String parentProperty = property.substring(0,propertyIndex);
-            String childProperty = property.substring(propertyIndex+1);
+            childProperty = property.substring(propertyIndex+1);
+            newRoot = getValue(parentProperty, root, true);
+        }
+        else {
+            childProperty = property;
+            newRoot = root;
+        }
 
-            // We need to handle the case where the last chunk of the expression references
-            // a List or a Map
-            int listIndexPosition = childProperty.indexOf("[");
+        // We need to handle the case where the last chunk of the expression references
+        // a List or a Map
+        int listIndexPosition = childProperty.indexOf("[");
 
-            if (listIndexPosition > 0) {
-                Object newRoot = getValue(parentProperty, root, true);
-                Method method = OgnlRuntime.getGetMethod(createContext(),
-                                                         newRoot.getClass(),
-                                                         childProperty.substring(0, listIndexPosition));
-                Type returnType = method.getGenericReturnType();
-                if (returnType instanceof ParameterizedType) {
-                    ParameterizedType ptype = (ParameterizedType) returnType;
-                    Type actualType = null;
+        if (listIndexPosition > 0) {
+            Method method = OgnlRuntime.getGetMethod(createContext(),
+                                                     newRoot.getClass(),
+                                                     childProperty.substring(0, listIndexPosition));
+            Type returnType = method.getGenericReturnType();
+            if (returnType instanceof ParameterizedType) {
+                ParameterizedType ptype = (ParameterizedType) returnType;
+                Type actualType = null;
 
-                    // Get the right type parameter for List<X> and Map<?,X>
-                    if (List.class.isAssignableFrom((Class) ptype.getRawType())) {
-                        actualType = ptype.getActualTypeArguments()[0];
-                    }
-                    else if (Map.class.isAssignableFrom((Class) ptype.getRawType())) {
-                        actualType = ptype.getActualTypeArguments()[1];
-                    }
-
-                    if (actualType instanceof Class) {
-                        propertyClass = (Class) actualType;
-                    }
+                // Get the right type parameter for List<X> and Map<?,X>
+                if (List.class.isAssignableFrom((Class) ptype.getRawType())) {
+                    actualType = ptype.getActualTypeArguments()[0];
+                }
+                else if (Map.class.isAssignableFrom((Class) ptype.getRawType())) {
+                    actualType = ptype.getActualTypeArguments()[1];
                 }
 
-                // If we can't figure it out, let's try String!
-                if (propertyClass == null) {
-                    propertyClass = String.class;
+                if (actualType instanceof Class) {
+                    propertyClass = (Class) actualType;
                 }
             }
-            else {
-                Object newRoot = getValue(parentProperty,root, true);
-                Method method =
-                        OgnlRuntime.getGetMethod(createContext(), newRoot.getClass(), childProperty);
-                if (method == null) {
-                    throw new NoSuchPropertyException(root,property);
-                }
-                propertyClass = method.getReturnType();
+
+            // If we can't figure it out, let's try String!
+            if (propertyClass == null) {
+                propertyClass = String.class;
             }
         }
         else {
             Method method =
-                    OgnlRuntime.getGetMethod(createContext(), root.getClass(), property);
+                    OgnlRuntime.getGetMethod(createContext(), newRoot.getClass(), childProperty);
             if (method == null) {
                 throw new NoSuchPropertyException(root,property);
             }
