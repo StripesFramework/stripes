@@ -63,15 +63,21 @@ public class WizardFieldsTag extends StripesTagSupport {
         excludes.addAll( form.getRegisteredFields() );
         excludes.add( StripesConstants.URL_KEY_SOURCE_PAGE );
 
-        ActionBean actionBean = form.getActionBean();
-        if (actionBean != null) {
-            String eventName = form.getActionBean().getContext().getEventName();
+        // Use the submitted action bean to eliminate any event related parameters
+        ActionBean submittedActionBean = (ActionBean)
+                getPageContext().getRequest().getAttribute(StripesConstants.REQ_ATTR_ACTION_BEAN);
+
+        if (submittedActionBean != null) {
+            String eventName = submittedActionBean.getContext().getEventName();
             if (eventName != null) {
                 excludes.add(eventName);
                 excludes.add(eventName + ".x");
                 excludes.add(eventName + ".y");
             }
         }
+
+        // Now get the action bean on this form
+        ActionBean actionBean = form.getActionBean();
 
         // If current form only is not specified, go ahead, otherwise check that
         // the current form had an ActionBean attached - which indicates that the
