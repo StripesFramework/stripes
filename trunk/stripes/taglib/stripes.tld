@@ -38,12 +38,6 @@
     <short-name>stripes</short-name>
     <uri>http://stripes.sourceforge.net/stripes.tld</uri>
 
-    <validator>
-        <description>Performs basic validations that tags are nested correctly.</description>
-        <validator-class>net.sourceforge.stripes.tag.TagLibraryValidator</validator-class>
-    </validator>
-
-
     <tag>
         <description><![CDATA[
             <p>Tag that generates HTML form fields of type

@@ -15,9 +15,13 @@
  */
 package net.sourceforge.stripes.tag;
 
+import net.sourceforge.stripes.controller.StripesConstants;
+
 import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.Tag;
+import java.util.Stack;
+import java.util.ListIterator;
 
 /**
  * A very basic implementation of the Tag interface that is similar in manner to the standard
@@ -72,16 +76,46 @@ public abstract class StripesTagSupport implements Tag {
 
     /**
      * <p>Locates the enclosing tag of the type supplied.  If no enclosing tag of the type supplied
-     * can be found anywhere in the ancestry of this tag, null is returned..</p>
+     * can be found anywhere in the ancestry of this tag, null is returned.</p>
      *
      * @return T Tag of the type supplied, or null if none can be found
      */
     protected <T extends Tag> T getParentTag(Class<T> tagType) {
         Tag parent = getParent();
-        while (parent != null && !tagType.isAssignableFrom(parent.getClass())) {
+        while (parent != null) {
+            if (tagType.isAssignableFrom(parent.getClass())) {
+                return (T) parent;
+            }
             parent = parent.getParent();
         }
 
-        return parent==null ? null : (T) parent;
+        // If we can't find it by the normal way, try our own tag stack!
+        Stack<StripesTagSupport> stack = getTagStack();
+        ListIterator<StripesTagSupport> iterator = stack.listIterator(stack.size());
+        while (iterator.hasPrevious()) {
+            StripesTagSupport tag = iterator.previous();
+            if (tagType.isAssignableFrom(tag.getClass())) {
+                return (T) tag;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Fetches a tag stack that is stored in the request. This tag stack is used to help
+     * Stripes tags find one another when they are spread across multiple included JSPs
+     * and/or tag files - situations in which the usual parent tag relationship fails.
+     */
+    protected Stack<StripesTagSupport> getTagStack() {
+        Stack<StripesTagSupport> stack = (Stack<StripesTagSupport>)
+                getPageContext().getRequest().getAttribute(StripesConstants.REQ_ATTR_TAG_STACK);
+
+        if (stack == null) {
+            stack = new Stack<StripesTagSupport>();
+            getPageContext().getRequest().setAttribute(StripesConstants.REQ_ATTR_TAG_STACK, stack);
+        }
+
+        return stack;
     }
 }
