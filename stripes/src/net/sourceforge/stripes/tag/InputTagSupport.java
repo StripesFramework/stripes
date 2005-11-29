@@ -270,6 +270,7 @@ public abstract class InputTagSupport extends HtmlTagSupport {
      * @return int the value returned by the child class from doStartInputTag()
      */
     public final int doStartTag() throws JspException {
+        getTagStack().push(this);
         registerWithParentForm();
 
         // Deal with any error rendering
@@ -302,16 +303,21 @@ public abstract class InputTagSupport extends HtmlTagSupport {
      * @return int the value returned by the child class from doStartInputTag()
      */
     public final int doEndTag() throws JspException {
-        int result = doEndInputTag();
+        try {
+            int result = doEndInputTag();
 
-        if (this.fieldErrors != null) {
-            this.errorRenderer.doAfterEndTag();
+            if (this.fieldErrors != null) {
+                this.errorRenderer.doAfterEndTag();
+            }
+
+            this.errorRenderer = null;
+            this.fieldErrors = null;
+
+            return result;
         }
-
-        this.errorRenderer = null;
-        this.fieldErrors = null;
-
-        return result;
+        finally {
+            getTagStack().pop();
+        }
     }
 
     /** Abstract method implemented in child classes instead of doEndTag(). */

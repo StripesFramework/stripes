@@ -44,4 +44,11 @@ public interface StripesConstants {
      * display to the user.
      */
     String REQ_ATTR_MESSAGES = "_stripes_defaultMessages";
+
+    /**
+     * The attribute key that is used to store the tag stack during page processing. The tag
+     * stack is a Stack of Stripes tags so that parent tag relationships can work across
+     * includes etc.
+     */
+    String REQ_ATTR_TAG_STACK = "__stripes_tag_stack";
 }

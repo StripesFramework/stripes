@@ -27,9 +27,9 @@ import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.tagext.BodyTag;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.HashSet;
 
 /**
  * <p>Form tag for use with the Stripes framework.  Supports all of the HTML attributes applicable
@@ -102,6 +102,7 @@ public class FormTag extends HtmlTagSupport implements BodyTag {
      * Does nothing except return EVAL_BODY_BUFFERED.  Everything of interest happens in doEndTag.
      */
     public int doStartTag() throws JspException {
+        getTagStack().push(this);
         return EVAL_BODY_BUFFERED;
     }
 
@@ -150,6 +151,9 @@ public class FormTag extends HtmlTagSupport implements BodyTag {
         }
         catch (IOException ioe) {
             throw new StripesJspException("IOException in FormTag.doEndTag().", ioe);
+        }
+        finally {
+            getTagStack().pop();
         }
 
         return EVAL_PAGE;
