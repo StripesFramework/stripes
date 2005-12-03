@@ -57,6 +57,7 @@ import java.util.ResourceBundle;
  * messages tag does not support body content at all - it will simply be ignored.</p>
  *
  * @author Tim Fennell
+ * @since Stripes 1.1.2
  */
 public class MessagesTag extends HtmlTagSupport {
 
