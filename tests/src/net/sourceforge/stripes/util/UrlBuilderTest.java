@@ -60,7 +60,7 @@ public class UrlBuilderTest {
     public void testUrlWithValuelessParameter() throws Exception {
         String path = "/test/page.jsp";
         UrlBuilder builder = new UrlBuilder(path);
-        builder.addParameter("one", null);
+        builder.addParameter("one");
         builder.addParameter("two", "");
         builder.addParameter("three");
         String result = builder.toString();
@@ -71,7 +71,7 @@ public class UrlBuilderTest {
     public void testUrlWithParameterArray() throws Exception {
         String path = "/test/page.jsp";
         UrlBuilder builder = new UrlBuilder(path);
-        builder.addParameter("one", Literal.array("1", "one", "uno", "i") );
+        builder.addParameter("one", (Object[]) Literal.array("1", "one", "uno", "i") );
         String result = builder.toString();
         Assert.assertEquals(result, "/test/page.jsp?one=1&one=one&one=uno&one=i");
     }
@@ -90,7 +90,7 @@ public class UrlBuilderTest {
     public void testUrlWithParameterMap() throws Exception {
         String path = "/test/page.jsp";
         UrlBuilder builder = new UrlBuilder(path);
-        Map map = new HashMap<Object,Object>();
+        Map<Object,Object> map = new HashMap<Object,Object>();
         map.put("one", "one");
         map.put("two", Literal.list("2", "two"));
         map.put("three", Literal.array("3", "three"));
