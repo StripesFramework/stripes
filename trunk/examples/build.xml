@@ -16,14 +16,6 @@
   <property name="doc.dir"    value="${basedir}/docs"/>
   <property name="dist.dir"    value="${basedir}/dist"/>
  
-  <!-- Additional task defitions -->
-  <taskdef name="tomcat-deploy"    classname="org.apache.catalina.ant.DeployTask"/>
-  <taskdef name="tomcat-reload"    classname="org.apache.catalina.ant.ReloadTask"/>
-  <taskdef name="tomcat-start"     classname="org.apache.catalina.ant.StartTask"/>
-  <taskdef name="tomcat-stop"      classname="org.apache.catalina.ant.StopTask"/>
-  <taskdef name="tomcat-undeploy"  classname="org.apache.catalina.ant.UndeployTask"/>
-
-
   <!-- =================================================================== -->
   <!-- Classpaths and internal initialization targets                      -->
   <!-- =================================================================== -->
@@ -45,7 +37,7 @@
   <!-- =================================================================== -->
   <!-- Clean the build directory                                           -->
   <!-- =================================================================== -->
-  <target name="clean">
+  <target name="clean" description="Cleans up all build products of the examples applicaiton.">
     <delete dir="${classes.dir}"/>
     <delete dir="${dist.dir}"/>
     <delete dir="${doc.dir}"/>
@@ -55,7 +47,8 @@
   <!-- Compile the code into the web abb and move any resources into the   -->
   <!-- classpath.                                                          -->
   <!-- =================================================================== -->
-  <target name="compile" depends="init">
+  <target name="compile" depends="init"
+          description="Compiles the java classes that are part of the examples application.">
     <javac destdir="${classes.dir}" debug="on">
       <src path="${src.dir}"/>
       <classpath refid="build.class.path"/>
@@ -72,7 +65,7 @@
   <!-- Creates a deployable WAR file for the examples app.                 -->
   <!-- =================================================================== -->
   <target name="war" depends="compile"
-          description="Builds a deployabye war file.">
+          description="Builds a deployable war file containing all the Stripes examples.">
       <copy todir="${web.dir}/WEB-INF/src" flatten="true" overwrite="true">
           <fileset dir="${src.dir}" includes="**/*.java"/>
       </copy>
@@ -82,7 +75,8 @@
   <!-- =================================================================== -->
   <!-- Generate the javadoc for all the sources in the project.            -->
   <!-- =================================================================== -->
-    <target name="javadoc" depends="init" description="Generates the project javadoc.">
+    <target name="javadoc" depends="init"
+            description="Generates the javadoc for the examples application.">
         <javadoc
                 sourcepath="${src.dir}"
                 destdir="${doc.dir}/api"
@@ -103,7 +97,8 @@
         </javadoc>
     </target>
 
-    <target name="apt" depends="compile">
+    <target name="apt" depends="compile"
+            description="Builds an XML file showing the structure of the examples web application.">
         <pathconvert property="cp" refid="build.class.path"/>
         <path id="srcfiles">
             <fileset dir="${src.dir}" includes="**/*.java"/>
@@ -116,10 +111,20 @@
             <arg line="${srcfiles}"/>
         </exec>
     </target>
+
   <!-- =================================================================== -->
   <!-- Tasks to deploy the application in Tomcat.                          -->
   <!-- =================================================================== -->
-  <target name="deploy" description="Deploy web application to Tomcat" depends="war">
+  <target name="tomcat-init">
+      <!-- Additional task defitions -->
+      <taskdef name="tomcat-deploy"    classname="org.apache.catalina.ant.DeployTask"/>
+      <taskdef name="tomcat-reload"    classname="org.apache.catalina.ant.ReloadTask"/>
+      <taskdef name="tomcat-start"     classname="org.apache.catalina.ant.StartTask"/>
+      <taskdef name="tomcat-stop"      classname="org.apache.catalina.ant.StopTask"/>
+      <taskdef name="tomcat-undeploy"  classname="org.apache.catalina.ant.UndeployTask"/>
+  </target>
+
+  <target name="deploy" description="Deploy web application to Tomcat" depends="war, tomcat-init">
     <tomcat-deploy url="${tomcat.url}"
                    username="${tomcat.username}"
                    password="${tomcat.password}"
@@ -127,7 +132,7 @@
                    localWar="file:${dist.dir}/stripes-examples.war"/>
   </target>
 
-  <target name="undeploy" description="Undeploy web application from Tomcat">
+  <target name="undeploy" description="Undeploy web application from Tomcat" depends="tomcat-init">
     <tomcat-undeploy url="${tomcat.url}"
                      username="${tomcat.username}"
                      password="${tomcat.password}"
