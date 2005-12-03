@@ -29,14 +29,16 @@
 
     <property name="stripes.dir"  value="${basedir}/stripes"/>
     <property name="examples.dir" value="${basedir}/examples"/>
-    <property name="test.dir" value="${basedir}/tests"/>
-    <property name="zip.prefix" value="stripes-${stripes.version}"/>
-    <property name="zip.file"   value="${zip.prefix}.zip"/>
+    <property name="test.dir"     value="${basedir}/tests"/>
+    <property name="zip.prefix"   value="stripes-${stripes.version}"/>
+    <property name="zip.file"     value="${zip.prefix}.zip"/>
+    <property name="zip.src.prefix" value="stripes-${stripes.version}-src"/>
+    <property name="zip.src.file" value="${zip.src.prefix}.zip"/>
 
     <!-- =================================================================== -->
     <!-- Builds Stripes, then copies dependencies over into the examples.    -->
     <!-- =================================================================== -->
-    <target name="build">
+    <target name="build" description="Builds Stripes, the Examples app and the Unit Tests">
         <ant dir="${stripes.dir}" target="jar"/>
         <copy todir="${examples.dir}/web/WEB-INF/lib">
             <fileset dir="${stripes.dir}/dist" includes="stripes.jar"/>
@@ -45,28 +47,30 @@
             <fileset dir="${stripes.dir}/lib/deploy" includes="*.jar"/>
         </copy>
         <ant dir="${examples.dir}" target="war"/>
+        <ant dir="${test.dir}"     target="jar"/>
     </target>
 
     <!-- =================================================================== -->
     <!-- Runs the clean target of both Stripes and the Examples project.     -->
     <!-- =================================================================== -->
-    <target name="clean">
+    <target name="clean" description="Cleans all build products for all three sub-projects.">
         <ant dir="${stripes.dir}"  target="clean"/>
         <ant dir="${examples.dir}" target="clean"/>
+        <ant dir="${test.dir}"     target="clean"/>
         <delete file="dist/${zip.file}" failonerror="false" quiet="true"/>
     </target>
 
     <!-- =================================================================== -->
     <!-- Runs the Stripes unit tests.                                        -->
     <!-- =================================================================== -->
-    <target name="test" depends="build">
+    <target name="test" depends="build" description="Runs the Stripes unit tests.">
     	<ant dir="${test.dir}" target="test"/>
     </target>
 
     <!-- =================================================================== -->
     <!-- Generates the documentation for the stripes and examples projects.  -->
     <!-- =================================================================== -->
-    <target name="doc">
+    <target name="doc" description="Generates the Stripes JavaDoc and Tag Library documentation.">
         <ant dir="${stripes.dir}" target="javadoc"/>
         <ant dir="${stripes.dir}" target="tlddoc"/>
         <ant dir="${examples.dir}" target="javadoc"/>
@@ -75,7 +79,8 @@
     <!-- =================================================================== -->
     <!-- Builds the full Stripes distribution file.                          -->
     <!-- =================================================================== -->
-    <target name="dist" depends="build,doc">
+    <target name="dist" depends="build,doc"
+            description="Builds all three sub-projects and creates the Stripes distribution bundles.">
         <mkdir dir="dist"/>
         <zip destfile="dist/${zip.file}">
             <zipfileset dir="${stripes.dir}" includes="src/**/*" prefix="${zip.prefix}"/>
@@ -94,12 +99,42 @@
             <zipfileset dir="." includes="license.txt" prefix="${zip.prefix}"/>
             <zipfileset dir="." includes="readme.txt" prefix="${zip.prefix}"/>
         </zip>
+
+        <!-- Make the source distribution -->
+        <zip destfile="dist/${zip.src.file}">
+            <zipfileset dir="." prefix="${zip.prefix}">
+                <include name="*.txt"/>
+                <include name="*.xml"/>
+                <include name="*.properties"/>
+
+                <include name="stripes/src/**"/>
+                <include name="stripes/lib/**"/>
+                <include name="stripes/taglib/**"/>
+                <include name="stripes/build.xml"/>
+
+                <include name="examples/src/**"/>
+                <include name="examples/web/**"/>
+                <exclude name="examples/web/WEB-INF/src/**"/>
+                <exclude name="examples/web/WEB-INF/classes/**"/>
+                <exclude name="examples/web/WEB-INF/lib/commons-logging.jar"/>
+                <exclude name="examples/web/WEB-INF/lib/cos.jar"/>
+                <exclude name="examples/web/WEB-INF/lib/ognl-2.6.7.jar"/>
+                <exclude name="examples/web/WEB-INF/lib/spring.jar"/>
+                <exclude name="examples/web/WEB-INF/lib/stripes.jar"/>
+                <include name="examples/build.xml"/>
+
+                <include name="tests/src/**"/>
+                <include name="tests/lib/**"/>
+                <include name="tests/build.xml"/>
+            </zipfileset>
+        </zip>
     </target>
 
     <!-- =================================================================== -->
     <!-- Uses the redeploy target of the Examples to redploy the web app.    -->
     <!-- =================================================================== -->
-    <target name="deploy" depends="build">
+    <target name="deploy" depends="build"
+            description="Redploys the example application to a Tomcat server defined in build.properties">
         <ant dir="examples" target="redeploy"/>
     </target>
 </project>

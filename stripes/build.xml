@@ -64,7 +64,7 @@
   <!-- =================================================================== -->
   <!-- Clean the build directory                                           -->
   <!-- =================================================================== -->
-  <target name="clean">
+  <target name="clean" description="Deletes all the build products.">
     <delete dir="${classes.dir}"/>
     <delete dir="${dist.dir}"/>
     <delete dir="${doc.dir}"/>
@@ -74,7 +74,7 @@
   <!-- Compile the code into the web abb and move any resources into the   -->
   <!-- classpath.                                                          -->
   <!-- =================================================================== -->
-  <target name="compile" depends="init">
+  <target name="compile" depends="init" description="Compiles the java code for Stripes.">
     <javac destdir="${classes.dir}" debug="on">
       <src path="${src.dir}"/>
       <classpath refid="build.class.path"/>
@@ -99,7 +99,7 @@
   <!-- Jar up the classes directory to create the library file.            -->
   <!-- =================================================================== -->
   <target name="jar" depends="compile"
-          description="Builds a usable jar library file.">
+          description="Builds the stripes.jar library file.">
     <jar destfile="${dist.dir}/stripes.jar" basedir="${classes.dir}">
       <manifest>
           <attribute name="Implementation-Title" value="Stripes"/>
@@ -114,7 +114,7 @@
   <!-- =================================================================== -->
   <!-- Generate the javadoc for all the sources in the project.            -->
   <!-- =================================================================== -->
-  <target name="javadoc" depends="init" description="Generates the project javadoc.">
+  <target name="javadoc" depends="init" description="Generates the Stripes javadoc.">
 	<javadoc
 	   sourcepath="${src.dir}"
 	   destdir="${doc.dir}/api"
