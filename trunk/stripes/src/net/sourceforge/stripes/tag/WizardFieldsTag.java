@@ -62,6 +62,7 @@ public class WizardFieldsTag extends StripesTagSupport {
         Set<String> excludes = new HashSet<String>();
         excludes.addAll( form.getRegisteredFields() );
         excludes.add( StripesConstants.URL_KEY_SOURCE_PAGE );
+        excludes.add( StripesConstants.URL_KEY_FIELDS_PRESENT );
 
         // Use the submitted action bean to eliminate any event related parameters
         ActionBean submittedActionBean = (ActionBean)
