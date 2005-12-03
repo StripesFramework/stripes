@@ -148,6 +148,9 @@ public class FormTag extends HtmlTagSupport implements BodyTag {
 
             getBodyContent().writeOut( getPageContext().getOut() );
             writeCloseTag(getPageContext().getOut(), "form");
+
+            // Clean up any state the container won't reset during tag pooling
+            this.fieldsPresent.clear();
         }
         catch (IOException ioe) {
             throw new StripesJspException("IOException in FormTag.doEndTag().", ioe);
