@@ -84,20 +84,37 @@ public class LocalizationUtility {
 
     /**
      * Makes a half hearted attempt to convert the property name of a field into a human
-     * friendly name by breaking it on periods and capitablizing each word.  This is only used
-     * when developers do not provide names for their fields.
+     * friendly name by breaking it on periods and upper case letters and capitablizing each word.
+     * This is only used when developers do not provide names for their fields.
      *
      * @param fieldNameKey the programmatic name of a form field
      * @return String a more user friendly name for the field in the absence of anything better
      */
     public static String makePseudoFriendlyName(String fieldNameKey) {
-        String[] words = fieldNameKey.split("\\.");
+        StringBuilder builder = new StringBuilder(fieldNameKey.length() + 10);
+        char[] characters = fieldNameKey.toCharArray();
+        builder.append( Character.toUpperCase(characters[0]) );
+        boolean upcaseNextChar = false;
 
-        String friendlyName = words[0].substring(0,1).toUpperCase() + words[0].substring(1);
-        for (int i=1; i<words.length; ++i) {
-            friendlyName += " " + words[i].substring(0,1).toUpperCase() + words[i].substring(1);
+        for (int i=1; i<characters.length; ++i) {
+            if (characters[i] == '.') {
+                builder.append(' ');
+                upcaseNextChar = true;
+            }
+            else if (Character.isUpperCase(characters[i])) {
+                builder.append(' ').append(characters[i]);
+                upcaseNextChar = false;
+            }
+            else if (upcaseNextChar) {
+                builder.append( Character.toUpperCase(characters[i]) );
+                upcaseNextChar = false;
+            }
+            else {
+                builder.append(characters[i]);
+                upcaseNextChar = false;
+            }
         }
 
-        return friendlyName;
+        return builder.toString();
     }
 }
