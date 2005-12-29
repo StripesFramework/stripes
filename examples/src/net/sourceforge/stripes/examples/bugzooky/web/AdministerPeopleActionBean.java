@@ -9,6 +9,7 @@ import net.sourceforge.stripes.examples.bugzooky.biz.Person;
 import net.sourceforge.stripes.examples.bugzooky.biz.PersonManager;
 import net.sourceforge.stripes.validation.Validate;
 import net.sourceforge.stripes.validation.ValidateNestedProperties;
+import net.sourceforge.stripes.validation.EmailTypeConverter;
 
 import java.util.List;
 
@@ -32,7 +33,7 @@ public class AdministerPeopleActionBean extends BugzookyActionBean {
         @Validate(field="password", minlength=6, maxlength=20),
         @Validate(field="firstName", required=true, maxlength=25),
         @Validate(field="lastName", required=true,  maxlength=25),
-        @Validate(field="email", mask="[\\w\\.]+@[\\w\\.]+\\.\\w+")
+        @Validate(field="email", converter=EmailTypeConverter.class)
     })
     public List<Person> getPeople() { return people; }
     public void setPeople(List<Person> people) { this.people = people; }

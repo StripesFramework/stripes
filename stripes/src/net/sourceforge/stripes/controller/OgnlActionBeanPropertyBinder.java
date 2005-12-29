@@ -195,6 +195,9 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
                     List<Object> convertedValues =
                         convert(bean, name, values, type, validationInfo, errors);
 
+                    if (validate && validationInfo != null) {
+                        doPostConversionValidations(name, convertedValues, validationInfo, errors);
+                    }
 
                     // If we have errors, save them, otherwise bind the parameter to the form
                     if (errors.size() > 0) {
@@ -588,6 +591,48 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
 
                     error.setFieldValue(value);
                     errors.add( error );
+                }
+            }
+        }
+    }
+
+    /**
+     * Performs basic post-conversion validations on the properties of the ActionBean after they
+     * have been converted to their rich type by the type conversion system.  Validates single
+     * properties in isolation from other properties.
+     *
+     * @param propertyName the name of the property being validated (used for constructing errors)
+     * @param values the List of converted values - possibly empty but never null
+     * @param validationInfo the Valiate annotation that was decorating the property being validated
+     * @param errors a collection of errors to be populated with any validation errors discovered
+     */
+    protected void doPostConversionValidations(ParameterName propertyName,
+                                              List<Object> values,
+                                              Validate validationInfo,
+                                              List<ValidationError> errors) {
+
+        for (Object value : values) {
+            // If the value is a number then we should check to see if there are range boundaries
+            // established, and check them.
+            if (value instanceof Number) {
+                Number number = (Number) value;
+
+                if (validationInfo.minvalue() != Double.MIN_VALUE &&
+                        number.doubleValue() < validationInfo.minvalue() ) {
+                    ValidationError error = new ScopedLocalizableError("validation.minvalue",
+                                                                       "valueBelowMinimum",
+                                                                       validationInfo.minvalue());
+                    error.setFieldValue( String.valueOf(value) );
+                    errors.add(error);
+                }
+
+                if (validationInfo.maxvalue() != Double.MAX_VALUE &&
+                        number.doubleValue() > validationInfo.maxvalue() ) {
+                    ValidationError error = new ScopedLocalizableError("validation.maxvalue",
+                                                                       "valueAboveMaximum",
+                                                                       validationInfo.maxvalue());
+                    error.setFieldValue( String.valueOf(value) );
+                    errors.add(error);
                 }
             }
         }

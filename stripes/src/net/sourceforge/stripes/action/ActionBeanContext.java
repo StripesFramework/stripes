@@ -17,6 +17,7 @@ package net.sourceforge.stripes.action;
 
 import net.sourceforge.stripes.validation.ValidationErrors;
 import net.sourceforge.stripes.controller.StripesConstants;
+import net.sourceforge.stripes.controller.FlashScope;
 import net.sourceforge.stripes.util.Log;
 
 import javax.servlet.http.HttpServletRequest;
@@ -139,21 +140,20 @@ public class ActionBeanContext {
      * <p>To remove messages from the current request fetch the list of messages and invoke
      * remove() or clear().</p>
      *
-     * <p>It should be noted that messages are, by default, stored in request attributes. To
-     * make messages available after a redirect it is (unfortunately) necessary to store those
-     * messages in session.  To do this, simply override this method to fetch the lists from
-     * (and lazily create them in) session attributes instead of request attributes. For more
-     * information on using your own subclass of ActionBeanContext the Stripes documentation on
-     * <a href="http://stripes.mc4j.org/confluence/display/stripes/State+Management">State Management</a>.</p>
+     * <p>Messages are stored in a {@link net.sourceforge.stripes.controller.FlashScope} for
+     * the current request. This means that they are available in request scope using the
+     * supplied key during both this request, and the subsequent request if it is the result
+     * of a redirect.</p>
      *
      * @return a List of Message objects associated with the current request, never null.
      */
     public List<Message> getMessages(String key) {
-        List<Message> messages = (List<Message>) this.request.getAttribute(key);
+        FlashScope scope = FlashScope.getCurrent(getRequest(), true);
+        List<Message> messages = (List<Message>) scope.get(key);
 
         if (messages == null) {
             messages = new ArrayList<Message>();
-            this.request.setAttribute(key, messages);
+            scope.put(key, messages);
         }
 
         return messages;
