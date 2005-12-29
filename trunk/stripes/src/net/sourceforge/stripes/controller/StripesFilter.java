@@ -31,6 +31,8 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.File;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Collection;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
@@ -69,6 +71,12 @@ public class StripesFilter implements Filter {
      * Classloader since the Configuration is not located statically.
      */
     private static ThreadLocal<Configuration> configurationStash = new ThreadLocal<Configuration>();
+
+    /**
+     * The maximum age in seconds that a flash scope is allowed to live, timed from
+     * when the request that created the flash scope finished.  Currently set to 2 minutes.
+     */
+    private static final long MAX_FLASH_SCOPE_AGE =  60 * 2;
 
     /**
      * Performs the necessary initialization for the StripesFilter.  Mainly this involved deciding
@@ -157,9 +165,9 @@ public class StripesFilter implements Filter {
                          ServletResponse servletResponse,
                          FilterChain filterChain) throws IOException, ServletException {
 
-        try {
-            HttpServletRequest httpRequest = (HttpServletRequest) servletRequest;
+        HttpServletRequest httpRequest = (HttpServletRequest) servletRequest;
 
+        try {
             // Pop the configuration into thread local
             StripesFilter.configurationStash.set(this.configuration);
 
@@ -170,10 +178,12 @@ public class StripesFilter implements Filter {
             log.info("LocalePicker selected locale: ", locale);
 
             // Execute the rest of the chain
+            flashInbound(request);
             filterChain.doFilter(request, servletResponse);
         }
         finally {
             // Once the request is processed, take the Configuration back out of thread local
+            flashOutbound(httpRequest);
             StripesFilter.configurationStash.remove();
         }
     }
@@ -193,6 +203,44 @@ public class StripesFilter implements Filter {
         StripesRequestWrapper request =
                 new StripesRequestWrapper(servletRequest, tempDirPath, this.maxPostSize);
         return request;
+    }
+
+    /**
+     * <p>Checks to see if there is a flash scope identified by a parameter to the current
+     * request, and if there is, retrieves items from the flash scope and moves them
+     * back to request attributes.</p>
+     */
+    protected void flashInbound(HttpServletRequest req) {
+        FlashScope flash = FlashScope.getPrevious(req);
+
+        if (flash != null) {
+            for (Map.Entry<String,Object> entry : flash.entrySet()) {
+                req.setAttribute(entry.getKey(), entry.getValue());
+            }
+        }
+    }
+
+    /**
+     * Manages the work that ensures that flash scopes get cleaned up properly when
+     * requests go missing.  Firstly timestamps the current flash scope (if one exists)
+     * to record the time that the request exited the container.  Then checks all
+     * flash scopes to make sure none have been hanging out for more than a minute.
+     */
+    protected void flashOutbound(HttpServletRequest req) {
+        // Start the timer on the current flash scope
+        FlashScope flash = FlashScope.getCurrent(req, false);
+        if (flash != null) {
+            flash.requestComplete();
+        }
+
+        // Clean up any old-age flash scopes
+        Collection<FlashScope> flashes = FlashScope.getAllFlashScopes(req);
+        for (FlashScope f : flashes) {
+            if (f.age() > MAX_FLASH_SCOPE_AGE) {
+
+            }
+        }
+
     }
 
     /** Returns the path to the temporary directory that is used to store file uploads. */

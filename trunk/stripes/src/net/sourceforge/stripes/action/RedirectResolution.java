@@ -16,6 +16,8 @@
 package net.sourceforge.stripes.action;
 
 import net.sourceforge.stripes.util.UrlBuilder;
+import net.sourceforge.stripes.controller.FlashScope;
+import net.sourceforge.stripes.controller.StripesConstants;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -130,6 +132,12 @@ public class RedirectResolution extends OnwardResolution implements Resolution {
             builder.addParameters(request.getParameterMap());
         }
         builder.addParameters(this.parameters);
+
+        // Add the flash scope id if there's a flash scope present
+        FlashScope flash = FlashScope.getCurrent(request, false);
+        if (flash != null) {
+            builder.addParameter(StripesConstants.URL_KEY_FLASH_SCOPE_ID, flash.key());
+        }
 
         response.sendRedirect( response.encodeRedirectURL(builder.toString()) );
     }

@@ -65,6 +65,20 @@ public @interface Validate {
     int maxlength() default -1;
 
     /**
+     * Specifies the minimum numeric value acceptable for a numeric field. This validation is
+     * performed after the field has been converted to it's java type. This validation is only
+     * valid on numeric types (including BigInteger and BigDecimal).
+     */
+    double minvalue() default Double.MIN_VALUE;
+
+    /**
+     * Specifies the maximum numeric value acceptable for a numeric field. This validation is
+     * performed after the field has been converted to it's java type. This validation is only
+     * valid on numeric types (including BigInteger and BigDecimal).
+     */
+    double maxvalue() default Double.MAX_VALUE;
+
+    /**
      * Specifies a regular expression mask to be used to check the format of the String value
      * submitted. The mask will be compiled into a java.util.regex.Pattern for use.
      */

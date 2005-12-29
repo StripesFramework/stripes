@@ -51,4 +51,17 @@ public interface StripesConstants {
      * includes etc.
      */
     String REQ_ATTR_TAG_STACK = "__stripes_tag_stack";
+
+    /**
+     * The name of a URL parameter that is used to tell Stripes that a flash scope exists
+     * for the current request.
+     */
+    String URL_KEY_FLASH_SCOPE_ID = "_fsk";
+
+    /**
+     * The name of a request parameter that holds a Map of flash scopes keyed by the
+     * hashcode of the request that generated them.
+     */
+    String REQ_ATTR_FLASH_SCOPE_LOCATION = "__flash_scopes";
+
 }

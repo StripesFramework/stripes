@@ -14,11 +14,8 @@ import net.sourceforge.stripes.examples.bugzooky.biz.BugManager;
 import net.sourceforge.stripes.examples.bugzooky.biz.ComponentManager;
 import net.sourceforge.stripes.examples.bugzooky.biz.PersonManager;
 import net.sourceforge.stripes.validation.PercentageTypeConverter;
-import net.sourceforge.stripes.validation.SimpleError;
-import net.sourceforge.stripes.validation.Validatable;
 import net.sourceforge.stripes.validation.Validate;
 import net.sourceforge.stripes.validation.ValidateNestedProperties;
-import net.sourceforge.stripes.validation.ValidationErrors;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -33,7 +30,7 @@ import java.io.InputStreamReader;
  * @author Tim Fennell
  */
 @UrlBinding("/bugzooky/SingleBug.action")
-public class SingleBugActionBean extends BugzookyActionBean implements Validatable {
+public class SingleBugActionBean extends BugzookyActionBean {
     private Bug bug;
     private FileBean newAttachment;
 
@@ -41,7 +38,9 @@ public class SingleBugActionBean extends BugzookyActionBean implements Validatab
     @ValidateNestedProperties({
         @Validate(field="shortDescription", required=true),
         @Validate(field="longDescription", required=true),
-        @Validate(field="percentComplete", converter=PercentageTypeConverter.class)
+        @Validate(field="percentComplete",
+                  converter=PercentageTypeConverter.class,
+                  minvalue=0, maxvalue=1)
     })
     public Bug getBug() { return bug; }
 
@@ -50,15 +49,6 @@ public class SingleBugActionBean extends BugzookyActionBean implements Validatab
 
     public FileBean getNewAttachment() { return newAttachment; }
     public void setNewAttachment(FileBean newAttachment) { this.newAttachment = newAttachment; }
-
-    /** Does some very basic custom validation. */
-    public void validate(ValidationErrors errors) {
-        Float percentComplete = this.bug.getPercentComplete();
-        if (percentComplete != null && (percentComplete > 1 || percentComplete < 0)) {
-            SimpleError error =  new SimpleError("Percent complete must be in the range 0-100%.");
-            errors.add("bug.percentComplete", error);
-        }
-    }
 
     /**
      * Loads a bug on to the form ready for editing.
