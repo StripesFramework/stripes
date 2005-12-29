@@ -715,19 +715,16 @@
             <p>Displays a list of non-error messages to the user. The list of messages can come from
             either the request (preferred) or the session (checked 2nd).  Lists of messages can be stored
             under any arbitrary key in request or session and the key can be specified to the messages
-            tag.  If no key is specified then the default key is used.</p>
+            tag.  If no key is specified then the default key (and therefore default set of messages) is
+            used. Note that by default the ActionBeanContext stores messages in a flash scope which
+            causes them to be exposed as request attributes in both the current and subsequent requests
+            (assuming a redirect is used).</p>
 
-            <p>It should be noted that the default ActionBeanContext only stores messages in request.
-            In order to stored messages into session it is necessary to subclass ActionBeanContext
-            and override the behaviour of the getMessages(String key) method. If the messages tag
-            finds messages stored in session it will remove them prior to displaying them. This is
-            done to ensure that the messages are displayed only once, on the appropriate page.</p>
-
-            <p>While similar in concept to the &lt;stripes:errors&gt;, the messages tag is significantly
-            simpler. It deals with a List of Message objects, and does not understand any association
-            between messages and form fields, or even between messages and forms.  It is designed to be
-            used to show arbitrary messages to the user, the prime example being a confirmation message
-            displayed on the subsequent page, following an action.</p>
+            <p>While similar in concept to the ErrorsTag, the MessagesTag is significantly simpler. It deals
+            with a List of Message objects, and does not understand any association between messages and
+            form fields, or even between messages and forms.  It is designed to be used to show arbitrary
+            messages to the user, the prime example being a confirmation message displayed on the subsequent
+            page following an action.</p>
 
             <p>The messages tag outputs a header before the messages, the messages themselves, and a footer
             after the messages.  Default values are set for each of these four items.  Different values

@@ -32,7 +32,10 @@ import java.util.ResourceBundle;
  * <p>Displays a list of non-error messages to the user. The list of messages can come from
  * either the request (preferred) or the session (checked 2nd).  Lists of messages can be stored
  * under any arbitrary key in request or session and the key can be specified to the messages
- * tag.  If no key is specified then the default key is used.</p>
+ * tag.  If no key is specified then the default key (and therefore default set of messages) is
+ * used. Note that by default the ActionBeanContext stores messages in a
+ * {@link net.sourceforge.stripes.controller.FlashScope} which causes them to be exposed as
+ * request attributes in both the current and subsequent request (assuming a redirect is used).</p>
  *
  * <p>While similar in concept to the ErrorsTag, the MessagesTag is significantly simpler. It deals
  * with a List of Message objects, and does not understand any association between messages and
