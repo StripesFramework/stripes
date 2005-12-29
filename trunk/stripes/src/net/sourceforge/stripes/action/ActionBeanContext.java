@@ -27,8 +27,14 @@ import java.util.List;
 import java.util.ArrayList;
 
 /**
- * Encapsulates information about the current request.  Also provides access to the underlying
- * Servlet API should you need to use it for any reason.
+ * <p>Encapsulates information about the current request.  Also provides access to the underlying
+ * Servlet API should you need to use it for any reason.</p>
+ *
+ * <p>Developers should generally consider subclassing ActionBeanContext to provide a facade
+ * to contextual state for their application.  Type safe getters and setter can be added to
+ * the subclass and used by the application, thus hiding where the information is actually
+ * stored.  This approach is documented in more detail in the Stripes documentation on
+ * <a href="http://stripes.mc4j.org/confluence/display/stripes/State+Management>State Management</a>.</p>
  *
  * @author Tim Fennell
  */
@@ -118,7 +124,8 @@ public class ActionBeanContext {
      *</pre>
      *
      * <p>To remove messages from the current request fetch the list of messages and invoke
-     * remove() or clear().</p>
+     * remove() or clear().  Messages will be made available to JSPs during the current
+     * request and in the subsequent request if a redirect is issued.</p>
      *
      * @return a List of Message objects associated with the current request, never null.
      * @see ActionBeanContext#getMessages(String)
