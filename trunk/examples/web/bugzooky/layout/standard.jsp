@@ -10,7 +10,7 @@
                   type="text/css"
                   href="${pageContext.request.contextPath}/bugzooky/bugzooky.css"/>
             <script type="text/javascript"
-                    src="${pageContext.request.contextPath}/bugzooky/bugzooky.js"/>
+                    src="${pageContext.request.contextPath}/bugzooky/bugzooky.js"></script>
             <stripes:layout-component name="html-head"/>
         </head>
         <body>
