@@ -383,17 +383,22 @@
             <name>target</name><required>false</required><rtexprvalue>true</rtexprvalue>
         </attribute>
 
+        <attribute>
+            <description>Scripting code run when the form is reset. (HTML Pass-through)</description>
+            <name>onreset</name><required>false</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>Scripting code run prior to the form being submitted to the server, (HTML Pass-through)</description>
+            <name>onsubmit</name><required>false</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
+
         <!-- Start: Standard HTML attributes -->
-        <attribute><description>@accesskey@</description><name>accesskey</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
         <attribute><description>@class@</description><name>class</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
         <attribute><description>@dir@</description><name>dir</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
         <attribute><description>@id@</description><name>id</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
         <attribute><description>@lang@</description><name>lang</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
-        <attribute><description>@onblur@</description><name>onblur</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
-        <attribute><description>@onchange@</description><name>onchange</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
         <attribute><description>@onclick@</description><name>onclick</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
         <attribute><description>@ondblclick@</description><name>ondblclick</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
-        <attribute><description>@onfocus@</description><name>onfocus</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
         <attribute><description>@onkeydown@</description><name>onkeydown</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
         <attribute><description>@onkeypress@</description><name>onkeypress</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
         <attribute><description>@onkeyup@</description><name>onkeyup</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
@@ -402,9 +407,7 @@
         <attribute><description>@onmouseout@</description><name>onmouseout</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
         <attribute><description>@onmouseover@</description><name>onmouseover</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
         <attribute><description>@onmouseup@</description><name>onmouseup</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
-        <attribute><description>@onselect@</description><name>onselect</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
         <attribute><description>@style@</description><name>style</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
-        <attribute><description>@tabindex@</description><name>tabindex</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
         <attribute><description>@title@</description><name>title</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
         <!-- End: Standard HTML attributes -->
     </tag>

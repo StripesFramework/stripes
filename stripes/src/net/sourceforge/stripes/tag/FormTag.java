@@ -94,6 +94,12 @@ public class FormTag extends HtmlTagSupport implements BodyTag {
     public void   setTarget(String target) { set("target", target); }
     public String getTarget() { return get("target"); }
 
+    public void   setOnreset(String onreset) { set("onreset", onreset); }
+    public String getOnreset() { return get("onreset"); }
+
+    public void   setOnsubmit(String onsubmit) { set("onsubmit", onsubmit); }
+    public String getOnsubmit() { return get("onsubmit"); }
+
     ////////////////////////////////////////////////////////////
     // TAG methods
     ////////////////////////////////////////////////////////////
