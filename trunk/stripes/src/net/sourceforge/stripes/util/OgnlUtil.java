@@ -217,7 +217,19 @@ public class OgnlUtil {
         // The eventual holder of the real type
         Class propertyClass = null;
 
-        Method method = OgnlRuntime.getGetMethod(createContext(), bean.getClass(), propertyName);
+        // If we have a nested property, grab the penultimate object, and the last property name
+        Object root = bean;
+        int propertyIndex = propertySplit(propertyName);
+
+        if (propertyIndex > 0) {
+            String parentProperty = propertyName.substring(0, propertyIndex);
+            propertyName = propertyName.substring(propertyIndex + 1);
+            root = getValue(parentProperty, bean, true);
+        }
+
+        // Get the getter method and figure out if it's got generic info on it
+        Method method = OgnlRuntime.getGetMethod(createContext(), root.getClass(), propertyName);
+
         Type returnType = method.getGenericReturnType();
         if (returnType instanceof ParameterizedType) {
             ParameterizedType ptype = (ParameterizedType) returnType;

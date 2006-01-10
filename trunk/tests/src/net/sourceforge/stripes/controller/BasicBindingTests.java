@@ -94,6 +94,21 @@ public class BasicBindingTests {
     }
 
     @Test(groups="fast")
+    public void bindNestedSet() throws Exception {
+        MockRoundtrip trip = getRoundtrip();
+        trip.addParameter("testBean.stringSet", "foo", "bar", "splat");
+        trip.execute();
+
+        TestBean bean = trip.getActionBean(TestActionBean.class).getTestBean();
+        Assert.assertNotNull(bean);
+        Assert.assertNotNull(bean.getStringSet());
+        Assert.assertEquals(bean.getStringSet().size(), 3);
+        Assert.assertTrue(bean.getStringSet().contains("foo"));
+        Assert.assertTrue(bean.getStringSet().contains("bar"));
+        Assert.assertTrue(bean.getStringSet().contains("splat"));
+    }
+
+    @Test(groups="fast")
     public void bindNumericallyIndexedProperties() throws Exception {
         MockRoundtrip trip = getRoundtrip();
         trip.addParameter("listOfBeans[0].intProperty", "0");
