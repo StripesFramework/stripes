@@ -87,6 +87,20 @@ public class InputCheckBoxTag extends InputTagSupport implements BodyTag {
     }
 
     /**
+     * Returns the body of the tag if it is present and not empty, otherwise returns
+     * the value of the 'checked' attribute.
+     */
+    public Object getValueOnPage() {
+        Object value = getBodyContentAsString();
+        if (value != null) {
+            return value;
+        }
+        else {
+            return this.checked;
+        }
+    }
+
+    /**
      * Does the main work of the tag, including determining the tags state (checked or not) and
      * writing out a singleton tag representing the checkbox.
      *
@@ -96,20 +110,7 @@ public class InputCheckBoxTag extends InputTagSupport implements BodyTag {
      */
     public int doEndInputTag() throws JspException {
         // Find out if we have a value from the PopulationStrategy
-        Object override = getOverrideValueOrValues();
-        String body     = getBodyContentAsString();
-        Object checked = null;
-
-        // Figure out where to pull the default value from
-        if (override != null) {
-            checked = override;
-        }
-        else if (body != null) {
-            checked = body;
-        }
-        else {
-            checked = this.checked;
-        }
+        Object checked = getOverrideValueOrValues();
 
         // If the value of this checkbox is contained in the value or override value, check it
         getAttributes().put("value", format(this.value));

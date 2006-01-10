@@ -28,6 +28,7 @@ import javax.servlet.jsp.JspException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
+import java.lang.reflect.Method;
 
 /**
  * Parent class for all input tags in stripes.  Provides support methods for retrieving all the
@@ -37,9 +38,6 @@ import java.util.Locale;
  * @author Tim Fennell
  */
 public abstract class InputTagSupport extends HtmlTagSupport {
-    /** PopulationStrategy used to find non-default values for input tags. */
-    private static PopulationStrategy populationStrategy = new DefaultPopulationStrategy();
-
     private String formatType;
     private String formatPattern;
 
@@ -82,7 +80,7 @@ public abstract class InputTagSupport extends HtmlTagSupport {
      *         necessary to perform repopulation) cannot be located
      */
     protected Object getOverrideValueOrValues() throws StripesJspException {
-        return populationStrategy.getValue(this);
+        return StripesFilter.getConfiguration().getPopulationStrategy().getValue(this);
     }
 
     /**
@@ -115,6 +113,30 @@ public abstract class InputTagSupport extends HtmlTagSupport {
         }
 
         return returnValue;
+    }
+
+    /**
+     * Used during repopulation to query the tag for a value of values provided to the tag
+     * on the JSP.  This allows the PopulationStrategy to encapsulate all decisions about
+     * which source to use when repopulating tags.
+     *
+     * @return May return any of String[], Collection or Object
+     */
+    public Object getValueOnPage() {
+        Object value = getBodyContentAsString();
+
+        if (value == null) {
+            try {
+                Method getValue = getClass().getMethod("getValue");
+                value = getValue.invoke(this);
+            }
+            catch (Exception e) {
+                // Not a lot we can do about this.  It's either because the subclass in question
+                // doesn't have a getValue() method (which is ok), or it threw an exception.
+            }
+        }
+
+        return value;
     }
 
     /**

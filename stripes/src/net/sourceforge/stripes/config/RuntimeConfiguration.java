@@ -17,6 +17,7 @@ package net.sourceforge.stripes.config;
 
 import net.sourceforge.stripes.exception.StripesRuntimeException;
 import net.sourceforge.stripes.tag.TagErrorRendererFactory;
+import net.sourceforge.stripes.tag.PopulationStrategy;
 import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.controller.ActionResolver;
 import net.sourceforge.stripes.controller.ActionBeanPropertyBinder;
@@ -69,6 +70,9 @@ public class RuntimeConfiguration extends DefaultConfiguration {
     /** The Configuration Key for looking up the name of the TagErrorRendererFactory class */
     public static final String TAG_ERROR_RENDERER_FACTORY = "TagErrorRendererFactory.Class";
 
+    /** The Configuration Key for looking up the name of the PopulationStrategy class */
+    public static final String POPULATION_STRATEGY = "PopulationStrategy.Class";
+
     /** Looks for a class name in config and uses that to create the component. */
     @Override protected ActionResolver initActionResolver() {
         return initializeComponent(ActionResolver.class, ACTION_RESOLVER);
@@ -107,6 +111,11 @@ public class RuntimeConfiguration extends DefaultConfiguration {
     /** Looks for a class name in config and uses that to create the component. */
     @Override protected TagErrorRendererFactory initTagErrorRendererFactory() {
         return initializeComponent(TagErrorRendererFactory.class, TAG_ERROR_RENDERER_FACTORY);
+    }
+
+    /** Looks for a class name in config and uses that to create the component. */
+    @Override protected PopulationStrategy initPopulationStrategy() {
+        return initializeComponent(PopulationStrategy.class, POPULATION_STRATEGY);
     }
 
     /**

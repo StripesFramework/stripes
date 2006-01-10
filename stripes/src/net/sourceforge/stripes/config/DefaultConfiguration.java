@@ -30,6 +30,8 @@ import net.sourceforge.stripes.validation.DefaultTypeConverterFactory;
 import net.sourceforge.stripes.validation.TypeConverterFactory;
 import net.sourceforge.stripes.tag.TagErrorRendererFactory;
 import net.sourceforge.stripes.tag.DefaultTagErrorRendererFactory;
+import net.sourceforge.stripes.tag.PopulationStrategy;
+import net.sourceforge.stripes.tag.DefaultPopulationStrategy;
 import net.sourceforge.stripes.format.FormatterFactory;
 import net.sourceforge.stripes.format.DefaultFormatterFactory;
 
@@ -57,6 +59,7 @@ public class DefaultConfiguration implements Configuration {
     private LocalePicker localePicker;
     private FormatterFactory formatterFactory;
     private TagErrorRendererFactory tagErrorRendererFactory;
+    private PopulationStrategy populationStrategy;
 
     /** Gratefully accepts the BootstrapPropertyResolver handed to the Configuration. */
     public void setBootstrapPropertyResolver(BootstrapPropertyResolver resolver) {
@@ -115,6 +118,12 @@ public class DefaultConfiguration implements Configuration {
             if (this.tagErrorRendererFactory == null) {
                 this.tagErrorRendererFactory = new DefaultTagErrorRendererFactory();
                 this.tagErrorRendererFactory.init(this);
+            }
+
+            this.populationStrategy = initPopulationStrategy();
+            if (this.populationStrategy == null) {
+                this.populationStrategy = new DefaultPopulationStrategy();
+                this.populationStrategy.init(this);
             }
         }
         catch (Exception e) {
@@ -213,4 +222,15 @@ public class DefaultConfiguration implements Configuration {
 
     /** Allows subclasses to initialize a non-default TagErrorRendererFactory instance to be used. */
     protected TagErrorRendererFactory initTagErrorRendererFactory() { return null; }
+
+    /**
+     * Returns an instance of a PopulationsStrategy.  Unless a sublcass has picked another
+     * implementation, will return an instance of
+     * {@link net.sourceforge.stripes.tag.DefaultPopulationStrategy}.
+     */
+    public PopulationStrategy getPopulationStrategy() { return this.populationStrategy; }
+
+    /** Allows subclasses to initialize a non-default PopulationStrategy instance to be used. */
+    protected PopulationStrategy initPopulationStrategy() { return null; }
+
 }

@@ -22,6 +22,7 @@ import net.sourceforge.stripes.localization.LocalizationBundleFactory;
 import net.sourceforge.stripes.localization.LocalePicker;
 import net.sourceforge.stripes.validation.TypeConverterFactory;
 import net.sourceforge.stripes.tag.TagErrorRendererFactory;
+import net.sourceforge.stripes.tag.PopulationStrategy;
 import net.sourceforge.stripes.format.FormatterFactory;
 
 /**
@@ -125,6 +126,14 @@ public interface Configuration {
      * @return TagErrorRendererFactory an instance of TagErrorRendererFactory
      */
     TagErrorRendererFactory getTagErrorRendererFactory();
+
+    /**
+     * Returns an instance of a PopulationStrategy that determines from where a tag's value
+     * should be repopulated.
+     *
+     * @return PopulationStrategy an instance of PopulationStrategy
+     */
+    PopulationStrategy getPopulationStrategy();
 
     /**
      * Returns an instance of an action bean context factory which will used throughout Stripes
