@@ -92,38 +92,24 @@ public class InputHiddenTag extends InputTagSupport implements BodyTag {
      */
     public int doEndInputTag() throws JspException {
         // Find out if we have a value from the PopulationStrategy
-        String body  = getBodyContentAsString();
-        Object override = getOverrideValueOrValues();
-        Object originalValue = this.value;
-        Object valueWereGoingToUse = "";
-
-        // Figure out where to pull the value from
-        if (override != null) {
-            valueWereGoingToUse = override;
-        }
-        else if (body != null) {
-            valueWereGoingToUse = body;
-        }
-        else {
-            valueWereGoingToUse = originalValue;
-        }
+        Object valueOrValues = getOverrideValueOrValues();
 
         // Figure out how many times to write it out
-        if (valueWereGoingToUse != null) {
-            if (valueWereGoingToUse.getClass().isArray()) {
-                for (Object value : (Object[]) valueWereGoingToUse) {
+        if (valueOrValues != null) {
+            if (valueOrValues.getClass().isArray()) {
+                for (Object value : (Object[]) valueOrValues) {
                     getAttributes().put("value", format(value));
                     writeSingletonTag(getPageContext().getOut(), "input");
                 }
             }
-            else if (valueWereGoingToUse instanceof Collection) {
-                for (Object value : (Collection) valueWereGoingToUse) {
+            else if (valueOrValues instanceof Collection) {
+                for (Object value : (Collection) valueOrValues) {
                     getAttributes().put("value", format(value));
                     writeSingletonTag(getPageContext().getOut(), "input");
                 }
             }
             else {
-                getAttributes().put("value", format(valueWereGoingToUse));
+                getAttributes().put("value", format(valueOrValues));
                 writeSingletonTag(getPageContext().getOut(), "input");
             }
         }

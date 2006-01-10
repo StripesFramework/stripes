@@ -92,26 +92,13 @@ public class InputTextAreaTag extends InputTagSupport implements BodyTag {
     public int doEndInputTag() throws JspException {
         try {
             // Find out if we have a value from the PopulationStrategy
-            Object override      = getSingleOverrideValue();
-            String body          = getBodyContentAsString();
-            Object actualValue   = null;
-
-            // Figure out which source to pull from
-            if (override != null) {
-                actualValue = override;
-            }
-            else if (body != null) {
-                actualValue = body;
-            }
-            else if (this.value != null) {
-                actualValue = this.value;
-            }
+            Object value   = getSingleOverrideValue();
 
             writeOpenTag(getPageContext().getOut(), "textarea");
 
             // Write out the contents of the text area
-            if (actualValue != null) {
-                getPageContext().getOut().write( format(actualValue));
+            if (value != null) {
+                getPageContext().getOut().write( format(value));
             }
 
             writeCloseTag(getPageContext().getOut(), "textarea");

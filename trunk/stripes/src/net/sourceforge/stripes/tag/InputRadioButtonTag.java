@@ -83,6 +83,20 @@ public class InputRadioButtonTag extends InputTagSupport implements BodyTag {
     }
 
     /**
+     * Returns the body of the tag if it is present and not empty, otherwise returns
+     * the value of the 'checked' attribute.
+     */
+    public Object getValueOnPage() {
+        String body         = getBodyContentAsString();
+        if (body != null) {
+            return body;
+        }
+        else {
+            return this.checked;
+        }
+    }
+
+    /**
      * Determines the state of the set of radio buttons and then writes the radio button to the
      * output stream with checked="checked" or not as appropriate.
      *
@@ -90,23 +104,8 @@ public class InputRadioButtonTag extends InputTagSupport implements BodyTag {
      * @throws JspException if the parent form tag cannot be found, or output cannot be written.
      */
     public int doEndInputTag() throws JspException {
-        // Find out if we have a value from the PopulationStrategy
-        Object override     = getSingleOverrideValue();
-        String body         = getBodyContentAsString();
-        Object checkedOnTag = this.checked;
-        Object actualChecked = null;
+        Object actualChecked = getSingleOverrideValue();
         String formattedValue = format(this.value);
-
-        // Decide which source to pull from
-        if (override != null) {
-            actualChecked = override;
-        }
-        else if (body != null) {
-            actualChecked = body;
-        }
-        else {
-            actualChecked = checkedOnTag;
-        }
 
         // Now if the "checked" value matches this tags value, check it!
         if (actualChecked != null && this.value != null && formattedValue.equals(format(actualChecked))) {

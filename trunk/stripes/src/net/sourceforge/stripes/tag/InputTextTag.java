@@ -88,18 +88,11 @@ import javax.servlet.jsp.tagext.BodyTag;
      */
     public int doEndInputTag() throws JspException {
         // Find out if we have a value from the PopulationStrategy
-        String body     = getBodyContentAsString();
-        Object override = getSingleOverrideValue();
+        Object value = getSingleOverrideValue();
 
         // Figure out where to pull the value from
-        if (override != null) {
-            getAttributes().put("value", format(override));
-        }
-        else if (body != null) {
-            getAttributes().put("value", body);
-        }
-        else if (this.value != null) {
-            getAttributes().put("value", this.value);
+        if (value != null) {
+            getAttributes().put("value", format(value));
         }
 
         writeSingletonTag(getPageContext().getOut(), "input");
