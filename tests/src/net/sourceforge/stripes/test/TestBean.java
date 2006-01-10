@@ -2,6 +2,7 @@ package net.sourceforge.stripes.test;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * A simple JavaBean that has all sorts of properties, making it good
@@ -18,6 +19,7 @@ public class TestBean {
 
     private String[] stringArray;
     private List<String> stringList;
+    private Set<String> stringSet;
     private Map<String,String> stringMap;
 
     private List<TestBean> beanList;
@@ -73,6 +75,9 @@ public class TestBean {
     public void setStringList(List<String> stringList) {
         this.stringList = stringList;
     }
+
+    public Set<String> getStringSet() { return this.stringSet; }
+    public void setStringSet(Set<String> stringSet) { this.stringSet = stringSet; }
 
     public Map<String, String> getStringMap() {
         return stringMap;
