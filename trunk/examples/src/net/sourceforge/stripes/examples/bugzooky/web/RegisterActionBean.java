@@ -5,6 +5,8 @@ import net.sourceforge.stripes.action.HandlesEvent;
 import net.sourceforge.stripes.action.RedirectResolution;
 import net.sourceforge.stripes.action.Resolution;
 import net.sourceforge.stripes.action.UrlBinding;
+import net.sourceforge.stripes.action.Wizard;
+import net.sourceforge.stripes.action.ForwardResolution;
 import net.sourceforge.stripes.examples.bugzooky.biz.Person;
 import net.sourceforge.stripes.examples.bugzooky.biz.PersonManager;
 import net.sourceforge.stripes.validation.LocalizableError;
@@ -18,6 +20,7 @@ import net.sourceforge.stripes.validation.ValidationErrors;
  *
  * @author Tim Fennell
  */
+@Wizard
 @UrlBinding("/bugzooky/Register.action")
 public class RegisterActionBean extends BugzookyActionBean implements Validatable {
     private Person user;
@@ -49,16 +52,23 @@ public class RegisterActionBean extends BugzookyActionBean implements Validatabl
      * username entered is not already taken in the system.
      */
     public void validate(ValidationErrors errors) {
-        if (!this.user.getPassword().equals(this.confirmPassword)) {
-            errors.add("confirmPassword",
-                       new LocalizableError("/bugzooky/Register.action.passwordsDontMatch"));
-        }
-
         if ( new PersonManager().getPerson(this.user.getUsername()) != null ) {
             errors.add("user.username",
                        new LocalizableError("/bugzooky/Register.action.usernameTaken",
                                             this.user.getUsername()));
         }
+
+        // We have to check the password for null because it's not supplied
+        // until the second page of the flow
+        if (this.user.getPassword() != null && !this.user.getPassword().equals(this.confirmPassword)) {
+            errors.add("confirmPassword",
+                       new LocalizableError("/bugzooky/Register.action.passwordsDontMatch"));
+        }
+    }
+
+    @HandlesEvent("GotoStep2")
+    public Resolution gotoStep2() throws Exception {
+        return new ForwardResolution("/bugzooky/Register2.jsp");
     }
 
     /**

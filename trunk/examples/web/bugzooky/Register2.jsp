@@ -8,25 +8,21 @@
         <stripes:form action="/bugzooky/Register.action" method="POST">
             <stripes:errors/>
 
-            <p>Please provide the following information:</p>
+            <p>Welcome ${actionBean.user.firstName}, please pick a password:</p>
 
             <table class="leftRightForm">
                 <tr>
-                    <th><stripes:label for="user.firstName"/>:</th>
-                    <td><stripes:text name="user.firstName"/></td>
+                    <th><stripes:label for="user.password"/>:</th>
+                    <td><stripes:password name="user.password"/></td>
                 </tr>
                 <tr>
-                    <th><stripes:label for="user.lastName"/>:</th>
-                    <td><stripes:text name="user.lastName"/></td>
-                </tr>
-                <tr>
-                    <th><stripes:label for="user.username"/>:</th>
-                    <td><stripes:text name="user.username"/></td>
+                    <th><stripes:label for="confirmPassword"/>:</th>
+                    <td><stripes:password name="confirmPassword"/></td>
                 </tr>
             </table>
 
             <div class="buttons">
-                <stripes:submit name="GotoStep2" value="Next"/>
+                <stripes:submit name="Register" value="Create Account"/>
             </div>
         </stripes:form>
     </stripes:layout-component>

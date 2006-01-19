@@ -16,9 +16,15 @@
 package net.sourceforge.stripes.tag;
 
 import net.sourceforge.stripes.action.ActionBean;
+import net.sourceforge.stripes.action.ActionBeanContext;
+import net.sourceforge.stripes.action.Wizard;
 import net.sourceforge.stripes.controller.StripesConstants;
+import net.sourceforge.stripes.controller.StripesFilter;
 import net.sourceforge.stripes.exception.StripesJspException;
+import net.sourceforge.stripes.exception.StripesServletException;
 import net.sourceforge.stripes.util.HtmlUtil;
+import net.sourceforge.stripes.util.Log;
+import net.sourceforge.stripes.util.CryptoUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -39,6 +45,8 @@ import java.util.Set;
  * @author Tim Fennell
  */
 public class FormTag extends HtmlTagSupport implements BodyTag {
+    /** Log used to log error and debugging information for this class. */
+    private static Log log = Log.getInstance(FormTag.class);
 
     /** Stores the value of the action attribute before the context gets appended. */
     private String actionWithoutContext;
@@ -112,7 +120,7 @@ public class FormTag extends HtmlTagSupport implements BodyTag {
         return EVAL_BODY_BUFFERED;
     }
 
-    /** Np-op method. */
+    /** No-op method. */
     public void doInitBody() throws JspException { }
 
     /** Just returns SKIP_BODY so that the body is included only once. */
@@ -137,8 +145,9 @@ public class FormTag extends HtmlTagSupport implements BodyTag {
         try {
             JspWriter out = getPageContext().getOut();
             writeOpenTag(out, "form");
+            getBodyContent().writeOut( getPageContext().getOut() );
 
-            // Write out a hiddien field with the name of the page in it....
+            // Write out a hidden field with the name of the page in it....
             // The div is necessary in order to be XHTML compliant, where a form can contain
             // only block level elements (which seems stupid, but whatever).
             out.write("<div style=\"display: none;\">");
@@ -149,10 +158,13 @@ public class FormTag extends HtmlTagSupport implements BodyTag {
             out.write( request.getServletPath());
             out.write("\" />");
 
+            if (isWizard()) {
+                writeWizardFields();
+            }
+
             writeFieldsPresentHiddenField(out);
             out.write("</div>");
 
-            getBodyContent().writeOut( getPageContext().getOut() );
             writeCloseTag(getPageContext().getOut(), "form");
 
             // Clean up any state the container won't reset during tag pooling
@@ -169,27 +181,44 @@ public class FormTag extends HtmlTagSupport implements BodyTag {
     }
 
     /**
-     * Examines the form tag to determine what fields are present in the form and might
-     * not get submitted to the server. Writes out a hidden field that contains the names
-     * of all those fields so that we can detect non-submission when the request comes back.
-     * Outputs only the names of checkboxes and select tags as these are the only HTML input
-     * types that do not get submitted if no value is chosen.
+     * <p>In general writes out a hidden field notifying the server exactly what fields were
+     * present on the page.  Exact behaviour depends upon whether or not the current form
+     * is a wizard or not. When the current form is <b>not</b> a wizard this method examines
+     * the form tag to determine what fields present in the form might not get submitted to
+     * the server (e.g. checkboxes, selects), writes out a hidden field that contains the names
+     * of all those fields so that we can detect non-submission when the request comes back.</p>
+     *
+     * <p>In the case of a wizard form the value output is the full list of all fields that were
+     * present on the page. This is done because the list is used to drive required field
+     * validation knowing that in a wizard required fields may be spread across several pages.</p>
+     *
+     * <p>In both cases the value is encrypted to stop the user maliciously spoofing the value.</p>
      *
      * @param out the output  writer into which the hidden tag should be written
      * @throws IOException if the writer throws one
      */
     protected void writeFieldsPresentHiddenField(JspWriter out) throws IOException {
-        // Write out an encoded list of the field names in the form
+        // Figure out what set of names to include
         Set<String> namesToInclude = new HashSet<String>();
-        for (Map.Entry<String,Class> entry : this.fieldsPresent.entrySet()) {
-            Class fieldClass = entry.getValue();
-            if (InputSelectTag.class.isAssignableFrom(fieldClass)
-                    || InputCheckBoxTag.class.isAssignableFrom(fieldClass)) {
-                namesToInclude.add(entry.getKey());
+
+        if (isWizard()) {
+            namesToInclude.addAll(this.fieldsPresent.keySet());
+        }
+        else {
+            for (Map.Entry<String,Class> entry : this.fieldsPresent.entrySet()) {
+                Class fieldClass = entry.getValue();
+                if (InputSelectTag.class.isAssignableFrom(fieldClass)
+                        || InputCheckBoxTag.class.isAssignableFrom(fieldClass)) {
+                    namesToInclude.add(entry.getKey());
+                }
             }
         }
 
+        // Combine the names into a delimited String and encrypt it
         String hiddenFieldValue = HtmlUtil.combineValues(namesToInclude);
+        HttpServletRequest request = (HttpServletRequest) getPageContext().getRequest();
+        hiddenFieldValue = CryptoUtil.encrypt(hiddenFieldValue, request);
+
         out.write("<input type=\"hidden\" name=\"");
         out.write(StripesConstants.URL_KEY_FIELDS_PRESENT);
         out.write("\" value=\"");
@@ -208,6 +237,45 @@ public class FormTag extends HtmlTagSupport implements BodyTag {
      */
     protected ActionBean getActionBean() {
         return (ActionBean) getPageContext().getRequest().getAttribute(this.actionWithoutContext);
+    }
+
+    /**
+     * Returns true if the ActionBean this form posts to represents a Wizard action bean and
+     * false in all other situations.  If the form cannot determine the ActionBean being posted
+     * to for any reason it will return false.
+     */
+    protected boolean isWizard() {
+        ActionBean bean = getActionBean();
+        if (bean == null) {
+            try {
+                bean = StripesFilter.getConfiguration().getActionResolver().getActionBean(
+                        new ActionBeanContext(), this.actionWithoutContext);
+            }
+            catch (StripesServletException sse) {
+                log.error("Could not locate an ActionBean that was bound to the URL [",
+                          this.actionWithoutContext, "]. Without an ActionBean class Stripes ",
+                          "cannot determine whether the ActionBean is a wizard or not. ",
+                          "As a result wizard behaviour will be disabled.");
+                return false;
+            }
+        }
+
+        return bean.getClass().getAnnotation(Wizard.class) != null;
+    }
+
+    /**
+     * Writes out hidden fields for all fields that are present in the request but are not
+     * explicitly present in this form.  Excludes any fields that have special meaning to
+     * Stripes and are not really application data.  Uses the stripes:wizard-fields tag to
+     * do the grunt work.
+     */
+    protected void writeWizardFields() throws JspException {
+        WizardFieldsTag tag = new WizardFieldsTag();
+        tag.setPageContext(getPageContext());
+        tag.setParent(this);
+        tag.doStartTag();
+        tag.doEndTag();
+        tag.release();
     }
 
     /**
