@@ -31,7 +31,7 @@ public interface StripesConstants {
      * The name of a URL parameter that is used to hold the path (relative to the web application
      * root) from which the current form submission was made.
      */
-    String URL_KEY_FIELDS_PRESENT = "_stripes_fieldsPresent";
+    String URL_KEY_FIELDS_PRESENT = "__fp";
 
     /**
      * The name under which the ActionBean for a request is stored as a request attribute before
@@ -56,7 +56,7 @@ public interface StripesConstants {
      * The name of a URL parameter that is used to tell Stripes that a flash scope exists
      * for the current request.
      */
-    String URL_KEY_FLASH_SCOPE_ID = "_fsk";
+    String URL_KEY_FLASH_SCOPE_ID = "__fsk";
 
     /**
      * The name of a request parameter that holds a Map of flash scopes keyed by the

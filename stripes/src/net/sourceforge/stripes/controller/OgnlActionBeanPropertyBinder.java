@@ -18,7 +18,10 @@ package net.sourceforge.stripes.controller;
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.action.ActionBeanContext;
 import net.sourceforge.stripes.action.FileBean;
+import net.sourceforge.stripes.action.Wizard;
 import net.sourceforge.stripes.config.Configuration;
+import net.sourceforge.stripes.exception.StripesRuntimeException;
+import net.sourceforge.stripes.util.CryptoUtil;
 import net.sourceforge.stripes.util.HtmlUtil;
 import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.util.OgnlUtil;
@@ -39,6 +42,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -164,7 +168,7 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
 
         // Run the required validation first to catch fields that weren't even submitted
         if (validate) {
-            validateRequiredFields(parameters, context, bean.getClass(), fieldErrors);
+            validateRequiredFields(parameters, bean, fieldErrors);
         }
 
         // First we bind all the regular parameters
@@ -262,9 +266,8 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
     protected void bindMissingValuesAsNull(ActionBean bean, ActionBeanContext context) {
         HttpServletRequest request = context.getRequest();
         Set<String> paramatersSubmitted = request.getParameterMap().keySet();
-        String fieldsPresent = request.getParameter(StripesConstants.URL_KEY_FIELDS_PRESENT);
 
-        for (String name: HtmlUtil.splitValues(fieldsPresent)) {
+        for (String name: getFieldsPresentInfo(bean)) {
             if (!paramatersSubmitted.contains(name)) {
                 try {
                     bindNullValue(bean, name, OgnlUtil.getPropertyClass(name, bean));
@@ -274,6 +277,40 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
                              "type '", bean.getClass(), "'.");
                 }
             }
+        }
+    }
+
+    /**
+     * In a lot of cases (and specifically during wizards) the Stripes form field writes out
+     * a hidden field containing a set of field names. This is encrypted to stop the user from
+     * monkeying with it. This method retrieves the list of field names, decrypts it and splits
+     * it out into a Collection of field names.
+
+     * @param bean the current ActionBean
+     * @return a non-null (though possibly empty) list of field names
+     */
+    protected Collection<String> getFieldsPresentInfo(ActionBean bean) {
+        HttpServletRequest request = bean.getContext().getRequest();
+        String fieldsPresent = request.getParameter(StripesConstants.URL_KEY_FIELDS_PRESENT);
+
+        if (fieldsPresent == null || "".equals(fieldsPresent)) {
+            if (bean.getClass().getAnnotation(Wizard.class) != null) {
+                //FIXME: might want to let the ActionBean handle the initial request somehow?
+                throw new StripesRuntimeException(
+                        "Submission of a wizard form in Stripes absolutely requires that " +
+                        "the hidden field Stripes writes containing the names of the fields " +
+                        "present on the form is present and encrypted (as Stripes write it). " +
+                        "This is necessary to prevent a user from spoofing the system and " +
+                        "getting around any security/data checks."
+                );
+            }
+            else {
+                return Collections.emptySet();
+            }
+        }
+        else {
+            fieldsPresent = CryptoUtil.decrypt(fieldsPresent, request);
+            return HtmlUtil.splitValues(fieldsPresent);
         }
     }
 
@@ -430,15 +467,14 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
 
     /**
      * Validates that all required fields have been submitted. This is done by looping through
-     * throw the set of validation annotations and checking that each field marked as required
+     * the set of validation annotations and checking that each field marked as required
      * was submitted in the request and submitted with a non-empty value.
      */
     protected void validateRequiredFields(Map<ParameterName,String[]> parameters,
-                                          ActionBeanContext context,
-                                          Class beanClass,
+                                          ActionBean bean,
                                           ValidationErrors errors) {
 
-        log.debug("Running required field validation on bean class ", beanClass.getName());
+        log.debug("Running required field validation on bean class ", bean.getClass().getName());
 
         // Assemble a set of names that we know have indexed parameters, so we won't check
         // for required-ness the regular way
@@ -449,8 +485,11 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
             }
         }
 
-        Map<String,Validate> validationInfos = this.validations.get(beanClass);
+        Map<String,Validate> validationInfos = this.validations.get(bean.getClass());
+
         if (validationInfos != null) {
+            boolean wizard = bean.getClass().getAnnotation(Wizard.class) != null;
+            Collection<String> fieldsOnPage = getFieldsPresentInfo(bean);
 
             for (Map.Entry<String,Validate> entry : validationInfos.entrySet()) {
                 String propertyName = entry.getKey();
@@ -459,9 +498,14 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
                 // If the field is required, and we don't have index params that collapse
                 // to that property name, check that it was supplied
                 if (validationInfo.required() && !indexedParams.contains(propertyName)) {
-                    String[] values = context.getRequest().getParameterValues(propertyName);
-                    log.debug("Checking required field: ", propertyName, ", with values: ", values);
-                    checkSingleRequiredField(propertyName, propertyName, values, errors);
+
+                    // Make the added check that if the form is a wizard, the required field is
+                    // in the set of fields that were on the page
+                    if (!wizard || fieldsOnPage.contains(propertyName)) {
+                        String[] values = bean.getContext().getRequest().getParameterValues(propertyName);
+                        log.debug("Checking required field: ", propertyName, ", with values: ", values);
+                        checkSingleRequiredField(propertyName, propertyName, values, errors);
+                    }
                 }
             }
         }
@@ -607,9 +651,9 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
      * @param errors a collection of errors to be populated with any validation errors discovered
      */
     protected void doPostConversionValidations(ParameterName propertyName,
-                                              List<Object> values,
-                                              Validate validationInfo,
-                                              List<ValidationError> errors) {
+                                               List<Object> values,
+                                               Validate validationInfo,
+                                               List<ValidationError> errors) {
 
         for (Object value : values) {
             // If the value is a number then we should check to see if there are range boundaries
