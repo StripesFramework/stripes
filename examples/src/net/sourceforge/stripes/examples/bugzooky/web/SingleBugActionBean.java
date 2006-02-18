@@ -3,7 +3,6 @@ package net.sourceforge.stripes.examples.bugzooky.web;
 import net.sourceforge.stripes.action.DefaultHandler;
 import net.sourceforge.stripes.action.DontValidate;
 import net.sourceforge.stripes.action.FileBean;
-import net.sourceforge.stripes.action.ForwardResolution;
 import net.sourceforge.stripes.action.HandlesEvent;
 import net.sourceforge.stripes.action.RedirectResolution;
 import net.sourceforge.stripes.action.Resolution;
@@ -58,7 +57,7 @@ public class SingleBugActionBean extends BugzookyActionBean {
     public Resolution loadBugForEdit() {
         BugManager bm = new BugManager();
         this.bug = bm.getBug( this.bug.getId() );
-        return new ForwardResolution("/bugzooky/AddEditBug.jsp");
+        return new RedirectResolution("/bugzooky/AddEditBug.jsp").flash(this);
     }
 
     /** Saves (or updates) a bug, and then returns the user to the bug list. */
