@@ -18,6 +18,7 @@ package net.sourceforge.stripes.controller;
 import net.sourceforge.stripes.action.ActionBeanContext;
 import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.exception.StripesServletException;
+import net.sourceforge.stripes.util.ReflectUtil;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -45,7 +46,7 @@ public class DefaultActionBeanContextFactory implements ActionBeanContextFactory
 
         String name = configuration.getBootstrapPropertyResolver().getProperty(CONTEXT_CLASS_NAME);
         if (name != null) {
-            this.contextClass = (Class<? extends ActionBeanContext>) Class.forName(name);
+            this.contextClass = (Class<? extends ActionBeanContext>) ReflectUtil.findClass(name);
         }
         else {
             this.contextClass = ActionBeanContext.class;

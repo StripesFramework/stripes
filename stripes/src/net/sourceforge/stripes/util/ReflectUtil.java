@@ -67,6 +67,15 @@ public class ReflectUtil {
         return interfaceImplementations.get(iface);
     }
 
+    /**
+     * Attempts to determine an implementing class for the interface provided and instantiate
+     * it using a default constructror.
+     *
+     * @param interfaceType an interface (or abstract class) to make an instance of
+     * @return an instance of the interface type supplied
+     * @throws InstantiationException if no implementation type has been configured
+     * @throws IllegalAccessException if thrown by the JVM during class instantiation
+     */
     public static <T> T getInterfaceInstance(Class<T> interfaceType)
             throws InstantiationException, IllegalAccessException {
         Class impl = getImplementingClass(interfaceType);
@@ -86,5 +95,19 @@ public class ReflectUtil {
         else {
             return (T) impl.newInstance();
         }
+    }
+
+    /**
+     * Utility method used to load a class.  Any time that Stripes needs to load of find a
+     * class by name it uses this method.  As a result any time the classloading strategy
+     * needs to change it can be done in one place!  Currently uses
+     * {@code Thread.currentThread().getContextClassLoader().loadClass(String)}.
+     *
+     * @param name the fully qualified (binary) name of the class to find or load
+     * @return the Class object representing the class
+     * @throws ClassNotFoundException if the class cannot be loaded
+     */
+    public static Class findClass(String name) throws ClassNotFoundException {
+        return Thread.currentThread().getContextClassLoader().loadClass(name);
     }
 }

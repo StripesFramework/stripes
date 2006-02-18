@@ -16,6 +16,7 @@
 package net.sourceforge.stripes.controller;
 
 import net.sourceforge.stripes.util.Log;
+import net.sourceforge.stripes.util.ReflectUtil;
 import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.config.BootstrapPropertyResolver;
 import net.sourceforge.stripes.config.DefaultConfiguration;
@@ -93,7 +94,7 @@ public class StripesFilter implements Filter {
         // we'll just use the DefaultConfiguration
         if (configurationClassName != null) {
             try {
-                Class clazz = Class.forName(configurationClassName);
+                Class clazz = ReflectUtil.findClass(configurationClassName);
                 this.configuration = (Configuration) clazz.newInstance();
             }
             catch (Exception e) {

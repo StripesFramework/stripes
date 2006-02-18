@@ -19,6 +19,7 @@ import net.sourceforge.stripes.exception.StripesRuntimeException;
 import net.sourceforge.stripes.tag.TagErrorRendererFactory;
 import net.sourceforge.stripes.tag.PopulationStrategy;
 import net.sourceforge.stripes.util.Log;
+import net.sourceforge.stripes.util.ReflectUtil;
 import net.sourceforge.stripes.controller.ActionResolver;
 import net.sourceforge.stripes.controller.ActionBeanPropertyBinder;
 import net.sourceforge.stripes.controller.ActionBeanContextFactory;
@@ -136,7 +137,7 @@ public class RuntimeConfiguration extends DefaultConfiguration {
                 log.info("Found configured ", componentTypeName, " class [", className,
                          "], attempting to instantiate and initialize.");
 
-                T component = (T) Class.forName(className).newInstance();
+                T component = (T) ReflectUtil.findClass(className).newInstance();
                 component.init(this);
                 return component;
             }

@@ -17,6 +17,7 @@ package net.sourceforge.stripes.tag;
 
 import net.sourceforge.stripes.exception.StripesJspException;
 import net.sourceforge.stripes.util.OgnlUtil;
+import net.sourceforge.stripes.util.ReflectUtil;
 import ognl.OgnlException;
 
 import javax.servlet.jsp.JspException;
@@ -33,7 +34,7 @@ import javax.servlet.jsp.tagext.Tag;
  * <p>E.g. a tag declaration that looks like:</p>
  *   <pre>{@literal <stripes:options-enumeration collection="net.kitty.EyeColor"/>}</pre>
  *
- * <p>would result in the tag attempting to invoke
+ * <p>would result in the tag attempting to invoke the equivelant of
  * {@code Class.forName("net.kitty.EyeColor")} and cast the result to type Class<Enum>. If that
  * fails, a JspException will be raised.  The tag will then proceed to call name() in order
  * to fetch the value of the enum and use that for the value of the option, and call toString() to
@@ -83,7 +84,7 @@ public class InputOptionsEnumerationTag extends HtmlTagSupport implements Tag {
     public int doStartTag() throws JspException {
         Class<Enum> clazz = null;
         try {
-            clazz = (Class<Enum>) Class.forName(this.className);
+            clazz = (Class<Enum>) ReflectUtil.findClass(this.className);
         }
         catch (Exception e) {
             throw new StripesJspException
