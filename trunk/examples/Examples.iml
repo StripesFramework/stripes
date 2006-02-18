@@ -75,7 +75,7 @@
       <attribute name="URI" value="/WEB-INF/lib/log4j-1.2.9.jar" />
       <url>jar://$MODULE_DIR$/../stripes/lib/test/log4j-1.2.9.jar!/</url>
     </containerElement>
-    <deploymentDescriptor name="web.xml" url="file://$MODULE_DIR$/web/WEB-INF/web.xml" version="2.3" />
+    <deploymentDescriptor name="web.xml" url="file://$MODULE_DIR$/web/WEB-INF/web.xml" optional="false" version="2.3" />
     <webroots>
       <root url="file://$MODULE_DIR$/web" relative="/" />
       <root url="file://$MODULE_DIR$/web/WEB-INF" relative="/WEB-INF" />

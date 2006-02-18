@@ -19,16 +19,16 @@ import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.action.ActionBeanContext;
 import net.sourceforge.stripes.action.DefaultHandler;
 import net.sourceforge.stripes.action.HandlesEvent;
-import net.sourceforge.stripes.action.UrlBinding;
 import net.sourceforge.stripes.action.SessionScope;
+import net.sourceforge.stripes.action.UrlBinding;
 import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.exception.StripesServletException;
 import net.sourceforge.stripes.util.Log;
 
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -60,6 +60,9 @@ public class AnnotatedClassActionResolver implements ActionResolver {
      */
     private static final String PACKAGE_FILTERS = "ActionResolver.PackageFilters";
 
+    /** Key used to store the default handler in the Map of handler methods. */
+    private static final String DEFAULT_HANDLER_KEY = "__default_handler";
+
     /** Log instance for use within in this class. */
     private Log log = Log.getInstance(AnnotatedClassActionResolver.class);
 
@@ -76,7 +79,6 @@ public class AnnotatedClassActionResolver implements ActionResolver {
      */
     private Map<Class<? extends ActionBean>,Map<String,Method>> eventMappings =
         new HashMap<Class<? extends ActionBean>,Map<String,Method>>();
-
 
     /**
      * Scans the classpath of the current classloader (not including parents) to find implementations
@@ -119,18 +121,7 @@ public class AnnotatedClassActionResolver implements ActionResolver {
 
                 // Construct the mapping of event->method for the class
                 Map<String, Method> classMappings = new HashMap<String, Method>();
-                Method[] methods = clazz.getMethods();
-                for (Method method : methods) {
-                    HandlesEvent mapping = method.getAnnotation(HandlesEvent.class);
-                    DefaultHandler defaultMapping = method.getAnnotation(DefaultHandler.class);
-                    if (mapping != null) {
-                        classMappings.put(mapping.value(), method);
-                    }
-                    else if (defaultMapping != null) {
-                        // Makes sure we catch the default handler
-                        classMappings.put("__default_handler", method);
-                    }
-                }
+                processMethods(clazz, classMappings);
 
                 // Put the event->method mapping for the class into the set of mappings
                 this.eventMappings.put(clazz, classMappings);
@@ -138,6 +129,34 @@ public class AnnotatedClassActionResolver implements ActionResolver {
         }
 
         log.debug("Mappings initialized: ", this.eventMappings);
+    }
+
+    /**
+     * Helper method that examines a class, starting at it's highest super class and
+     * working it's way down again, to find method annotations and ensure that child
+     * class annotations take precedence.
+     */
+    protected void processMethods(Class clazz, Map<String,Method> classMappings) {
+        // Do the super class first if there is one
+        Class superclass = clazz.getSuperclass();
+        if (superclass != null) {
+            processMethods(superclass, classMappings);
+        }
+
+        Method[] methods = clazz.getDeclaredMethods();
+        for (Method method : methods) {
+            if ( Modifier.isPublic(method.getModifiers()) ) {
+                HandlesEvent mapping = method.getAnnotation(HandlesEvent.class);
+                DefaultHandler defaultMapping = method.getAnnotation(DefaultHandler.class);
+                if (mapping != null) {
+                    classMappings.put(mapping.value(), method);
+                }
+                if (defaultMapping != null) {
+                    // Makes sure we catch the default handler
+                    classMappings.put(DEFAULT_HANDLER_KEY, method);
+                }
+            }
+        }
     }
 
     /**
@@ -277,27 +296,24 @@ public class AnnotatedClassActionResolver implements ActionResolver {
     /**
      * Returns the Method that is the default handler for events in the ActionBean class supplied.
      * If only one handler method is defined in the class, that is assumed to be the default. If
-     * there is more than one, the handlers are examined in turn for the annotation DefaultHandler
-     * and the first such annotated Method is returned.
+     * there is more than one then the method marked with @DefaultHandler will be returned.
      *
      * @param bean the ActionBean type bound to the request
      * @return Method object that should handle the request
      * @throws StripesServletException if no default handler could be located
      */
     public Method getDefaultHandler(Class<? extends ActionBean> bean) throws StripesServletException {
-        Collection<Method> handlers = this.eventMappings.get(bean).values();
+        Map<String,Method> handlers = this.eventMappings.get(bean);
+
         if (handlers.size() == 1) {
-            return handlers.iterator().next();
+            return handlers.values().iterator().next();
         }
         else {
-            for (Method handler : handlers) {
-                if (handler.getAnnotation(DefaultHandler.class) != null) {
-                    return handler;
-                }
-            }
+            Method handler = handlers.get(DEFAULT_HANDLER_KEY);
+            if (handler != null) return handler;
         }
 
-        // If we got this far there is no default handler
+        // If we get this far, there is no sensible default!  Kaboom!
         throw new StripesServletException("No default handler could be found for ActionBean of " +
             "type: " + bean.getName());
     }

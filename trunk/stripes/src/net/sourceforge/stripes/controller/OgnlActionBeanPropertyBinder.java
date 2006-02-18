@@ -29,16 +29,17 @@ import net.sourceforge.stripes.util.ReflectUtil;
 import net.sourceforge.stripes.validation.ScopedLocalizableError;
 import net.sourceforge.stripes.validation.TypeConverter;
 import net.sourceforge.stripes.validation.Validate;
-import net.sourceforge.stripes.validation.ValidateNestedProperties;
 import net.sourceforge.stripes.validation.ValidationError;
 import net.sourceforge.stripes.validation.ValidationErrors;
+import net.sourceforge.stripes.validation.ValidateNestedProperties;
 import ognl.NoSuchPropertyException;
 import ognl.OgnlException;
 
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -90,59 +91,75 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
 
         for (Class<ActionBean> beanClass : beanClasses) {
             Map<String, Validate> fieldValidations = new HashMap<String, Validate>();
-
-            // Process the methods on the class
-            Method[] methods = beanClass.getMethods();
-            for (Method method : methods) {
-                Validate validation = method.getAnnotation(Validate.class);
-                if (validation != null) {
-                    String fieldName = getPropertyName(method.getName());
-                    fieldValidations.put(fieldName, validation);
-                }
-
-                ValidateNestedProperties nested = method.getAnnotation(ValidateNestedProperties.class);
-                if (nested != null) {
-                    String fieldName = getPropertyName(method.getName());
-                    Validate[] validations = nested.value();
-                    for (Validate nestedValidate : validations) {
-                        if ( "".equals(nestedValidate.field()) ) {
-                            log.warn("Nested validation used without field name: ", validation);
-                        }
-                        else {
-                            fieldValidations.put(fieldName + "." + nestedValidate.field(),
-                                                 nestedValidate);
-                        }
-                    }
-                }
-            }
-
-
-            // Process the fields for validation annotations
-            Field[] fields = beanClass.getFields();
-            for (Field field : fields) {
-                Validate validation = field.getAnnotation(Validate.class);
-                if (validation != null) {
-                    fieldValidations.put(field.getName(), validation);
-                }
-
-                ValidateNestedProperties nested = field.getAnnotation(ValidateNestedProperties.class);
-                if (nested != null) {
-                    Validate[] validations = nested.value();
-                    for (Validate nestedValidate : validations) {
-                        if ( "".equals(nestedValidate.field()) ) {
-                            log.warn("Nested validation used without field name: ", validation);
-                        }
-                        else {
-                            fieldValidations.put(field.getName() + "." + nestedValidate.field(),
-                                                 nestedValidate);
-                        }
-                    }
-                }
-            }
-
+            processClassAnnotations(beanClass, fieldValidations);
             this.validations.put(beanClass, fieldValidations);
             log.info("Loaded validations for ActionBean ", beanClass.getName(), ":",
                      fieldValidations);
+        }
+    }
+
+    /**
+     * Helper method that processes a class looking for validation annotations. Will recurse
+     * and process the superclasses first in order to ensure that annotations lower down the
+     * inheritance hierarchy take precedence over those higher up.
+     *
+     * @param clazz the ActionBean subclasses (or parent thereof) in question
+     * @param fieldValidations a map of fieldname->Validate in which to store validations
+     */
+    protected void processClassAnnotations(Class clazz, Map<String,Validate> fieldValidations) {
+        Class superclass = clazz.getSuperclass();
+        if (superclass != null) {
+            processClassAnnotations(superclass, fieldValidations);
+        }
+
+        // Process the methods on the class
+        Method[] methods = clazz.getDeclaredMethods();
+        for (Method method : methods) {
+            if ( !Modifier.isPublic(method.getModifiers()) ) continue; // only public methods!
+
+            Validate validation = method.getAnnotation(Validate.class);
+            if (validation != null) {
+                String fieldName = getPropertyName(method.getName());
+                fieldValidations.put(fieldName, validation);
+            }
+
+            ValidateNestedProperties nested = method.getAnnotation(ValidateNestedProperties.class);
+            if (nested != null) {
+                String fieldName = getPropertyName(method.getName());
+                Validate[] validations = nested.value();
+                for (Validate nestedValidate : validations) {
+                    if ( "".equals(nestedValidate.field()) ) {
+                        log.warn("Nested validation used without field name: ", validation);
+                    }
+                    else {
+                        fieldValidations.put(fieldName + "." + nestedValidate.field(),
+                                             nestedValidate);
+                    }
+                }
+            }
+        }
+
+        // Process the fields for validation annotations
+        Field[] fields = clazz.getDeclaredFields();
+        for (Field field : fields) {
+            Validate validation = field.getAnnotation(Validate.class);
+            if (validation != null) {
+                fieldValidations.put(field.getName(), validation);
+            }
+
+            ValidateNestedProperties nested = field.getAnnotation(ValidateNestedProperties.class);
+            if (nested != null) {
+                Validate[] validations = nested.value();
+                for (Validate nestedValidate : validations) {
+                    if ( "".equals(nestedValidate.field()) ) {
+                        log.warn("Nested validation used without field name: ", validation);
+                    }
+                    else {
+                        fieldValidations.put(field.getName() + "." + nestedValidate.field(),
+                                             nestedValidate);
+                    }
+                }
+            }
         }
     }
 
