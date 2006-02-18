@@ -143,6 +143,11 @@ public class FormTag extends HtmlTagSupport implements BodyTag {
      */
     public int doEndTag() throws JspException {
         try {
+            // Default the method to post
+            if (getMethod() == null) {
+                setMethod("post");
+            }
+
             JspWriter out = getPageContext().getOut();
             writeOpenTag(out, "form");
             getBodyContent().writeOut( getPageContext().getOut() );
