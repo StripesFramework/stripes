@@ -12,23 +12,29 @@ import net.sourceforge.stripes.examples.bugzooky.biz.PersonManager;
 import net.sourceforge.stripes.examples.bugzooky.biz.Person;
 
 /**
+ * An example of an ActionBean that uses validation annotations on fields instead of
+ * on methods.  Logs the user in using a conventional username/password combo and
+ * validates the password in the action method.
  *
+ * @author Tim Fennell
  */
 @UrlBinding("/bugzooky/Login.action")
 public class LoginActionBean extends BugzookyActionBean {
+    @Validate(required=true)
     private String username;
+
+    @Validate(required=true)
     private String password;
+
     private String targetUrl;
 
     /** The username of the user trying to log in. */
-    @Validate(required=true)
     public void setUsername(String username) { this.username = username; }
 
     /** The username of the user trying to log in. */
     public String getUsername() { return username; }
 
     /** The password of the user trying to log in. */
-    @Validate(required=true)
     public void setPassword(String password) { this.password = password; }
 
     /** The password of the user trying to log in. */
