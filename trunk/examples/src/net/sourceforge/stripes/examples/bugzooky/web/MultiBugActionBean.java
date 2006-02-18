@@ -2,8 +2,8 @@ package net.sourceforge.stripes.examples.bugzooky.web;
 
 import net.sourceforge.stripes.action.DefaultHandler;
 import net.sourceforge.stripes.action.DontValidate;
-import net.sourceforge.stripes.action.ForwardResolution;
 import net.sourceforge.stripes.action.HandlesEvent;
+import net.sourceforge.stripes.action.RedirectResolution;
 import net.sourceforge.stripes.action.Resolution;
 import net.sourceforge.stripes.action.UrlBinding;
 import net.sourceforge.stripes.examples.bugzooky.biz.Bug;
@@ -71,7 +71,7 @@ public class MultiBugActionBean extends BugzookyActionBean {
             bm.saveOrUpdate(newBug);
         }
 
-        return new ForwardResolution("/bugzooky/BugList.jsp");
+        return new RedirectResolution("/bugzooky/BugList.jsp");
     }
 
     @DontValidate
@@ -90,6 +90,6 @@ public class MultiBugActionBean extends BugzookyActionBean {
             this.bugs.add( bm.getBug(id) );
         }
 
-        return new ForwardResolution("/bugzooky/BulkAddEditBugs.jsp");
+        return new RedirectResolution("/bugzooky/BulkAddEditBugs.jsp").flash(this);
     }
 }

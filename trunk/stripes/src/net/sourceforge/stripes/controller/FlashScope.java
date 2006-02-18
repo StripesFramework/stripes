@@ -15,6 +15,9 @@
  */
 package net.sourceforge.stripes.controller;
 
+import net.sourceforge.stripes.action.ActionBean;
+import net.sourceforge.stripes.action.UrlBinding;
+
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Collection;
@@ -130,6 +133,23 @@ public class FlashScope extends HashMap<String,Object> implements Serializable {
     public Object put(String name, Object value) {
         this.request.setAttribute(name, value);
         return super.put(name, value);
+    }
+
+    /**
+     * Stores an ActionBean into the flash scope.  Additional checking is performed to see
+     * if the ActionBean is the currently resolved (main) ActionBean for the request. The
+     * result is that on the next request the ActionBean will appear in the request as if
+     * it was created on that request.
+     *
+     * @param bean an ActionBean that should be present in the next request
+     */
+    public void put(ActionBean bean) {
+        super.put(bean.getClass().getAnnotation(UrlBinding.class).value(), bean);
+
+        ActionBean main = (ActionBean) request.getAttribute(StripesConstants.REQ_ATTR_ACTION_BEAN);
+        if (main != null && main.equals(bean)) {
+            super.put(StripesConstants.REQ_ATTR_ACTION_BEAN, bean);
+        }
     }
 
     /**

@@ -25,6 +25,8 @@ import javax.servlet.ServletException;
 import java.io.IOException;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Collection;
+import java.util.HashSet;
 
 /**
  * <p>Resolution that uses the Servlet API to <em>redirect</em> the user to another path by issuing
@@ -48,6 +50,7 @@ public class RedirectResolution extends OnwardResolution implements Resolution {
     private boolean prependContext;
     private boolean includeRequestParameters;
     Map<String,Object> parameters = new HashMap<String,Object>();
+    private Collection<ActionBean> beans; // used to flash action beans
 
     /**
      * Simple constructor that takes the URL to which to forward the user. Defaults to
@@ -113,6 +116,22 @@ public class RedirectResolution extends OnwardResolution implements Resolution {
     }
 
     /**
+     * Causes the ActionBean supplied to be added to the Flash scope and made available
+     * during the next request cycle.
+     *
+     * @param bean the ActionBean to be added to flash scope
+     * @since Stripes 1.2
+     */
+    public RedirectResolution flash(ActionBean bean) {
+        if (this.beans == null) {
+            this.beans = new HashSet<ActionBean>();
+        }
+
+        this.beans.add(bean);
+        return this;
+    }
+
+    /**
      * Attempts to redirect the user to the specified URL.
      *
      * @throws ServletException thrown when the Servlet container encounters an error
@@ -133,7 +152,15 @@ public class RedirectResolution extends OnwardResolution implements Resolution {
         }
         builder.addParameters(this.parameters);
 
-        // Add the flash scope id if there's a flash scope present
+        // Add any beans to the flash scope
+        if (this.beans != null) {
+            FlashScope flash = FlashScope.getCurrent(request, true);
+            for (ActionBean bean : this.beans) {
+                flash.put(bean);
+            }
+        }
+
+        // If a flash scope exists, add the parameter to the request
         FlashScope flash = FlashScope.getCurrent(request, false);
         if (flash != null) {
             builder.addParameter(StripesConstants.URL_KEY_FLASH_SCOPE_ID, flash.key());
