@@ -158,6 +158,17 @@ public class StripesFilter implements Filter {
     }
 
     /**
+     * Returns the configuration for this instance of the StripesFilter for any class
+     * that has a reference to the filter. For normal runtime access to the configuration
+     * during a request cycle, call getConfiguration() instead.
+     *
+     * @return the Configuration of this instance of the StripesFilter
+     */
+    public Configuration getInstanceConfiguration() {
+        return this.configuration;
+    }
+
+    /**
      * Performs the primary work of the filter, including constructing a StripesRequestWrapper to
      * wrap the HttpServletRequest, and using the configured LocalePicker to decide which
      * Locale will be used to process the request.

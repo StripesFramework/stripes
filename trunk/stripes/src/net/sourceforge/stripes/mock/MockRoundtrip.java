@@ -16,9 +16,12 @@
 package net.sourceforge.stripes.mock;
 
 import net.sourceforge.stripes.action.ActionBean;
-import net.sourceforge.stripes.action.UrlBinding;
 import net.sourceforge.stripes.controller.StripesConstants;
+import net.sourceforge.stripes.controller.StripesFilter;
 import net.sourceforge.stripes.validation.ValidationErrors;
+
+import javax.servlet.Filter;
+import java.util.List;
 
 /**
  * <p>Mock object that attempts to make it easier to use the other Mock objects in this package
@@ -68,7 +71,7 @@ public class MockRoundtrip {
      * @param beanType a Class object representing the ActionBean that should receive the request
      */
     public MockRoundtrip(MockServletContext context, Class<? extends ActionBean> beanType) {
-        this(context, beanType.getAnnotation(UrlBinding.class).value() );
+        this(context, beanType, new MockHttpSession(context) );
     }
 
     /**
@@ -82,7 +85,7 @@ public class MockRoundtrip {
     public MockRoundtrip(MockServletContext context,
                          Class<? extends ActionBean> beanType,
                          MockHttpSession session) {
-        this(context, beanType.getAnnotation(UrlBinding.class).value(), session);
+        this(context, getUrlBinding(beanType, context), session);
     }
 
     /**
@@ -186,7 +189,7 @@ public class MockRoundtrip {
      * @return the instance of the ActionBean that was created by Stripes
      */
     public <A extends ActionBean> A getActionBean(Class<A> type) {
-        return (A) this.request.getAttribute(type.getAnnotation(UrlBinding.class).value());
+        return (A) this.request.getAttribute(getUrlBinding(type, this.context));
     }
 
     /**
@@ -251,5 +254,22 @@ public class MockRoundtrip {
      */
     public String getRedirectUrl() {
         return this.response.getRedirectUrl();
+    }
+
+    /**
+     * A helper method that fetches the UrlBinding of a class in the manner it would
+     * be interpreted by the current context configuration.
+     */
+    private static String getUrlBinding(Class<? extends ActionBean> clazz,
+                                        MockServletContext context) {
+        List<Filter> filters = context.getFilters();
+        for (Filter filter : filters) {
+            if (filter instanceof StripesFilter) {
+                return ((StripesFilter) filter).getInstanceConfiguration()
+                        .getActionResolver().getUrlBinding(clazz);
+            }
+        }
+
+        return null;
     }
 }

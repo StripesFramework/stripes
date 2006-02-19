@@ -59,6 +59,17 @@ public interface ActionResolver extends ConfigurableComponent {
     ActionBean getActionBean(ActionBeanContext context, String urlBinding)
             throws StripesServletException;
 
+    /**
+     * Takes a class that implements ActionBean and returns the URL binding of that class.
+     * Essentially the inverse of the getActionBean() methods, this method allows you to find
+     * out the URL binding of any ActionBean class. The binding can then be used to generate
+     * URLs or for any other purpose.  If the bean is not bound, this method may return null.
+     *
+     * @param clazz a class that implements ActionBean
+     * @return the UrlBinding or null if none can be determined
+     * @since Stripes 1.2
+     */
+    String getUrlBinding(Class<? extends ActionBean> clazz);
 
     /**
      * Determines the name of th event fired by the front end.  Allows implementations to

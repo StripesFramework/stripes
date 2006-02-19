@@ -113,11 +113,11 @@ public class AnnotatedClassActionResolver implements ActionResolver {
 
         // Process each ActionBean
         for (Class<ActionBean> clazz : beans) {
-            UrlBinding binding = clazz.getAnnotation(UrlBinding.class);
+            String binding = getUrlBinding(clazz);
 
             // Only process the class if it's properly annotated
             if (binding != null) {
-                this.formBeans.put(binding.value(), clazz);
+                this.formBeans.put(binding, clazz);
 
                 // Construct the mapping of event->method for the class
                 Map<String, Method> classMappings = new HashMap<String, Method>();
@@ -129,6 +129,25 @@ public class AnnotatedClassActionResolver implements ActionResolver {
         }
 
         log.debug("Mappings initialized: ", this.eventMappings);
+    }
+
+    /**
+     * Takes a class that implements ActionBean and returns the URL binding of that class.
+     * The default implementation retrieves the UrlBinding annotations and returns its
+     * value. Subclasses could do more complex things like parse the class and package names
+     * and construct a "default" binding when one is not specified.
+     *
+     * @param clazz a class that implements ActionBean
+     * @return the UrlBinding or null if none can be determined
+     */
+    public String getUrlBinding(Class<? extends ActionBean> clazz) {
+        UrlBinding binding = clazz.getAnnotation(UrlBinding.class);
+        if (binding != null) {
+            return binding.value();
+        }
+        else {
+            return null;
+        }
     }
 
     /**
@@ -146,16 +165,34 @@ public class AnnotatedClassActionResolver implements ActionResolver {
         Method[] methods = clazz.getDeclaredMethods();
         for (Method method : methods) {
             if ( Modifier.isPublic(method.getModifiers()) ) {
-                HandlesEvent mapping = method.getAnnotation(HandlesEvent.class);
+                String eventName = getEventName(method);
                 DefaultHandler defaultMapping = method.getAnnotation(DefaultHandler.class);
-                if (mapping != null) {
-                    classMappings.put(mapping.value(), method);
+                if (eventName != null) {
+                    classMappings.put(eventName, method);
                 }
                 if (defaultMapping != null) {
                     // Makes sure we catch the default handler
                     classMappings.put(DEFAULT_HANDLER_KEY, method);
                 }
             }
+        }
+    }
+
+    /**
+     * Responsible for determining the name of the event handled by this method, if indeed
+     * it handles one at all.  By default looks for the HandlesEvent annotations and returns
+     * it's value if present.
+     *
+     * @param handler a method that might or might not be a handler method
+     * @return the name of the event handled, or null
+     */
+    protected String getEventName(Method handler) {
+        HandlesEvent mapping = handler.getAnnotation(HandlesEvent.class);
+        if (mapping != null) {
+            return mapping.value();
+        }
+        else {
+            return null;
         }
     }
 

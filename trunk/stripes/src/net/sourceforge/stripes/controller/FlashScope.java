@@ -16,14 +16,13 @@
 package net.sourceforge.stripes.controller;
 
 import net.sourceforge.stripes.action.ActionBean;
-import net.sourceforge.stripes.action.UrlBinding;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.HashMap;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Collections;
 import java.io.Serializable;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * <p>A FlashScope is an object that can be used to store objects and make them available as
@@ -144,7 +143,9 @@ public class FlashScope extends HashMap<String,Object> implements Serializable {
      * @param bean an ActionBean that should be present in the next request
      */
     public void put(ActionBean bean) {
-        super.put(bean.getClass().getAnnotation(UrlBinding.class).value(), bean);
+        String binding = StripesFilter.getConfiguration()
+                                      .getActionResolver().getUrlBinding(bean.getClass());
+        super.put(binding, bean);
 
         ActionBean main = (ActionBean) request.getAttribute(StripesConstants.REQ_ATTR_ACTION_BEAN);
         if (main != null && main.equals(bean)) {

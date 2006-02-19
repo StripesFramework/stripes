@@ -208,6 +208,11 @@ public class MockServletContext implements ServletContext {
         }
     }
 
+    /** Provides access to the set of filters configured for this context. */
+    public List<Filter> getFilters() {
+        return this.filters;
+    }
+
     /** Sets the servlet that will receive all requests in this servlet context. */
     public void setServlet(Class<? extends HttpServlet> servletClass,
                            String servletName,
