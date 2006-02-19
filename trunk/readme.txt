@@ -143,5 +143,5 @@ Contents
 5. Feedback
    --------
    Your feedback on Stripes (hopefully constructive) is always welcome.  Please
-   visit http://stripes.sourceforge.net for links to browse and join mailing
+   visit http://stripes.mc4j.org/ for links to browse and join mailing
    lists, file bugs and submit feature requests.

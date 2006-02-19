@@ -68,7 +68,7 @@ import java.io.Serializable;
  * subsequent request this value is set quite low.</p>
  *
  * @author Tim Fennell
- * @since Stripes 1.1.3
+ * @since Stripes 1.2
  */
 public class FlashScope extends HashMap<String,Object> implements Serializable {
     private long startTime;

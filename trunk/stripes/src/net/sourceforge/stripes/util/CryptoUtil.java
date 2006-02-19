@@ -36,7 +36,7 @@ import javax.servlet.http.HttpSession;
  * Base64 encoded so that they are safe to transmit as Strings.</p>
  *
  * @author Tim Fennell
- * @since Stripes 1.1.3
+ * @since Stripes 1.2
  */
 public class CryptoUtil {
     /** The algorithm that is used to encrypt values. */
