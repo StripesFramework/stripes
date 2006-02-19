@@ -38,10 +38,13 @@ public class BigIntegerTypeConverter extends NumberTypeConverterSupport
      * to a decimal format and ensures that a BigDecimal is parsed instead of a Long or
      * Double.
      */
-    protected NumberFormat getNumberFormat() {
-        DecimalFormat format = (DecimalFormat) super.getNumberFormat();
-        format.setParseBigDecimal(true);
-        return format;
+    protected NumberFormat[] getNumberFormats() {
+        NumberFormat[] formats = super.getNumberFormats();
+        for (NumberFormat format : formats) {
+            ((DecimalFormat) format).setParseBigDecimal(true);
+        }
+
+        return formats;
     }
 
     /**

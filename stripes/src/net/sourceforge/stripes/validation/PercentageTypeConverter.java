@@ -21,16 +21,21 @@ import java.text.NumberFormat;
 import java.math.BigDecimal;
 
 /**
- * Created by IntelliJ IDEA. User: tfenne Date: Aug 20, 2005 Time: 9:02:03 PM To change this
- * template use File | Settings | File Templates.
+ * <p>A locale aware number converter that parses percentages. Consistent with other areas of
+ * Java (and computing) values are divided by 100 before being returned.  For example "100%"
+ * will return 1, "58%" will return 0.58 etc. The value returned is either a double, float,
+ * or BigDecimal depending on the target type supplied (which is usually driven by the type
+ * of the property being converted).</p>
+ *
+ * @author Tim Fennell
  */
 public class PercentageTypeConverter extends NumberTypeConverterSupport
                                      implements TypeConverter<Number> {
 
-    /** Returns a percentage instance instead of a regular number format. */
+    /** Returns a single percentage instance of NumberFormat. */
     @Override
-    protected NumberFormat getNumberFormat() {
-        return NumberFormat.getPercentInstance(getLocale());
+    protected NumberFormat[] getNumberFormats() {
+        return new NumberFormat[] { NumberFormat.getPercentInstance(getLocale()) };
     }
 
     /**
