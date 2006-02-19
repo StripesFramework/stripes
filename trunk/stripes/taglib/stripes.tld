@@ -338,7 +338,7 @@
 
     <tag>
         <description>
-            Stripes' HTML form field tag. Provides a standard HTML form tag interface, but allows
+            Stripes' HTML form tag. Provides a standard HTML form tag interface, but allows
             other stripes input tags to re-populate their values.  Also includes a hidden field in
             the form for the page name that the form is being rendered on (to allow forwarding to
             the same page in the case of a validation error.
@@ -350,8 +350,10 @@
 
         <attribute>
             <description>
-                The URL to which this form will post. Expected to be a web-app relative path - the tag will pre-pend the context path
-                to any action that begins with a slash. Should match a URL to which an ActionBean has been bound.
+                The URL to which this form will post. Expected to be a web-app relative path - the
+                tag will prepend the context path to any action that begins with a slash and does
+                not already contain the context path. Should match a URL to which an ActionBean
+                has been bound.
             </description>
             <name>action</name><required>true</required><rtexprvalue>true</rtexprvalue>
         </attribute>
@@ -623,8 +625,9 @@
         </attribute>
         <attribute>
             <description>
-                The target URL. If the start of the URL does not match the current web application
-                context, then the context path will be prepended to the URL. (HTML Pass-through)
+                The target URL. If the URL starts with a slash and does not contain the current
+                web application context path, then the context path will be prepended to the URL.
+                (HTML Pass-through)
             </description>
             <name>href</name><required>false</required><rtexprvalue>true</rtexprvalue>
         </attribute>
