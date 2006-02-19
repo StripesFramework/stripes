@@ -29,7 +29,8 @@ import java.util.Map;
 
 /**
  * Tag for generating links to pages or ActionBeans within a Stripes application. Provides
- * basic services such as including the context path at the start of the href URL, and
+ * basic services such as including the context path at the start of the href URL (only
+ * when the URL starts with a '/' and does not contain the context path already), and
  * including a parameter to name the source page from which the link came. Also provides the
  * ability to add complex parameters to the URL through the use of nested LinkParam tags.
  *
@@ -85,7 +86,7 @@ public class LinkTag extends HtmlTagSupport implements BodyTag {
             String href = originalHref;
 
             // Append the context path, but only if the user didn't already
-            if (!originalHref.startsWith(request.getContextPath())) {
+            if (originalHref.startsWith("/") && !originalHref.contains(request.getContextPath())) {
                 href = request.getContextPath() + href;
             }
 

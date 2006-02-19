@@ -55,11 +55,11 @@ public class FormTag extends HtmlTagSupport implements BodyTag {
     private Map<String,Class> fieldsPresent = new HashMap<String,Class>();
 
     /**
-     * Sets the action for the form.  If the form action begins with a slash, the context path of
-     * the web application will get prepended to the action before it is set. In general actions
-     * should be specified as &quot;absolute&quot; paths within the web application, therefore
-     * allowing them to function correctly regardless of the address currently shown in the
-     * browser&apos; address bar.
+     * Sets the action for the form.  If the form action begins with a slash, and does not
+     * already contain the context path, then the context path of the web application will get
+     * prepended to the action before it is set. In general actions should be specified as
+     * &quot;absolute&quot; paths within the web application, therefore allowing them to function
+     * correctly regardless of the address currently shown in the browser&apos;s address bar.
      *
      * @param action the action path, relative to the root of the web application
      */
@@ -70,7 +70,7 @@ public class FormTag extends HtmlTagSupport implements BodyTag {
             HttpServletRequest request = (HttpServletRequest) getPageContext().getRequest();
             String contextPath = request.getContextPath();
 
-            if (contextPath != null) {
+            if (contextPath != null && !action.contains(contextPath)) {
                 action = contextPath + action;
             }
         }
