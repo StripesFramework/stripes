@@ -33,14 +33,17 @@ public class BigDecimalTypeConverter extends NumberTypeConverterSupport
                                      implements TypeConverter<BigDecimal> {
 
     /**
-     * Uses the parent implementation to fetch a number format, but then downcasts it
+     * Uses the parent implementation to fetch number formats, but then downcasts it
      * to a decimal format and ensures that a BigDecimal is parsed instead of a Long or
      * Double.
      */
-    protected NumberFormat getNumberFormat() {
-        DecimalFormat format = (DecimalFormat) super.getNumberFormat();
-        format.setParseBigDecimal(true);
-        return format;
+    protected NumberFormat[] getNumberFormats() {
+        NumberFormat[] formats = super.getNumberFormats();
+        for (NumberFormat format : formats) {
+            ((DecimalFormat) format).setParseBigDecimal(true);
+        }
+
+        return formats;
     }
 
     /**

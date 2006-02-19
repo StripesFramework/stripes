@@ -19,6 +19,7 @@ import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.Collection;
 import java.util.Locale;
+import java.util.Currency;
 
 /**
  * Provides the basic support for converting Strings to non-floating point numbers (i.e. shorts,
@@ -40,11 +41,27 @@ public class NumberTypeConverterSupport {
     }
 
 
-    /** Fetches a NumberFormat that can be used to parse non-decimal numbers. */
+    /**
+     * Fetches a NumberFormat that can be used to parse non-decimal numbers.
+     * @deprecated Use getNumberFormats() instead which is capable of returning multiple
+     *            formats for parsing. This method will be removed in Stripes 1.3.
+     */
+    @Deprecated()
     protected NumberFormat getNumberFormat() {
-        //TODO: add thread local pooling of NumberFormats
-        NumberFormat format = NumberFormat.getInstance(this.locale);
-        return format;
+        return NumberFormat.getInstance(this.locale);
+    }
+
+    /**
+     * Fetches one or more NumberFormat instances that can be used to parse numbers
+     * for the current locale. The default implementation returns two instances, one
+     * regular NumberFormat and a currency instance of NumberFormat.
+     *
+     * @return one or more NumberFormats to use in parsing numbers
+     */
+    protected NumberFormat[] getNumberFormats() {
+        return new NumberFormat[] {
+                getNumberFormat() // TODO: inline and remove getNumberFormat() in 1.3
+        };
     }
 
     /**
@@ -52,12 +69,42 @@ public class NumberTypeConverterSupport {
      * <em>number.invalidNumber</em> will be added to the errors.
      */
     protected Number parse(String input, Collection<ValidationError> errors) {
-        try {
-            return getNumberFormat().parse(input);
+        input = preprocess(input);
+
+        for (NumberFormat format : getNumberFormats()) {
+            try { return format.parse(input); }
+            catch (ParseException pe) { /* Do nothing. */ }
         }
-        catch (ParseException pe) {
-            errors.add( new ScopedLocalizableError("converter.number", "invalidNumber"));
-            return null;
+
+        // If we've gotten here we could not parse the number
+        errors.add( new ScopedLocalizableError("converter.number", "invalidNumber"));
+        return null;
+    }
+
+    /**
+     * Pre-processes the String to give the NumberFormats a better shot at parsing the
+     * input. The default implementation trims the String for whitespace and then looks to
+     * see if the number is surrounded by parentheses, e.g. (800), and if so removes the
+     * parentheses and prepends a minus sign.  Lastly it will remove the currency symbol
+     * from the String so that we don't have to use too many NumberFormats!
+     *
+     * @param input the String as input by the user
+     * @return the result of preprocessing the String
+     */
+    protected String preprocess(String input) {
+        // Step 1: trim whitespace
+        String output = input.trim();
+
+        // Step 2: remove the currency symbol
+        String currency = Currency.getInstance(getLocale()).getSymbol(getLocale());
+        // The casts are to make sure we don't call replace(String regex, String replacement)
+        output = output.replace((CharSequence) currency, (CharSequence) "");
+
+        // Step 3: replace parentheses with negation
+        if (output.startsWith("(") && output.endsWith(")")) {
+            output = "-" + output.substring(1, output.length() - 1);
         }
+
+        return output;
     }
 }
