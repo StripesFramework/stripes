@@ -194,7 +194,7 @@ public class JavaScriptBuilder {
         Class type = in.getClass();
 
         if (String.class.isAssignableFrom(type)) {
-            return "\"" + in + "\"";
+            return quote((String) in);
         }
         else if(Date.class.isAssignableFrom(type)) {
             return "new Date(" + ((Date) in).getTime() + ")";
@@ -202,6 +202,73 @@ public class JavaScriptBuilder {
         else {
             return in.toString();
         }
+    }
+
+    /**
+     * Quotes the supplied String and escapes all characters that could be problematic
+     * when eval()'ing the String in JavaScript.
+     *
+     * @param string a String to be escaped and quoted
+     * @return the escaped and quoted String
+     * @since Stripes 1.2 (thanks to Sergey Pariev)
+     */
+    public static String quote(String string) {
+        if (string == null || string.length() == 0) {
+            return "\"\"";
+        }
+
+        char previous, c = 0;
+        int len = string.length();
+        StringBuilder sb = new StringBuilder(len + 10);
+
+        sb.append('"');
+        for (int i = 0; i < len; ++i) {
+            previous = c;
+            c = string.charAt(i);
+            switch (c) {
+                case '\\':
+                case  '"':
+                    sb.append('\\').append(c);
+                    break;
+                case '/':
+                    if (previous == '<') { sb.append('\\'); }
+                    sb.append(c);
+                    break;
+                case '\b':
+                    sb.append("\\b");
+                    break;
+                case '\t':
+                    sb.append("\\t");
+                    break;
+                case '\n':
+                    sb.append("\\n");
+                    break;
+                case '\f':
+                    sb.append("\\f");
+                    break;
+                case '\r':
+                    sb.append("\\r");
+                    break;
+                default:
+                    if (c < ' ') {
+                        // The following takes lower order chars and creates unicode style
+                        // char literals for them (e.g. \u00F3)
+                        sb.append("\\u");
+                        String hex = Integer.toHexString(c);
+                        int pad = 4 - hex.length();
+                        for (int j=0; j<pad; ++j) {
+                            sb.append("0");
+                        }
+                        sb.append(hex);
+                    }
+                    else {
+                        sb.append(c);
+                    }
+            }
+        }
+
+        sb.append('"');
+        return sb.toString();
     }
 
     /**

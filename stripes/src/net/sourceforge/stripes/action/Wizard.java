@@ -17,7 +17,7 @@ import java.lang.annotation.Documented;
  * </ul>
  *
  * @author Tim Fennell
- * @since Stripes 1.1.3
+ * @since Stripes 1.2
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)

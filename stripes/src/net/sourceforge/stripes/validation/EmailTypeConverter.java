@@ -22,7 +22,7 @@ import java.util.Locale;
  * </ul>
  *
  * @author Tim Fennell
- * @since Stripes 1.1.3
+ * @since Stripes 1.2
  */
 public class EmailTypeConverter implements TypeConverter<String> {
     /** Accepts the Locale provide, but does nothing with it since emails are Locale-less. */
