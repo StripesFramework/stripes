@@ -25,6 +25,7 @@ import net.sourceforge.stripes.validation.Validatable;
 import net.sourceforge.stripes.validation.ValidationError;
 import net.sourceforge.stripes.validation.ValidationErrorHandler;
 import net.sourceforge.stripes.validation.ValidationErrors;
+import net.sourceforge.stripes.validation.BooleanTypeConverter;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -43,6 +44,16 @@ import java.util.List;
  * @author Tim Fennell
  */
 public class DispatcherServlet extends HttpServlet {
+    /**
+     * Configuration key used to lookup up a property that determines whether or not beans'
+     * custom validate() method gets invoked when validation errors are generated during
+     * the binding process
+     */
+    public static final String RUN_CUSTOM_VALIDATION_WHEN_ERRORS =
+            "Validation.InvokeValidateWhenErrorsExist";
+
+    private Boolean alwaysInvokeValidate;
+
     /** Log used throughout the class. */
     private static Log log = Log.getInstance(DispatcherServlet.class);
 
@@ -63,6 +74,23 @@ public class DispatcherServlet extends HttpServlet {
      */
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
         throws ServletException {
+
+        // It sucks that we have to do this here (in the request cycle), but there doesn't
+        // seem to be a good way to get at the Configuration from the Filter in init()
+        if (alwaysInvokeValidate == null) {
+            // Check to see if, in this application, validate() methods should always be run
+            // even when validation errors already exist
+            String callValidateWhenErrorsExist = StripesFilter.getConfiguration()
+                .getBootstrapPropertyResolver().getProperty(RUN_CUSTOM_VALIDATION_WHEN_ERRORS);
+
+            if (callValidateWhenErrorsExist != null) {
+                BooleanTypeConverter c = new BooleanTypeConverter();
+                this.alwaysInvokeValidate = c.convert(callValidateWhenErrorsExist, Boolean.class, null);
+            }
+            else {
+                this.alwaysInvokeValidate = false; // Default behaviour
+            }
+        }
 
         try {
             // Lookup the bean, handler method and hook everything together
@@ -101,7 +129,8 @@ public class DispatcherServlet extends HttpServlet {
             bean.getContext().setValidationErrors(errors);
 
             // If blah blah blah, run the bean's validate method, or maybe handleErrors
-            if (errors.size() == 0 && bean instanceof Validatable && doValidate) {
+            if ( (errors.size() == 0 || this.alwaysInvokeValidate)
+                    && bean instanceof Validatable && doValidate) {
                 ((Validatable) bean).validate(errors);
             }
 
@@ -140,7 +169,9 @@ public class DispatcherServlet extends HttpServlet {
             }
 
             // Finally, execute the resolution
-            if (resolution != null) resolution.execute(request, response);
+            if (resolution != null) {
+                resolution.execute(request, response);
+            }
         }
         catch (ServletException se) { throw se; }
         catch (RuntimeException re) { throw re; }
