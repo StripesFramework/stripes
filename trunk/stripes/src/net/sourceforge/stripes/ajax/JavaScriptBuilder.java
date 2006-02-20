@@ -217,22 +217,17 @@ public class JavaScriptBuilder {
             return "\"\"";
         }
 
-        char previous, c = 0;
+        char c = 0;
         int len = string.length();
         StringBuilder sb = new StringBuilder(len + 10);
 
         sb.append('"');
         for (int i = 0; i < len; ++i) {
-            previous = c;
             c = string.charAt(i);
             switch (c) {
                 case '\\':
                 case  '"':
                     sb.append('\\').append(c);
-                    break;
-                case '/':
-                    if (previous == '<') { sb.append('\\'); }
-                    sb.append(c);
                     break;
                 case '\b':
                     sb.append("\\b");
