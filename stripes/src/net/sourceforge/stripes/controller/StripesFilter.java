@@ -15,27 +15,28 @@
  */
 package net.sourceforge.stripes.controller;
 
+import net.sourceforge.stripes.config.BootstrapPropertyResolver;
+import net.sourceforge.stripes.config.Configuration;
+import net.sourceforge.stripes.config.RuntimeConfiguration;
+import net.sourceforge.stripes.exception.StripesServletException;
 import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.util.ReflectUtil;
-import net.sourceforge.stripes.config.Configuration;
-import net.sourceforge.stripes.config.BootstrapPropertyResolver;
-import net.sourceforge.stripes.config.DefaultConfiguration;
-import net.sourceforge.stripes.exception.StripesServletException;
 
 import javax.servlet.Filter;
+import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
 import java.io.File;
+import java.io.IOException;
+import java.util.Collection;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Collection;
-import java.util.regex.Pattern;
+import java.util.Iterator;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * The Stripes filter is used to ensure that all requests coming to a Stripes application
@@ -80,7 +81,7 @@ public class StripesFilter implements Filter {
     private static final long MAX_FLASH_SCOPE_AGE =  60 * 2;
 
     /**
-     * Performs the necessary initialization for the StripesFilter.  Mainly this involved deciding
+     * Performs the necessary initialization for the StripesFilter.  Mainly this involves deciding
      * what configuration class to use, and then instantiating and initializing the chosen
      * Configuration.
      *
@@ -105,7 +106,7 @@ public class StripesFilter implements Filter {
             }
         }
         else {
-            this.configuration = new DefaultConfiguration();
+            this.configuration = new RuntimeConfiguration();
         }
 
         this.configuration.setBootstrapPropertyResolver(bootstrap);
@@ -247,12 +248,13 @@ public class StripesFilter implements Filter {
 
         // Clean up any old-age flash scopes
         Collection<FlashScope> flashes = FlashScope.getAllFlashScopes(req);
-        for (FlashScope f : flashes) {
+        Iterator<FlashScope> iterator = flashes.iterator();
+        while (iterator.hasNext()) {
+            FlashScope f = iterator.next();
             if (f.age() > MAX_FLASH_SCOPE_AGE) {
-
+                iterator.remove();
             }
         }
-
     }
 
     /** Returns the path to the temporary directory that is used to store file uploads. */
