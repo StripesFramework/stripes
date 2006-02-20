@@ -32,11 +32,6 @@
             <param-name>ActionResolver.PackageFilters</param-name>
             <param-value>net.sourceforge.stripes.*</param-value>
         </init-param>
-
-        <init-param>
-            <param-name>Configuration.Class</param-name>
-            <param-value>net.sourceforge.stripes.config.RuntimeConfiguration</param-value>
-        </init-param>
         <init-param>
             <param-name>ActionBeanContext.Class</param-name>
             <param-value>net.sourceforge.stripes.examples.bugzooky.web.BugzookyActionBeanContext</param-value>
