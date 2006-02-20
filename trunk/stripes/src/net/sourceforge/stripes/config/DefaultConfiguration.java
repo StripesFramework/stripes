@@ -40,6 +40,12 @@ import net.sourceforge.stripes.format.DefaultFormatterFactory;
  * not lookup configuration information anywhere!  It returns hard-coded defaults that will result
  * in a working system without any user intervention.</p>
  *
+ * <p>Despite it's name the DefaultConfiguration is not in fact the default Configuration
+ * implementation in Stripes!  Instead it is the retainer of default configuration values. The
+ * Configuration implementation that is used when no alternative is configured is the
+ * {@link RuntimeConfiguration}, which is a direct subclass of DefaultConfiguration, and when no
+ * further configuration properties are supplied behaves identically to the DefaultConfiguration.</p>
+ *
  * <p>The DefaultConfiguration is designed to be easily extended as needed.  The init() method
  * ensures that compoments are initialized in the correct order (taking dependencies into account),
  * and should generally not be overridden. It invokes a number of initXXX() methods, one per
