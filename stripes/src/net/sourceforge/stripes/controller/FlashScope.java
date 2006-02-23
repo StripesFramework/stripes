@@ -16,8 +16,10 @@
 package net.sourceforge.stripes.controller;
 
 import net.sourceforge.stripes.action.ActionBean;
+import net.sourceforge.stripes.util.Log;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
@@ -70,6 +72,7 @@ import java.util.Map;
  * @since Stripes 1.2
  */
 public class FlashScope extends HashMap<String,Object> implements Serializable {
+    private static final Log log = Log.getInstance(FlashScope.class);
     private long startTime;
     private HttpServletRequest request;
 
@@ -221,21 +224,38 @@ public class FlashScope extends HashMap<String,Object> implements Serializable {
 
     /**
      * Internal helper method to retreive (and selectively create) the container for all
-     * the flash scopes.
+     * the flash scopes.  Will return null if the container does not exist and <i>create</i> is
+     * false.  Will also return null if the current session has been invalidated, regardless
+     * of the value of <i>create</i>.
      *
      * @param req the current request
      * @param create if true, create the container when it doesn't exist.
      * @return a Map of integer keys to FlashScope objects
      */
     private static Map<Integer,FlashScope> getContainer(HttpServletRequest req, boolean create) {
-        Map<Integer,FlashScope> scopes = (Map<Integer,FlashScope>)
-                req.getSession().getAttribute(StripesConstants.REQ_ATTR_FLASH_SCOPE_LOCATION);
+        try {
+            HttpSession session =  req.getSession(create);
+            Map<Integer,FlashScope> scopes = null;
+            if (session != null) {
+                 scopes = (Map<Integer,FlashScope>)
+                        session.getAttribute(StripesConstants.REQ_ATTR_FLASH_SCOPE_LOCATION);
 
-        if (scopes == null && create) {
-            scopes = new HashMap<Integer,FlashScope>();
-            req.getSession().setAttribute(StripesConstants.REQ_ATTR_FLASH_SCOPE_LOCATION, scopes);
+                if (scopes == null && create) {
+                    scopes = new HashMap<Integer,FlashScope>();
+                    req.getSession().setAttribute(StripesConstants.REQ_ATTR_FLASH_SCOPE_LOCATION, scopes);
+                }
+            }
+
+            return scopes;
         }
-
-        return scopes;
+        catch (IllegalStateException ise) {
+            // If the session has been invalidated we'll get this exception, but there's no
+            // way to know this without try and getting the exception :(
+            log.warn("An IllegalStateException got thrown trying to create a flash scope. ",
+                     "This happens when add something to flash scope for the first time ",
+                     "causes creation of the HttpSession, but for some other reason the ",
+                     "response is already committed!");
+            return null;
+        }
     }
 }
