@@ -14,8 +14,8 @@ import net.sourceforge.stripes.action.RedirectResolution;
 public class LogoutActionBean extends BugzookyActionBean {
 
     @DefaultHandler @HandlesEvent("Logout")
-    public Resolution logout() {
-        getContext().setUser(null);
+    public Resolution logout() throws Exception {
+        getContext().logout();
         return new RedirectResolution("/bugzooky/Exit.jsp");
     }
 }

@@ -20,4 +20,9 @@ public class BugzookyActionBeanContext extends ActionBeanContext {
     public void setUser(Person currentUser) {
         getRequest().getSession().setAttribute("user", currentUser);
     }
+
+    /** Logs the user out by invalidating the session. */
+    public void logout() {
+        getRequest().getSession().invalidate();
+    }
 }
