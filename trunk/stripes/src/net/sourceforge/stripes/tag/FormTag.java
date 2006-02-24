@@ -16,15 +16,13 @@
 package net.sourceforge.stripes.tag;
 
 import net.sourceforge.stripes.action.ActionBean;
-import net.sourceforge.stripes.action.ActionBeanContext;
 import net.sourceforge.stripes.action.Wizard;
 import net.sourceforge.stripes.controller.StripesConstants;
 import net.sourceforge.stripes.controller.StripesFilter;
 import net.sourceforge.stripes.exception.StripesJspException;
-import net.sourceforge.stripes.exception.StripesServletException;
+import net.sourceforge.stripes.util.CryptoUtil;
 import net.sourceforge.stripes.util.HtmlUtil;
 import net.sourceforge.stripes.util.Log;
-import net.sourceforge.stripes.util.CryptoUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -251,12 +249,12 @@ public class FormTag extends HtmlTagSupport implements BodyTag {
      */
     protected boolean isWizard() {
         ActionBean bean = getActionBean();
+        Class<? extends ActionBean> clazz = null;
         if (bean == null) {
-            try {
-                bean = StripesFilter.getConfiguration().getActionResolver().getActionBean(
-                        new ActionBeanContext(), this.actionWithoutContext);
-            }
-            catch (StripesServletException sse) {
+            clazz = StripesFilter.getConfiguration().getActionResolver()
+                            .getActionBeanType(this.actionWithoutContext);
+
+            if (clazz == null) {
                 log.error("Could not locate an ActionBean that was bound to the URL [",
                           this.actionWithoutContext, "]. Without an ActionBean class Stripes ",
                           "cannot determine whether the ActionBean is a wizard or not. ",
@@ -264,8 +262,11 @@ public class FormTag extends HtmlTagSupport implements BodyTag {
                 return false;
             }
         }
+        else {
+            clazz = bean.getClass();
+        }
 
-        return bean.getClass().getAnnotation(Wizard.class) != null;
+        return clazz.getAnnotation(Wizard.class) != null;
     }
 
     /**
