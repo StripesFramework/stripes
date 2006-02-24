@@ -60,6 +60,17 @@ public interface ActionResolver extends ConfigurableComponent {
             throws StripesServletException;
 
     /**
+     * Fetches the Class representing the type of ActionBean that has been bound to
+     * the URL supplied.  Will not cause any ActionBean to be instantiated. If no
+     * ActionBean has been bound to the URL supplied will return null.
+     *
+     * @param urlBinding the url to find the bound bean type
+     * @return the class object for the type of action bean bound to the url, or
+     *         null if no bean is bound to that url
+     */
+    Class<? extends ActionBean> getActionBeanType(String urlBinding);
+
+    /**
      * Takes a class that implements ActionBean and returns the URL binding of that class.
      * Essentially the inverse of the getActionBean() methods, this method allows you to find
      * out the URL binding of any ActionBean class. The binding can then be used to generate

@@ -197,6 +197,19 @@ public class AnnotatedClassActionResolver implements ActionResolver {
     }
 
     /**
+     * Fetches the Class representing the type of ActionBean that has been bound to
+     * the URL supplied.  Will not cause any ActionBean to be instantiated. If no
+     * ActionBean has been bound to the URL supplied will return null.
+     *
+     * @param urlBinding the url to find the bound bean type
+     * @return the class object for the type of action bean bound to the url, or
+     *         null if no bean is bound to that url
+     */
+    public Class<? extends ActionBean> getActionBeanType(String urlBinding) {
+        return this.formBeans.get(urlBinding);
+    }
+
+    /**
      * Gets the logical name of the ActionBean that should handle the request.  Implemented to look
      * up the name of the form based on the name assigned to the form in the form tag, and
      * encoded in a hidden field.
