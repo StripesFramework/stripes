@@ -82,7 +82,7 @@ public class UrlBuilder {
                     this.seenQuestionMark = true;
                 }
                 else {
-                    this.url.append('&');
+                    this.url.append("&amp;");
                 }
 
                 this.url.append(name);
