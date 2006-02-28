@@ -146,7 +146,7 @@ public class RedirectResolution extends OnwardResolution implements Resolution {
         }
 
         // Use a UrlBuilder to munge in any parameters
-        UrlBuilder builder = new UrlBuilder(path);
+        UrlBuilder builder = new UrlBuilder(path, false);
         if (this.includeRequestParameters) {
             builder.addParameters(request.getParameterMap());
         }

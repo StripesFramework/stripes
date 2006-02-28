@@ -90,7 +90,7 @@ public class LinkTag extends HtmlTagSupport implements BodyTag {
                 href = request.getContextPath() + href;
             }
 
-            UrlBuilder builder = new UrlBuilder(href);
+            UrlBuilder builder = new UrlBuilder(href, true);
             builder.addParameter(StripesConstants.URL_KEY_SOURCE_PAGE, request.getServletPath());
             builder.addParameters(this.parameters);
             setHref(response.encodeURL(builder.toString()));

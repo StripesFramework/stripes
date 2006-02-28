@@ -39,16 +39,44 @@ import java.util.Map;
 public class UrlBuilder {
     private StringBuilder url = new StringBuilder(256);
     boolean seenQuestionMark = false;
+    private String parameterSeparator;
 
     /**
      * Constructs a UrlBuilder with the path to a resource. Parameters can be added
-     * later using addParameter().
+     * later using addParameter().  If the link is to be used in a page then the ampersand
+     * character usually used to separate parameters will be escaped using the XML entity
+     * for ampersand.
      *
      * @param url the path part of the URL
+     * @param isForPage true if the URL is to be embedded in a page (e.g. in an anchor of img
+     *        tag), false if for some other purpose.
      */
-    public UrlBuilder(String url) {
+    public UrlBuilder(String url, boolean isForPage) {
         this.url.append(url);
         this.seenQuestionMark = this.url.indexOf("?") != -1;
+
+        if (isForPage) {
+            this.parameterSeparator = "&amp;";
+        }
+        else {
+            this.parameterSeparator = "&";
+        }
+    }
+
+    /**
+     * Returns the string that will be used to separate parameters in the query string.
+     * Will usually be either '&amp;' for query strings that will be embedded in HTML
+     * pages and '&' otherwise.
+     */
+    public String getParameterSeparator() { return parameterSeparator; }
+
+    /**
+     * Sets the string that will be used to separate parameters. By default the values is a
+     * single ampersand character. If the URL is to be embedded in a page the value should be
+     * set to the XML ampersand entity.
+     */
+    public void setParameterSeparator(String parameterSeparator) {
+        this.parameterSeparator = parameterSeparator;
     }
 
     /**
@@ -82,7 +110,7 @@ public class UrlBuilder {
                     this.seenQuestionMark = true;
                 }
                 else {
-                    this.url.append("&amp;");
+                    this.url.append(this.parameterSeparator);
                 }
 
                 this.url.append(name);
