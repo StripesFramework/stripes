@@ -20,7 +20,7 @@ import net.sourceforge.stripes.action.ActionBeanContext;
 import net.sourceforge.stripes.controller.NameBasedActionResolver;
 
 /**
- * <p>An extension of {@link net.sourceforge.stripes.controller.AnnotatedClassActionResolver} that
+ * <p>An extension of {@link net.sourceforge.stripes.controller.NameBasedActionResolver} that
  * uses a Spring context to inject Spring beans into newly created ActionBeans before handing
  * them back for processing.</p>
  *
