@@ -15,9 +15,9 @@
  */
 package net.sourceforge.stripes.integration.spring;
 
-import net.sourceforge.stripes.controller.AnnotatedClassActionResolver;
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.action.ActionBeanContext;
+import net.sourceforge.stripes.controller.NameBasedActionResolver;
 
 /**
  * <p>An extension of {@link net.sourceforge.stripes.controller.AnnotatedClassActionResolver} that
@@ -41,7 +41,7 @@ import net.sourceforge.stripes.action.ActionBeanContext;
  * @see SpringBean
  * @author Tim Fennell
  */
-public class SpringAwareActionResolver extends AnnotatedClassActionResolver {
+public class SpringAwareActionResolver extends NameBasedActionResolver {
 
     /**
      * Overridden method to inject Spring beans into ActionBeans after instantiation.
