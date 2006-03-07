@@ -346,11 +346,14 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
                                     String property,
                                     List<Object> valueOrValues,
                                     Class targetType) throws Exception {
+	    Class valueType = valueOrValues.iterator().next().getClass();
+	
         // If the target type is an array, set it as one, otherwise set as scalar
-        if (targetType.isArray()) {
+        if (targetType.isArray() && targetType.getComponentType().isAssignableFrom(valueType)) {
             OgnlUtil.setValue(property, bean, valueOrValues.toArray());
         }
-        else if (Collection.class.isAssignableFrom(targetType)) {
+        else if (Collection.class.isAssignableFrom(targetType) &&
+                  !Collection.class.isAssignableFrom(valueType)) {
             Collection collection = null;
             if (targetType.isInterface()) {
                 collection = (Collection) ReflectUtil.getInterfaceInstance(targetType);
