@@ -1,0 +1,109 @@
+<!--
+ * Copyright (C) 2005 Tim Fennell
+ *
+ * This library is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published by the
+ * Free Software Foundation; either version 2.1 of the License, or (at your
+ * option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License
+ * for more details.
+ *
+ * You should have received a copy of the license with this software. If not,
+ * it can be found online at http://www.fsf.org/licensing/licenses/lgpl.html
+ *
+-->
+
+<!-- ======================================================================= -->
+<!-- Build file for the tests package of the Stripes presentation framework  -->
+<!-- Author: Tim Fennell                                                     -->
+<!-- ======================================================================= -->
+
+<project name="Stripes" basedir="." default="jar">
+
+    <!-- Properties file for the environment, and some global properties -->
+    <property name="properties.file" value="../build.properties"/>
+    <property file="${properties.file}"/>
+
+    <property name="src.dir"         value="${basedir}/src"/>
+    <property name="lib.dir"         value="${basedir}/lib"/>
+    <property name="stripes.lib.dir" value="${basedir}/../stripes/lib"/>
+    <property name="stripes.classes" value="${basedir}/../stripes/dist/stripes.jar"/>
+    <property name="classes.dir"     value="${basedir}/classes"/>
+    <property name="dist.dir"        value="${basedir}/dist"/>
+    <property name="test.out.dir"    value="${basedir}/test-output"/>
+
+    <!-- =================================================================== -->
+    <!-- Classpaths and internal initialization targets                      -->
+    <!-- =================================================================== -->
+    <path id="class.path">
+        <pathelement location="${classes.dir}"/>
+        <fileset dir="${lib.dir}" includes="**/*.jar"/>
+        <fileset dir="${stripes.lib.dir}" includes="**/*.jar"/>
+        <pathelement location="${stripes.classes}"/>
+    </path>
+
+    <target name="init"
+            description="Creates directories needed by the build system.">
+        <mkdir dir="${classes.dir}"/>
+        <mkdir dir="${dist.dir}"/>
+    </target>
+
+
+    <!-- =================================================================== -->
+    <!-- Clean the build directory                                           -->
+    <!-- =================================================================== -->
+    <target name="clean">
+        <delete dir="${classes.dir}"/>
+        <delete dir="${dist.dir}"/>
+    </target>
+
+    <!-- =================================================================== -->
+    <!-- Compile the code into the web abb and move any resources into the   -->
+    <!-- classpath.                                                          -->
+    <!-- =================================================================== -->
+    <target name="compile" depends="init">
+        <javac destdir="${classes.dir}" debug="on">
+            <src path="${src.dir}"/>
+            <classpath refid="class.path"/>
+        </javac>
+
+        <copy todir="${classes.dir}">
+            <fileset dir="${src.dir}">
+                <include name="**/*.properties"/>
+            </fileset>
+        </copy>
+    </target>
+
+    <!-- =================================================================== -->
+    <!-- Jar up the classes directory to create the library file.            -->
+    <!-- =================================================================== -->
+    <target name="jar" depends="compile"
+            description="Builds a usable jar library file.">
+        <jar destfile="${dist.dir}/tests.jar" basedir="${classes.dir}">
+            <manifest>
+                <attribute name="Implementation-Title" value="Stripes-Tests"/>
+                <attribute name="Specification-Version" value="${stripes.version}"/>
+                <attribute name="Implementation-URL" value="http://stripes.mc4j.org/"/>
+            </manifest>
+        </jar>
+    </target>
+
+    <!-- =================================================================== -->
+    <!-- Run the unit tests.                                                 -->
+    <!-- =================================================================== -->
+    <target name="test" depends="compile" description="Runs the Stripes unit tests.">
+        <taskdef resource="testngtasks" classpathref="class.path"/>
+
+        <delete dir="${test.out.dir}"/>
+
+        <testng classpathref="class.path" outputdir="${test.out.dir}">
+            <classfileset dir="${classes.dir}">
+                <include name="**/*Test.class"/>
+            </classfileset>
+        </testng>
+    </target>
+
+</project>
