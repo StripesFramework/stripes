@@ -19,6 +19,7 @@ import net.sourceforge.stripes.config.BootstrapPropertyResolver;
 import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.config.RuntimeConfiguration;
 import net.sourceforge.stripes.exception.StripesServletException;
+import net.sourceforge.stripes.exception.StripesRuntimeException;
 import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.util.ReflectUtil;
 
@@ -155,7 +156,21 @@ public class StripesFilter implements Filter {
      * Returns the Configuration that is being used to process the current request.
      */
     public static Configuration getConfiguration() {
-        return StripesFilter.configurationStash.get();
+        Configuration configuration = StripesFilter.configurationStash.get();
+
+        if (configuration == null) {
+            StripesRuntimeException sre = new StripesRuntimeException(
+                    "Something is trying to access the current Stripes configuration but the " +
+                    "current request was never routed through the StripesFilter! As a result " +
+                    "the appropriate Configuration object cannot be located. Please take a look " +
+                    "at the exact URL in your browser's address bar and ensure that any " +
+                    "requests to that URL will be filtered through the StripesFilter according " +
+                    "to the filter mappings in your web.xml."
+            );
+            log.error(sre);  // log through an exception so that users get a stracktrace
+        }
+
+        return configuration;
     }
 
     /**
