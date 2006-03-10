@@ -116,4 +116,15 @@ public interface ActionResolver extends ConfigurableComponent {
      * @throws StripesServletException thrown if a default handler method cannot be found.
      */
     Method getDefaultHandler(Class<? extends ActionBean> bean) throws StripesServletException;
+
+    /**
+     * Returns the name of the event to which a given handler method responds. Primarily useful
+     * when the default event is fired and it is necessary to figure out if the handler also
+     * responds to a named event.
+     *
+     * @param handler the handler method who's event name to find
+     * @return String the name of the event handled by this method, or null if an event is
+     *         not mapped to this method.
+     */
+    String getHandledEvent(Method handler) throws StripesServletException;
 }

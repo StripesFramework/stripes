@@ -153,9 +153,17 @@ public class NameBasedActionResolver extends AnnotatedClassActionResolver {
         return DEFAULT_BINDING_SUFFIX;
     }
 
+    /**
+     * First checks with the super class to see if an annotated event name is present, and if
+     * not then returns the name of the handler method itself.  Will return null for methods
+     * that do not return a resolution or are non-public or abstract.
+     *
+     * @param handler a method which may or may not be a handler method
+     * @return the name of the event handled, or null
+     */
     @Override
-    protected String getEventName(Method handler) {
-        String name = super.getEventName(handler);
+    public String getHandledEvent(Method handler) {
+        String name = super.getHandledEvent(handler);
 
         // If the method isn't annotated, but does return a resolution and is
         // not abstract (we already know it's public) then use the method name

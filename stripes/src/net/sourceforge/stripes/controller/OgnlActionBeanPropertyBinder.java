@@ -29,16 +29,16 @@ import net.sourceforge.stripes.util.ReflectUtil;
 import net.sourceforge.stripes.validation.ScopedLocalizableError;
 import net.sourceforge.stripes.validation.TypeConverter;
 import net.sourceforge.stripes.validation.Validate;
+import net.sourceforge.stripes.validation.ValidateNestedProperties;
 import net.sourceforge.stripes.validation.ValidationError;
 import net.sourceforge.stripes.validation.ValidationErrors;
-import net.sourceforge.stripes.validation.ValidateNestedProperties;
 import ognl.NoSuchPropertyException;
 import ognl.OgnlException;
 
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -71,10 +71,17 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
     static {
         SPECIAL_KEYS.add(StripesConstants.URL_KEY_SOURCE_PAGE);
         SPECIAL_KEYS.add(StripesConstants.URL_KEY_FIELDS_PRESENT);
+        SPECIAL_KEYS.add(StripesConstants.URL_KEY_FLASH_SCOPE_ID);
     }
 
     /** Map of validation annotations that is built at startup. */
     private Map<Class<ActionBean>, Map<String,Validate>> validations;
+
+    /**
+     * Map of validation annotations to the set of events they should be run on. Note that
+     * the events may be prepended with "!", so watch out!
+     */
+    private Map<Validate,Set<String>> validationEventMap;
 
     /** Configuration instance passed in at initialization time. */
     private Configuration configuration;
@@ -88,11 +95,29 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
         this.configuration = configuration;
         Set<Class<ActionBean>> beanClasses = ActionClassCache.getInstance().getActionBeanClasses();
         this.validations = new HashMap<Class<ActionBean>, Map<String,Validate>>();
+        this.validationEventMap = new HashMap<Validate,Set<String>>();
 
         for (Class<ActionBean> beanClass : beanClasses) {
             Map<String, Validate> fieldValidations = new HashMap<String, Validate>();
             processClassAnnotations(beanClass, fieldValidations);
             this.validations.put(beanClass, fieldValidations);
+
+            // Go through and put the list of events for this validation into
+            // a quicker to access structure
+            for (Validate info : fieldValidations.values()) {
+                Set<String> events = null;
+                if (info.on().length == 0) {
+                    events = Collections.emptySet();
+                }
+                else {
+                    events = new HashSet<String>();
+                    for (String event : info.on()) {
+                        events.add(event);
+                    }
+                }
+
+                this.validationEventMap.put(info, events);
+            }
             log.info("Loaded validations for ActionBean ", beanClass.getName(), ":",
                      fieldValidations);
         }
@@ -115,7 +140,9 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
         // Process the methods on the class
         Method[] methods = clazz.getDeclaredMethods();
         for (Method method : methods) {
-            if ( !Modifier.isPublic(method.getModifiers()) ) continue; // only public methods!
+            if (!Modifier.isPublic(method.getModifiers())) {
+                continue; // only public methods!
+            }
 
             Validate validation = method.getAnnotation(Validate.class);
             if (validation != null) {
@@ -346,14 +373,14 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
                                     String property,
                                     List<Object> valueOrValues,
                                     Class targetType) throws Exception {
-	    Class valueType = valueOrValues.iterator().next().getClass();
-	
+        Class valueType = valueOrValues.iterator().next().getClass();
+
         // If the target type is an array, set it as one, otherwise set as scalar
         if (targetType.isArray() && targetType.getComponentType().isAssignableFrom(valueType)) {
             OgnlUtil.setValue(property, bean, valueOrValues.toArray());
         }
         else if (Collection.class.isAssignableFrom(targetType) &&
-                  !Collection.class.isAssignableFrom(valueType)) {
+                !Collection.class.isAssignableFrom(valueType)) {
             Collection collection = null;
             if (targetType.isInterface()) {
                 collection = (Collection) ReflectUtil.getInterfaceInstance(targetType);
@@ -517,7 +544,8 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
 
                 // If the field is required, and we don't have index params that collapse
                 // to that property name, check that it was supplied
-                if (validationInfo.required() && !indexedParams.contains(propertyName)) {
+                if (validationInfo.required() && !indexedParams.contains(propertyName)
+                        && applies(validationInfo, bean.getContext())) {
 
                     // Make the added check that if the form is a wizard, the required field is
                     // in the set of fields that were on the page
@@ -556,7 +584,8 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
                         String[] values = entry.getValue();
                         Validate validationInfo = validationInfos.get(name.getStrippedName());
 
-                        if (validationInfo != null && validationInfo.required()) {
+                        if (validationInfo != null && validationInfo.required()
+                                && applies(validationInfo, bean.getContext())) {
                             checkSingleRequiredField
                                     (name.getName(), name.getStrippedName(), values, errors);
                         }
@@ -699,6 +728,29 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
                     errors.add(error);
                 }
             }
+        }
+    }
+
+    /**
+     * Determines whether or not a specific validation applies to the current event or not.
+     *
+     * @param info the ValidationInfo being looked at
+     * @param context the current ActionBeanContext
+     * @return true if the Validation should be executed, false otherwise
+     */
+    protected boolean applies(Validate info, ActionBeanContext context) {
+        Set<String> events = this.validationEventMap.get(info);
+        String current = context.getEventName();
+
+        if (info.on().length == 0 || current == null) {
+            return true;
+        }
+
+        if (info.on()[0].startsWith("!")) {
+            return !events.contains("!" + current);
+        }
+        else {
+            return events.contains(current);
         }
     }
 

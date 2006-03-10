@@ -45,6 +45,19 @@ public @interface Validate {
     boolean required() default false;
 
     /**
+     * <p>If required=true, restricts the set of events to which the required check is applied.
+     * If required=false (or omitted) this setting has <i>no effect</i>. This setting is entirely
+     * optional and if omitted then the field will simply be required for all events.</p>
+     *
+     * <p>Can be specified as either a positive list (e.g. on={"save, "update"}) in which case the
+     * required check will be performed only on the listed events.  Can also be specified as an
+     * inverted list (e.g. on="!new") in which case the check will be performed on all events that
+     * are not listed.  Cannot contain a mix of "!event" and "event" since it does not make sense!
+     * </p>
+     */
+    String[] on() default {};
+
+    /**
      * If set to true will cause the property to be ignore by binding and validation even if it
      * was somehow submitted in the request.
      *
@@ -90,4 +103,5 @@ public @interface Validate {
      * object will be used.
      */
     Class<? extends TypeConverter> converter() default TypeConverter.class;
+
 }
