@@ -15,11 +15,10 @@
  */
 package net.sourceforge.stripes.validation;
 
+import net.sourceforge.stripes.action.SimpleMessage;
 import net.sourceforge.stripes.localization.LocalizationUtility;
 import net.sourceforge.stripes.util.Log;
 
-import java.text.MessageFormat;
-import java.util.Arrays;
 import java.util.Locale;
 
 /**
@@ -29,7 +28,7 @@ import java.util.Locale;
  * errors, it will fall back to a prettified version of the field name that is used in the
  * input tag.</p>
  *
- * <p>Messages may contain one or more &quot;replacement parameters &quot;.  Two replacement
+ * <p>Messages may contain one or more &quot;replacement parameters&quot;.  Two replacement
  * parameters are provided by default, they are the field name and field value, and are
  * indices 0 and 1 respectively.  To use replacement parameters a message must contain the
  * replacement token {#} where # is the numeric index of the replacement parameter.</p>
@@ -37,7 +36,7 @@ import java.util.Locale;
  * <p>For example, to construct an error message with one additional replacement parameter which is
  * the action the user was trying to perform, you might supply a message like:</p>
  *
- * <pre>/action/MyAction.myErrorMessage={1} is not a valid {0} when trying to {2}</pre>
+ * <pre>{1} is not a valid {0} when trying to {2}</pre>
  *
  * <p>At runtime this might get replaced out to result in an error message for the user that looks
  * like &quot;<em>Fixed</em> is not a valid <em>status</em> when trying to create a new
@@ -51,19 +50,11 @@ import java.util.Locale;
  *
  * @see java.text.MessageFormat
  */
-public class SimpleError implements ValidationError {
+public class SimpleError extends SimpleMessage implements ValidationError {
     private static Log log = Log.getInstance(SimpleError.class);
 
     private String fieldNameKey;
     private String actionPath;
-    private String message;
-
-    /**
-     * The set of replacement parameters that will be used to create the message from the message
-     * template.  Note that position 0 is reserved for the field name and position 1 is reserved
-     * for the field value.
-     */
-    protected Object[] replacementParameters;
 
     /**
      * Constructs a simple error message.
@@ -72,51 +63,37 @@ public class SimpleError implements ValidationError {
      * @param parameter zero or more parameters for replacement into the message
      */
     public SimpleError(String message, Object... parameter) {
-        this(parameter);
-        this.message = message;
+        super(message, processReplacementParameters(parameter));
     }
 
     /**
-     * Helper constructor that is used to store the paraemters supplied into
-     * an array that also contains the field name and field value if they exist.
-     * @param parameter
+     * Helper method that is used to widen the replacement parameter array to make
+     * room for the two standard parameters, the field name and field value.
+     *
+     * @param parameter zero or more replacement parmeters
      */
-    protected SimpleError(Object... parameter) {
+    static Object[] processReplacementParameters(Object... parameter) {
         if (parameter == null) {
-            this.replacementParameters = new Object[2];
+            return new Object[2];
         }
         else {
-            this.replacementParameters = new Object[parameter.length + 2];
-            for (int i=0; i<parameter.length; ++i) {
-                this.replacementParameters[i+2] = parameter[i];
-            }
+            Object[] out = new Object[parameter.length + 2];
+            System.arraycopy(parameter, 0, out, 2, parameter.length);
+            return out;
         }
     }
 
     /**
-     * Gets a String message from the resource bundle for the locale specified. If Locale is null
-     * then the message will be looked up in the default bundle.
+     * Looks up the field name in the resource bundle (if it exists) so that it can be used
+     * in the message, and then defers to it's super class to combine the message template
+     * with the replacement parameters provided.
      *
      * @param locale the locale of the current request
      * @return String the message stored under the messageKey supplied
      */
     public String getMessage(Locale locale) {
         resolveFieldName(locale);
-
-        // Now get the message itself
-        String messageTemplate = getMessageTemplate(locale);
-        return MessageFormat.format(messageTemplate, this.replacementParameters);
-    }
-
-    /**
-     * Simply returns the message passed in at Construction time. Designed to be overridded by
-     * subclasses to lookup messages from resource bundles.
-     *
-     * @param locale the Locale of the message template desired
-     * @return the message (potentially with TextFormat replacement tokens).
-     */
-    protected String getMessageTemplate(Locale locale) {
-        return this.message;
+        return super.getMessage(locale);
     }
 
     /**
@@ -129,16 +106,16 @@ public class SimpleError implements ValidationError {
         log.debug("Looking up localized field name with messageKey: ", this.fieldNameKey);
 
         if (this.fieldNameKey == null) {
-            this.replacementParameters[0] = "FIELD NAME NOT SUPPLIED IN CODE";
+            getReplacementParameters()[0] = "FIELD NAME NOT SUPPLIED IN CODE";
         }
         else {
-            this.replacementParameters[0] =
+            getReplacementParameters()[0] =
                     LocalizationUtility.getLocalizedFieldName(this.fieldNameKey,
                                                               this.actionPath,
                                                               locale);
 
-            if (this.replacementParameters[0] == null) {
-                this.replacementParameters[0] =
+            if (getReplacementParameters()[0] == null) {
+                getReplacementParameters()[0] =
                         LocalizationUtility.makePseudoFriendlyName(this.fieldNameKey);
             }
         }
@@ -159,12 +136,12 @@ public class SimpleError implements ValidationError {
 
     /** Sets the value of the field that is in error. */
     public void setFieldValue(String value) {
-        this.replacementParameters[1] = value;
+        getReplacementParameters()[1] = value;
     }
 
     /** Provides subclasses with access to the value of the field that is in error. */
     public String getFieldValue() {
-        return (String) this.replacementParameters[1];
+        return (String) getReplacementParameters()[1];
     }
 
     /** Sets the binding path of the ActionBean on which the errored field occurs. */
@@ -194,22 +171,15 @@ public class SimpleError implements ValidationError {
         if (fieldNameKey != null ? !fieldNameKey.equals(that.fieldNameKey) : that.fieldNameKey != null) {
             return false;
         }
-        if (message != null ? !message.equals(that.message) : that.message != null) {
-            return false;
-        }
-        if (!Arrays.equals(replacementParameters, that.replacementParameters)) {
-            return false;
-        }
 
         return true;
     }
 
     /** Generated hashCode() method. */
     public int hashCode() {
-        int result;
+        int result = super.hashCode();
         result = (fieldNameKey != null ? fieldNameKey.hashCode() : 0);
         result = 29 * result + (actionPath != null ? actionPath.hashCode() : 0);
-        result = 29 * result + (message != null ? message.hashCode() : 0);
         return result;
     }
 }

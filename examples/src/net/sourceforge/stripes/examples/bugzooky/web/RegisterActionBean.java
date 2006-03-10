@@ -7,6 +7,7 @@ import net.sourceforge.stripes.action.Resolution;
 import net.sourceforge.stripes.action.UrlBinding;
 import net.sourceforge.stripes.action.Wizard;
 import net.sourceforge.stripes.action.ForwardResolution;
+import net.sourceforge.stripes.action.LocalizableMessage;
 import net.sourceforge.stripes.examples.bugzooky.biz.Person;
 import net.sourceforge.stripes.examples.bugzooky.biz.PersonManager;
 import net.sourceforge.stripes.validation.LocalizableError;
@@ -80,9 +81,9 @@ public class RegisterActionBean extends BugzookyActionBean implements Validatabl
         pm.saveOrUpdate(this.user);
         getContext().setUser(this.user);
         getContext().getMessages().add(
-                new LocalizableError("/bugzooky/Register.action.successMessage",
-                                     this.user.getFirstName(),
-                                     this.user.getUsername()));
+                new LocalizableMessage("/bugzooky/Register.action.successMessage",
+                                       this.user.getFirstName(),
+                                       this.user.getUsername()));
 
         return new RedirectResolution("/bugzooky/BugList.jsp");
     }
