@@ -109,6 +109,9 @@ public class DispatcherServlet extends HttpServlet {
             }
             else {
                 handler = actionResolver.getDefaultHandler(bean.getClass());
+                if (handler != null) {
+                    context.setEventName(actionResolver.getHandledEvent(handler));
+                }
             }
 
             // Insist that we have a handler

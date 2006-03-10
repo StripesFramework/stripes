@@ -28,7 +28,7 @@ public class CalculatorActionBean implements ActionBean {
     public double getNumberOne() { return numberOne; }
     public void setNumberOne(double numberOne) { this.numberOne = numberOne; }
 
-    @Validate(required=true)
+    @Validate(required=true, on="Division")
     public double getNumberTwo() { return numberTwo; }
     public void setNumberTwo(double numberTwo) { this.numberTwo = numberTwo; }
 

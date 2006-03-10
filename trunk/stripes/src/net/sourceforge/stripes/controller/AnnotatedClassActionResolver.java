@@ -165,7 +165,7 @@ public class AnnotatedClassActionResolver implements ActionResolver {
         Method[] methods = clazz.getDeclaredMethods();
         for (Method method : methods) {
             if ( Modifier.isPublic(method.getModifiers()) ) {
-                String eventName = getEventName(method);
+                String eventName = getHandledEvent(method);
                 DefaultHandler defaultMapping = method.getAnnotation(DefaultHandler.class);
                 if (eventName != null) {
                     classMappings.put(eventName, method);
@@ -186,7 +186,7 @@ public class AnnotatedClassActionResolver implements ActionResolver {
      * @param handler a method that might or might not be a handler method
      * @return the name of the event handled, or null
      */
-    protected String getEventName(Method handler) {
+    public String getHandledEvent(Method handler) {
         HandlesEvent mapping = handler.getAnnotation(HandlesEvent.class);
         if (mapping != null) {
             return mapping.value();
