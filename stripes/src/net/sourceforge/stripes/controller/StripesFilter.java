@@ -194,6 +194,7 @@ public class StripesFilter implements Filter {
                          FilterChain filterChain) throws IOException, ServletException {
 
         HttpServletRequest httpRequest = (HttpServletRequest) servletRequest;
+        log.trace("Intercepting request to URL: ", httpRequest.getRequestURI());
 
         try {
             // Pop the configuration into thread local
@@ -203,7 +204,7 @@ public class StripesFilter implements Filter {
             Locale locale = this.configuration.getLocalePicker().pickLocale(httpRequest);
             StripesRequestWrapper request = wrapRequest(httpRequest);
             request.setLocale(locale);
-            log.info("LocalePicker selected locale: ", locale);
+            log.debug("LocalePicker selected locale: ", locale);
 
             // Execute the rest of the chain
             flashInbound(request);

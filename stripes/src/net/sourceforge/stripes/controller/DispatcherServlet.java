@@ -92,6 +92,8 @@ public class DispatcherServlet extends HttpServlet {
             }
         }
 
+        log.trace("Dispatching request to URL: ", request.getRequestURI());
+
         try {
             // Lookup the bean, handler method and hook everything together
             ActionBeanContext context =  StripesFilter.getConfiguration()
@@ -164,7 +166,7 @@ public class DispatcherServlet extends HttpServlet {
                 if (returnValue != null && returnValue instanceof Resolution) {
                     resolution = (Resolution) returnValue;
                 }
-                else {
+                else if (returnValue != null) {
                     log.warn("Expected handler method ", handler.getName(), " on class ",
                              bean.getClass().getSimpleName(), " to return a Resolution. Instead it ",
                              "returned: ", returnValue);
