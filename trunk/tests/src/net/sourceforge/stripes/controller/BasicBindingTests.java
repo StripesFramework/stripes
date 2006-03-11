@@ -125,4 +125,34 @@ public class BasicBindingTests {
         Assert.assertEquals(bean.getListOfBeans().get(3).getIntProperty(), 30);
         Assert.assertEquals(bean.getListOfBeans().get(4).getIntProperty(), 40);
     }
+
+    @Test(groups="fast")
+    public void bindStringIndexedProperties() throws Exception {
+        MockRoundtrip trip = getRoundtrip();
+        trip.addParameter("mapOfLongs['one']", "1");
+        trip.addParameter("mapOfLongs['twentyseven']", "27");
+        trip.addParameter("mapOfLongs['nine']", "9");
+        trip.execute();
+
+        TestActionBean bean = trip.getActionBean(TestActionBean.class);
+        Assert.assertEquals(bean.getMapOfLongs().get("one"), new Long(1));
+        Assert.assertEquals(bean.getMapOfLongs().get("twentyseven"), new Long(27));
+        Assert.assertEquals(bean.getMapOfLongs().get("nine"), new Long(9));
+    }
+
+    @Test(groups="fast")
+    public void bindStringIndexedPropertiesII() throws Exception {
+        MockRoundtrip trip = getRoundtrip();
+        trip.addParameter("mapOfObjects['foo']", "bar");
+        trip.addParameter("mapOfObjects['cat']", "meow");
+        trip.addParameter("mapOfObjects['dog']", "woof");
+        trip.addParameter("mapOfObjects['snake']", "ssss");
+        trip.execute();
+
+        TestActionBean bean = trip.getActionBean(TestActionBean.class);
+        Assert.assertEquals(bean.getMapOfObjects().get("foo"),   "bar");
+        Assert.assertEquals(bean.getMapOfObjects().get("cat"),   "meow");
+        Assert.assertEquals(bean.getMapOfObjects().get("dog"),   "woof");
+        Assert.assertEquals(bean.getMapOfObjects().get("snake"), "ssss");
+    }
 }

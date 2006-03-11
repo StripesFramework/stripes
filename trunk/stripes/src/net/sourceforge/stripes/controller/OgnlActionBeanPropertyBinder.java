@@ -807,10 +807,19 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
                     if (converter != null) {
                         retval = converter.convert(values[i], propertyType, errors);
                     }
+                    else if (propertyType.isAssignableFrom(String.class)) {
+                        retval = values[i];
+                    }
                     else {
                         Constructor constructor = propertyType.getConstructor(String.class);
                         if (constructor != null) {
                             retval = constructor.newInstance(values[i]);
+                        }
+                        else {
+                            log.debug("Could not find a way to convert the parameter ",
+                                      propertyName.getName(), " to a ", propertyType.getSimpleName(),
+                                      ". No TypeConverter could be found and the class does not ",
+                                      "have a constructor that takes a single String parameter.");
                         }
                     }
 

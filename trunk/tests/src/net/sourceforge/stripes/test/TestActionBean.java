@@ -9,6 +9,7 @@ import net.sourceforge.stripes.validation.LongTypeConverter;
 
 import java.util.List;
 import java.util.Set;
+import java.util.Map;
 
 /**
  * An ActionBean that has a fairly complete/complex set of properties in order to
@@ -22,6 +23,8 @@ public class TestActionBean implements ActionBean {
     private List<Long> listOfLongs;
     private Set<String> setOfStrings;
     private List<TestBean> listOfBeans;
+    private Map<String,Long> mapOfLongs;
+    private Map<String,Object> mapOfObjects;
     private TestBean testBean;
     private String singleString;
     private Long singleLong;
@@ -34,6 +37,14 @@ public class TestActionBean implements ActionBean {
     /** A list of TestBean objects to test indexed and nested properties. */
     public List<TestBean> getListOfBeans() { return listOfBeans; }
     public void setListOfBeans(List<TestBean> listOfBeans) { this.listOfBeans = listOfBeans; }
+
+    /** A map of longs to test Maps of type converted properties. */
+    public Map<String, Long> getMapOfLongs() { return mapOfLongs; }
+    public void setMapOfLongs(Map<String, Long> mapOfLongs) { this.mapOfLongs = mapOfLongs; }
+
+    /** A map of Objects which should get populated as Strings because String extends Object. */
+    public Map<String, Object> getMapOfObjects() { return mapOfObjects; }
+    public void setMapOfObjects(Map<String, Object> mapOfObjects) { this.mapOfObjects = mapOfObjects; }
 
     /** A single test bean to test out basic nested properties. */
     public TestBean getTestBean() { return testBean; }
