@@ -24,6 +24,10 @@ import net.sourceforge.stripes.validation.TypeConverterFactory;
 import net.sourceforge.stripes.tag.TagErrorRendererFactory;
 import net.sourceforge.stripes.tag.PopulationStrategy;
 import net.sourceforge.stripes.format.FormatterFactory;
+import net.sourceforge.stripes.controller.Interceptor;
+import net.sourceforge.stripes.controller.LifecycleStage;
+
+import java.util.Collection;
 
 /**
  * <p>Type safe interface for accessing configuration information used to configure Stripes. All
@@ -143,4 +147,15 @@ public interface Configuration {
      * @return ActionBeanContextFactory an instance of ActionBeanContextFactory
      */
     ActionBeanContextFactory getActionBeanContextFactory();
+
+    /**
+     * Fetches the interceptors that should be executed around the lifecycle stage applied.
+     * Must return a non-null collection, but the collection may be empty. The Interceptors
+     * are invoked around the code which executes the given lifecycle function (e.g.
+     * ActionBeanResolution), and as a result can execute code both before and after it.
+     *
+     * @return Collection<Interceptor> an ordered collection of interceptors to be executed
+     *         around the given lifecycle stage.
+     */
+    Collection<Interceptor> getInterceptors(LifecycleStage stage);
 }

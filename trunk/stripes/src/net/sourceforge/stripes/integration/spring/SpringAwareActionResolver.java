@@ -29,10 +29,6 @@ import net.sourceforge.stripes.controller.NameBasedActionResolver;
  *
  * <pre>
  * &lt;init-param&gt;
- *     &lt;param-name&gt;Configuration.Class&lt;/param-name&gt;
- *     &lt;param-value&gt;net.sourceforge.stripes.config.RuntimeConfiguration&lt;/param-value&gt;
- * &lt;/init-param&gt;
- * &lt;init-param&gt;
  *     &lt;param-name&gt;ActionResolver.Class&lt;/param-name&gt;
  *     &lt;param-value&gt;net.sourceforge.stripes.integration.spring.SpringAwareActionResolver&lt;/param-value&gt;
  * &lt;/init-param&gt;
@@ -40,7 +36,9 @@ import net.sourceforge.stripes.controller.NameBasedActionResolver;
  *
  * @see SpringBean
  * @author Tim Fennell
+ * @deprecated Use {@link SpringInterceptor} instead.
  */
+@Deprecated
 public class SpringAwareActionResolver extends NameBasedActionResolver {
 
     /**
