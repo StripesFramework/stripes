@@ -15,18 +15,26 @@
  */
 package net.sourceforge.stripes.config;
 
+import net.sourceforge.stripes.controller.ActionBeanContextFactory;
+import net.sourceforge.stripes.controller.ActionBeanPropertyBinder;
+import net.sourceforge.stripes.controller.ActionResolver;
+import net.sourceforge.stripes.controller.Interceptor;
+import net.sourceforge.stripes.controller.Intercepts;
+import net.sourceforge.stripes.controller.LifecycleStage;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
-import net.sourceforge.stripes.tag.TagErrorRendererFactory;
+import net.sourceforge.stripes.format.FormatterFactory;
+import net.sourceforge.stripes.localization.LocalePicker;
+import net.sourceforge.stripes.localization.LocalizationBundleFactory;
 import net.sourceforge.stripes.tag.PopulationStrategy;
+import net.sourceforge.stripes.tag.TagErrorRendererFactory;
 import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.util.ReflectUtil;
-import net.sourceforge.stripes.controller.ActionResolver;
-import net.sourceforge.stripes.controller.ActionBeanPropertyBinder;
-import net.sourceforge.stripes.controller.ActionBeanContextFactory;
 import net.sourceforge.stripes.validation.TypeConverterFactory;
-import net.sourceforge.stripes.localization.LocalizationBundleFactory;
-import net.sourceforge.stripes.localization.LocalePicker;
-import net.sourceforge.stripes.format.FormatterFactory;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Map;
 
 /**
  * <p>Configuration class that uses the BootstrapPropertyResolver to look for configuration values,
@@ -74,6 +82,10 @@ public class RuntimeConfiguration extends DefaultConfiguration {
     /** The Configuration Key for looking up the name of the PopulationStrategy class */
     public static final String POPULATION_STRATEGY = "PopulationStrategy.Class";
 
+    /** The Configuration Key for looking up the comma separated list of interceptor classes. */
+    public static final String INTERCEPTOR_LIST = "Interceptor.Classes";
+
+
     /** Looks for a class name in config and uses that to create the component. */
     @Override protected ActionResolver initActionResolver() {
         return initializeComponent(ActionResolver.class, ACTION_RESOLVER);
@@ -117,6 +129,61 @@ public class RuntimeConfiguration extends DefaultConfiguration {
     /** Looks for a class name in config and uses that to create the component. */
     @Override protected PopulationStrategy initPopulationStrategy() {
         return initializeComponent(PopulationStrategy.class, POPULATION_STRATEGY);
+    }
+
+    /**
+     * Looks for a list of class names separated by commas under the configuration key
+     * {@link #INTERCEPTOR_LIST}.  White space surrounding the class names is trimmed,
+     * the classes instantiated and then stored under the lifecycle stage(s) they should
+     * intercept.
+     *
+     * @return a Map of {@link LifecycleStage} to Collection of {@link Interceptor}
+     */
+    @Override
+    protected Map<LifecycleStage, Collection<Interceptor>> initInterceptors() {
+        String classList = getBootstrapPropertyResolver().getProperty(INTERCEPTOR_LIST);
+        if (classList == null) {
+            return null;
+        }
+        else {
+            String[] classNames = classList.split(",");
+            Map<LifecycleStage, Collection<Interceptor>> map =
+                    new HashMap<LifecycleStage, Collection<Interceptor>>();
+
+            for (String className : classNames) {
+                try {
+                    Class<? extends Interceptor> type = ReflectUtil.findClass(className.trim());
+                    Intercepts intercepts = type.getAnnotation(Intercepts.class);
+                    if (intercepts == null) {
+                        log.error("An interceptor of type ", type.getName(), " was configured ",
+                                  "but was not marked with an @Intercepts annotation. As a ",
+                                  "result it is not possible to determine at which ",
+                                  "lifecycle stages the interceprot should be applied. This ",
+                                  "interceptor will be ignored.");
+                    }
+
+                    Interceptor interceptor = type.newInstance();
+                    for (LifecycleStage stage : intercepts.value()) {
+                        Collection<Interceptor> stack = map.get(stage);
+                        if (stack == null) {
+                            stack = new LinkedList<Interceptor>();
+                            map.put(stage, stack);
+                        }
+
+                        stack.add(interceptor);
+                    }
+                }
+                catch (Exception e) {
+                    throw new StripesRuntimeException(
+                            "Could not instantiate one or more configured Interceptors. The " +
+                            "property '" + INTERCEPTOR_LIST + "' contained [" + classList +
+                            "]. This value must contain fully qualified class names separated " +
+                            "by commas.", e);
+                }
+            }
+
+            return map;
+        }
     }
 
     /**

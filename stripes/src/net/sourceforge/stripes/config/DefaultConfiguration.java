@@ -15,25 +15,31 @@
  */
 package net.sourceforge.stripes.config;
 
+import net.sourceforge.stripes.controller.ActionBeanContextFactory;
 import net.sourceforge.stripes.controller.ActionBeanPropertyBinder;
 import net.sourceforge.stripes.controller.ActionResolver;
 import net.sourceforge.stripes.controller.AnnotatedClassActionResolver;
-import net.sourceforge.stripes.controller.OgnlActionBeanPropertyBinder;
-import net.sourceforge.stripes.controller.ActionBeanContextFactory;
 import net.sourceforge.stripes.controller.DefaultActionBeanContextFactory;
+import net.sourceforge.stripes.controller.OgnlActionBeanPropertyBinder;
+import net.sourceforge.stripes.controller.Interceptor;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
-import net.sourceforge.stripes.localization.DefaultLocalizationBundleFactory;
-import net.sourceforge.stripes.localization.LocalizationBundleFactory;
-import net.sourceforge.stripes.localization.LocalePicker;
+import net.sourceforge.stripes.format.DefaultFormatterFactory;
+import net.sourceforge.stripes.format.FormatterFactory;
+import net.sourceforge.stripes.controller.LifecycleStage;
 import net.sourceforge.stripes.localization.DefaultLocalePicker;
-import net.sourceforge.stripes.validation.DefaultTypeConverterFactory;
-import net.sourceforge.stripes.validation.TypeConverterFactory;
-import net.sourceforge.stripes.tag.TagErrorRendererFactory;
+import net.sourceforge.stripes.localization.DefaultLocalizationBundleFactory;
+import net.sourceforge.stripes.localization.LocalePicker;
+import net.sourceforge.stripes.localization.LocalizationBundleFactory;
+import net.sourceforge.stripes.tag.DefaultPopulationStrategy;
 import net.sourceforge.stripes.tag.DefaultTagErrorRendererFactory;
 import net.sourceforge.stripes.tag.PopulationStrategy;
-import net.sourceforge.stripes.tag.DefaultPopulationStrategy;
-import net.sourceforge.stripes.format.FormatterFactory;
-import net.sourceforge.stripes.format.DefaultFormatterFactory;
+import net.sourceforge.stripes.tag.TagErrorRendererFactory;
+import net.sourceforge.stripes.validation.DefaultTypeConverterFactory;
+import net.sourceforge.stripes.validation.TypeConverterFactory;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
 
 /**
  * <p>Centralized location for defaults for all Configuration properties.  This implementation does
@@ -66,6 +72,7 @@ public class DefaultConfiguration implements Configuration {
     private FormatterFactory formatterFactory;
     private TagErrorRendererFactory tagErrorRendererFactory;
     private PopulationStrategy populationStrategy;
+    private Map<LifecycleStage,Collection<Interceptor>> interceptors;
 
     /** Gratefully accepts the BootstrapPropertyResolver handed to the Configuration. */
     public void setBootstrapPropertyResolver(BootstrapPropertyResolver resolver) {
@@ -130,6 +137,11 @@ public class DefaultConfiguration implements Configuration {
             if (this.populationStrategy == null) {
                 this.populationStrategy = new DefaultPopulationStrategy();
                 this.populationStrategy.init(this);
+            }
+
+            this.interceptors = initInterceptors();
+            if (this.interceptors == null) {
+                this.interceptors = Collections.emptyMap();
             }
         }
         catch (Exception e) {
@@ -239,4 +251,16 @@ public class DefaultConfiguration implements Configuration {
     /** Allows subclasses to initialize a non-default PopulationStrategy instance to be used. */
     protected PopulationStrategy initPopulationStrategy() { return null; }
 
+    /**
+     * Returns a list of interceptors that should be executed around the lifecycle stage
+     * indicated.  By default returns the empty list.
+     */
+    public Collection<Interceptor> getInterceptors(LifecycleStage stage) {
+        Collection<Interceptor> interceptors = this.interceptors.get(stage);
+        if (interceptors == null) interceptors = Collections.emptyList();
+        return interceptors;
+    }
+
+    /** Allows subclasses to initialize a non-default Map of Interceptor instances. */
+    protected Map<LifecycleStage,Collection<Interceptor>> initInterceptors() { return null; }
 }
