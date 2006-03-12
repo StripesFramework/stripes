@@ -165,7 +165,5 @@ public class BasicBindingTests {
         trip.execute();
 
         TestActionBean bean = trip.getActionBean(TestActionBean.class);
-        Assert.assertTrue(Arrays.equals(bean.getIntArray(), new int[] {100, 200, 30017}));
-        Assert.assertEquals(bean.getIntArray(), new int[] {100, 200, 30017});
-    }
+        Assert.assertTrue(Arrays.equals(bean.getIntArray(), new int[] {100, 200, 30017}));    }
 }
