@@ -29,6 +29,7 @@ public class TestActionBean implements ActionBean {
     private String singleString;
     private Long singleLong;
     private List nakedListOfLongs;
+    private int[] intArray;
 
     /** A pretty ordinary list of longs, to test lists of primitive/simply objects. */
     public List<Long> getListOfLongs() { return listOfLongs; }
@@ -66,6 +67,10 @@ public class TestActionBean implements ActionBean {
     @Validate(converter=LongTypeConverter.class)
     public List getNakedListOfLongs() { return nakedListOfLongs; }
     public void setNakedListOfLongs(List nakedListOfLongs) { this.nakedListOfLongs = nakedListOfLongs; }
+
+    /** An array of primitive ints to test out Array binding. */
+    public int[] getIntArray() { return intArray; }
+    public void setIntArray(int[] intArray) { this.intArray = intArray; }
 
     ///////////////////////////////////////////////////////////////////////////
     // Dummied up ActionBean methods that aren't really used for much.
