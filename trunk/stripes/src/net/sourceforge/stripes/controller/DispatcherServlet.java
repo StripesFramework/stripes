@@ -36,6 +36,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Servlet that controls how requests to the Stripes framework are processed.  Uses an instance of
@@ -353,9 +354,18 @@ public class DispatcherServlet extends HttpServlet {
             String formAction = (String) request.getAttribute(ActionResolver.RESOLVED_ACTION);
 
             /** Since we don't pass form action down the stack, we add it to the errors here. */
-            for (List<ValidationError> listOfErrors : errors.values()) {
+            for (Map.Entry<String,List<ValidationError>> entry : errors.entrySet()) {
+                String parameterName = entry.getKey();
+                List<ValidationError> listOfErrors = entry.getValue();
+
                 for (ValidationError error : listOfErrors) {
                     error.setActionPath(formAction);
+
+                    // This is done to fill in parameter values for any errors the user
+                    // created and didn't add values to
+                    if (error.getFieldValue() == null) {
+                        error.setFieldValue(request.getParameter(parameterName));
+                    }
                 }
             }
         }
