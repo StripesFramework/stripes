@@ -1,13 +1,15 @@
 package net.sourceforge.stripes.controller;
 
-import org.testng.annotations.Test;
-import org.testng.Assert;
-import net.sourceforge.stripes.mock.MockServletContext;
-import net.sourceforge.stripes.mock.MockRoundtrip;
 import net.sourceforge.stripes.StripesTestFixture;
+import net.sourceforge.stripes.mock.MockRoundtrip;
+import net.sourceforge.stripes.mock.MockServletContext;
 import net.sourceforge.stripes.test.TestActionBean;
 import net.sourceforge.stripes.test.TestBean;
 import net.sourceforge.stripes.test.TestEnum;
+import org.testng.Assert;
+import org.testng.annotations.Test;
+
+import java.util.Arrays;
 
 /**
  * Tests out a lot of basic binding functionality in Stripes.  Ensures that scalars and lists
@@ -154,5 +156,16 @@ public class BasicBindingTests {
         Assert.assertEquals(bean.getMapOfObjects().get("cat"),   "meow");
         Assert.assertEquals(bean.getMapOfObjects().get("dog"),   "woof");
         Assert.assertEquals(bean.getMapOfObjects().get("snake"), "ssss");
+    }
+
+    @Test(groups="fast")
+    public void bindIntArray() throws Exception {
+        MockRoundtrip trip = getRoundtrip();
+        trip.addParameter("intArray", "100", "200", "30017");
+        trip.execute();
+
+        TestActionBean bean = trip.getActionBean(TestActionBean.class);
+        Assert.assertTrue(Arrays.equals(bean.getIntArray(), new int[] {100, 200, 30017}));
+        Assert.assertEquals(bean.getIntArray(), new int[] {100, 200, 30017});
     }
 }
