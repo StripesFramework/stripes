@@ -8,6 +8,9 @@ import net.sourceforge.stripes.action.ForwardResolution;
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.action.ActionBeanContext;
 import net.sourceforge.stripes.validation.Validate;
+import net.sourceforge.stripes.validation.ValidationMethod;
+import net.sourceforge.stripes.validation.ValidationErrors;
+import net.sourceforge.stripes.validation.SimpleError;
 
 /**
  * A very simple calculator action.
@@ -35,15 +38,28 @@ public class CalculatorActionBean implements ActionBean {
     public double getResult() { return result; }
     public void setResult(double result) { this.result = result; }
 
+    /** An event handler method that adds number one to number two. */
     @HandlesEvent("Addition") @DefaultHandler
     public Resolution addNumbers() {
         result = numberOne + numberTwo;
         return new ForwardResolution("/quickstart/index.jsp");
     }
 
+    /** An event handler method that divides number one by number two. */
     @HandlesEvent("Division")
     public Resolution divideNumbers() {
         result = numberOne / numberTwo;
-        return new ForwardResolution("/quickstart/index.jsp"); 
+        return new ForwardResolution("/quickstart/index.jsp");
+    }
+
+    /**
+     * An example of a custom validation that checks that division operations
+     * are not dividing by zero.
+     */
+    @ValidationMethod(on="Division")
+    public void avoidDivideByZero(ValidationErrors errors) {
+        if (this.numberTwo == 0) {
+            errors.add("numberTwo", new SimpleError("Dividing by zero is not allowed."));
+        }
     }
 }

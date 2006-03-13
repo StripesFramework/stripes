@@ -23,10 +23,12 @@ import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.exception.StripesServletException;
 import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.validation.BooleanTypeConverter;
+import net.sourceforge.stripes.validation.ValidationMethod;
 import net.sourceforge.stripes.validation.Validatable;
 import net.sourceforge.stripes.validation.ValidationError;
 import net.sourceforge.stripes.validation.ValidationErrorHandler;
 import net.sourceforge.stripes.validation.ValidationErrors;
+import net.sourceforge.stripes.validation.ValidationState;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -35,8 +37,13 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Servlet that controls how requests to the Stripes framework are processed.  Uses an instance of
@@ -55,6 +62,14 @@ public class DispatcherServlet extends HttpServlet {
             "Validation.InvokeValidateWhenErrorsExist";
 
     private Boolean alwaysInvokeValidate;
+
+    /**
+     * A Map that is used to cache the validation method that are discovered for each
+     * ActionBean.  Entries are added to this map the first time that a request is made
+     * to a particular ActionBean.  The Map will contain a zero length array for ActionBeans
+     * that do not have any valiation methods.
+     */
+    private final Map<Class,Method[]> customValidations = new ConcurrentHashMap<Class, Method[]>();
 
     /** Log used throughout the class. */
     private static Log log = Log.getInstance(DispatcherServlet.class);
@@ -306,7 +321,7 @@ public class DispatcherServlet extends HttpServlet {
      * @return a Resolution if any interceptor determines that the request processing should
      *         be aborted in favor of another Resolution, null otherwise.
      */
-    protected Resolution doCustomValidation(ExecutionContext ctx, boolean doValidate) throws Exception {
+    protected Resolution doCustomValidation(final ExecutionContext ctx, boolean doValidate) throws Exception {
         final ValidationErrors errors = ctx.getActionBeanContext().getValidationErrors();
         final ActionBean bean = ctx.getActionBean();
         Configuration config = StripesFilter.getConfiguration();
@@ -315,14 +330,39 @@ public class DispatcherServlet extends HttpServlet {
         //   1. This event is not marked to bypass validation (doValidate == true)
         //   2. The bean is an instance of Validatable
         //   3. We have no errors so far OR alwaysInvokeValidate is true
-        if ( doValidate && (this.alwaysInvokeValidate || errors.size() == 0) && bean instanceof Validatable) {
+        if (doValidate) {
 
             ctx.setLifecycleStage(LifecycleStage.CustomValidation);
             ctx.setInterceptors(config.getInterceptors(LifecycleStage.CustomValidation));
 
             return ctx.wrap( new Interceptor() {
                 public Resolution intercept(ExecutionContext context) throws Exception {
-                    ((Validatable) bean).validate(errors);
+
+                    // Run the legacy style validate() method
+                    if ( (alwaysInvokeValidate || errors.isEmpty()) && bean instanceof Validatable) {
+                        ((Validatable) bean).validate(errors);
+                    }
+
+                    // Run any of the new style validation methods
+                    Method[] validations = findCustomValidationMethods(bean.getClass());
+                    for (Method validation : validations) {
+                        ValidationMethod ann = validation.getAnnotation(ValidationMethod.class);
+
+                        boolean run = (ann.when() == ValidationState.ALWAYS)
+                                   || (ann.when() == ValidationState.DEFAULT && alwaysInvokeValidate)
+                                   || errors.isEmpty();
+
+                        if (run && applies(ann, ctx.getActionBeanContext().getEventName())) {
+                            Class[] args = validation.getParameterTypes();
+                            if (args.length == 1 && args[0].equals(ValidationErrors.class)) {
+                                validation.invoke(bean, errors);
+                            }
+                            else {
+                                validation.invoke(bean);
+                            }
+                        }
+                    }
+
                     return null;
                 }
             });
@@ -330,6 +370,106 @@ public class DispatcherServlet extends HttpServlet {
         else {
             return null;
         }
+    }
+
+    /**
+     * <p>Determines if the ValidationMethod annotation should be applied to the named
+     * event.  True if the list of events to apply the validation to is empty, or it
+     * contains the event name, or it contains event names starting with "!" but not the
+     * event name. Some examples to illustrate the point</p>
+     *
+     * <ul>
+     *   <li>info.on={}, event="save" => true</li>
+     *   <li>info.on={"save", "update"}, event="save" => true</li>
+     *   <li>info.on={"save", "update"}, event="delete" => false</li>
+     *   <li>info.on={"!delete"}, event="save" => true</li>
+     *   <li>info.on={"!delete"}, event="delete" => false</li>
+     * </ul>
+     *
+     * @param info the ValidationMethod being examined
+     * @param event the event being processed
+     * @return true if the custom validation should be applied to this event, false otherwise
+     */
+    protected boolean applies(ValidationMethod info, String event) {
+        final String[] events = info.on();
+
+        if (events.length == 0 || event == null) {
+            return true;
+        }
+        else if (events[0].startsWith("!")) {
+            return !contains(events, "!" + event);
+        }
+        else {
+            return contains(events, event);
+        }
+    }
+
+    /** A quick utility method for linear searching an array of Strings. */
+    private boolean contains(String[] arr, String target) {
+        for (String item : arr) {
+            if (item.equals(target)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+
+    /**
+     * Finds and returns all methods in the ActionBean class and it's superclasses that
+     * are marked with the ValidationMethod annotation and returns them ordered by
+     * priority (and alphabetically within priorities).  Looks first in an instance level
+     * cache, and if that does not contain information for an ActionBean, examines the
+     * ActionBean and adds the information to the cache.
+     *
+     * @param type a Class representing an ActionBean
+     * @return a Method[] containing all methods marked as custom validations. May return
+     *         an empty array, but never null.
+     */
+    protected Method[] findCustomValidationMethods(Class<? extends ActionBean> type) throws Exception {
+        Method[] validations = this.customValidations.get(type);
+
+        // Lazily examine the ActionBean and collect this information
+        if (validations == null) {
+            // A sorted set with a custom comparator that will order the methods in
+            // the set based upon the priority in their custom validation annotation
+            SortedSet<Method> validationMethods = new TreeSet<Method>( new Comparator<Method>() {
+                public int compare(Method o1, Method o2) {
+                    // If one of the methods overrides the others, return equal!
+                    if (o1.getName().equals(o2.getName()) &&
+                            Arrays.equals(o1.getParameterTypes(), o2.getParameterTypes())) {
+                        return 0;
+                    }
+
+                    ValidationMethod ann1 = o1.getAnnotation(ValidationMethod.class);
+                    ValidationMethod ann2 = o2.getAnnotation(ValidationMethod.class);
+                    int returnValue =  new Integer(ann1.priority()).compareTo(ann2.priority());
+
+                    if (returnValue == 0) {
+                        returnValue = o1.getName().compareTo(o2.getName());
+                    }
+
+                    return returnValue;
+                }
+            });
+
+            Class temp = type;
+            while ( temp != null ) {
+                for (Method method : temp.getDeclaredMethods()) {
+                    if (method.getAnnotation(ValidationMethod.class) != null) {
+                        validationMethods.add(method);
+                    }
+                }
+
+                temp = temp.getSuperclass();
+            }
+
+            validations = validationMethods.toArray(new Method[validationMethods.size()]);
+            this.customValidations.put(type, validations);
+        }
+
+        return validations;
     }
 
     /**
