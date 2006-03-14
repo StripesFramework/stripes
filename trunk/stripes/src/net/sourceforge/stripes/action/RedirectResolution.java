@@ -15,16 +15,13 @@
  */
 package net.sourceforge.stripes.action;
 
-import net.sourceforge.stripes.util.UrlBuilder;
 import net.sourceforge.stripes.controller.FlashScope;
 import net.sourceforge.stripes.controller.StripesConstants;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.ServletException;
 import java.io.IOException;
-import java.util.Map;
-import java.util.HashMap;
 import java.util.Collection;
 import java.util.HashSet;
 
@@ -46,10 +43,9 @@ import java.util.HashSet;
  * @see ForwardResolution
  * @author Tim Fennell
  */
-public class RedirectResolution extends OnwardResolution implements Resolution {
-    private boolean prependContext;
+public class RedirectResolution extends OnwardResolution<RedirectResolution> implements Resolution {
+    private boolean prependContext = true;
     private boolean includeRequestParameters;
-    Map<String,Object> parameters = new HashMap<String,Object>();
     private Collection<ActionBean> beans; // used to flash action beans
 
     /**
@@ -70,12 +66,35 @@ public class RedirectResolution extends OnwardResolution implements Resolution {
      * @param prependContext true if the context should be prepended, false otherwise
      */
     public RedirectResolution(String url, boolean prependContext) {
-        setPath(url);
+        super(url);
         this.prependContext = prependContext;
     }
 
     /**
-     * If set to true, will cause absoultly all request parameters present in the current request
+     * Constructs a RedirectResolution that will redirect to the URL appropriate for
+     * the ActionBean supplied.  This constructor should be preferred when redirecting
+     * to an ActionBean as it will ensure the correct URL is always used.
+     *
+     * @param beanType the Class object representing the ActionBean to redirect to
+     */
+    public RedirectResolution(Class<? extends ActionBean> beanType) {
+        super(beanType);
+    }
+
+    /**
+     * Constructs a RedirectResolution that will redirect to the URL appropriate for
+     * the ActionBean supplied.  This constructor should be preferred when redirecting
+     * to an ActionBean as it will ensure the correct URL is always used.
+     *
+     * @param beanType the Class object representing the ActionBean to redirect to
+     * @param event the event that should be triggered on the redirect
+     */
+    public RedirectResolution(Class<? extends ActionBean> beanType, String event) {
+        super(beanType, event);
+    }
+
+    /**
+     * If set to true, will cause absolutely all request parameters present in the current request
      * to be appended to the redirect URL that will be sent to the browser. Since some browsers
      * and servers cannot handle extremely long URLs, care should be taken when using this
      * method with large form posts.
@@ -85,33 +104,6 @@ public class RedirectResolution extends OnwardResolution implements Resolution {
      */
     public RedirectResolution includeRequestParameters(boolean inc) {
         this.includeRequestParameters = inc;
-        return this;
-    }
-
-    /**
-     * Adds a request parameter with zero or more values to the redirect URL.  Values may
-     * be supplied using varargs, or alternatively by suppling a single value parameter which is
-     * an instance of Collection.
-     *
-     * @param name the name of the URL parameter
-     * @param values zero or more scalar values, or a single Collection
-     * @return this RedirectResolution so that methods can be chained
-     */
-    public RedirectResolution addParameter(String name, Object... values) {
-        this.parameters.put(name, values);
-        return this;
-    }
-
-    /**
-     * Bulk adds one or more request parameters to the redirect URL. Each entry in the Map
-     * represents a single named parameter, with the values being either a scalar value,
-     * an array or a Collection.
-     *
-     * @param parameters a Map of parameters as described above
-     * @return this RedirectResolution so that methods can be chained
-     */
-    public RedirectResolution addParameters(Map<String,Object> parameters) {
-        this.parameters.putAll(parameters);
         return this;
     }
 
@@ -140,17 +132,9 @@ public class RedirectResolution extends OnwardResolution implements Resolution {
     public void execute(HttpServletRequest request, HttpServletResponse response)
         throws ServletException, IOException {
 
-        String path = getPath();
-        if (this.prependContext) {
-            path = request.getContextPath() + path;
-        }
-
-        // Use a UrlBuilder to munge in any parameters
-        UrlBuilder builder = new UrlBuilder(path, false);
         if (this.includeRequestParameters) {
-            builder.addParameters(request.getParameterMap());
+            addParameters(request.getParameterMap());
         }
-        builder.addParameters(this.parameters);
 
         // Add any beans to the flash scope
         if (this.beans != null) {
@@ -163,9 +147,15 @@ public class RedirectResolution extends OnwardResolution implements Resolution {
         // If a flash scope exists, add the parameter to the request
         FlashScope flash = FlashScope.getCurrent(request, false);
         if (flash != null) {
-            builder.addParameter(StripesConstants.URL_KEY_FLASH_SCOPE_ID, flash.key());
+            addParameter(StripesConstants.URL_KEY_FLASH_SCOPE_ID, flash.key());
         }
 
-        response.sendRedirect( response.encodeRedirectURL(builder.toString()) );
+        // Prepend the context path if required
+        String url = getUrl();
+        if (this.prependContext) {
+            url = request.getContextPath() + url;
+        }
+
+        response.sendRedirect( response.encodeRedirectURL(url) );
     }
 }
