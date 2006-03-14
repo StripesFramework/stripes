@@ -41,12 +41,15 @@ public class HtmlUtil {
         StringBuilder builder = new StringBuilder(fragment.length() + 10); // a little wiggle room
         char[] characters = fragment.toCharArray();
 
+        // This loop used to also look for and replace single ticks with &apos; but it
+        // turns out that it's not strictly necessary since Stripes uses double-quotes
+        // around all form fields, and stupid IE6 will render &apos; verbatim instead
+        // of as a single quote.
         for (int i=0; i<characters.length; ++i) {
             switch (characters[i]) {
                 case '<'  : builder.append("&lt;"); break;
                 case '>'  : builder.append("&gt;"); break;
                 case '"'  : builder.append("&quot;"); break;
-                case '\'' : builder.append("&apos;"); break;
                 case '&'  : builder.append("&amp;"); break;
                 default: builder.append(characters[i]);
             }
