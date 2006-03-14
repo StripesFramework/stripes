@@ -33,7 +33,30 @@ public class ForwardResolution extends OnwardResolution implements Resolution {
      * @param path the path within the web application that the user should be forwarded to
      */
     public ForwardResolution(String path) {
-        setPath(path);
+        super(path);
+    }
+
+    /**
+     * Constructs a ForwardResolution that will forward to the URL appropriate for
+     * the ActionBean supplied.  This constructor should be preferred when forwarding
+     * to an ActionBean as it will ensure the correct URL is always used.
+     *
+     * @param beanType the Class object representing the ActionBean to redirect to
+     */
+    public ForwardResolution(Class<? extends ActionBean> beanType) {
+        super(beanType);
+    }
+
+    /**
+     * Constructs a ForwardResolution that will forward to the URL appropriate for
+     * the ActionBean supplied.  This constructor should be preferred when forwarding
+     * to an ActionBean as it will ensure the correct URL is always used.
+     *
+     * @param beanType the Class object representing the ActionBean to redirect to
+     * @param event the event that should be triggered on the redirect
+     */
+    public ForwardResolution(Class<? extends ActionBean> beanType, String event) {
+        super(beanType, event);
     }
 
     /**
