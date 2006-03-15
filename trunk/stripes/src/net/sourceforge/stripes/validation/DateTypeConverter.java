@@ -27,11 +27,11 @@ import java.util.regex.Pattern;
  * <p>A TypeConverter that aggressively attempts to convert a String to a java.util.Date object.
  * Under the covers it uses DateFormat instances to do the heavy lifting, but since
  * SimpleDateFormat is quite picky about its input a couple of measures are taken to improve our
- * chances of parsing a Date.  First the String is pre-processed to collapse white spaces into
- * single spaces, and to remove commas from the String.  Then an array of DateFormat instances
- * are used in turn to attempt to parse the input.  If any DateFormat succeeds and returns a
- * Date, that Date will be returned as the result of the conversion.  If all DateFormats fail,
- * a validation error will be produced.</p>
+ * chances of parsing a Date.  First the String is pre-processed to replace commas, slashes,
+ * hyphens and periods with spaces and to collapse white spaces into single spaces. Then an array
+ * of DateFormat instances are used in turn to attempt to parse the input.  If any DateFormat
+ * succeeds and returns a Date, that Date will be returned as the result of the conversion.  If
+ * all DateFormats fail, a validation error will be produced.</p>
  *
  * <p>This class is designed to be overridden in order to change its behaviour.  Subclasses can
  * override the preProcessInput() method to change the pre-processing behavior if desired. Similarly,
@@ -41,8 +41,6 @@ import java.util.regex.Pattern;
  * <p>The default set of patterns used (on the processed input) are:
  *   <ul>
  *     <li>M d yy</li>
- *     <li>M/d/yy</li>
- *     <li>M.d.yy</li>
  *     <li>MMM d yy</li>
  *     <li>d MMM yy</li>
  *     <li>MMMM d yy</li>
@@ -65,17 +63,15 @@ public class DateTypeConverter implements TypeConverter<Date> {
 
     /**
      * A pattern used to pre-process Strings before the parsing attempt is made.  Since even the
-     * &quot;lenient&quot; mode of SimpleDateFormat is not very lenient, this patter is used to
-     * collapse multiple white-space characters into a single space and remove commas from the
-     * String (replacing them with a space if one is not present already).
+     * &quot;lenient&quot; mode of SimpleDateFormat is not very lenient, this pattern is used to
+     * remove commas, slashes, hyphens and periods from the input String (replacing them with spaces)
+     * and to collapse multiple white-space characters into a single space.
      */
-    public static final Pattern pattern = Pattern.compile("(\\s{2,}|\\s*,\\s)");
+    public static final Pattern pattern = Pattern.compile("(\\s{2,}|\\s*[,-/\\.]\\s*)");
 
     /** The default set of date patterns used to parse dates with SimpleDateFormat. */
     public static final String[] formatStrings = new String[] {
         "M d yy",
-        "M/d/yy",
-        "M.d.yy",
         "MMM d yy",
         "d MMM yy",
         "MMMM d yy",
@@ -85,7 +81,8 @@ public class DateTypeConverter implements TypeConverter<Date> {
     /**
      * Returns an array of format strings that will be used, in order, to try and parse the date.
      * This method can be overridden to make DateTypeConverter use a different set of format
-     * Strings.
+     * Strings. Given that pre-processing converts most common separator characters into spaces,
+     * patterns should be expressed with spaces as separators, not slashes, hyphens etc.
      */
     protected String[] getFormatStrings() {
         return DateTypeConverter.formatStrings;
