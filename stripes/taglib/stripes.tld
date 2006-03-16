@@ -477,6 +477,88 @@
     </tag>
 
     <tag>
+        <description><![CDATA[
+           <p>Tag that generates an image input button for use in HTML forms, e.g:</p>
+
+           <pre>&lt;input name="foo" type="image" src="/app/foo.gif" alt="foo"/&gt;</pre>
+
+           <p>Provides a couple of facilities above and beyond using the plain HTML tag. The main
+           advantage is a localization capability. The tag looks in the Stripes Field Name
+           message bundle for resources to be used as the <tt>src</tt> URL for the image and the
+           <tt>alt</tt> text of the image.  In order it will look for and use:</p>
+
+           <ul>
+             <li>resource: <tt>actionPath.inputName.[src|alt]</tt></li>
+             <li>resource: <tt>inputName.[src|alt]</tt></li>
+             <li>tag attributes: <tt>src</tt> and <tt>alt</tt>
+           </ul>
+
+           <p>If localized values exist these are preferred over the values specified directly
+           on the tag.</p>
+
+           <p>Additionally if the 'src' URL (whether acquired from the tag attribute or the
+           resource bundle) starts with a slash, the tag will prepend the context path of the
+           web application.</p>
+        ]]></description>
+        <display-name>image</display-name>
+        <name>image</name>
+        <tag-class>net.sourceforge.stripes.tag.InputImageTag</tag-class>
+        <body-content>empty</body-content>
+
+        <!-- Start: Standard Form Input attributes -->
+        <attribute><description>@name@</description><name>name</name><required>true</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute>
+            <description>A symbolic value that will get submitted to the server when the image button is clicked. (HTML Pass-through)</description>
+            <name>value</name><required>false</required><rtexprvalue>true</rtexprvalue><type>java.lang.Object</type>
+        </attribute>
+        <!-- End: Standard Form Input   attributes -->
+        <attribute>
+            <description>Defines the alignment of text following the image. Deprecated, use style instead. (HTML Pass-through)</description>
+            <name>align</name><required>false</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>
+                The alternative text for the image button. Used only if a localized value cannot be found as described
+                in the in the tag description. (HTML Pass-through)
+            </description>
+            <name>alt</name><required>false</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute><description>@disabled@</description><name>disabled</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute>
+            <description>
+                The src URL for the image button.  If the value starts with a slash it will have the context path
+                prepended.  Used only if a localized value cannot be found as described in the tag description. (HTML Pass-through)
+            </description>
+            <name>src</name><required>false</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
+
+        <!-- Start: Standard HTML attributes -->
+        <attribute><description>@accesskey@</description><name>accesskey</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@class@</description><name>class</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@dir@</description><name>dir</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@id@</description><name>id</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@lang@</description><name>lang</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onblur@</description><name>onblur</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onchange@</description><name>onchange</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onclick@</description><name>onclick</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@ondblclick@</description><name>ondblclick</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onfocus@</description><name>onfocus</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onkeydown@</description><name>onkeydown</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onkeypress@</description><name>onkeypress</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onkeyup@</description><name>onkeyup</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmousedown@</description><name>onmousedown</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmousemove@</description><name>onmousemove</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmouseout@</description><name>onmouseout</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmouseover@</description><name>onmouseover</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmouseup@</description><name>onmouseup</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onselect@</description><name>onselect</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@style@</description><name>style</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@tabindex@</description><name>tabindex</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@title@</description><name>title</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <!-- End: Standard HTML attributes -->
+    </tag>
+
+    <tag>
         <description>
             Placeholder tag that is to be used only inside of a errors tag.  When nested inside
             an errors tag, causes the errors tag to operate as an iterator, outputting its body
