@@ -57,11 +57,6 @@ public class InputTextAreaTag extends InputTagSupport implements BodyTag {
     /** Gets the HTML attribute of the same name. */
     public String getRows() { return get("rows"); }
 
-    /** Sets the HTML attribute of the same name. */
-    public void setReadonly(String readonly) { set("readonly", readonly); }
-    /** Gets the HTML attribute of the same name. */
-    public String getReadonly() { return get("readonly"); }
-
     /**
      * Does nothing.
      * @return EVAL_BODY_BUFFERED in all cases.

@@ -55,11 +55,6 @@ import javax.servlet.jsp.tagext.BodyTag;
     /** Gets the HTML attribute of the same name. */
     public String getMaxlength() { return get("maxlength"); }
 
-    /** Sets the HTML attribute of the same name. */
-    public void setReadonly(String readonly) { set("readonly", readonly); }
-    /** Gets the HTML attribute of the same name. */
-    public String getReadonly() { return get("readonly"); }
-
     /**
      * Sets type input tags type to "text".
      * @return EVAL_BODY_BUFFERED in all cases.
