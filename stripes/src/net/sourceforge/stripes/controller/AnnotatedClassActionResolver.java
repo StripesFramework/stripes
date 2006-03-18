@@ -118,6 +118,7 @@ public class AnnotatedClassActionResolver implements ActionResolver {
             // Only process the class if it's properly annotated
             if (binding != null) {
                 this.formBeans.put(binding, clazz);
+                log.debug("Bound class '", clazz.getSimpleName(), "' to URL '",binding, "'");
 
                 // Construct the mapping of event->method for the class
                 Map<String, Method> classMappings = new HashMap<String, Method>();
@@ -125,10 +126,20 @@ public class AnnotatedClassActionResolver implements ActionResolver {
 
                 // Put the event->method mapping for the class into the set of mappings
                 this.eventMappings.put(clazz, classMappings);
+
+                // Print out the event mappings nicely
+                StringBuilder builder = new StringBuilder(128);
+                for (Map.Entry<String,Method> entry : classMappings.entrySet()) {
+                    if (builder.length() > 0) builder.append(", ");
+                    builder.append("'").append(entry.getKey()).append("'");
+                    builder.append("->");
+                    builder.append(entry.getValue().getName());
+                    builder.append("()");
+                }
+
+                log.debug("Events mapped for class '", clazz.getSimpleName(), "': ", builder);
             }
         }
-
-        log.debug("Mappings initialized: ", this.eventMappings);
     }
 
     /**
