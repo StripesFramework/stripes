@@ -130,62 +130,68 @@ public class ReflectUtil {
      * <ul>
      *   <li>Uses the classes simple name instead of it's fully qualified name.</li>
      *   <li>Only outputs attributes that are set to non-default values.</li>
-     * </ul>
      *
-     * @param ann
-     * @return
-     * @throws Exception
+     * <p>If, for some unforseen reason, an exception is thrown within this method it will be
+     * caught and the return value will be {@code ann.toString()}.
+     *
+     * @param ann the annotation to convert to a human readable String
+     * @return a human readable String form of the annotation and it's attributes
      */
-    public static String toString(Annotation ann) throws Exception {
-        Class<? extends Annotation> type = ann.annotationType();
-        StringBuilder builder = new StringBuilder(128);
-        builder.append("@");
-        builder.append(type.getSimpleName());
+    public static String toString(Annotation ann) {
+        try {
+            Class<? extends Annotation> type = ann.annotationType();
+            StringBuilder builder = new StringBuilder(128);
+            builder.append("@");
+            builder.append(type.getSimpleName());
 
-        boolean appendedAnyParameters = false;
-        Method[] methods = type.getMethods();
-        for (Method method : methods) {
-            if (!INHERITED_ANNOTATION_METHODS.contains(method.getName())) {
-                Object defaultValue = method.getDefaultValue();
-                Object actualValue  = method.invoke(ann);
+            boolean appendedAnyParameters = false;
+            Method[] methods = type.getMethods();
+            for (Method method : methods) {
+                if (!INHERITED_ANNOTATION_METHODS.contains(method.getName())) {
+                    Object defaultValue = method.getDefaultValue();
+                    Object actualValue  = method.invoke(ann);
 
-                // If we have arrays, they have to be treated a little differently
-                Object[] defaultArray = null, actualArray = null;
-                if ( Object[].class.isAssignableFrom(method.getReturnType()) ) {
-                    defaultArray = (Object[]) defaultValue;
-                    actualArray  = (Object[]) actualValue;
-                }
-
-                // Only print an attribute if it isn't set to the default value
-                if ( (defaultArray != null && !Arrays.equals(defaultArray, actualArray)) ||
-                        (defaultArray == null && !actualValue.equals(defaultValue)) ) {
-
-                    if (appendedAnyParameters) {
-                        builder.append(", ");
-                    }
-                    else {
-                        builder.append("(");
+                    // If we have arrays, they have to be treated a little differently
+                    Object[] defaultArray = null, actualArray = null;
+                    if ( Object[].class.isAssignableFrom(method.getReturnType()) ) {
+                        defaultArray = (Object[]) defaultValue;
+                        actualArray  = (Object[]) actualValue;
                     }
 
-                    builder.append(method.getName());
-                    builder.append("=");
+                    // Only print an attribute if it isn't set to the default value
+                    if ( (defaultArray != null && !Arrays.equals(defaultArray, actualArray)) ||
+                            (defaultArray == null && !actualValue.equals(defaultValue)) ) {
 
-                    if (actualArray != null) {
-                        builder.append( Arrays.toString(actualArray) );
-                    }
-                    else {
-                        builder.append(actualValue);
-                    }
+                        if (appendedAnyParameters) {
+                            builder.append(", ");
+                        }
+                        else {
+                            builder.append("(");
+                        }
 
-                    appendedAnyParameters = true;
+                        builder.append(method.getName());
+                        builder.append("=");
+
+                        if (actualArray != null) {
+                            builder.append( Arrays.toString(actualArray) );
+                        }
+                        else {
+                            builder.append(actualValue);
+                        }
+
+                        appendedAnyParameters = true;
+                    }
                 }
             }
-        }
 
-        if (appendedAnyParameters) {
-            builder.append(")");
-        }
+            if (appendedAnyParameters) {
+                builder.append(")");
+            }
 
-        return builder.toString();
+            return builder.toString();
+        }
+        catch (Exception e) {
+            return ann.toString();
+        }
     }
 }
