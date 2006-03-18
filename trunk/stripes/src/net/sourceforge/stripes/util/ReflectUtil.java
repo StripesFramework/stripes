@@ -28,6 +28,9 @@ import java.util.Queue;
 import java.util.LinkedList;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.Arrays;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 
 /**
  * Common utilty methods that are useful when working with reflection.
@@ -54,6 +57,13 @@ public class ReflectUtil {
         interfaceImplementations.put(Map.class,        HashMap.class);
         interfaceImplementations.put(SortedMap.class,  TreeMap.class);
     }
+
+    /**
+     * The set of method that annotation classes inherit, and should be avoided when
+     * toString()ing an annotation class.
+     */
+    private static final Set<String> INHERITED_ANNOTATION_METHODS =
+            Literal.set("toString", "equals", "hashCode", "annotationType");
 
     /**
      * Looks up the default implementing type for the supplied interface. This is done
@@ -109,5 +119,73 @@ public class ReflectUtil {
      */
     public static Class findClass(String name) throws ClassNotFoundException {
         return Thread.currentThread().getContextClassLoader().loadClass(name);
+    }
+
+    /**
+     * <p>A better (more concise) toString method for annotation types that yields a String
+     * that should look more like the actual usage of the annotation in a class. The String produced
+     * is similar to that produced by calling toString() on the annotation directly, with the
+     * following differences:</p>
+     *
+     * <ul>
+     *   <li>Uses the classes simple name instead of it's fully qualified name.</li>
+     *   <li>Only outputs attributes that are set to non-default values.</li>
+     * </ul>
+     *
+     * @param ann
+     * @return
+     * @throws Exception
+     */
+    public static String toString(Annotation ann) throws Exception {
+        Class<? extends Annotation> type = ann.annotationType();
+        StringBuilder builder = new StringBuilder(128);
+        builder.append("@");
+        builder.append(type.getSimpleName());
+
+        boolean appendedAnyParameters = false;
+        Method[] methods = type.getMethods();
+        for (Method method : methods) {
+            if (!INHERITED_ANNOTATION_METHODS.contains(method.getName())) {
+                Object defaultValue = method.getDefaultValue();
+                Object actualValue  = method.invoke(ann);
+
+                // If we have arrays, they have to be treated a little differently
+                Object[] defaultArray = null, actualArray = null;
+                if ( Object[].class.isAssignableFrom(method.getReturnType()) ) {
+                    defaultArray = (Object[]) defaultValue;
+                    actualArray  = (Object[]) actualValue;
+                }
+
+                // Only print an attribute if it isn't set to the default value
+                if ( (defaultArray != null && !Arrays.equals(defaultArray, actualArray)) ||
+                        (defaultArray == null && !actualValue.equals(defaultValue)) ) {
+
+                    if (appendedAnyParameters) {
+                        builder.append(", ");
+                    }
+                    else {
+                        builder.append("(");
+                    }
+
+                    builder.append(method.getName());
+                    builder.append("=");
+
+                    if (actualArray != null) {
+                        builder.append( Arrays.toString(actualArray) );
+                    }
+                    else {
+                        builder.append(actualValue);
+                    }
+
+                    appendedAnyParameters = true;
+                }
+            }
+        }
+
+        if (appendedAnyParameters) {
+            builder.append(")");
+        }
+
+        return builder.toString();
     }
 }

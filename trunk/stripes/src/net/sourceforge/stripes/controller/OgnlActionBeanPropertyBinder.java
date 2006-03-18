@@ -118,8 +118,18 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
 
                 this.validationEventMap.put(info, events);
             }
-            log.info("Loaded validations for ActionBean ", beanClass.getName(), ":",
-                     fieldValidations);
+
+            // Print out a pretty debug message showing what validations got configured
+            StringBuilder builder = new StringBuilder(128);
+            for (Map.Entry<String,Validate> entry : fieldValidations.entrySet()) {
+                if (builder.length() > 0) builder.append(", ");
+                builder.append(entry.getKey());
+                builder.append("->");
+                builder.append(ReflectUtil.toString(entry.getValue()));
+            }
+
+            log.debug("Loaded validations for ActionBean ", beanClass.getSimpleName(), ": ",
+                      builder.length() > 0 ? builder : "<none>");
         }
     }
 
