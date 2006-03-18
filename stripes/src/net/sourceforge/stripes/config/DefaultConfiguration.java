@@ -18,14 +18,14 @@ package net.sourceforge.stripes.config;
 import net.sourceforge.stripes.controller.ActionBeanContextFactory;
 import net.sourceforge.stripes.controller.ActionBeanPropertyBinder;
 import net.sourceforge.stripes.controller.ActionResolver;
-import net.sourceforge.stripes.controller.AnnotatedClassActionResolver;
 import net.sourceforge.stripes.controller.DefaultActionBeanContextFactory;
-import net.sourceforge.stripes.controller.OgnlActionBeanPropertyBinder;
 import net.sourceforge.stripes.controller.Interceptor;
+import net.sourceforge.stripes.controller.LifecycleStage;
+import net.sourceforge.stripes.controller.NameBasedActionResolver;
+import net.sourceforge.stripes.controller.OgnlActionBeanPropertyBinder;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
 import net.sourceforge.stripes.format.DefaultFormatterFactory;
 import net.sourceforge.stripes.format.FormatterFactory;
-import net.sourceforge.stripes.controller.LifecycleStage;
 import net.sourceforge.stripes.localization.DefaultLocalePicker;
 import net.sourceforge.stripes.localization.DefaultLocalizationBundleFactory;
 import net.sourceforge.stripes.localization.LocalePicker;
@@ -87,7 +87,7 @@ public class DefaultConfiguration implements Configuration {
         try {
             this.actionResolver = initActionResolver();
             if (this.actionResolver == null) {
-                this.actionResolver = new AnnotatedClassActionResolver();
+                this.actionResolver = new NameBasedActionResolver();
                 this.actionResolver.init(this);
             }
 
@@ -156,8 +156,9 @@ public class DefaultConfiguration implements Configuration {
     }
 
     /**
-     * Will always return an instance of AnnotatedClassActionResolver
-     * @return AnnotatedClassActionResolver an instance of the default resolver
+     * Returns an instance of {@link NameBasedActionResolver} unless a subclass has
+     * overridden the default.
+     * @return ActionResolver an instance of the configured resolver
      */
     public ActionResolver getActionResolver() {
         return this.actionResolver;
@@ -167,8 +168,9 @@ public class DefaultConfiguration implements Configuration {
     protected ActionResolver initActionResolver() { return null; }
 
     /**
-     * Will always return an OgnlActionBeanPropertyBinder
-     * @return OgnlActionBeanPropertyBinder an instance of the default binder
+     * Returns an instance of {@link OgnlActionBeanPropertyBinder} unless a subclass has
+     * overridden the default.
+     * @return ActionBeanPropertyBinder an instance of the configured binder
      */
     public ActionBeanPropertyBinder getActionBeanPropertyBinder() {
         return this.actionBeanPropertyBinder;
@@ -191,8 +193,9 @@ public class DefaultConfiguration implements Configuration {
     protected ActionBeanContextFactory initActionBeanContextFactory() { return null; }
 
     /**
-     * Will always return an instance of DefaultTypeConverterFactory.
-     * @return TypeConverterFactory an instance of the default factory.
+     * Returns an instance of {@link DefaultTypeConverterFactory} unless a subclass has
+     * overridden the default..
+     * @return TypeConverterFactory an instance of the configured factory.
      */
     public TypeConverterFactory getTypeConverterFactory() {
         return this.typeConverterFactory;
