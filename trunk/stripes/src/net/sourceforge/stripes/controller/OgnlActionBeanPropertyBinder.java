@@ -75,7 +75,7 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
     }
 
     /** Map of validation annotations that is built at startup. */
-    private Map<Class<ActionBean>, Map<String,Validate>> validations;
+    private Map<Class<? extends ActionBean>, Map<String,Validate>> validations;
 
     /**
      * Map of validation annotations to the set of events they should be run on. Note that
@@ -93,11 +93,11 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
      */
     public void init(Configuration configuration) throws Exception {
         this.configuration = configuration;
-        Set<Class<ActionBean>> beanClasses = ActionClassCache.getInstance().getActionBeanClasses();
-        this.validations = new HashMap<Class<ActionBean>, Map<String,Validate>>();
+        Set<Class<? extends ActionBean>> beanClasses = ActionClassCache.getInstance().getActionBeanClasses();
+        this.validations = new HashMap<Class<? extends ActionBean>, Map<String,Validate>>();
         this.validationEventMap = new HashMap<Validate,Set<String>>();
 
-        for (Class<ActionBean> beanClass : beanClasses) {
+        for (Class<? extends ActionBean> beanClass : beanClasses) {
             Map<String, Validate> fieldValidations = new HashMap<String, Validate>();
             processClassAnnotations(beanClass, fieldValidations);
             this.validations.put(beanClass, fieldValidations);

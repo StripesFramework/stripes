@@ -23,7 +23,9 @@ public class ResolverUtilTest {
     public void testSimpleFind() throws Exception {
         // Because the tests package depends on stripes, it's safe to assume that
         // there will be some TypeConverter subclasses in the classpath
-        Set<Class<TypeConverter>> impls = ResolverUtil.getImplementations(TypeConverter.class);
+        ResolverUtil<TypeConverter> resolver = new ResolverUtil<TypeConverter>();
+        resolver.loadImplementationsFromContextClassloader(TypeConverter.class);
+        Set<Class<? extends TypeConverter>> impls = resolver.getClasses();
 
         // Check on a few random converters
         Assert.assertTrue(impls.contains(BooleanTypeConverter.class),
@@ -44,9 +46,11 @@ public class ResolverUtilTest {
         Set<String> pathFilters = new HashSet<String>(), packageFilters = new HashSet<String>();
         pathFilters.add("stripes");
         packageFilters.add("net.sourceforge.stripes.*");
-        Set<Class<TypeConverter>> impls = ResolverUtil.getImplementations(TypeConverter.class,
-                                                                          pathFilters,
-                                                                          packageFilters);
+        ResolverUtil<TypeConverter> resolver = new ResolverUtil<TypeConverter>();
+        resolver.setLocationFilters(pathFilters);
+        resolver.setPackageFilters(packageFilters);
+        resolver.loadImplementationsFromContextClassloader(TypeConverter.class);
+        Set<Class<? extends TypeConverter>> impls = resolver.getClasses();
 
         // Check on a few random converters
         Assert.assertTrue(impls.contains(BooleanTypeConverter.class),
@@ -62,12 +66,15 @@ public class ResolverUtilTest {
 
     @Test(groups="fast")
     public void testFindExtensionsOfClass() throws Exception {
-        Set<String> pathFilters = new HashSet<String>(), packageFilters = new HashSet<String>();
-        pathFilters.add("stripes");
-        packageFilters.add("net.sourceforge.stripes.*");
-        Set<Class<SimpleError>> impls = ResolverUtil.getImplementations(SimpleError.class,
-                                                                          pathFilters,
-                                                                          packageFilters);
+        Set<String> pathFilters = Literal.set("stripes"),
+                    packageFilters = Literal.set("net.sourceforge.stripes.*");
+
+        ResolverUtil<SimpleError> resolver = new ResolverUtil<SimpleError>();
+        resolver.setLocationFilters(pathFilters);
+        resolver.setPackageFilters(packageFilters);
+        resolver.loadImplementationsFromContextClassloader(SimpleError.class);
+
+        Set<Class<? extends SimpleError>> impls = resolver.getClasses();
 
         Assert.assertTrue(impls.contains(LocalizableError.class),
                           "LocalizableError should have been found.");
@@ -82,13 +89,15 @@ public class ResolverUtilTest {
 
     @Test(groups="fast")
     public void testFindZeroImplementations() throws Exception {
-        Set<String> pathFilters = new HashSet<String>(), packageFilters = new HashSet<String>();
-        pathFilters.add("stripes");
-        packageFilters.add("net.sourceforge.stripes.*");
-        Set<Class<ZeroImplementations>> impls =
-                ResolverUtil.getImplementations(ZeroImplementations.class,
-                                                pathFilters,
-                                                packageFilters);
+        Set<String> pathFilters = Literal.set("stripes"),
+                    packageFilters = Literal.set("net.sourceforge.stripes.*");
+
+        ResolverUtil<ZeroImplementations> resolver = new ResolverUtil<ZeroImplementations>();
+        resolver.setLocationFilters(pathFilters);
+        resolver.setPackageFilters(packageFilters);
+        resolver.loadImplementationsFromContextClassloader(ZeroImplementations.class);
+
+        Set<Class<? extends ZeroImplementations>> impls = resolver.getClasses();
 
         Assert.assertTrue(impls.size() == 0,
                           "There should not have been any implementations.");

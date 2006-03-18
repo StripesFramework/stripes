@@ -25,6 +25,7 @@ import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.exception.StripesServletException;
 import net.sourceforge.stripes.util.Log;
 
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -89,9 +90,6 @@ public class AnnotatedClassActionResolver implements ActionResolver {
     public void init(Configuration configuration) {
         this.configuration = configuration;
 
-        log.warn("this.configuration: " + this.configuration);
-        log.warn("this.configuration.bootstrap: " + this.configuration.getBootstrapPropertyResolver());
-
         // Set up the ActionClassCache
         Set<String> urlFilters = new HashSet<String>();
         Set<String> packageFilters = new HashSet<String>();
@@ -106,13 +104,15 @@ public class AnnotatedClassActionResolver implements ActionResolver {
             packageFilters.addAll(Arrays.asList( temp.split(",")));
         }
 
-        ActionClassCache.init(urlFilters, packageFilters);
+        ServletContext ctx =
+                configuration.getBootstrapPropertyResolver().getFilterConfig().getServletContext();
+        ActionClassCache.init(urlFilters, packageFilters, ctx);
 
         // Use the actionResolver util to find all ActionBean implementations in the classpath
-        Set<Class<ActionBean>> beans = ActionClassCache.getInstance().getActionBeanClasses();
+        Set<Class<? extends ActionBean>> beans = ActionClassCache.getInstance().getActionBeanClasses();
 
         // Process each ActionBean
-        for (Class<ActionBean> clazz : beans) {
+        for (Class<? extends ActionBean> clazz : beans) {
             String binding = getUrlBinding(clazz);
 
             // Only process the class if it's properly annotated

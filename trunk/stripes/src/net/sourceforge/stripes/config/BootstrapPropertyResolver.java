@@ -47,7 +47,7 @@ public class BootstrapPropertyResolver {
     }
 
     /** Returns a reference to the StripesFilter's FilterConfig object. */
-    public FilterConfig getFilterConfig(FilterConfig filterConfig) {
+    public FilterConfig getFilterConfig() {
         return this.filterConfig;
     }
 
