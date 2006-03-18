@@ -23,6 +23,7 @@ import net.sourceforge.stripes.format.FormatterFactory;
 import net.sourceforge.stripes.localization.LocalizationUtility;
 import net.sourceforge.stripes.validation.ValidationError;
 import net.sourceforge.stripes.validation.ValidationErrors;
+import net.sourceforge.stripes.validation.BooleanTypeConverter;
 
 import javax.servlet.jsp.JspException;
 import java.util.Collection;
@@ -45,15 +46,6 @@ public abstract class InputTagSupport extends HtmlTagSupport {
     protected List<ValidationError> fieldErrors;
     /** The error renderer to be utilized for error output of this input tag */
     protected TagErrorRenderer errorRenderer;
-
-    public void setDisabled(String disabled) { set("disabled", disabled); }
-    public String getDisabled() { return get("disabled"); }
-
-    public void setName(String name) { set("name", name); }
-    public String getName() { return get("name"); }
-
-    public void setSize(String size) { set("size", size); }
-    public String getSize() { return get("size"); }
 
     /** Sets the type of ouput to format, e.g. date or time. */
     public void setFormatType(String formatType) { this.formatType = formatType; }
@@ -344,4 +336,56 @@ public abstract class InputTagSupport extends HtmlTagSupport {
 
     /** Abstract method implemented in child classes instead of doEndTag(). */
     public abstract int doEndInputTag() throws JspException;
+
+    // Getters and setters only below this point.
+
+    /**
+     * Checks to see if the value provided is either 'disabled' or a value that the
+     * {@link BooleanTypeConverter} believes it true. If so, adds a disabled attribute
+     * to the tag, otherwise does not.
+     */
+    public void setDisabled(String disabled) {
+        boolean isDisabled = "disabled".equalsIgnoreCase(disabled);
+        if (!isDisabled) {
+            BooleanTypeConverter converter = new BooleanTypeConverter();
+            isDisabled = converter.convert(disabled, Boolean.class, null);
+        }
+
+        if (isDisabled) {
+            set("disabled", "disabled");
+        }
+    }
+    public String getDisabled() { return get("disabled"); }
+
+    /**
+     * <p>Sets the value of the readonly attribute to "readonly" but only when the value passed
+     * in is either "readonly" itself, or is converted to true by the
+     * {@link net.sourceforge.stripes.validation.BooleanTypeConverter}.</p>
+     *
+     * <p>Although not all input tags support the readonly attribute, the method is located here
+     * because it is not a simple one-liner and is used by more than one tag.</p>
+     */
+    public void setReadonly(String readonly) {
+        boolean isReadOnly = "readonly".equalsIgnoreCase(readonly);
+        if (!isReadOnly) {
+            BooleanTypeConverter converter = new BooleanTypeConverter();
+            isReadOnly = converter.convert(readonly, Boolean.class, null);
+        }
+
+        if (isReadOnly) {
+            set("readonly", "readonly");
+        }
+    }
+
+    /** Gets the HTML attribute of the same name. */
+    public String getReadonly() { return get("readonly"); }
+
+
+    public void setName(String name) { set("name", name); }
+    public String getName() { return get("name"); }
+
+    public void setSize(String size) { set("size", size); }
+    public String getSize() { return get("size"); }
+
+
 }
