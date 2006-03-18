@@ -15,79 +15,205 @@
  */
 package net.sourceforge.stripes.util;
 
+import javax.servlet.ServletContext;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.Collections;
-import java.util.Enumeration;
+import java.net.URLDecoder;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.jar.JarFile;
-import java.util.zip.ZipEntry;
+import java.util.Collection;
+import java.util.jar.JarEntry;
+import java.util.jar.JarInputStream;
 
 /**
- * Scans the classpath of its parent ClassLoader in order to locate all instances of a given
- * interface.  Loads the classes without invoking the static initalizers for the classes, thus
- * ensuring there are no negative side-affects ensue.  Since it scans the entire set of
- * URLs belonging to its parent ClassLoader it can take some time - call it only as often
- * as you need.
+ * <p>ResolverUtil is used to locate classes that implement an interface or extend a given base
+ * class. It does this in two different ways.  The first way is by accessing the
+ * {@link Thread#getContextClassLoader() Context ClassLoader} and attempting to discover the set
+ * of URLs that are used for classloading.  The second mechanism uses the {@link ServletContext}
+ * to discover classes under {@code /WEB-INF/classes/} and jar files under {@code /WEB-INF/lib/}</p>.
  *
+ * <p>The first mechanism is generally preferred since it can usually discover classes in more
+ * locations, but it requires that the context class loader be a subclass of {@link URLClassLoader}.
+ * Most containers use class loaders that extend URLClassloader, but not all do.  Since accessing
+ * resources through the ServletContext is mandated to work in the Servlet specification this should
+ * work in all containers.</p>
+ *
+ * <p>Since scanning all classpath entries and/or jars under {@code /WEB-INF/lib/} can take a
+ * non-trivial amount of time, it is possible to filter the set of locations and packages that
+ * are examined.  This is done by supplying Collections of filter patterns.  The
+ * {@code locationFilters} are used to match the locations (directories, jar files, etc.) examined.
+ * The {@code packageFilters} restricts the set of classes loaded by package.  In both cases a
+ * simple sub-string match is used.  For example if location patterns of ["project1", project2"] are
+ * supplied, you would see the following:</p>
+ *
+ *<pre>
+ *lib/project1/dependencies/dep1.jar  -> scanned
+ *lib/project3/dependencies/dep79.jar -> not scanned
+ *WEB-INF/lib/project1-web.jar        -> scanned
+ *WEB-INF/classes                     -> not scanned
+ *lib/project2/project2-business.jar  -> scanned
+ *</pre>
+ *
+ * <p>If no location filters are supplied, all discovered locations will be scanned for classes.
+ * If no package filters are supplied, all classes discovered will be checked.</p>
+ *
+ * <p>At first glance it may seem redundant to provide the class type being searched for at
+ * instantiation time, and again when invoking one of the {@code load()} methods.  However,
+ * this allows for certain usages that would not otherwise be possible.  For example, the
+ * following is used to find all collections that support ordering of some kind:</p>
+ *
+ *<pre>
+ *ResolverUtil&lt;Collection&gt; resolver = new ResolverUtil&lt;Collection&gt;();
+ *resolver.loadImplementationsFromContextClassloader(List.class);
+ *resolver.loadImplementationsFromContextClassloader(SortedSet.class);
+ *Set&lt;Class&lt;? extends Collection&gt;&gt; classes = resolver.getClasses();
+ *</pre>
  * @author Tim Fennell
  */
-public class ResolverUtil {
+public class ResolverUtil<T> {
     /** An instance of Log to use for logging in this class. */
     private static final Log log = Log.getInstance(ResolverUtil.class);
 
+    /** Set of filter strings used to match URLs to check for classes. */
+    private Set<String> locationFilters = new HashSet<String>();
+
+    /** Set of filter strings used to match package names of classes to load and check. */
+    private Set<String> packageFilters = new HashSet<String>();
+
+    /** The set of implementations being accumulated. */
+    private Set<Class<? extends T>> implementations = new HashSet<Class<?extends T>>();
 
     /**
-     * Locates all implementations of an interface, in all packages, in all URLs within the
-     * current ClassLoader.  This can take a really long time, and it is usually sufficient to
-     * limit the search to specific packages.
+     * Sets the collection of location filter patterns to use when deciding whether to check
+     * a given location for classes.  Removes any "*" wildcards from the String just in case.
      *
-     * @param anInterface class object representing the interface whose implementations to find
-     * @return Set<Class> a set of Class objects, one for each implementation of anInterface
+     * @param patterns a set of patterns used to match locations for finding classes
      */
-    public static <T> Set<Class<T>> getImplementations(Class<T> anInterface) {
-        return getImplementations(anInterface, Collections.EMPTY_SET, Collections.EMPTY_SET);
+    public void setLocationFilters(Collection<String> patterns) {
+        // Try and bullet proof this a little by removing any * characters folks
+        // might have added, thinking we actually support wild-carding ;)
+        this.locationFilters.clear();
+        for (String pattern : patterns) {
+            locationFilters.add( pattern.replace("*", "") );
+        }
     }
 
     /**
-     * Locates all implementations of an interface in the classloader being used by this thread.
+     * Sets the collection of package filter patterns to use when deciding whether to load
+     * and examine classes.
+     *
+     * @param patterns a set of patterns to match against fully qualified class names
+     */
+    public void setPackageFilters(Collection<String> patterns) {
+        this.packageFilters.clear();
+        for (String pattern : patterns) {
+            packageFilters.add( pattern.replace("*", "").replace(".", "/") );
+        }
+    }
+
+    /**
+     * Provides access to the classes discovered so far. If neither of
+     * {@link #loadImplementationsFromContextClassloader(Class)} or
+     * {@link #loadImplementationsFromServletContext(Class, javax.servlet.ServletContext)} have
+     * been called, this set will be empty.
+     *
+     * @return the set of classes that have been discovered.
+     */
+    public Set<Class<? extends T>> getClasses() {
+        return implementations;
+    }
+
+    /**
+     * <p>Attempts to locate, load and examine classes using the ServletContext to load resources
+     * from {@code /WEB-INF/}. While dependent on the Servlet API and restricted to looking for
+     * classes in {@code /WEB-INF/classes} and libraries in {@code /WEB-INF/lib}, this method
+     * should work in all servlet containers regardless of classloading implementation.</p>
+     *
+     * <p>Locations and classes are examined with respect to any filters set.  Classes are
+     * stored internally and may be accessed (along with any other previously resolved classes)
+     * by calling {@link #getClasses()}.</p>
+     *
+     * @param parentType an interface or class to find implementations or subclasses of.
+     * @param context a ServletContext from which to load resources
+     */
+    public void loadImplementationsFromServletContext(Class<? extends T> parentType,
+                                                      ServletContext context) {
+        // Always scan WEB-INF/classes
+        log.info("Checking for classes in /WEB-INF/classes using ServletContext resources.");
+        loadImplementationsFromServletContext(parentType, "/WEB-INF/classes/", context);
+
+        // Now scan WEB-INF/lib
+        Set<String> jars = context.getResourcePaths("/WEB-INF/lib/");
+        if (jars != null) {
+            for (String jarName : jars) {
+                if (matchesAny(jarName, locationFilters)) {
+                    log.info("Checking web application library '", jarName,
+                             "' for instances of ", parentType.getName());
+
+                    loadImplementationsInJar(parentType,
+                                             context.getResourceAsStream(jarName),
+                                             jarName);
+                }
+            }
+        }
+    }
+
+    /**
+     * Internal method that will find any classes in the supplied sub-directory of
+     * {@code /WEB-INF/classes} and then recurse for any directories found within the
+     * current directory.
+     *
+     * @param parentType an interface or class to find implementations or subclasses of.
+     * @param context a ServletContext from which to load resources
+     * @param path the path within /WEB-INF/classes to be checked
+     */
+    private void loadImplementationsFromServletContext(Class<? extends T> parentType,
+                                                         String path,
+                                                         ServletContext context) {
+        Set<String> paths = context.getResourcePaths(path);
+        if (paths != null) {
+            for (String subPath : paths) {
+                // Recurse for directories
+                if (subPath.endsWith("/")) {
+                    loadImplementationsFromServletContext(parentType, subPath, context);
+                }
+                else if (subPath.endsWith(".class")) {
+                    addIfAssignableTo(parentType, subPath.replace("/WEB-INF/classes/", ""));
+                }
+            }
+        }
+    }
+
+
+    /**
+     * <p>Locates all implementations of an interface in the classloader being used by this thread.
      * Does not scan the full chain of classloaders.  Scans only in the URLs in the ClassLoader
      * which match the filters provided, and within those URLs only checks classes within the
-     * packages defined by the package filters provided.
+     * packages defined by the package filters provided.</p>
      *
-     * @param anInterface class object representing the interface whose implementations to find
-     * @param locationFilters restricts the locations in the classpath that will be searched to
-     *        those who contain one of the specified filters as a substring.
-     * @param packageFilters restricts the classes that will be checked to those whose name
-     *        contains one of the specified filters as a substring
-     * @return Set<Class> a set of Class objects, one for each implementation of anInterface
+     * <p>This method relies on the fact that most ClassLoaders in the wild extend the built-in
+     * {@link URLClassLoader}. This is relied upon because there is no standard way to discover
+     * the set of locations from which a ClassLoader is loading classes.  The URLClassLoader
+     * exposes methods to discover this, and those are made use of to within this method.</p>
+     *
+     * @param parentType an interface or class to find implementations or subclasses of.
+     * @return true if the classloader was a subclass of {@link URLClassLoader} and was scanned,
+     *         false if the classloader could not be scanned.
      */
-    public static <T> Set<Class<T>> getImplementations(Class<T> anInterface,
-                                                       Set<String> locationFilters,
-                                                       Set<String> packageFilters) {
+    public boolean loadImplementationsFromContextClassloader(Class<? extends T> parentType) {
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
-        Set<Class<T>> implementations = new HashSet<Class<T>>();
-
-        // Try and bullet proof this a little by removing any * characters folks
-        // might have added, thinking we actually support wild-carding ;)
-        Set<String> locationPatterns = new HashSet<String>();
-        for (String locationFilter : locationFilters) {
-            locationPatterns.add( locationFilter.replace("*", "") );
-        }
-
-        Set<String> packagePatterns = new HashSet<String>();
-        for (String packageFilter : packageFilters) {
-            packagePatterns.add( packageFilter.replace("*", "").replace(".", "/") );
-        }
 
         // If it's not a URLClassLoader, we can't deal with it!
         if (!(loader instanceof URLClassLoader)) {
             log.error("The current ClassLoader is not castable to a URLClassLoader. ClassLoader ",
                     "is of type [", loader.getClass().getName(), "]. Cannot scan ClassLoader for ",
-                    "implementations of ", anInterface.getClass().getName(), ".");
+                    "implementations of ", parentType.getClass().getName(), ".");
+            return false;
         }
         else {
             URLClassLoader urlLoader = (URLClassLoader) loader;
@@ -95,22 +221,24 @@ public class ResolverUtil {
 
             for (URL url : urls) {
                 String path = url.getFile();
+                try { path = URLDecoder.decode(path, "UTF-8"); }
+                catch (UnsupportedEncodingException e) { /* UTF-8 is a required encoding */ }
                 File location = new File(path);
 
                 // Only process the URL if it matches one of our filter strings
-                if ( matchesAny(path, locationPatterns) ) {
-                    log.info("Checking URL '", url, "' for instances of ", anInterface.getName());
+                if ( matchesAny(path, locationFilters) ) {
+                    log.info("Checking URL '", path, "' for instances of ", parentType.getName());
                     if (location.isDirectory()) {
-                        implementations.addAll(getImplementationsInDirectory(anInterface, null, location, packagePatterns));
+                        loadImplementationsInDirectory(parentType, null, location);
                     }
                     else {
-                        implementations.addAll(getImplementationsInJar(anInterface, location, packagePatterns));
+                        loadImplementationsInJar(parentType, null, path);
                     }
                 }
             }
-        }
 
-        return implementations;
+            return true;
+        }
     }
 
     /**
@@ -120,7 +248,7 @@ public class ResolverUtil {
      * @param text the text within which to look for the filter strings
      * @param filters a set of substrings to look for in the text
      */
-    static boolean matchesAny(String text, Set<String> filters) {
+    private boolean matchesAny(String text, Set<String> filters) {
         if (filters.size() == 0) {
             return true;
         }
@@ -138,20 +266,14 @@ public class ResolverUtil {
      * the file is loaded and tested to see if it is an implemenation of the interface.  Operates
      * recursively to find classes within a folder structure matching the package structure.
      *
-     * @param anInterface Class object of the interface whose implementations to return
+     * @param parentType an interface or class to find implementations or subclasses of.
      * @param parent the package name up to this directory in the package hierarchy.  E.g. if
      *        /classes is in the classpath and we wish to examine files in /classes/org/apache then
      *        the values of <i>parent</i> would be <i>org/apache</i>
      * @param location a File object representing a directory
-     * @return Set the set of classes within the directory, and sub-directories, implementing
-     *         anInterface
      */
-    static <T> Set<Class<T>> getImplementationsInDirectory(Class<T> anInterface,
-                                                           String parent,
-                                                           File location,
-                                                           Set<String> packagePatterns) {
-
-        Set<Class<T>> implementations = new HashSet<Class<T>>();
+    private void loadImplementationsInDirectory(Class<? extends T> parentType,
+                                                  String parent, File location) {
         File[] files = location.listFiles();
         StringBuilder builder = null;
 
@@ -161,16 +283,14 @@ public class ResolverUtil {
             String packageOrClass = ( parent == null ? file.getName() : builder.toString() );
 
             if (file.isDirectory()) {
-                implementations.addAll(getImplementationsInDirectory(anInterface, packageOrClass, file, packagePatterns));
+                loadImplementationsInDirectory(parentType, packageOrClass, file);
             }
             else if (file.getName().endsWith(".class")) {
-                if (matchesAny(packageOrClass, packagePatterns)) {
-                    addIfImplements(implementations, anInterface, packageOrClass);
+                if (matchesAny(packageOrClass, packageFilters)) {
+                    addIfAssignableTo(parentType, packageOrClass);
                 }
             }
         }
-
-        return implementations;
     }
 
     /**
@@ -178,57 +298,57 @@ public class ResolverUtil {
      * matching the package structure.  If the File is not a JarFile or does not exist a warning
      * will be logged, but no error will be raised.  In this case an empty Set will be returned.
      *
-     * @param anInterface Class object of the interface whose implementations to return
-     * @param location a File object representing a JarFile in the classpath
-     * @return Set the set of classes within the JarFile, implementing anInterface
+     * @param parentType an interface or class to find implementations or subclasses of.
+     * @param inputStream a regular (non-jar/non-zip) input stream from which to read the
+     *        jar file in question
+     * @param location the location of the jar file being examined. Used to create the input
+     *        stream if the input stream is null, and to log appropriate error messages
      */
-    static <T> Set<Class<T>> getImplementationsInJar(Class<T> anInterface,
-                                                     File location,
-                                                     Set<String> packagePatterns) {
-
-        Set<Class<T>> implementations = new HashSet<Class<T>>();
+    private void loadImplementationsInJar(Class<? extends T> parentType,
+                                            InputStream inputStream,
+                                            String location) {
 
         try {
-            JarFile jar = new JarFile(location);
-            Enumeration entries = jar.entries();
+            JarEntry entry;
+            if (inputStream == null) inputStream = new FileInputStream(location);
+            JarInputStream jarStream = new JarInputStream(inputStream);
 
-            while (entries.hasMoreElements()) {
-                ZipEntry entry = (ZipEntry) entries.nextElement();
+            while ( (entry = jarStream.getNextJarEntry() ) != null) {
                 String name = entry.getName();
                 if (!entry.isDirectory() && name.endsWith(".class")) {
-                    if (matchesAny(name, packagePatterns)) {
-                        addIfImplements(implementations, anInterface, name);
+                    if (matchesAny(name, this.packageFilters)) {
+                        addIfAssignableTo(parentType, name);
                     }
                 }
             }
         }
         catch (IOException ioe) {
-            log.error(ioe, "Could not search jar file '", location, "' for implementations of ",
-                      anInterface.getName());
+            log.error("Could not search jar file '", location, "' for implementations of ",
+                      parentType.getName(), "due to an IOException: ", ioe.getMessage());
         }
-        return implementations;
     }
 
     /**
-     * Adds a Class to a Set of Classes if it implements the specified interface.
+     * Add the class designated by the fully qualified class name provided to the set of
+     * resolved classes if and only if it extends/implements the parent type supplied.
      *
-     * @param impls the set of Classes to add matching classes to
-     * @param iface the Class object representing the interface classes should implement
-     * @param name the fully qualified name of a class
+     * @param parentType the interface or class to add implementations or subclasses of.
+     * @param fqn the fully qualified name of a class
      */
-    static <T> void addIfImplements(Set<Class<T>> impls, Class<T> iface, String name) {
+    private void addIfAssignableTo(Class<? extends T> parentType, String fqn) {
         try {
-            log.trace("Checking to see if class '", name, "' implements ", iface.getName());
+            log.trace("Checking to see if class '", fqn, "' implements ", parentType.getName());
             ClassLoader loader = Thread.currentThread().getContextClassLoader();
-            String externalName = name.substring(0, name.indexOf('.')).replace('/', '.');
+            String externalName = fqn.substring(0, fqn.indexOf('.')).replace('/', '.');
 
             Class type = loader.loadClass(externalName);
-            if (iface.isAssignableFrom(type) ) {
-                impls.add( (Class<T>) type);
+            if (parentType.isAssignableFrom(type) ) {
+                implementations.add( (Class<T>) type);
             }
         }
         catch (Throwable t) {
-            log.warn(t, "Could not examine class '", name, "'");
+            log.warn("Could not examine class '", fqn, "'", " due to a ",
+                     t.getClass().getName(), " with message: ", t.getMessage());
         }
     }
 }
