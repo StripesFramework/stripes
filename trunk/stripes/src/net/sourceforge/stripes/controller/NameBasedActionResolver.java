@@ -16,13 +16,20 @@
 package net.sourceforge.stripes.controller;
 
 import net.sourceforge.stripes.action.ActionBean;
+import net.sourceforge.stripes.action.ActionBeanContext;
 import net.sourceforge.stripes.action.Resolution;
+import net.sourceforge.stripes.action.ForwardResolution;
+import net.sourceforge.stripes.config.Configuration;
+import net.sourceforge.stripes.exception.StripesServletException;
 import net.sourceforge.stripes.util.Literal;
+import net.sourceforge.stripes.util.Log;
 
-import java.lang.reflect.Modifier;
+import javax.servlet.ServletContext;
 import java.lang.reflect.Method;
-import java.util.Set;
+import java.lang.reflect.Modifier;
+import java.net.MalformedURLException;
 import java.util.Collections;
+import java.util.Set;
 
 /**
  * <p>An ActionResolver that uses the names of classes and methods to generate sensible default
@@ -57,6 +64,31 @@ import java.util.Collections;
  * default handler.  If there is more than one handler and you require a default handler you
  * must still mark the default method with {@code @DefaultHandler}.</p>
  *
+ * <p>Another useful feature of the NameBasedActionResolver is that when a request arrives for a
+ * URL that is not bound to an ActionBean the resolver will attempt to map the request to a view
+ * and return a 'dummy' ActionBean that will take the user to the view.  The exact behaviour is
+ * modifiable by overriding one or more of
+ * {@link #handleActionBeanNotFound(ActionBeanContext, String)} or {@link #findView(String)}. The
+ * default behaviour is to map the URL being requested to four potential JSP names/paths, check
+ * for the existence of a JSP at those locations and if one exists then to return an ActionBean
+ * that will render the view.  For example if a user requsted '/account/ViewAccount.action' but
+ * an ActionBean does not yet exist bound to that URL, the resolver will check for JSPs in the
+ * following order:</p>
+ *
+ * <ul>
+ *   <li>/account/ViewAccount.jsp</li>
+ *   <li>/WEB-INF/account/ViewAccount.jsp</li>
+ *   <li>/account/view_account.jsp</li>
+ *   <li>/WEB-INF/account/view_account.jsp</li>
+ * </ul>
+ *
+ * <p>The value of this approach comes from the fact that by default all pages can appear to have
+ * a pre-action whether they actually have one or not.  In the above can you might chose to link
+ * to {@code /account/ViewAccount.action} even though you know that no action exists and you want
+ * to navigate directly to a page. This way, if you later decide you do need a pre-action for any
+ * reason you can simply code the ActionBean and be done.  No URLs or links need to be modified
+ * and all requests to {@code /account/ViewAccount.action} will flow through the ActionBean.</p>
+ *
  * @author Tim Fennell
  * @since Stripes 1.2
  */
@@ -70,6 +102,21 @@ public class NameBasedActionResolver extends AnnotatedClassActionResolver {
 
     /** Default suffix (.action) to add to URL bindings.*/
     public static final String DEFAULT_BINDING_SUFFIX = ".action";
+
+    /** Log instance used to log information from this class. */
+    private static final Log log = Log.getInstance(NameBasedActionResolver.class);
+
+    /**
+     * First invokes the parent classes init() method and then quietly adds a specialized
+     * ActionBean to the set of ActionBeans the resolver is managing.  The "specialized" bean
+     * is one that is used when a bean is not bound to a URL, to then forward the user to
+     * an appropriate view if one exists.
+     */
+    @Override
+    public void init(Configuration configuration) {
+        super.init(configuration);
+        addActionBean(DefaultViewActionBean.class);
+    }
 
     /**
      * <p>Finds or generates the URL binding for the class supplied. First delegates to the parent
@@ -175,4 +222,153 @@ public class NameBasedActionResolver extends AnnotatedClassActionResolver {
 
         return name;
     }
+
+    /**
+     * <p>Overridden to trap the exception that is thrown when a URL cannot be mapped to an
+     * ActionBean and then attempt to construct a dummy ActionBean that will forward the
+     * user to an appropriate view.  In an exception is caught then the method
+     * {@link #handleActionBeanNotFound(ActionBeanContext, String)} is invoked to handle
+     * the exception.</p>
+     *
+     * @param context the ActionBeanContext of the current request
+     * @param urlBinding the urlBinding determined for the current request
+     * @return an ActionBean if there is an appropriate way to handle the request
+     * @throws StripesServletException if no ActionBean or alternate strategy can be found
+     */
+    @Override
+    public ActionBean getActionBean(ActionBeanContext context,
+                                    String urlBinding) throws StripesServletException {
+        try {
+            return super.getActionBean(context, urlBinding);
+        }
+        catch (StripesServletException sse) {
+            ActionBean bean = handleActionBeanNotFound(context, urlBinding);
+            if (bean != null) {
+                return bean;
+            }
+            else {
+                throw sse;
+            }
+        }
+    }
+
+    /**
+     * Invoked when no appropriate ActionBean can be located. Attempts to locate a view that is
+     * appropriate for this request by calling {@link #findView(String)}.  If a view is found
+     * then a dummy ActionBean is constructed that will send the user to the view. If no appropriate
+     * view is found then null is returned.
+     *
+     * @param context the ActionBeanContext of the current request
+     * @param urlBinding the urlBinding determined for the current request
+     * @return an ActionBean that will render a view for the user, or null
+     * @since Stripes 1.3
+     */
+    protected ActionBean handleActionBeanNotFound(ActionBeanContext context, String urlBinding) {
+        ActionBean bean = null;
+        Resolution view = findView(urlBinding);
+
+        if (view != null) {
+            log.debug("Could not find an ActionBean bound to '", urlBinding, "', but found a JSP ",
+                      "at URL '", view, "'. Forwarding the user there instead.");
+            bean = new DefaultViewActionBean(view);
+        }
+
+        return bean;
+    }
+
+    /**
+     * <p>Attempts to locate a default view for the urlBinding provided and return a
+     * ForwardResolution that will take the user to the view.  Looks for views by
+     * converting the incoming urlBinding with the following rules.  For example if the
+     * urlBinding is '/account/ViewAccount.action' the following views will be looked for
+     * in order:</p>
+     *
+     * <ul>
+     *   <li>/account/ViewAccount.jsp</li>
+     *   <li>/WEB-INF/account/ViewAccount.jsp</li>
+     *   <li>/account/view_account.jsp</li>
+     *   <li>/WEB-INF/account/view_account.jsp</li>
+     * </ul>
+     *
+     * <p>For each JSP name derived a check is performed using
+     * {@link ServletContext#getResource(String)} to see if there is a JSP located at that URL.
+     * Only if a JSP actually exists will a Resolution be returned.</p>
+     *
+     * <p>Can be overridden to look for JSPs with a different pattern, or to provide a different
+     * kind of resolution.  It is strongly recommended when overriding this method to check for
+     * the actual existence of views prior to manufacturing a resolution in order not to cause
+     * confusion when URLs are mis-typed.</p>
+     *
+     * @param urlBinding the url being accessed by the client in the current request
+     * @return a Resolution if a default view can be found, or null otherwise
+     * @since Stripes 1.3
+     */
+    protected Resolution findView(String urlBinding) {
+        String jsp = urlBinding.substring(0, urlBinding.lastIndexOf(".")) + ".jsp";
+        ServletContext ctx = StripesFilter.getConfiguration()
+                .getBootstrapPropertyResolver().getFilterConfig().getServletContext();
+        try {
+            if (ctx.getResource(jsp) != null) {
+                return new ForwardResolution(jsp);
+            }
+            else if (ctx.getResource("/WEB-INF" + jsp) != null) {
+                return new ForwardResolution("/WEB-INF" + jsp);
+            }
+
+            // If we've gotten this far we still haven't found a JSP :(  Try converting the name
+            // to the other commonly used naming strategy if we can, whereby action names like
+            // UserDetails.action map to user_details.jsp
+            String path = urlBinding.substring(0, urlBinding.lastIndexOf("/") + 1);
+            String name = urlBinding.substring(path.length(), urlBinding.lastIndexOf("."));
+            StringBuilder builder = new StringBuilder();
+            for (int i=0; i<name.length(); ++i) {
+                char ch = name.charAt(i);
+                if (Character.isUpperCase(ch)) {
+                    if (i > 0) builder.append("_");
+                    builder.append(Character.toLowerCase(ch));
+                }
+                else {
+                    builder.append(ch);
+                }
+            }
+
+            jsp = path + builder.toString() + ".jsp";
+            if (ctx.getResource(jsp) != null) {
+                return new ForwardResolution(jsp);
+            }
+            else if (ctx.getResource("/WEB-INF" + jsp) != null) {
+                return new ForwardResolution("/WEB-INF" + jsp);
+            }
+
+            return null;
+        }
+        catch (MalformedURLException mue) {
+            return null;
+        }
+
+    }
+}
+
+/**
+ * <p>A special purpose ActionBean that is used by the NameBasedActionResolver when a valid
+ * ActionBean cannot be found for a URL.  If the URL can be successfully translated into a
+ * JSP URL and a JSP exists, an instance of this ActionBean is created that will forward the
+ * user to the appropriate JSP.</p>
+ *
+ * <p>Because this ActionBean does not have a default no-arg constructor, even though it
+ * gets bound to a URL, if that URL is hit the ActionBean cannot be instantiated and therefore
+ * cannot be accessed directly by a user playing with the URL.</p>
+ *
+ * @author Tim Fennell, Abdullah Jibaly
+ * @since Stripes 1.3
+ */
+class DefaultViewActionBean implements ActionBean {
+    private ActionBeanContext context;
+    private Resolution view;
+
+    public DefaultViewActionBean(Resolution view) { this.view = view; }
+    public void setContext(ActionBeanContext context) { this.context = context; }
+    public ActionBeanContext getContext() { return this.context; }
+
+    public Resolution view() { return view; }
 }
