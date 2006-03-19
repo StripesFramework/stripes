@@ -113,32 +113,43 @@ public class AnnotatedClassActionResolver implements ActionResolver {
 
         // Process each ActionBean
         for (Class<? extends ActionBean> clazz : beans) {
-            String binding = getUrlBinding(clazz);
+            addActionBean(clazz);
+        }
+    }
 
-            // Only process the class if it's properly annotated
-            if (binding != null) {
-                this.formBeans.put(binding, clazz);
-                log.debug("Bound class '", clazz.getSimpleName(), "' to URL '",binding, "'");
+    /**
+     * Adds an ActionBean class to the set that this resolver can resolve. Identifies
+     * the URL binding and the events managed by the class and stores them in Maps
+     * for fast lookup.
+     *
+     * @param clazz a class that implements ActionBean
+     */
+    protected void addActionBean(Class<? extends ActionBean> clazz) {
+        String binding = getUrlBinding(clazz);
 
-                // Construct the mapping of event->method for the class
-                Map<String, Method> classMappings = new HashMap<String, Method>();
-                processMethods(clazz, classMappings);
+        // Only process the class if it's properly annotated
+        if (binding != null) {
+            this.formBeans.put(binding, clazz);
+            log.debug("Bound class '", clazz.getSimpleName(), "' to URL '",binding, "'");
 
-                // Put the event->method mapping for the class into the set of mappings
-                this.eventMappings.put(clazz, classMappings);
+            // Construct the mapping of event->method for the class
+            Map<String, Method> classMappings = new HashMap<String, Method>();
+            processMethods(clazz, classMappings);
 
-                // Print out the event mappings nicely
-                StringBuilder builder = new StringBuilder(128);
-                for (Map.Entry<String,Method> entry : classMappings.entrySet()) {
-                    if (builder.length() > 0) builder.append(", ");
-                    builder.append("'").append(entry.getKey()).append("'");
-                    builder.append("->");
-                    builder.append(entry.getValue().getName());
-                    builder.append("()");
-                }
+            // Put the event->method mapping for the class into the set of mappings
+            this.eventMappings.put(clazz, classMappings);
 
-                log.debug("Events mapped for class '", clazz.getSimpleName(), "': ", builder);
+            // Print out the event mappings nicely
+            StringBuilder builder = new StringBuilder(128);
+            for (Map.Entry<String,Method> entry : classMappings.entrySet()) {
+                if (builder.length() > 0) builder.append(", ");
+                builder.append("'").append(entry.getKey()).append("'");
+                builder.append("->");
+                builder.append(entry.getValue().getName());
+                builder.append("()");
             }
+
+            log.debug("Events mapped for class '", clazz.getSimpleName(), "': ", builder);
         }
     }
 
@@ -255,14 +266,11 @@ public class AnnotatedClassActionResolver implements ActionResolver {
         ActionBean bean;
 
         if (beanClass == null) {
-            StripesServletException sse = new StripesServletException(
+            throw new StripesServletException(
                     "Could not locate an ActionBean that is bound to the URL [" + urlBinding +
                             "]. Commons reasons for this include mis-matched URLs and forgetting " +
                             "to implement ActionBean in your class. Registered ActionBeans are: " +
                             this.formBeans);
-
-            log.error(sse);
-            throw sse;
         }
 
         try {
