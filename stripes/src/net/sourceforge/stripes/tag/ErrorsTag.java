@@ -353,17 +353,23 @@ public class ErrorsTag extends HtmlTagSupport implements BodyTag {
      */
     private static class ErrorComparator implements Comparator<ValidationError> {
         public int compare(ValidationError e1, ValidationError e2) {
-            if (e1.getFieldName() == null && e2.getFieldName() != null) {
-                return -1;
-            }
-            if (e2.getFieldName() == null && e1.getFieldName() != null) {
-                return 1;
-            }
-            if (e1.getFieldName() == null && e2.getFieldName() == null) {
-                return 0;
-            }
+            // Identical errors should be supressed
+            if (e1.equals(e2)) return 0;
 
-            return e1.getFieldName().compareTo(e2.getFieldName());
+            String fn1 = e1.getFieldName();
+            String fn2 = e2.getFieldName();
+            boolean e1Global = fn1 == null || fn1.equals(ValidationErrors.GLOBAL_ERROR);
+            boolean e2Global = fn2 == null || fn2.equals(ValidationErrors.GLOBAL_ERROR);
+
+            // Sort globals above non-global errors
+            if (e1Global && !e2Global) return -1;
+            if (e2Global && !e1Global) return 1;
+            if (fn1 == null && fn2 == null) return 0;
+
+            // Then sort by field name, and if field names match make the first one come first
+            int result = e1.getFieldName().compareTo(e2.getFieldName());
+            if (result == 0) {result = 1;}
+            return result;
         }
     }
 }
