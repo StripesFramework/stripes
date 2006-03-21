@@ -161,6 +161,10 @@ public class RuntimeConfiguration extends DefaultConfiguration {
                                   "lifecycle stages the interceprot should be applied. This ",
                                   "interceptor will be ignored.");
                     }
+                    else {
+                        log.debug("Configuring interceptor '", type.getSimpleName(),
+                                  "', for lifecycle stages: ", intercepts.value());
+                    }
 
                     Interceptor interceptor = type.newInstance();
                     for (LifecycleStage stage : intercepts.value()) {
