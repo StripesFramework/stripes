@@ -26,6 +26,7 @@ import net.sourceforge.stripes.tag.PopulationStrategy;
 import net.sourceforge.stripes.format.FormatterFactory;
 import net.sourceforge.stripes.controller.Interceptor;
 import net.sourceforge.stripes.controller.LifecycleStage;
+import net.sourceforge.stripes.exception.ExceptionHandler;
 
 import java.util.Collection;
 
@@ -158,4 +159,12 @@ public interface Configuration {
      *         around the given lifecycle stage.
      */
     Collection<Interceptor> getInterceptors(LifecycleStage stage);
+
+    /**
+     * Returns an instance of ExceptionHandler that can be used by Stripes to handle any
+     * exceptions that arise as the result of processing a request.
+     *
+     * @return ExceptionHandler an instance of ExceptionHandler
+     */
+    ExceptionHandler getExceptionHandler();
 }

@@ -22,6 +22,7 @@ import net.sourceforge.stripes.controller.Interceptor;
 import net.sourceforge.stripes.controller.Intercepts;
 import net.sourceforge.stripes.controller.LifecycleStage;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
+import net.sourceforge.stripes.exception.ExceptionHandler;
 import net.sourceforge.stripes.format.FormatterFactory;
 import net.sourceforge.stripes.localization.LocalePicker;
 import net.sourceforge.stripes.localization.LocalizationBundleFactory;
@@ -82,6 +83,9 @@ public class RuntimeConfiguration extends DefaultConfiguration {
     /** The Configuration Key for looking up the name of the PopulationStrategy class */
     public static final String POPULATION_STRATEGY = "PopulationStrategy.Class";
 
+    /** The Configuration Key for looking up the name of the ExceptionHandler class */
+    public static final String EXCEPTION_HANDLER = "ExceptionHandler.Class";
+
     /** The Configuration Key for looking up the comma separated list of interceptor classes. */
     public static final String INTERCEPTOR_LIST = "Interceptor.Classes";
 
@@ -129,6 +133,11 @@ public class RuntimeConfiguration extends DefaultConfiguration {
     /** Looks for a class name in config and uses that to create the component. */
     @Override protected PopulationStrategy initPopulationStrategy() {
         return initializeComponent(PopulationStrategy.class, POPULATION_STRATEGY);
+    }
+
+    /** Looks for a class name in config and uses that to create the component. */
+    @Override protected ExceptionHandler initExceptionHandler() {
+        return initializeComponent(ExceptionHandler.class, EXCEPTION_HANDLER);
     }
 
     /**

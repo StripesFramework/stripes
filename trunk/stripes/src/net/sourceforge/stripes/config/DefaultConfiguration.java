@@ -24,6 +24,8 @@ import net.sourceforge.stripes.controller.LifecycleStage;
 import net.sourceforge.stripes.controller.NameBasedActionResolver;
 import net.sourceforge.stripes.controller.OgnlActionBeanPropertyBinder;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
+import net.sourceforge.stripes.exception.ExceptionHandler;
+import net.sourceforge.stripes.exception.DefaultExceptionHandler;
 import net.sourceforge.stripes.format.DefaultFormatterFactory;
 import net.sourceforge.stripes.format.FormatterFactory;
 import net.sourceforge.stripes.localization.DefaultLocalePicker;
@@ -73,6 +75,7 @@ public class DefaultConfiguration implements Configuration {
     private TagErrorRendererFactory tagErrorRendererFactory;
     private PopulationStrategy populationStrategy;
     private Map<LifecycleStage,Collection<Interceptor>> interceptors;
+    private ExceptionHandler exceptionHandler;
 
     /** Gratefully accepts the BootstrapPropertyResolver handed to the Configuration. */
     public void setBootstrapPropertyResolver(BootstrapPropertyResolver resolver) {
@@ -137,6 +140,12 @@ public class DefaultConfiguration implements Configuration {
             if (this.populationStrategy == null) {
                 this.populationStrategy = new DefaultPopulationStrategy();
                 this.populationStrategy.init(this);
+            }
+
+            this.exceptionHandler = initExceptionHandler();
+            if (this.exceptionHandler == null) {
+                this.exceptionHandler = new DefaultExceptionHandler();
+                this.exceptionHandler.init(this);
             }
 
             this.interceptors = initInterceptors();
@@ -253,6 +262,16 @@ public class DefaultConfiguration implements Configuration {
 
     /** Allows subclasses to initialize a non-default PopulationStrategy instance to be used. */
     protected PopulationStrategy initPopulationStrategy() { return null; }
+
+    /**
+     * Returns an instance of an ExceptionHandler.  Unless a sublcass has picked another
+     * implementation, will return an instance of
+     * {@link net.sourceforge.stripes.exception.DefaultExceptionHandler}.
+     */
+    public ExceptionHandler getExceptionHandler() { return this.exceptionHandler; }
+
+    /** Allows subclasses to initialize a non-default ExceptionHandler instance to be used. */
+    protected ExceptionHandler initExceptionHandler() { return null; }
 
     /**
      * Returns a list of interceptors that should be executed around the lifecycle stage
