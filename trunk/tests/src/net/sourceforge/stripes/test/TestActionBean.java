@@ -30,6 +30,8 @@ public class TestActionBean implements ActionBean {
     private Long singleLong;
     private List nakedListOfLongs;
     private int[] intArray;
+    private String setOnlyString;
+    public Long publicLong;
 
     /** A pretty ordinary list of longs, to test lists of primitive/simply objects. */
     public List<Long> getListOfLongs() { return listOfLongs; }
@@ -71,6 +73,10 @@ public class TestActionBean implements ActionBean {
     /** An array of primitive ints to test out Array binding. */
     public int[] getIntArray() { return intArray; }
     public void setIntArray(int[] intArray) { this.intArray = intArray; }
+
+    /** A property with only a setter to test out setting when there's no getter. */
+    public void setSetOnlyString(String setOnlyString) { this.setOnlyString = setOnlyString; }
+    public boolean setOnlyStringIsNotNull() { return this.setOnlyString != null; }
 
     ///////////////////////////////////////////////////////////////////////////
     // Dummied up ActionBean methods that aren't really used for much.

@@ -165,5 +165,39 @@ public class BasicBindingTests {
         trip.execute();
 
         TestActionBean bean = trip.getActionBean(TestActionBean.class);
-        Assert.assertTrue(Arrays.equals(bean.getIntArray(), new int[] {100, 200, 30017}));    }
+        Assert.assertTrue(Arrays.equals(bean.getIntArray(), new int[] {100, 200, 30017}));
+    }
+
+    @Test(groups="fast")
+    public void bindNonExistentProperty() throws Exception {
+        // Should get logged but otherwise ignored...not blow up
+        MockRoundtrip trip = getRoundtrip();
+        trip.addParameter("foobarsplatNotProperty", "100");
+        trip.execute();
+
+        TestActionBean bean = trip.getActionBean(TestActionBean.class);
+        Assert.assertNotNull(bean);
+    }
+
+    @Test(groups="fast")
+    public void bindPropertyWithoutGetterMethod() throws Exception {
+        // Should be able to set it just fine
+        MockRoundtrip trip = getRoundtrip();
+        trip.addParameter("setOnlyString", "whee");
+        trip.execute();
+
+        TestActionBean bean = trip.getActionBean(TestActionBean.class);
+        Assert.assertTrue(bean.setOnlyStringIsNotNull());
+    }
+
+    @Test(groups="fast")
+    public void bindPublicPropertyWithoutMethods() throws Exception {
+        // Should be able to set it just fine
+        MockRoundtrip trip = getRoundtrip();
+        trip.addParameter("publicLong", "12345");
+        trip.execute();
+
+        TestActionBean bean = trip.getActionBean(TestActionBean.class);
+        Assert.assertEquals(new Long(12345), bean.publicLong);
+    }
 }

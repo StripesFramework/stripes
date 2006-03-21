@@ -235,6 +235,12 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
                     log.trace("Running binding for property with name: ", name);
 
                     Class type = OgnlUtil.getPropertyClass(name.getName(), bean);
+                    if (type == null) {
+                        log.trace("Could not find type for property '", name.getName(), "' of '",
+                                  bean.getClass().getSimpleName(), "' probably because it's not ",
+                                  "a property of the bean.  Skipping binding.");
+                        continue;
+                    }
                     String[] values = entry.getValue();
 
                     // Do Validation and type conversion
@@ -336,7 +342,10 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
         for (String name: getFieldsPresentInfo(bean)) {
             if (!paramatersSubmitted.contains(name)) {
                 try {
-                    bindNullValue(bean, name, OgnlUtil.getPropertyClass(name, bean));
+                    Class type = OgnlUtil.getPropertyClass(name, bean);
+                    if (type != null) {
+                        bindNullValue(bean, name, OgnlUtil.getPropertyClass(name, bean));
+                    }
                 }
                 catch (Exception e) {
                     log.warn(e, "Could not set property '", name, "' to null on ActionBean of",
