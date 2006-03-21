@@ -16,7 +16,6 @@
 package net.sourceforge.stripes.util;
 
 import net.sourceforge.stripes.action.ActionBean;
-import ognl.NoSuchPropertyException;
 import ognl.Ognl;
 import ognl.OgnlContext;
 import ognl.OgnlException;
@@ -132,10 +131,9 @@ public class OgnlUtil {
      *
      * @param property an expression for the property to be inspected
      * @param root the object on which the property lives
-     * @return the Class type of the property
+     * @return the Class type of the property or null if there is no such property visible
      * @throws OgnlException thrown when a problem occurs such as one or more properties not
      *         being inaccessible
-     * @throws NoSuchPropertyException thrown when the property does not exist
      */
     public static Class getPropertyClass(String property, Object root) throws OgnlException,
                                                                               IntrospectionException {
@@ -191,10 +189,19 @@ public class OgnlUtil {
         else {
             Method method =
                     OgnlRuntime.getGetMethod(createContext(), newRoot.getClass(), childProperty);
-            if (method == null) {
-                throw new NoSuchPropertyException(root,property);
+            if (method != null) {
+                propertyClass = method.getReturnType();
             }
-            propertyClass = method.getReturnType();
+            else {
+                method = OgnlRuntime.getSetMethod(createContext(), newRoot.getClass(), childProperty);
+                if (method != null) {
+                    propertyClass = method.getParameterTypes()[0];
+                }
+                else {
+                    try { propertyClass = newRoot.getClass().getField(childProperty).getType(); }
+                    catch (NoSuchFieldException nsfe) { /* suppress. */ }
+                }
+            }
         }
 
         return propertyClass;

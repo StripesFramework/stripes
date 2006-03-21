@@ -57,11 +57,6 @@
     </containerElement>
     <containerElement type="library" level="module">
       <attribute name="method" value="1" />
-      <attribute name="URI" value="/WEB-INF/lib/bcel.jar" />
-      <url>jar://$MODULE_DIR$/../stripes/lib/deploy/bcel.jar!/</url>
-    </containerElement>
-    <containerElement type="library" level="module">
-      <attribute name="method" value="1" />
       <attribute name="URI" value="/WEB-INF/lib/commons-logging.jar" />
       <url>jar://$MODULE_DIR$/../stripes/lib/deploy/commons-logging.jar!/</url>
     </containerElement>
