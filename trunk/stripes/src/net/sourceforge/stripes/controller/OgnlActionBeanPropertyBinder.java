@@ -41,7 +41,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -227,8 +226,10 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
 
         // First we bind all the regular parameters
         for (Map.Entry<ParameterName,String[]> entry : parameters.entrySet() ) {
+            List<Object> convertedValues = null;
+            ParameterName name = entry.getKey();
+
             try {
-                ParameterName name = entry.getKey();
                 if (!SPECIAL_KEYS.contains(name.getName()) && !name.getName().equals(context.getEventName())
                         && !fieldErrors.containsKey(name.getName()) ) {
                     log.trace("Running binding for property with name: ", name);
@@ -250,8 +251,7 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
                         doPreConversionValidations(name, values, validationInfo, errors);
                     }
 
-                    List<Object> convertedValues =
-                        convert(bean, name, values, type, validationInfo, errors);
+                    convertedValues = convert(bean, name, values, type, validationInfo, errors);
 
                     if (validate && validationInfo != null) {
                         doPostConversionValidations(name, convertedValues, validationInfo, errors);
@@ -269,15 +269,8 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
                     }
                 }
             }
-            catch (NoSuchPropertyException nspe) {
-                log.debug("Could not bind property with name [", entry.getKey(),
-                          "] to bean of type: ", bean.getClass().getName(), " : ",
-                          nspe.getMessage());
-            }
             catch (Exception e) {
-                log.debug(e, "Could not bind property with name [", entry.getKey(), "] and values ",
-                          Arrays.toString(entry.getValue()), " to bean of type: ",
-                          bean.getClass().getName());
+                handlePropertyBindingError(bean, name, convertedValues, e, fieldErrors);
             }
         }
 
@@ -307,6 +300,25 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
         }
 
         return fieldErrors;
+    }
+
+    /**
+     * Invoked whenever an exception is thrown when attempting to bind a property to an
+     * ActionBean.  By default logs some information about the occurrence, but could be overridden
+     * to do more intelligent things based on the application.
+     */
+    protected void handlePropertyBindingError(ActionBean bean, ParameterName name, List<Object> values,
+                                              Exception e, ValidationErrors errors) {
+        if (e instanceof NoSuchPropertyException) {
+            NoSuchPropertyException nspe = (NoSuchPropertyException) e;
+            log.debug("Could not bind property with name [", name, "] to bean of type: ",
+                      bean.getClass().getSimpleName(), " : ",
+                      nspe.getReason() == null ? nspe.getMessage() : nspe.getReason().getMessage());
+        }
+        else {
+            log.debug(e, "Could not bind property with name [", name, "] to bean of type: ",
+                      bean.getClass().getSimpleName());
+        }
     }
 
     /**
