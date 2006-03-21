@@ -30,6 +30,7 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
@@ -194,26 +195,35 @@ public class StripesFilter implements Filter {
                          FilterChain filterChain) throws IOException, ServletException {
 
         HttpServletRequest httpRequest = (HttpServletRequest) servletRequest;
-        log.trace("Intercepting request to URL: ", httpRequest.getRequestURI());
+        HttpServletResponse httpResponse = (HttpServletResponse) servletResponse;
 
+        // Wrap pretty much everything in a try/catch so that we can funnel even the most
+        // bizarre or unexpected exceptions into the exception handler
         try {
-            // Pop the configuration into thread local
-            StripesFilter.configurationStash.set(this.configuration);
+            log.trace("Intercepting request to URL: ", httpRequest.getRequestURI());
 
-            // Figure out the locale to use, and then wrap the request
-            Locale locale = this.configuration.getLocalePicker().pickLocale(httpRequest);
-            StripesRequestWrapper request = wrapRequest(httpRequest);
-            request.setLocale(locale);
-            log.debug("LocalePicker selected locale: ", locale);
+            try {
+                // Pop the configuration into thread local
+                StripesFilter.configurationStash.set(this.configuration);
 
-            // Execute the rest of the chain
-            flashInbound(request);
-            filterChain.doFilter(request, servletResponse);
+                // Figure out the locale to use, and then wrap the request
+                Locale locale = this.configuration.getLocalePicker().pickLocale(httpRequest);
+                StripesRequestWrapper request = wrapRequest(httpRequest);
+                request.setLocale(locale);
+                log.debug("LocalePicker selected locale: ", locale);
+
+                // Execute the rest of the chain
+                flashInbound(request);
+                filterChain.doFilter(request, servletResponse);
+            }
+            finally {
+                // Once the request is processed, take the Configuration back out of thread local
+                flashOutbound(httpRequest);
+                StripesFilter.configurationStash.remove();
+            }
         }
-        finally {
-            // Once the request is processed, take the Configuration back out of thread local
-            flashOutbound(httpRequest);
-            StripesFilter.configurationStash.remove();
+        catch (Throwable t) {
+            this.configuration.getExceptionHandler().handle(t, httpRequest, httpResponse);
         }
     }
 
