@@ -20,6 +20,7 @@ import net.sourceforge.stripes.controller.ExecutionContext;
 import net.sourceforge.stripes.controller.Intercepts;
 import net.sourceforge.stripes.controller.LifecycleStage;
 import net.sourceforge.stripes.action.Resolution;
+import net.sourceforge.stripes.util.Log;
 
 
 /**
@@ -48,6 +49,8 @@ import net.sourceforge.stripes.action.Resolution;
  */
 @Intercepts(LifecycleStage.ActionBeanResolution)
 public class SpringInterceptor implements Interceptor {
+    private static final Log log = Log.getInstance(SpringInterceptor.class);
+
     /**
      * Allows ActionBean resolution to proceed and then once the ActionBean has been
      * located invokes the {@link SpringHelper} to perform Spring based dependency injection.
@@ -58,6 +61,8 @@ public class SpringInterceptor implements Interceptor {
      */
     public Resolution intercept(ExecutionContext context) throws Exception {
         Resolution resolution = context.proceed();
+        log.debug("Running Spring dependency injection for instance of ",
+                  context.getActionBean().getClass().getSimpleName());
         SpringHelper.injectBeans(context.getActionBean(), context.getActionBeanContext());
         return resolution;
     }

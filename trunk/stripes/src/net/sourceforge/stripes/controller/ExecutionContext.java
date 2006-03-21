@@ -18,6 +18,7 @@ package net.sourceforge.stripes.controller;
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.action.ActionBeanContext;
 import net.sourceforge.stripes.action.Resolution;
+import net.sourceforge.stripes.util.Log;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -36,6 +37,8 @@ import java.lang.reflect.Method;
  * @since Stripes 1.3
  */
 public class ExecutionContext {
+    private static final Log log = Log.getInstance(ExecutionContext.class);
+
     private Collection<Interceptor> interceptors;
     private Iterator<Interceptor> iterator;
     private Interceptor target;
@@ -132,6 +135,7 @@ public class ExecutionContext {
      */
     public Resolution proceed() throws Exception {
         if (this.iterator == null) {
+            log.debug("Transitioning to lifecycle stage ", lifecycleStage);
             this.iterator = this.interceptors.iterator();
         }
 
