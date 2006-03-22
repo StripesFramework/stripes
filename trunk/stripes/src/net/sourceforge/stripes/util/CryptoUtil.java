@@ -23,6 +23,7 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.security.GeneralSecurityException;
 
 /**
  * <p>Cryptographic utility that can encrypt and decrypt Strings using a key stored in
@@ -77,23 +78,22 @@ public class CryptoUtil {
      * @param input the base64 String to decode and decrypt
      * @param request the current request
      * @return the decrypted String
+     * @throws GeneralSecurityException if the value cannot be decrypted for some reason. This
+     *         can be caused by session expiration as it loses the original key.
      */
-    public static String decrypt(String input, HttpServletRequest request) {
+    public static String decrypt(String input, HttpServletRequest request)
+            throws GeneralSecurityException {
+
         if (input == null) return null;
 
-        try {
-            // First un-base64 the String
-            byte[] bytes = Base64Decoder.decodeToBytes(input);
+        // First un-base64 the String
+        byte[] bytes = Base64Decoder.decodeToBytes(input);
 
-            // Then fetch a cipher and decrypt the bytes
-            Cipher cipher = getCipher(request, Cipher.DECRYPT_MODE);
-            byte[] output = cipher.doFinal(bytes);
+        // Then fetch a cipher and decrypt the bytes
+        Cipher cipher = getCipher(request, Cipher.DECRYPT_MODE);
+        byte[] output = cipher.doFinal(bytes);
 
-            return new String(output);
-        }
-        catch (Exception e) {
-            throw new StripesRuntimeException("Could not decrypt value.", e);
-        }
+        return new String(output);
     }
 
     /**

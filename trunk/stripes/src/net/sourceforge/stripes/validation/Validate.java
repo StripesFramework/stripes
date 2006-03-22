@@ -98,6 +98,21 @@ public @interface Validate {
     String mask() default "";
 
     /**
+     * <p>Specifies an expression in the JSP expression language that should be evaluated
+     * to check the validity of this field.  In the case of lists, arrays and maps the expression
+     * is evaluated once for each value supplied.  The expression is evaluated <i>only if
+     * a value is supplied</i> - it will not be evaluated if the user did not supply a value for the
+     * field.</p>
+     *
+     * <p>The value being validated is available in the EL variable 'this'.  Properties of the
+     * ActionBean (including the context) can be referenced directly, as can values in request
+     * and session scope if necessary.</p>
+     *
+     * <p>Note: it is not necessary to encapsulate the expression in ${} as on a JSP page.</p>
+     */
+    String expression() default "";
+
+    /**
      * A type converter to use to convert this field from String to it's rich object type. If none
      * is specified (which should be very common) then the default converter for the target type of
      * object will be used.
