@@ -69,7 +69,7 @@ import java.util.Set;
  * and return a 'dummy' ActionBean that will take the user to the view.  The exact behaviour is
  * modifiable by overriding one or more of
  * {@link #handleActionBeanNotFound(ActionBeanContext, String)} or {@link #findView(String)}. The
- * default behaviour is to map the URL being requested to four potential JSP names/paths, check
+ * default behaviour is to map the URL being requested to three potential JSP names/paths, check
  * for the existence of a JSP at those locations and if one exists then to return an ActionBean
  * that will render the view.  For example if a user requsted '/account/ViewAccount.action' but
  * an ActionBean does not yet exist bound to that URL, the resolver will check for JSPs in the
@@ -77,9 +77,8 @@ import java.util.Set;
  *
  * <ul>
  *   <li>/account/ViewAccount.jsp</li>
- *   <li>/WEB-INF/account/ViewAccount.jsp</li>
+ *   <li>/account/viewAccount.jsp</li>
  *   <li>/account/view_account.jsp</li>
- *   <li>/WEB-INF/account/view_account.jsp</li>
  * </ul>
  *
  * <p>The value of this approach comes from the fact that by default all pages can appear to have
@@ -113,7 +112,7 @@ public class NameBasedActionResolver extends AnnotatedClassActionResolver {
      * an appropriate view if one exists.
      */
     @Override
-    public void init(Configuration configuration) {
+    public void init(Configuration configuration) throws Exception {
         super.init(configuration);
         addActionBean(DefaultViewActionBean.class);
     }
@@ -268,8 +267,8 @@ public class NameBasedActionResolver extends AnnotatedClassActionResolver {
         Resolution view = findView(urlBinding);
 
         if (view != null) {
-            log.debug("Could not find an ActionBean bound to '", urlBinding, "', but found a JSP ",
-                      "at URL '", view, "'. Forwarding the user there instead.");
+            log.debug("Could not find an ActionBean bound to '", urlBinding, "', but found a view ",
+                      "at '", view, "'. Forwarding the user there instead.");
             bean = new DefaultViewActionBean(view);
         }
 
@@ -304,27 +303,31 @@ public class NameBasedActionResolver extends AnnotatedClassActionResolver {
      * @since Stripes 1.3
      */
     protected Resolution findView(String urlBinding) {
-        String jsp = urlBinding.substring(0, urlBinding.lastIndexOf(".")) + ".jsp";
+        String path = urlBinding.substring(0, urlBinding.lastIndexOf("/") + 1);
+        String name = urlBinding.substring(path.length(), urlBinding.lastIndexOf("."));
         ServletContext ctx = StripesFilter.getConfiguration()
                 .getBootstrapPropertyResolver().getFilterConfig().getServletContext();
+
         try {
+            // This will try /account/ViewAccount.jsp
+            String jsp = path + name + ".jsp";
             if (ctx.getResource(jsp) != null) {
                 return new ForwardResolution(jsp);
             }
-            else if (ctx.getResource("/WEB-INF" + jsp) != null) {
-                return new ForwardResolution("/WEB-INF" + jsp);
+
+            // This will try /account/viewAccount.jsp
+            name = Character.toLowerCase(name.charAt(0)) + name.substring(1);
+            jsp = path + name + ".jsp";
+            if (ctx.getResource(jsp) != null) {
+                return new ForwardResolution(jsp);
             }
 
-            // If we've gotten this far we still haven't found a JSP :(  Try converting the name
-            // to the other commonly used naming strategy if we can, whereby action names like
-            // UserDetails.action map to user_details.jsp
-            String path = urlBinding.substring(0, urlBinding.lastIndexOf("/") + 1);
-            String name = urlBinding.substring(path.length(), urlBinding.lastIndexOf("."));
+            // And finally this will try /account/view_account.jsp
             StringBuilder builder = new StringBuilder();
             for (int i=0; i<name.length(); ++i) {
                 char ch = name.charAt(i);
                 if (Character.isUpperCase(ch)) {
-                    if (i > 0) builder.append("_");
+                    builder.append("_");
                     builder.append(Character.toLowerCase(ch));
                 }
                 else {
@@ -336,16 +339,12 @@ public class NameBasedActionResolver extends AnnotatedClassActionResolver {
             if (ctx.getResource(jsp) != null) {
                 return new ForwardResolution(jsp);
             }
-            else if (ctx.getResource("/WEB-INF" + jsp) != null) {
-                return new ForwardResolution("/WEB-INF" + jsp);
-            }
 
             return null;
         }
         catch (MalformedURLException mue) {
             return null;
         }
-
     }
 }
 
