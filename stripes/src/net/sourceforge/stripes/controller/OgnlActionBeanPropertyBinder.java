@@ -36,6 +36,11 @@ import ognl.NoSuchPropertyException;
 import ognl.OgnlException;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.jsp.PageContext;
+import javax.servlet.jsp.el.ExpressionEvaluator;
+import javax.servlet.jsp.el.Expression;
+import javax.servlet.jsp.el.ELException;
+import javax.servlet.jsp.el.VariableResolver;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -50,6 +55,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
+import java.security.GeneralSecurityException;
 
 /**
  * Implementation of the ActionBeanPropertyBinder interface that uses the OGNL toolkit to perform
@@ -121,7 +127,9 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
             // Print out a pretty debug message showing what validations got configured
             StringBuilder builder = new StringBuilder(128);
             for (Map.Entry<String,Validate> entry : fieldValidations.entrySet()) {
-                if (builder.length() > 0) builder.append(", ");
+                if (builder.length() > 0) {
+                    builder.append(", ");
+                }
                 builder.append(entry.getKey());
                 builder.append("->");
                 builder.append(ReflectUtil.toString(entry.getValue()));
@@ -224,6 +232,10 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
             validateRequiredFields(parameters, bean, fieldErrors);
         }
 
+        // Converted values for all fields are accumulated in this map to make post-conversion
+        // validation go a little easier
+        Map<ParameterName,List<Object>> allConvertedFields = new HashMap<ParameterName,List<Object>>();
+
         // First we bind all the regular parameters
         for (Map.Entry<ParameterName,String[]> entry : parameters.entrySet() ) {
             List<Object> convertedValues = null;
@@ -258,10 +270,7 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
                     }
 
                     convertedValues = convert(bean, name, values, type, validationInfo, errors);
-
-                    if (validate && validationInfo != null) {
-                        doPostConversionValidations(name, convertedValues, validationInfo, errors);
-                    }
+                    allConvertedFields.put(name, convertedValues);
 
                     // If we have errors, save them, otherwise bind the parameter to the form
                     if (errors.size() > 0) {
@@ -280,6 +289,7 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
             }
         }
 
+        // Null out any values that were in the form, but values were not supplied
         bindMissingValuesAsNull(bean, context);
 
         // Then we figure out if any files were uploaded and bind those too
@@ -303,6 +313,13 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
                     }
                 }
             }
+        }
+
+        // Run post-conversion validation after absolutely everything has been bound
+        // and validated so that the expression validation can have access to the full
+        // state of the bean
+        if (validate) {
+            doPostConversionValidations(bean, allConvertedFields, fieldErrors);
         }
 
         return fieldErrors;
@@ -367,9 +384,10 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
     protected Collection<String> getFieldsPresentInfo(ActionBean bean) {
         HttpServletRequest request = bean.getContext().getRequest();
         String fieldsPresent = request.getParameter(StripesConstants.URL_KEY_FIELDS_PRESENT);
+        boolean isWizard = bean.getClass().getAnnotation(Wizard.class) != null;
 
         if (fieldsPresent == null || "".equals(fieldsPresent)) {
-            if (bean.getClass().getAnnotation(Wizard.class) != null) {
+            if (isWizard) {
                 //FIXME: might want to let the ActionBean handle the initial request somehow?
                 throw new StripesRuntimeException(
                         "Submission of a wizard form in Stripes absolutely requires that " +
@@ -384,7 +402,21 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
             }
         }
         else {
-            fieldsPresent = CryptoUtil.decrypt(fieldsPresent, request);
+            try {
+                fieldsPresent = CryptoUtil.decrypt(fieldsPresent, request);
+            }
+            catch (GeneralSecurityException gse) {
+                if (isWizard) {
+                    throw new StripesRuntimeException("Stripes attmpted and failed to decrypt " +
+                            "the non-null value in the 'fields present' field. Because this form " +
+                            "submission is a wizard this situation cannot be accepted as it could " +
+                            "result in a security problem. It is usually the result of either " +
+                            "tampering with hidden field values, or session expiration.", gse);
+                }
+                else {
+                    return Collections.emptySet();
+                }
+            }
             return HtmlUtil.splitValues(fieldsPresent);
         }
     }
@@ -725,38 +757,123 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
      * have been converted to their rich type by the type conversion system.  Validates single
      * properties in isolation from other properties.
      *
-     * @param propertyName the name of the property being validated (used for constructing errors)
-     * @param values the List of converted values - possibly empty but never null
-     * @param validationInfo the Valiate annotation that was decorating the property being validated
-     * @param errors a collection of errors to be populated with any validation errors discovered
+     * @param bean the ActionBean that is undergoing validation and binding
+     * @param convertedValues a map of ParameterName to all converted values for each field
+     * @param errors the validaiton errors object to put errors in to
      */
-    protected void doPostConversionValidations(ParameterName propertyName,
-                                               List<Object> values,
-                                               Validate validationInfo,
-                                               List<ValidationError> errors) {
+    protected void doPostConversionValidations(ActionBean bean,
+                                               Map<ParameterName,List<Object>> convertedValues,
+                                               ValidationErrors errors) {
+
+        for (Map.Entry<ParameterName, List<Object>> entry : convertedValues.entrySet()) {
+            // Sort out what we need to validate this field
+            ParameterName name = entry.getKey();
+            List<Object> values = entry.getValue();
+            Validate validationInfo = this.validations.get(bean.getClass()).get(name.getStrippedName());
+
+            if (values.size() == 0 || validationInfo == null) {
+                continue;
+            }
+
+            for (Object value : values) {
+                // If the value is a number then we should check to see if there are range boundaries
+                // established, and check them.
+                if (value instanceof Number) {
+                    Number number = (Number) value;
+
+                    if (validationInfo.minvalue() != Double.MIN_VALUE &&
+                            number.doubleValue() < validationInfo.minvalue() ) {
+                        ValidationError error = new ScopedLocalizableError("validation.minvalue",
+                                                                           "valueBelowMinimum",
+                                                                           validationInfo.minvalue());
+                        error.setFieldValue( String.valueOf(value) );
+                        errors.add(name.getName(), error);
+                    }
+
+                    if (validationInfo.maxvalue() != Double.MAX_VALUE &&
+                            number.doubleValue() > validationInfo.maxvalue() ) {
+                        ValidationError error = new ScopedLocalizableError("validation.maxvalue",
+                                                                           "valueAboveMaximum",
+                                                                           validationInfo.maxvalue());
+                        error.setFieldValue( String.valueOf(value) );
+                        errors.add(name.getName(), error);
+                    }
+                }
+            }
+
+            // And then do any expression validation
+            doExpressionValidation(bean, name, values, validationInfo, errors);
+        }
+    }
+
+    /**
+     * Performs validation of attribute values using a JSP EL expression if one is
+     * defined in the {@literal @}Validate annotation.  The expression is evaluated
+     * once for each value converted.  Makes use of a custom VariableResolver implemenation
+     * to make properties of the ActionBean available.
+     *
+     * @param bean the ActionBean who's property is being validated
+     * @param name the name of the property being validated
+     * @param values the non-null post-conversion values for the property
+     * @param validationInfo the validation annotation for the property
+     * @param errors the validation errors object to add errors to
+     */
+    protected void doExpressionValidation(ActionBean bean,
+                                          ParameterName name,
+                                          List<Object> values,
+                                          Validate validationInfo,
+                                          ValidationErrors errors) {
+        // If a validation expression was supplied, see if we can process it!
+        Expression expr = null;
+        DelegatingVariableResolver resolver = null;
+
+        if ( !"".equals(validationInfo.expression()) ) {
+            final PageContext context = DispatcherServlet.getPageContext();
+
+            if (context == null) {
+                log.error("Could not process expression based validation. It would seem that ",
+                          "your servlet container is being mean and will not let the dispatcher ",
+                          "servlet manufacture a PageContext object through the JSPFactory. The ",
+                          "result of this is that expression validation will be disabled. Sorry.");
+            }
+            else {
+                try {
+                    // If this turns out to be slow we could probably cache the parsed expression
+                    String expression = validationInfo.expression();
+                    if (!expression.startsWith("${")) {
+                        expression = "${" + expression + "}";
+                    }
+
+                    ExpressionEvaluator evaluator = context.getExpressionEvaluator();
+                    expr = evaluator.parseExpression(expression, Boolean.class, null);
+                    resolver = new DelegatingVariableResolver(bean, context.getVariableResolver());
+                }
+                catch (ELException ele) {
+                    throw new StripesRuntimeException("Could not parse the EL expression being " +
+                            "used to validate field " + name.getName() + ". This is " +
+                            "not a transient error. Please double check the following expression " +
+                            "for errors: " + validationInfo.expression(), ele);
+                }
+            }
+        }
 
         for (Object value : values) {
-            // If the value is a number then we should check to see if there are range boundaries
-            // established, and check them.
-            if (value instanceof Number) {
-                Number number = (Number) value;
-
-                if (validationInfo.minvalue() != Double.MIN_VALUE &&
-                        number.doubleValue() < validationInfo.minvalue() ) {
-                    ValidationError error = new ScopedLocalizableError("validation.minvalue",
-                                                                       "valueBelowMinimum",
-                                                                       validationInfo.minvalue());
-                    error.setFieldValue( String.valueOf(value) );
-                    errors.add(error);
+            // And then if we have an expression to use
+            if (expr != null) {
+                try {
+                    resolver.setCurrentValue(value);
+                    Boolean result = (Boolean) expr.evaluate(resolver);
+                    if (!Boolean.TRUE.equals(result)) {
+                        ValidationError error = new ScopedLocalizableError("validation.expression",
+                                                                           "valueFailedExpression");
+                        error.setFieldValue(String.valueOf(value));
+                        errors.add(name.getName(), error);
+                    }
                 }
-
-                if (validationInfo.maxvalue() != Double.MAX_VALUE &&
-                        number.doubleValue() > validationInfo.maxvalue() ) {
-                    ValidationError error = new ScopedLocalizableError("validation.maxvalue",
-                                                                       "valueAboveMaximum",
-                                                                       validationInfo.maxvalue());
-                    error.setFieldValue( String.valueOf(value) );
-                    errors.add(error);
+                catch (ELException ele) {
+                    log.error("Error evaluating expression for property ", name.getName(),
+                              " of class ", bean.getClass().getSimpleName(), ". Expression: ",
+                              validationInfo.expression());
                 }
             }
         }
@@ -898,5 +1015,54 @@ class Row extends HashMap<ParameterName,String[]> {
     /** Returns true if the row had any non-empty values in it, otherwise false. */
     public boolean hasNonEmptyValues() {
         return this.hasNonEmptyValues;
+    }
+}
+
+/**
+ * A JSP EL VariableResolver that first attempts to look up the value of the
+ * variable as a first level property on the ActionBean, and if does not exist
+ * then delegates to the built in resolver.
+ *
+ * @author Tim Fennell
+ * @since Stripes 1.3
+ */
+class DelegatingVariableResolver implements VariableResolver {
+    private ActionBean bean;
+    private VariableResolver delegate;
+    private Object currentValue;
+
+    /** Constructs a resolver based on the action bean and resolver supplied. */
+    DelegatingVariableResolver(ActionBean bean, VariableResolver resolver) {
+        this.bean = bean;
+        this.delegate = resolver;
+    }
+
+    /** Sets the value that the 'this' variable will point at. */
+    void setCurrentValue(Object value) { this.currentValue = value; }
+
+    /**
+     * First tries to fish the property off the ActionBean and if that fails
+     * delegates to the contained variable resolver.
+     *
+     * @param property the name of the variable/property being looked for
+     * @return
+     * @throws ELException
+     */
+    public Object resolveVariable(String property) throws ELException {
+        if ("this".equals(property)) {
+            return this.currentValue;
+        }
+        else if ("actionBean".equals(property)) {
+            return this.bean;
+        }
+        else {
+            Object result = null;
+            try { result = OgnlUtil.getValue(property, bean); } catch (OgnlException e) {}
+
+            if (result == null) {
+                result = delegate.resolveVariable(property);
+            }
+            return result;
+        }
     }
 }

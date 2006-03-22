@@ -31,6 +31,8 @@ import net.sourceforge.stripes.validation.ValidationErrors;
 import net.sourceforge.stripes.validation.ValidationState;
 
 import javax.servlet.ServletException;
+import javax.servlet.jsp.PageContext;
+import javax.servlet.jsp.JspFactory;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -62,6 +64,9 @@ public class DispatcherServlet extends HttpServlet {
             "Validation.InvokeValidateWhenErrorsExist";
 
     private Boolean alwaysInvokeValidate;
+
+    /** A place to hide a page context object so that we can get access to EL classes. */
+    private static ThreadLocal<PageContext> pageContextStash = new ThreadLocal<PageContext>();
 
     /**
      * A Map that is used to cache the validation method that are discovered for each
@@ -296,18 +301,56 @@ public class DispatcherServlet extends HttpServlet {
         ctx.setLifecycleStage(LifecycleStage.BindingAndValidation);
         ctx.setInterceptors(config.getInterceptors(LifecycleStage.BindingAndValidation));
 
-        return ctx.wrap( new Interceptor() {
-            public Resolution intercept(ExecutionContext ctx) throws Exception {
-                ActionBeanPropertyBinder binder = config.getActionBeanPropertyBinder();
+        // It's unclear whether this usage of the JspFactory will work in all containers. It looks
+        // like it should, but still, we should be careful not to screw up regular request
+        // processing if it should fail. Why do we do this?  So we can have a container-agnostic
+        // way of getting an ExpressionEvaluator to do expression based validation
+        PageContext pageContext = null;
+        try {
+            ActionBeanContext abc = ctx.getActionBeanContext();
+            pageContext = JspFactory.getDefaultFactory().getPageContext(this, // the servlet inst
+                                                                        abc.getRequest(), // req
+                                                                        abc.getResponse(), // res
+                                                                        null,   // error page url
+                                                                        true,   // need session
+                                                                        0,      // buffer
+                                                                        false); // autoflush
+            DispatcherServlet.pageContextStash.set(pageContext);
+        }
+        catch (Exception e) {
+            // Don't even log this, this failure gets reported if action beans actually
+            // try and make use of expression validation, otherwise this is just noise
+        }
 
-                ValidationErrors errors = binder.bind(ctx.getActionBean(),
-                                                      ctx.getActionBeanContext(),
-                                                      doValidate);
+        try {
+            return ctx.wrap( new Interceptor() {
+                public Resolution intercept(ExecutionContext ctx) throws Exception {
+                    ActionBeanPropertyBinder binder = config.getActionBeanPropertyBinder();
 
-                ctx.getActionBeanContext().setValidationErrors(errors);
-                return null;
+                    ValidationErrors errors = binder.bind(ctx.getActionBean(),
+                                                          ctx.getActionBeanContext(),
+                                                          doValidate);
+
+                    ctx.getActionBeanContext().setValidationErrors(errors);
+                    return null;
+                }
+            });
+        }
+        finally {
+            if (pageContext != null) {
+                DispatcherServlet.pageContextStash.remove();
+                JspFactory.getDefaultFactory().releasePageContext(pageContext);
             }
-        });
+        }
+    }
+
+    /**
+     * Fetches the page context object stored on the local thread *if* the dispatcher was
+     * able to create one.  It's package-access only for now because it's really only meant
+     * for the OgnlActionBeanPropertyBinder and it may not always work!
+     */
+    static PageContext getPageContext() {
+        return DispatcherServlet.pageContextStash.get();
     }
 
     /**
