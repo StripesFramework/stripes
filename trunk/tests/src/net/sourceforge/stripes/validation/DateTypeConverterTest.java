@@ -145,4 +145,24 @@ public class DateTypeConverterTest {
         Assert.assertEquals(0, errors.size());
         Assert.assertEquals(format.format(date), "03/01/2007");
     }
+
+    @Test(groups="fast")
+    public void testPartialInputFormats() {
+        Collection<ValidationError> errors = new ArrayList<ValidationError>();
+        DateTypeConverter converter = getConverter(Locale.US);
+        Date date = converter.convert("Jan 31", Date.class, errors);
+        Assert.assertNotNull(date);
+        Assert.assertEquals(0, errors.size());
+        Assert.assertEquals(format.format(date), "01/31/2006");
+
+        date = converter.convert("February 28", Date.class, errors);
+        Assert.assertNotNull(date);
+        Assert.assertEquals(0, errors.size());
+        Assert.assertEquals(format.format(date), "02/28/2006");
+
+        date = converter.convert("03/01", Date.class, errors);
+        Assert.assertNotNull(date);
+        Assert.assertEquals(0, errors.size());
+        Assert.assertEquals(format.format(date), "03/01/2006");
+    }
 }

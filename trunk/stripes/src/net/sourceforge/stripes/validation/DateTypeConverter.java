@@ -21,19 +21,27 @@ import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Calendar;
 import java.util.regex.Pattern;
 
 /**
  * <p>A TypeConverter that aggressively attempts to convert a String to a java.util.Date object.
  * Under the covers it uses DateFormat instances to do the heavy lifting, but since
  * SimpleDateFormat is quite picky about its input a couple of measures are taken to improve our
- * chances of parsing a Date.  First the String is pre-processed to replace commas, slashes,
- * hyphens and periods with spaces and to collapse multiple white spaces into a single space. Then
- * an array of DateFormat instances are used in turn to attempt to parse the input. If any DateFormat
- * succeeds and returns a Date, that Date will be returned as the result of the conversion.  If
- * all DateFormats fail, a validation error will be produced.</p>
+ * chances of parsing a Date.</p>
  *
- * <p>This class is designed to be overridden in order to change its behaviour.  Subclasses can
+ * <p>First the String is pre-processed to replace commas, slashes, hyphens and periods with spaces
+ * and to collapse multiple white spaces into a single space.  Then, to ensure that input like
+ * "Jan 1" and "3/19" are parseable a check is performed to see if there are only two segments
+ * in the input string (e.g. "Jan" and "1" but no "2007").  If that is the case then the current
+ * four digit year is appended to improve chances or parsing because a two segment date is not
+ * parsable by a DateFormat that expects a year.</p>
+ *
+ * <p>Then an array of DateFormat instances are used in turn to attempt to parse the input. If any
+ * DateFormat succeeds and returns a Date, that Date will be returned as the result of the
+ * conversion.  If all DateFormats fail, a validation error will be produced.</p>
+ *
+ * <p>DateTypeConverter is designed to be overridden in order to change its behaviour. Subclasses can
  * override the preProcessInput() method to change the pre-processing behavior if desired. Similarly,
  * subclasses can override getFormatStrings() to change the set of format strings used in parsing,
  * or even override getDateFormats() to change how the DateFormat objects get constructed.</p>
@@ -47,9 +55,9 @@ import java.util.regex.Pattern;
  *     <li>SHORT  (e.g. 'M d yy' for Locale.US)</li>
  *     <li>MEDIUM (e.g. 'MMM d yyyy' for Locale.US)</li>
  *     <li>LONG   (e.g. 'MMMM d yyyy' for Locale.US)</li>
- *     <li>d MMM yy</li>
- *     <li>d MMMM yy</li>
- *     <li>yyyy M d</li>
+ *     <li>d MMM yy (note that for parsing MMM and MMMM are interchangable)</li>
+ *     <li>yyyy M d (note that for parsing M and MM are interchangable)</li>
+ *     <li>yyyy MMM d</li>
  *   </ul>
  * </p>
  */
@@ -67,18 +75,19 @@ public class DateTypeConverter implements TypeConverter<Date> {
     }
 
     /**
-     * A pattern used to pre-process Strings before the parsing attempt is made.  Since even the
-     * &quot;lenient&quot; mode of SimpleDateFormat is not very lenient, this pattern is used to
-     * remove commas, slashes, hyphens and periods from the input String (replacing them with spaces)
-     * and to collapse multiple white-space characters into a single space.
+     * A pattern used to pre-process Strings before the parsing attempt is made.  Since
+     * SimpleDateFormat stricly enforces that the separator characters in the input are the same
+     * as those in the pattern, this regular expression is used to remove commas, slashes, hyphens
+     * and periods from the input String (replacing them with spaces) and to collapse multiple
+     * white-space characters into a single space.
      */
     public static final Pattern pattern = Pattern.compile("[\\s,-/\\.]+");
 
     /** The default set of date patterns used to parse dates with SimpleDateFormat. */
     public static final String[] formatStrings = new String[] {
         "d MMM yy",
-        "d MMMM yy",
-        "yyyy M d"
+        "yyyy M d",
+        "yyyy MMM d"
     };
 
     /**
@@ -152,7 +161,8 @@ public class DateTypeConverter implements TypeConverter<Date> {
 
         for (DateFormat format : this.formats) {
             try {
-                if (date == null) { date = format.parse(parseable); }
+                date = format.parse(parseable);
+                break;
             }
             catch (ParseException pe) { /* Do nothing, we'll get lots of these. */ }
         }
@@ -168,10 +178,26 @@ public class DateTypeConverter implements TypeConverter<Date> {
     }
 
     /**
-     * Pre-processes the input Strnig using the regular expression Pattern stored on this class. Is
-     * called by the convert() method prior to attempting date parsing.
+     * Pre-processes the input String to improve the chances of parsing it. First uses the regular
+     * expression Pattern stored on this class to remove all separator chars and ensure that
+     * components are separated by single spaces.  Then, if the string contains only two components
+     * the current year is appended to ensure that dates like "12/25" parse to the current year
+     * instead of failing altogether.
      */
     protected String preProcessInput(String input) {
-        return DateTypeConverter.pattern.matcher(input).replaceAll(" ");
+        input = DateTypeConverter.pattern.matcher(input.trim()).replaceAll(" ");
+
+        // Count the spaces, date components = spaces + 1
+        int count = 0;
+        for (char ch : input.toCharArray()) {
+            if (ch == ' ') ++count;
+        }
+
+        // Looks like we probably only have a day and month component, that won't work!
+        if (count == 1) {
+            input += " " + Calendar.getInstance(locale).get(Calendar.YEAR);
+        }
+
+        return input;
     }
 }
