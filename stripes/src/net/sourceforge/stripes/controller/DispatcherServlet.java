@@ -221,12 +221,10 @@ public class DispatcherServlet extends HttpServlet {
                 // Look up the ActionBean and set it on the context
                 ActionBeanContext context = ctx.getActionBeanContext();
                 ActionBean bean = StripesFilter.getConfiguration().getActionResolver().getActionBean(context);
-                bean.setContext(context);
                 ctx.setActionBean(bean);
 
                 // Then register it in the Request as THE ActionBean for this request
                 HttpServletRequest request = context.getRequest();
-                request.setAttribute((String) request.getAttribute(ActionResolver.RESOLVED_ACTION), bean);
                 request.setAttribute(StripesConstants.REQ_ATTR_ACTION_BEAN, bean);
                 return null;
             }

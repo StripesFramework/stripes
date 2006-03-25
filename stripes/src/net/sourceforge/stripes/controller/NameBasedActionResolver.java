@@ -138,7 +138,7 @@ public class NameBasedActionResolver extends AnnotatedClassActionResolver {
     }
 
     /**
-     * Takes a class name and translats it into a URL binding by removing extraneous package names,
+     * Takes a class name and translates it into a URL binding by removing extraneous package names,
      * removing Action, Bean, or ActionBean from the end of the class name if present, replacing
      * periods with slashes, and appending a standard suffix as supplied by
      * {@link net.sourceforge.stripes.controller.NameBasedActionResolver#getBindingSuffix()}.</p>
@@ -243,6 +243,8 @@ public class NameBasedActionResolver extends AnnotatedClassActionResolver {
         catch (StripesServletException sse) {
             ActionBean bean = handleActionBeanNotFound(context, urlBinding);
             if (bean != null) {
+                bean.setContext(context);
+                
                 return bean;
             }
             else {

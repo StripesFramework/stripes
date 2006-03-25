@@ -22,24 +22,25 @@ import net.sourceforge.stripes.action.HandlesEvent;
 import net.sourceforge.stripes.action.SessionScope;
 import net.sourceforge.stripes.action.UrlBinding;
 import net.sourceforge.stripes.config.Configuration;
+import net.sourceforge.stripes.config.BootstrapPropertyResolver;
 import net.sourceforge.stripes.exception.StripesServletException;
 import net.sourceforge.stripes.util.Log;
+import net.sourceforge.stripes.util.ResolverUtil;
 
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.ServletContext;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.HashSet;
+import java.util.Arrays;
 
 /**
  * <p>Uses Annotations on classes to identify the ActionBean that corresponds to the current
- * request.  ActionBeans are annotated with an @UrlBinding annotation, which denotes the
- * web application relative URL that the ActionBean should respond to.
- * that methods are capable of handling.</p>
+ * request.  ActionBeans are annotated with an {@code @UrlBinding} annotation, which denotes the
+ * web application relative URL that the ActionBean should respond to.</p>
  *
  * <p>Individual methods on ActionBean classes are expected to be annotated with @HandlesEvent
  * annotations, and potentially a @DefaultHandler annotation.  Using these annotations the
@@ -87,35 +88,19 @@ public class AnnotatedClassActionResolver implements ActionResolver {
      * forms and events they map to, and stores this information in a pair of maps for fast
      * access during request processing.
      */
-    public void init(Configuration configuration) {
+    public void init(Configuration configuration) throws Exception {
         this.configuration = configuration;
 
-        // Set up the ActionClassCache
-        Set<String> urlFilters = new HashSet<String>();
-        Set<String> packageFilters = new HashSet<String>();
-
-        String temp = configuration.getBootstrapPropertyResolver().getProperty(URL_FILTERS);
-        if (temp != null) {
-            urlFilters.addAll(Arrays.asList( temp.split(",")));
-        }
-
-        temp = configuration.getBootstrapPropertyResolver().getProperty(PACKAGE_FILTERS);
-        if (temp != null) {
-            packageFilters.addAll(Arrays.asList( temp.split(",")));
-        }
-
-        ServletContext ctx =
-                configuration.getBootstrapPropertyResolver().getFilterConfig().getServletContext();
-        ActionClassCache.init(urlFilters, packageFilters, ctx);
-
-        // Use the actionResolver util to find all ActionBean implementations in the classpath
-        Set<Class<? extends ActionBean>> beans = ActionClassCache.getInstance().getActionBeanClasses();
+        // Find all the ActionBeans and set up the cache for other components
+        Set<Class<? extends ActionBean>> beans = findClasses(ActionBean.class);
+        ActionClassCache.init(beans);
 
         // Process each ActionBean
         for (Class<? extends ActionBean> clazz : beans) {
             addActionBean(clazz);
         }
     }
+
 
     /**
      * Adds an ActionBean class to the set that this resolver can resolve. Identifies
@@ -151,6 +136,36 @@ public class AnnotatedClassActionResolver implements ActionResolver {
 
             log.debug("Events mapped for class '", clazz.getSimpleName(), "': ", builder);
         }
+    }
+
+    /**
+     * Returns the URL binding that is a substring of the path provided. For example, if there
+     * is an ActionBean bound to {@code /user/Profile.action} the path
+     * {@code /user/Profile.action/view} would return {@code /user/Profile.action}.
+     *
+     * @param path the path being used to access an ActionBean, either in a form or link tag,
+     *        or in a request that is hitting the DispatcherServlet.
+     * @return the UrlBinding of the ActionBean appropriate for the request, or null if the path
+     *         supplied cannot be mapped to an ActionBean.
+     */
+    public String getUrlBindingFromPath(String path) {
+        String binding = null;
+        while (binding == null && path != null) {
+            if (this.formBeans.containsKey(path)) {
+                binding = path;
+            }
+            else {
+                int lastSlash = path.lastIndexOf("/");
+                if (lastSlash > 0) {
+                    path = path.substring(0, lastSlash);
+                }
+                else {
+                    path = null;
+                }
+            }
+        }
+
+        return binding;
     }
 
     /**
@@ -219,16 +234,17 @@ public class AnnotatedClassActionResolver implements ActionResolver {
     }
 
     /**
-     * Fetches the Class representing the type of ActionBean that has been bound to
-     * the URL supplied.  Will not cause any ActionBean to be instantiated. If no
-     * ActionBean has been bound to the URL supplied will return null.
+     * <p>Fetches the Class representing the type of ActionBean that would respond were a
+     * request made with the path specified. Checks to see if the full path matches any
+     * bean's UrlBinding. If no ActionBean matches then successively removes path segments
+     * (separated by slashes) from the end of the path until a match is found.</p>
      *
-     * @param urlBinding the url to find the bound bean type
-     * @return the class object for the type of action bean bound to the url, or
-     *         null if no bean is bound to that url
+     * @param path the path segment of a URL
+     * @return the Class object for the type of action bean that will respond if a request
+     *         is made using the path specified or null if no ActionBean matches.
      */
-    public Class<? extends ActionBean> getActionBeanType(String urlBinding) {
-        return this.formBeans.get(urlBinding);
+    public Class<? extends ActionBean> getActionBeanType(String path) {
+        return this.formBeans.get(getUrlBindingFromPath(path));
     }
 
     /**
@@ -242,49 +258,72 @@ public class AnnotatedClassActionResolver implements ActionResolver {
     public ActionBean getActionBean(ActionBeanContext context) throws StripesServletException {
         // Defensively construct the URL that was used to hit the dispatcher
         HttpServletRequest request = context.getRequest();
-        String servletPath = request.getServletPath();
-        String pathInfo    = request.getPathInfo();
-        String boundUrl = (servletPath == null ? "" : servletPath) +
-                            (pathInfo == null ? "" : pathInfo);
+        String path = getRequestedPath(request);
 
-        request.setAttribute(RESOLVED_ACTION, boundUrl);
-        return getActionBean(context, boundUrl);
+        ActionBean bean = getActionBean(context, path);
+        request.setAttribute(RESOLVED_ACTION, getUrlBindingFromPath(path));
+        return bean;
     }
 
     /**
-     * Returns the ActionBean class that is bound to the UrlBinding supplied.
+     * Simple helper method that extracts the servlet path and any extra path info
+     * and puts them back together handling nulls correctly.
      *
-     * @param urlBinding the URL to which the ActionBean has been bound
+     * @param request the current HttpServletRequest
+     * @return the servlet-context relative path that is being requested
+     */
+    protected String getRequestedPath(HttpServletRequest request) {
+        String servletPath = request.getServletPath();
+        String pathInfo    = request.getPathInfo();
+        return (servletPath == null ? "" : servletPath) + (pathInfo == null ? "" : pathInfo);
+    }
+
+    /**
+     * Returns the ActionBean class that is bound to the UrlBinding supplied. If the action
+     * bean already exists in the appropriate scope (request or session) then the existing
+     * instance will be supplied.  If not, then a new instance will be manufactured and have
+     * the supplied ActionBeanContext set on it.
+     *
+     * @param path a URL to which an ActionBean is bound, or a path starting with the URL
+     *        to which an ActionBean has been bound.
      * @param context the current ActionBeanContext
      * @return a Class<ActionBean> for the ActionBean requested
      * @throws StripesServletException if the UrlBinding does not match an ActionBean binding
      */
-    public ActionBean getActionBean(ActionBeanContext context, String urlBinding)
+    public ActionBean getActionBean(ActionBeanContext context, String path)
             throws StripesServletException {
 
+        String urlBinding = getUrlBindingFromPath(path);
         Class<? extends ActionBean> beanClass = this.formBeans.get(urlBinding);
         ActionBean bean;
 
         if (beanClass == null) {
             throw new StripesServletException(
-                    "Could not locate an ActionBean that is bound to the URL [" + urlBinding +
+                    "Could not locate an ActionBean that is bound to the URL [" + path +
                             "]. Commons reasons for this include mis-matched URLs and forgetting " +
                             "to implement ActionBean in your class. Registered ActionBeans are: " +
                             this.formBeans);
         }
 
         try {
+            HttpServletRequest request = context.getRequest();
+
             if (beanClass.isAnnotationPresent(SessionScope.class)) {
-                HttpServletRequest request = context.getRequest();
-                bean = (ActionBean) request.getSession().getAttribute(urlBinding);
+                bean = (ActionBean) request.getSession().getAttribute(path);
 
                 if (bean == null) {
                     bean = makeNewActionBean(beanClass, context);
-                    request.getSession().setAttribute(urlBinding, bean);
+                    bean.setContext(context);
+                    request.getSession().setAttribute(path, bean);
                 }
             }
             else {
-                bean = makeNewActionBean(beanClass, context);
+                bean = (ActionBean) request.getAttribute(path);
+                if (bean == null) {
+                    bean = makeNewActionBean(beanClass, context);
+                    bean.setContext(context);
+                    request.setAttribute(path, bean);
+                }
             }
 
             return bean;
@@ -329,8 +368,20 @@ public class AnnotatedClassActionResolver implements ActionResolver {
         Map<String,Method> mappings = this.eventMappings.get(bean);
         Map parameterMap = context.getRequest().getParameterMap();
 
+        // First try the traditional checking based on request parameters
         for (String event : mappings.keySet()) {
             if (parameterMap.containsKey(event) || parameterMap.containsKey(event + ".x")) {
+                return event;
+            }
+        }
+
+        // Then try to find the event based on the path
+        String path = getRequestedPath(context.getRequest());
+        String binding = getUrlBindingFromPath(path);
+        if (binding != null && path.length() != binding.length()) {
+            String extra = path.substring(binding.length() + 1);
+            String event = extra.substring(0, Math.max(extra.indexOf("/"), extra.length()));
+            if (mappings.containsKey(event)) {
                 return event;
             }
         }
@@ -385,5 +436,67 @@ public class AnnotatedClassActionResolver implements ActionResolver {
         // If we get this far, there is no sensible default!  Kaboom!
         throw new StripesServletException("No default handler could be found for ActionBean of " +
             "type: " + bean.getName());
+    }
+
+    /** Provides subclasses with access to the configuration object. */
+    protected Configuration getConfiguration() { return this.configuration; }
+
+    /**
+     * Looks up the set of URL filters to use when scanning the classpath and elsewhere
+     * for instances of ActionBeans.
+     *
+     * @return a set of String filters, possibly empty, never null
+     */
+    protected Set<String> getUrlFilters() {
+        BootstrapPropertyResolver bootstrap = this.configuration.getBootstrapPropertyResolver();
+        Set<String> urlFilters =new HashSet<String>();
+
+        String temp = bootstrap.getProperty(URL_FILTERS);
+        if (temp != null) {
+            urlFilters.addAll(Arrays.asList( temp.split(",")));
+        }
+
+        return urlFilters;
+    }
+
+    /**
+     * Looks up the set of package filters to use when scanning the classpath and elsewhere
+     * for instances of ActionBeans.
+     *
+     * @return a set of String filters, possibly empty, never null
+     */
+    protected Set<String> getPackageFilters() {
+        BootstrapPropertyResolver bootstrap = this.configuration.getBootstrapPropertyResolver();
+        Set<String> packageFilters =new HashSet<String>();
+
+        String temp = bootstrap.getProperty(PACKAGE_FILTERS);
+        if (temp != null) {
+            packageFilters.addAll(Arrays.asList( temp.split(",")));
+        }
+
+        return packageFilters;
+    }
+
+    /**
+     * Uses the configured URL and Package filters to find subclasses/implementations of the
+     * type specified. First tries to find classes using the context classloader, and if that
+     * fails, falls back to using the ServletContext mechanism.
+     *
+     * @param parentType the interface or base class of which to find implementations/subclasses
+     * @return a set of Class objects that represent subclasses of the type provided
+     */
+    protected <T> Set<Class<? extends T>> findClasses(Class<T> parentType) {
+        ResolverUtil<T> resolver = new ResolverUtil<T>();
+        resolver.setPackageFilters(getPackageFilters());
+        resolver.setLocationFilters(getUrlFilters());
+
+        if (!resolver.loadImplementationsFromContextClassloader(parentType)) {
+            ServletContext context = this.configuration.getBootstrapPropertyResolver()
+                    .getFilterConfig().getServletContext();
+
+            resolver.loadImplementationsFromServletContext(parentType, context);
+        }
+
+        return resolver.getClasses();
     }
 }

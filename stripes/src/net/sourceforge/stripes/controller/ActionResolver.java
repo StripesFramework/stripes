@@ -23,10 +23,17 @@ import net.sourceforge.stripes.config.ConfigurableComponent;
 import java.lang.reflect.Method;
 
 /**
- * Resolvers are responsible for locating ActionBean instances that can handle the submitted
+ * <p>Resolvers are responsible for locating ActionBean instances that can handle the submitted
  * request.  Once an appropriate ActionBean has been identified the ActionResolver is also
  * responsible for identifying the individual method on the ActionBean class that should handle
- * this specific request.
+ * this specific request.</p>
+ *
+ * <p>Throughout this class two terms are used that refer to similar but not interchangable
+ * concepts. {@code UrlBinding} refers to the exact URL to which a bean is bound, e.g.
+ * {@code /account/Profile.action}.  {@code Path} refers to the path segment of the requested
+ * URL and is generally composed of the URL binding and possibly some additional information,
+ * e.g. {@code /account/Profile.action/edit}.  In general the methods in this class are capable
+ * of taking in a {@code path} and extracting the {@code UrlBinding} from it.</p>
  *
  * @author Tim Fennell
  */
@@ -38,7 +45,20 @@ public interface ActionResolver extends ConfigurableComponent {
     String RESOLVED_ACTION = "__stripes_resolved_action";
 
     /**
-     * Resolves the Class, sublclassing ActionBean, that should be used to handle the request.
+     * Returns the URL binding that is a substring of the path provided. For example, if there
+     * is an ActionBean bound to {@code /user/Profile.action}, invoking
+     * {@code getUrlBindingFromPath("/user/Profile.action/view"} should return
+     * {@code "/user/Profile.action"}.
+     *
+     * @param path the path being used to access an ActionBean, either in a form or link tag,
+     *        or in a request that is hitting the DispatcherServlet.
+     * @return the UrlBinding of the ActionBean appropriate for the request, or null if the path
+     *         supplied cannot be mapped to an ActionBean.
+     */
+    String getUrlBindingFromPath(String path);
+
+    /**
+     * Resolves the Class, implementing ActionBean, that should be used to handle the request.
      * If more than one class can be mapped to the request the results of this method are undefined -
      * implementations may return one of the implementations located or throw an exception.
      *
@@ -49,26 +69,29 @@ public interface ActionResolver extends ConfigurableComponent {
     ActionBean getActionBean(ActionBeanContext context) throws StripesServletException;
 
     /**
-     * Returns the ActionBean class that is bound to the UrlBinding supplied.
+     * Returns the ActionBean class that responds to the path provided.  If the path does
+     * not contain a UrlBinding to which an ActionBean is bound a StripesServletException
+     * will be thrown.
      *
      * @param context the current action bean context
-     * @param urlBinding the URL to which the ActionBean has been bound
-     * @return an instance of ActionBean that is bound to the URL supplied
-     * @throws StripesServletException if the UrlBinding does not match an ActionBean binding
+     * @param path the path segment of the request (or link or action)
+     * @return an instance of ActionBean that is bound to the UrlBinding contained within
+     *         the path supplied
+     * @throws StripesServletException if a matching ActionBean cannot be found
      */
-    ActionBean getActionBean(ActionBeanContext context, String urlBinding)
+    ActionBean getActionBean(ActionBeanContext context, String path)
             throws StripesServletException;
 
     /**
      * Fetches the Class representing the type of ActionBean that has been bound to
-     * the URL supplied.  Will not cause any ActionBean to be instantiated. If no
-     * ActionBean has been bound to the URL supplied will return null.
+     * the URL contained within the path supplied.  Will not cause any ActionBean to be
+     * instantiated. If no ActionBean has been bound to the URL then null will be returned.
      *
-     * @param urlBinding the url to find the bound bean type
+     * @param path the path segment of a request url or form action or link
      * @return the class object for the type of action bean bound to the url, or
      *         null if no bean is bound to that url
      */
-    Class<? extends ActionBean> getActionBeanType(String urlBinding);
+    Class<? extends ActionBean> getActionBeanType(String path);
 
     /**
      * Takes a class that implements ActionBean and returns the URL binding of that class.
@@ -83,7 +106,7 @@ public interface ActionResolver extends ConfigurableComponent {
     String getUrlBinding(Class<? extends ActionBean> clazz);
 
     /**
-     * Determines the name of th event fired by the front end.  Allows implementations to
+     * Determines the name of the event fired by the front end.  Allows implementations to
      * easiliy vary their strategy for specifying event names (e.g. button names, hidden field
      * rewrites via JavaScript etc.).
      *
