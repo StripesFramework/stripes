@@ -23,12 +23,12 @@ import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.BodyContent;
 import javax.servlet.jsp.tagext.BodyTag;
 import javax.servlet.jsp.tagext.DynamicAttributes;
-import java.util.Stack;
 import java.net.URL;
+import java.util.Stack;
 
 /**
  * Renders a named layout, optionally overriding one or more components in the layout. Any
- * attribute provided to the class other than 'name' will be placed into page context during
+ * attributes provided to the class other than 'name' will be placed into page context during
  * the evaluation of the layout, making them available to other tags, and in EL.
  *
  * @author Tim Fennell
@@ -60,10 +60,13 @@ public class LayoutRenderTag extends StripesTagSupport implements BodyTag, Dynam
     }
 
     /**
-     * Does nothing.
+     * Pushes the values of any dynamic attributes into page context attributes for
+     * the duration of the tag.
+     *
      * @return EVAL_BODY_BUFFERED in all cases
      */
     public int doStartTag() throws JspException {
+        pushPageContextAttributes(this.context.getParameters());
         return EVAL_BODY_BUFFERED;
     }
 
@@ -122,6 +125,7 @@ public class LayoutRenderTag extends StripesTagSupport implements BodyTag, Dynam
             getPageContext().getOut().write(content.getString());
 
             stack.pop();
+            popPageContextAttributes(); // remove any dynattrs from page scope
 
             // Clean up in case the tag gets pooled
             this.context = new LayoutContext();
