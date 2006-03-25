@@ -22,6 +22,7 @@ import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.el.ELException;
 import javax.servlet.jsp.tagext.BodyContent;
+import javax.servlet.jsp.tagext.DynamicAttributes;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -34,7 +35,7 @@ import java.util.Map;
  *
  * @author Tim Fennell
  */
-public abstract class HtmlTagSupport extends StripesTagSupport {
+public abstract class HtmlTagSupport extends StripesTagSupport implements DynamicAttributes {
     /** Log implementation used to log errors during tag writing. */
     private final Log log = Log.getInstance(HtmlTagSupport.class);
 
@@ -57,6 +58,20 @@ public abstract class HtmlTagSupport extends StripesTagSupport {
     /** Gets the map containing the attributes of the tag. */
     protected final Map<String,String> getAttributes() {
         return this.attributes;
+    }
+
+    /**
+     * Accepts any dynamic attributes that are supplied to the tag and stored them
+     * in the map of attributes that get written back to the page.
+     *
+     * @param uri the URI of the namespace of the attribute if it has one. Totally ignored!
+     * @param name the name of the attribute
+     * @param value the value of the attribute
+     * @throws JspException not thrown from this class; included so that subclasses can
+     *         override the method and throw the interface exception
+     */
+    public void setDynamicAttribute(String uri, String name, Object value) throws JspException {
+        set(name, value == null ? "" : value.toString());
     }
 
     /** Returns the BodyContent of the tag if one has been provided by the JSP container. */

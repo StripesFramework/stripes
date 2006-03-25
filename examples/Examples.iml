@@ -29,12 +29,21 @@
         <SOURCES />
       </library>
     </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/web/WEB-INF/lib/stripes.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
     <orderEntryProperties />
   </component>
   <component name="WebModuleBuildComponent">
     <setting name="EXPLODED_URL" value="file://" />
     <setting name="EXPLODED_ENABLED" value="false" />
-    <setting name="JAR_URL" value="file://$MODULE_DIR$/Examples.war" />
+    <setting name="JAR_URL" value="file://$MODULE_DIR$/dist/stripes-examples.war" />
     <setting name="JAR_ENABLED" value="true" />
     <setting name="SYNC_EXPLODED_DIR" value="true" />
     <setting name="BUILD_ON_FRAME_DEACTIVATION" value="false" />
@@ -54,6 +63,11 @@
       <attribute name="method" value="1" />
       <attribute name="URI" value="/WEB-INF/lib/standard.jar" />
       <url>jar://$MODULE_DIR$/web/WEB-INF/lib/standard.jar!/</url>
+    </containerElement>
+    <containerElement type="library" level="module">
+      <attribute name="method" value="1" />
+      <attribute name="URI" value="/WEB-INF/lib/stripes.jar" />
+      <url>jar://$MODULE_DIR$/web/WEB-INF/lib/stripes.jar!/</url>
     </containerElement>
     <containerElement type="library" level="module">
       <attribute name="method" value="1" />
