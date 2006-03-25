@@ -86,13 +86,15 @@
       </fileset>
     </copy>
 
-
+    <!-- make two copies of the taglib, one with and one without dynamic attributes -->
     <filter filtersfile="${tld.dir}/common-descriptions.properties"/>
-    <copy todir="${classes.dir}/META-INF" filtering="true">
-      <fileset dir="${tld.dir}">
-        <include name="**/*.tld"/>
-      </fileset>
-    </copy>
+    <filter token="uri" value="http://stripes.sourceforge.net/stripes.tld"/>
+    <filter token="dynattrs" value="false"/>
+    <copy file="${tld.dir}/stripes.tld" todir="${classes.dir}/META-INF" filtering="true"/>
+
+    <filter token="uri" value="http://stripes.sourceforge.net/stripes-dynattr.tld"/>
+    <filter token="dynattrs" value="true"/>
+    <copy file="${tld.dir}/stripes.tld" tofile="${classes.dir}/META-INF/stripes-dynattr.tld" filtering="true"/>
   </target>
 
   <!-- =================================================================== -->
