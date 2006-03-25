@@ -22,6 +22,8 @@ import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.Tag;
 import java.util.Stack;
 import java.util.ListIterator;
+import java.util.Map;
+import java.util.HashMap;
 
 /**
  * A very basic implementation of the Tag interface that is similar in manner to the standard
@@ -34,6 +36,12 @@ public abstract class StripesTagSupport implements Tag {
     protected PageContext pageContext;
     /** Storage for the parent tag of this tag. */
     protected Tag parentTag;
+
+    /**
+     * A map that is used to store values of page context attributes before they were
+     * replaced with other values for the body of the tag.
+     */
+    private Map<String,Object> previousAttributeValues;
 
     /** Called by the Servlet container to set the page context on the tag. */
     public void setPageContext(PageContext pageContext) {
@@ -73,6 +81,43 @@ public abstract class StripesTagSupport implements Tag {
      * No-op implementation of release().
      */
     public void release() { }
+
+    /**
+     * Pushes new values for the attributes supplied into the page context, preserving
+     * the old values so that they can be put back into page context end of the tag's
+     * execution (usually in doEndTag).  If this method is called, the tag <b>must</b>
+     * also call{@link #popPageContextAttributes()}.
+     */
+    public void pushPageContextAttributes(Map<String,Object> attributes) {
+        this.previousAttributeValues = new HashMap<String,Object>();
+
+        for (Map.Entry<String,Object> entry : attributes.entrySet()) {
+            String name = entry.getKey();
+            this.previousAttributeValues.put(name, pageContext.getAttribute(name));
+            this.pageContext.setAttribute(name, entry.getValue());
+        }
+    }
+
+    /**
+     * Attempts to restore page context attributes to their state prior to a call to
+     * pushPageContextAttributes(). Attributes that had values prior to the execution of
+     * this tag have their values restored.  Attributes that did not have values
+     * are removed from the page context.
+     */
+    public void popPageContextAttributes() {
+        for (Map.Entry<String,Object> entry : this.previousAttributeValues.entrySet()) {
+            if (entry.getValue() == null) {
+                this.pageContext.removeAttribute(entry.getKey());
+            }
+            else {
+                this.pageContext.setAttribute(entry.getKey(), entry.getValue());
+            }
+        }
+
+        // Null out the map so erroneous values don't get picked up on tag pooling!
+        this.previousAttributeValues = null;
+    }
+
 
     /**
      * <p>Locates the enclosing tag of the type supplied.  If no enclosing tag of the type supplied
