@@ -16,9 +16,7 @@
 package net.sourceforge.stripes.controller;
 
 import net.sourceforge.stripes.action.ActionBean;
-import net.sourceforge.stripes.util.ResolverUtil;
 
-import javax.servlet.ServletContext;
 import java.util.Set;
 
 /**
@@ -42,20 +40,9 @@ public class ActionClassCache {
      * ResolverUtil does not appear to throw any exceptions, it can throw runtime exceptions which
      * would cause classloading to fail if this initalization were done statically.
      */
-    protected static synchronized void init(Set<String> urlFilters,
-                                            Set<String> packageFilters,
-                                            ServletContext context) {
-
+    protected static synchronized void init(Set<Class<? extends ActionBean>> actionBeans) {
         ActionClassCache instance = new ActionClassCache();
-        ResolverUtil<ActionBean> resolver = new ResolverUtil<ActionBean>();
-        resolver.setLocationFilters(urlFilters);
-        resolver.setPackageFilters(packageFilters);
-
-        if (!resolver.loadImplementationsFromContextClassloader(ActionBean.class)) {
-            resolver.loadImplementationsFromServletContext(ActionBean.class, context);
-        }
-
-        instance.beans = resolver.getClasses();
+        instance.beans = actionBeans;
         ActionClassCache.cache = instance;
     }
 

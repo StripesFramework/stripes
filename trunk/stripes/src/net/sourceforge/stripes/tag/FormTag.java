@@ -62,7 +62,15 @@ public class FormTag extends HtmlTagSupport implements BodyTag {
      * @param action the action path, relative to the root of the web application
      */
     public void setAction(String action) {
-        this.actionWithoutContext = action;
+        // Use the action resolver to figure out what the appropriate URL binding if for
+        // this path and use that if there is one, otherwise just use the action passed in
+        String binding = StripesFilter.getConfiguration().getActionResolver().getUrlBindingFromPath(action);
+        if (binding != null) {
+            this.actionWithoutContext = binding;
+        }
+        else {
+            this.actionWithoutContext = action;
+        }
 
         if (action.startsWith("/")) {
             HttpServletRequest request = (HttpServletRequest) getPageContext().getRequest();
