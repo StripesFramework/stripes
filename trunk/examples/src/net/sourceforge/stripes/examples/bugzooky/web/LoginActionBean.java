@@ -53,14 +53,12 @@ public class LoginActionBean extends BugzookyActionBean {
         Person person = pm.getPerson(this.username);
 
         if (person == null) {
-            ValidationError error = new LocalizableError
-                    ("/bugzooky/Login.action.usernameDoesNotExist", username);
+            ValidationError error = new LocalizableError("usernameDoesNotExist", username);
             getContext().getValidationErrors().add("username", error);
             return getContext().getSourcePageResolution();
         }
         else if (!person.getPassword().equals(password)) {
-            ValidationError error = new LocalizableError
-                    ("/bugzooky/Login.action.incorrectPassword");
+            ValidationError error = new LocalizableError("incorrectPassword");
             getContext().getValidationErrors().add("password", error);
             return getContext().getSourcePageResolution();
         }

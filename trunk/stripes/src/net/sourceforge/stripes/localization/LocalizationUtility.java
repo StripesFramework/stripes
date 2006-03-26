@@ -18,6 +18,7 @@ package net.sourceforge.stripes.localization;
 import net.sourceforge.stripes.controller.ParameterName;
 import net.sourceforge.stripes.controller.StripesFilter;
 import net.sourceforge.stripes.util.Log;
+import net.sourceforge.stripes.config.Configuration;
 
 import java.util.Locale;
 import java.util.MissingResourceException;
@@ -116,5 +117,25 @@ public class LocalizationUtility {
         }
 
         return builder.toString();
+    }
+
+    /**
+     * Looks up the specified key in the error message resource bundle. If the
+     * bundle is missing or if the resource cannot be found, will return null
+     * insted of throwing an exception.
+     *
+     * @param locale the locale in which to lookup the resource
+     * @param key the exact resource key to lookup
+     * @return the resource String or null
+     */
+    public static String getErrorMessage(Locale locale, String key) {
+        try {
+            Configuration config = StripesFilter.getConfiguration();
+            ResourceBundle bundle = config.getLocalizationBundleFactory().getErrorMessageBundle(locale);
+            return bundle.getString(key);
+        }
+        catch (MissingResourceException mre) {
+            return null;
+        }
     }
 }

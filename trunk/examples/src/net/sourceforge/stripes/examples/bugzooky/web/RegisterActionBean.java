@@ -54,15 +54,13 @@ public class RegisterActionBean extends BugzookyActionBean implements Validatabl
      */
     public void validate(ValidationErrors errors) {
         if ( new PersonManager().getPerson(this.user.getUsername()) != null ) {
-            errors.add("user.username",
-                       new LocalizableError("/bugzooky/Register.action.usernameTaken"));
+            errors.add("user.username", new LocalizableError("usernameTaken"));
         }
 
         // We have to check the password for null because it's not supplied
         // until the second page of the flow
         if (this.user.getPassword() != null && !this.user.getPassword().equals(this.confirmPassword)) {
-            errors.add("confirmPassword",
-                       new LocalizableError("/bugzooky/Register.action.passwordsDontMatch"));
+            errors.add("confirmPassword", new LocalizableError("passwordsDontMatch"));
         }
     }
 

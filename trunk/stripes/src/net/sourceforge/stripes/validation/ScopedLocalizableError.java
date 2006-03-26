@@ -15,11 +15,10 @@
  */
 package net.sourceforge.stripes.validation;
 
-import net.sourceforge.stripes.controller.StripesFilter;
+import net.sourceforge.stripes.localization.LocalizationUtility;
 
-import java.util.ResourceBundle;
-import java.util.MissingResourceException;
 import java.util.Locale;
+import java.util.MissingResourceException;
 
 /**
  * <p>Provides a slightly more customizable approach to error messages.  Where the LocalizedError
@@ -28,22 +27,28 @@ import java.util.Locale;
  *
  * <p>As an example, let's say that the IntegerConverter raises an error messsage with the values
  * defaultScope=<em>converter.integer</em> and key=<em>outOfRange</em>, for a field called
- * <em>age</em> on a form called <em>KittenDetail</em>.  Based on this information an instance of
- * ScopedLocalizableError would fetch the resource bundle and look for error message templates in
- * the following order:</p>
+ * <em>age</em> on an ActionBean bound to <em>/cats/KittenDetail.action</em>.  Based on this information
+ * an instance of ScopedLocalizableError would fetch the resource bundle and look for error message
+ * templates in the following order:</p>
  *
  * <ul>
- *   <li>KittenDetail.age.outOfRange</li>
- *   <li>KittenDetail.outOfRange</li>
+ *   <li>/cats/KittenDetail.action.age.outOfRange</li>
+ *   <li>/cats/KittenDetail.action.age.errorMessage</li>
+ *   <li>age.errorMessage</li>
+ *   <li>/cats/KittenDetail.action.outOfRange</li>
  *   <li>converter.integer.outOfRange</li>
  * </ul>
  *
  * <p>Using ScopingLocalizedErrors provides application developers with the flexibility to provide
- * as much or as little specificity in error messages as desired.</p>
+ * as much or as little specificity in error messages as desired.  The scope and ordering of the
+ * messages is designed to allow developers to specify default messages at several levels, and
+ * then override those as needed for specific circumstances.</p>
  *
  * @author Tim Fennell
  */
 public class ScopedLocalizableError extends LocalizableError {
+    /** Default key that is used for looking up error messages. */
+    public static final String DEFAULT_NAME = "errorMessage";
 
     private String defaultScope;
     private String key;
@@ -69,21 +74,36 @@ public class ScopedLocalizableError extends LocalizableError {
      */
     @Override
     protected String getMessageTemplate(Locale locale) {
-        ResourceBundle bundle = null;
-        try {
-            bundle = StripesFilter.getConfiguration().
-                    getLocalizationBundleFactory().getErrorMessageBundle(locale);
+        String name1=null, name2=null, name3=null, name4=null, name5=null;
+        name1 = getActionPath() + "." + getFieldName() + "." + key;
+        String template = LocalizationUtility.getErrorMessage(locale, name1);
 
-            return bundle.getString(getActionPath() + "." + getFieldName() + "." + key);
+        if (template == null) {
+            name2 = getActionPath() + "." + getFieldName() + "." + DEFAULT_NAME;
+            template = LocalizationUtility.getErrorMessage(locale, name2);
         }
-        catch (MissingResourceException mre) {
-            try {
-                return bundle.getString(getActionPath() + "." + key);
-            }
-            catch (MissingResourceException mre2) {
-                return super.getMessageTemplate(locale);
-            }
+        if (template == null) {
+            name3 = getFieldName() + "." + DEFAULT_NAME;
+            template = LocalizationUtility.getErrorMessage(locale, name3);
         }
+        if (template == null) {
+            name4 = getActionPath() + "." + key;
+            template = LocalizationUtility.getErrorMessage(locale, name4);
+        }
+        if (template == null) {
+            name5 = defaultScope + "." + key;
+            template = LocalizationUtility.getErrorMessage(locale, name5);
+        }
+
+        if (template == null) {
+            throw new MissingResourceException(
+                    "Could not find an error message with any of the following keys: " +
+                    "'" + name1 + "', '" + name2 + "', '" + name3 + "', '" +
+                    name4 + "', '" + name5 + "'.", null, null
+            );
+        }
+
+        return template;
     }
 
     /** Generated equals method that checks all fields and super.equals(). */
