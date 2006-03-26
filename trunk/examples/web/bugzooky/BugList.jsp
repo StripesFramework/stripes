@@ -35,10 +35,9 @@
                         <td>${bug.status}</td>
                         <td>${bug.owner.username}</td>
                         <td>
-                            <stripes:link href="/bugzooky/SingleBug.action" >
+                            <stripes:link href="/bugzooky/SingleBug.action" event="PreEdit">
                                 Edit
                                 <stripes:link-param name="bug.id" value="${bug.id}"/>
-                                <stripes:link-param name="PreEdit" value=""/>
                             </stripes:link>
                         </td>
                     </tr>

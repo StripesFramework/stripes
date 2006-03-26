@@ -39,6 +39,7 @@ import java.util.Map;
  */
 public class LinkTag extends HtmlTagSupport implements BodyTag {
     private Map<String,Object> parameters = new HashMap<String,Object>();
+    private String event;
 
     /**
      * Used by stripes:link-param tags (and possibly other tags at some distant point in
@@ -90,7 +91,11 @@ public class LinkTag extends HtmlTagSupport implements BodyTag {
                 href = request.getContextPath() + href;
             }
 
+            // Add all the parameters and reset the href attribute
             UrlBuilder builder = new UrlBuilder(href, true);
+            if (this.event != null) {
+                builder.addParameter(this.event);
+            }
             builder.addParameter(StripesConstants.URL_KEY_SOURCE_PAGE, request.getServletPath());
             builder.addParameters(this.parameters);
             setHref(response.encodeURL(builder.toString()));
@@ -113,6 +118,13 @@ public class LinkTag extends HtmlTagSupport implements BodyTag {
         this.parameters.clear();
         return EVAL_PAGE;
     }
+
+    /** Sets the (optional) event name that the link will trigger. */
+    public void setEvent(String event) { this.event = event; }
+
+    /** Gets the (optional) event name that the link will trigger. */
+    public String getEvent() { return event; }
+
 
     ///////////////////////////////////////////////////////////////////////////
     // Additional HTML Attributes supported by the tag
