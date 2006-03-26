@@ -154,6 +154,10 @@ public class DispatcherServlet extends HttpServlet {
                             if (resolution == null) {
                                 // And finally(ish) invoking of the event handler
                                 resolution = invokeEventHandler(ctx);
+
+                                // If the event produced errors, fill them in
+                                fillInValidationErrors(context.getValidationErrors(),
+                                                       context.getRequest());
                             }
                         }
                     }
@@ -531,11 +535,35 @@ public class DispatcherServlet extends HttpServlet {
         Resolution resolution = null;
 
         // If we have errors, add the action path to them
+        fillInValidationErrors(errors, request);
+
+        // Now if we have errors and the bean wants to handle them...
+        if (errors.size() > 0 && bean instanceof ValidationErrorHandler) {
+            resolution = ((ValidationErrorHandler) bean).handleValidationErrors(errors);
+        }
+
+        // If there are still errors see if we need to lookup the resolution
+        if (errors.size() > 0 && resolution == null) {
+            resolution  = context.getSourcePageResolution();
+        }
+
+        return resolution;
+    }
+
+    /**
+     * Makes sure that validation errors have all the necessary information to render
+     * themselves properly, including the UrlBinding of the action bean and the field
+     * value if it hasn't already been set.
+     *
+     * @param errors the ValidationErrors object for the request
+     * @param request the current request
+     */
+    protected void fillInValidationErrors(ValidationErrors errors, HttpServletRequest request) {
         if (errors.size() > 0) {
             String formAction = (String) request.getAttribute(ActionResolver.RESOLVED_ACTION);
 
             /** Since we don't pass form action down the stack, we add it to the errors here. */
-            for (Map.Entry<String,List<ValidationError>> entry : errors.entrySet()) {
+            for (Map.Entry<String, List<ValidationError>> entry : errors.entrySet()) {
                 String parameterName = entry.getKey();
                 List<ValidationError> listOfErrors = entry.getValue();
 
@@ -550,18 +578,6 @@ public class DispatcherServlet extends HttpServlet {
                 }
             }
         }
-
-        // Now if we have errors and the bean wants to handle them...
-        if (errors.size() > 0 && bean instanceof ValidationErrorHandler) {
-            resolution = ((ValidationErrorHandler) bean).handleValidationErrors(errors);
-        }
-
-        // If there are still errors see if we need to lookup the resolution
-        if (errors.size() > 0 && resolution == null) {
-            resolution  = context.getSourcePageResolution();
-        }
-
-        return resolution;
     }
 
     /**

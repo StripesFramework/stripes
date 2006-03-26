@@ -15,10 +15,10 @@
  */
 package net.sourceforge.stripes.validation;
 
-import net.sourceforge.stripes.controller.StripesFilter;
+import net.sourceforge.stripes.localization.LocalizationUtility;
 
 import java.util.Locale;
-import java.util.ResourceBundle;
+import java.util.MissingResourceException;
 
 /**
  * <p>Provides a mechanism for creating localizable error messages for presentation to the user.
@@ -36,6 +36,18 @@ import java.util.ResourceBundle;
  * <p>At runtime this might get replaced out to result in an error message for the user that looks
  * like &quot;<em>Fixed</em> is not a valid <em>status</em> when trying to create a new
  * <em>bug</em>&quot;.</p>
+ *
+ * <p>First looks for a resource with the action path prepended to the supplied message key. If
+ * that cannot be found then looks for a resource with the exact message key provided. This allows
+ * developers to segregate their error messages by action without having to repeat the action
+ * path in the ActionBean.  For example a message constructed with
+ * {@code new LocalizableError("insufficientBalance")} might look for message resources with
+ * the following keys:</p>
+ *
+ * <ul>
+ *   <li>{@code /account/Transfer.action.insufficientBalance}</li>
+ *   <li>{@code insufficientBalance}</li>
+ * </ul>
  *
  * <p>One last point of interest is where the user friendly field name comes from. Firstly an
  * attempt is made to look up the localized name in the applicable resource bundle using the
@@ -70,10 +82,18 @@ public class LocalizableError extends SimpleError {
      */
     @Override
     protected String getMessageTemplate(Locale locale) {
-        ResourceBundle bundle = StripesFilter.getConfiguration().
-                getLocalizationBundleFactory().getErrorMessageBundle(locale);
+        String template = LocalizationUtility.getErrorMessage(locale,
+                                                              getActionPath() + "." + messageKey);
+        if (template == null) {
+            template = LocalizationUtility.getErrorMessage(locale, messageKey);
+        }
 
-        return bundle.getString(messageKey);
+        if (template == null) {
+            throw new MissingResourceException(
+                    "Could not find an error message with key: " + messageKey, null, null);
+        }
+
+        return template;
     }
 
     /** Generated equals method that compares each field and super.equals(). */
