@@ -5,23 +5,32 @@
 <stripes:layout-render name="/bugzooky/layout/standard.jsp" title="Register">
     <stripes:layout-component name="contents">
 
-        <stripes:form action="/bugzooky/Register.action" method="POST">
-            <stripes:errors/>
+        <stripes:errors globalErrorsOnly="true"/>
 
+        <stripes:form action="/bugzooky/Register.action" method="POST">
             <p>Please provide the following information:</p>
 
             <table class="leftRightForm">
                 <tr>
                     <th><stripes:label for="user.firstName"/>:</th>
-                    <td><stripes:text name="user.firstName"/></td>
+                    <td>
+                        <stripes:text name="user.firstName"/>
+                        <stripes:errors field="user.firstName"/>
+                    </td>
                 </tr>
                 <tr>
                     <th><stripes:label for="user.lastName"/>:</th>
-                    <td><stripes:text name="user.lastName"/></td>
+                    <td>
+                        <stripes:text name="user.lastName"/>
+                        <stripes:errors field="user.lastName"/>
+                    </td>
                 </tr>
                 <tr>
                     <th><stripes:label for="user.username"/>:</th>
-                    <td><stripes:text name="user.username"/></td>
+                    <td>
+                        <stripes:text name="user.username"/>
+                        <stripes:errors field="user.username"/>
+                    </td>
                 </tr>
             </table>
 
