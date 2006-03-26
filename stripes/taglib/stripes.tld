@@ -728,13 +728,25 @@
             within a Stripes application. Works in concert with zero or more nested link-param tags
             in order to allow addition of arbitrary parameters to any URL. The body of the tag,
             minus any link-param tags, is trimmed for whitespace at either end, and is then used
-            as the contents of the link body.
+            as the contents of the link body.</p>
+
+            <p>The only attribute which is not a mirror of the HTML anchor tag is the 'event'
+            attribute. This allows specification of a specific event to trigger when linking to
+            an ActionBean URL.</p>
         ]]></description>
         <display-name>link</display-name>
         <name>link</name>
         <tag-class>net.sourceforge.stripes.tag.LinkTag</tag-class>
         <body-content>JSP</body-content>
 
+        <attribute>
+            <description>
+                The (optional) event that should be fired if the link is to an ActionBean. If not
+                supplied then the tag will not render an explicit event (but one may by built in
+                to the URL/href supplied).
+            </description>
+            <name>event</name><required>false</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
         <attribute>
             <description>The character set used to encode the referenced page. (HTML Pass-through)</description>
             <name>charset</name><required>false</required><rtexprvalue>true</rtexprvalue>
