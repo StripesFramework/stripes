@@ -206,31 +206,29 @@
 
     <tag>
         <description><![CDATA[
-            <p>Outputs validation errors. If an action attribute is specified, will only render errors if
-            the submitted form action matches the specified one. Otherwise, if nested inside a
-            stripes form tag, will only display errors if they are for the enclosing form. Otherwise
-            will display errors for whatever form was submitted.  Can optionally take a field name
-            to limit output to a single field's errors.</p>
+            <p>The errors tag has two modes, one where it displays all validation errors in a list
+            and a second mode when there is a single enclosed field-error tag that has no name attribute
+            in which case this tag iterates over the body, displaying each error in turn in place
+            of the field-error tag.</p>
 
-            <p>By default will output a simple header followed by a list of validation errors in an
-            HTML unordered list. This behaviour can be customized in two ways.  The first will
-            affect the default output of the errors tag on all pages within the application. The
-            errors tag will consult the error messages resource bundle (probably
-            StripesResources.properties unless you have configured it differently) for four String
-            resources which it will use to construct the output.  The four properties, and their
-            default values are:</p>
+            <p>In the first mode, where the default output is used, it is possible to change the output
+            for the entire application using a set of resources in the error messages bundle
+            (StripesResources.properties unless you have configured another).  If the properties are
+            undefined, the tag will output the text "Validation Errors" in a div with css class errorHeader,
+            then output an unordered list of error messages.  The following four resource strings
+            (shown with their default values) can be modified to create different default ouput:</p>
 
             <ul>
-                <li>stripes.errors.header=&lt;div class=&quot;errorHeader&quot;&gt;Validation Errors&lt;/div&gt;&lt;ul&gt;</li>
-                <li>stripes.errors.footer=&lt;/ul&gt;</li>
-                <li>stripes.errors.beforeError=&lt;li&gt;</li>
-                <li>stripes.errors.afterError=&lt;/li&gt;</li>
+              <li>stripes.errors.header=&lt;div class="errorHeader"&gt;Validation Errors&lt;/div&gt;&lt;ul&gt;</li>
+              <li>stripes.errors.footer=&lt;/ul&gt;</li>
+              <li>stripes.errors.beforeError=&lt;li&gt;</li>
+              <li>stripes.errors.afterError=&lt;/li&gt;</li>
             </ul>
 
-            <p>The second way to customize the output affects only the output on a specific page.
-            The nestable tags are: stripes:individual-error, stripes:error-header and
-            stripes:error-footer. An example, re-creating the default output using this
-            technique follow:</p>
+            <p>The second mode allows customization of the output for a specific page by nesting
+            the following tag inside the errors tag: &lt;stripes:individual-error&gt;,
+            &lt;stripes:error-header&gt; and &lt;stripes:error-footer&gt;. An example, re-creating
+            the default output using this technique follow:</p>
 
 <pre>&lt;stripes:errors&gt;
      &lt;stripes:errors-header&gt;&lt;div class=&quot;errorHeader&quot;&gt;Validation Errors&lt;/div&gt;&lt;ul&gt;&lt;/stripes:errors-header&gt;
@@ -238,6 +236,32 @@
      &lt;stripes:errors-footer&gt;&lt;/ul&gt;&lt;/stripes:errors-footer&gt;
 &lt;/stripes:errors&gt;
 </pre>
+
+            <p>The errors tag can be used to display errors for a single field by supplying it
+            with a 'field' attribute which matches the name of a field on the page. In this case the tag
+            will display only if errors exist for the named field.  In this mode the tag will fist look for
+            resources named:</p>
+
+            <ul>
+              <li>stripes.fieldErrors.header</li>
+              <li>stripes.fieldErrors.footer</li>
+              <li>stripes.fieldErrors.beforeError</li>
+              <li>stripes.fieldErrors.afterError</li>
+            </ul>
+
+            <p>If the <tt>fieldErrors</tt> resources cannot be found, the tag will default to using the
+            sames resources and defaults as when displaying for all fields.</p>
+
+            <p>Similar to the above, field specific, manner of display the errors tag can also be used
+            to output only errors not associated with a field, i.e. global errors.  This is done by setting
+            the <tt>globalErrorsOnly</tt> attribute to true.</p>
+
+            <p>This tag has several ways of being attached to the errors of a specific action request.
+            If the tag is inside a form tag, it will display only errors that are associated
+            with that form. If supplied with an 'action' attribute, it will display errors only errors
+            associated with a request to that URL. Finally, if neither is the case, it will display
+            errors associated with the action bean for the current request..</p>
+
         ]]></description>
         <display-name>errors</display-name>
         <name>errors</name>
@@ -259,6 +283,13 @@
                 named field.
             </description>
             <name>field</name><required>false</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>
+                If set to true then the tag will display only errors that are not directly
+                associated with a field, i.e. global errors.
+            </description>
+            <name>globalErrorsOnly</name><required>false</required><rtexprvalue>true</rtexprvalue>
         </attribute>
     </tag>
 

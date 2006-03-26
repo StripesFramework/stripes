@@ -7,9 +7,10 @@
         <table style="vertical-align: top;">
             <tr>
                 <td style="width: 25%; vertical-align: top;">
-                    <stripes:form action="/bugzooky/Login.action" method="POST">
-                        <stripes:errors/>
+                    <!-- Somewhat contrived example of using the errors tag 'action' attribute. -->
+                    <stripes:errors action="/bugzooky/Login.action"/>
 
+                    <stripes:form action="/bugzooky/Login.action" method="POST">
                         <table>
                             <tr>
                                 <td style="font-weight: bold;"><stripes:label for="username"/>:</td>

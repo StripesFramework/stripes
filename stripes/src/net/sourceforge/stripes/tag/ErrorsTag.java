@@ -16,7 +16,6 @@
 package net.sourceforge.stripes.tag;
 
 import net.sourceforge.stripes.action.ActionBean;
-import net.sourceforge.stripes.controller.ActionResolver;
 import net.sourceforge.stripes.controller.StripesConstants;
 import net.sourceforge.stripes.controller.StripesFilter;
 import net.sourceforge.stripes.util.Log;
@@ -32,10 +31,10 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.ResourceBundle;
-import java.util.MissingResourceException;
 
 /**
  * <p>The errors tag has two modes, one where it displays all validation errors in a list
@@ -57,13 +56,32 @@ import java.util.MissingResourceException;
  *   <li>stripes.errors.afterError={@literal </li>}</li>
  * </ul>
  *
+ * <p>The errors tag can also be used to display errors for a single field by supplying it
+ * with a 'field' attribute which matches the name of a field on the page. In this case the tag
+ * will display only if errors exist for the named field.  In this mode the tag will fist look for
+ * resources named:</p>
+ *
+ * <ul>
+ *   <li>stripes.fieldErrors.header</li>
+ *   <li>stripes.fieldErrors.footer</li>
+ *   <li>stripes.fieldErrors.beforeError</li>
+ *   <li>stripes.fieldErrors.afterError</li>
+ * </ul>
+ *
+ * <p>If the {@code fieldErrors} resources cannot be found, the tag will default to using the
+ * sames resources and defaults as when displaying for all fields.</p>
+ *
+ * <p>Similar to the above, field specific, manner of display the errors tag can also be used
+ * to output only errors not associated with a field, i.e. global errors.  This is done by setting
+ * the {@code globalErrorsOnly} attribute to true.</p>
+ *
  * <p>This tag has several ways of being attached to the errors of a specific action request.
- * If the tag is inside a action tag, it will display if the validation errors are associated
- * with that action. If supplied a name attribute, it will display errors only if the name
- * attribute matches the name of the submitted action. Finally, if neither is the case, it
+ * If the tag is inside a form tag, it will display only errors that are associated
+ * with that form. If supplied with an 'action' attribute, it will display errors only errors
+ * associated with a request to that URL. Finally, if neither is the case, it
  * will always display as described in the paragraph above.</p>
  *
- * @author Greg Hinkle
+ * @author Greg Hinkle, Tim Fennell
  */
 public class ErrorsTag extends HtmlTagSupport implements BodyTag {
 
@@ -96,6 +114,9 @@ public class ErrorsTag extends HtmlTagSupport implements BodyTag {
     /** An optional attribute that declares a particular field to output errors for. */
     private String field;
 
+    /** An optional attribute that specified to display only the global errors. */
+    private boolean globalErrorsOnly;
+
     /** The collection of errors that match the filtering conditions */
     private SortedSet<ValidationError> allErrors;
 
@@ -119,16 +140,12 @@ public class ErrorsTag extends HtmlTagSupport implements BodyTag {
         return currentError;
     }
 
-    /**
-     * Returns true if the error displayed is the first matching error.
-     */
+    /** Returns true if the error displayed is the first matching error. */
     public boolean isFirst() {
         return (this.allErrors.first() == this.currentError);
     }
 
-    /**
-     * Returns true if the error displayed is the last matching error.
-     */
+    /** Returns true if the error displayed is the last matching error. */
     public boolean isLast() {
         return (this.allErrors.last() == currentError);
     }
@@ -153,6 +170,13 @@ public class ErrorsTag extends HtmlTagSupport implements BodyTag {
         return field;
     }
 
+    /** Indicated whether the tag is displaying only global errors. */
+    public boolean isGlobalErrorsOnly() { return globalErrorsOnly; }
+
+    /** Tells the tag to display (or not) only global errors and no field level errors. */
+    public void setGlobalErrorsOnly(boolean globalErrorsOnly) {
+        this.globalErrorsOnly = globalErrorsOnly;
+    }
 
     /**
      * Determines if the tag should display errors based on the action that it is displaying for,
@@ -162,81 +186,81 @@ public class ErrorsTag extends HtmlTagSupport implements BodyTag {
      *         EVAL_BODY_TAG if there are errors to display
      */
     public int doStartTag() throws JspException {
-
-        // TODO: Find a way to access the action resolver to ensure we're getting the right action name
         HttpServletRequest request = (HttpServletRequest) getPageContext().getRequest();
-        String action = (String) request.getAttribute(ActionResolver.RESOLVED_ACTION);
+        ActionBean mainBean = (ActionBean) request.getAttribute(StripesConstants.REQ_ATTR_ACTION_BEAN);
+        FormTag formTag = getParentTag(FormTag.class);
+        ValidationErrors errors = null;
 
+        // If we are supplied with an 'action' attribute then display the errors
+        // only if that action matches the 'action' of the current action bean
         if (getAction() != null) {
-            // The errors tag was supplied a action name, see if it is the one submitted in the req
-            if (getAction().equals(action)) {
-                this.display = true;
-            }
-        } else {
-            // See if the enclosing action tag (if any) is the one submitted
-            FormTag formTag = getParentTag(FormTag.class);
-            if (formTag != null) {
-                if (formTag.getAction().equals(action)) {
-                    this.display = true;
+            if (mainBean != null) {
+                String mainAction = StripesFilter.getConfiguration()
+                        .getActionResolver().getUrlBinding(mainBean.getClass());
+
+                if (getAction().equals(mainAction)) {
+                    errors = mainBean.getContext().getValidationErrors();
                 }
             }
-            // Else if no name was set, and we're not in a action tag, we're global, so display
-            else {
-                this.display = true;
+        }
+        // Else we don't have an 'action' attribute, so see if we are nested in
+        // a form tag
+        else if (formTag != null) {
+            ActionBean formBean = formTag.getActionBean();
+            if (formBean != null) {
+                errors = formBean.getContext().getValidationErrors();
             }
+
+        }
+        // Else if no name was set, and we're not in a action tag, we're global and ok to display
+        else if (mainBean != null) {
+            errors = mainBean.getContext().getValidationErrors();
         }
 
-        // If we think we're going to display, go off and find the set of errors to
-        // display and see if there are any
-        if (this.display) {
-            ValidationErrors validationErrors = null;
-            ActionBean bean = getActionBean();
-            if (bean != null) {
-                validationErrors = bean.getContext().getValidationErrors();
-            }
+        // If we found some errors that are applicable for display, figure out what to do
+        if (errors != null) {
+            // Using a set ensures that duplicate messages get filtered out, which can
+            // happen during multi-row validation
+            this.allErrors = new TreeSet<ValidationError>(new ErrorComparator());
 
-            if (validationErrors == null || validationErrors.size() == 0) {
-                this.display = false;
+            if (this.field != null) {
+                // we're filtering for a specific field
+                List<ValidationError> fieldErrors = errors.get(this.field);
+                if (fieldErrors != null) {
+                    this.allErrors.addAll(fieldErrors);
+                }
+            }
+            else if (this.globalErrorsOnly) {
+                List<ValidationError> globalErrors = errors.get(ValidationErrors.GLOBAL_ERROR);
+                if (globalErrors != null) {
+                    this.allErrors.addAll(globalErrors);
+                }
             }
             else {
-                // Using a set ensures that duplicate messages get filtered out, which can
-                // happen during multi-row validation
-                this.allErrors = new TreeSet<ValidationError>(new ErrorComparator());
-
-                if (this.field != null) {
-                    // we're filtering for a specific field
-                    List<ValidationError> fieldErrors = validationErrors.get(this.field);
+                for (List<ValidationError> fieldErrors : errors.values()) {
                     if (fieldErrors != null) {
                         this.allErrors.addAll(fieldErrors);
                     }
-
-                    if (this.allErrors.size() == 0) {
-                        this.display = false;
-                        return SKIP_BODY;
-                    }
                 }
-                else {
-                    for (List<ValidationError> fieldErrors : validationErrors.values()) {
-                        if (fieldErrors != null) {
-                            this.allErrors.addAll(fieldErrors);
-                        }
-                    }
-                }
-
-                // Setup the objects needed for iteration
-                this.errorIterator = this.allErrors.iterator();
-                this.currentError = this.errorIterator.next(); // load up the first error
-                return EVAL_BODY_BUFFERED;
             }
         }
 
-        return SKIP_BODY;
+        // Make sure that after all this we really do have some errors
+        if (this.allErrors != null && this.allErrors.size() > 0) {
+            this.display = true;
+            this.errorIterator = this.allErrors.iterator();
+            this.currentError = this.errorIterator.next(); // load up the first error
+            return EVAL_BODY_BUFFERED;
+        }
+        else {
+            this.display = false;
+            return SKIP_BODY;
+
+        }
     }
 
 
-    /**
-     * Sets the context variables for the current error and index
-     */
+    /** Sets the context variables for the current error and index */
     public void doInitBody() throws JspException {
         // Apply TEI attributes
         getPageContext().setAttribute("index", this.index);
@@ -279,22 +303,24 @@ public class ErrorsTag extends HtmlTagSupport implements BodyTag {
             if (this.display && !this.nestedErrorTagPresent) {
                 // Output all errors in a standard format
                 Locale locale = getPageContext().getRequest().getLocale();
-                ResourceBundle bundle = StripesFilter.getConfiguration()
-                        .getLocalizationBundleFactory().getErrorMessageBundle(locale);
+                ResourceBundle bundle = null;
+
+                try {
+                    bundle = StripesFilter.getConfiguration()
+                            .getLocalizationBundleFactory().getErrorMessageBundle(locale);
+                }
+                catch (MissingResourceException mre) {
+                    log.warn("The errors tag could not find the error messages resource bundle. ",
+                             "As a result default headers/footers etc. will be used. Check that ",
+                             "you have a StripesResources.properties in your classpath (unless ",
+                             "of course you have configured a different bundle).");
+                }
 
                 // Fetch the header and footer
-                String header, footer, openElement, closeElement;
-                try { header = bundle.getString("stripes.errors.header"); }
-                catch (MissingResourceException mre) { header = DEFAULT_HEADER; }
-
-                try { footer = bundle.getString("stripes.errors.footer"); }
-                catch (MissingResourceException mre) { footer = DEFAULT_FOOTER; }
-
-                try { openElement = bundle.getString("stripes.errors.beforeError"); }
-                catch (MissingResourceException mre) { openElement = "<li>"; }
-
-                try { closeElement = bundle.getString("stripes.errors.afterError"); }
-                catch (MissingResourceException mre) { closeElement = "</li>"; }
+                String header = getResource(bundle, "header", DEFAULT_HEADER);
+                String footer = getResource(bundle, "footer", DEFAULT_FOOTER);
+                String openElement  = getResource(bundle, "beforeError", "<li>");
+                String closeElement = getResource(bundle, "afterError", "</li>");
 
                 // Write out the error messages
                 writer.write(header);
@@ -332,17 +358,31 @@ public class ErrorsTag extends HtmlTagSupport implements BodyTag {
     }
 
     /**
-     * Fetches the ActionBean associated with the action if one is present.  An ActionBean will not
-     * be created (and hence not present) by default.  An ActionBean will only be present if the
-     * current request got bound to the same ActionBean as the current action uses.  E.g. if we are
-     * re-showing the page as the result of an error, or the same ActionBean is used for a
-     * &quot;pre-Action&quot; and the &quot;post-action&quot;.
+     * Utility method that is used to lookup the resources used for the errors header,
+     * footer, and the strings that go before and after each error.
      *
-     * @return ActionBean the ActionBean bound to the action if there is one
+     * @param bundle the bundle to look up the resource from
+     * @param name the name of the resource to lookup (prefixes will be added)
+     * @param fallback a value to return if no resource can be found
+     * @return the value to use for the named resource
      */
-    protected ActionBean getActionBean() {
-        return (ActionBean) getPageContext().getRequest().
-                getAttribute(StripesConstants.REQ_ATTR_ACTION_BEAN);
+    protected String getResource(ResourceBundle bundle, String name, String fallback) {
+        if (bundle == null) {
+            return fallback;
+        }
+
+        String resource = null;
+        if (this.field != null) {
+            try { resource = bundle.getString("stripes.fieldErrors." + name); }
+            catch (MissingResourceException mre) { /* Do nothing */ }
+        }
+
+        if (resource == null) {
+            try { resource = bundle.getString("stripes.errors." + name); }
+            catch (MissingResourceException mre) { resource = fallback; }
+        }
+
+        return resource;
     }
 
     /**
@@ -354,7 +394,9 @@ public class ErrorsTag extends HtmlTagSupport implements BodyTag {
     private static class ErrorComparator implements Comparator<ValidationError> {
         public int compare(ValidationError e1, ValidationError e2) {
             // Identical errors should be supressed
-            if (e1.equals(e2)) return 0;
+            if (e1.equals(e2)) {
+                return 0;
+            }
 
             String fn1 = e1.getFieldName();
             String fn2 = e2.getFieldName();
@@ -362,9 +404,15 @@ public class ErrorsTag extends HtmlTagSupport implements BodyTag {
             boolean e2Global = fn2 == null || fn2.equals(ValidationErrors.GLOBAL_ERROR);
 
             // Sort globals above non-global errors
-            if (e1Global && !e2Global) return -1;
-            if (e2Global && !e1Global) return 1;
-            if (fn1 == null && fn2 == null) return 0;
+            if (e1Global && !e2Global) {
+                return -1;
+            }
+            if (e2Global && !e1Global) {
+                return 1;
+            }
+            if (fn1 == null && fn2 == null) {
+                return 0;
+            }
 
             // Then sort by field name, and if field names match make the first one come first
             int result = e1.getFieldName().compareTo(e2.getFieldName());

@@ -10,9 +10,9 @@
         <jsp:useBean id="personManager" scope="page"
                      class="net.sourceforge.stripes.examples.bugzooky.biz.PersonManager"/>
 
-        <stripes:form action="/bugzooky/SingleBug.action">
-            <stripes:errors/>
+        <stripes:errors/>
 
+        <stripes:form action="/bugzooky/SingleBug.action">
             <table class="leftRightForm">
                 <tr>
                     <th>Bug ID:</th>
