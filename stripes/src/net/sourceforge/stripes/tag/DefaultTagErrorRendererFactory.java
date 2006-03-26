@@ -16,27 +16,75 @@
 package net.sourceforge.stripes.tag;
 
 import net.sourceforge.stripes.config.Configuration;
+import net.sourceforge.stripes.util.ReflectUtil;
+import net.sourceforge.stripes.exception.StripesRuntimeException;
 
 /**
- * A basic implementation of the TagErrorRendererFactory interface that always
- * constructs and returns the {@link DefaultTagErrorRenderer}.
+ * <p>A straightforward implementation of the TagErrorRendererFactory interface that looks
+ * up the name of the renderer class in config, and if one is not supplied defaults to
+ * using the {@link DefaultTagErrorRenderer}.  The same TagErrorRenderer is instantiated for
+ * all tags, and must be public and have a public no-arg constructor.</p>
  *
- * @author Greg Hinkle
+ * <p>To configure a different TagErrorRenderer use the configuration key
+ * {@code TagErrorRenderer.Class} and supply a fully qualified class name.  For example, to
+ * do this in web.xml you would add the following parameter to the Stripes Filter:</p>
+ *
+ *<pre>
+ *{@literal <init-param>}
+ *    {@literal <param-name>TagErrorRenderer.Class</param-name>}
+ *    {@literal <param-value>com.myco.web.util.CustomTagErrorRenderer</param-value>}
+ *{@literal </init-param>}
+ *</pre>
+ *
+ * @author Greg Hinkle, Tim Fennell
  */
 public class DefaultTagErrorRendererFactory implements TagErrorRendererFactory {
-    private Configuration configuration;
+    public static final String RENDERER_CLASS_KEY = "TagErrorRenderer.Class";
 
-    /** Just stores the configuration passed in. */
+    private Configuration configuration;
+    private Class<? extends TagErrorRenderer> rendererClass;
+
+    /**
+     * Looks up the name of the configured renderer class in the configuration and
+     * attempts to find the Class object for it.  If one isn't provided then the default
+     * class is used.  If the configured class cannot be found an exception will be
+     * thrown and the factory is deemed invalid.
+     */
     public void init(Configuration configuration) throws Exception {
         this.configuration = configuration;
+
+        String className = configuration.getBootstrapPropertyResolver().
+                getProperty(RENDERER_CLASS_KEY);
+        if (className == null) {
+            this.rendererClass = DefaultTagErrorRenderer.class;
+        }
+        else {
+            try {
+                this.rendererClass = ReflectUtil.findClass(className);
+            }
+            catch (ClassNotFoundException cnfe) {
+                throw new StripesRuntimeException("Could not load the specified TagErrorRenderer " +
+                    "class '" + className + "'. Please check the classname for typos and make " +
+                    "sure that the class is available in the classpath of the web app.", cnfe);
+            }
+        }
     }
 
     /**
-     * Always returns an initialized instance of DefaultTagErrorRenderer.
+     * Returns a new instance of the configured renderer that is ready for use. By default
+     * returns an instance of {@link DefaultTagErrorRenderer}. If a custom class is configured
+     * and cannot be instantiated, an exception will be thrown.
      */
     public TagErrorRenderer getTagErrorRenderer(InputTagSupport tag) {
-        TagErrorRenderer renderer = new DefaultTagErrorRenderer();
-        renderer.init(tag);
-        return renderer;
+        try {
+            TagErrorRenderer renderer = this.rendererClass.newInstance();
+            renderer.init(tag);
+            return renderer;
+        }
+        catch (Exception e) {
+            throw new StripesRuntimeException("Could not create an instance of the configured " +
+                "TagErrorRenderer class '" + this.rendererClass.getName() + "'. Please check " +
+                "that the class is public and has a no-arg public constructor.", e);
+        }
     }
 }
