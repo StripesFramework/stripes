@@ -87,6 +87,30 @@ public class FormTag extends HtmlTagSupport implements BodyTag {
 
     public String getAction() { return this.actionWithoutContext; }
 
+    /**
+     * Sets the 'action' attribute by inspecting the bean class provided and asking the current
+     * ActionResolver what the appropriate URL is.
+     *
+     * @param beanclass the Strin FQN of the class, or a Class representing the class
+     * @throws StripesJspException if the URL cannot be determined for any reason, most likely
+     *         because of a mis-spelled class name, or a class that's not an ActionBean
+     */
+    public void setBeanclass(Object beanclass) throws StripesJspException {
+        String url = getActionBeanUrl(beanclass);
+        if (url == null) {
+            throw new StripesJspException("Could not determine action from 'beanclass' supplied. " +
+                "The value supplied was '" + beanclass + "'. Please ensure that this bean type " +
+                "exists and is in the classpath. If you are developing a page and the ActionBean " +
+                "does not yet exist, consider using the 'action' attribute instead for now.");
+        }
+        else {
+            setAction(url);
+        }
+    }
+
+    /** Corresponding getter for 'beanclass', will always return null. */
+    public Object getBeanclass() { return null; }
+
     ////////////////////////////////////////////////////////////
     // Additional attributes specific to the form tag
     ////////////////////////////////////////////////////////////

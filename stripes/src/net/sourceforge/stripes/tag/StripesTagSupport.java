@@ -15,15 +15,19 @@
  */
 package net.sourceforge.stripes.tag;
 
+import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.controller.StripesConstants;
+import net.sourceforge.stripes.controller.StripesFilter;
+import net.sourceforge.stripes.util.Log;
+import net.sourceforge.stripes.util.ReflectUtil;
 
-import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.tagext.Tag;
-import java.util.Stack;
+import java.util.HashMap;
 import java.util.ListIterator;
 import java.util.Map;
-import java.util.HashMap;
+import java.util.Stack;
 
 /**
  * A very basic implementation of the Tag interface that is similar in manner to the standard
@@ -32,6 +36,8 @@ import java.util.HashMap;
  * @author Tim Fennell
  */
 public abstract class StripesTagSupport implements Tag {
+    private static final Log log = Log.getInstance(StripesTagSupport.class);
+
     /** Storage for a PageContext during evaluation. */
     protected PageContext pageContext;
     /** Storage for the parent tag of this tag. */
@@ -162,5 +168,64 @@ public abstract class StripesTagSupport implements Tag {
         }
 
         return stack;
+    }
+
+    /**
+     * Helper method that takes an attribute which may be either a String class name
+     * or a Class object and returns the Class representing the appropriate ActionBean.
+     * If for any reason the Class cannot be determined, or it is not an ActionBean, null
+     * will be returned instead.
+     *
+     * @param nameOrClass either the String FQN of an ActionBean class, or a Class object
+     * @return the appropriate ActionBean class or null
+     */
+    protected Class<? extends ActionBean> getActionBeanType(Object nameOrClass) {
+        Class result = null;
+
+        // Figure out if it's a String of Class (or something else?) and act appropriately
+        if (nameOrClass instanceof String) {
+            try {
+                result = ReflectUtil.findClass((String) nameOrClass);
+            }
+            catch (ClassNotFoundException cnfe) {
+                log.error(cnfe, "Could not find class of type: ", nameOrClass);
+                return null;
+            }
+        }
+        else if (nameOrClass instanceof Class) {
+            result = (Class) nameOrClass;
+        }
+        else {
+            log.error("The value supplied to getActionBeanType() was neither a String nor a " +
+                "Class. Cannot infer ActionBean type from value: " + nameOrClass);
+            return null;
+        }
+
+        // And for good measure, let's make sure it's an ActionBean implementation!
+        if (ActionBean.class.isAssignableFrom(result)) {
+            return result;
+        }
+        else {
+            log.error("Class '", result.getName(), "' specified in tag does not implement ",
+                      "ActionBean.");
+            return null;
+        }
+    }
+
+    /**
+     * Similar to the {@link #getActionBeanType(Object)} method except that instead of
+     * returning the Class of ActionBean it returns the URL Binding of the ActionBean.
+     *
+     * @param nameOrClass either the String FQN of an ActionBean class, or a Class object
+     * @return the URL of the appropriate ActionBean class or null
+     */
+    protected String getActionBeanUrl(Object nameOrClass) {
+        Class<? extends ActionBean> beanType = getActionBeanType(nameOrClass);
+        if (beanType != null) {
+            return StripesFilter.getConfiguration().getActionResolver().getUrlBinding(beanType);
+        }
+        else {
+            return null;
+        }
     }
 }
