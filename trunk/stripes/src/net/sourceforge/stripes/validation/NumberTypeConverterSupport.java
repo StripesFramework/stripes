@@ -29,10 +29,14 @@ import java.util.Currency;
  */
 public class NumberTypeConverterSupport {
     private Locale locale;
+    private NumberFormat[] formats;
+    private String currencySymbol;
 
     /** Used by Stripes to tell the converter what locale the incoming text is in. */
     public void setLocale(Locale locale) {
         this.locale = locale;
+        this.formats = getNumberFormats();
+        this.currencySymbol = Currency.getInstance(getLocale()).getSymbol(getLocale());
     }
 
     /** Returns the Locale set on the object using setLocale(). */
@@ -71,7 +75,7 @@ public class NumberTypeConverterSupport {
     protected Number parse(String input, Collection<ValidationError> errors) {
         input = preprocess(input);
 
-        for (NumberFormat format : getNumberFormats()) {
+        for (NumberFormat format : this.formats) {
             try { return format.parse(input); }
             catch (ParseException pe) { /* Do nothing. */ }
         }
@@ -96,9 +100,8 @@ public class NumberTypeConverterSupport {
         String output = input.trim();
 
         // Step 2: remove the currency symbol
-        String currency = Currency.getInstance(getLocale()).getSymbol(getLocale());
         // The casts are to make sure we don't call replace(String regex, String replacement)
-        output = output.replace((CharSequence) currency, (CharSequence) "");
+        output = output.replace((CharSequence) currencySymbol, (CharSequence) "");
 
         // Step 3: replace parentheses with negation
         if (output.startsWith("(") && output.endsWith(")")) {
