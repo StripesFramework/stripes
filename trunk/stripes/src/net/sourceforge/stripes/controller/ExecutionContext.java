@@ -53,7 +53,7 @@ public class ExecutionContext {
      *
      * @param stack a non-null (though possibly empty) ordered collection of interceptors
      */
-    void setInterceptors(Collection<Interceptor> stack) {
+    public void setInterceptors(Collection<Interceptor> stack) {
         this.interceptors = stack;
     }
 
@@ -67,7 +67,7 @@ public class ExecutionContext {
      *         code and any interceptors which intercept the execution
      * @throws Exception if the lifecycle code or an interceptor throws an Exception
      */
-    Resolution wrap(Interceptor target) throws Exception {
+    public Resolution wrap(Interceptor target) throws Exception {
         this.target = target;
         this.iterator = null;
         return proceed();

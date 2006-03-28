@@ -387,9 +387,20 @@
                 The URL to which this form will post. Expected to be a web-app relative path - the
                 tag will prepend the context path to any action that begins with a slash and does
                 not already contain the context path. Should match a URL to which an ActionBean
-                has been bound.
+                has been bound.  Required unless 'beanclass' is provided.
             </description>
-            <name>action</name><required>true</required><rtexprvalue>true</rtexprvalue>
+            <name>action</name><required>false</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>
+                The fully qualified name of an ActionBean class, or alternatively a Class instance
+                for an ActionBean class.  An alternative to the 'action' attribute, the 'beanclass'
+                attribute will generate an action appropriate for the ActionBean identified. Note
+                that if an "ActionBean" that does not yet exist is identified an exception will
+                be thrown!
+            </description>
+            <name>beanclass</name><required>false</required><rtexprvalue>true</rtexprvalue>
+            <type>java.lang.Object</type>
         </attribute>
         <attribute>
             <description>A comma separated list of content types that it is acceptable to submit through this form. (HTML Pass-through)</description>
@@ -730,9 +741,11 @@
             minus any link-param tags, is trimmed for whitespace at either end, and is then used
             as the contents of the link body.</p>
 
-            <p>The only attribute which is not a mirror of the HTML anchor tag is the 'event'
-            attribute. This allows specification of a specific event to trigger when linking to
-            an ActionBean URL.</p>
+            <p>There are two attributes which are not a mirrors of attributes on the HTML anchor
+            tag. The first is the 'event' attribute. This allows specification of a specific event
+             to trigger when linking to an ActionBean URL. The second is 'beanclass' which allows
+             the specification of the class name or Class instance for an ActionBean as an
+             alternative to specifying the 'href' attribute.</p>
         ]]></description>
         <display-name>link</display-name>
         <name>link</name>
@@ -746,6 +759,17 @@
                 to the URL/href supplied).
             </description>
             <name>event</name><required>false</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>
+                The fully qualified name of an ActionBean class, or alternatively a Class instance
+                for an ActionBean class.  An alternative to the 'href' attribute, the 'beanclass'
+                attribute will generate an href appropriate for the ActionBean identified. Note
+                that if an ActionBean that does not yet exist is identified an exception will
+                be thrown!
+            </description>
+            <name>beanclass</name><required>false</required><rtexprvalue>true</rtexprvalue>
+            <type>java.lang.Object</type>
         </attribute>
         <attribute>
             <description>The character set used to encode the referenced page. (HTML Pass-through)</description>
@@ -1612,9 +1636,18 @@
         <attribute>
             <description>
                 The URL to which the action bean is bound, as specified in the @UrlBinding
-                for the ActionBean in question.
+                for the ActionBean in question. Required if 'beanclass' is not specified.
             </description>
-            <name>binding</name><required>true</required><rtexprvalue>true</rtexprvalue>
+            <name>binding</name><required>false</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>
+                Either the fully qualified name or a Class object representing an ActionBean
+                class. Can be used as an alternative to 'binding' to identify the type of
+                ActionBean that should be resolved and/or instantiated.
+            </description>
+            <name>beanclass</name><required>false</required><rtexprvalue>true</rtexprvalue>
+            <type>java.lang.Object</type>
         </attribute>
         <attribute>
             <description>

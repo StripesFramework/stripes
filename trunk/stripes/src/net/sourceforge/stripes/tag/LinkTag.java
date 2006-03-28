@@ -40,6 +40,7 @@ import java.util.Map;
 public class LinkTag extends HtmlTagSupport implements BodyTag {
     private Map<String,Object> parameters = new HashMap<String,Object>();
     private String event;
+    private Object beanclass;
 
     /**
      * Used by stripes:link-param tags (and possibly other tags at some distant point in
@@ -79,6 +80,20 @@ public class LinkTag extends HtmlTagSupport implements BodyTag {
      * @throws JspException
      */
     public int doEndTag() throws JspException {
+        // If the beanclass attribute was supplied we'll prefer that to an href
+        if (this.beanclass != null) {
+            String beanHref = getActionBeanUrl(beanclass);
+            if (beanHref == null) {
+                throw new StripesJspException("The value supplied for the 'beanclass' attribute "
+                    + "does not represent a valid ActionBean. The value supplied was '" +
+                    this.beanclass + "'. If you're prototyping, or your bean isn't ready yet " +
+                    "and you want this exception to go away, just use 'href' for now instead.");
+            }
+            else {
+                setHref(beanHref);
+            }
+        }
+
         HttpServletRequest request = (HttpServletRequest) getPageContext().getRequest();
         HttpServletResponse response = (HttpServletResponse) getPageContext().getResponse();
         String originalHref = getHref(); // Save for later, so we can restore the value
@@ -124,6 +139,23 @@ public class LinkTag extends HtmlTagSupport implements BodyTag {
 
     /** Gets the (optional) event name that the link will trigger. */
     public String getEvent() { return event; }
+
+    /**
+     * Sets the bean class (String FQN or Class) to generate a link for. Provides an
+     * alternative to using href for targetting ActionBeans.
+     *
+     * @param beanclass the name of an ActionBean class, or Class object
+     */
+    public void setBeanclass(Object beanclass) { this.beanclass = beanclass; }
+
+    /**
+     * Gets the bean class (String FQN or Class) to generate a link for. Provides an
+     * alternative to using href for targetting ActionBeans.
+     *
+     * @return the name of an ActionBean class, or Class object
+     */
+    public Object getBeanclass() { return beanclass; }
+
 
 
     ///////////////////////////////////////////////////////////////////////////

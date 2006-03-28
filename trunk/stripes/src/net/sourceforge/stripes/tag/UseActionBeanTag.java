@@ -17,14 +17,18 @@ package net.sourceforge.stripes.tag;
 
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.action.ActionBeanContext;
+import net.sourceforge.stripes.action.Resolution;
+import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.controller.ActionResolver;
+import net.sourceforge.stripes.controller.ExecutionContext;
+import net.sourceforge.stripes.controller.Interceptor;
+import net.sourceforge.stripes.controller.LifecycleStage;
 import net.sourceforge.stripes.controller.StripesFilter;
 import net.sourceforge.stripes.exception.StripesJspException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.JspException;
-import java.lang.reflect.Method;
 
 /**
  * <p>This tag supports the use of Stripes ActionBean classes as view helpers.
@@ -70,30 +74,66 @@ public class UseActionBeanTag extends StripesTagSupport {
         // Check to see if the action bean already exists
         ActionBean actionBean = (ActionBean) pageContext.getRequest().getAttribute(binding);
         if (actionBean == null) {
-            ActionResolver resolver = StripesFilter.getConfiguration().getActionResolver();
-
             try {
+                final Configuration config = StripesFilter.getConfiguration();
                 HttpServletRequest request = (HttpServletRequest) getPageContext().getRequest();
                 HttpServletResponse response = (HttpServletResponse) getPageContext().getResponse();
 
-                ActionBeanContext tempContext = StripesFilter.getConfiguration()
-                        .getActionBeanContextFactory().getContextInstance(request, response);
+                // Setup the context stuff needed to emulate the dispatcher
+                ActionBeanContext tempContext =
+                        config.getActionBeanContextFactory().getContextInstance(request, response);
+                ExecutionContext ctx = new ExecutionContext();
+                ctx.setLifecycleStage(LifecycleStage.ActionBeanResolution);
+                ctx.setActionBeanContext(tempContext);
 
-                actionBean= resolver.getActionBean(tempContext, binding);
-                actionBean.setContext(tempContext);
+                // Run action bean resolution
+                final ActionResolver resolver = StripesFilter.getConfiguration().getActionResolver();
+                ctx.setInterceptors(config.getInterceptors(LifecycleStage.ActionBeanResolution));
+                ctx.wrap( new Interceptor() {
+                    public Resolution intercept(ExecutionContext ec) throws Exception {
+                        ActionBean bean = resolver.getActionBean(ec.getActionBeanContext(), binding);
+                        ec.setActionBean(bean);
+                        return null;
+                    }
+                });
+
+                // Then, if and only if an event was specified, run handler resolution
+                if (event != null) {
+                    ctx.setLifecycleStage(LifecycleStage.HandlerResolution);
+                    ctx.setInterceptors(config.getInterceptors(LifecycleStage.HandlerResolution));
+                    ctx.wrap( new Interceptor() {
+                        public Resolution intercept(ExecutionContext ec) throws Exception {
+                            ec.setHandler(resolver.getHandler(ec.getActionBean().getClass(), event));
+                            return null;
+                        }
+                    });
+                }
 
                 // Bind applicable request parameters to the ActionBean
-                StripesFilter.getConfiguration().getActionBeanPropertyBinder()
-                        .bind (actionBean, tempContext, false);
+                ctx.setLifecycleStage(LifecycleStage.BindingAndValidation);
+                ctx.setInterceptors(config.getInterceptors(LifecycleStage.BindingAndValidation));
+                ctx.wrap( new Interceptor() {
+                    public Resolution intercept(ExecutionContext ec) throws Exception {
+                        config.getActionBeanPropertyBinder()
+                                .bind(ec.getActionBean(), ec.getActionBeanContext(), false);
+                        return null;
+                    }
+                });
+
+                // And (again) if an event was supplied, then run the handler
+                if (event != null) {
+                    ctx.setLifecycleStage(LifecycleStage.EventHandling);
+                    ctx.setInterceptors(config.getInterceptors(LifecycleStage.EventHandling));
+                    ctx.wrap( new Interceptor() {
+                        public Resolution intercept(ExecutionContext ec) throws Exception {
+                            return (Resolution) ec.getHandler().invoke(ec.getActionBean());
+                        }
+                    });
+                }
 
                 // Put the ActionBean in it's home in the request
-                pageContext.getRequest().setAttribute(binding, actionBean);
-
-                // If an event is named, invoke the handler, but ignore the resolution
-                if (event != null) {
-                    Method handler = resolver.getHandler(actionBean.getClass(), event);
-                    handler.invoke(actionBean);
-                }
+                actionBean = ctx.getActionBean();
+                request.setAttribute(binding, actionBean);
             }
             catch(Exception e) {
                 throw new StripesJspException("Unabled to prepare ActionBean for JSP Usage",e);
@@ -113,6 +153,24 @@ public class UseActionBeanTag extends StripesTagSupport {
      * @return EVAL_PAGE in all cases.
      */
     public int doEndTag() { return EVAL_PAGE; }
+
+    /**
+     * Sets the binding attribute by figuring out what ActionBean class is identified
+     * and then in turn finding out the appropriate URL for the ActionBean.
+     *
+     * @param beanclass the FQN of an ActionBean class, or a Class object for one.
+     */
+    public void setBeanclass(Object beanclass) throws StripesJspException {
+        String url = getActionBeanUrl(beanclass);
+        if (url == null) {
+            throw new StripesJspException("The 'beanclass' attribute provided could not be " +
+                "used to identify a valid and configured ActionBean. The value supplied was: " +
+                beanclass);
+        }
+        else {
+            this.binding = url;
+        }
+    }
 
     /** Get the UrlBinding of the requested ActionBean */
     public String getBinding() { return binding; }
