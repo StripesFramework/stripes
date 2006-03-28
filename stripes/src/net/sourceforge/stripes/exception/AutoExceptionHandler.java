@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 Jeppe Cramon
+/* Copyright (C) 2006 Tim Fennell
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published by the
@@ -17,14 +17,22 @@ package net.sourceforge.stripes.exception;
 
 
 /**
- * Interface that exception handlers must implement.
- * It's currently only used as a marker interface which is used by the default ExceptionHandlerResolver, DelegatingExceptionHandler, to find
- * available ExceptionHandlers.<p/>
+ * <p>A marker interface for delegate exception handlers to be used with the
+ * {@link DelegatingExceptionHandler}.  Note that the DelegatingExceptionHandler must be
+ * configured as the {@link ExceptionHandler} for the application in order for AutoExceptionHandlers
+ * to be discovered and used.</p>
  *
- * Since there're no exception handler methods required by the interface, each AutoExceptionHandler implementation
- * can contain several exception handler methods.
- * It's the implementation of the ExceptionHandlerResolver that defines how exception handler methods are defined.
+ * <p>AutoExceptionHandlers can define one or more methods to handle different kinds of exceptions.
+ * Each method must have the following signature:</p>
+ *
+ *<pre>public Resolution handle(Type exception, HttpServletRequest req, HttpServletResponse res);</pre>
+ *
+ * <p>where <tt>Type</tt> can be any subclass of {@link java.lang.Throwable}.  The name of the
+ * method does not matter and the return type is only loosely enforced. If the method
+ * returns an object and it is a {@link net.sourceforge.stripes.action.Resolution} then it
+ * will be executed, otherwise it will be ignored.</p>
  *
  * @author Jeppe Cramon
+ * @since Stripes 1.3
  */
 public interface AutoExceptionHandler { }

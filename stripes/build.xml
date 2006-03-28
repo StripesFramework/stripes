@@ -144,6 +144,7 @@
             <title>Extension API</title>
             <package name="net.sourceforge.stripes.ajax"/>
             <package name="net.sourceforge.stripes.config"/>
+            <package name="net.sourceforge.stripes.exception"/>
             <package name="net.sourceforge.stripes.format"/>
             <package name="net.sourceforge.stripes.integration.spring"/>
             <package name="net.sourceforge.stripes.localization"/>
@@ -153,7 +154,6 @@
         <group>
             <title>Internal Implementation</title>
             <package name="net.sourceforge.stripes.controller"/>
-            <package name="net.sourceforge.stripes.exception"/>
             <package name="net.sourceforge.stripes.util"/>
         </group>
     </javadoc>
