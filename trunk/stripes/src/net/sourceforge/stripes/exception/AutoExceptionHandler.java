@@ -27,10 +27,12 @@ package net.sourceforge.stripes.exception;
  *
  *<pre>public Resolution handle(Type exception, HttpServletRequest req, HttpServletResponse res);</pre>
  *
- * <p>where <tt>Type</tt> can be any subclass of {@link java.lang.Throwable}.  The name of the
- * method does not matter and the return type is only loosely enforced. If the method
- * returns an object and it is a {@link net.sourceforge.stripes.action.Resolution} then it
- * will be executed, otherwise it will be ignored.</p>
+ * <p>where <tt>Type</tt> can be any subclass of {@link java.lang.Throwable}.  Handler methods do
+ * not have to follow any naming convention. In the above example 'handle' is used, but any
+ * other name, e.g. 'run', 'handleException' etc. would have worked as well. The return type is only
+ * loosely enforced; if the method returns an object and it is a
+ * {@link net.sourceforge.stripes.action.Resolution} then it will be executed, otherwise it
+ * will be ignored.</p>
  *
  * @author Jeppe Cramon
  * @since Stripes 1.3
