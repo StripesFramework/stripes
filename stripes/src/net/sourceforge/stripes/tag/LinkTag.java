@@ -100,10 +100,12 @@ public class LinkTag extends HtmlTagSupport implements BodyTag {
 
         if (originalHref != null) {
             String href = originalHref;
+            String contextPath = request.getContextPath();
 
             // Append the context path, but only if the user didn't already
-            if (originalHref.startsWith("/") && !originalHref.contains(request.getContextPath() + "/")) {
-                href = request.getContextPath() + href;
+            if (originalHref.startsWith("/") && !"/".equals(contextPath)
+                    && !originalHref.contains(contextPath + "/")) {
+                href = contextPath + href;
             }
 
             // Add all the parameters and reset the href attribute
