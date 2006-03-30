@@ -76,7 +76,7 @@ public class FormTag extends HtmlTagSupport implements BodyTag {
             HttpServletRequest request = (HttpServletRequest) getPageContext().getRequest();
             String contextPath = request.getContextPath();
 
-            if (contextPath != null && !action.contains(contextPath + "/")) {
+            if (contextPath != null && !"/".equals(contextPath) && !action.contains(contextPath + "/")) {
                 action = contextPath + action;
             }
         }
