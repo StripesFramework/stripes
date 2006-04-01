@@ -18,31 +18,41 @@ package net.sourceforge.stripes.tag;
 import net.sourceforge.stripes.exception.StripesJspException;
 import net.sourceforge.stripes.util.OgnlUtil;
 import net.sourceforge.stripes.util.ReflectUtil;
+import net.sourceforge.stripes.localization.LocalizationUtility;
 import ognl.OgnlException;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.Tag;
+import java.util.Locale;
 
 /**
  * <p>Writes a set of {@literal <option value="foo">bar</option>} tags to the page based on the
  * values of a enum.  Each value in the enum is represented by a single option tag on the page. The
  * options will be generated in ordinal value order (i.e. the order they are declared in the
- * enum). Uses the label attribute on the tag to name the property of the enum that should be used
- * to generate the body of the HTML option tag.  If the label attribute is not set then the
- * tag will call toString() on the enum value and use that as the body of the tag.</p>
+ * enum).</p>
  *
- * <p>E.g. a tag declaration that looks like:</p>
- *   <pre>{@literal <stripes:options-enumeration collection="net.kitty.EyeColor"/>}</pre>
+ * <p>The label (the value the user sees) is generated in one of three ways: by looking up a
+ * localized value, by using the property named by the 'label' tag attribute if it is supplied
+ * and lastly by toString()'ing the enumeration value.  For example the following tag:</p>
  *
- * <p>would result in the tag attempting to invoke the equivelant of
- * {@code Class.forName("net.kitty.EyeColor")} and cast the result to type Class<Enum>. If that
- * fails, a JspException will be raised.  The tag will then proceed to call name() in order
- * to fetch the value of the enum and use that for the value of the option, and call toString() to
- * provide the body of the option because a label attribute was not specified.</p>
+ *<pre>{@literal <stripes:options-enumeration enum="net.kitty.EyeColor" label="description"/>}</pre>
  *
- * <p>All other attributes on the tag (other than enum and label) are passed directly
- * through to the InputOptionTag which is used to generate the individual HTML options tags. As a
- * result the InputOptionsCollectionTag will exhibit the same re-population/selection behaviour
+ * when generating the option for the value {@code EyeColor.BLUE} will look for a label in the
+ * following order:</p>
+ *
+ * <ul>
+ *   <li>resource: EyeColor.BLUE</li>
+ *   <li>resource: net.kitty.EyeColor.BLUE</li>
+ *   <li>property: EyeColor.BLUE.getDescription() (because of the label="description" above)</li>
+ *   <li>failsafe: EyeColor.BLUE.toString()</li>
+ * </ul>
+ *
+ * <p>If the class specified does not exist, or does not specify a Java 1.5 enum then a
+ * JspException will be raised.</p>
+ *
+ * <p>All attributes of the tag, other than enum and label, are passed directly through to
+ * the InputOptionTag which is used to generate the individual HTML options tags. As a
+ * result the InputOptionsEnumerationTag will exhibit the same re-population/selection behaviour
  * as the regular options tag.</p>
  *
  * <p>Since the tag has no use for one it does not allow a body.</p>
@@ -98,7 +108,7 @@ public class InputOptionsEnumerationTag extends HtmlTagSupport implements Tag {
                     ("The class name supplied, [" + this.className + "], does not appear to be " +
                      "a JDK1.5 enum class.");
         }
-        
+
         Enum[] enums = clazz.getEnumConstants();
 
         InputOptionTag tag = new InputOptionTag();
@@ -108,14 +118,23 @@ public class InputOptionsEnumerationTag extends HtmlTagSupport implements Tag {
         tag.getAttributes().remove("enum");
 
         try {
+            Locale locale = getPageContext().getRequest().getLocale();
+
             for (Enum item : enums) {
                 Object value = item.name();
                 Object label = null;
-                if (this.label != null) {
-                    label = OgnlUtil.getValue(this.label, item);
-                }
-                else {
-                    label = item.toString();
+
+                // Check for a localized label using class.ENUM_VALUE and package.class.ENUM_VALUE
+                label = LocalizationUtility.getLocalizedFieldName(clazz.getSimpleName() + "." + item.name(),
+                                                                  clazz.getPackage().getName(),
+                                                                  locale);
+                if (label == null) {
+                    if (this.label != null) {
+                        label = OgnlUtil.getValue(this.label, item);
+                    }
+                    else {
+                        label = item.toString();
+                    }
                 }
 
                 tag.setLabel(label.toString());
