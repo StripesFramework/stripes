@@ -1,6 +1,7 @@
 package net.sourceforge.stripes.controller;
 
 import net.sourceforge.stripes.StripesTestFixture;
+import net.sourceforge.stripes.action.ActionBeanContext;
 import net.sourceforge.stripes.mock.MockRoundtrip;
 import net.sourceforge.stripes.mock.MockServletContext;
 import net.sourceforge.stripes.test.TestActionBean;
@@ -199,5 +200,31 @@ public class BasicBindingTests {
 
         TestActionBean bean = trip.getActionBean(TestActionBean.class);
         Assert.assertEquals(new Long(12345), bean.publicLong);
+    }
+
+    @Test(groups="fast")
+    public void attemptToBindIntoActionBeanContext() throws Exception {
+        // Should be able to set it just fine
+        MockRoundtrip trip = getRoundtrip();
+        trip.addParameter("context.eventName", "woohaa!");
+        trip.addParameter(" context.eventName", "woohaa!");
+        trip.execute();
+
+        TestActionBean bean = trip.getActionBean(TestActionBean.class);
+        ActionBeanContext context = bean.getContext();
+        Assert.assertFalse("woohaa!".equals(context.getEventName()));
+    }
+
+    @Test(groups="fast")
+    public void attemptToBindIntoActionBeanContextII() throws Exception {
+        // Should be able to set it just fine
+        MockRoundtrip trip = getRoundtrip();
+        trip.addParameter("Context.eventName", "woohaa!");
+        trip.addParameter(" Context.eventName", "woohaa!");
+        trip.execute();
+
+        TestActionBean bean = trip.getActionBean(TestActionBean.class);
+        ActionBeanContext context = bean.getContext();
+        Assert.assertFalse("woohaa!".equals(context.getEventName()));
     }
 }
