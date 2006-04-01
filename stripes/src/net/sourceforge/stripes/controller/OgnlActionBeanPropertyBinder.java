@@ -242,8 +242,11 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
             ParameterName name = entry.getKey();
 
             try {
-                if (!SPECIAL_KEYS.contains(name.getName()) && !name.getName().equals(context.getEventName())
-                        && !fieldErrors.containsKey(name.getName()) ) {
+                String pname = name.getName(); // exact name of the param in the request
+
+                if (!SPECIAL_KEYS.contains(pname) && !pname.equals(context.getEventName())
+                        && !fieldErrors.containsKey(pname)
+                        && !pname.toLowerCase().startsWith("context")) {
                     log.trace("Running binding for property with name: ", name);
 
                     Class type = OgnlUtil.getPropertyClass(name.getName(), bean);
@@ -495,7 +498,7 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
         Map<ParameterName, String[]> parameters = new HashMap<ParameterName,String[]>();
 
         for (Map.Entry<String,String[]> entry : requestParameters.entrySet()) {
-            parameters.put(new ParameterName(entry.getKey()), entry.getValue());
+            parameters.put(new ParameterName(entry.getKey().trim()), entry.getValue());
         }
 
         return parameters;
