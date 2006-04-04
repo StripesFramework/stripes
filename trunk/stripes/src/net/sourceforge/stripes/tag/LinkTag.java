@@ -53,6 +53,11 @@ public class LinkTag extends HtmlTagSupport implements BodyTag {
         this.parameters.put(name, valueOrValues);
     }
 
+    /** Retrieves the parameter values set on the tag. */
+    public Map<String,Object> getParameters() {
+        return this.parameters;
+    }
+
     /**
      * Does nothing.
      * @return EVAL_BODY_BUFFERED in all cases
