@@ -126,7 +126,7 @@
        overview="${src.dir}/overview.html"
        windowtitle="Stripes ${stripes.version} API Documentation"
 	   doctitle="&lt;h1&gt;Stripes ${stripes.version} API Documentation&lt;/h1&gt;"
-	   bottom="&#169; Copyright 2005, Stripes Development Team."
+	   bottom="&#169; Copyright 2005-2006, Stripes Development Team."
 	   author="true"
 	   protected="true"
 	   use="true"
