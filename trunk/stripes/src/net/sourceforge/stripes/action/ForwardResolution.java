@@ -15,6 +15,8 @@
  */
 package net.sourceforge.stripes.action;
 
+import net.sourceforge.stripes.util.Log;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.ServletException;
@@ -28,6 +30,8 @@ import java.io.IOException;
  * @author Tim Fennell
  */
 public class ForwardResolution extends OnwardResolution implements Resolution {
+    private static final Log log = Log.getInstance(ForwardResolution.class);
+
     /**
      * Simple constructor that takes in the path to forward the user to.
      * @param path the path within the web application that the user should be forwarded to
@@ -66,6 +70,10 @@ public class ForwardResolution extends OnwardResolution implements Resolution {
      */
     public void execute(HttpServletRequest request, HttpServletResponse response)
         throws ServletException, IOException {
-        request.getRequestDispatcher(getPath()).forward(request, response);
+
+        String path = getPath();
+        log.trace("Forwarding to path: ", path);
+
+        request.getRequestDispatcher(path).forward(request, response);
     }
 }
