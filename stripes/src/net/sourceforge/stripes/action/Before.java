@@ -40,15 +40,21 @@ import java.lang.annotation.Target;
  *<pre>
  * // Runs before the event handling method has been run
  * {@literal @Before}
- * public void doStuff() { ... }
+ * public void doStuff() {
+ *    ...
+ * }
  *
  * // Runs before binding and validation are executed
  * {@literal @Before(LifecycleStage.BindingAndValidation)}
- * public void doPreValidationStuff() { ... }
+ * public void doPreValidationStuff() {
+ *    ...
+ * }
  *
  * // Runs twice, once before each validation-related stage
  * {@literal @}Before({LifecycleStage.BindingAndValidation, LifecycleStage.CustomValidation})
- * public void doMorePreValidationStuff() { ... }
+ * public void doMorePreValidationStuff() {
+ *    ...
+ * }
  * </pre>
  *
  * @see net.sourceforge.stripes.action.After
