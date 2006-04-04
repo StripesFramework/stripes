@@ -15,14 +15,12 @@
  */
 package net.sourceforge.stripes.tag;
 
-import net.sourceforge.stripes.util.OgnlUtil;
-import net.sourceforge.stripes.util.HtmlUtil;
 import net.sourceforge.stripes.action.ActionBean;
+import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.exception.StripesJspException;
 import net.sourceforge.stripes.util.Log;
-import net.sourceforge.stripes.config.Configuration;
+import net.sourceforge.stripes.util.OgnlUtil;
 import net.sourceforge.stripes.validation.ValidationErrors;
-
 import ognl.OgnlException;
 
 /**
@@ -78,23 +76,13 @@ public class DefaultPopulationStrategy implements PopulationStrategy {
 
     /**
      * Helper method that will check the current request for user submitted values for the
-     * tag supplied and return them as a String[] if there is one or more present. Values are
-     * HTML encoded before being returned so that they are safe to be used directly in the tag or
-     * JSP.
+     * tag supplied and return them as a String[] if there is one or more present.
      *
      * @param tag the tag whose values to look for
      * @return a String[] if values are found, null otherwise
      */
     protected String[] getValuesFromRequest(InputTagSupport tag) throws StripesJspException {
-        final String[] paramValues = tag.getPageContext().getRequest().getParameterValues(tag.getName());
-
-        if (paramValues != null) {
-            for (int i=0; i<paramValues.length; ++i) {
-                paramValues[i] = HtmlUtil.encode(paramValues[i]);
-            }
-        }
-
-        return paramValues;
+        return tag.getPageContext().getRequest().getParameterValues(tag.getName());
     }
 
     /**

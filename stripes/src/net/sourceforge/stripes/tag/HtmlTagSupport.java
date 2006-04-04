@@ -17,6 +17,7 @@ package net.sourceforge.stripes.tag;
 
 import net.sourceforge.stripes.exception.StripesJspException;
 import net.sourceforge.stripes.util.Log;
+import net.sourceforge.stripes.util.HtmlUtil;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
@@ -182,7 +183,8 @@ public abstract class HtmlTagSupport extends StripesTagSupport implements Dynami
 
     /**
      * For every attribute stored in the attributes map for this tag, writes out the tag
-     * attributes in the form x="y".
+     * attributes in the form x="y".  All attributes are HTML encoded before being written
+     * to the page to ensure that HTML special characters are rendered properly.
      *
      * @param writer the JspWriter to write the open tag to
      * @throws IOException if the JspWriter causes an exception
@@ -192,7 +194,7 @@ public abstract class HtmlTagSupport extends StripesTagSupport implements Dynami
             writer.print(" ");
             writer.print(attr.getKey());
             writer.print("=\"");
-            writer.print(attr.getValue());
+            writer.print( HtmlUtil.encode(attr.getValue()) );
             writer.print("\"");
         }
     }
