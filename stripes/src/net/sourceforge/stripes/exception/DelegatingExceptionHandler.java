@@ -116,7 +116,7 @@ public class DelegatingExceptionHandler implements ExceptionHandler {
      * Looks up the filters as defined in the Configuration and then invokes the
      * {@link ResolverUtil} to find implementations of AutoExceptionHandler. Each
      * implementation found is then examined and cached by calling
-     * {@link #addHandler(Class<? extends AutoExceptionHandler>)}
+     * {@link #addHandler(Class)}
      *
      * @param configuration the Configuration for this Stripes application
      * @throws Exception thrown if any of the discovered handler types cannot be safely
