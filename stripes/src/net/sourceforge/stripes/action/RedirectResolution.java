@@ -17,6 +17,7 @@ package net.sourceforge.stripes.action;
 
 import net.sourceforge.stripes.controller.FlashScope;
 import net.sourceforge.stripes.controller.StripesConstants;
+import net.sourceforge.stripes.util.Log;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -44,6 +45,7 @@ import java.util.HashSet;
  * @author Tim Fennell
  */
 public class RedirectResolution extends OnwardResolution<RedirectResolution> implements Resolution {
+    private static final Log log = Log.getInstance(RedirectResolution.class);
     private boolean prependContext = true;
     private boolean includeRequestParameters;
     private Collection<ActionBean> beans; // used to flash action beans
@@ -156,6 +158,9 @@ public class RedirectResolution extends OnwardResolution<RedirectResolution> imp
             url = request.getContextPath() + url;
         }
 
-        response.sendRedirect( response.encodeRedirectURL(url) );
+        url = response.encodeRedirectURL(url);
+        log.trace("Redirecting ", this.beans == null ? "" : "(w/flashed bean) ", "to URL: ", url);
+
+        response.sendRedirect(url);
     }
 }
