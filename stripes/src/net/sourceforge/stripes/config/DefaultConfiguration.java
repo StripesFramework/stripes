@@ -23,6 +23,8 @@ import net.sourceforge.stripes.controller.Interceptor;
 import net.sourceforge.stripes.controller.LifecycleStage;
 import net.sourceforge.stripes.controller.NameBasedActionResolver;
 import net.sourceforge.stripes.controller.OgnlActionBeanPropertyBinder;
+import net.sourceforge.stripes.controller.BeforeAfterMethodInterceptor;
+import net.sourceforge.stripes.controller.Intercepts;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
 import net.sourceforge.stripes.exception.ExceptionHandler;
 import net.sourceforge.stripes.exception.DefaultExceptionHandler;
@@ -42,6 +44,8 @@ import net.sourceforge.stripes.validation.TypeConverterFactory;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
+import java.util.HashMap;
+import java.util.ArrayList;
 
 /**
  * <p>Centralized location for defaults for all Configuration properties.  This implementation does
@@ -150,7 +154,15 @@ public class DefaultConfiguration implements Configuration {
 
             this.interceptors = initInterceptors();
             if (this.interceptors == null) {
-                this.interceptors = Collections.emptyMap();
+                this.interceptors = new HashMap<LifecycleStage, Collection<Interceptor>>();
+                Class<? extends Interceptor> bam = BeforeAfterMethodInterceptor.class;
+                BeforeAfterMethodInterceptor interceptor = new BeforeAfterMethodInterceptor();
+
+                for (LifecycleStage stage : bam.getAnnotation(Intercepts.class).value()) {
+                    Collection<Interceptor> instances = new ArrayList<Interceptor>();
+                    instances.add(interceptor);
+                    this.interceptors.put(stage, instances);
+                }
             }
         }
         catch (Exception e) {
@@ -275,7 +287,8 @@ public class DefaultConfiguration implements Configuration {
 
     /**
      * Returns a list of interceptors that should be executed around the lifecycle stage
-     * indicated.  By default returns the empty list.
+     * indicated.  By default returns a single element list containing the 
+     * {@link BeforeAfterMethodInterceptor}.
      */
     public Collection<Interceptor> getInterceptors(LifecycleStage stage) {
         Collection<Interceptor> interceptors = this.interceptors.get(stage);
