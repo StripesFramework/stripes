@@ -25,11 +25,8 @@ import ognl.OgnlException;
 
 /**
  * <p>Default implementation of the form input tag population strategy. First looks to see if there
- *  is a parameter with the same name as the tag submitted in the current request.  If there is,
- * it will be returned as a String[] in order to support multiple-value parameters.  Values that
- * are pulled from the request for re-population purposes will automatically be filtered of
- * special HTML characters, so that they re-display properly and do not allow the user to inject
- * HTML into the page.</p>
+ * is a parameter with the same name as the tag submitted in the current request.  If there is,
+ * it will be returned as a String[] in order to support multiple-value parameters.</p>
  *
  * <p>If there is no value in the request then an ActionBean bound to the current form will be
  * looked for.  If the ActionBean is found and the value is non-null it will be returned.
