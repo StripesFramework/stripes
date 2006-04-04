@@ -108,8 +108,9 @@ public class LinkTag extends HtmlTagSupport implements BodyTag {
                 href = contextPath + href;
             }
 
-            // Add all the parameters and reset the href attribute
-            UrlBuilder builder = new UrlBuilder(href, true);
+            // Add all the parameters and reset the href attribute; pass to false here because
+            // the HtmlTagSupport will HtmlEncode the ampersands for us
+            UrlBuilder builder = new UrlBuilder(href, false);
             if (this.event != null) {
                 builder.addParameter(this.event);
             }

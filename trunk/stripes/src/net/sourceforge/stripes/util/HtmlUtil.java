@@ -38,6 +38,9 @@ public class HtmlUtil {
      * @return the fragment with special characters escaped
      */
     public static String encode(String fragment) {
+        // If the input is null, then the output is null
+        if (fragment == null) return null;
+
         StringBuilder builder = new StringBuilder(fragment.length() + 10); // a little wiggle room
         char[] characters = fragment.toCharArray();
 

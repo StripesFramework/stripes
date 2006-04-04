@@ -16,6 +16,7 @@
 package net.sourceforge.stripes.tag;
 
 import net.sourceforge.stripes.exception.StripesJspException;
+import net.sourceforge.stripes.util.HtmlUtil;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.BodyTag;
@@ -93,7 +94,7 @@ public class InputTextAreaTag extends InputTagSupport implements BodyTag {
 
             // Write out the contents of the text area
             if (value != null) {
-                getPageContext().getOut().write( format(value));
+                getPageContext().getOut().write( HtmlUtil.encode(format(value)) );
             }
 
             writeCloseTag(getPageContext().getOut(), "textarea");
