@@ -225,6 +225,16 @@ public class ResolverUtil<T> {
                 catch (UnsupportedEncodingException e) { /* UTF-8 is a required encoding */ }
                 File location = new File(path);
 
+                // Manage what happens when Resin decides to return URLs that do not
+                // match reality!  For whatever reason, Resin decides to return some JAR
+                // URLs with an extra '!/' on the end of the jar file name and a file:
+                // in front even though that's the protocol spec, not the path!
+                if (!location.exists()) {
+                    if (path.endsWith("!/")) path = path.substring(0, path.length() - 2);
+                    if (path.startsWith("file:")) path = path.substring(5);
+                    location = new File(path);
+                }
+
                 // Only process the URL if it matches one of our filter strings
                 if ( matchesAny(path, locationFilters) ) {
                     log.info("Checking URL '", path, "' for instances of ", parentType.getName());
