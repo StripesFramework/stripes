@@ -44,7 +44,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * <pre>
  * &lt;init-param&gt;
  *     &lt;param-name&gt;Interceptor.Classes&lt;/param-name&gt;
- *     &lt;param-value&gt;net.sourceforge.stripes.action.filter.BeforeAfterMethodInterceptor&lt;/param-value&gt;
+ *     &lt;param-value&gt;net.sourceforge.stripes.controller.BeforeAfterMethodInterceptor&lt;/param-value&gt;
  * &lt;/init-param&gt;
  * </pre>
  *
