@@ -315,8 +315,8 @@ public class DispatcherServlet extends HttpServlet {
                                                                         abc.getResponse(), // res
                                                                         null,   // error page url
                                                                         true,   // need session
-                                                                        0,      // buffer
-                                                                        false); // autoflush
+                                                                        abc.getResponse().getBufferSize(),
+                                                                        true); // autoflush
             DispatcherServlet.pageContextStash.set(pageContext);
         }
         catch (Exception e) {
