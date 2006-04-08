@@ -1,7 +1,7 @@
 Stripes Read Me
-http://stripes.sourceforge.net
+http://stripes.mc4j.org/
 
-Copyright (C) 2005 Tim Fennell
+Copyright (C) 2005-2006 Tim Fennell
 
 This library is free software; you can redistribute it and/or modify it
 under the terms of the GNU Lesser General Public License as published by the
@@ -40,19 +40,18 @@ Contents
 2. Features
    --------
    -> Form beans and Actions are combined into a single ActionBean class
-   -> Configuration of ActionBeans is done 100% through Annotations (no XML!)
+   -> Configuration of ActionBeans is done 100% through convention and annotations (no XML!)
    -> ActionBeans provide clean, built in, support for multiple events per form
-   -> Complex ActionBean properties are instantiated and assembled for you
+   -> Complex ActionBean/form properties are instantiated and assembled for you
    -> Annotation based Validation system puts Validation info in the ActionBean
    -> Type Conversion is performed in concert with Validation (where it should be)
    -> Full support for indexed properties/multi-row forms using Collections
    -> Form custom tags that feel like HTML tags (no unnecessary renaming of attributes)
    -> Form tags provide formatting capabilities similar to JSTL formatting tags
    -> Seemless handling of file uploads
-   -> Direct to JSP navigation isn't frowned on (it's encouraged!)
+   -> Direct to JSP navigation isn't frowned on
    -> Input validation, formatting and tags are all locale aware (but only if you want)
-   -> Cleans up and fixes many of the small annoyances in other web frameworks
-   -> JavaDoc and TagDoc that doesn't suck
+   -> JavaDoc, TagDoc and reference documentation that doesn't suck
 
 3. Installation
    ------------
@@ -62,6 +61,9 @@ Contents
         -> lib/commons-logging.jar
         -> lib/cos.jar
         -> lib/ognl-2.6.7.jar
+
+   -> Copy 'lib/StripesResources.properties' into /WEB-INF/classes or in to another
+      directory ensuring that your build system puts it into the web app classpath
         
    -> Include the following in your web.xml
    
@@ -107,7 +109,7 @@ Contents
 	   
 		<init-param>
 			<param-name>ActionResolver.UrlFilters</param-name>
-			<param-value>*WEB-INF/classes</param-value>
+			<param-value>/WEB-INF/classes</param-value>
 		</init-param>
 
 4. Acknowledgements

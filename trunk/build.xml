@@ -87,6 +87,7 @@
             <zipfileset dir="${stripes.dir}/docs/api" includes="**/*" prefix="${zip.prefix}/docs/javadoc"/>
             <zipfileset dir="${stripes.dir}/docs/taglib" includes="**/*" prefix="${zip.prefix}/docs/taglib"/>
             <zipfileset dir="${stripes.dir}/dist" includes="stripes.jar" prefix="${zip.prefix}/lib"/>
+            <zipfileset dir="${stripes.dir}/resources" includes="StripesResources.properties" prefix="${zip.prefix}/lib"/>
             <zipfileset dir="${stripes.dir}/lib/deploy" includes="*.jar" prefix="${zip.prefix}/lib"/>
             <zipfileset dir="${stripes.dir}/lib/deploy" includes="*.license" prefix="${zip.prefix}/lib"/>
             <zipfileset dir="${examples.dir}/dist" includes="stripes-examples.war" prefix="${zip.prefix}/examples"/>
@@ -109,7 +110,7 @@
 
                 <include name="stripes/src/**"/>
                 <include name="stripes/lib/**"/>
-                <include name="stripes/taglib/**"/>
+                <include name="stripes/resources/**"/>
                 <include name="stripes/build.xml"/>
 
                 <include name="examples/src/**"/>
