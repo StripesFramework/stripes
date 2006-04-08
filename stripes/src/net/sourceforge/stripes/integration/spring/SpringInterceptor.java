@@ -26,7 +26,7 @@ import net.sourceforge.stripes.util.Log;
 /**
  * <p>An {@link Interceptor} that uses a Spring context to inject Spring beans into newly created
  * ActionBeans immediatley following ActionBeanResolution.  For more information on how the injection
- * is performed see {@link SpringHelper#injectBeans(net.sourceforge.stripes.action.ActionBean,
+ * is performed see {@link SpringHelper#injectBeans(Object,
  *  net.sourceforge.stripes.action.ActionBeanContext)}</p>
  * them back for processing.</p>
  *
