@@ -15,7 +15,6 @@
  */
 package net.sourceforge.stripes.integration.spring;
 
-import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.action.ActionBeanContext;
 import net.sourceforge.stripes.exception.StripesServletException;
 import net.sourceforge.stripes.util.Log;
@@ -28,11 +27,12 @@ import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
 
 /**
- * <p>Static helper class that is used to lookup Spring beans and inject them into ActionBeans.
- * Setter methods must be annotated using the {@code @SpringBean annotation}.  The value of the
- * annotation should be the bean name in the Spring application context.  If value is left blank,
- * it will attempt to auto-wire the bean. First by method name then by type. If the value is
- * left blank and more than one bean of the same type is found, then an exception will be raised.</p>
+ * <p>Static helper class that is used to lookup Spring beans and inject them into objects
+ * (usually ActionBeans). Setter methods must be annotated using the {@code @SpringBean annotation}.
+ * The value of the annotation should be the bean name in the Spring application context.  If value
+ * is left blank, an attempt is made to auto-wire the bean; first by method name then by type. If
+ * the value is left blank and more than one bean of the same type is found, an exception will be
+ * raised.</p>
  *
  * @see SpringBean
  * @author Dan Hayes, Tim Fennell
@@ -41,7 +41,7 @@ public class SpringHelper {
     private static Log log = Log.getInstance(SpringHelper.class);
 
     /**
-     * Injects Spring managed beans into ActionBeans via the SpringInject annotation.
+     * Injects Spring managed beans into ActionBeans via the SpringBean annotation.
      * It first looks for the value attribute of the annotation for the name of the
      * Spring managed bean to inject.  If this is empty, it will attempt to "auto-wire"
      * the bean from the method name (i.e. "setSomeBean()" will resolve to "someBean").
@@ -49,11 +49,11 @@ public class SpringHelper {
      * the event that more than one Spring managed bean meets this criteria, an exception
      * will be logged and thrown.
      *
-     * @param bean    the newly instantiated ActionBean
+     * @param bean    the object into which to inject spring managed bean
      * @param context the ActionBeanContext represented by the current request
      * @throws Exception
      */
-    public static void injectBeans(ActionBean bean, ActionBeanContext context) throws Exception {
+    public static void injectBeans(Object bean, ActionBeanContext context) throws Exception {
         HttpServletRequest request = context.getRequest();
         ApplicationContext springContext = WebApplicationContextUtils.getWebApplicationContext(
                 request.getSession().getServletContext());
