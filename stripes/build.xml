@@ -28,7 +28,8 @@
   <property file="${properties.file}"/>
 
   <property name="src.dir"     value="${basedir}/src"/>
-  <property name="tld.dir"     value="${basedir}/taglib"/>
+  <property name="tld.dir"     value="${basedir}/resources"/>
+  <property name="res.dir"     value="${basedir}/resources"/>
   <property name="lib.dir"     value="${basedir}/lib"/>
   <property name="classes.dir" value="${basedir}/classes"/>
   <property name="doc.dir"     value="${basedir}/docs"/>
@@ -42,8 +43,7 @@
     <fileset dir="${lib.dir}" includes="**/*.jar"/>
   </path>
 
-  <target name="init"
-          description="Creates directories needed by the build system.">
+  <target name="init" description="Creates directories needed by the build system.">
 	<mkdir dir="${classes.dir}"/>
     <mkdir dir="${classes.dir}/META-INF"/>
 	<mkdir dir="${dist.dir}"/>
