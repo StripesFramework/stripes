@@ -108,7 +108,7 @@ public class MessagesTag extends HtmlTagSupport {
                 try { beforeMessage = bundle.getString("stripes.messages.beforeMessage"); }
                 catch (MissingResourceException mre) { beforeMessage = "<li>"; }
 
-                try { afterMessage = bundle.getString("stripes.errors.afterMessage"); }
+                try { afterMessage = bundle.getString("stripes.messages.afterMessage"); }
                 catch (MissingResourceException mre) { afterMessage = "</li>"; }
 
                 // Write out the error messages
