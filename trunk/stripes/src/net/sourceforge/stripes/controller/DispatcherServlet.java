@@ -328,12 +328,7 @@ public class DispatcherServlet extends HttpServlet {
             return ctx.wrap( new Interceptor() {
                 public Resolution intercept(ExecutionContext ctx) throws Exception {
                     ActionBeanPropertyBinder binder = config.getActionBeanPropertyBinder();
-
-                    ValidationErrors errors = binder.bind(ctx.getActionBean(),
-                                                          ctx.getActionBeanContext(),
-                                                          doValidate);
-
-                    ctx.getActionBeanContext().setValidationErrors(errors);
+                    binder.bind(ctx.getActionBean(), ctx.getActionBeanContext(), doValidate);
                     return null;
                 }
             });
