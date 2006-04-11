@@ -4,14 +4,25 @@
 <html>
   <head>
       <title>My First Ajax Stripe</title>
+      <script type="text/javascript"
+              src="${pageContext.request.contextPath}/ajax/prototype.js"></script>
       <script type="text/javascript" xml:space="preserve">
-          function populateResult(xmlHttpRequest) {
-              var td = document.getElementById("result");
-              td.innerHTML = xmlHttpRequest.responseText;
+          /*
+           * Function that uses Prototype to invoke an action of a form. Slurps the values
+           * from the form using prototype's 'Form.serialize()' method, and then submits
+           * them to the server using prototype's 'Ajax.Updater' which transmits the request
+           * and then renders the resposne text into the named container.
+           *
+           * @param form reference to the form object being submitted
+           * @param event the name of the event to be triggered, or null
+           * @param container the name of the HTML container to insert the result into
+           */
+          function invoke(form, event, container) {
+              var params = Form.serialize(form);
+              if (event != null) params = event + '&' + params;
+              new Ajax.Updater(container, form.action, {method:'post', postBody:params});
           }
       </script>
-      <script type="text/javascript"
-              src="${pageContext.request.contextPath}/ajax/stripes-ajax.js"></script>
   </head>
   <body>
     <h1>Stripes Ajax Calculator</h1>
@@ -31,10 +42,10 @@
             </tr>
             <tr>
                 <td colspan="2">
-                    <stripes:button name="Addition" value="Add"
-                        onclick="invokeActionForm(this.form, this.name, populateResult);"/>
-                    <stripes:button name="Division" value="Divide"
-                        onclick="invokeActionForm(this.form, this.name, populateResult);"/>
+                    <stripes:button name="add" value="Add"
+                        onclick="invoke(this.form, this.name, 'result');"/>
+                    <stripes:button name="divide" value="Divide"
+                        onclick="invoke(this.form, this.name, 'result');"/>
                 </td>
             </tr>
             <tr>
