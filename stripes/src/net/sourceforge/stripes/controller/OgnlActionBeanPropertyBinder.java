@@ -222,7 +222,7 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
      *        type conversion should occur
      */
     public ValidationErrors bind(ActionBean bean, ActionBeanContext context, boolean validate) {
-        ValidationErrors fieldErrors = new ValidationErrors();
+        ValidationErrors fieldErrors = context.getValidationErrors();
 
         // Take the ParameterMap and turn the keys into ParameterNames
         Map<ParameterName,String[]> parameters = getParameters(context);

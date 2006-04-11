@@ -99,10 +99,16 @@ public class ActionBeanContext {
     }
 
     /**
-     * Returns the set of validation errors associated with the current form.
+     * Returns the set of validation errors associated with the current form. Lazily
+     * initialized the set of errors, and will never return null.
+     *
      * @return a Collection of validation errors
      */
     public ValidationErrors getValidationErrors() {
+        if (this.validationErrors == null) {
+            this.validationErrors = new ValidationErrors();
+        }
+
         return validationErrors;
     }
 
