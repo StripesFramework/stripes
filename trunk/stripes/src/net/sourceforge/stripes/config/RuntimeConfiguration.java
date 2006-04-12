@@ -175,7 +175,13 @@ public class RuntimeConfiguration extends DefaultConfiguration {
                                   "', for lifecycle stages: ", intercepts.value());
                     }
 
+                    // Instantiate it and optionally call init() if the interceptor
+                    // implements ConfigurableComponent
                     Interceptor interceptor = type.newInstance();
+                    if (interceptor instanceof ConfigurableComponent) {
+                        ((ConfigurableComponent) interceptor).init(this);
+                    }
+
                     for (LifecycleStage stage : intercepts.value()) {
                         Collection<Interceptor> stack = map.get(stage);
                         if (stack == null) {
