@@ -61,6 +61,11 @@ import net.sourceforge.stripes.action.Resolution;
  * access to the event name or handler method at all (HandlerResolution occurs after
  * ActionBeanResolution).</p>
  *
+ * <p>Optionally, Interceptor classes may implement the
+ * {@link net.sourceforge.stripes.config.ConfigurableComponent} interface. If implemented,
+ * the Interceptor will have it's {@code init(Configuration)} method called after instantiation
+ * and before being placed into service.</p>
+ *
  * <p>Interceptors are located by Stripes through it's
  * {@link net.sourceforge.stripes.config.Configuration}.  To configure interceptors you can either
  * implement your own Configuration (probably by subclassing
