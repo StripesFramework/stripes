@@ -47,6 +47,7 @@ public class JavaScriptResolution implements Resolution {
      * Converts the object passed in to JavaScript and streams it back to the client.
      */
     public void execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        response.setContentType("text/javascript");
         this.builder.build(response.getWriter());
         response.flushBuffer();
     }
