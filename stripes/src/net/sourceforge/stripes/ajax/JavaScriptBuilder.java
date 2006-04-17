@@ -32,15 +32,15 @@ import java.util.Set;
 
 /**
  * <p>Builds a set of JavaScript statements that will re-construct the value of a Java object,
- * including all Number, String, Enum, Boolea, Collection, Map and Array properties.  Safely handles
+ * including all Number, String, Enum, Boolean, Collection, Map and Array properties.  Safely handles
  * object graph circularities - each object will be translated only once, and all references will
  * be valid.</p>
  *
  * <p>The JavaScript created by the builder can be evaluated in JavaScript using:</p>
  *
- * <pre>
- * var myObject = eval(generatedFragment);
- * </pre>
+ *<pre>
+ *var myObject = eval(generatedFragment);
+ *</pre>
  *
  * @author Tim Fennell
  * @since Stripes 1.1
