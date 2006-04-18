@@ -5,7 +5,6 @@ import net.sourceforge.stripes.action.ActionBeanContext;
 import net.sourceforge.stripes.action.DefaultHandler;
 import net.sourceforge.stripes.action.Resolution;
 import net.sourceforge.stripes.action.StreamingResolution;
-import net.sourceforge.stripes.action.UrlBinding;
 import net.sourceforge.stripes.validation.Validate;
 import net.sourceforge.stripes.validation.ValidationError;
 import net.sourceforge.stripes.validation.ValidationErrorHandler;
@@ -23,7 +22,6 @@ import java.util.List;
  *
  * @author Tim Fennell
  */
-@UrlBinding("/ajax/Calculator.action")
 public class CalculatorActionBean implements ActionBean, ValidationErrorHandler {
     private ActionBeanContext context;
     @Validate(required=true) private double numberOne;

@@ -14,7 +14,7 @@
     Hi, I'm the Stripes Calculator. I can only do addition. Maybe, some day, a nice programmer
     will come along and teach me how to do other things?
 
-    <stripes:form action="/quickstart/Calculator.action">
+    <stripes:form action="/examples/quickstart/Calculator.action">
         <stripes:errors/>
         <table>
             <tr>
@@ -27,8 +27,8 @@
             </tr>
             <tr>
                 <td colspan="2">
-                    <stripes:submit name="Addition" value="Add"/>
-                    <stripes:submit name="Division" value="Divide"/>
+                    <stripes:submit name="addition" value="Add"/>
+                    <stripes:submit name="division" value="Divide"/>
                 </td>
             </tr>
             <tr>

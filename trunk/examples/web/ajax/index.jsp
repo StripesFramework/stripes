@@ -30,7 +30,7 @@
     <p>Hi, I'm the Stripes Calculator. I can only do addition. Maybe, some day, a nice programmer
     will come along and teach me how to do other things?</p>
 
-    <stripes:form action="/ajax/Calculator.action">
+    <stripes:form action="/examples/ajax/Calculator.action">
         <table>
             <tr>
                 <td>Number 1:</td>
