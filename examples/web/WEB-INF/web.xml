@@ -34,7 +34,7 @@
         </init-param>
         <init-param>
             <param-name>ActionBeanContext.Class</param-name>
-            <param-value>net.sourceforge.stripes.examples.bugzooky.web.BugzookyActionBeanContext</param-value>
+            <param-value>net.sourceforge.stripes.examples.bugzooky.BugzookyActionBeanContext</param-value>
         </init-param>
     </filter>
 
@@ -56,12 +56,17 @@
     <filter>
         <description>Provides login security for Bugzooky</description>
         <filter-name>BugzookySecurityFilter</filter-name>
-        <filter-class>net.sourceforge.stripes.examples.bugzooky.web.SecurityFilter</filter-class>
+        <filter-class>net.sourceforge.stripes.examples.bugzooky.SecurityFilter</filter-class>
     </filter>
 
     <filter-mapping>
         <filter-name>BugzookySecurityFilter</filter-name>
         <url-pattern>/bugzooky/*</url-pattern>
+        <dispatcher>REQUEST</dispatcher>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>BugzookySecurityFilter</filter-name>
+        <url-pattern>/examples/bugzooky/*</url-pattern>
         <dispatcher>REQUEST</dispatcher>
     </filter-mapping>
 

@@ -1,25 +1,23 @@
-package net.sourceforge.stripes.examples.bugzooky.web;
+package net.sourceforge.stripes.examples.bugzooky;
 
-import net.sourceforge.stripes.action.DefaultHandler;
 import net.sourceforge.stripes.action.Resolution;
-import net.sourceforge.stripes.action.UrlBinding;
 import net.sourceforge.stripes.util.HtmlUtil;
 import net.sourceforge.stripes.validation.SimpleError;
-import net.sourceforge.stripes.validation.Validatable;
 import net.sourceforge.stripes.validation.Validate;
 import net.sourceforge.stripes.validation.ValidationErrors;
+import net.sourceforge.stripes.validation.ValidationMethod;
 
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.ServletContext;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.Iterator;
 
 /**
  * ActionBean that is used to display source files from the bugzooky web application
@@ -27,18 +25,18 @@ import java.util.Iterator;
  *
  * @author Tim Fennell
  */
-@UrlBinding("/bugzooky/ViewResource.action")
-public class ViewResourceActionBean extends BugzookyActionBean implements Validatable {
+public class ViewResourceActionBean extends BugzookyActionBean {
+    @Validate(required=true)
     private String resource;
 
     /** Sets the name resource to be viewed. */
-    @Validate(required=true)
     public void setResource(String resource) { this.resource = resource; }
 
     /** Gets the name of the resource to be viewed. */
     public String getResource() { return resource; }
 
     /** Validates that only resources in the allowed places are asked for. */
+    @ValidationMethod
     public void validate(ValidationErrors errors) {
         if (resource.startsWith("/WEB-INF") && !resource.startsWith("/WEB-INF/src")) {
             errors.add("resource",
@@ -50,7 +48,6 @@ public class ViewResourceActionBean extends BugzookyActionBean implements Valida
      * Handler method which will handle a request for a resource in the web application
      * and stream it back to the client inside of an HTML preformatted section.
      */
-    @DefaultHandler
     public Resolution view() {
         final InputStream stream = getContext().getRequest().getSession()
                                   .getServletContext().getResourceAsStream(this.resource);

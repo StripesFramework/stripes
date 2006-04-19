@@ -8,7 +8,7 @@
                 <c:if test="${not empty user}">
                     Welcome: ${user.firstName} ${user.lastName}
                     |
-                    <stripes:link href="/bugzooky/Logout.action">Logout</stripes:link>
+                    <stripes:link href="/examples/bugzooky/Logout.action">Logout</stripes:link>
                 </c:if>
             </td>
         </tr>

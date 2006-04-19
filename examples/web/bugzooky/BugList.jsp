@@ -8,7 +8,7 @@
         <jsp:useBean id="bugManager" scope="page"
                      class="net.sourceforge.stripes.examples.bugzooky.biz.BugManager"/>
 
-        <stripes:form action="/bugzooky/MultiBug.action">
+        <stripes:form action="/examples/bugzooky/MultiBug.action">
             <stripes:errors/>
 
             <table class="display">
@@ -35,7 +35,7 @@
                         <td>${bug.status}</td>
                         <td>${bug.owner.username}</td>
                         <td>
-                            <stripes:link href="/bugzooky/SingleBug.action" event="PreEdit">
+                            <stripes:link href="/examples/bugzooky/SingleBug.action" event="preEdit">
                                 Edit
                                 <stripes:link-param name="bug.id" value="${bug.id}"/>
                             </stripes:link>
@@ -44,7 +44,7 @@
                 </c:forEach>
             </table>
 
-            <div class="buttons"><stripes:submit name="PreEdit" value="Bulk Edit"/></div>
+            <div class="buttons"><stripes:submit name="preEdit" value="Bulk Edit"/></div>
         </stripes:form>
     </stripes:layout-component>
 </stripes:layout-render>

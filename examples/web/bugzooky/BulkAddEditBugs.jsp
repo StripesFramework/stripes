@@ -9,7 +9,7 @@
         <jsp:useBean id="personManager" scope="page"
                      class="net.sourceforge.stripes.examples.bugzooky.biz.PersonManager"/>
 
-        <stripes:form action="/bugzooky/MultiBug.action">
+        <stripes:form action="/examples/bugzooky/MultiBug.action">
             <stripes:errors/>
 
             <table class="display">
@@ -64,7 +64,7 @@
             </table>
 
             <div class="buttons">
-                <stripes:submit name="SaveOrUpdate" value="Save"/>
+                <stripes:submit name="save" value="Save"/>
             </div>
         </stripes:form>
     </stripes:layout-component>

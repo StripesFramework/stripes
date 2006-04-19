@@ -5,7 +5,7 @@
 <stripes:layout-render name="/bugzooky/layout/standard.jsp" title="Register">
     <stripes:layout-component name="contents">
 
-        <stripes:form action="/bugzooky/Register.action" method="POST">
+        <stripes:form action="/examples/bugzooky/Register.action" method="POST">
             <stripes:errors/>
 
             <p>Welcome ${actionBean.user.firstName}, please pick a password:</p>
@@ -22,7 +22,7 @@
             </table>
 
             <div class="buttons">
-                <stripes:submit name="Register" value="Create Account"/>
+                <stripes:submit name="register" value="Create Account"/>
             </div>
         </stripes:form>
     </stripes:layout-component>

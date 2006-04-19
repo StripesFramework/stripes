@@ -1,10 +1,8 @@
-package net.sourceforge.stripes.examples.bugzooky.web;
+package net.sourceforge.stripes.examples.bugzooky;
 
 import net.sourceforge.stripes.action.DefaultHandler;
-import net.sourceforge.stripes.action.HandlesEvent;
 import net.sourceforge.stripes.action.RedirectResolution;
 import net.sourceforge.stripes.action.Resolution;
-import net.sourceforge.stripes.action.UrlBinding;
 import net.sourceforge.stripes.examples.bugzooky.biz.Component;
 import net.sourceforge.stripes.examples.bugzooky.biz.ComponentManager;
 import net.sourceforge.stripes.validation.Validate;
@@ -19,22 +17,22 @@ import java.util.List;
  *
  * @author Tim Fennell
  */
-@UrlBinding("/bugzooky/EditComponents.action")
 public class AdministerComponentsActionBean extends BugzookyActionBean {
     private int[] deleteIds;
+
+    @ValidateNestedProperties ({
+        @Validate(field="name", required=true, minlength=3, maxlength=25)
+    })
     private List<Component> components;
 
     public int[] getDeleteIds() { return deleteIds; }
     public void setDeleteIds(int[] deleteIds) { this.deleteIds = deleteIds; }
 
-    @ValidateNestedProperties ({
-        @Validate(field="name", required=true, minlength=3, maxlength=25)        
-    })
     public List<Component> getComponents() { return components; }
     public void setComponents(List<Component> components) { this.components = components; }
 
-    @HandlesEvent("Save") @DefaultHandler
-    public Resolution saveChanges() {
+    @DefaultHandler
+    public Resolution save() {
         ComponentManager cm = new ComponentManager();
 
         // Apply any changes to existing people (and create new ones)

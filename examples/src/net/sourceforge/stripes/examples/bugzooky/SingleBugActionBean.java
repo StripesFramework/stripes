@@ -1,17 +1,13 @@
-package net.sourceforge.stripes.examples.bugzooky.web;
+package net.sourceforge.stripes.examples.bugzooky;
 
 import net.sourceforge.stripes.action.DefaultHandler;
 import net.sourceforge.stripes.action.DontValidate;
 import net.sourceforge.stripes.action.FileBean;
-import net.sourceforge.stripes.action.HandlesEvent;
 import net.sourceforge.stripes.action.RedirectResolution;
 import net.sourceforge.stripes.action.Resolution;
-import net.sourceforge.stripes.action.UrlBinding;
 import net.sourceforge.stripes.examples.bugzooky.biz.Attachment;
 import net.sourceforge.stripes.examples.bugzooky.biz.Bug;
 import net.sourceforge.stripes.examples.bugzooky.biz.BugManager;
-import net.sourceforge.stripes.examples.bugzooky.biz.ComponentManager;
-import net.sourceforge.stripes.examples.bugzooky.biz.PersonManager;
 import net.sourceforge.stripes.validation.PercentageTypeConverter;
 import net.sourceforge.stripes.validation.Validate;
 import net.sourceforge.stripes.validation.ValidateNestedProperties;
@@ -28,44 +24,34 @@ import java.io.InputStreamReader;
  *
  * @author Tim Fennell
  */
-@UrlBinding("/bugzooky/SingleBug.action")
 public class SingleBugActionBean extends BugzookyActionBean {
-    private Bug bug;
-    private FileBean newAttachment;
-
-    /** Gets the bug for this Action. */
     @ValidateNestedProperties({
         @Validate(field="shortDescription", required=true),
         @Validate(field="longDescription", required=true),
-        @Validate(field="percentComplete",
-                  converter=PercentageTypeConverter.class,
-                  minvalue=0, maxvalue=1)
+        @Validate(field="percentComplete", minvalue=0, maxvalue=1,
+                  converter=PercentageTypeConverter.class)
     })
-    public Bug getBug() { return bug; }
+    private Bug bug;
+    private FileBean newAttachment;
 
-    /** Sets the bug for this Action. */
+    public Bug getBug() { return bug; }
     public void setBug(Bug bug) { this.bug = bug; }
 
     public FileBean getNewAttachment() { return newAttachment; }
     public void setNewAttachment(FileBean newAttachment) { this.newAttachment = newAttachment; }
 
-    /**
-     * Loads a bug on to the form ready for editing.
-     */
+    /** Loads a bug on to the form ready for editing. */
     @DontValidate
-    @HandlesEvent("PreEdit")
-    public Resolution loadBugForEdit() {
+    public Resolution preEdit() {
         BugManager bm = new BugManager();
         this.bug = bm.getBug( this.bug.getId() );
         return new RedirectResolution("/bugzooky/AddEditBug.jsp").flash(this);
     }
 
     /** Saves (or updates) a bug, and then returns the user to the bug list. */
-    @HandlesEvent("SaveOrUpdate") @DefaultHandler
-    public Resolution saveOrUpdate() throws IOException {
+    @DefaultHandler
+    public Resolution save() throws IOException {
         BugManager bm = new BugManager();
-        ComponentManager cm = new ComponentManager();
-        PersonManager pm = new PersonManager();
 
         Bug newBug = populateBug(this.bug);
         if (this.newAttachment != null) {
@@ -93,10 +79,8 @@ public class SingleBugActionBean extends BugzookyActionBean {
     }
 
     /** Saves or updates a bug, and then returns to the edit page to add another just like it. */
-    @HandlesEvent("SaveAndAgain")
-    public Resolution saveAndAddAnother() throws IOException {
-        saveOrUpdate();
-
+    public Resolution saveAndAgain() throws IOException {
+        save();
         return new RedirectResolution("/bugzooky/AddEditBug.jsp");
     }
 }
