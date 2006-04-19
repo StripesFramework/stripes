@@ -1,4 +1,4 @@
-package net.sourceforge.stripes.examples.bugzooky.web;
+package net.sourceforge.stripes.examples.bugzooky;
 
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.action.ActionBeanContext;
@@ -16,7 +16,7 @@ import java.util.Date;
  *
  * @author Tim Fennell
  */
-public class BugzookyActionBean implements ActionBean {
+public abstract class BugzookyActionBean implements ActionBean {
     private BugzookyActionBeanContext context;
 
     public void setContext(ActionBeanContext context) {

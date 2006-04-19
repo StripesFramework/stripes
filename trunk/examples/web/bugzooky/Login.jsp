@@ -8,9 +8,9 @@
             <tr>
                 <td style="width: 25%; vertical-align: top;">
                     <!-- Somewhat contrived example of using the errors tag 'action' attribute. -->
-                    <stripes:errors action="/bugzooky/Login.action"/>
+                    <stripes:errors action="/examples/bugzooky/Login.action"/>
 
-                    <stripes:form action="/bugzooky/Login.action" method="POST">
+                    <stripes:form action="/examples/bugzooky/Login.action">
                         <table>
                             <tr>
                                 <td style="font-weight: bold;"><stripes:label for="username"/>:</td>
@@ -28,7 +28,7 @@
                                 <td style="text-align: center;">
                                     <%-- If the security servlet attached a targetUrl, carry that along. --%>
                                     <stripes:hidden name="targetUrl" value="${request.parameterMap['targetUrl']}"/>
-                                    <stripes:submit name="Login" value="Login"/>
+                                    <stripes:submit name="login" value="Login"/>
                                 </td>
                             </tr>
                         </table>

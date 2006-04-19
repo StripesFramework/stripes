@@ -1,12 +1,12 @@
-package net.sourceforge.stripes.examples.bugzooky.web;
+package net.sourceforge.stripes.examples.bugzooky;
 
-import net.sourceforge.stripes.action.UrlBinding;
-import net.sourceforge.stripes.action.Resolution;
 import net.sourceforge.stripes.action.DefaultHandler;
+import net.sourceforge.stripes.action.Resolution;
 import net.sourceforge.stripes.action.StreamingResolution;
-import net.sourceforge.stripes.examples.bugzooky.biz.BugManager;
-import net.sourceforge.stripes.examples.bugzooky.biz.Bug;
 import net.sourceforge.stripes.examples.bugzooky.biz.Attachment;
+import net.sourceforge.stripes.examples.bugzooky.biz.Bug;
+import net.sourceforge.stripes.examples.bugzooky.biz.BugManager;
+import net.sourceforge.stripes.examples.bugzooky.BugzookyActionBean;
 
 import java.io.StringReader;
 
@@ -15,7 +15,6 @@ import java.io.StringReader;
  *
  * @author Tim Fennell
  */
-@UrlBinding("/bugzooky/DownloadAttachment.action")
 public class DownloadAttachmentActionBean extends BugzookyActionBean {
     private Integer bugId;
     private Integer attachmentIndex;

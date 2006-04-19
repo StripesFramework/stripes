@@ -1,15 +1,13 @@
-package net.sourceforge.stripes.examples.bugzooky.web;
+package net.sourceforge.stripes.examples.bugzooky;
 
-import net.sourceforge.stripes.action.DefaultHandler;
-import net.sourceforge.stripes.action.HandlesEvent;
-import net.sourceforge.stripes.action.Resolution;
-import net.sourceforge.stripes.action.UrlBinding;
 import net.sourceforge.stripes.action.RedirectResolution;
-import net.sourceforge.stripes.validation.Validate;
-import net.sourceforge.stripes.validation.LocalizableError;
-import net.sourceforge.stripes.validation.ValidationError;
-import net.sourceforge.stripes.examples.bugzooky.biz.PersonManager;
+import net.sourceforge.stripes.action.Resolution;
 import net.sourceforge.stripes.examples.bugzooky.biz.Person;
+import net.sourceforge.stripes.examples.bugzooky.biz.PersonManager;
+import net.sourceforge.stripes.examples.bugzooky.BugzookyActionBean;
+import net.sourceforge.stripes.validation.LocalizableError;
+import net.sourceforge.stripes.validation.Validate;
+import net.sourceforge.stripes.validation.ValidationError;
 
 /**
  * An example of an ActionBean that uses validation annotations on fields instead of
@@ -18,7 +16,6 @@ import net.sourceforge.stripes.examples.bugzooky.biz.Person;
  *
  * @author Tim Fennell
  */
-@UrlBinding("/bugzooky/Login.action")
 public class LoginActionBean extends BugzookyActionBean {
     @Validate(required=true)
     private String username;
@@ -45,9 +42,7 @@ public class LoginActionBean extends BugzookyActionBean {
 
     /** The URL the user was trying to access (null if the login page was accessed directly). */
     public void setTargetUrl(String targetUrl) { this.targetUrl = targetUrl; }
-
-
-    @DefaultHandler @HandlesEvent("Login")
+    
     public Resolution login() {
         PersonManager pm = new PersonManager();
         Person person = pm.getPerson(this.username);

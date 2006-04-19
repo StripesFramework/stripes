@@ -1,15 +1,14 @@
-package net.sourceforge.stripes.examples.bugzooky.web;
+package net.sourceforge.stripes.examples.bugzooky;
 
 import net.sourceforge.stripes.action.DefaultHandler;
 import net.sourceforge.stripes.action.HandlesEvent;
 import net.sourceforge.stripes.action.RedirectResolution;
 import net.sourceforge.stripes.action.Resolution;
-import net.sourceforge.stripes.action.UrlBinding;
 import net.sourceforge.stripes.examples.bugzooky.biz.Person;
 import net.sourceforge.stripes.examples.bugzooky.biz.PersonManager;
+import net.sourceforge.stripes.validation.EmailTypeConverter;
 import net.sourceforge.stripes.validation.Validate;
 import net.sourceforge.stripes.validation.ValidateNestedProperties;
-import net.sourceforge.stripes.validation.EmailTypeConverter;
 
 import java.util.List;
 
@@ -20,13 +19,8 @@ import java.util.List;
  *
  * @author Tim Fennell
  */
-@UrlBinding("/bugzooky/EditPeople.action")
 public class AdministerPeopleActionBean extends BugzookyActionBean {
     private int[] deleteIds;
-    private List<Person> people;
-
-    public int[] getDeleteIds() { return deleteIds; }
-    public void setDeleteIds(int[] deleteIds) { this.deleteIds = deleteIds; }
 
     @ValidateNestedProperties ({
         @Validate(field="username", required=true, minlength=3, maxlength=15),
@@ -35,6 +29,11 @@ public class AdministerPeopleActionBean extends BugzookyActionBean {
         @Validate(field="lastName", required=true,  maxlength=25),
         @Validate(field="email", converter=EmailTypeConverter.class)
     })
+    private List<Person> people;
+
+    public int[] getDeleteIds() { return deleteIds; }
+    public void setDeleteIds(int[] deleteIds) { this.deleteIds = deleteIds; }
+
     public List<Person> getPeople() { return people; }
     public void setPeople(List<Person> people) { this.people = people; }
 

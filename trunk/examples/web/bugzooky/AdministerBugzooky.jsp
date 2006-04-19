@@ -10,7 +10,7 @@
                      class="net.sourceforge.stripes.examples.bugzooky.biz.ComponentManager"/>
 
         <div class="subtitle">People</div>
-        <stripes:form action="/bugzooky/EditPeople.action">
+        <stripes:form action="/examples/bugzooky/AdministerPeople.action">
             <stripes:errors/>
 
             <table class="display">
@@ -48,11 +48,11 @@
                 </tr>
             </table>
 
-            <div class="buttons"><stripes:submit name="Save" value="Save Changes"/></div>
+            <div class="buttons"><stripes:submit name="save" value="Save Changes"/></div>
         </stripes:form>
 
         <div class="subtitle">Components</div>
-        <stripes:form action="/bugzooky/EditComponents.action">
+        <stripes:form action="/examples/bugzooky/AdministerComponents.action">
             <stripes:errors/>
 
             <table class="display" style="width: auto;">
@@ -81,7 +81,7 @@
                 </tr>
             </table>
 
-            <div class="buttons"><stripes:submit name="Save" value="Save Changes"/></div>
+            <div class="buttons"><stripes:submit name="save" value="Save Changes"/></div>
         </stripes:form>
     </stripes:layout-component>
 </stripes:layout-render>

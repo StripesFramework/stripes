@@ -26,16 +26,16 @@
                 </div>
 
                 <div id="footer">
-                    <stripes:link href="/bugzooky/ViewResource.action">
+                    <stripes:link href="/examples/bugzooky/ViewResource.action">
                         View this JSP
                         <stripes:link-param name="resource" value="${pageContext.request.servletPath}"/>
                     </stripes:link>
 
                     | View other source files:
-                    <stripes:useActionBean binding="/bugzooky/ViewResource.action" var="bean"/>
+                    <stripes:useActionBean binding="/examples/bugzooky/ViewResource.action" var="bean"/>
                     <select style="width: 350px;" onchange="document.location = this.value;">
                         <c:forEach items="${bean.availableResources}" var="file">
-                            <c:url value="/bugzooky/ViewResource.action" var="url">
+                            <c:url value="/examples/bugzooky/ViewResource.action" var="url">
                                 <c:param name="resource" value="${file}"/>
                             </c:url>
                             <option value="${url}">${file}</option>

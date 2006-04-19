@@ -12,7 +12,7 @@
 
         <stripes:errors/>
 
-        <stripes:form action="/bugzooky/SingleBug.action">
+        <stripes:form action="/examples/bugzooky/SingleBug.action">
             <table class="leftRightForm">
                 <tr>
                     <th>Bug ID:</th>
@@ -99,8 +99,8 @@
             </table>
 
             <div class="buttons">
-                <stripes:submit name="SaveOrUpdate" value="Save and Return"/>
-                <stripes:submit name="SaveAndAgain" value="Save and Add Another"/>
+                <stripes:submit name="save" value="Save and Return"/>
+                <stripes:submit name="saveAndAgain" value="Save and Add Another"/>
             </div>
         </stripes:form>
     </stripes:layout-component>

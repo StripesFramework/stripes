@@ -7,7 +7,7 @@
 
         <stripes:errors globalErrorsOnly="true"/>
 
-        <stripes:form action="/bugzooky/Register.action" method="POST">
+        <stripes:form action="/examples/bugzooky/Register.action" method="POST">
             <p>Please provide the following information:</p>
 
             <table class="leftRightForm">
@@ -35,7 +35,7 @@
             </table>
 
             <div class="buttons">
-                <stripes:submit name="GotoStep2" value="Next"/>
+                <stripes:submit name="gotoStep2" value="Next"/>
             </div>
         </stripes:form>
     </stripes:layout-component>

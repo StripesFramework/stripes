@@ -1,4 +1,4 @@
-package net.sourceforge.stripes.examples.bugzooky.web;
+package net.sourceforge.stripes.examples.bugzooky;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -24,11 +24,11 @@ public class SecurityFilter implements Filter {
 
     static {
         publicUrls.add("/bugzooky/Login.jsp");
-        publicUrls.add("/bugzooky/Login.action");
         publicUrls.add("/bugzooky/Register.jsp");
-        publicUrls.add("/bugzooky/Register.action");
-        publicUrls.add("/bugzooky/ViewResource.action");
         publicUrls.add("/bugzooky/Exit.jsp");
+        publicUrls.add("/examples/bugzooky/Login.action");
+        publicUrls.add("/examples/bugzooky/Register.action");
+        publicUrls.add("/examples/bugzooky/ViewResource.action");
     }
 
     /** Does nothing. */
