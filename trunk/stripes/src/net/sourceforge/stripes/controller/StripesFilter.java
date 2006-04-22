@@ -201,28 +201,26 @@ public class StripesFilter implements Filter {
         try {
             log.trace("Intercepting request to URL: ", httpRequest.getRequestURI());
 
-            try {
-                // Pop the configuration into thread local
-                StripesFilter.configurationStash.set(this.configuration);
+            // Pop the configuration into thread local
+            StripesFilter.configurationStash.set(this.configuration);
 
-                // Figure out the locale to use, and then wrap the request
-                Locale locale = this.configuration.getLocalePicker().pickLocale(httpRequest);
-                StripesRequestWrapper request = wrapRequest(httpRequest);
-                request.setLocale(locale);
-                log.debug("LocalePicker selected locale: ", locale);
+            // Figure out the locale to use, and then wrap the request
+            Locale locale = this.configuration.getLocalePicker().pickLocale(httpRequest);
+            StripesRequestWrapper request = wrapRequest(httpRequest);
+            request.setLocale(locale);
+            log.debug("LocalePicker selected locale: ", locale);
 
-                // Execute the rest of the chain
-                flashInbound(request);
-                filterChain.doFilter(request, servletResponse);
-            }
-            finally {
-                // Once the request is processed, take the Configuration back out of thread local
-                flashOutbound(httpRequest);
-                StripesFilter.configurationStash.remove();
-            }
+            // Execute the rest of the chain
+            flashInbound(request);
+            filterChain.doFilter(request, servletResponse);
         }
         catch (Throwable t) {
             this.configuration.getExceptionHandler().handle(t, httpRequest, httpResponse);
+        }
+        finally {
+            // Once the request is processed, take the Configuration back out of thread local
+            flashOutbound(httpRequest);
+            StripesFilter.configurationStash.remove();
         }
     }
 
