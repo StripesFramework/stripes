@@ -277,6 +277,9 @@ public class DispatcherServlet extends HttpServlet {
                             bean.getClass().getName() + "] and eventName [ " + eventName + "]");
                 }
 
+                log.debug("Resolved event: ", context.getEventName(), "; will invoke: ",
+                          bean.getClass().getSimpleName(), ".", handler.getName(), "()");
+
                 ctx.setHandler(handler);
                 return null;
             }
