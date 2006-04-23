@@ -58,7 +58,7 @@ public class InputPasswordTag extends InputTextTag {
                 getAttributes().put("value", body);
             }
             else if (getValue() != null) {
-                getAttributes().put("value", getValue());
+                getAttributes().put("value", format(getValue()));
             }
 
             writeSingletonTag(getPageContext().getOut(), "input");

@@ -34,7 +34,7 @@ import javax.servlet.jsp.tagext.BodyTag;
  * @author Tim Fennell
  */
  public class InputTextTag extends InputTagSupport implements BodyTag {
-    private String value;
+    private Object value;
 
     /** Basic constructor that sets the input tag's type attribute to "text". */
     public InputTextTag() {
@@ -43,10 +43,10 @@ import javax.servlet.jsp.tagext.BodyTag;
     }
 
     /** Sets the default value of the textarea (if no body is present). */
-    public void setValue(String value) { this.value = value; }
+    public void setValue(Object value) { this.value = value; }
 
     /** Returns the value set using setValue(). */
-    public String getValue() { return this.value; }
+    public Object getValue() { return this.value; }
 
 
     /** Sets the HTML attribute of the same name. */
