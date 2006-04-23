@@ -1506,7 +1506,13 @@
         <!-- Start: Standard Form Input attributes -->
         <attribute><description>@name@</description><name>name</name><required>true</required><rtexprvalue>true</rtexprvalue></attribute>
         <attribute><description>@size@</description><name>size</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
-        <attribute><description>@value@</description><name>value</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute>
+            <description>@value@</description>
+            <name>value</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.Object</type>
+        </attribute>
         <attribute><description>@disabled@</description><name>disabled</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
         <!-- End: Standard Form Input   attributes -->
 
