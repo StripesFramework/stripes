@@ -598,6 +598,7 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
         }
 
         Map<String,Validate> validationInfos = this.validations.get(bean.getClass());
+        StripesRequestWrapper req = StripesRequestWrapper.findStripesWrapper(bean.getContext().getRequest());
 
         if (validationInfos != null) {
             boolean wizard = bean.getClass().getAnnotation(Wizard.class) != null;
@@ -617,7 +618,7 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
                     if (!wizard || fieldsOnPage.contains(propertyName)) {
                         String[] values = bean.getContext().getRequest().getParameterValues(propertyName);
                         log.debug("Checking required field: ", propertyName, ", with values: ", values);
-                        checkSingleRequiredField(propertyName, propertyName, values, errors);
+                        checkSingleRequiredField(propertyName, propertyName, values, req, errors);
                     }
                 }
             }
@@ -652,7 +653,7 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
                         if (validationInfo != null && validationInfo.required()
                                 && applies(validationInfo, bean.getContext())) {
                             checkSingleRequiredField
-                                    (name.getName(), name.getStrippedName(), values, errors);
+                                    (name.getName(), name.getStrippedName(), values, req, errors);
                         }
                     }
                 }
@@ -685,8 +686,20 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
     protected void checkSingleRequiredField(String name,
                                             String strippedName,
                                             String[] values,
+                                            StripesRequestWrapper req,
                                             ValidationErrors errors) {
-        if (values == null || values.length == 0) {
+
+        // Firstly if the post is a multipart request, check to see if a file was
+        // sent under that parameter name
+        FileBean file = null;
+        if (req.isMultipart() && (file = req.getFileParameterValue(name)) != null) {
+            if (file.getSize() <= 0) {
+                errors.add(name, new ScopedLocalizableError("validation.required",
+                                                            "valueNotPresent"));
+            }
+        }
+        // And if not, see if any regular parameters were sent
+        else if (values == null || values.length == 0) {
             ValidationError error = new ScopedLocalizableError("validation.required",
                                                                "valueNotPresent");
             error.setFieldValue(null);
