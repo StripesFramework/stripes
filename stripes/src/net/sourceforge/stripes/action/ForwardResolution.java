@@ -28,7 +28,7 @@ import java.io.IOException;
  * @see RedirectResolution
  * @author Tim Fennell
  */
-public class ForwardResolution extends OnwardResolution implements Resolution {
+public class ForwardResolution extends OnwardResolution<ForwardResolution> implements Resolution {
     private static final Log log = Log.getInstance(ForwardResolution.class);
 
     /**
