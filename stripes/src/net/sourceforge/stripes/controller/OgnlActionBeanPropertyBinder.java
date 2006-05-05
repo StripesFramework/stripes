@@ -44,6 +44,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -442,7 +443,8 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
 
         // If the target type is an array, set it as one, otherwise set as scalar
         if (targetType.isArray() && !valueType.isArray()) {
-            OgnlUtil.setValue(property, bean, valueOrValues.toArray());
+            Object[] typedArray = (Object[]) Array.newInstance(valueType, valueOrValues.size());
+            OgnlUtil.setValue(property, bean, valueOrValues.toArray(typedArray));
         }
         else if (Collection.class.isAssignableFrom(targetType) &&
                 !Collection.class.isAssignableFrom(valueType)) {

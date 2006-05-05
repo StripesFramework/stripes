@@ -19,6 +19,8 @@ import java.util.Map;
  */
 @UrlBinding("/test/Test.action")
 public class TestActionBean implements ActionBean {
+    public enum Color {Red, Green, Blue, Yellow, Orange, Black, White }
+
     private ActionBeanContext context;
     private List<Long> listOfLongs;
     private Set<String> setOfStrings;
@@ -32,6 +34,7 @@ public class TestActionBean implements ActionBean {
     private int[] intArray;
     private String setOnlyString;
     public Long publicLong;
+    public Color[] colors;
 
     /** A pretty ordinary list of longs, to test lists of primitive/simply objects. */
     public List<Long> getListOfLongs() { return listOfLongs; }
@@ -77,6 +80,10 @@ public class TestActionBean implements ActionBean {
     /** A property with only a setter to test out setting when there's no getter. */
     public void setSetOnlyString(String setOnlyString) { this.setOnlyString = setOnlyString; }
     public boolean setOnlyStringIsNotNull() { return this.setOnlyString != null; }
+
+    /** An array of enums to test out enums, and arrays of non-instantiable things. */
+    public Color[] getColors() { return colors; }
+    public void setColors(Color[] colors) { this.colors = colors; }
 
     ///////////////////////////////////////////////////////////////////////////
     // Dummied up ActionBean methods that aren't really used for much.

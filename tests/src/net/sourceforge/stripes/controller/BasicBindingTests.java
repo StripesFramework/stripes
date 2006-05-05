@@ -227,4 +227,20 @@ public class BasicBindingTests {
         ActionBeanContext context = bean.getContext();
         Assert.assertFalse("woohaa!".equals(context.getEventName()));
     }
+
+    @Test(groups="fast")
+    public void bindArrayOfEnums() throws Exception {
+        // Should be able to set it just fine
+        MockRoundtrip trip = getRoundtrip();
+        trip.addParameter("colors", "Red", "Green", "Blue");
+        trip.execute();
+
+        TestActionBean bean = trip.getActionBean(TestActionBean.class);
+        TestActionBean.Color[] colors = bean.getColors();
+        Assert.assertNotNull(colors);
+        Assert.assertEquals(colors.length, 3);
+        Assert.assertEquals(colors[0], TestActionBean.Color.Red);
+        Assert.assertEquals(colors[1], TestActionBean.Color.Green);
+        Assert.assertEquals(colors[2], TestActionBean.Color.Blue);
+    }
 }
