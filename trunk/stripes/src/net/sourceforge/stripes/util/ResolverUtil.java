@@ -23,9 +23,10 @@ import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.URLDecoder;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.Collection;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
@@ -191,7 +192,7 @@ public class ResolverUtil<T> {
 
     /**
      * <p>Locates all implementations of an interface in the classloader being used by this thread.
-     * Does not scan the full chain of classloaders.  Scans only in the URLs in the ClassLoader
+     * Scans the current classloader and all parents.  Scans only in the URLs in the ClassLoaders
      * which match the filters provided, and within those URLs only checks classes within the
      * packages defined by the package filters provided.</p>
      *
@@ -211,12 +212,22 @@ public class ResolverUtil<T> {
         if (!(loader instanceof URLClassLoader)) {
             log.error("The current ClassLoader is not castable to a URLClassLoader. ClassLoader ",
                     "is of type [", loader.getClass().getName(), "]. Cannot scan ClassLoader for ",
-                    "implementations of ", parentType.getClass().getName(), ".");
+                    "implementations of ", parentType.getClass().getName(), ". When this is the ",
+                    "case you *must* put your ActionBean classes in either /WEB-INF/classes ",
+                    "or in a jar in /WEB-INF/lib for Stripes to find them."
+            );
             return false;
         }
         else {
-            URLClassLoader urlLoader = (URLClassLoader) loader;
-            URL[] urls = urlLoader.getURLs();
+            Collection<URL> urls = new HashSet<URL>();
+            while (loader != null) {
+                try {
+                    URLClassLoader urlLoader = (URLClassLoader) loader;
+                    urls.addAll(Arrays.asList(urlLoader.getURLs()));
+                }
+                catch (Exception e) { /* Do nothing */ }
+                loader = loader.getParent();
+            }
 
             for (URL url : urls) {
                 String path = url.getFile();
