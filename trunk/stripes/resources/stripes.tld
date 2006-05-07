@@ -34,7 +34,7 @@
     <display-name>Stripes Tag Library</display-name>
     <tlib-version>1.0</tlib-version>
     <short-name>stripes</short-name>
-    <uri>@uri@</uri>
+    <uri>http://stripes.sourceforge.net/stripes.tld</uri>
 
     <tag>
         <description><![CDATA[
@@ -274,6 +274,17 @@
                 inside of the form tags.
             </description>
             <name>action</name><required>false</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>
+                The fully qualified name of an ActionBean class, or alternatively a Class instance
+                for an ActionBean class.  An alternative to the 'action' attribute, the 'beanclass'
+                attribute will generate an action appropriate for the ActionBean identified. Note
+                that if an "ActionBean" that does not yet exist is identified an exception will
+                be thrown!
+            </description>
+            <name>beanclass</name><required>false</required><rtexprvalue>true</rtexprvalue>
+            <type>java.lang.Object</type>
         </attribute>
         <attribute>
             <description>
