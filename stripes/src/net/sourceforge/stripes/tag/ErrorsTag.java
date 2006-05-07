@@ -20,6 +20,7 @@ import net.sourceforge.stripes.controller.StripesFilter;
 import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.validation.ValidationError;
 import net.sourceforge.stripes.validation.ValidationErrors;
+import net.sourceforge.stripes.exception.StripesJspException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
@@ -157,6 +158,24 @@ public class ErrorsTag extends HtmlTagSupport implements BodyTag {
     /** Returns the value set with setAction(). */
     public String getAction() {
         return this.action;
+    }
+
+    /**
+     * Sets the action attribute by figuring out what ActionBean class is identified
+     * and then in turn finding out the appropriate URL for the ActionBean.
+     *
+     * @param beanclass the FQN of an ActionBean class, or a Class object for one.
+     */
+    public void setBeanclass(Object beanclass) throws StripesJspException {
+        String url = getActionBeanUrl(beanclass);
+        if (url == null) {
+            throw new StripesJspException("The 'beanclass' attribute provided could not be " +
+                    "used to identify a valid and configured ActionBean. The value supplied was: " +
+                    beanclass);
+        }
+        else {
+            this.action = url;
+        }
     }
 
     /** Sets the (optional) name of a field to display errors for, if errors exist. */
