@@ -309,9 +309,10 @@ public class AnnotatedClassActionResolver implements ActionResolver {
 
                 if (bean == null) {
                     bean = makeNewActionBean(beanClass, context);
-                    bean.setContext(context);
                     request.getSession().setAttribute(path, bean);
                 }
+
+                bean.setContext(context);
             }
             else {
                 bean = (ActionBean) request.getAttribute(path);
