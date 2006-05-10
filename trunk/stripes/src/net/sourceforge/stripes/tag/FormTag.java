@@ -36,7 +36,7 @@ import java.util.Set;
 
 /**
  * <p>Form tag for use with the Stripes framework.  Supports all of the HTML attributes applicable
- * to the form tag, with one exception: due to Java method naming restrictions accept-charset is
+ * to the form tag, with one exception: due to JSP attribute naming restrictions accept-charset is
  * specified as acceptcharset (but will be rendered correctly in the output HTML).</p>
  *
  * @author Tim Fennell
@@ -116,8 +116,8 @@ public class FormTag extends HtmlTagSupport implements BodyTag {
     public void   setAccept(String accept) { set("accept", accept); }
     public String getAccept() { return get("accept"); }
 
-    public void   setAcceptCharset(String acceptCharset) { set("accept-charset", acceptCharset); }
-    public String getAcceptCharset() { return get("accept-charset"); }
+    public void   setAcceptcharset(String acceptCharset) { set("accept-charset", acceptCharset); }
+    public String getAcceptcharset() { return get("accept-charset"); }
 
     public void   setEnctype(String enctype) { set("enctype", enctype); }
     public String getEnctype() { return get("enctype"); };
