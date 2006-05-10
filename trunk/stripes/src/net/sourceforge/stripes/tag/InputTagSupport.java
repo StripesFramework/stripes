@@ -353,6 +353,9 @@ public abstract class InputTagSupport extends HtmlTagSupport {
         if (isDisabled) {
             set("disabled", "disabled");
         }
+        else {
+            getAttributes().remove("disabled");
+        }
     }
     public String getDisabled() { return get("disabled"); }
 
