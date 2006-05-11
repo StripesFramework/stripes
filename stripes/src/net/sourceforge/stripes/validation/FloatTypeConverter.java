@@ -25,6 +25,10 @@ import java.util.Collection;
  * @author Tim Fennell
  */
 public class FloatTypeConverter extends NumberTypeConverterSupport implements TypeConverter<Float> {
+    /** The minimum value that can assigned to a float or Float. */
+    public static final float MIN_VALUE = -Float.MAX_VALUE;
+    /** The maximum value that can assigned to a float or Float. */
+    public static final float MAX_VALUE = Float.MAX_VALUE;
 
     /**
      * Converts the input to an object of type Double.
@@ -38,9 +42,9 @@ public class FloatTypeConverter extends NumberTypeConverterSupport implements Ty
 
         if (errors.size() == 0) {
             double output = number.doubleValue();
-            if (output > Float.MAX_VALUE || output < Float.MIN_VALUE) {
+            if (output > MAX_VALUE || output < MIN_VALUE) {
                 errors.add( new ScopedLocalizableError("converter.float", "outOfRange",
-                                                       Float.MIN_VALUE, Float.MAX_VALUE));
+                                                       MIN_VALUE, MAX_VALUE));
             }
             else {
                 retval = new Float(number.floatValue());
