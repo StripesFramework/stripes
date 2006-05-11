@@ -337,7 +337,7 @@ public class DispatcherServlet extends HttpServlet {
         }
         finally {
             if (pageContext != null) {
-                DispatcherServlet.pageContextStash.remove();
+                DispatcherServlet.pageContextStash.set(null);
                 JspFactory.getDefaultFactory().releasePageContext(pageContext);
             }
         }

@@ -220,7 +220,7 @@ public class StripesFilter implements Filter {
         finally {
             // Once the request is processed, take the Configuration back out of thread local
             flashOutbound(httpRequest);
-            StripesFilter.configurationStash.remove();
+            StripesFilter.configurationStash.set(null);
         }
     }
 
