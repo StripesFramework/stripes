@@ -24,10 +24,9 @@ import net.sourceforge.stripes.util.Log;
 
 /**
  * <p>An {@link Interceptor} that uses a Spring context to inject Spring beans into newly created
- * ActionBeans immediatley following ActionBeanResolution.  For more information on how the injection
+ * ActionBeans immediateley following ActionBeanResolution.  For more information on how the injection
  * is performed see {@link SpringHelper#injectBeans(Object,
- *  net.sourceforge.stripes.action.ActionBeanContext)}</p>
- * them back for processing.</p>
+ *  net.sourceforge.stripes.action.ActionBeanContext)}.</p>
  *
  * <p>To configure the SpringInterceptor for use you will need to add the following to your
  * web.xml (assuming no other interceptors are yet configured):</p>
@@ -35,7 +34,10 @@ import net.sourceforge.stripes.util.Log;
  * <pre>
  * &lt;init-param&gt;
  *     &lt;param-name&gt;Interceptor.Classes&lt;/param-name&gt;
- *     &lt;param-value&gt;net.sourceforge.stripes.integration.spring.SpringInterceptor&lt;/param-value&gt;
+ *     &lt;param-value&gt;
+ *         net.sourceforge.stripes.integration.spring.SpringInterceptor,
+ *         net.sourceforge.stripes.controller.BeforeAfterMethodInterceptor
+ *     &lt;/param-value&gt;
  * &lt;/init-param&gt;
  * </pre>
  *

@@ -101,7 +101,7 @@
 
         <testng classpathref="class.path" outputdir="${test.out.dir}">
             <classfileset dir="${classes.dir}">
-                <include name="**/*Test.class"/>
+                <include name="**/*.class"/>
             </classfileset>
         </testng>
     </target>
