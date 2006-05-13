@@ -30,6 +30,7 @@ import java.util.TreeMap;
 import java.util.Arrays;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.lang.reflect.Field;
 
 /**
  * Common utilty methods that are useful when working with reflection.
@@ -223,5 +224,28 @@ public class ReflectUtil {
         }
 
         return found;
+    }
+
+    /**
+     * Fetches all fields of all access types from the supplied class and super
+     * classes. Fieldss that have been overridden in the inheritance hierachy are
+     * only returned once, using the instance lowest down the hierarchy.
+     *
+     * @param clazz the class to inspect
+     * @return a collection of fields
+     */
+    public static Collection<Field> getFields(Class<?> clazz) {
+        Map<String,Field> fields = new HashMap<String, Field>();
+        while (clazz != null) {
+            for (Field field : clazz.getDeclaredFields()) {
+                if ( !fields.containsKey(field.getName()) ) {
+                    fields.put(field.getName(), field);
+                }
+            }
+
+            clazz = clazz.getSuperclass();
+        }
+
+        return fields.values();
     }
 }
