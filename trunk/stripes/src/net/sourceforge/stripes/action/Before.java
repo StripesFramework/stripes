@@ -31,9 +31,10 @@ import java.lang.annotation.Target;
  * {@link LifecycleStage#ActionBeanResolution} <b>cannot</b> be specified because there is
  * no ActionBean to run a method on before the ActionBean has been resolved!</p>
  *
- * <p>The method may have any name, but must by public and take no arguments. Methods may return
- * values; if the value is a {@link net.sourceforge.stripes.action.Resolution} it will be used
- * immediately to terminate the request.  Any other values returned will be ignored.</p>
+ * <p>The method may have any name, any access specifier (public, private etc.) and must take
+ * no arguments. Methods may return values; if the value is a
+ * {@link net.sourceforge.stripes.action.Resolution} it will be used immediately to terminate
+ * the request.  Any other values returned will be ignored.</p>
  *
  * <p>Examples:</p>
  *<pre>

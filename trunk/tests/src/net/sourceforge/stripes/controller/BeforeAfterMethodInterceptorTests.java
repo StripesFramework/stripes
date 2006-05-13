@@ -16,7 +16,7 @@ import org.testng.annotations.Test;
  */
 public class BeforeAfterMethodInterceptorTests {
 
-    @Test
+    @Test(groups="fast")
     public void testInterceptAtLifeCycleStage_ActionBeanResolution() throws Exception {
         ExecutionContext context = new TestExecutionContext();
         TestActionBean2 actionBean = new TestActionBean2();
@@ -45,7 +45,7 @@ public class BeforeAfterMethodInterceptorTests {
         Assert.assertEquals(actionBean.getHasCalledProtectedBeforeMethod(), 0);
     }
 
-    @Test
+    @Test(groups="fast")
     public void testInterceptAtLifeCycleStage_BindingAndValidation() throws Exception {
         ExecutionContext context = new TestExecutionContext();
         TestActionBean2 actionBean = new TestActionBean2();
@@ -75,7 +75,7 @@ public class BeforeAfterMethodInterceptorTests {
         Assert.assertEquals(actionBean.getHasCalledProtectedBeforeMethod(), 0);
     }
 
-    @Test
+    @Test(groups="fast")
     public void testInterceptAtLifeCycleStage_CustomValidation() throws Exception {
         ExecutionContext context = new TestExecutionContext();
         TestActionBean2 actionBean = new TestActionBean2();
@@ -105,7 +105,7 @@ public class BeforeAfterMethodInterceptorTests {
         Assert.assertEquals(actionBean.getHasCalledProtectedBeforeMethod(), 0);
     }
 
-    @Test
+    @Test(groups="fast")
     public void testInterceptAtLifeCycleStage_EventHandling() throws Exception {
         ExecutionContext context = new TestExecutionContext();
         TestActionBean2 actionBean = new TestActionBean2();
@@ -132,11 +132,11 @@ public class BeforeAfterMethodInterceptorTests {
         Assert.assertEquals(actionBean.getHasCalledBeforeWithParameter(), 0);
         Assert.assertEquals(actionBean.getHasCalledBeforeWithReturnAndParameter(), 0);
         Assert.assertEquals(actionBean.getHasCalledDummyMethod(), 0);
-        Assert.assertEquals(actionBean.getHasCalledProtectedAfterMethod(), 0);
-        Assert.assertEquals(actionBean.getHasCalledProtectedBeforeMethod(), 0);
+        Assert.assertEquals(actionBean.getHasCalledProtectedAfterMethod(), 1);
+        Assert.assertEquals(actionBean.getHasCalledProtectedBeforeMethod(), 1);
     }
 
-    @Test
+    @Test(groups="fast")
     public void testInterceptAtLifeCycleStage_HandlerResolution() throws Exception {
         ExecutionContext context = new TestExecutionContext();
         TestActionBean2 actionBean = new TestActionBean2();
