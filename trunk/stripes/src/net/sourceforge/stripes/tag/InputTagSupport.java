@@ -377,6 +377,9 @@ public abstract class InputTagSupport extends HtmlTagSupport {
         if (isReadOnly) {
             set("readonly", "readonly");
         }
+        else {
+            getAttributes().remove("readonly");
+        }
     }
 
     /** Gets the HTML attribute of the same name. */
