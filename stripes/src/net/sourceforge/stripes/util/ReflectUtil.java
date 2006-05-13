@@ -193,4 +193,35 @@ public class ReflectUtil {
             return ann.toString();
         }
     }
+
+    /**
+     * Fetches all methods of all access types from the supplied class and super
+     * classes. Methods that have been overridden in the inheritance hierachy are
+     * only returned once, using the instance lowest down the hierarchy.
+     *
+     * @param clazz the class to inspect
+     * @return a collection of methods
+     */
+    public static Collection<Method> getMethods(Class<?> clazz) {
+        Collection<Method> found = new ArrayList<Method>();
+        while (clazz != null) {
+            for (Method m1 : clazz.getDeclaredMethods()) {
+                boolean overridden = false;
+
+                for (Method m2 : found) {
+                    if ( m2.getName().equals(m1.getName()) &&
+                            Arrays.deepEquals(m1.getParameterTypes(), m2.getParameterTypes())) {
+                        overridden = true;
+                        break;
+                    }
+                }
+
+                if (!overridden) found.add(m1);
+            }
+
+            clazz = clazz.getSuperclass();
+        }
+
+        return found;
+    }
 }

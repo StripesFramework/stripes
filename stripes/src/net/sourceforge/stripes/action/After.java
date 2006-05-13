@@ -29,9 +29,10 @@ import java.lang.annotation.Target;
  * method will be run after each stage completes. If no LifecycleStage is specified then the
  * default is to execute the method after {@link LifecycleStage#EventHandling}.</p>
  *
- * <p>The method may have any name, but must by public and take no arguments. Methods may return
- * values; if the value is a {@link net.sourceforge.stripes.action.Resolution} it will be used
- * immediately to terminate the request.  Any other values returned will be ignored.</p>
+ * <p>The method may have any name, any access specifier (public, private etc.) and must take
+ * no arguments. Methods may return values; if the value is a
+ * {@link net.sourceforge.stripes.action.Resolution} it will be used immediately to terminate
+ * the request.  Any other values returned will be ignored.</p>
  *
  * <p>Examples:</p>
  *<pre>

@@ -19,6 +19,7 @@ import net.sourceforge.stripes.action.After;
 import net.sourceforge.stripes.action.Before;
 import net.sourceforge.stripes.action.Resolution;
 import net.sourceforge.stripes.util.Log;
+import net.sourceforge.stripes.util.ReflectUtil;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
@@ -29,6 +30,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -181,37 +183,49 @@ public class BeforeAfterMethodInterceptor implements Interceptor {
 			filterMethodsCache.put(beanClass, filterMethods);
 		
 			// Look for @Before and @After annotations on the methods in the ActionBean class
-			Method[] methods = beanClass.getMethods();
+			Collection<Method> methods = ReflectUtil.getMethods(beanClass);
             for (Method method : methods) {
-                int mods = method.getModifiers();
-
-                if (method.isAnnotationPresent(Before.class)) {
-                    if (method.getParameterTypes().length == 0 && !Modifier.isAbstract(mods)) {
-                        Before annotation = method.getAnnotation(Before.class);
-                        filterMethods.addBeforeMethod(annotation.value(), method);
-                    }
-                    else {
+                if (method.isAnnotationPresent(Before.class) || method.isAnnotationPresent(After.class)) {
+                    // Check to ensure that the method has an appropriate signature
+                    int mods = method.getModifiers();
+                    if (method.getParameterTypes().length != 0 || Modifier.isAbstract(mods)) {
                         log.warn("Method '", beanClass.getName(), ".", method.getName(), "' is ",
-                                 "annotated with @Before but has an incompatible signature. ",
-                                 "@Before methods must be non-abstract zero-argument methods.");
+                                 "annotated with @Before or @After but has an incompatible ",
+                                 "signature. @Before/@After methods must be non-abstract ",
+                                 "zero-argument methods.");
+                        continue;
                     }
-                }
 
-                if (method.isAnnotationPresent(After.class)) {
-                    if (method.getParameterTypes().length == 0 && !Modifier.isAbstract(mods)) {
+                    // Now try and make private/protected/package methods callable
+                    if (!method.isAccessible()) {
+                        try {
+                            method.setAccessible(true);
+                        }
+                        catch (SecurityException se) {
+                            log.warn("Method '", beanClass.getName(), ".", method.getName(), "' is ",
+                                     "annotated with @Before or @After but is not public and  ",
+                                     "calling setAccessible(true) on it threw a SecurityException. ",
+                                     "Please either declare the method as public, or change your ",
+                                     "JVM security policy to allow Stripes code to call ",
+                                     "Method.setAccessible() on your code base.");
+                            continue;
+                        }
+                    }
+
+                    if (method.isAnnotationPresent(Before.class)) {
+                            Before annotation = method.getAnnotation(Before.class);
+                            filterMethods.addBeforeMethod(annotation.value(), method);
+                    }
+
+                    if (method.isAnnotationPresent(After.class)) {
                         After annotation = method.getAnnotation(After.class);
                         filterMethods.addAfterMethod(annotation.value(), method);
                     }
-                    else {
-                        log.warn("Method '", beanClass.getName(), ".", method.getName(), "' is ",
-                                 "annotated with @After but has an incompatible signature. ",
-                                 "@After methods must be non-abstract zero-argument methods.");
-                    }
                 }
-
             }
 		}
-		return filterMethods;
+
+        return filterMethods;
 	}
 	
 	/**
