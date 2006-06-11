@@ -179,7 +179,8 @@ public class DelegatingExceptionHandler implements ExceptionHandler {
                        HttpServletRequest request,
                        HttpServletResponse response) throws ServletException {
         try {
-            Class type = throwable.getClass();
+            Throwable actual = unwrap(throwable);
+            Class type = actual.getClass();
             HandlerProxy proxy = null;
 
             while (type != null && proxy == null) {
@@ -188,9 +189,11 @@ public class DelegatingExceptionHandler implements ExceptionHandler {
             }
 
             if (proxy != null) {
-                proxy.handle(throwable, request, response);
+                proxy.handle(actual, request, response);
             }
             else {
+                // If there's no sensible proxy, rethrow the original throwable,
+                // NOT the unwrapped one since they may add extra information
                 throw throwable;
             }
         }
@@ -200,6 +203,25 @@ public class DelegatingExceptionHandler implements ExceptionHandler {
         catch (Throwable t) {
             throw new StripesServletException("Unhandled exception in exception handler.", t);
         }
+    }
+
+    /**
+     * Unwraps the throwable passed in.  If the throwable is a ServletException and has
+     * a root case, the root cause is returned, otherwise the throwable is returned as is.
+     *
+     * @param throwable a throwable
+     * @return another thowable, either the root cause of the one passed in
+     */
+    protected Throwable unwrap(Throwable throwable) {
+        if (throwable instanceof ServletException) {
+            Throwable t = ((ServletException) throwable).getRootCause();
+
+            if (t != null) {
+                throwable = t;
+            }
+        }
+
+        return throwable;
     }
 
     /**
