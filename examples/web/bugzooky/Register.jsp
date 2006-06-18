@@ -7,7 +7,7 @@
 
         <stripes:errors globalErrorsOnly="true"/>
 
-        <stripes:form action="/examples/bugzooky/Register.action" method="POST">
+        <stripes:form action="/examples/bugzooky/Register.action" focus="first">
             <p>Please provide the following information:</p>
 
             <table class="leftRightForm">

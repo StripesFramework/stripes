@@ -10,7 +10,7 @@
                     <!-- Somewhat contrived example of using the errors tag 'action' attribute. -->
                     <stripes:errors action="/examples/bugzooky/Login.action"/>
 
-                    <stripes:form action="/examples/bugzooky/Login.action">
+                    <stripes:form action="/examples/bugzooky/Login.action" focus="">
                         <table>
                             <tr>
                                 <td style="font-weight: bold;"><stripes:label for="username"/>:</td>
