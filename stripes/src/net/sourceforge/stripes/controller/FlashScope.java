@@ -62,17 +62,23 @@ import java.util.Map;
  * are pushed into request attributes for the current request.</p>
  *
  * <p>To ensure that orphaned FlashScopes do not consume increasing amounts of HttpSession memory,
- * the StripesFilter, after each request, checks to see if any FlashScopes have been present
- * longer than a pre-determined length of time.  Since the timer starts when a request completes,
- * and FlashScopes are only meant to live from the end of one request to the beginning of a
- * subsequent request this value is set quite low.</p>
+ * the StripesFilter, after each request, checks to see if any FlashScopes have recently expired.
+ * A FlashScope is expired when the length of time from the end of the request that created the
+ * FlashScope is greater than the timout set on the FlashScope.  The default timeout is 120 seconds
+ * (or two minutes), and can be varied by calling {@link #setTimeout(int)} Since the timer
+ * starts when a request completes, and FlashScopes are only meant to live from the end of one
+ * request to the beginning of a subsequent request this value is set quite low.</p>
  *
  * @author Tim Fennell
  * @since Stripes 1.2
  */
 public class FlashScope extends HashMap<String,Object> implements Serializable {
+    /** The default timeout for a flash scope. */
+    public static final int DEFAULT_TIMEOUT_IN_SECONDS = 120;
+
     private static final Log log = Log.getInstance(FlashScope.class);
     private long startTime;
+    private int timeout = DEFAULT_TIMEOUT_IN_SECONDS;
     private HttpServletRequest request;
 
     /**
@@ -85,6 +91,12 @@ public class FlashScope extends HashMap<String,Object> implements Serializable {
     protected FlashScope(HttpServletRequest request) {
         this.request = request;
     }
+
+    /** Returns the timeout in seconds after which the flash scope will be discarded. */
+    public int getTimeout() { return timeout; }
+
+    /** Sets the timeout in seconds after which the flash scope will be discarded. */
+    public void setTimeout(int timeout) { this.timeout = timeout; }
 
     /**
      * Returns the key used to store this flash scope in the colleciton of flash scopes.
@@ -118,6 +130,16 @@ public class FlashScope extends HashMap<String,Object> implements Serializable {
         else {
             return (System.currentTimeMillis() - this.startTime) / 1000;
         }
+    }
+
+    /**
+     * Returns true if the flash scope has expired and should be de-referenced to allow
+     * garbage collection. Returns false if the flash scope should be retained.
+     *
+     * @return true if the flash scope has expired, false otherwise
+     */
+    public boolean isExpired() {
+        return age() > this.timeout;
     }
 
     /**
