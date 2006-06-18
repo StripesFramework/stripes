@@ -12,7 +12,7 @@
 
         <stripes:errors/>
 
-        <stripes:form action="/examples/bugzooky/SingleBug.action">
+        <stripes:form action="/examples/bugzooky/SingleBug.action" focus="bug.shortDescription">
             <table class="leftRightForm">
                 <tr>
                     <th>Bug ID:</th>

@@ -25,10 +25,13 @@ import net.sourceforge.stripes.validation.ValidationErrors;
 import net.sourceforge.stripes.validation.BooleanTypeConverter;
 
 import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.JspWriter;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
+import java.util.Random;
 import java.lang.reflect.Method;
+import java.io.IOException;
 
 /**
  * Parent class for all input tags in stripes.  Provides support methods for retrieving all the
@@ -40,6 +43,7 @@ import java.lang.reflect.Method;
 public abstract class InputTagSupport extends HtmlTagSupport {
     private String formatType;
     private String formatPattern;
+    private boolean focus;
 
     /** A list of the errors related to this input tag instance */
     protected List<ValidationError> fieldErrors;
@@ -221,7 +225,9 @@ public abstract class InputTagSupport extends HtmlTagSupport {
      * is null, then the empty string will be returned.
      */
     protected String format(Object input) {
-        if (input == null) return "";
+        if (input == null) {
+            return "";
+        }
 
         FormatterFactory factory = StripesFilter.getConfiguration().getFormatterFactory();
         Formatter formatter = factory.getFormatter(input.getClass(),
@@ -323,13 +329,46 @@ public abstract class InputTagSupport extends HtmlTagSupport {
                 this.errorRenderer.doAfterEndTag();
             }
 
+            if (this.focus) {
+                makeFocused();
+            }
+
             this.errorRenderer = null;
             this.fieldErrors = null;
+            this.focus = false;
 
             return result;
         }
         finally {
             getTagStack().pop();
+        }
+    }
+
+    /**
+     * Informs the tag that it should render JavaScript to ensure that it is focused
+     * when the page is loaded. If the tag does not have an 'id' attribute a random
+     * one will be created and set so that the tag can be located easily.
+     *
+     * @param focus true if focus is desired, false otherwise
+     */
+    public void setFocus(boolean focus) {
+        this.focus = focus;
+
+        if ( getId() == null ) {
+            setId(String.valueOf( new Random().nextInt() ));
+        }
+    }
+
+    /** Writes out a JavaScript string to set focus on the field as it is rendered. */
+    protected void makeFocused() throws JspException {
+        try {
+            JspWriter out = getPageContext().getOut();
+            out.write("<script type=\"text/javascript\"/>var z=document.getElementById('");
+            out.write(getId());
+            out.write("'); z.focus(); z.select();</script>");
+        }
+        catch (IOException ioe) {
+            throw new StripesJspException("Could not write javascript focus code to jsp writer.", ioe);
         }
     }
 
@@ -384,7 +423,6 @@ public abstract class InputTagSupport extends HtmlTagSupport {
 
     /** Gets the HTML attribute of the same name. */
     public String getReadonly() { return get("readonly"); }
-
 
     public void setName(String name) { set("name", name); }
     public String getName() { return get("name"); }

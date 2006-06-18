@@ -412,6 +412,17 @@
             <type>java.lang.Object</type>
         </attribute>
         <attribute>
+            <description>
+                The name of the form field that should receive focus when the page is loaded. Two
+                special values are recognized, 'first' and the empty string; these values cause
+                the form to set focus on the first element in the form.  If any value is set,
+                and the form has validation errors, the behaviour is altered and the first field
+                with validation errors is focused instead.
+            </description>
+            <name>focus</name><required>false</required><rtexprvalue>true</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+        <attribute>
             <description>A comma separated list of content types that it is acceptable to submit through this form. (HTML Pass-through)</description>
             <name>accept</name><required>false</required><rtexprvalue>true</rtexprvalue>
         </attribute>

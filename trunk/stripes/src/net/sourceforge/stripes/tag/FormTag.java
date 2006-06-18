@@ -22,6 +22,8 @@ import net.sourceforge.stripes.exception.StripesJspException;
 import net.sourceforge.stripes.util.CryptoUtil;
 import net.sourceforge.stripes.util.HtmlUtil;
 import net.sourceforge.stripes.util.Log;
+import net.sourceforge.stripes.validation.ValidationErrors;
+import net.sourceforge.stripes.validation.ValidationError;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -33,6 +35,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.List;
 
 /**
  * <p>Form tag for use with the Stripes framework.  Supports all of the HTML attributes applicable
@@ -44,6 +47,10 @@ import java.util.Set;
 public class FormTag extends HtmlTagSupport implements BodyTag {
     /** Log used to log error and debugging information for this class. */
     private static Log log = Log.getInstance(FormTag.class);
+
+    /** Stores the field name (or magic values ''/'first') to set focus on. */
+    private String focus;
+    private boolean focusSet = false;
 
     /** Stores the value of the action attribute before the context gets appended. */
     private String actionWithoutContext;
@@ -109,6 +116,12 @@ public class FormTag extends HtmlTagSupport implements BodyTag {
 
     /** Corresponding getter for 'beanclass', will always return null. */
     public Object getBeanclass() { return null; }
+
+    /** Sets the name of the field that should receive focus when the form is rendered. */
+    public void setFocus(String focus) { this.focus = focus; }
+    /** Gets the name of the field that should receive focus when the form is rendered. */
+    public String getFocus() { return focus; }
+
 
     ////////////////////////////////////////////////////////////
     // Additional attributes specific to the form tag
@@ -201,8 +214,15 @@ public class FormTag extends HtmlTagSupport implements BodyTag {
 
             writeCloseTag(getPageContext().getOut(), "form");
 
+            // Write out a warning if focus didn't find a field
+            if (this.focus != null && !this.focusSet) {
+                log.error("Form with action [", getAction(), "] has 'focus' set to '", this.focus,
+                          "', but did not find a field with matching name to set focus on.");
+            }
+
             // Clean up any state the container won't reset during tag pooling
             this.fieldsPresent.clear();
+            this.focusSet = false;
         }
         catch (IOException ioe) {
             throw new StripesJspException("IOException in FormTag.doEndTag().", ioe);
@@ -323,6 +343,42 @@ public class FormTag extends HtmlTagSupport implements BodyTag {
      */
     public void registerField(InputTagSupport tag) {
         this.fieldsPresent.put(tag.getName(), tag.getClass());
+        setFocusOnFieldIfRequired(tag);
+    }
+
+    /**
+     * Checks to see if the field should receive focus either because it is the named
+     * field for receiving focus, because it is the first field in the form (and first
+     * field focus was specified), or because it is the first field in error.
+     *
+     * @param tag the input tag being registered with the form
+     */
+    protected void setFocusOnFieldIfRequired(InputTagSupport tag) {
+        // Decide whether or not this field should be focused
+        if (this.focus != null && !this.focusSet) {
+            ActionBean bean = getActionBean();
+            ValidationErrors errors = bean == null ? null : bean.getContext().getValidationErrors();
+
+            // If there are validaiton errors, select the first field in error
+            if (errors != null && errors.size() > 0) {
+                List<ValidationError> fieldErrors = errors.get(tag.getName());
+                if (fieldErrors != null && fieldErrors.size() > 0) {
+                    tag.setFocus(true);
+                    this.focusSet = true;
+                }
+            }
+            // Else set the named field, or the first field if that's desired
+            else if (this.focus.equals(tag.getName())) {
+                    tag.setFocus(true);
+                    this.focusSet = true;
+            }
+            else if ("".equals(this.focus) || "first".equalsIgnoreCase(this.focus)) {
+                if ( !(tag instanceof InputHiddenTag) ) {
+                    tag.setFocus(true);
+                    this.focusSet = true;
+                }
+            }
+        }
     }
 
     /**

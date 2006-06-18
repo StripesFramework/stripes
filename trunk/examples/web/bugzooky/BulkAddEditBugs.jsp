@@ -9,7 +9,7 @@
         <jsp:useBean id="personManager" scope="page"
                      class="net.sourceforge.stripes.examples.bugzooky.biz.PersonManager"/>
 
-        <stripes:form action="/examples/bugzooky/MultiBug.action">
+        <stripes:form action="/examples/bugzooky/MultiBug.action" focus="">
             <stripes:errors/>
 
             <table class="display">
