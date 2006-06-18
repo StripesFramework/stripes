@@ -204,11 +204,29 @@ public class StripesFilter implements Filter {
             // Pop the configuration into thread local
             StripesFilter.configurationStash.set(this.configuration);
 
-            // Figure out the locale to use, and then wrap the request
+            // Figure out the locale and character encoding to use. The ordering of things here
+            // is very important!! We pick the locale first since picking the encoding is
+            // locale dependent, but the encoding *must* be set on the request before any
+            // parameters or parts are accessed, and wrapping the request accesses stuff.
             Locale locale = this.configuration.getLocalePicker().pickLocale(httpRequest);
+            log.debug("LocalePicker selected locale: ", locale);
+
+            String encoding = this.configuration.getLocalePicker().pickCharacterEncoding(httpRequest, locale);
+            if (encoding != null) {
+                httpRequest.setCharacterEncoding(encoding);
+                log.debug("LocalePicker selected character encoding: ", encoding);
+            }
+            else {
+                log.debug("LocalePicker did not pick a character encoding, using default: ",
+                          httpRequest.getCharacterEncoding());
+            }
+
             StripesRequestWrapper request = wrapRequest(httpRequest);
             request.setLocale(locale);
-            log.debug("LocalePicker selected locale: ", locale);
+            httpResponse.setLocale(locale);
+            if (encoding != null) {
+                httpResponse.setCharacterEncoding(encoding);
+            }
 
             // Execute the rest of the chain
             flashInbound(request);
