@@ -363,7 +363,7 @@ public abstract class InputTagSupport extends HtmlTagSupport {
     protected void makeFocused() throws JspException {
         try {
             JspWriter out = getPageContext().getOut();
-            out.write("<script type=\"text/javascript\"/>var z=document.getElementById('");
+            out.write("<script type=\"text/javascript\">var z=document.getElementById('");
             out.write(getId());
             out.write("'); z.focus(); z.select();</script>");
         }
