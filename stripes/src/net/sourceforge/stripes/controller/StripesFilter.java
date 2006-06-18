@@ -76,12 +76,6 @@ public class StripesFilter implements Filter {
     private static ThreadLocal<Configuration> configurationStash = new ThreadLocal<Configuration>();
 
     /**
-     * The maximum age in seconds that a flash scope is allowed to live, timed from
-     * when the request that created the flash scope finished.  Currently set to 2 minutes.
-     */
-    private static final long MAX_FLASH_SCOPE_AGE =  60 * 2;
-
-    /**
      * Performs the necessary initialization for the StripesFilter.  Mainly this involves deciding
      * what configuration class to use, and then instantiating and initializing the chosen
      * Configuration.
@@ -292,7 +286,7 @@ public class StripesFilter implements Filter {
         Iterator<FlashScope> iterator = flashes.iterator();
         while (iterator.hasNext()) {
             FlashScope f = iterator.next();
-            if (f.age() > MAX_FLASH_SCOPE_AGE) {
+            if (f.isExpired()) {
                 iterator.remove();
             }
         }
