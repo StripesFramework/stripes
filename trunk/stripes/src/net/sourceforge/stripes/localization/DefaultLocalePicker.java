@@ -22,6 +22,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Collections;
+import java.util.Map;
+import java.util.HashMap;
+import java.nio.charset.Charset;
 
 /**
  * <p>Default locale picker that uses a comma separated list of locales in the servlet init
@@ -56,6 +59,9 @@ public class DefaultLocalePicker implements LocalePicker {
     /** Stores the configured set of Locales that the system supports, looked up at init time. */
     protected List<Locale> locales = new ArrayList<Locale>();
 
+    /** Contains a map of Locale to preferred character encoding. */
+    protected Map<Locale,String> encodings = new HashMap<Locale,String>();
+
     /**
      * Attempts to read the
      * @param configuration
@@ -75,26 +81,49 @@ public class DefaultLocalePicker implements LocalePicker {
             // Split apart the Locales on commas, and then parse the local strings into their bits
             String[] localeStrings = configuredLocales.split(",");
             for (String localeString : localeStrings) {
-                String[] parts = localeString.split("[-_]");
+                // Each locale string can be made up of two parts, locale:encoding
+                // and the locale can be made up of up to three segment, e.g. en_US_PC
+
+                String[] halves = localeString.split(":");
+                String[] parts = halves[0].split("[-_]");
+                Locale locale = null;
+
                 if (parts.length == 1) {
-                    this.locales.add( new Locale(parts[0].trim().toLowerCase()));
+                    locale = new Locale(parts[0].trim().toLowerCase());
                 }
                 else if (parts.length == 2) {
-                    this.locales.add( new Locale(parts[0].trim().toLowerCase(),
-                                                 parts[1].trim().toUpperCase()));
+                    locale = new Locale(parts[0].trim().toLowerCase(),
+                                        parts[1].trim().toUpperCase());
                 }
                 else if (parts.length == 3) {
-                    this.locales.add( new Locale(parts[0].trim().toLowerCase(),
-                                                 parts[1].trim().toUpperCase(),
-                                                 parts[2].trim()));
+                    locale =  new Locale(parts[0].trim().toLowerCase(),
+                                         parts[1].trim().toUpperCase(),
+                                         parts[2].trim());
                 }
                 else {
                     log.error("Configuration property ", LOCALE_LIST, " contained a locale value ",
                               "that split into more than three parts! The parts were: ", parts);
                 }
+
+                this.locales.add(locale);
+
+                // Now check to see if a character encoding was specified, and if so is it valid
+                if (halves.length == 2) {
+                    String encoding = halves[1];
+
+                    if (Charset.isSupported(encoding)) {
+                        this.encodings.put(locale, halves[1]);
+                    }
+                    else {
+                        log.error("Configuration property ", LOCALE_LIST, " contained a locale value ",
+                                  "with an unsupported character encoding. The offending entry is: ",
+                                  localeString);
+                    }
+                }
             }
 
-            log.debug("Configured DefaultLocalPicker with locales: ", this.locales);
+            log.debug("Configured DefaultLocalePicker with locales: ", this.locales);
+            log.debug("Configured DefaultLocalePicker with encodings: ", this.encodings);
         }
     }
 
@@ -155,4 +184,15 @@ public class DefaultLocalePicker implements LocalePicker {
         }
     }
 
+    /**
+     * Returns the character encoding to use for the request and locale if one has been
+     * specified in the configuration.  If no value has been specified, returns null.
+     *
+     * @param request the current request
+     * @param locale the locale picked for the request
+     * @return a valid character encoding or null
+     */
+    public String pickCharacterEncoding(HttpServletRequest request, Locale locale) {
+        return this.encodings.get(locale);
+    }
 }

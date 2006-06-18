@@ -43,4 +43,16 @@ public interface LocalePicker extends ConfigurableComponent {
      *         localized output
      */
     Locale pickLocale(HttpServletRequest request);
+
+    /**
+     * Picks the character encoding to use for the current request using the specified
+     * Locale. The character encoding will be set on both the request and the response. If the
+     * LocalePicker does not wish to change or specify a character encoding then this
+     * method should return null.
+     *
+     * @param request the current HttpServletRequest
+     * @param locale the Locale picked by the LocalePicker for this request
+     * @return the name of the character encoding to use, or null to use the default
+     */
+    String pickCharacterEncoding(HttpServletRequest request, Locale locale);
 }

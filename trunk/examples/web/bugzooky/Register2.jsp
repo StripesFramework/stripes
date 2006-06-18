@@ -1,5 +1,4 @@
 <%@ page import="net.sourceforge.stripes.examples.bugzooky.biz.Status"%>
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ include file="/bugzooky/taglibs.jsp" %>
 
 <stripes:layout-render name="/bugzooky/layout/standard.jsp" title="Register">
