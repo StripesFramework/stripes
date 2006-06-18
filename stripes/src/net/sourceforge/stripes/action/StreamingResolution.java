@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.io.PrintWriter;
 import java.io.IOException;
+import java.io.StringReader;
 
 /**
  * <p>Resolution for streaming data back to the client (in place of forwarding the user to
@@ -39,6 +40,7 @@ public class StreamingResolution implements Resolution {
     private Reader reader;
     private String filename;
     private String contentType;
+    private String characterEncoding;
 
     /**
      * Constructor that builds a StreamingResolution that will stream binary data back to the
@@ -65,6 +67,17 @@ public class StreamingResolution implements Resolution {
     }
 
     /**
+     * Constructor that builds a StreamingResolution that will stream character data from a String
+     * back to the client and identify the data as being of the specified content type.
+     *
+     * @param contentType the content type of the data in the stream (e.g. text/xml)
+     * @param output a String to stream back to the client
+     */
+    public StreamingResolution(String contentType, String output) {
+        this(contentType, new StringReader(output));
+    }
+
+    /**
      * Sets the filename that will be the default name suggested when the user is prompted
      * to save the file/stream being sent back. If the stream is not for saving by the user
      * (i.e. it should be displayed or used by the browser) this value should not be set.
@@ -79,6 +92,17 @@ public class StreamingResolution implements Resolution {
     }
 
     /**
+     * Sets the character encoding that will be set on the request when executing this
+     * resolution. If none is set, then the current character encoding (either the one
+     * selected by the LocalePicker or the container default one) will be used.
+     *
+     * @param characterEncoding the character encoding to use instead of the default
+     */
+    public void setCharacterEncoding(String characterEncoding) {
+        this.characterEncoding = characterEncoding;
+    }
+
+    /**
      * Streams data from the InputStream or Reader to the response's OutputStream or PrinterWriter,
      * using a moderately sized buffer to ensure that the operation is reasonable efficient.
      * Once the InputStream or Reader signaled the end of the stream, close() is called on it.
@@ -90,6 +114,7 @@ public class StreamingResolution implements Resolution {
      */
     public void execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
         response.setContentType(this.contentType);
+        if (this.characterEncoding != null) response.setCharacterEncoding(characterEncoding);
 
         // If a filename was specified, set the appropriate header
         if (this.filename != null) {
