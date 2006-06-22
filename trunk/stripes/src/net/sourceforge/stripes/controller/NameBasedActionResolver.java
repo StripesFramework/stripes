@@ -285,17 +285,16 @@ public class NameBasedActionResolver extends AnnotatedClassActionResolver {
      *
      * <ul>
      *   <li>/account/ViewAccount.jsp</li>
-     *   <li>/WEB-INF/account/ViewAccount.jsp</li>
+     *   <li>/account/viewAccount.jsp</li>
      *   <li>/account/view_account.jsp</li>
-     *   <li>/WEB-INF/account/view_account.jsp</li>
      * </ul>
      *
-     * <p>For each JSP name derived a check is performed using
-     * {@link ServletContext#getResource(String)} to see if there is a JSP located at that URL.
-     * Only if a JSP actually exists will a Resolution be returned.</p>
+     * <p>For each view name derived a check is performed using
+     * {@link ServletContext#getResource(String)} to see if there is a file located at that URL.
+     * Only if a file actually exists will a Resolution be returned.</p>
      *
-     * <p>Can be overridden to look for JSPs with a different pattern, or to provide a different
-     * kind of resolution.  It is strongly recommended when overriding this method to check for
+     * <p>Can be overridden to look for views with a different pattern, or to provide a different
+     * kind of resolution. It is strongly recommended when overriding this method to check for
      * the actual existence of views prior to manufacturing a resolution in order not to cause
      * confusion when URLs are mis-typed.</p>
      *
@@ -304,8 +303,11 @@ public class NameBasedActionResolver extends AnnotatedClassActionResolver {
      * @since Stripes 1.3
      */
     protected Resolution findView(String urlBinding) {
+        int lastPeriod = urlBinding.lastIndexOf('.');
         String path = urlBinding.substring(0, urlBinding.lastIndexOf("/") + 1);
-        String name = urlBinding.substring(path.length(), urlBinding.lastIndexOf("."));
+        String name = (lastPeriod >= path.length()) ? urlBinding.substring(path.length(), lastPeriod)
+                                                    : urlBinding.substring(path.length());
+
         ServletContext ctx = StripesFilter.getConfiguration()
                 .getBootstrapPropertyResolver().getFilterConfig().getServletContext();
 
