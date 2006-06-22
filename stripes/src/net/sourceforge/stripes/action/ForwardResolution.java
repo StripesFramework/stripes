@@ -70,7 +70,7 @@ public class ForwardResolution extends OnwardResolution<ForwardResolution> imple
     public void execute(HttpServletRequest request, HttpServletResponse response)
         throws ServletException, IOException {
 
-        String path = getPath();
+        String path = getUrl();
         log.trace("Forwarding to path: ", path);
 
         request.getRequestDispatcher(path).forward(request, response);
