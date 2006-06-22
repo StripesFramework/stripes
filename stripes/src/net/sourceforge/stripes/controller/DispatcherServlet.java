@@ -631,7 +631,7 @@ public class DispatcherServlet extends HttpServlet {
         ctx.setInterceptors(config.getInterceptors(LifecycleStage.ResolutionExecution));
         ctx.setResolution(resolution);
 
-        ctx.wrap( new Interceptor() {
+        Resolution retval = ctx.wrap( new Interceptor() {
             public Resolution intercept(ExecutionContext context) throws Exception {
                 ActionBeanContext abc = context.getActionBeanContext();
                 Resolution resolution = context.getResolution();
@@ -643,5 +643,19 @@ public class DispatcherServlet extends HttpServlet {
                 return null;
             }
         });
+
+        if (retval != null) {
+            log.warn("An interceptor wrapping LifecycleStage.ResolutionExecution returned ",
+                     "a Resolution. This almost certainly did NOT have the desired effect. ",
+                     "At this LifecycleStage interceptors are running *around* the actual ",
+                     "execution of the Resolution, and so returning an alternate Resolution ",
+                     "has the effect of stopping the original Resolution from being executed ",
+                     "while NOT causing the alternate Resolution to get executed. Interceptor ",
+                     "code running before the Resolution is executed (i.e. before calling ",
+                     "ExecutionContext.proceed()) can alter the Resolution by calling ",
+                     "ExecutionContext.setResolution() instead. Code running after the Resolution ",
+                     "has been executed can no longer alter what Resolution is executed for ",
+                     "what are hopefully obvious reasons!");
+        }
     }
 }
