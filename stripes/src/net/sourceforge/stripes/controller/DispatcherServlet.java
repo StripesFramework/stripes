@@ -165,7 +165,7 @@ public class DispatcherServlet extends HttpServlet {
 
             // Whatever stage it came from, execute the resolution
             if (resolution != null) {
-                resolution.execute(request, response);
+                executeResolution(ctx, resolution);
             }
         }
         catch (ServletException se) { throw se; }
