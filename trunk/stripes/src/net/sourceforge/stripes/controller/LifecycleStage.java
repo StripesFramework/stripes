@@ -53,5 +53,12 @@ public enum LifecycleStage {
      * Fifth major lifecycle stage.  The actual execution of the event handler method. Only
      * occurs when the prior stages have produced no persistent validation errors.
      */
-    EventHandling
+    EventHandling,
+
+    /**
+     * Sixth major lifecycle stage. Is executed any time a Resolution is executed, either
+     * as the outcome of an event handler, or because some other mechanism short circuits
+     * processing by returning a Resolution. 
+     */
+    ResolutionExecution
 }
