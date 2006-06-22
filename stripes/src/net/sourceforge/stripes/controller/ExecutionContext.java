@@ -44,6 +44,7 @@ public class ExecutionContext {
     private ActionBeanContext actionBeanContext;
     private ActionBean actionBean;
     private Method handler;
+    private Resolution resolution;
     private LifecycleStage lifecycleStage;
 
     /**
@@ -108,6 +109,17 @@ public class ExecutionContext {
 
     /** Sets the handler method that will be invoked to process the current request. */
     public void setHandler(Method handler) { this.handler = handler; }
+
+    /**
+     * Gets the Resolution that will be executed at the end of the execution. This value
+     * is generally not populated until just prior to {@link LifecycleStage#ResolutionExecution}.
+     *
+     * @return the Resolution associated with this execution
+     */
+    public Resolution getResolution() { return resolution; }
+
+    /** Sets the Resolution that will be executed to terminate this execution. */
+    public void setResolution(Resolution resolution) { this.resolution = resolution; }
 
     /**
      * Gets the current LifecycleStage being processed. This is always set to the appropriate

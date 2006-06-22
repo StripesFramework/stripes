@@ -613,4 +613,35 @@ public class DispatcherServlet extends HttpServlet {
             }
         });
     }
+
+    /**
+     * Responsible for executing the Resolution returned by the request. Transitions the
+     * execution context to {@link LifecycleStage#ResolutionExecution}, sets the resolution
+     * on the execution context and then invokes the interceptor chain to execute the
+     * Resolution.
+     *
+     * @param ctx the current execution context representing the request
+     * @param resolution the resolution to be executed unless another is substituted by an
+     *        interceptor before calling ctx.proceed()
+     */
+    protected void executeResolution(ExecutionContext ctx, Resolution resolution) throws Exception {
+        final Configuration config = StripesFilter.getConfiguration();
+
+        ctx.setLifecycleStage(LifecycleStage.ResolutionExecution);
+        ctx.setInterceptors(config.getInterceptors(LifecycleStage.ResolutionExecution));
+        ctx.setResolution(resolution);
+
+        ctx.wrap( new Interceptor() {
+            public Resolution intercept(ExecutionContext context) throws Exception {
+                ActionBeanContext abc = context.getActionBeanContext();
+                Resolution resolution = context.getResolution();
+
+                if (resolution != null) {
+                    resolution.execute(abc.getRequest(), abc.getResponse());
+                }
+
+                return null;
+            }
+        });
+    }
 }

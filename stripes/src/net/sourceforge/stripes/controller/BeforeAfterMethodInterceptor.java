@@ -61,7 +61,8 @@ import java.util.concurrent.ConcurrentHashMap;
              LifecycleStage.HandlerResolution,
              LifecycleStage.BindingAndValidation,
              LifecycleStage.CustomValidation,
-             LifecycleStage.EventHandling})
+             LifecycleStage.EventHandling,
+             LifecycleStage.ResolutionExecution})
 public class BeforeAfterMethodInterceptor implements Interceptor {
 	/** Log used throughout the intercetor */
 	private static final Log log = Log.getInstance(BeforeAfterMethodInterceptor.class);
