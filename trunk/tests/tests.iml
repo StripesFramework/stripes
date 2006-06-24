@@ -10,10 +10,10 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="stripes" exported="" />
-    <orderEntry type="module-library" exported="">
+    <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/testng-4.6-jdk15.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/testng-4.7-jdk15.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />

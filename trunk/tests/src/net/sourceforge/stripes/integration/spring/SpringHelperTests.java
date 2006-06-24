@@ -18,7 +18,7 @@ import org.testng.Assert;
 public class SpringHelperTests {
     StaticApplicationContext ctx;
 
-    @Configuration(beforeTestClass=true)
+    @Configuration(beforeTestClass=true, alwaysRun=true)
     protected void setupSpringContext() {
         ctx = new StaticApplicationContext();
         ctx.registerSingleton("test/TestBean", TestBean.class);
