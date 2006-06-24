@@ -45,6 +45,7 @@ public class OgnlUtil {
     static {
         OgnlRuntime.setNullHandler(Object.class, new OgnlCustomNullHandler());
         OgnlRuntime.setPropertyAccessor(List.class, new OgnlSafeListPropertyAccessor());
+        OgnlRuntime.setPropertyAccessor(Map.class, new OgnlMapPropertyAccessor());
     }
 
     /** Private default constructor to prevent anyone from instantiating the class. */

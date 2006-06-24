@@ -21,6 +21,7 @@ public class TestBean {
     private List<String> stringList;
     private Set<String> stringSet;
     private Map<String,String> stringMap;
+    private Map<Long,Long> longMap;
 
     private List<TestBean> beanList;
     private Map<String,TestBean> beanMap;
@@ -85,6 +86,9 @@ public class TestBean {
     public void setStringMap(Map<String, String> stringMap) {
         this.stringMap = stringMap;
     }
+
+    public Map<Long, Long> getLongMap() { return longMap; }
+    public void setLongMap(Map<Long, Long> longMap) { this.longMap = longMap; }
 
     public TestBean getNestedBean() {
         return nestedBean;
