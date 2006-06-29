@@ -39,6 +39,7 @@ public class UrlBuilder {
     private StringBuilder url = new StringBuilder(256);
     boolean seenQuestionMark = false;
     private String parameterSeparator;
+    private String anchor;
 
     /**
      * Constructs a UrlBuilder with the path to a resource. Parameters can be added
@@ -51,8 +52,17 @@ public class UrlBuilder {
      *        tag), false if for some other purpose.
      */
     public UrlBuilder(String url, boolean isForPage) {
-        this.url.append(url);
-        this.seenQuestionMark = this.url.indexOf("?") != -1;
+        if (url != null) {
+            // Check to see if there is an embedded anchor, and strip it out for later
+            int index = url.indexOf('#');
+            if (index != -1) {
+                this.anchor = url.substring(index+1);
+                url = url.substring(0, index);
+            }
+
+            this.url.append(url);
+            this.seenQuestionMark = this.url.indexOf("?") != -1;
+        }
 
         if (isForPage) {
             this.parameterSeparator = "&amp;";
@@ -156,11 +166,41 @@ public class UrlBuilder {
     }
 
     /**
+     * Gets the anchor, if any, that will be appended to the URL. E.g. if this method
+     * returns 'input' then the URL will be terminated with '#input' in order to instruct
+     * the browser to navigate to the HTML anchor callled 'input' when accessing the URL.
+     *
+     * @return the anchor (if any) without the leading pound sign, or null
+     */
+    public String getAnchor() { return anchor; }
+
+    /**
+     * Sets the anchor, if any, that will be appended to the URL. E.g. if supplied with
+     * 'input' then the URL will be terminated with '#input' in order to instruct
+     * the browser to navigate to the HTML anchor callled 'input' when accessing the URL.
+     *
+     * @param anchor the anchor with or without the leading pound sign, or null to disable
+     */
+    public void setAnchor(String anchor) {
+        if (anchor != null && anchor.startsWith("#") && anchor.length() > 1) {
+            this.anchor = anchor.substring(1);
+        }
+        else {
+            this.anchor = anchor;
+        }
+    }
+
+    /**
      * Returns the URL composed thus far as a String.  All paramter values will have been
      * URL encoded and appended to the URL before returning it.
      */
     @Override
     public String toString() {
-        return this.url.toString();
+        if (this.anchor != null && !"".equals(this.anchor)) {
+            return this.url.toString() + "#" + this.anchor;
+        }
+        else {
+            return this.url.toString();
+        }
     }
 }

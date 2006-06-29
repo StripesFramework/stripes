@@ -48,6 +48,41 @@ public class UrlBuilderTest {
     }
 
     @Test(groups="fast")
+    public void testUrlWithParametersAndAnchor() throws Exception {
+        String path = "/test/page.jsp#someAnchor";
+        UrlBuilder builder = new UrlBuilder(path, false);
+        builder.addParameter("one", 1);
+        builder.addParameter("two", 2);
+        builder.addParameter("three", 3);
+        String result = builder.toString();
+        Assert.assertEquals(result, "/test/page.jsp?one=1&two=2&three=3#someAnchor");
+    }
+
+    @Test(groups="fast")
+    public void testUrlWithParametersAndAnchor2() throws Exception {
+        String path = "/test/page.jsp#someAnchor";
+        UrlBuilder builder = new UrlBuilder(path, false);
+        builder.addParameter("one", 1);
+        builder.addParameter("two", 2);
+        builder.addParameter("three", 3);
+        builder.setAnchor("someOtherAnchor");
+        String result = builder.toString();
+        Assert.assertEquals(result, "/test/page.jsp?one=1&two=2&three=3#someOtherAnchor");
+    }
+
+    @Test(groups="fast")
+    public void testUrlWithParametersAndAnchor3() throws Exception {
+        String path = "/test/page.jsp#someAnchor";
+        UrlBuilder builder = new UrlBuilder(path, false);
+        builder.addParameter("one", 1);
+        builder.addParameter("two", 2);
+        builder.addParameter("three", 3);
+        builder.setAnchor(null);
+        String result = builder.toString();
+        Assert.assertEquals(result, "/test/page.jsp?one=1&two=2&three=3");
+    }
+
+    @Test(groups="fast")
     public void testUrlWithParameterVarargs() throws Exception {
         String path = "/test/page.jsp";
         UrlBuilder builder = new UrlBuilder(path, false);
