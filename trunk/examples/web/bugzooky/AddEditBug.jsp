@@ -86,8 +86,8 @@
                         <c:forEach items="${actionBean.bug.attachments}" var="attachment" varStatus="loop">
                             ${attachment.name} (${attachment.size} bytes) -
                             <stripes:link href="/bugzooky/DownloadAttachment.action">
-                                <stripes:link-param name="bugId" value="${actionBean.bug.id}"/>
-                                <stripes:link-param name="attachmentIndex" value="${loop.index}"/>
+                                <stripes:param name="bugId" value="${actionBean.bug.id}"/>
+                                <stripes:param name="attachmentIndex" value="${loop.index}"/>
                                 <em>${attachment.preview}...</em>
                             </stripes:link><br/>
                         </c:forEach>

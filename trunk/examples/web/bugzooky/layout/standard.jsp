@@ -27,7 +27,7 @@
                 <div id="footer">
                     <stripes:link href="/examples/bugzooky/ViewResource.action">
                         View this JSP
-                        <stripes:link-param name="resource" value="${pageContext.request.servletPath}"/>
+                        <stripes:param name="resource" value="${pageContext.request.servletPath}"/>
                     </stripes:link>
 
                     | View other source files:

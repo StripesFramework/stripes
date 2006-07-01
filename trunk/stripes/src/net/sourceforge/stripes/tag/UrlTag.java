@@ -87,6 +87,8 @@ public class UrlTag extends LinkTagSupport implements BodyTag {
             }
         }
 
+        clearParameters();
+
         return EVAL_PAGE;
     }
 
