@@ -15,15 +15,21 @@
 package net.sourceforge.stripes.tag;
 
 /**
- * Used to supply parameters when nested inside a link tag.  The value is either obtained from
- * the value attribute, or if that is not present, then the body of the tag. Once the value has
- * been established the parent link tag is looked for, and the parameter is handed over to it
- * for inclusion in the link url.
+ * Interface to be implemented by tags which wish to be able to receive parameters from
+ * nested {@literal <stripes:param>} tags.
  *
  * @author Tim Fennell
- * @deprecated Use the generic ParamTag instead
+ * @since Stripes 1.4
+ * @see ParamTag
  */
-@Deprecated
-public class LinkParamTag extends ParamTag {
-
+public interface ParameterizableTag {
+    /**
+     * Adds a parameter to the tag.  It is up to the tag to determine whether the new value(s)
+     * supplied supercede or add to previous values.  The value can be of any type, and tags
+     * should handle Arrays and Collections gracefully.
+     *
+     * @param name the name of the parameter
+     * @param valueOrValues either a scalar value, an array or a collection
+     */
+    void addParameter(String name, Object valueOrValues);
 }

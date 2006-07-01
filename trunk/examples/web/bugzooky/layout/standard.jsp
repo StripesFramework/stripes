@@ -34,9 +34,9 @@
                     <stripes:useActionBean binding="/examples/bugzooky/ViewResource.action" var="bean"/>
                     <select style="width: 350px;" onchange="document.location = this.value;">
                         <c:forEach items="${bean.availableResources}" var="file">
-                            <c:url value="/examples/bugzooky/ViewResource.action" var="url">
-                                <c:param name="resource" value="${file}"/>
-                            </c:url>
+                            <stripes:url value="/examples/bugzooky/ViewResource.action" var="url">
+                                <stripes:param name="resource" value="${file}"/>
+                            </stripes:url>
                             <option value="${url}">${file}</option>
                         </c:forEach>
                     </select>
