@@ -119,9 +119,11 @@ public class FileBean {
                     + this.file.getAbsolutePath() + " - writability is required to move the file.");
         }
 
-        if (!toFile.canWrite() && !toFile.getParentFile().canWrite()) {
-            throw new IOException
-                ("Cannot write to "+ toFile.getAbsolutePath());
+        if (toFile.exists() && !toFile.canWrite()) {
+            throw new IOException("Cannot overwrite existing file at "+ toFile.getAbsolutePath());
+        }
+        else if (!toFile.exists() && !toFile.getAbsoluteFile().getParentFile().canWrite()) {
+            throw new IOException("Cannot create new file at location: " + toFile.getAbsolutePath());
         }
 
         this.saved = this.file.renameTo(toFile);
