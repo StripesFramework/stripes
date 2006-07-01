@@ -35,7 +35,7 @@
                         <td>
                             <stripes:link href="/examples/bugzooky/SingleBug.action" event="preEdit">
                                 Edit
-                                <stripes:link-param name="bug.id" value="${bug.id}"/>
+                                <stripes:param name="bug.id" value="${bug.id}"/>
                             </stripes:link>
                         </td>
                     </tr>
