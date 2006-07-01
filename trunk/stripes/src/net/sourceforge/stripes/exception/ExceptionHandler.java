@@ -19,6 +19,7 @@ import net.sourceforge.stripes.config.ConfigurableComponent;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.ServletException;
+import java.io.IOException;
 
 /**
  * <p>Component that is delegated to in order to handle any exceptions that are raised
@@ -56,5 +57,5 @@ public interface ExceptionHandler extends ConfigurableComponent {
      */
     void handle(Throwable throwable,
                 HttpServletRequest request,
-                HttpServletResponse response) throws ServletException;
+                HttpServletResponse response) throws ServletException, IOException ;
 }

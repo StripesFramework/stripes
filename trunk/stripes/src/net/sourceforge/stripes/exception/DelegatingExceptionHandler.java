@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.io.IOException;
 
 /**
  * <p>An alternative implementation of {@link ExceptionHandler} that discovers and automatically
@@ -177,7 +178,7 @@ public class DelegatingExceptionHandler implements ExceptionHandler {
      */
     public void handle(Throwable throwable,
                        HttpServletRequest request,
-                       HttpServletResponse response) throws ServletException {
+                       HttpServletResponse response) throws ServletException, IOException {
         try {
             Throwable actual = unwrap(throwable);
             Class type = actual.getClass();
@@ -197,9 +198,8 @@ public class DelegatingExceptionHandler implements ExceptionHandler {
                 throw throwable;
             }
         }
-        catch (ServletException se) {
-            throw se;
-        }
+        catch (ServletException se) { throw se; }
+        catch (IOException ioe) { throw ioe; }
         catch (Throwable t) {
             throw new StripesServletException("Unhandled exception in exception handler.", t);
         }
