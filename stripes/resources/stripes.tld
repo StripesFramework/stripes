@@ -868,6 +868,7 @@
 
     <tag>
         <description><![CDATA[
+            <b>DEPRECATED. Use the 'param' tag instead.</b>
             Used to add parameters to a link that has been created with a stripes:link tag. If
             the value attribute is present it will be used. If the value attribute is not present,
             then the body of the tag will be used as the parameter value.  The value attribute
@@ -1181,6 +1182,33 @@
         <attribute><description>@tabindex@</description><name>tabindex</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
         <attribute><description>@title@</description><name>title</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
         <!-- End: Standard HTML attributes -->
+    </tag>
+
+    <tag>
+        <description><![CDATA[
+            Used to add parameters to the link and url tags. If the value attribute is present it
+            will be used. If the value attribute is not present, then the body of the tag will be
+            used as the parameter value.  The value attribute may identify either a scalar value,
+             an Array or a Collection.  In the latter two cases a URL parameter will be added per
+             value in the Array or Collection.
+        ]]></description>
+        <display-name>link-param</display-name>
+        <name>param</name>
+        <tag-class>net.sourceforge.stripes.tag.ParamTag</tag-class>
+        <body-content>JSP</body-content>
+        <attribute>
+            <description>The name of the parameter.</description>
+            <name>name</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>The value (or values) of the parameter.</description>
+            <name>value</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.Object</type>
+        </attribute>
     </tag>
 
     <tag>
@@ -1644,6 +1672,61 @@
 
     <tag>
         <description><![CDATA[
+            Similar to the link tag except that the behaviour closely approximates the JSTL
+            c:url tag. Generates a URL containing the necessary source-page and event
+            parameters. If a 'var' attribute is specified, the generated URL will be written
+            to that variable, otherwise it will be written into the page.
+        ]]></description>
+        <display-name>url</display-name>
+        <name>url</name>
+        <tag-class>net.sourceforge.stripes.tag.UrlTag</tag-class>
+        <body-content>JSP</body-content>
+        <attribute>
+            <description>
+                The target URL. If the URL starts with a slash and does not contain the current
+                web application context path, then the context path will be prepended to the URL.
+            </description>
+            <name>value</name><required>false</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>
+                The (optional) name of a scoped variable to store the generated URL in. If no
+                name is specified then the URl will be written directly to the page instead. See
+                also the 'scope' attribute to control which scope the variable gets set in.
+            </description>
+            <name>var</name><required>false</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>
+                The (optional) name of the JSP scope into which to set the variable specified by
+                the var attribute. Valid values are 'page', 'request', 'session' and 'application'.
+                Defaults to 'page'.
+            </description>
+            <name>scope</name><required>false</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>
+                The (optional) event that should be fired if the link is to an ActionBean. If not
+                supplied then the tag will not render an explicit event (but one may by built in
+                to the URL/href supplied).
+            </description>
+            <name>event</name><required>false</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>
+                The fully qualified name of an ActionBean class, or alternatively a Class instance
+                for an ActionBean class.  An alternative to the 'value' attribute, the 'beanclass'
+                attribute will generate an href appropriate for the ActionBean identified. Note
+                that if an ActionBean that does not yet exist is identified an exception will
+                be thrown!
+            </description>
+            <name>beanclass</name><required>false</required><rtexprvalue>true</rtexprvalue>
+            <type>java.lang.Object</type>
+        </attribute>
+    </tag>
+
+    <tag>
+        <description><![CDATA[
             <p>Puts the ActionBean with the specified binding into page context under the
             supplied name. If the ActionBean does not already exist, it will be instantiated
             and binding will be run to bind values from the HttpServletRequest onto the
@@ -1730,7 +1813,6 @@
             <type>boolean</type>
         </attribute>
     </tag>
-
 
     <!-- Layout Tags. -->
     <tag>

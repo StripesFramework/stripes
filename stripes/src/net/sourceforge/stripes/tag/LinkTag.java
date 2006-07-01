@@ -14,48 +14,23 @@
  */
 package net.sourceforge.stripes.tag;
 
-import net.sourceforge.stripes.controller.StripesConstants;
 import net.sourceforge.stripes.exception.StripesJspException;
-import net.sourceforge.stripes.util.UrlBuilder;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.BodyTag;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Tag for generating links to pages or ActionBeans within a Stripes application. Provides
  * basic services such as including the context path at the start of the href URL (only
  * when the URL starts with a '/' and does not contain the context path already), and
  * including a parameter to name the source page from which the link came. Also provides the
- * ability to add complex parameters to the URL through the use of nested LinkParam tags.
+ * ability to add complex parameters to the URL through the use of nested Param tags.
  *
- * @see LinkParamTag
+ * @see ParamTag
  * @author Tim Fennell
  */
-public class LinkTag extends HtmlTagSupport implements BodyTag {
-    private Map<String,Object> parameters = new HashMap<String,Object>();
-    private String event;
-    private Object beanclass;
-
-    /**
-     * Used by stripes:link-param tags (and possibly other tags at some distant point in
-     * the future) to add a parameter to the parent link tag.
-     *
-     * @param name the name of the parameter(s) to add
-     * @param valueOrValues
-     */
-    public void addParameter(String name, Object valueOrValues) {
-        this.parameters.put(name, valueOrValues);
-    }
-
-    /** Retrieves the parameter values set on the tag. */
-    public Map<String,Object> getParameters() {
-        return this.parameters;
-    }
+public class LinkTag extends LinkTagSupport implements BodyTag {
 
     /**
      * Does nothing.
@@ -84,46 +59,8 @@ public class LinkTag extends HtmlTagSupport implements BodyTag {
      * @throws JspException
      */
     public int doEndTag() throws JspException {
-        // If the beanclass attribute was supplied we'll prefer that to an href
-        if (this.beanclass != null) {
-            String beanHref = getActionBeanUrl(beanclass);
-            if (beanHref == null) {
-                throw new StripesJspException("The value supplied for the 'beanclass' attribute "
-                    + "does not represent a valid ActionBean. The value supplied was '" +
-                    this.beanclass + "'. If you're prototyping, or your bean isn't ready yet " +
-                    "and you want this exception to go away, just use 'href' for now instead.");
-            }
-            else {
-                setHref(beanHref);
-            }
-        }
-
-        HttpServletRequest request = (HttpServletRequest) getPageContext().getRequest();
-        HttpServletResponse response = (HttpServletResponse) getPageContext().getResponse();
-        String originalHref = getHref(); // Save for later, so we can restore the value
-
-        if (originalHref != null) {
-            String href = originalHref;
-            String contextPath = request.getContextPath();
-
-            // Append the context path, but only if the user didn't already
-            if (originalHref.startsWith("/") && !"/".equals(contextPath)
-                    && !originalHref.contains(contextPath + "/")) {
-                href = contextPath + href;
-            }
-
-            // Add all the parameters and reset the href attribute; pass to false here because
-            // the HtmlTagSupport will HtmlEncode the ampersands for us
-            UrlBuilder builder = new UrlBuilder(href, false);
-            if (this.event != null) {
-                builder.addParameter(this.event);
-            }
-            builder.addParameter(StripesConstants.URL_KEY_SOURCE_PAGE, request.getServletPath());
-            builder.addParameters(this.parameters);
-            setHref(response.encodeURL(builder.toString()));
-        }
-
         try {
+            set("href", buildUrl());
             writeOpenTag(getPageContext().getOut(), "a");
             String body = getBodyContentAsString();
             if (body != null) {
@@ -136,33 +73,15 @@ public class LinkTag extends HtmlTagSupport implements BodyTag {
         }
 
         // Restore state and go on with the page
-        setHref(originalHref);
-        this.parameters.clear();
+        getAttributes().remove("href");
+        clearParameters();
         return EVAL_PAGE;
     }
 
-    /** Sets the (optional) event name that the link will trigger. */
-    public void setEvent(String event) { this.event = event; }
-
-    /** Gets the (optional) event name that the link will trigger. */
-    public String getEvent() { return event; }
-
-    /**
-     * Sets the bean class (String FQN or Class) to generate a link for. Provides an
-     * alternative to using href for targetting ActionBeans.
-     *
-     * @param beanclass the name of an ActionBean class, or Class object
-     */
-    public void setBeanclass(Object beanclass) { this.beanclass = beanclass; }
-
-    /**
-     * Gets the bean class (String FQN or Class) to generate a link for. Provides an
-     * alternative to using href for targetting ActionBeans.
-     *
-     * @return the name of an ActionBean class, or Class object
-     */
-    public Object getBeanclass() { return beanclass; }
-
+    /** Pass through to {@link LinkTagSupport#setUrl(String)}. */
+    public void   setHref(String href) { setUrl(href); }
+    /** Pass through to {@link LinkTagSupport#getUrl()}. */
+    public String getHref() { return getUrl(); }
 
 
     ///////////////////////////////////////////////////////////////////////////
@@ -173,9 +92,6 @@ public class LinkTag extends HtmlTagSupport implements BodyTag {
 
     public void   setCoords(String coords) { set("coords", coords); }
     public String getCoords() { return get("coords"); }
-
-    public void   setHref(String href) { set("href", href); }
-    public String getHref() { return get("href"); }
 
     public void   setHreflang(String hreflang) { set("hreflang", hreflang); }
     public String getHreflang() { return get("hreflang"); }
