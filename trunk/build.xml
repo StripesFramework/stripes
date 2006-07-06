@@ -62,7 +62,7 @@
 	<target name="hostedqa" depends="build">
 	    <taskdef resource="hostedqatasks" classpathref="hostedqa.classpath"/>
 	    <upload file="examples/dist/stripes-examples.war" account="stripes" email="${hostedqa.email}" password="${hostedqa.password}" resourceId="19"/>
-	    <playsuite suiteId="17" clientConfigs="19" appConfigs="14" account="stripes" email="${hostedqa.email}" password="${hostedqa.password}"/>
+	    <playsuite suiteId="17" clientConfigs="19" appConfigs="18,19" account="stripes" email="${hostedqa.email}" password="${hostedqa.password}"/>
 	</target>
 
 
