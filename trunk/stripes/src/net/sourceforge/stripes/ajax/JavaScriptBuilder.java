@@ -67,7 +67,7 @@ public class JavaScriptBuilder {
     }
 
     /** Holds the set of objects that have been visited during conversion. */
-    private Set<Object> visitedObjects = new HashSet<Object>();
+    private Set<Integer> visitedIdentities = new HashSet<Integer>();
 
     /** Holds a map of name to JSON value for JS Objects and Arrays. */
     private Map<String,String> objectValues = new HashMap<String,String>();
@@ -276,16 +276,17 @@ public class JavaScriptBuilder {
      * @param in The object being translated.
      */
     void buildNode(String name, Object in) throws Exception {
-        String targetName = "_sj_" + System.identityHashCode(in);
+        int systemId = System.identityHashCode(in);
+        String targetName = "_sj_" + systemId;
 
-        if (this.visitedObjects.contains(in)) {
+        if (this.visitedIdentities.contains(systemId)) {
             this.assignments.put(name, targetName);
         }
         else if ( isExcludedType(in.getClass()) ) {
             // Do nothing, it's being excluded!!
         }
         else {
-            this.visitedObjects.add(in);
+            this.visitedIdentities.add(systemId);
 
             if (Collection.class.isAssignableFrom(in.getClass())) {
                 buildCollectionNode(targetName, (Collection) in);
@@ -377,7 +378,7 @@ public class JavaScriptBuilder {
         out.append("{");
 
         for (Map.Entry<?,?> entry : in.entrySet()) {
-            String propertyName = entry.getKey().toString();
+            String propertyName = getScalarAsString(entry.getKey());
             Object value = entry.getValue();
 
             if (isScalarType(value)) {
@@ -389,7 +390,7 @@ public class JavaScriptBuilder {
                 out.append( getScalarAsString(value) );
             }
             else {
-                buildNode(targetName + "." + propertyName, value);
+                buildNode(targetName + "[" + propertyName + "]", value);
             }
         }
 
