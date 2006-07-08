@@ -63,4 +63,16 @@ public interface StripesConstants {
      */
     String REQ_ATTR_FLASH_SCOPE_LOCATION = "__flash_scopes";
 
+    /**
+     * Request attribute key defined by the servlet spec for storing the included servlet
+     * path when processing a server side include.
+     */
+    String REQ_ATTR_INCLUDE_PATH = "javax.servlet.include.servlet_path";
+
+    /**
+     * Request attribute key defined by the servlet spec for storing the included path
+     * info when processing a server side include.
+     */
+    String REQ_ATTR_INCLUDE_PATH_INFO = "javax.servlet.include.path_info";
+
 }
