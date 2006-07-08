@@ -14,13 +14,15 @@
  */
 package net.sourceforge.stripes.tag;
 
-import net.sourceforge.stripes.util.OgnlUtil;
 import net.sourceforge.stripes.exception.StripesJspException;
+import net.sourceforge.stripes.util.OgnlUtil;
+import net.sourceforge.stripes.localization.LocalizationUtility;
 import ognl.OgnlException;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.Tag;
 import java.util.Collection;
+import java.util.Locale;
 
 /**
  * <p>Writes a set of {@literal <option value="foo">bar</option>} tags to the page based on the
@@ -35,6 +37,29 @@ import java.util.Collection;
  * <p>would cause the container to look for a Collection called "cats" across the various JSP
  * scopes and set it on the tag.  The tag would then proceed to iterate through that collection
  * calling getCatId() and getName() on each cat to produce HTML option tags.</p>
+ *
+ * <p>The tag will attempt to localize the labels attributes of the option tags that are
+ * generated. To do this it will look up labels in the field resource bundle using:</p>
+ *
+ * <ul>
+ *   <li>{className}.{labelPropertyValue}</li>
+ *   <li>{packageName}.{className}.{labelPropertyValue}</li>
+ *   <li>{className}.{valuePropertyValue}</li>
+ *   <li>{packageName}.{className}.{valuePropertyValue}</li>
+ * </ul>
+ *
+ * <p>For example for a class com.myco.Gender supplied to the options-collection tag with
+ * label="key" and value="description", when rendering for an instance
+ * Gender[key="M", description="Male"] the following localized properites will be looked for:
+ *
+ * <ul>
+ *   <li>Gender.Male</li>
+ *   <li>com.myco.Gender.Male</li>
+ *   <li>Gender.M</li>
+ *   <li>com.myco.Gender.M</li>
+ * </ul>
+ *
+ * <p>If no localized label can be found then the value of the label property will be used.</p>
  *
  * <p>All other attributes on the tag (other than collection, value and label) are passed directly
  * through to the InputOptionTag which is used to generate the individual HTML options tags. As a
@@ -104,6 +129,7 @@ public class InputOptionsCollectionTag extends HtmlTagSupport implements Tag {
         String labelProperty = getLabel();
         String valueProperty = getValue();
 
+        Locale locale = getPageContext().getRequest().getLocale();
         InputOptionTag tag = new InputOptionTag();
         tag.setParent(this);
         tag.setPageContext(getPageContext());
@@ -111,21 +137,23 @@ public class InputOptionsCollectionTag extends HtmlTagSupport implements Tag {
 
         try {
             for (Object item : this.collection) {
-                Object label = null;
-                if (labelProperty != null) {
-                    label = OgnlUtil.getValue(labelProperty, item);
-                }
-                else {
-                    label = item;
-                }
+                Class clazz = item.getClass();
 
-                Object value = null;
-                if (valueProperty != null) {
-                    value = OgnlUtil.getValue(valueProperty, item);
+                // Lookup the bean properties for the label and value
+                Object label = (labelProperty == null) ? item : OgnlUtil.getValue(labelProperty, item);
+                Object value = (valueProperty == null) ? item : OgnlUtil.getValue(valueProperty, item);
+
+                // Try to localize the label
+                String localizedLabel = null;
+                if (label != null) {
+                    localizedLabel = LocalizationUtility.getLocalizedFieldName
+                        (clazz.getSimpleName() + "."  + label, clazz.getPackage().getName(), locale);
                 }
-                else {
-                    value = item;
+                if (localizedLabel == null && value != null) {
+                    localizedLabel = LocalizationUtility.getLocalizedFieldName
+                        (clazz.getSimpleName() + "."  + value, clazz.getPackage().getName(), locale);
                 }
+                if (localizedLabel != null) label = localizedLabel;
 
                 tag.setLabel(label.toString());
                 tag.setValue(value);
