@@ -54,6 +54,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
+import java.util.SortedMap;
 import java.util.regex.Pattern;
 import java.security.GeneralSecurityException;
 
@@ -234,7 +236,7 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
 
         // Converted values for all fields are accumulated in this map to make post-conversion
         // validation go a little easier
-        Map<ParameterName,List<Object>> allConvertedFields = new HashMap<ParameterName,List<Object>>();
+        Map<ParameterName,List<Object>> allConvertedFields = new TreeMap<ParameterName,List<Object>>();
 
         // First we bind all the regular parameters
         for (Map.Entry<ParameterName,String[]> entry : parameters.entrySet() ) {
@@ -493,10 +495,12 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
 
     /**
      * Converts the map of parameters in the request into a Map of ParameterName to String[].
+     * Returns a SortedMap so that when iterated over parameter names are accessed in order
+     * of length of parameter name.
      */
-    protected Map<ParameterName, String[]> getParameters(ActionBeanContext context) {
+    protected SortedMap<ParameterName, String[]> getParameters(ActionBeanContext context) {
         Map<String, String[]> requestParameters = context.getRequest().getParameterMap();
-        Map<ParameterName, String[]> parameters = new HashMap<ParameterName,String[]>();
+        SortedMap<ParameterName, String[]> parameters = new TreeMap<ParameterName,String[]>();
 
         for (Map.Entry<String,String[]> entry : requestParameters.entrySet()) {
             parameters.put(new ParameterName(entry.getKey().trim()), entry.getValue());

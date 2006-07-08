@@ -23,7 +23,7 @@ import java.util.regex.Matcher;
  *
  * @author Tim Fennell
  */
-public class ParameterName {
+public class ParameterName implements Comparable<ParameterName> {
     /** Stores the regular expression that will remove all [] segments. */
     public static final Pattern pattern = Pattern.compile("\\[.*\\]");
 
@@ -83,13 +83,30 @@ public class ParameterName {
     }
 
     /**
+     * Orders ParameterNames so that those with shorter (unstripped) names come first. Two
+     * names of the same length are then ordered alphabetically by String.compareTo().
+     *
+     * @param that another ParameterName to compare to
+     * @return -1 if this value sorts first, 0 if the values are identical and +1 if the
+     *         parameter passed in sorts first.
+     */
+    public int compareTo(ParameterName that) {
+        int result = new Integer(this.name.length()).compareTo(that.name.length());
+        if (result == 0) {
+            result = this.name.compareTo(that.name);
+        }
+
+        return result;
+    }
+
+    /**
      * Checks for equality as efficiently as possible.  First checks for JVM equality to
      * see if we can short circuit, and then checks for equality of the name attribute for
      * a real test.
      */
     public boolean equals(Object obj) {
         return (obj instanceof ParameterName) &&
-                (this == obj || this.name.equals(((ParameterName) obj).name) );
+                (this == obj || compareTo((ParameterName) obj) == 0);
     }
 
     /**
