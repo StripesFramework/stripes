@@ -102,19 +102,29 @@ public class InputOptionTag extends InputTagSupport implements BodyTag {
                     ("Option tags must always be contained inside a select tag.");
         }
 
-        if ( selectTag.isOptionSelected(getValue(), (this.selected != null)) ) {
+        // Decide if the label will come from the body of the option, of the label attr
+        String actualLabel = getBodyContentAsString();
+        if (actualLabel == null) {
+            actualLabel = this.label;
+        }
+
+        // If no explicit value attribute set, use the tag label as the value
+        Object actualValue;
+        if (this.value == null) {
+            actualValue = actualLabel;
+        }
+        else {
+            actualValue = this.value;
+        }
+        getAttributes().put("value", format(actualValue));
+
+       // Determine if the option should be selected
+        if (selectTag.isOptionSelected(actualValue, (this.selected != null))) {
             getAttributes().put("selected", "selected");
         }
 
-        getAttributes().put("value", format(this.value));
-
+        // And finally write the tag out to the page
         try {
-            String actualLabel = getBodyContentAsString();
-
-            if (actualLabel == null) {
-                actualLabel = this.label;
-            }
-
             writeOpenTag(getPageContext().getOut(), "option");
             if (actualLabel != null) {
                 getPageContext().getOut().write(actualLabel);
