@@ -21,6 +21,7 @@ import net.sourceforge.stripes.util.Log;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.ServletContext;
 import java.util.Locale;
 import java.util.List;
 import java.util.ArrayList;
@@ -42,6 +43,7 @@ public class ActionBeanContext {
 
     private HttpServletRequest request;
     private HttpServletResponse response;
+    private ServletContext servletContext;
     private String eventName;
     private ValidationErrors validationErrors;
 
@@ -76,6 +78,24 @@ public class ActionBeanContext {
      */
     public void setResponse(HttpServletResponse response) {
         this.response = response;
+    }
+
+    /**
+     * Retrieves the ServletContext object that is associated with the context in which the
+     * current request is being processed.
+     * @return ServletContext the current ServletContext
+     */
+    public ServletContext getServletContext() {
+        return servletContext;
+    }
+
+    /**
+     * Sets the ServletContext object that is associated with the context in which the
+     * current request is being processed.
+     * @param servletContext the current ServletContext
+     */
+    public void setServletContext(ServletContext servletContext) {
+        this.servletContext = servletContext;
     }
 
     /**

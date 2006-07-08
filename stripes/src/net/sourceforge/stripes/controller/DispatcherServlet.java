@@ -122,6 +122,7 @@ public class DispatcherServlet extends HttpServlet {
             // First manufacture an ActionBeanContext
             final ActionBeanContext context =
                     config.getActionBeanContextFactory().getContextInstance(request, response);
+            context.setServletContext(getServletContext());
 
             // Then setup the ExecutionContext that we'll use to process this request
             final ExecutionContext ctx = new ExecutionContext();
