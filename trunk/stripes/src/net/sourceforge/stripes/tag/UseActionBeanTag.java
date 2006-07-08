@@ -81,6 +81,7 @@ public class UseActionBeanTag extends StripesTagSupport {
                 // Setup the context stuff needed to emulate the dispatcher
                 ActionBeanContext tempContext =
                         config.getActionBeanContextFactory().getContextInstance(request, response);
+                tempContext.setServletContext(getPageContext().getServletContext());
                 ExecutionContext ctx = new ExecutionContext();
                 ctx.setLifecycleStage(LifecycleStage.ActionBeanResolution);
                 ctx.setActionBeanContext(tempContext);
