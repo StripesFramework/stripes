@@ -15,9 +15,9 @@
 package net.sourceforge.stripes.tag;
 
 import net.sourceforge.stripes.exception.StripesJspException;
-import net.sourceforge.stripes.util.OgnlUtil;
 import net.sourceforge.stripes.localization.LocalizationUtility;
-import ognl.OgnlException;
+import net.sourceforge.stripes.util.bean.BeanUtil;
+import net.sourceforge.stripes.util.bean.ExpressionException;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.Tag;
@@ -140,8 +140,8 @@ public class InputOptionsCollectionTag extends HtmlTagSupport implements Tag {
                 Class clazz = item.getClass();
 
                 // Lookup the bean properties for the label and value
-                Object label = (labelProperty == null) ? item : OgnlUtil.getValue(labelProperty, item);
-                Object value = (valueProperty == null) ? item : OgnlUtil.getValue(valueProperty, item);
+                Object label = (labelProperty == null) ? item : BeanUtil.getPropertyValue(labelProperty, item);
+                Object value = (valueProperty == null) ? item : BeanUtil.getPropertyValue(valueProperty, item);
 
                 // Try to localize the label
                 String localizedLabel = null;
@@ -163,10 +163,10 @@ public class InputOptionsCollectionTag extends HtmlTagSupport implements Tag {
                 tag.doEndTag();
             }
         }
-        catch (OgnlException oe) {
+        catch (ExpressionException ee) {
             throw new StripesJspException("A problem occurred generating an options-collection. " +
                 "Most likely either [" + labelProperty + "] or ["+ valueProperty + "] is not a " +
-                "valid property of the beans in the collection: " + this.collection);
+                "valid property of the beans in the collection: " + this.collection, ee);
         }
 
         return SKIP_BODY;

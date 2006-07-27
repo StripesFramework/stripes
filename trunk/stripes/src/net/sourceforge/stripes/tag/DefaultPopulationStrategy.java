@@ -18,9 +18,9 @@ import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.exception.StripesJspException;
 import net.sourceforge.stripes.util.Log;
-import net.sourceforge.stripes.util.OgnlUtil;
+import net.sourceforge.stripes.util.bean.BeanUtil;
+import net.sourceforge.stripes.util.bean.ExpressionException;
 import net.sourceforge.stripes.validation.ValidationErrors;
-import ognl.OgnlException;
 
 /**
  * <p>Default implementation of the form input tag population strategy. First looks to see if there
@@ -45,13 +45,18 @@ public class DefaultPopulationStrategy implements PopulationStrategy {
         this.config = configuration;
     }
 
+    /** Accessor for the configuration supplied when the population strategy is initialized. */
+    protected Configuration getConfiguration() {
+        return this.config;
+    }
+
     /**
      * Implementation of the interface method that will follow the search described in the class
      * level JavaDoc and attempt to find a value for this tag.
      *
      * @param tag the form input tag whose value to populate
      * @return Object will be one of null, a single Object or an Array of Objects depending upon
-     *         what was submitted in the prior request, and what is declard on the ActionBean
+     *         what was submitted in the prior request, and what is declared on the ActionBean
      */
     public Object getValue(InputTagSupport tag) throws StripesJspException {
         // Look first for something that the user submitted in the current request
@@ -94,10 +99,10 @@ public class DefaultPopulationStrategy implements PopulationStrategy {
 
         if (actionBean != null) {
             try {
-                value = OgnlUtil.getValue(tag.getName(), actionBean);
+                value = BeanUtil.getPropertyValue(tag.getName(), actionBean);
             }
-            catch (OgnlException oe) {
-                log.info("Could not locate property of name [" + tag.getName() + "] on ActionBean.", oe);
+            catch (ExpressionException ee) {
+                log.info("Could not locate property of name [" + tag.getName() + "] on ActionBean.", ee);
             }
         }
 
