@@ -5,7 +5,11 @@ import org.testng.annotations.Test;
 import net.sourceforge.stripes.action.UrlBinding;
 
 /**
- * 
+ * Tests for various methods in the NameBasedActionResolver that can be tested in isolation.
+ * The resolver is also tested by a lot of the mock tests that run from request through the
+ * action layer.
+ *
+ * @author Tim Fennell
  */
 public class NameBasedActionResolverTest {
     private NameBasedActionResolver resolver = new NameBasedActionResolver();
@@ -19,6 +23,12 @@ public class NameBasedActionResolverTest {
     @Test(groups="fast")
     public void generateBindingForNonPackagedClass() {
         String binding = this.resolver.getUrlBinding("ControlCenterActionBean");
+        Assert.assertEquals(binding, "/ControlCenter.action");
+    }
+
+    @Test(groups="fast")
+    public void generateBindingForClassWithSingleBasePackage() {
+        String binding = this.resolver.getUrlBinding("www.ControlCenterActionBean");
         Assert.assertEquals(binding, "/ControlCenter.action");
     }
 

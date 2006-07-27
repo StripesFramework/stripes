@@ -154,9 +154,12 @@ public class NameBasedActionResolver extends AnnotatedClassActionResolver {
     protected String getUrlBinding(String name) {
         // Chop off the packages up until (and including) any base package
         for (String base : getBasePackages()) {
-            int i = name.indexOf(base);
+            int i = name.indexOf("." + base + ".");
             if (i != -1) {
-                name = name.substring(i + base.length());
+                name = name.substring(i + base.length() + 1);
+            }
+            else if (name.startsWith(base + ".")) {
+                name = name.substring(base.length());
             }
         }
 
