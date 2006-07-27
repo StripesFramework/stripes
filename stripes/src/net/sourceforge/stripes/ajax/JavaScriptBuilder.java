@@ -177,6 +177,8 @@ public class JavaScriptBuilder {
      * scalar, and false otherwise.
      */
     public boolean isScalarType(Object in) {
+        if (in == null) return true; // Though not strictly scalar, null can be treated as such
+
         Class type = in.getClass();
         return simpleTypes.contains(type)
             || Number.class.isAssignableFrom(type)
@@ -190,6 +192,8 @@ public class JavaScriptBuilder {
      * and must be a of a type that will return true when supplied to isScalarType().
      */
     public String getScalarAsString(Object in) {
+        if (in == null) return "null";
+
         Class type = in.getClass();
 
         if (String.class.isAssignableFrom(type)) {
