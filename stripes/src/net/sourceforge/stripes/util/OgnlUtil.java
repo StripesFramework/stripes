@@ -19,6 +19,7 @@ import ognl.Ognl;
 import ognl.OgnlContext;
 import ognl.OgnlException;
 import ognl.OgnlRuntime;
+import ognl.MethodAccessor;
 
 import java.beans.IntrospectionException;
 import java.lang.reflect.Method;
@@ -46,6 +47,18 @@ public class OgnlUtil {
         OgnlRuntime.setNullHandler(Object.class, new OgnlCustomNullHandler());
         OgnlRuntime.setPropertyAccessor(List.class, new OgnlSafeListPropertyAccessor());
         OgnlRuntime.setPropertyAccessor(Map.class, new OgnlMapPropertyAccessor());
+
+        // Set a method accessor so that malicous expressions injected by users cannot
+        // invoke arbitrary static and non-static methods
+        OgnlRuntime.setMethodAccessor(Object.class, new MethodAccessor() {
+            public Object callStaticMethod(Map ctx, Class clazz, String method, Object[] args) {
+                return null;
+            }
+
+            public Object callMethod(Map ctx, Object target, String method, Object[] args) {
+                return null;
+            }
+        });
     }
 
     /** Private default constructor to prevent anyone from instantiating the class. */

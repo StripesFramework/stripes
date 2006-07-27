@@ -23,28 +23,31 @@ import net.sourceforge.stripes.exception.StripesRuntimeException;
 import net.sourceforge.stripes.util.CryptoUtil;
 import net.sourceforge.stripes.util.HtmlUtil;
 import net.sourceforge.stripes.util.Log;
-import net.sourceforge.stripes.util.OgnlUtil;
 import net.sourceforge.stripes.util.ReflectUtil;
+import net.sourceforge.stripes.util.bean.ExpressionException;
+import net.sourceforge.stripes.util.bean.NoSuchPropertyException;
+import net.sourceforge.stripes.util.bean.PropertyExpression;
+import net.sourceforge.stripes.util.bean.PropertyExpressionEvaluation;
+import net.sourceforge.stripes.util.bean.BeanUtil;
 import net.sourceforge.stripes.validation.ScopedLocalizableError;
 import net.sourceforge.stripes.validation.TypeConverter;
 import net.sourceforge.stripes.validation.Validate;
 import net.sourceforge.stripes.validation.ValidateNestedProperties;
 import net.sourceforge.stripes.validation.ValidationError;
 import net.sourceforge.stripes.validation.ValidationErrors;
-import ognl.NoSuchPropertyException;
-import ognl.OgnlException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.PageContext;
-import javax.servlet.jsp.el.ExpressionEvaluator;
-import javax.servlet.jsp.el.Expression;
 import javax.servlet.jsp.el.ELException;
+import javax.servlet.jsp.el.Expression;
+import javax.servlet.jsp.el.ExpressionEvaluator;
 import javax.servlet.jsp.el.VariableResolver;
+import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.Array;
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -54,25 +57,26 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.regex.Pattern;
-import java.security.GeneralSecurityException;
 
 /**
- * Implementation of the ActionBeanPropertyBinder interface that uses the OGNL toolkit to perform
- * the JavaBean property binding.  Uses a pair of helper classes (OgnlUtil and OgnlCustomNullHandler)
- * in order to efficiently manage the fetching and setting of simple, nested, indexed, mapped and
- * other properties (see Ognl documentation for full syntax and capabilities).  When setting
- * nested properties, if intermediary objects are null, they will be instantiated and linked in to
- * the object graph to allow the setting of the target property.
+ * <p>Implementation of the ActionBeanPropertyBinder interface that uses Stripes' built in
+ * property expression support to perform JavaBean property binding. Several additions/enhancements
+ * are available above and beyond the standard JavaBean syntax.  These include:</p>
  *
- * @see net.sourceforge.stripes.util.OgnlCustomNullHandler
- * @see OgnlUtil
+ * <ul>
+ *   <li>The ability to instantiate and set null intermediate properties in a property chain</li>
+ *   <li>The ability to use Lists and Maps directly for indexed properties</li>
+ *   <li>The ability to infer type information from the generics information in classes</li>
+ * </ul>
+ *
  * @author Tim Fennell
+ * @since Stripes 1.4
  */
-public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
-    private static Log log = Log.getInstance(OgnlActionBeanPropertyBinder.class);
+public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder {
+    private static Log log = Log.getInstance(DefaultActionBeanPropertyBinder.class);
     private static Set<String> SPECIAL_KEYS = new HashSet<String>();
 
     static {
@@ -251,8 +255,14 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
                         && !pname.toLowerCase().startsWith("context")) {
                     log.trace("Running binding for property with name: ", name);
 
-                    Class type = OgnlUtil.getPropertyClass(name.getName(), bean);
-                    if (type == null) {
+                    // Determine the target type
+                    Validate validationInfo = this.validations.get(bean.getClass()).get(name.getStrippedName());
+                    PropertyExpressionEvaluation eval =
+                            new PropertyExpressionEvaluation(PropertyExpression.getExpression(pname), bean);
+                    Class type = eval.getType();
+                    Class scalarType = eval.getScalarType();
+
+                    if (type == null && (validationInfo == null || validationInfo.converter() == null)) {
                         log.trace("Could not find type for property '", name.getName(), "' of '",
                                   bean.getClass().getSimpleName(), "' probably because it's not ",
                                   "a property of the bean.  Skipping binding.");
@@ -262,8 +272,6 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
 
                     // Do Validation and type conversion
                     List<ValidationError> errors = new ArrayList<ValidationError>();
-                    Validate validationInfo =
-                            this.validations.get(bean.getClass()).get(name.getStrippedName());
 
                     // If the property should be ignored, skip to the next property
                     if (validationInfo != null && validationInfo.ignore()) {
@@ -274,7 +282,7 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
                         doPreConversionValidations(name, values, validationInfo, errors);
                     }
 
-                    convertedValues = convert(bean, name, values, type, validationInfo, errors);
+                    convertedValues = convert(bean, name, values, scalarType, validationInfo, errors);
                     allConvertedFields.put(name, convertedValues);
 
                     // If we have errors, save them, otherwise bind the parameter to the form
@@ -282,7 +290,7 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
                         fieldErrors.addAll(name.getName(), errors);
                     }
                     else if (convertedValues.size() > 0) {
-                        bindNonNullValue(bean, name.getName(), convertedValues, type);
+                        bindNonNullValue(bean, eval, convertedValues, type, scalarType);
                     }
                     else {
                         bindNullValue(bean, name.getName(), type);
@@ -339,9 +347,9 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
                                               Exception e, ValidationErrors errors) {
         if (e instanceof NoSuchPropertyException) {
             NoSuchPropertyException nspe = (NoSuchPropertyException) e;
+            // No stack trace if it's a no such property exception
             log.debug("Could not bind property with name [", name, "] to bean of type: ",
-                      bean.getClass().getSimpleName(), " : ",
-                      nspe.getReason() == null ? nspe.getMessage() : nspe.getReason().getMessage());
+                      bean.getClass().getSimpleName(), " : ", nspe.getMessage());
         }
         else {
             log.debug(e, "Could not bind property with name [", name, "] to bean of type: ",
@@ -364,10 +372,7 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
         for (String name: getFieldsPresentInfo(bean)) {
             if (!paramatersSubmitted.contains(name)) {
                 try {
-                    Class type = OgnlUtil.getPropertyClass(name, bean);
-                    if (type != null) {
-                        bindNullValue(bean, name, OgnlUtil.getPropertyClass(name, bean));
-                    }
+                    BeanUtil.setPropertyToNull(name, bean);
                 }
                 catch (Exception e) {
                     log.warn(e, "Could not set property '", name, "' to null on ActionBean of",
@@ -396,10 +401,10 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
                 //FIXME: might want to let the ActionBean handle the initial request somehow?
                 throw new StripesRuntimeException(
                         "Submission of a wizard form in Stripes absolutely requires that " +
-                        "the hidden field Stripes writes containing the names of the fields " +
-                        "present on the form is present and encrypted (as Stripes write it). " +
-                        "This is necessary to prevent a user from spoofing the system and " +
-                        "getting around any security/data checks."
+                                "the hidden field Stripes writes containing the names of the fields " +
+                                "present on the form is present and encrypted (as Stripes write it). " +
+                                "This is necessary to prevent a user from spoofing the system and " +
+                                "getting around any security/data checks."
                 );
             }
             else {
@@ -432,21 +437,26 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
      * If the target type is a scalar type then the first value in the List of values is bound.
      *
      * @param bean the ActionBean instance to which the property is being bound
-     * @param property the name of the property being bound
+     * @param propertyEvaluation the property evaluation to be used to set the property
      * @param valueOrValues a List containing one or more values
      * @param targetType the declared type of the property on the ActionBean
      * @throws Exception if the property cannot be bound for any reason
      */
     protected void bindNonNullValue(ActionBean bean,
-                                    String property,
+                                    PropertyExpressionEvaluation propertyEvaluation,
                                     List<Object> valueOrValues,
-                                    Class targetType) throws Exception {
+                                    Class targetType,
+                                    Class scalarType) throws Exception {
         Class valueType = valueOrValues.iterator().next().getClass();
 
         // If the target type is an array, set it as one, otherwise set as scalar
         if (targetType.isArray() && !valueType.isArray()) {
-            Object[] typedArray = (Object[]) Array.newInstance(valueType, valueOrValues.size());
-            OgnlUtil.setValue(property, bean, valueOrValues.toArray(typedArray));
+            Object typedArray = Array.newInstance(scalarType, valueOrValues.size());
+            for (int i = 0; i<valueOrValues.size(); ++i) {
+                Array.set(typedArray, i, valueOrValues.get(i));
+            }
+
+            propertyEvaluation.setValue(typedArray);
         }
         else if (Collection.class.isAssignableFrom(targetType) &&
                 !Collection.class.isAssignableFrom(valueType)) {
@@ -459,10 +469,10 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
             }
 
             collection.addAll(valueOrValues);
-            OgnlUtil.setValue(property, bean, collection);
+            propertyEvaluation.setValue(collection);
         }
         else {
-            OgnlUtil.setValue(property, bean, valueOrValues.get(0));
+            propertyEvaluation.setValue(valueOrValues.get(0));
         }
     }
 
@@ -477,19 +487,10 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
      * @param bean the ActionBean to which properties are being bound
      * @param property the name of the property  being bound
      * @param type the declared type of the property on the ActionBean
-     * @throws OgnlException if the value cannot be manipulated for any reason
+     * @throws ExpressionException if the value cannot be manipulated for any reason
      */
-    protected void bindNullValue(ActionBean bean, String property, Class type) throws OgnlException {
-        // If the class is a collection, try fetching it and setting it and clearing it
-        if (Collection.class.isAssignableFrom(type)) {
-            Collection collection = (Collection) OgnlUtil.getValue(property, bean);
-            if (collection != null) {
-                collection.clear();
-            }
-        }
-        else {
-            OgnlUtil.setNullValue(property, bean);
-        }
+    protected void bindNullValue(ActionBean bean, String property, Class type) throws ExpressionException {
+        BeanUtil.setPropertyToNull(property, bean);
     }
 
 
@@ -510,7 +511,7 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
     }
 
     /**
-     * Uses Ognl to attempt the setting of the named property on the target bean.  If the binding
+     * Attempt to set the named property on the target bean.  If the binding
      * fails for any reason (property does not exist, type conversion not possible etc.) an
      * exception will be thrown.
      *
@@ -520,7 +521,7 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
      * @throws Exception thrown if the property cannot be bound for any reason
      */
     public void bind(ActionBean bean, String propertyName, Object propertyValue) throws Exception {
-        OgnlUtil.setValue(propertyName, bean, propertyValue);
+        BeanUtil.setPropertyValue(propertyName, bean, propertyValue);
     }
 
     /**
@@ -530,56 +531,6 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
      */
     protected String getPropertyName(String methodName) {
         return methodName.substring(3,4).toLowerCase() + methodName.substring(4);
-    }
-
-
-    /**
-     * Figures out what is the real type that TypeConversions should target for this property. For
-     * a simple property this will be just the type of the property as declared in the ActionBean.
-     * For Arrays the returned type will be the component type of the array.  For collections, if
-     * a TypeConverter has been specified, the target type of the TypeConverter will be returned,
-     * otherwise we will assume that it is a collection of Strings and hope for the best.
-     *
-     * @param bean the ActionBean on which the property exists
-     * @param propertyType the declared type of the property
-     * @param propertyName the name of the property
-     *
-     */
-    protected Class getRealType(ActionBean bean, Class propertyType, ParameterName propertyName)
-        throws Exception {
-
-        if (propertyType.isArray()) {
-            propertyType = propertyType.getComponentType();
-        }
-        else if (Collection.class.isAssignableFrom(propertyType)) {
-            // Try to get the information from the property's return type...
-            propertyType = OgnlUtil.getCollectionPropertyComponentClass(bean, propertyName.getName());
-
-            if (propertyType == null) {
-                // We couldn't figure it out from generics, so see if it was specified
-                Map<String, Validate> map = this.validations.get(bean.getClass());
-                Validate validationInfo = map.get(propertyName.getStrippedName());
-
-                if (validationInfo != null && validationInfo.converter() != TypeConverter.class) {
-                    Method method = validationInfo.converter().getMethod
-                            ("convert", String.class, Class.class, Collection.class);
-                    propertyType = method.getReturnType();
-                }
-                else {
-                    log.warn("Unable to determine type of objects held in collection, on ",
-                             "ActionBean class [", bean.getClass(), "] property [",
-                             propertyName.getName(), "]. To fix this either modify the getter ",
-                             "method for this property to use generics, e.g. List<Foo> get(), ",
-                             "or specify the appropriate converter in the @Validate annotation ",
-                             "for this property on the ActionBean. Assuming type is String, ",
-                             "which may or may not work!");
-
-                    propertyType = String.class;
-                }
-            }
-        }
-
-        return propertyType;
     }
 
 
@@ -633,7 +584,7 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
         // Now the easy work is done, figure out which rows of indexed props had values submitted
         // and what to flag up as failing required field validation
         if (indexedParams.size() > 0) {
-            Map<String,Row2> rows = new HashMap<String,Row2>();
+            Map<String,Row> rows = new HashMap<String,Row>();
 
             for (Map.Entry<ParameterName,String[]> entry : parameters.entrySet()) {
                 ParameterName name = entry.getKey();
@@ -642,14 +593,14 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
                 if (name.isIndexed()) {
                     String rowKey = name.getName().substring(0, name.getName().indexOf(']')+1);
                     if (!rows.containsKey(rowKey)) {
-                        rows.put(rowKey, new Row2());
+                        rows.put(rowKey, new Row());
                     }
 
                     rows.get(rowKey).put(name, values);
                 }
             }
 
-            for (Row2 row : rows.values()) {
+            for (Row row : rows.values()) {
                 if (row.hasNonEmptyValues()) {
                     for (Map.Entry<ParameterName,String[]> entry : row.entrySet()) {
                         ParameterName name = entry.getKey();
@@ -760,7 +711,7 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
                 }
 
                 if ( validationInfo.mask().length() > 0 &&
-                    !Pattern.compile(validationInfo.mask()).matcher(value).matches() ) {
+                        !Pattern.compile(validationInfo.mask()).matcher(value).matches() ) {
 
                     ValidationError error =
                             new ScopedLocalizableError("validation.mask",
@@ -846,7 +797,7 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
                                           ValidationErrors errors) {
         // If a validation expression was supplied, see if we can process it!
         Expression expr = null;
-        DelegatingVariableResolver2 resolver = null;
+        DelegatingVariableResolver resolver = null;
 
         if ( !"".equals(validationInfo.expression()) ) {
             final PageContext context = DispatcherServlet.getPageContext();
@@ -867,7 +818,7 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
 
                     ExpressionEvaluator evaluator = context.getExpressionEvaluator();
                     expr = evaluator.parseExpression(expression, Boolean.class, null);
-                    resolver = new DelegatingVariableResolver2(bean, context.getVariableResolver());
+                    resolver = new DelegatingVariableResolver(bean, context.getVariableResolver());
                 }
                 catch (ELException ele) {
                     throw new StripesRuntimeException("Could not parse the EL expression being " +
@@ -954,13 +905,12 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
                                  List<ValidationError> errors) throws Exception {
 
         List<Object> returns = new ArrayList<Object>();
-        propertyType = getRealType(bean, propertyType, propertyName);
 
         // Dig up the type converter
         TypeConverter converter = null;
         if (validationInfo !=  null && validationInfo.converter() != TypeConverter.class) {
             converter = this.configuration.getTypeConverterFactory()
-                .getInstance(validationInfo.converter(), bean.getContext().getRequest().getLocale());
+                    .getInstance(validationInfo.converter(), bean.getContext().getRequest().getLocale());
         }
         else {
             converter = this.configuration.getTypeConverterFactory()
@@ -1014,7 +964,7 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
     }
 }
 
-class Row2 extends HashMap<ParameterName,String[]> {
+class Row extends HashMap<ParameterName,String[]> {
     private boolean hasNonEmptyValues = false;
 
     /**
@@ -1024,9 +974,9 @@ class Row2 extends HashMap<ParameterName,String[]> {
     public String[] put(ParameterName key, String[] values) {
         if (!hasNonEmptyValues) {
             hasNonEmptyValues =  (values != null) &&
-                                 (values.length > 0) &&
-                                 (values[0] != null) &&
-                                 (values[0].trim().length() > 0);
+                    (values.length > 0) &&
+                    (values[0] != null) &&
+                    (values[0].trim().length() > 0);
 
 
         }
@@ -1047,13 +997,13 @@ class Row2 extends HashMap<ParameterName,String[]> {
  * @author Tim Fennell
  * @since Stripes 1.3
  */
-class DelegatingVariableResolver2 implements VariableResolver {
+class DelegatingVariableResolver implements VariableResolver {
     private ActionBean bean;
     private VariableResolver delegate;
     private Object currentValue;
 
     /** Constructs a resolver based on the action bean and resolver supplied. */
-    DelegatingVariableResolver2(ActionBean bean, VariableResolver resolver) {
+    DelegatingVariableResolver(ActionBean bean, VariableResolver resolver) {
         this.bean = bean;
         this.delegate = resolver;
     }
@@ -1078,7 +1028,7 @@ class DelegatingVariableResolver2 implements VariableResolver {
         }
         else {
             Object result = null;
-            try { result = OgnlUtil.getValue(property, bean); } catch (OgnlException e) {}
+            try { result = BeanUtil.getPropertyValue(property, bean); } catch (Exception e) {}
 
             if (result == null) {
                 result = delegate.resolveVariable(property);

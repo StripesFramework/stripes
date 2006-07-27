@@ -14,6 +14,8 @@
  */
 package net.sourceforge.stripes.util;
 
+import net.sourceforge.stripes.exception.StripesRuntimeException;
+
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Collection;
@@ -28,9 +30,15 @@ import java.util.LinkedList;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.Arrays;
+import java.util.concurrent.ConcurrentHashMap;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.beans.PropertyDescriptor;
+import java.beans.BeanInfo;
+import java.beans.Introspector;
+import java.beans.IntrospectionException;
 
 /**
  * Common utilty methods that are useful when working with reflection.
@@ -38,6 +46,10 @@ import java.lang.reflect.Field;
  * @author Tim Fennell
  */
 public class ReflectUtil {
+    /** A cache of property descriptors by class and property name */
+    private static Map<Class, Map<String, PropertyDescriptor>> propertyDescriptors =
+            new ConcurrentHashMap<Class, Map<String, PropertyDescriptor>>();
+
     /** Static helper class, shouldn't be constructed. */
     private ReflectUtil() {}
 
@@ -48,6 +60,12 @@ public class ReflectUtil {
      */
     protected static final Map<Class,Class> interfaceImplementations = new HashMap<Class,Class>();
 
+    /**
+     * Holds a map of primitive type to the default value for that primitive type.  Isn't it
+     * odd that there's no way to get this programmatically from the Class objects?
+     */
+    protected static final Map<Class,Object> primitiveDefaults = new HashMap<Class,Object>();
+
     static {
         interfaceImplementations.put(Collection.class, ArrayList.class);
         interfaceImplementations.put(List.class,       ArrayList.class);
@@ -56,6 +74,15 @@ public class ReflectUtil {
         interfaceImplementations.put(Queue.class,      LinkedList.class);
         interfaceImplementations.put(Map.class,        HashMap.class);
         interfaceImplementations.put(SortedMap.class,  TreeMap.class);
+
+        primitiveDefaults.put(Boolean.TYPE,    false);
+        primitiveDefaults.put(Character.TYPE, '\0');
+        primitiveDefaults.put(Byte.TYPE,       new Byte("0"));
+        primitiveDefaults.put(Short.TYPE,      new Short("0"));
+        primitiveDefaults.put(Integer.TYPE,    new Integer(0));
+        primitiveDefaults.put(Long.TYPE,       new Long(0l));
+        primitiveDefaults.put(Float.TYPE,      new Float(0f));
+        primitiveDefaults.put(Double.TYPE,     new Double(0.0));
     }
 
     /**
@@ -247,5 +274,73 @@ public class ReflectUtil {
         }
 
         return fields.values();
+    }
+
+    /**
+     * Fetches the property descriptor for the named property of the supplied class. To
+     * speed things up a cache is maintained of propertyName to PropertyDescriptor for
+     * each class used with this method.  If there is no property with the specified name,
+     * returns null.
+     *
+     * @param clazz the class who's properties to examine
+     * @param property the String name of the property to look for
+     * @return the PropertyDescriptor or null if none is found with a matching name
+     */
+    public static PropertyDescriptor getPropertyDescriptor(Class clazz, String property) {
+        Map<String,PropertyDescriptor> pds = propertyDescriptors.get(clazz);
+        if (pds == null) {
+            try {
+                BeanInfo info = Introspector.getBeanInfo(clazz);
+                PropertyDescriptor[] descriptors = info.getPropertyDescriptors();
+                pds = new HashMap<String, PropertyDescriptor>();
+
+                for (PropertyDescriptor descriptor : descriptors) {
+                    pds.put(descriptor.getName(), descriptor);
+                }
+
+                propertyDescriptors.put(clazz, pds);
+            }
+            catch (IntrospectionException ie) {
+                throw new StripesRuntimeException("Could not examine class '" + clazz.getName() +
+                        "' using Introspector.getBeanInfo() to determine property information.", ie);
+            }
+        }
+
+        return pds.get(property);
+    }
+
+
+    /**
+     * Looks for an instance (i.e. non-static) public field with the matching name and
+     * returns it if one exists.  If no such field exists, returns null.
+     *
+     * @param clazz the clazz who's fields to examine
+     * @param property the name of the property/field to look for
+     * @return the Field object or null if no matching field exists
+     */
+    public static Field getField(Class clazz, String property) {
+        try {
+            Field field = clazz.getField(property);
+            return !Modifier.isStatic(field.getModifiers()) ? field : null;
+        }
+        catch (NoSuchFieldException nsfe) {
+            return null;
+        }
+    }
+
+    /**
+     * Returns an appropriate default value for the class supplied. Mirrors the defaults used
+     * when the JVM initializes instance variables.
+     *
+     * @param clazz the class for which to find the default value
+     * @return null for non-primitive types and an appropriate wrapper instance for primitves
+     */
+    public static Object getDefaultValue(Class clazz) {
+        if (clazz.isPrimitive()) {
+            return primitiveDefaults.get(clazz);
+        }
+        else {
+            return null;
+        }
     }
 }

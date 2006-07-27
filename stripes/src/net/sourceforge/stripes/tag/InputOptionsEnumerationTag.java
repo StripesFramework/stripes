@@ -15,10 +15,10 @@
 package net.sourceforge.stripes.tag;
 
 import net.sourceforge.stripes.exception.StripesJspException;
-import net.sourceforge.stripes.util.OgnlUtil;
-import net.sourceforge.stripes.util.ReflectUtil;
 import net.sourceforge.stripes.localization.LocalizationUtility;
-import ognl.OgnlException;
+import net.sourceforge.stripes.util.ReflectUtil;
+import net.sourceforge.stripes.util.bean.BeanUtil;
+import net.sourceforge.stripes.util.bean.ExpressionException;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.Tag;
@@ -129,7 +129,7 @@ public class InputOptionsEnumerationTag extends HtmlTagSupport implements Tag {
                                                                   locale);
                 if (label == null) {
                     if (this.label != null) {
-                        label = OgnlUtil.getValue(this.label, item);
+                        label = BeanUtil.getPropertyValue(this.label, item);
                     }
                     else {
                         label = item.toString();
@@ -144,10 +144,10 @@ public class InputOptionsEnumerationTag extends HtmlTagSupport implements Tag {
                 tag.doEndTag();
             }
         }
-        catch (OgnlException oe) {
+        catch (ExpressionException ee) {
             throw new StripesJspException("A problem occurred generating an options-enumeration. " +
                 "Most likely either the class [" + getEnum() + "] is not an enum or, [" +
-                    this.label + "] is not a valid property of the enum.");
+                    this.label + "] is not a valid property of the enum.", ee);
         }
 
         return SKIP_BODY;

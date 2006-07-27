@@ -17,10 +17,12 @@ public class TestBean {
     private TestEnum enumProperty;
     private boolean booleanProperty;
 
+    public List<Float>[] genericArray;
     private String[] stringArray;
     private List<String> stringList;
     private Set<String> stringSet;
     private Map<String,String> stringMap;
+    private Map<String,Map<String,Boolean>> nestedMap;
     private Map<Long,Long> longMap;
 
     private List<TestBean> beanList;
@@ -86,6 +88,9 @@ public class TestBean {
     public void setStringMap(Map<String, String> stringMap) {
         this.stringMap = stringMap;
     }
+
+    public Map<String, Map<String, Boolean>> getNestedMap() { return nestedMap; }
+    public void setNestedMap(Map<String, Map<String, Boolean>> nestedMap) { this.nestedMap = nestedMap; }
 
     public Map<Long, Long> getLongMap() { return longMap; }
     public void setLongMap(Map<Long, Long> longMap) { this.longMap = longMap; }

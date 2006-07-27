@@ -17,16 +17,16 @@ package net.sourceforge.stripes.config;
 import net.sourceforge.stripes.controller.ActionBeanContextFactory;
 import net.sourceforge.stripes.controller.ActionBeanPropertyBinder;
 import net.sourceforge.stripes.controller.ActionResolver;
+import net.sourceforge.stripes.controller.BeforeAfterMethodInterceptor;
 import net.sourceforge.stripes.controller.DefaultActionBeanContextFactory;
+import net.sourceforge.stripes.controller.DefaultActionBeanPropertyBinder;
 import net.sourceforge.stripes.controller.Interceptor;
+import net.sourceforge.stripes.controller.Intercepts;
 import net.sourceforge.stripes.controller.LifecycleStage;
 import net.sourceforge.stripes.controller.NameBasedActionResolver;
-import net.sourceforge.stripes.controller.OgnlActionBeanPropertyBinder;
-import net.sourceforge.stripes.controller.BeforeAfterMethodInterceptor;
-import net.sourceforge.stripes.controller.Intercepts;
-import net.sourceforge.stripes.exception.StripesRuntimeException;
-import net.sourceforge.stripes.exception.ExceptionHandler;
 import net.sourceforge.stripes.exception.DefaultExceptionHandler;
+import net.sourceforge.stripes.exception.ExceptionHandler;
+import net.sourceforge.stripes.exception.StripesRuntimeException;
 import net.sourceforge.stripes.format.DefaultFormatterFactory;
 import net.sourceforge.stripes.format.FormatterFactory;
 import net.sourceforge.stripes.localization.DefaultLocalePicker;
@@ -40,11 +40,11 @@ import net.sourceforge.stripes.tag.TagErrorRendererFactory;
 import net.sourceforge.stripes.validation.DefaultTypeConverterFactory;
 import net.sourceforge.stripes.validation.TypeConverterFactory;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Map;
 import java.util.HashMap;
-import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * <p>Centralized location for defaults for all Configuration properties.  This implementation does
@@ -99,7 +99,7 @@ public class DefaultConfiguration implements Configuration {
 
             this.actionBeanPropertyBinder = initActionBeanPropertyBinder();
             if (this.actionBeanPropertyBinder == null) {
-                this.actionBeanPropertyBinder = new OgnlActionBeanPropertyBinder();
+                this.actionBeanPropertyBinder = new DefaultActionBeanPropertyBinder();
                 this.actionBeanPropertyBinder.init(this);
             }
 
@@ -188,7 +188,7 @@ public class DefaultConfiguration implements Configuration {
     protected ActionResolver initActionResolver() { return null; }
 
     /**
-     * Returns an instance of {@link OgnlActionBeanPropertyBinder} unless a subclass has
+     * Returns an instance of {@link DefaultActionBeanPropertyBinder} unless a subclass has
      * overridden the default.
      * @return ActionBeanPropertyBinder an instance of the configured binder
      */
