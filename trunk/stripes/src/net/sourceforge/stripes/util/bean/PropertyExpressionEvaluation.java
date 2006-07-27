@@ -22,6 +22,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Field;
 import java.lang.reflect.WildcardType;
 import java.lang.reflect.Array;
+import java.lang.reflect.TypeVariable;
 import java.util.List;
 import java.util.Map;
 import java.util.Collection;
@@ -122,7 +123,7 @@ public class PropertyExpressionEvaluation {
                     else if (Map.class.isAssignableFrom(rawClass)) {
                         type = ptype.getActualTypeArguments()[1];
                         current.setValueType(type);
-                        current.setKeyType( convertToClass(ptype.getActualTypeArguments()[0]) );
+                        current.setKeyType( convertToClass(ptype.getActualTypeArguments()[0], current) );
                         current.setType(NodeType.MapEntry);
                         continue;
                     }
@@ -179,7 +180,7 @@ public class PropertyExpressionEvaluation {
      * @param type the Type object to try and render as a Class
      * @return the Class if one can be determined, otherwise null
      */
-    protected Class convertToClass(Type type) {
+    protected Class convertToClass(Type type, NodeEvaluation evaluation) {
         // First extract any candidate type from Wildcards and Paramterized types
         if (type instanceof ParameterizedType) {
             type = ((ParameterizedType) type).getRawType();
@@ -195,13 +196,48 @@ public class PropertyExpressionEvaluation {
                 type = bounds[0];
             }
         }
+        else if (type instanceof TypeVariable) {
+            // First try to locate the last node that is a bonafide Class and not some other Type
+            Class lastBean = this.bean.getClass();
+            for (NodeEvaluation n = evaluation.getPrevious(); n != null; n=n.getPrevious()) {
+                if (n.getValueType() instanceof Class) {
+                    lastBean = (Class) n.getValueType();
+                    break;
+                }
+            }
+
+            TypeVariable variable = (TypeVariable) type;
+
+            // Now if the super type is parameterized try and loop through the type variables
+            // and type arguments in tandem matching a concrete parameter to the type variable
+            for (Class beanClass=lastBean; beanClass != null; beanClass=beanClass.getSuperclass()) {
+                Type stype = beanClass.getGenericSuperclass();
+
+                if (stype instanceof ParameterizedType) {
+                    ParameterizedType ptype = (ParameterizedType) stype;
+                    Type sclass = ptype.getRawType();
+
+                    if (sclass instanceof Class) {
+                        Class parent = (Class) sclass;
+                        TypeVariable[] variables = parent.getTypeParameters();
+                        Type[] arguments = ptype.getActualTypeArguments();
+
+                        for (int i=0; i<variables.length && i<arguments.length; ++i) {
+                            if (variables[i] == variable) {
+                                type = arguments[i];
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
         // And now that we should have a single type, try and get a Class
         if (type instanceof Class) {
             return (Class) type;
         }
         else {
-            // TODO: take in declaring class and use type variables/params to figure out class
             return null;
         }
     }
@@ -215,7 +251,7 @@ public class PropertyExpressionEvaluation {
      */
     public Class getType() {
         if (this.typeInformationValid) {
-            return convertToClass(this.leaf.getValueType());
+            return convertToClass(this.leaf.getValueType(), this.leaf);
         }
         else {
             return null;
@@ -238,14 +274,14 @@ public class PropertyExpressionEvaluation {
     public Class getScalarType() {
         if (this.typeInformationValid) {
             Type type = this.leaf.getValueType();
-            Class clazz = convertToClass(type);
+            Class clazz = convertToClass(type, this.leaf);
 
             if (clazz.isArray()) {
                 return clazz.getComponentType();
             }
             else if (Collection.class.isAssignableFrom(clazz)) {
                 if (type instanceof ParameterizedType) {
-                    return convertToClass(((ParameterizedType) type).getActualTypeArguments()[0]);
+                    return convertToClass(((ParameterizedType) type).getActualTypeArguments()[0], this.leaf);
                 }
                 else {
                     return String.class;
@@ -253,7 +289,7 @@ public class PropertyExpressionEvaluation {
             }
             else if (Map.class.isAssignableFrom(clazz)) {
                 if (type instanceof ParameterizedType) {
-                    return convertToClass(((ParameterizedType) type).getActualTypeArguments()[1]);
+                    return convertToClass(((ParameterizedType) type).getActualTypeArguments()[1], this.leaf);
                 }
                 else {
                     return String.class;
@@ -327,7 +363,7 @@ public class PropertyExpressionEvaluation {
      */
     private Object getDefaultValue(NodeEvaluation node) throws EvaluationException {
         try {
-            Class clazz = convertToClass(node.getValueType());
+            Class clazz = convertToClass(node.getValueType(), node);
 
             if (clazz.isArray()) {
                 return Array.newInstance(clazz.getComponentType(), 0);
