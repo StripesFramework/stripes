@@ -44,6 +44,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.Stack;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -186,6 +187,9 @@ public class DispatcherServlet extends HttpServlet {
         catch (Exception e) {
             throw new StripesServletException("Exception encountered processing request.", e);
         }
+        finally {
+            restoreActionBean(request);
+        }
     }
 
     /**
@@ -209,6 +213,50 @@ public class DispatcherServlet extends HttpServlet {
         }
     }
 
+    /**
+     * Fetches, and lazily creates if required, a Stack in the request to store ActionBeans
+     * should the current request involve forwards or includes to other ActionBeans.
+     *
+     * @param request the current HttpServletRequest
+     * @return the Stack if present, or if creation is requested
+     */
+    protected Stack getActionBeanStack(HttpServletRequest request, boolean create) {
+        Stack stack = (Stack) request.getAttribute(StripesConstants.REQ_ATTR_ACTION_BEAN_STACK);
+        if (stack == null && create) {
+            stack = new Stack();
+            request.setAttribute(StripesConstants.REQ_ATTR_ACTION_BEAN_STACK, stack);
+        }
+
+        return stack;
+    }
+
+    /**
+     * Saves the current value of the 'actionBean' attribute in the request so that it
+     * can be restored at a later date by calling {@link #restoreActionBean(HttpServletRequest)}.
+     * If no ActionBean is currently stored in the request, nothing is changed.
+     *
+     * @param request the current HttpServletRequest
+     */
+    protected void saveActionBean(HttpServletRequest request) {
+        if (request.getAttribute(StripesConstants.REQ_ATTR_ACTION_BEAN) != null) {
+            Stack stack = getActionBeanStack(request, true);
+            stack.push(request.getAttribute(StripesConstants.REQ_ATTR_ACTION_BEAN));
+        }
+    }
+
+    /**
+     * Restores the previous value of the 'actionBean' attribute in the request. If no
+     * ActionBeans have been saved using {@link #saveActionBean(HttpServletRequest)} then this
+     * method has no effect.
+     *
+     * @param request the current HttpServletRequest
+     */
+    protected void restoreActionBean(HttpServletRequest request) {
+        Stack stack = getActionBeanStack(request, false);
+        if (stack != null) {
+            request.setAttribute(StripesConstants.REQ_ATTR_ACTION_BEAN, stack.pop());
+        }
+    }
 
     /**
      * Responsible for resolving the ActionBean for this request and setting it on the
@@ -229,6 +277,7 @@ public class DispatcherServlet extends HttpServlet {
 
                 // Then register it in the Request as THE ActionBean for this request
                 HttpServletRequest request = context.getRequest();
+                saveActionBean(request);
                 request.setAttribute(StripesConstants.REQ_ATTR_ACTION_BEAN, bean);
                 return null;
             }
