@@ -39,6 +39,12 @@ public interface StripesConstants {
     String REQ_ATTR_ACTION_BEAN = "actionBean";
 
     /**
+     * The name of a request attribute in which a Stack of action beans is some times stored
+     * when a single request involves includes of action beans.
+     */
+    String REQ_ATTR_ACTION_BEAN_STACK = "__stripes_actionBeanStack";
+
+    /**
      * The attribute key that is used to store the default set of non-error messages for
      * display to the user.
      */
