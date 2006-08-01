@@ -21,6 +21,14 @@ import java.util.Map;
 public class TestActionBean implements ActionBean {
     public enum Color {Red, Green, Blue, Yellow, Orange, Black, White }
 
+    /** Pair of static classes used to check type finding via instances intead of type inference. */
+    public static class PropertyLess { }
+    public static class Item extends PropertyLess {
+        private Long id;
+        public Long getId() { return id; }
+        public void setId(Long id) { this.id = id; }
+    }
+
     private ActionBeanContext context;
     private List<Long> listOfLongs;
     private Set<String> setOfStrings;
@@ -35,6 +43,7 @@ public class TestActionBean implements ActionBean {
     private String setOnlyString;
     public Long publicLong;
     public Color[] colors;
+    private PropertyLess item = new Item();
 
     /** A pretty ordinary list of longs, to test lists of primitive/simply objects. */
     public List<Long> getListOfLongs() { return listOfLongs; }
@@ -84,6 +93,10 @@ public class TestActionBean implements ActionBean {
     /** An array of enums to test out enums, and arrays of non-instantiable things. */
     public Color[] getColors() { return colors; }
     public void setColors(Color[] colors) { this.colors = colors; }
+
+    /** Return type is a property-less class, but returns an instance of a subclass with an 'id' property. */
+    public PropertyLess getItem() { return item; }
+    public void setItem(PropertyLess item) { this.item = item; }
 
     ///////////////////////////////////////////////////////////////////////////
     // Dummied up ActionBean methods that aren't really used for much.

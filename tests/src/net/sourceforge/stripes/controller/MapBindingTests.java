@@ -1,18 +1,21 @@
 package net.sourceforge.stripes.controller;
 
 import net.sourceforge.stripes.StripesTestFixture;
-import net.sourceforge.stripes.test.TestBean;
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.action.ActionBeanContext;
+import net.sourceforge.stripes.action.Before;
 import net.sourceforge.stripes.action.Resolution;
 import net.sourceforge.stripes.mock.MockRoundtrip;
 import net.sourceforge.stripes.mock.MockServletContext;
+import net.sourceforge.stripes.test.TestBean;
+import net.sourceforge.stripes.test.TestEnum;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import java.util.Map;
-import java.util.Date;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Tests all reasonable variations of binding involving Maps. String keys, numeric keys,
@@ -59,6 +62,11 @@ public class MapBindingTests implements ActionBean {
     private Map<Date,Date> mapDateDate;
     public Map<Date, Date> getMapDateDate() { return mapDateDate; }
     public void setMapDateDate(Map<Date, Date> mapDateDate) { this.mapDateDate = mapDateDate; }
+
+    /** A map completely lacking in type information!!. */
+    private Map typelessMap;
+    public Map getTypelessMap() { return typelessMap; }
+    public void setTypelessMap(Map typelessMap) { this.typelessMap = typelessMap; }
 
     /** Helper method to create a roundtrip with the TestActionBean class. */
     protected MockRoundtrip getRoundtrip() {
@@ -229,5 +237,27 @@ public class MapBindingTests implements ActionBean {
 
         MapBindingTests bean = trip.getActionBean(MapBindingTests.class);
         Assert.assertNotNull(bean.getMapDateDate().get(key));
+    }
+
+    @Before(LifecycleStage.BindingAndValidation)
+    public void populateTypelessMap() {
+        this.typelessMap = new HashMap();
+        this.typelessMap.put(1, new TestBean());
+        this.typelessMap.put(2l, new TestBean());
+        this.typelessMap.put("foo", new TestBean());
+    }
+
+    @Test(groups="fast")
+    public void bindThroughTypelessMap() throws Exception {
+        MockRoundtrip trip = getRoundtrip();
+        trip.addParameter("typelessMap[1].longProperty", "1234");
+        trip.addParameter("typelessMap[2l].nestedBean.longProperty", "4321");
+        trip.addParameter("typelessMap['foo'].enumProperty", "Sixth");
+        trip.execute();
+
+        MapBindingTests bean = trip.getActionBean(MapBindingTests.class);
+        Assert.assertEquals( ((TestBean) bean.getTypelessMap().get(1)).getLongProperty(), new Long(1234));
+        Assert.assertEquals( ((TestBean) bean.getTypelessMap().get(2l)).getNestedBean().getLongProperty(), new Long(4321));
+        Assert.assertEquals( ((TestBean) bean.getTypelessMap().get("foo")).getEnumProperty(), TestEnum.Sixth);
     }
 }
