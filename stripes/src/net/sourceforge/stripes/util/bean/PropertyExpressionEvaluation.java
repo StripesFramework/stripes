@@ -88,6 +88,17 @@ public class PropertyExpressionEvaluation {
         Type type = this.bean.getClass();
 
         for (NodeEvaluation current = this.root; current != null; current = current.getNext()) {
+            // Firstly if the current type is a wildcard type of a type varible try and
+            // figure out what the real value to use is
+            while (type instanceof WildcardType || type instanceof TypeVariable) {
+                if (type instanceof WildcardType) {
+                    type = getWildcardTypeBound((WildcardType) type);
+                }
+                else {
+                    type = getTypeVariableValue(current, ((TypeVariable) type));
+                }
+            }
+
             // If it's an array, return the component type
             if (type instanceof GenericArrayType) {
                 type = ((GenericArrayType) type).getGenericComponentType();
@@ -295,51 +306,13 @@ public class PropertyExpressionEvaluation {
         if (type instanceof ParameterizedType) {
             type = ((ParameterizedType) type).getRawType();
         }
-        else if (type instanceof WildcardType) {
-            WildcardType wtype = (WildcardType) type;
-            Type[] bounds = wtype.getLowerBounds();
-            if (bounds.length == 0) {
-                bounds = wtype.getUpperBounds();
+
+        while (type instanceof WildcardType || type instanceof TypeVariable) {
+            if (type instanceof WildcardType) {
+                type = getWildcardTypeBound((WildcardType) type);
             }
-
-            if (bounds.length > 0) {
-                type = bounds[0];
-            }
-        }
-        else if (type instanceof TypeVariable) {
-            // First try to locate the last node that is a bonafide Class and not some other Type
-            Class lastBean = this.bean.getClass();
-            for (NodeEvaluation n = evaluation.getPrevious(); n != null; n=n.getPrevious()) {
-                if (n.getValueType() instanceof Class) {
-                    lastBean = (Class) n.getValueType();
-                    break;
-                }
-            }
-
-            TypeVariable variable = (TypeVariable) type;
-
-            // Now if the super type is parameterized try and loop through the type variables
-            // and type arguments in tandem matching a concrete parameter to the type variable
-            for (Class beanClass=lastBean; beanClass != null; beanClass=beanClass.getSuperclass()) {
-                Type stype = beanClass.getGenericSuperclass();
-
-                if (stype instanceof ParameterizedType) {
-                    ParameterizedType ptype = (ParameterizedType) stype;
-                    Type sclass = ptype.getRawType();
-
-                    if (sclass instanceof Class) {
-                        Class parent = (Class) sclass;
-                        TypeVariable[] variables = parent.getTypeParameters();
-                        Type[] arguments = ptype.getActualTypeArguments();
-
-                        for (int i=0; i<variables.length && i<arguments.length; ++i) {
-                            if (variables[i] == variable) {
-                                type = arguments[i];
-                                break;
-                            }
-                        }
-                    }
-                }
+            else if (type instanceof TypeVariable) {
+                type = getTypeVariableValue(evaluation, (TypeVariable) type);
             }
         }
 
@@ -350,6 +323,72 @@ public class PropertyExpressionEvaluation {
         else {
             return null;
         }
+    }
+
+    /**
+     * Scans backwards in the expression for the last node which contained a JavaBean type
+     * and attempts to use the type arguments to that class to find a match for the
+     * TypeParameter provided.
+     *
+     * @param evaluation the current NodeEvaluation
+     * @param type the TypeVariable to try and find a more concrete type for
+     * @return the actual type argument for the type variable if possible, or null
+     */
+    protected Type getTypeVariableValue(NodeEvaluation evaluation, TypeVariable type) {
+        // First try to locate the last node that is a bonafide Class and not some other Type
+        Class lastBean = this.bean.getClass();
+        for (NodeEvaluation n = evaluation.getPrevious(); n != null; n=n.getPrevious()) {
+            if (n.getValueType() instanceof Class) {
+                lastBean = (Class) n.getValueType();
+                break;
+            }
+        }
+
+        // Now if the super type is parameterized try and loop through the type variables
+        // and type arguments in tandem matching a concrete parameter to the type variable
+        for (Class beanClass=lastBean; beanClass != null; beanClass=beanClass.getSuperclass()) {
+            Type stype = beanClass.getGenericSuperclass();
+
+            if (stype instanceof ParameterizedType) {
+                ParameterizedType ptype = (ParameterizedType) stype;
+                Type sclass = ptype.getRawType();
+
+                if (sclass instanceof Class) {
+                    Class parent = (Class) sclass;
+                    TypeVariable[] variables = parent.getTypeParameters();
+                    Type[] arguments = ptype.getActualTypeArguments();
+
+                    for (int i=0; i<variables.length && i<arguments.length; ++i) {
+                        if (variables[i] == type) {
+                            return arguments[i];
+                        }
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Gets the preferred bound from the WildcardType provided. In the case of
+     * '? super SomeClass' then 'SomeClass' will be returned. In the case of
+     * '? extends AnotherClass' then 'AnotherClass' will be returned.
+     *
+     * @param wtype the WildcardType to fetch the bounds of
+     * @return the appropriate bound type
+     */
+    protected Type getWildcardTypeBound(WildcardType wtype) {
+        Type[] bounds = wtype.getLowerBounds();
+        if (bounds.length == 0) {
+            bounds = wtype.getUpperBounds();
+        }
+
+        if (bounds.length > 0) {
+            return bounds[0];
+        }
+
+        return null;
     }
 
     /**
