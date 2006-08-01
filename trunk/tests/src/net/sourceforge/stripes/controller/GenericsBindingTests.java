@@ -7,19 +7,21 @@ import net.sourceforge.stripes.action.DefaultHandler;
 import net.sourceforge.stripes.action.RedirectResolution;
 import net.sourceforge.stripes.action.Resolution;
 import net.sourceforge.stripes.mock.MockRoundtrip;
+import net.sourceforge.stripes.test.TestBean;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 import java.util.Calendar;
+import java.util.Date;
 
 /**
  *
  * @author Tim Fennell
  */
-public class GenericsBindingTests extends GenericsBindingTestsBaseClass<Double,Boolean,Long, Date> implements ActionBean {
+public class GenericsBindingTests
+     extends GenericsBindingTestsBaseClass<TestBean,Double,Boolean,Long, Date>
+  implements ActionBean {
+
     // Stuff necessary to implement ActionBean!
     private ActionBeanContext context;
     public ActionBeanContext getContext() { return context; }
@@ -76,6 +78,19 @@ public class GenericsBindingTests extends GenericsBindingTestsBaseClass<Double,B
         Assert.assertEquals(bean.getMap().get(30l), makeDate(2030,1,1));
     }
 
+    @Test(groups="fast")
+    public void testTypeVariableNestedProperties() throws Exception {
+        MockRoundtrip trip = getRoundtrip();
+        trip.addParameter("bean.longProperty", "1234");
+        trip.addParameter("bean.stringProperty", "foobar");
+        trip.execute();
+
+        GenericsBindingTests bean = trip.getActionBean(getClass());
+        Assert.assertNotNull(bean.getBean());
+        Assert.assertEquals(bean.getBean().getLongProperty(), new Long(1234));
+        Assert.assertEquals(bean.getBean().getStringProperty(), "foobar");
+    }
+
     /**
      * Helper method to manufacture dates without time components. Months are 1 based unlike
      * the retarded Calendar API that uses 1 based everything else and 0 based months. Sigh.
@@ -86,20 +101,4 @@ public class GenericsBindingTests extends GenericsBindingTestsBaseClass<Double,B
         cal.set(year, month-1, day);
         return cal.getTime();
     }
-}
-
-/** Base class with lots of type variables. */
-class BaseClass<N,E,K,V> {
-    N number;
-    List<E> list;
-    Map<K,V> map;
-
-    public N getNumber() { return number; }
-    public void setNumber(N number) { this.number = number; }
-
-    public List<E> getList() { return list; }
-    public void setList(List<E> list) { this.list = list; }
-
-    public Map<K, V> getMap() { return map; }
-    public void setMap(Map<K, V> map) { this.map = map; }
 }

@@ -10,16 +10,20 @@ import java.util.Map;
  *
  * @author Tim Fennell 
  */
-public class GenericsBindingTestsBaseClass<N,E,K,V> {
+public class GenericsBindingTestsBaseClass<JB,N,E,K,V> {
+    JB bean;
     N number;
-    List<E> list;
+    List<? extends E> list;
     Map<K,V> map;
+
+    public JB getBean() { return bean; }
+    public void setBean(JB bean) { this.bean = bean; }
 
     public N getNumber() { return number; }
     public void setNumber(N number) { this.number = number; }
 
-    public List<E> getList() { return list; }
-    public void setList(List<E> list) { this.list = list; }
+    public List<? extends E> getList() { return list; }
+    public void setList(List<? extends E> list) { this.list = list; }
 
     public Map<K, V> getMap() { return map; }
     public void setMap(Map<K, V> map) { this.map = map; }

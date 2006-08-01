@@ -25,4 +25,9 @@ public class GenericsBindingTests2 extends GenericsBindingTests {
     public void testTypeVariableMaps() throws Exception {
         super.testTypeVariableMaps();
     }
+
+    @Test(groups="fast")
+    public void testTypeVariableNestedProperties() throws Exception {
+        super.testTypeVariableNestedProperties();
+    }
 }
