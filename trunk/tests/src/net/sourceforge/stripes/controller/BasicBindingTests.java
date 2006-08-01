@@ -243,4 +243,16 @@ public class BasicBindingTests {
         Assert.assertEquals(colors[1], TestActionBean.Color.Green);
         Assert.assertEquals(colors[2], TestActionBean.Color.Blue);
     }
+
+    @Test(groups="fast")
+    public void testBindingToSubclassOfDeclaredType() throws Exception {
+        MockRoundtrip trip = getRoundtrip();
+        trip.addParameter("item.id", "1000000");
+        trip.execute();
+
+        TestActionBean bean = trip.getActionBean(TestActionBean.class);
+        TestActionBean.PropertyLess item = bean.getItem();
+        Assert.assertEquals(item.getClass(), TestActionBean.Item.class);
+        Assert.assertEquals( ((TestActionBean.Item) item).getId(), new Long(1000000l));
+    }
 }

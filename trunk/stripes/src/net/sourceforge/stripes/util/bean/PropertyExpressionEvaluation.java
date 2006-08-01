@@ -42,7 +42,6 @@ public class PropertyExpressionEvaluation {
     private PropertyExpression expression;
     private Object bean;
     private NodeEvaluation root, leaf;
-    private boolean typeInformationValid;
 
     /**
      * Constructs a new PropertyExpressionEvaluation for the expression and bean supplied.
@@ -145,30 +144,141 @@ public class PropertyExpressionEvaluation {
             if (type instanceof Class) {
                 Class clazz = (Class) type;
                 String property = current.getNode().getStringValue();
-                PropertyDescriptor pd = ReflectUtil.getPropertyDescriptor(clazz, property);
+                type = getBeanPropertyType(clazz, property);
 
-                if (pd != null) {
-                    if (pd.getReadMethod() != null) {
-                        type = pd.getReadMethod().getGenericReturnType();
-                    }
-                    else {
-                        type = pd.getWriteMethod().getGenericParameterTypes()[0];
-                    }
+                if (type != null) {
                     current.setValueType(type);
                     current.setType(NodeType.BeanProperty);
                 }
                 else {
-                    Field field = ReflectUtil.getField(clazz, property);
-                    if (field == null) { break; }
-                    else  { type = field.getGenericType(); }
-                    current.setValueType(type);
-                    current.setType(NodeType.BeanProperty);
+                    type = getTypeViaInstances(current);
+                    if (type == null) {
+
+                    }
+
                 }
             }
         }
+    }
 
-        // Finally figure out what to store on the leaf node!
-        this.typeInformationValid = (this.leaf.getValueType() != null);
+    /**
+     * Fetches the type of a property with the given name on the Class of the specified type.
+     * Uses the methods first to fetch the generic type if a PropertyDescriptor can be found,
+     * otherwise looks for a public field and returns its generic type.
+     *
+     * @param beanClass the class of the JavaBean containing the property
+     * @param property the name of the property
+     * @return the Type if it can be determined, or null otherwise
+     */
+    protected Type getBeanPropertyType(Class beanClass, String property) {
+        PropertyDescriptor pd = ReflectUtil.getPropertyDescriptor(beanClass, property);
+        if (pd != null) {
+            if (pd.getReadMethod() != null) {
+                return pd.getReadMethod().getGenericReturnType();
+            }
+            else {
+                return pd.getWriteMethod().getGenericParameterTypes()[0];
+            }
+        }
+        else {
+            Field field = ReflectUtil.getField(beanClass, property);
+            if (field == null) {
+                return null;
+            }
+            else  {
+                return field.getGenericType();
+            }
+        }
+    }
+
+    /**
+     * <p>Determines the type of the supplied node and sets appropriate information on the node.
+     * The type is discovered by fetching (and instantiating if necessary) all prior values
+     * in the expression to determine the actual type of the prior node.  The prior node is
+     * then examined to determine the type of the node provided.</p>
+     *
+     * <p>After this method executes either 1) all necessary type information will be set on the
+     * node and the appropriate type object returned or 2) an exception will be thrown.</p>
+     *
+     * @param end the node to instantate up to and determine the type of
+     * @return the Type of the node if possible
+     * @throws NoSuchPropertyException if the previous node is a JavaBean (i.e. non-collection)
+     *         node and does not contain a property with the corresponding name
+     * @throws EvaluationException if the previous node is a List or Map and does not contain
+     *         enough information to determine the type
+     */
+    protected Type getTypeViaInstances(NodeEvaluation end)
+        throws EvaluationException, NoSuchPropertyException {
+        Object previous;
+        Object value = this.bean;
+
+        // First loop through and get to the pre-cursor node using the type info we have
+        for (NodeEvaluation node = this.root; node != end; node = node.getNext()) {
+            PropertyAccessor accessor = node.getType().getPropertyAccessor();
+            previous = value;
+            value = accessor.getValue(node, previous);
+
+            if (value == null) {
+                value = getDefaultValue(node);
+            }
+        }
+
+        // Then determine how to fish for the next property in line
+        previous = value;
+        if (value instanceof Map) {
+            value = ((Map) value).get(end.getNode().getTypedValue());
+            if (value != null) {
+                end.setType(NodeType.MapEntry);
+                end.setValueType(value.getClass());
+                end.setKeyType(end.getNode().getTypedValue().getClass());
+                return value.getClass();
+            }
+            else {
+                throw new EvaluationException("Not enough type information available to " +
+                    "evaluate expression. Expression: '" + expression + "'. Type information ran " +
+                    "out at node '" + end.getNode().getStringValue() + "', which represents a Map " +
+                    "entry. Please ensure that either the getter for the Map contains appropriate " +
+                    "generic type information or that it contains a value with the key type " +
+                    end.getNode().getTypedValue().getClass().getName() + " and value " +
+                    end.getNode().getStringValue());
+            }
+        }
+        else if (value instanceof List) {
+            List list = (List) value;
+            if (end.getNode().getTypedValue() instanceof Integer) {
+                Integer index = (Integer) end.getNode().getTypedValue();
+                if (index < list.size()) {
+                    value = list.get(index);
+                    if (value != null) {
+                        end.setType(NodeType.ListEntry);
+                        end.setValueType(value.getClass());
+                        end.setKeyType(Integer.class);
+                        return value.getClass();
+                    }
+                }
+            }
+
+            throw new EvaluationException("Not enough type information available to " +
+                "evaluate expression. Expression: '" + expression + "'. Type information ran " +
+                "out at node '" + end.getNode().getStringValue() + "', which represents a List " +
+                "entry. Please ensure that either the getter for the List contains appropriate " +
+                "generic type information or that the index is numeric and a value exists at " +
+                "the supplied index (" + end.getNode().getStringValue() + ").");
+        }
+        else {
+            Type type = getBeanPropertyType(value.getClass(), end.getNode().getStringValue());
+            if (type != null) {
+                end.setType(NodeType.BeanProperty);
+                end.setValueType(type);
+                return type;
+            }
+            else {
+                throw new NoSuchPropertyException("Bean class " + previous.getClass().getName() +
+                    " does not contain a property called '" + end.getNode().getStringValue() +
+                    "'. As a result the following expression could not be evaluated: " +
+                    this.expression);
+            }
+        }
     }
 
     /**
@@ -250,12 +360,7 @@ public class PropertyExpressionEvaluation {
      * @return the Class of object that can be set/get with this evaluation or null
      */
     public Class getType() {
-        if (this.typeInformationValid) {
-            return convertToClass(this.leaf.getValueType(), this.leaf);
-        }
-        else {
-            return null;
-        }
+        return convertToClass(this.leaf.getValueType(), this.leaf);
     }
 
     /**
@@ -272,35 +377,30 @@ public class PropertyExpressionEvaluation {
      *         point at a non scalar property
      */
     public Class getScalarType() {
-        if (this.typeInformationValid) {
-            Type type = this.leaf.getValueType();
-            Class clazz = convertToClass(type, this.leaf);
+        Type type = this.leaf.getValueType();
+        Class clazz = convertToClass(type, this.leaf);
 
-            if (clazz.isArray()) {
-                return clazz.getComponentType();
-            }
-            else if (Collection.class.isAssignableFrom(clazz)) {
-                if (type instanceof ParameterizedType) {
-                    return convertToClass(((ParameterizedType) type).getActualTypeArguments()[0], this.leaf);
-                }
-                else {
-                    return String.class;
-                }
-            }
-            else if (Map.class.isAssignableFrom(clazz)) {
-                if (type instanceof ParameterizedType) {
-                    return convertToClass(((ParameterizedType) type).getActualTypeArguments()[1], this.leaf);
-                }
-                else {
-                    return String.class;
-                }
+        if (clazz.isArray()) {
+            return clazz.getComponentType();
+        }
+        else if (Collection.class.isAssignableFrom(clazz)) {
+            if (type instanceof ParameterizedType) {
+                return convertToClass(((ParameterizedType) type).getActualTypeArguments()[0], this.leaf);
             }
             else {
-                return clazz;
+                return String.class;
+            }
+        }
+        else if (Map.class.isAssignableFrom(clazz)) {
+            if (type instanceof ParameterizedType) {
+                return convertToClass(((ParameterizedType) type).getActualTypeArguments()[1], this.leaf);
+            }
+            else {
+                return String.class;
             }
         }
         else {
-            return null;
+            return clazz;
         }
     }
 
