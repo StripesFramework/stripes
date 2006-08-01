@@ -35,7 +35,12 @@ public class NumberTypeConverterSupport {
     public void setLocale(Locale locale) {
         this.locale = locale;
         this.formats = getNumberFormats();
-        this.currencySymbol = Currency.getInstance(getLocale()).getSymbol(getLocale());
+
+        // Use the appropriate currency symbol if our locale has a country, otherwise try the dollar sign!
+        if (locale.getCountry() != null && !"".equals(locale.getCountry()))
+            this.currencySymbol = Currency.getInstance(locale).getSymbol(locale);
+        else
+            this.currencySymbol = "$";
     }
 
     /** Returns the Locale set on the object using setLocale(). */
