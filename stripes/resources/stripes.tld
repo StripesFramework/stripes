@@ -1797,6 +1797,31 @@
         </attribute>
         <attribute>
             <description>
+                Determines whether validation is run on this ActionBean. False by default.
+            </description>
+            <name>validate</name><required>false</required><rtexprvalue>true</rtexprvalue>
+            <type>java.lang.Boolean</type>
+        </attribute>
+        <attribute>
+            <description>
+                Determines if the event handler method will be run in the case that the
+                ActionBean is already present when the useActionBean is executed. By
+                default Stripes does not execute the event handler method if the bean
+                is not instantiated by the tag.
+            </description>
+            <name>alwaysExecuteEvent</name><required>false</required><rtexprvalue>true</rtexprvalue>
+            <type>java.lang.Boolean</type>
+        </attribute>
+        <attribute>
+            <description>
+                Determines if the Resolution should be executed if the ActionBean or an
+                interceptor returns one. False by default.
+            </description>
+            <name>executeResolution</name><required>false</required><rtexprvalue>true</rtexprvalue>
+            <type>java.lang.Boolean</type>
+        </attribute>
+        <attribute>
+            <description>
                 The (optional) name of an attribute to bind the bean to in page context.
             </description>
             <name>var</name><required>false</required><rtexprvalue>true</rtexprvalue>

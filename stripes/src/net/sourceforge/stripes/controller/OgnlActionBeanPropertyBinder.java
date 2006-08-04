@@ -849,7 +849,7 @@ public class OgnlActionBeanPropertyBinder implements ActionBeanPropertyBinder {
         DelegatingVariableResolver2 resolver = null;
 
         if ( !"".equals(validationInfo.expression()) ) {
-            final PageContext context = DispatcherServlet.getPageContext();
+            final PageContext context = DispatcherHelper.getPageContext();
 
             if (context == null) {
                 log.error("Could not process expression based validation. It would seem that ",
