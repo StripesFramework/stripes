@@ -19,10 +19,12 @@ import net.sourceforge.stripes.action.ActionBeanContext;
 import net.sourceforge.stripes.action.Resolution;
 import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.controller.ActionResolver;
+import net.sourceforge.stripes.controller.DispatcherHelper;
 import net.sourceforge.stripes.controller.ExecutionContext;
 import net.sourceforge.stripes.controller.Interceptor;
 import net.sourceforge.stripes.controller.LifecycleStage;
 import net.sourceforge.stripes.controller.StripesFilter;
+import net.sourceforge.stripes.controller.DispatcherServlet;
 import net.sourceforge.stripes.exception.StripesJspException;
 
 import javax.servlet.http.HttpServletRequest;
@@ -62,6 +64,15 @@ public class UseActionBeanTag extends StripesTagSupport {
     /** A page scope variable to which to bind the ActionBean */
     private String var;
 
+    /** Indicates that validation should be executed. */
+    private boolean validate = false;
+
+    /** Indicates whether the event should be executed even if the bean was already present. */
+    private boolean alwaysExecuteEvent = false;
+
+    /** Indicates whether the resolution should be executed - false by default. */
+    private boolean executeResolution = false;
+
     /**
      * The main work method of the tag. Looks up the action bean, instantiates it,
      * runs binding and then runs either the named event or the default.
@@ -71,81 +82,97 @@ public class UseActionBeanTag extends StripesTagSupport {
      */
     public int doStartTag() throws JspException {
         // Check to see if the action bean already exists
-        ActionBean actionBean = (ActionBean) pageContext.getRequest().getAttribute(binding);
-        if (actionBean == null) {
-            try {
-                final Configuration config = StripesFilter.getConfiguration();
-                HttpServletRequest request = (HttpServletRequest) getPageContext().getRequest();
-                HttpServletResponse response = (HttpServletResponse) getPageContext().getResponse();
+        boolean beanNotPresent = getPageContext().findAttribute(binding) == null;
 
-                // Setup the context stuff needed to emulate the dispatcher
+        try {
+            final Configuration config = StripesFilter.getConfiguration();
+            final ActionResolver resolver = StripesFilter.getConfiguration().getActionResolver();
+            final HttpServletRequest request = (HttpServletRequest) getPageContext().getRequest();
+            final HttpServletResponse response = (HttpServletResponse) getPageContext().getResponse();
+            Resolution resolution = null;
+            ExecutionContext ctx = new ExecutionContext();
+
+            // Lookup the ActionBean if we don't already have it
+            if (beanNotPresent) {
                 ActionBeanContext tempContext =
                         config.getActionBeanContextFactory().getContextInstance(request, response);
                 tempContext.setServletContext(getPageContext().getServletContext());
-                ExecutionContext ctx = new ExecutionContext();
                 ctx.setLifecycleStage(LifecycleStage.ActionBeanResolution);
                 ctx.setActionBeanContext(tempContext);
 
                 // Run action bean resolution
-                final ActionResolver resolver = StripesFilter.getConfiguration().getActionResolver();
                 ctx.setInterceptors(config.getInterceptors(LifecycleStage.ActionBeanResolution));
-                ctx.wrap( new Interceptor() {
+                resolution = ctx.wrap( new Interceptor() {
                     public Resolution intercept(ExecutionContext ec) throws Exception {
                         ActionBean bean = resolver.getActionBean(ec.getActionBeanContext(), binding);
                         ec.setActionBean(bean);
                         return null;
                     }
                 });
+            }
 
-                // Then, if and only if an event was specified, run handler resolution
-                if (event != null) {
-                    ctx.setLifecycleStage(LifecycleStage.HandlerResolution);
-                    ctx.setInterceptors(config.getInterceptors(LifecycleStage.HandlerResolution));
-                    ctx.wrap( new Interceptor() {
-                        public Resolution intercept(ExecutionContext ec) throws Exception {
-                            ec.setHandler(resolver.getHandler(ec.getActionBean().getClass(), event));
-                            return null;
-                        }
-                    });
-                }
-
-                // Bind applicable request parameters to the ActionBean
-                ctx.setLifecycleStage(LifecycleStage.BindingAndValidation);
-                ctx.setInterceptors(config.getInterceptors(LifecycleStage.BindingAndValidation));
-                ctx.wrap( new Interceptor() {
+            // Then, if and only if an event was specified, run handler resolution
+            if (resolution == null && event != null && (beanNotPresent || this.alwaysExecuteEvent)) {
+                ctx.setLifecycleStage(LifecycleStage.HandlerResolution);
+                ctx.setInterceptors(config.getInterceptors(LifecycleStage.HandlerResolution));
+                resolution = ctx.wrap( new Interceptor() {
                     public Resolution intercept(ExecutionContext ec) throws Exception {
-                        config.getActionBeanPropertyBinder()
-                                .bind(ec.getActionBean(), ec.getActionBeanContext(), false);
+                        ec.setHandler(resolver.getHandler(ec.getActionBean().getClass(), event));
+                        ec.getActionBeanContext().setEventName(event);
                         return null;
                     }
                 });
+            }
 
-                // And (again) if an event was supplied, then run the handler
-                if (event != null) {
-                    ctx.setLifecycleStage(LifecycleStage.EventHandling);
-                    ctx.setInterceptors(config.getInterceptors(LifecycleStage.EventHandling));
-                    ctx.wrap( new Interceptor() {
-                        public Resolution intercept(ExecutionContext ec) throws Exception {
-                            return (Resolution) ec.getHandler().invoke(ec.getActionBean());
-                        }
-                    });
+            // Make the PageContext available during the validation stage so that we
+            // can execute EL based expression validation
+            try {
+                DispatcherHelper.setPageContext(getPageContext());
+
+                // Bind applicable request parameters to the ActionBean
+                if (resolution == null && (beanNotPresent || this.validate == true)) {
+                    resolution = DispatcherHelper.doBindingAndValidation(ctx, this.validate);
                 }
 
-                // Put the ActionBean in it's home in the request
-                actionBean = ctx.getActionBean();
-                request.setAttribute(binding, actionBean);
-            }
-            catch(Exception e) {
-                throw new StripesJspException("Unabled to prepare ActionBean for JSP Usage",e);
-            }
-        }
+                // Run custom validations if we're validating
+                if (resolution == null && this.validate == true) {
+                    String temp =  config.getBootstrapPropertyResolver().getProperty(
+                                        DispatcherServlet.RUN_CUSTOM_VALIDATION_WHEN_ERRORS);
+                    boolean validateWhenErrors = temp != null && Boolean.valueOf(temp);
 
-        // If a name was specified, bind the ActionBean into page context
-        if (getVar() != null) {
-            pageContext.setAttribute(getVar(), actionBean);
-        }
+                    resolution = DispatcherHelper.doCustomValidation(ctx, validateWhenErrors);
+                }
+            }
+            finally {
+                DispatcherHelper.setPageContext(null);
+            }
 
-        return SKIP_BODY;
+            // Fill in any validation errors if they exist
+            if (resolution == null && this.validate == true) {
+                resolution = DispatcherHelper.handleValidationErrors(ctx);
+            }
+
+            // And (again) if an event was supplied, then run the handler
+            if (resolution == null && event != null && (beanNotPresent || this.alwaysExecuteEvent)) {
+                resolution = DispatcherHelper.invokeEventHandler(ctx);
+            }
+
+            DispatcherHelper.fillInValidationErrors(ctx);  // just in case!
+
+            if (resolution != null && this.executeResolution) {
+                DispatcherHelper.executeResolution(ctx, resolution);
+            }
+
+            // If a name was specified, bind the ActionBean into page context
+            if (getVar() != null) {
+                pageContext.setAttribute(getVar(), ctx.getActionBean());
+            }
+
+            return SKIP_BODY;
+        }
+        catch(Exception e) {
+            throw new StripesJspException("Unabled to prepare ActionBean for JSP Usage",e);
+        }
     }
 
     /**
@@ -195,4 +222,20 @@ public class UseActionBeanTag extends StripesTagSupport {
 
     /** Alias for setVar() so that the JSTL and jsp:useBean style are allowed. */
     public void setId(String id) { setVar(id); }
+
+    public boolean isValidate() { return validate; }
+
+    public void setValidate(boolean validate) { this.validate = validate; }
+
+    public boolean isAlwaysExecuteEvent() { return alwaysExecuteEvent; }
+
+    public void setAlwaysExecuteEvent(boolean alwaysExecuteEvent) {
+        this.alwaysExecuteEvent = alwaysExecuteEvent;
+    }
+
+    public boolean isExecuteResolution() { return executeResolution; }
+
+    public void setExecuteResolution(boolean executeResolution) {
+        this.executeResolution = executeResolution;
+    }
 }
