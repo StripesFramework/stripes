@@ -61,6 +61,11 @@ public class DefaultTypeConverterFactory implements TypeConverterFactory {
         converters.put(Date.class,    DateTypeConverter.class);
         converters.put(BigInteger.class, BigIntegerTypeConverter.class);
         converters.put(BigDecimal.class, BigDecimalTypeConverter.class);
+
+        // Now some less useful, but still helpful converters
+        converters.put(String.class, StringTypeConverter.class);
+        converters.put(Object.class, ObjectTypeConverter.class);
+        converters.put(Character.class, CharacterTypeConverter.class);
     }
 
     /** Provides subclasses with access to the configuration provided at initialization. */

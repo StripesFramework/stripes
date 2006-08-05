@@ -926,9 +926,6 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
                     if (converter != null) {
                         retval = converter.convert(values[i], propertyType, errors);
                     }
-                    else if (propertyType.isAssignableFrom(String.class)) {
-                        retval = values[i];
-                    }
                     else {
                         Constructor constructor = propertyType.getConstructor(String.class);
                         if (constructor != null) {
