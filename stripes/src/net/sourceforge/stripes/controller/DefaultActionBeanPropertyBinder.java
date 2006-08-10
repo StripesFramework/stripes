@@ -24,6 +24,7 @@ import net.sourceforge.stripes.util.CryptoUtil;
 import net.sourceforge.stripes.util.HtmlUtil;
 import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.util.ReflectUtil;
+import net.sourceforge.stripes.util.CollectionUtil;
 import net.sourceforge.stripes.util.bean.ExpressionException;
 import net.sourceforge.stripes.util.bean.NoSuchPropertyException;
 import net.sourceforge.stripes.util.bean.PropertyExpression;
@@ -413,19 +414,20 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
      * @return a non-null (though possibly empty) list of field names
      */
     protected Collection<String> getFieldsPresentInfo(ActionBean bean) {
-        HttpServletRequest request = bean.getContext().getRequest();
+        ActionBeanContext ctx = bean.getContext();
+        HttpServletRequest request = ctx.getRequest();
         String fieldsPresent = request.getParameter(StripesConstants.URL_KEY_FIELDS_PRESENT);
-        boolean isWizard = bean.getClass().getAnnotation(Wizard.class) != null;
+        Wizard wizard = bean.getClass().getAnnotation(Wizard.class);
+        boolean isWizard = wizard != null;
 
         if (fieldsPresent == null || "".equals(fieldsPresent)) {
-            if (isWizard) {
-                //FIXME: might want to let the ActionBean handle the initial request somehow?
+            if (isWizard && !CollectionUtil.contains(wizard.startEvents(), ctx.getEventName())) {
                 throw new StripesRuntimeException(
                         "Submission of a wizard form in Stripes absolutely requires that " +
-                                "the hidden field Stripes writes containing the names of the fields " +
-                                "present on the form is present and encrypted (as Stripes write it). " +
-                                "This is necessary to prevent a user from spoofing the system and " +
-                                "getting around any security/data checks."
+                        "the hidden field Stripes writes containing the names of the fields " +
+                        "present on the form is present and encrypted (as Stripes write it). " +
+                        "This is necessary to prevent a user from spoofing the system and " +
+                        "getting around any security/data checks."
                 );
             }
             else {
