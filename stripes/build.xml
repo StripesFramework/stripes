@@ -132,12 +132,13 @@
 	   version="true">
 		<link href="http://java.sun.com/j2se/1.5.0/docs/api/"/>
 		<link href="http://java.sun.com/j2ee/1.4/docs/api/"/>
-		<link href="http://www.ognl.org/2.6.7/Documentation/javadoc/"/>
+		<link href="http://static.springframework.org/spring/docs/1.2.x/api/"/>
 		<link href="http://java.sun.com/j2se/1.5.0/docs/guide/apt/mirror/"/>
         <group>
             <title>Core API</title>
             <package name="net.sourceforge.stripes.action"/>
             <package name="net.sourceforge.stripes.validation"/>
+            <package name="net.sourceforge.stripes.mock"/>
         </group>
         <group>
             <title>Extension API</title>
@@ -154,6 +155,7 @@
             <title>Internal Implementation</title>
             <package name="net.sourceforge.stripes.controller"/>
             <package name="net.sourceforge.stripes.util"/>
+            <package name="net.sourceforge.stripes.util.bean"/>
         </group>
     </javadoc>
   </target>
