@@ -27,6 +27,7 @@ import net.sourceforge.stripes.controller.Interceptor;
 import net.sourceforge.stripes.controller.LifecycleStage;
 import net.sourceforge.stripes.exception.ExceptionHandler;
 
+import javax.servlet.ServletContext;
 import java.util.Collection;
 
 /**
@@ -67,6 +68,14 @@ public interface Configuration {
      * @return BootstrapPropertyResolver the instance passed to the init() method
      */
     BootstrapPropertyResolver getBootstrapPropertyResolver();
+
+    /**
+     * Retrieves the ServletContext for the context within which the Stripes application
+     * is executing.
+     *
+     * @return the ServletContext in which the application is running
+     */
+    ServletContext getServletContext();
 
     /**
      * Returns an instance of ActionResolver that will be used by Stripes to lookup and resolve

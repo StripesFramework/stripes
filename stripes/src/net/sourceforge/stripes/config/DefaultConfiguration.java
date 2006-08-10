@@ -40,6 +40,7 @@ import net.sourceforge.stripes.tag.TagErrorRendererFactory;
 import net.sourceforge.stripes.validation.DefaultTypeConverterFactory;
 import net.sourceforge.stripes.validation.TypeConverterFactory;
 
+import javax.servlet.ServletContext;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -176,6 +177,16 @@ public class DefaultConfiguration implements Configuration {
     }
 
     /**
+     * Retrieves the ServletContext for the context within which the Stripes application is
+     * executing.
+     *
+     * @return the ServletContext in which the application is running
+     */
+    public ServletContext getServletContext() {
+        return getBootstrapPropertyResolver().getFilterConfig().getServletContext();
+    }
+
+    /**
      * Returns an instance of {@link NameBasedActionResolver} unless a subclass has
      * overridden the default.
      * @return ActionResolver an instance of the configured resolver
@@ -291,7 +302,9 @@ public class DefaultConfiguration implements Configuration {
      */
     public Collection<Interceptor> getInterceptors(LifecycleStage stage) {
         Collection<Interceptor> interceptors = this.interceptors.get(stage);
-        if (interceptors == null) interceptors = Collections.emptyList();
+        if (interceptors == null) {
+            interceptors = Collections.emptyList();
+        }
         return interceptors;
     }
 
