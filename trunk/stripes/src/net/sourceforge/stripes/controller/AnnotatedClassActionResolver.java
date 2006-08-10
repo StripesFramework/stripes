@@ -362,11 +362,17 @@ public class AnnotatedClassActionResolver implements ActionResolver {
 
 
     /**
-     * Searched for a parameter in the request whose name matches one of the named events handled
+     * <p>Searched for a parameter in the request whose name matches one of the named events handled
      * by the ActionBean.  For example, if the ActionBean can handle events foo and bar, this
      * method will scan the request for foo=somevalue and bar=somevalue.  If it find a request
      * paremeter with a matching name it will return that name.  If there are multiple matching
-     * names, the result of this method cannot be guaranteed.
+     * names, the result of this method cannot be guaranteed.</p>
+     *
+     * <p>If the event name cannot be determined through the parameter names, two alternative
+     * strategies are employed. First if there is extra path information beyond the URL binding
+     * of the ActionBean, it is checked to see if it matches an event name.  If that doesn't work,
+     * the value of a 'special' request parameter ({@link StripesConstants.URL_KEY_EVENT_NAME})
+     * is checked to see if contains a single value matching an event name.</p>
      *
      * @param bean the ActionBean type bound to the request
      * @param context the ActionBeanContect for the current request
@@ -374,7 +380,7 @@ public class AnnotatedClassActionResolver implements ActionResolver {
      */
     public String getEventName(Class<? extends ActionBean> bean, ActionBeanContext context) {
         Map<String,Method> mappings = this.eventMappings.get(bean);
-        Map parameterMap = context.getRequest().getParameterMap();
+        Map<String,String[]> parameterMap = context.getRequest().getParameterMap();
 
         // First try the traditional checking based on request parameters
         for (String event : mappings.keySet()) {
@@ -392,6 +398,12 @@ public class AnnotatedClassActionResolver implements ActionResolver {
             if (mappings.containsKey(event)) {
                 return event;
             }
+        }
+
+        // Lastly if we still haven't picked an event, look for the special parameter
+        String[] name = parameterMap.get(StripesConstants.URL_KEY_EVENT_NAME);
+        if (name != null && name.length == 1 && mappings.containsKey(name[0])) {
+            return name[0];
         }
 
         return null;

@@ -77,4 +77,15 @@ public class BasicResolverTests implements ActionBean {
         BasicResolverTests bean = trip.getActionBean( getClass() );
         Assert.assertEquals(bean.getNumber(), 2);
     }
+
+    @Test(groups="fast")
+    public void testEventNameParameterResolution() throws Exception {
+        MockRoundtrip trip = new MockRoundtrip(StripesTestFixture.getServletContext(), getClass());
+        trip.addParameter(StripesConstants.URL_KEY_EVENT_NAME, "two");
+        trip.execute();
+
+        BasicResolverTests bean = trip.getActionBean( getClass() );
+        Assert.assertEquals(bean.getNumber(), 2);
+        Assert.assertEquals(bean.getContext().getEventName(), "two");
+    }
 }
