@@ -47,6 +47,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -251,8 +252,7 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
                 String pname = name.getName(); // exact name of the param in the request
 
                 if (!SPECIAL_KEYS.contains(pname) && !pname.equals(context.getEventName())
-                        && !fieldErrors.containsKey(pname)
-                        && !pname.toLowerCase().startsWith("context")) {
+                        && !fieldErrors.containsKey(pname)) {
                     log.trace("Running binding for property with name: ", name);
 
                     // Determine the target type
@@ -261,6 +261,9 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
                             new PropertyExpressionEvaluation(PropertyExpression.getExpression(pname), bean);
                     Class type = eval.getType();
                     Class scalarType = eval.getScalarType();
+
+                    // Check to see if binding into this expression is permitted
+                    if (!isBindingAllowed(eval)) continue;
 
                     if (type == null && (validationInfo == null || validationInfo.converter() == null)) {
                         log.trace("Could not find type for property '", name.getName(), "' of '",
@@ -336,6 +339,24 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
         }
 
         return fieldErrors;
+    }
+
+    /**
+     * <p>Checks to see if binding is permitted for the provided expression evaluation. Note
+     * that the expression is available through the {@code getExpression()} and the ActionBean
+     * is available through the {@code getBean()} method on the evaluation.</p>
+     *
+     * <p>By default checks to ensure that the expression is not attempting to bind into
+     * the ActionBeanContext for security reasons.</p>
+     *
+     * @param eval the expression evaluation to check for binding permission
+     * @return true if binding can/should proceed, false to veto binding
+     */
+    protected boolean isBindingAllowed(PropertyExpressionEvaluation eval) {
+        // Ensure no-one is trying to bind into the ActionBeanContext!!
+        Type firstNodeType = eval.getRootNode().getValueType();
+        return !(firstNodeType instanceof Class &&
+                 ActionBeanContext.class.isAssignableFrom((Class) firstNodeType));
     }
 
     /**
