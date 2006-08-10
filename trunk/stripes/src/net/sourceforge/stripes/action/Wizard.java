@@ -37,4 +37,13 @@ import java.lang.annotation.Documented;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface Wizard {
+    /**
+     * An optional list of events which mark the start of the wizard flow. An event is a
+     * start event if it is executed <i>before</i> the first page in the wizard flow is
+     * rendered - <b>not</b> if it is the result of a form that targets the wizard action.
+     * The list is used by Stripes to disable security validation of the 'fields present'
+     * field in the request, as it is not necessary for start events in a wizard flow, and
+     * can cause problems.
+     */
+    String[] startEvents() default {};
 }
