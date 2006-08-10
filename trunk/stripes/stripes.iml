@@ -13,17 +13,6 @@
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/deploy/ognl-2.6.7.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES>
-          <root url="file:///Downloads/ognl-2.6.7-dist Folder/java" />
-        </SOURCES>
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" exported="">
-      <library>
-        <CLASSES>
           <root url="jar://$MODULE_DIR$/lib/deploy/commons-logging.jar!/" />
         </CLASSES>
         <JAVADOC />
@@ -74,15 +63,6 @@
       <library>
         <CLASSES>
           <root url="jar://$MODULE_DIR$/lib/build/mail.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" exported="">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/build/freemarker.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />

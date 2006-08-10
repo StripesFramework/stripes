@@ -47,7 +47,7 @@ Contents
    -> Full support for indexed properties/multi-row forms using Collections
    -> Form custom tags that feel like HTML tags (no unnecessary renaming of attributes)
    -> Form tags provide formatting capabilities similar to JSTL formatting tags
-   -> Seemless handling of file uploads
+   -> Seamless handling of file uploads
    -> Direct to JSP navigation isn't frowned on
    -> Input validation, formatting and tags are all locale aware (but only if you want)
    -> JavaDoc, TagDoc and reference documentation that doesn't suck
@@ -59,7 +59,6 @@ Contents
         -> lib/stripes.jar
         -> lib/commons-logging.jar
         -> lib/cos.jar
-        -> lib/ognl-2.6.7.jar
 
    -> Copy 'lib/StripesResources.properties' into /WEB-INF/classes or in to another
       directory ensuring that your build system puts it into the web app classpath
@@ -133,13 +132,6 @@ Contents
       upon between the authors of COS and Stripes, that is less restrictive than
       the standard license.  Please read the license carefully.  It can be
       found at lib/cos.license
-      
-   -> OGNL or Object Graph Navigation Language (http://www.ognl.org/)
-      Ognl is a far more powerful alternative to libraries such as the Jakarta
-      commons BeanUtils.  It is used with several custom plug-ins to provide
-      seemless instantiation and navigation of deep object webs on ActionBeans.
-      OGNL is licensed under a custom, but simple, free license. A copy of
-      the license can be found at lib/ognl.license
       
 5. Feedback
    --------

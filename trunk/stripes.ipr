@@ -3,6 +3,55 @@
   <component name="AntConfiguration">
     <defaultAnt bundledAnt="true" />
   </component>
+  <component name="BSFConsole">
+    <sendcommandbycontrolenter>false</sendcommandbycontrolenter>
+    <restoresystemstreams>false</restoresystemstreams>
+    <outwaitsforerr>false</outwaitsforerr>
+    <errwaitsforout>false</errwaitsforout>
+    <storedupsinrecentcommands>false</storedupsinrecentcommands>
+    <moduleforclasspath>stripes</moduleforclasspath>
+    <includeoutputpath>false</includeoutputpath>
+    <includetestsoutputpath>false</includetestsoutputpath>
+    <languages>
+      <language name="ant" engine="org.kos.bsfconsoleplugin.languages.AntConsoleBSFEngine" />
+      <language name="netrexx" engine="org.apache.bsf.engines.netrexx.NetRexxEngine" />
+      <language name="xslt" engine="org.apache.bsf.engines.xslt.XSLTEngine" />
+      <language name="beanbasic" engine="org.apache.bsf.engines.beanbasic.BeanBasicEngine" />
+      <language name="beanshell" engine="bsh.util.BeanShellBSFEngine" />
+      <language name="bml" engine="org.apache.bml.ext.BMLEngine" />
+      <language name="groovy" engine="org.codehaus.groovy.bsf.GroovyEngine" />
+      <language name="jacl" engine="org.apache.bsf.engines.jacl.JaclEngine" />
+      <language name="java" engine="org.apache.bsf.engines.java.JavaEngine" />
+      <language name="javaclass" engine="org.apache.bsf.engines.javaclass.JavaClassEngine" />
+      <language name="javascript" engine="org.apache.bsf.engines.javascript.JavaScriptEngine" />
+      <language name="jpython" engine="org.apache.bsf.engines.jpython.JPythonEngine" />
+      <language name="jruby" engine="org.jruby.javasupport.bsf.JRubyEngine" />
+      <language name="jscript" engine="org.apache.bsf.engines.activescript.ActiveScriptEngine" />
+      <language name="judoscript" engine="com.judoscript.BSFJudoEngine" />
+      <language name="jython" engine="org.apache.bsf.engines.jython.JythonEngine" />
+      <language name="lotusscript" engine="org.apache.bsf.engines.lotusscript.LsEngine" />
+      <language name="perl" engine="org.apache.bsf.engines.perl.PerlEngine" />
+      <language name="perlscript" engine="org.apache.bsf.engines.activescript.ActiveScriptEngine" />
+      <language name="pnuts" engine="pnuts.ext.PnutsBSFEngine" />
+      <language name="vbscript" engine="org.apache.bsf.engines.activescript.ActiveScriptEngine" />
+    </languages>
+    <startupscripts />
+    <preferredrecentcommandsdividerlocations>
+      <dividerlocationd language="beanshell" position="1126" />
+    </preferredrecentcommandsdividerlocations>
+    <BSFConsoleSearchOptions searchfromcursor="false">
+      <recentsearches />
+    </BSFConsoleSearchOptions>
+  </component>
+  <component name="BuildJarProjectSettings">
+    <option name="BUILD_JARS_ON_MAKE" value="false" />
+  </component>
+  <component name="CodeStyleProjectProfileManger">
+    <option name="PROJECT_PROFILE" />
+    <option name="USE_PROJECT_LEVEL_SETTINGS" value="false" />
+    <scopes />
+    <profiles />
+  </component>
   <component name="CodeStyleSettingsManager">
     <option name="PER_PROJECT_SETTINGS" />
     <option name="USE_PER_PROJECT_SETTINGS" value="false" />
@@ -32,6 +81,20 @@
     <option name="myForwardDirection" value="false" />
   </component>
   <component name="DependencyValidationManager" />
+  <component name="EclipseCompilerSettings">
+    <option name="DEBUGGING_INFO" value="true" />
+    <option name="GENERATE_NO_WARNINGS" value="true" />
+    <option name="DEPRECATION" value="false" />
+    <option name="ADDITIONAL_OPTIONS_STRING" value="" />
+    <option name="MAXIMUM_HEAP_SIZE" value="128" />
+  </component>
+  <component name="EclipseEmbeddedCompilerSettings">
+    <option name="DEBUGGING_INFO" value="true" />
+    <option name="GENERATE_NO_WARNINGS" value="true" />
+    <option name="DEPRECATION" value="false" />
+    <option name="ADDITIONAL_OPTIONS_STRING" value="" />
+    <option name="MAXIMUM_HEAP_SIZE" value="128" />
+  </component>
   <component name="EntryPointsManager">
     <entry_points />
   </component>
@@ -41,6 +104,36 @@
     <option name="OUTPUT_DIRECTORY" />
   </component>
   <component name="GUI Designer component loader factory" />
+  <component name="IdProvider" IDEtalkID="6C3C9BA2991A23FB866DFDD9B2AEFB67" />
+  <component name="InspectionProjectProfileManager">
+    <option name="PROJECT_PROFILE" value="Project Default" />
+    <option name="USE_PROJECT_LEVEL_SETTINGS" value="false" />
+    <scopes />
+    <profiles>
+      <profile version="1.0">
+        <option name="myName" value="Project Default" />
+        <option name="myLocal" value="false" />
+        <used_levels>
+          <error>
+            <option name="myName" value="ERROR" />
+            <option name="myVal" value="400" />
+          </error>
+          <warning>
+            <option name="myName" value="WARNING" />
+            <option name="myVal" value="300" />
+          </warning>
+          <information>
+            <option name="myName" value="INFO" />
+            <option name="myVal" value="200" />
+          </information>
+          <server>
+            <option name="myName" value="SERVER PROBLEM" />
+            <option name="myVal" value="100" />
+          </server>
+        </used_levels>
+      </profile>
+    </profiles>
+  </component>
   <component name="JavacSettings">
     <option name="DEBUGGING_INFO" value="true" />
     <option name="GENERATE_NO_WARNINGS" value="false" />
@@ -71,6 +164,12 @@
     <option name="GENERATE_NO_WARNINGS" value="false" />
     <option name="IS_EMACS_ERRORS_MODE" value="true" />
     <option name="ADDITIONAL_OPTIONS_STRING" value="" />
+  </component>
+  <component name="LogConsolePreferences">
+    <option name="FILTER_ERRORS" value="false" />
+    <option name="FILTER_WARNINGS" value="false" />
+    <option name="FILTER_INFO" value="true" />
+    <option name="CUSTOM_FILTER" />
   </component>
   <component name="Palette2">
     <group name="Swing">
@@ -174,6 +273,23 @@
       <item class="javax.swing.JSlider" icon="/com/intellij/uiDesigner/icons/slider.png" removable="false">
         <default-constraints vsize-policy="0" hsize-policy="6" anchor="8" fill="1" />
       </item>
+      <item class="javax.swing.JSeparator" icon="/com/intellij/uiDesigner/icons/separator.png" removable="false">
+        <default-constraints vsize-policy="6" hsize-policy="6" anchor="0" fill="3" />
+      </item>
+      <item class="javax.swing.JProgressBar" icon="/com/intellij/uiDesigner/icons/progressbar.png" removable="false">
+        <default-constraints vsize-policy="0" hsize-policy="6" anchor="0" fill="1" />
+      </item>
+      <item class="javax.swing.JToolBar" icon="/com/intellij/uiDesigner/icons/toolbar.png" removable="false">
+        <default-constraints vsize-policy="0" hsize-policy="6" anchor="0" fill="1">
+          <preferred-size width="-1" height="20" />
+        </default-constraints>
+      </item>
+      <item class="javax.swing.JToolBar$Separator" icon="/com/intellij/uiDesigner/icons/toolbarSeparator.png" removable="false">
+        <default-constraints vsize-policy="0" hsize-policy="0" anchor="0" fill="1" />
+      </item>
+      <item class="javax.swing.JScrollBar" icon="/com/intellij/uiDesigner/icons/scrollbar.png" removable="false">
+        <default-constraints vsize-policy="6" hsize-policy="0" anchor="0" fill="2" />
+      </item>
     </group>
   </component>
   <component name="ProjectModuleManager">
@@ -185,6 +301,7 @@
     </modules>
   </component>
   <component name="ProjectRootManager" version="2" assert-keyword="true" jdk-15="true" project-jdk-name="1.5" />
+  <component name="ProjectRunConfigurationManager" />
   <component name="RmicSettings">
     <option name="IS_EANABLED" value="false" />
     <option name="DEBUGGING_INFO" value="true" />
@@ -192,7 +309,9 @@
     <option name="GENERATE_IIOP_STUBS" value="false" />
     <option name="ADDITIONAL_OPTIONS_STRING" value="" />
   </component>
+  <component name="StarteamVcsAdapter" />
   <component name="StrutspluginConfiguration" />
+  <component name="VssVcs" />
   <component name="libraryTable" />
   <component name="uidesigner-configuration">
     <option name="INSTRUMENT_CLASSES" value="true" />
