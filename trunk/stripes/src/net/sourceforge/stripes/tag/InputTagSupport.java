@@ -47,6 +47,8 @@ public abstract class InputTagSupport extends HtmlTagSupport {
 
     /** A list of the errors related to this input tag instance */
     protected List<ValidationError> fieldErrors;
+    private boolean fieldErrorsLoaded = false; // used to track if fieldErrors is loaded yet
+
     /** The error renderer to be utilized for error output of this input tag */
     protected TagErrorRenderer errorRenderer;
 
@@ -261,8 +263,22 @@ public abstract class InputTagSupport extends HtmlTagSupport {
      * Access for the field errors that occured on the form input this tag represents
      * @return List<ValidationError> the list of validation errors for this field
      */
-    public List<ValidationError> getFieldErrors() {
+    public List<ValidationError> getFieldErrors() throws StripesJspException {
+        if (!fieldErrorsLoaded) {
+            loadErrors();
+            fieldErrorsLoaded = true;
+        }
+
         return fieldErrors;
+    }
+
+    /**
+     * Returns true if one or more validation errors exist for the field represented by
+     * this input tag.
+     */
+    public boolean hasErrors() throws StripesJspException {
+        List<ValidationError> errors = getFieldErrors();
+        return errors != null && errors.size() > 0;
     }
 
     /**
@@ -293,8 +309,7 @@ public abstract class InputTagSupport extends HtmlTagSupport {
         registerWithParentForm();
 
         // Deal with any error rendering
-        loadErrors();
-        if (this.fieldErrors != null) {
+        if (getFieldErrors() != null) {
             this.errorRenderer = StripesFilter.getConfiguration()
                     .getTagErrorRendererFactory().getTagErrorRenderer(this);
             this.errorRenderer.doBeforeStartTag();
@@ -325,7 +340,7 @@ public abstract class InputTagSupport extends HtmlTagSupport {
         try {
             int result = doEndInputTag();
 
-            if (this.fieldErrors != null) {
+            if (getFieldErrors() != null) {
                 this.errorRenderer.doAfterEndTag();
             }
 
@@ -335,6 +350,7 @@ public abstract class InputTagSupport extends HtmlTagSupport {
 
             this.errorRenderer = null;
             this.fieldErrors = null;
+            this.fieldErrorsLoaded = false;
             this.focus = false;
 
             return result;
