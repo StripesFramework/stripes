@@ -33,6 +33,12 @@ public interface StripesConstants {
     String URL_KEY_FIELDS_PRESENT = "__fp";
 
     /**
+     * The name of a URL parameter that is used as a last resort to attempt to determine
+     * the name of the event that is being fired by the browser.
+     */
+    String URL_KEY_EVENT_NAME = "_eventName";
+
+    /**
      * The name under which the ActionBean for a request is stored as a request attribute before
      * forwarding to the JSP.
      */
