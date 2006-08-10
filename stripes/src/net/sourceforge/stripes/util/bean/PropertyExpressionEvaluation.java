@@ -80,6 +80,23 @@ public class PropertyExpressionEvaluation {
     public Object getBean() { return bean; }
 
     /**
+     * Fetches the root (first) node in the evaluation, which can be used to traverse
+     * through the nodes in series.
+     * @return the root node in the evaluation
+     */
+    public NodeEvaluation getRootNode() {
+        return this.root;
+    }
+
+    /**
+     * Fetches the expression of which this is an evaluation.
+     * @return the expression being evaluated
+     */
+    public PropertyExpression getExpression() {
+        return expression;
+    }
+
+    /**
      * Examines the expression in context of the root bean provided to determine type
      * information for each node.  Does this by traversing a node at a time and examining
      * the various sources of type information available.
