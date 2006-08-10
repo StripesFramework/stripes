@@ -19,7 +19,7 @@ import java.lang.reflect.Type;
 /**
  * Represents a Node in an expression which has been evaluated against a specific bean in
  * order to determine additional type information etc.  NodeEvaluation is to {@link Node}, what
- * {@link PropertyExpressionEvaluation} is to {@PropertyExpression}.
+ * {@link PropertyExpressionEvaluation} is to {@link PropertyExpression}.
  *
  * @author Tim Fennell
  * @since Stripes 1.4

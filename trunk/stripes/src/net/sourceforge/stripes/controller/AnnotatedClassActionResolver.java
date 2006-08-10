@@ -371,7 +371,7 @@ public class AnnotatedClassActionResolver implements ActionResolver {
      * <p>If the event name cannot be determined through the parameter names, two alternative
      * strategies are employed. First if there is extra path information beyond the URL binding
      * of the ActionBean, it is checked to see if it matches an event name.  If that doesn't work,
-     * the value of a 'special' request parameter ({@link StripesConstants.URL_KEY_EVENT_NAME})
+     * the value of a 'special' request parameter ({@link StripesConstants#URL_KEY_EVENT_NAME})
      * is checked to see if contains a single value matching an event name.</p>
      *
      * @param bean the ActionBean type bound to the request
