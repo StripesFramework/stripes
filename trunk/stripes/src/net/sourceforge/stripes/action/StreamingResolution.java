@@ -14,24 +14,41 @@
  */
 package net.sourceforge.stripes.action;
 
+import net.sourceforge.stripes.exception.StripesRuntimeException;
+
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.ServletOutputStream;
-import java.io.InputStream;
-import java.io.Reader;
-import java.io.PrintWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.Reader;
 import java.io.StringReader;
 
 /**
  * <p>Resolution for streaming data back to the client (in place of forwarding the user to
  * another page). Designed to be used for streaming non-page data such as generated images/charts
- * and XML islands.<p>
+ * and XML islands.</p>
  *
  * <p>Optionally supports the use of a file name which, if set, will cause a
  * Content-Disposition header to be written to the output, resulting in a "Save As" type
  * dialog box appearing in the user's browser. If you do not wish to supply a file name, but
- * wish to acheive this behaviour, simple supply a file name of "".<p>
+ * wish to acheive this behaviour, simple supply a file name of "".</p>
+ *
+ * <p>StreamingResolution is designed to be subclassed where necessary to provide streaming
+ * output where the data being streamed is not contained in an InputStream or Reader. This
+ * would normally be done using an anonymous inner class as follows:</p>
+ *
+ *<pre>
+ *return new StreamingResolution("text/xml") {
+ *    public void stream(HttpServletResponse response) throws Exception {
+ *        // custom output generation code
+ *        response.getWriter.write(...);
+ *        // or
+ *        reponse.getOutputStream.write(...);
+ *    }
+ *}.setFilename("your-filename.xml");
+ *</pre>
  *
  * @author Tim Fennell
  */
@@ -41,6 +58,17 @@ public class StreamingResolution implements Resolution {
     private String filename;
     private String contentType;
     private String characterEncoding;
+
+    /**
+     * Constructor only to be used when subclassing the StreamingResolution (usually using
+     * an anonymous inner class. If this constructor is used, and stream() is not overridden
+     * then an exception will be thrown!
+     *
+     * @param contentType the content type of the data in the stream (e.g. image/png)
+     */
+    public StreamingResolution(String contentType) {
+        this.contentType = contentType;
+    }
 
     /**
      * Constructor that builds a StreamingResolution that will stream binary data back to the
@@ -112,7 +140,7 @@ public class StreamingResolution implements Resolution {
      * @throws IOException if there is a problem accessing one of the streams or reader/writer
      *         objects used.
      */
-    public void execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    final public void execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
         response.setContentType(this.contentType);
         if (this.characterEncoding != null) response.setCharacterEncoding(characterEncoding);
 
@@ -121,8 +149,21 @@ public class StreamingResolution implements Resolution {
             response.setHeader("Content-disposition", "attachment; filename=" + this.filename);
         }
 
+        stream(response);
+    }
+
+    /**
+     * Responsible for the actual streaming of data through the response. If subclassed,
+     * this method should be overridden to stream back data other than data supplied by
+     * an InputStream or Reader supplied to a constructor.
+     *
+     * @param response the HttpServletResponse from which either the output stream or writer
+     *        can be obtained
+     * @throws IOException if any problems arise when streaming data
+     */
+    protected void stream(HttpServletResponse response) throws Exception {
         int length = 0;
-        if (reader != null) {
+        if (this.reader != null) {
             char[] buffer = new char[512];
             PrintWriter out = response.getWriter();
 
@@ -131,7 +172,7 @@ public class StreamingResolution implements Resolution {
             }
             this.reader.close();
         }
-        else {
+        else if (this.inputStream != null) {
             byte[] buffer = new byte[512];
             ServletOutputStream out = response.getOutputStream();
 
@@ -141,5 +182,11 @@ public class StreamingResolution implements Resolution {
 
             this.inputStream.close();
         }
+        else {
+            throw new StripesRuntimeException("A StreamingResolution was constructed without " +
+                    "supplying a Reader or InputStream, but stream() was not overridden. Please " +
+                    "either supply a source of streaming data, or override the stream() method.");
+        }
     }
+
 }
