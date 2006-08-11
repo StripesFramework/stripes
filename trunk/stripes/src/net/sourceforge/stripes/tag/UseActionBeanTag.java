@@ -82,7 +82,8 @@ public class UseActionBeanTag extends StripesTagSupport {
      */
     public int doStartTag() throws JspException {
         // Check to see if the action bean already exists
-        boolean beanNotPresent = getPageContext().findAttribute(binding) == null;
+        ActionBean actionBean = (ActionBean) getPageContext().findAttribute(binding);
+        boolean beanNotPresent = actionBean == null;
 
         try {
             final Configuration config = StripesFilter.getConfiguration();
@@ -109,6 +110,10 @@ public class UseActionBeanTag extends StripesTagSupport {
                         return null;
                     }
                 });
+            }
+            else {
+                ctx.setActionBean(actionBean);
+                ctx.setActionBeanContext(actionBean.getContext());
             }
 
             // Then, if and only if an event was specified, run handler resolution
