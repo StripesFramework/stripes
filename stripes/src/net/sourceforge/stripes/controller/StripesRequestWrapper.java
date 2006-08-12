@@ -102,15 +102,30 @@ public class StripesRequestWrapper extends HttpServletRequestWrapper {
                                  int maxTotalPostSize) throws StripesServletException {
         super(request);
 
-        try {
-            String contentType = request.getContentType();
+        String contentType = request.getContentType();
+        if (contentType != null && contentType.startsWith("multipart/form-data")) {
+            constructMultipartRequest(request, pathToTempDir, maxTotalPostSize);
+        }
+    }
 
-            if (contentType != null && contentType.startsWith("multipart/form-data")) {
-                this.multipart = new MultipartRequest(request,
-                                                      pathToTempDir,
-                                                      maxTotalPostSize,
-                                                      request.getCharacterEncoding());
-            }
+    /**
+     * Responsible for constructing the MultipartRequest object and setting it on to
+     * the instnace variable 'multipart'.
+     *
+     * @param request the HttpServletRequest to wrap
+     * @param pathToTempDir the path to a temporary directory in which to store files during upload
+     * @param maxTotalPostSize a limit on how much can be uploaded in a single request. Note that
+     *        this is not a file size limit, but a post size limit.
+     * @throws StripesServletException if any other error occurs constructing the wrapper
+     */
+    protected void constructMultipartRequest(HttpServletRequest request,
+                                             String pathToTempDir,
+                                             int maxTotalPostSize) throws StripesServletException {
+        try {
+            this.multipart = new MultipartRequest(request,
+                                                  pathToTempDir,
+                                                  maxTotalPostSize,
+                                                  request.getCharacterEncoding());
         }
         catch (IOException e) {
             Matcher matcher = exceptionPattern.matcher(e.getMessage());
