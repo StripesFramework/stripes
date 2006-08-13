@@ -76,11 +76,6 @@
     </containerElement>
     <containerElement type="library" level="module">
       <attribute name="method" value="1" />
-      <attribute name="URI" value="/WEB-INF/lib/ognl-2.6.7.jar" />
-      <url>jar://$MODULE_DIR$/../stripes/lib/deploy/ognl-2.6.7.jar!/</url>
-    </containerElement>
-    <containerElement type="library" level="module">
-      <attribute name="method" value="1" />
       <attribute name="URI" value="/WEB-INF/lib/log4j-1.2.9.jar" />
       <url>jar://$MODULE_DIR$/../stripes/lib/test/log4j-1.2.9.jar!/</url>
     </containerElement>
