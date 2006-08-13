@@ -1092,6 +1092,15 @@
         </attribute>
         <attribute>
             <description>
+                A comma separated list of bean properties by which the collection
+                should be sorted before rendering the options. Special values of
+                'label' and 'value' indicate that the options should be sorted by the
+                label and value respectively - even when using localized or derived values.
+            </description>
+            <name>sort</name><required>false</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>
                 The collection of beans to use to generate options.  This value must resolve to
                 a Collection, and therefore it will most often be an EL expression
                 (or a scriptlet, if you must).
@@ -1180,6 +1189,16 @@
             </description>
             <name>label</name><required>false</required><rtexprvalue>true</rtexprvalue>
         </attribute>
+        <attribute>
+            <description>
+                A comma separated list of bean properties by which the enum values
+                should be sorted before rendering the options. Special values of
+                'label' and 'value' indicate that the options should be sorted by the
+                label and value respectively - even when using localized or derived values.
+            </description>
+            <name>sort</name><required>false</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
+
 
         <!-- Start: Standard HTML attributes -->
         <attribute><description>@accesskey@</description><name>accesskey</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>

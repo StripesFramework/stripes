@@ -21,7 +21,6 @@ import net.sourceforge.stripes.util.bean.BeanUtil;
 import net.sourceforge.stripes.util.bean.ExpressionException;
 
 import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.tagext.Tag;
 import java.util.Locale;
 
 /**
@@ -58,9 +57,8 @@ import java.util.Locale;
  *
  * @author Tim Fennell
  */
-public class InputOptionsEnumerationTag extends HtmlTagSupport implements Tag {
+public class InputOptionsEnumerationTag extends InputOptionsCollectionTag {
     private String className;
-    private String label;
 
     /** Sets the fully qualified name of an enumeration class. */
     public void setEnum(String name) {
@@ -70,16 +68,6 @@ public class InputOptionsEnumerationTag extends HtmlTagSupport implements Tag {
     /** Gets the enum class name set with setEnum(). */
     public String getEnum() {
         return this.className;
-    }
-
-    /** Sets the name of the property that will be used to generate the option's label. */
-    public void setLabel(String label) {
-        this.label = label;
-    }
-
-    /** Gets the name of the property that will be used to generate the option's label. */
-    public String getLabel() {
-        return this.label;
     }
 
     /**
@@ -110,12 +98,6 @@ public class InputOptionsEnumerationTag extends HtmlTagSupport implements Tag {
 
         Enum[] enums = clazz.getEnumConstants();
 
-        InputOptionTag tag = new InputOptionTag();
-        tag.setParent(this);
-        tag.setPageContext(getPageContext());
-        tag.getAttributes().putAll(getAttributes());
-        tag.getAttributes().remove("enum");
-
         try {
             Locale locale = getPageContext().getRequest().getLocale();
 
@@ -128,37 +110,23 @@ public class InputOptionsEnumerationTag extends HtmlTagSupport implements Tag {
                                                                   clazz.getPackage().getName(),
                                                                   locale);
                 if (label == null) {
-                    if (this.label != null) {
-                        label = BeanUtil.getPropertyValue(this.label, item);
+                    if (getLabel() != null) {
+                        label = BeanUtil.getPropertyValue(getLabel(), item);
                     }
                     else {
                         label = item.toString();
                     }
                 }
 
-                tag.setLabel(label.toString());
-                tag.setValue(value);
-                tag.doStartTag();
-                tag.doInitBody();
-                tag.doAfterBody();
-                tag.doEndTag();
+                addEntry(item, label, value);
             }
         }
         catch (ExpressionException ee) {
             throw new StripesJspException("A problem occurred generating an options-enumeration. " +
                 "Most likely either the class [" + getEnum() + "] is not an enum or, [" +
-                    this.label + "] is not a valid property of the enum.", ee);
+                    getLabel() + "] is not a valid property of the enum.", ee);
         }
 
         return SKIP_BODY;
     }
-
-    /**
-     * Does nothing.
-     * @return EVAL_PAGE in all cases.
-     */
-    public int doEndTag() throws JspException {
-        return EVAL_PAGE;
-    }
-
 }

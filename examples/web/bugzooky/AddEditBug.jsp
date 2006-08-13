@@ -39,7 +39,7 @@
                     <td>
                         <stripes:select name="bug.owner.id">
                             <stripes:options-collection collection="${personManager.allPeople}"
-                                                        label="username" value="id"/>
+                                                        label="username" value="id" sort="label"/>
                         </stripes:select>
                     </td>
                 </tr>

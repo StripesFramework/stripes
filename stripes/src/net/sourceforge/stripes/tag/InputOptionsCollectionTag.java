@@ -18,11 +18,15 @@ import net.sourceforge.stripes.exception.StripesJspException;
 import net.sourceforge.stripes.localization.LocalizationUtility;
 import net.sourceforge.stripes.util.bean.BeanUtil;
 import net.sourceforge.stripes.util.bean.ExpressionException;
+import net.sourceforge.stripes.util.bean.BeanComparator;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.Tag;
 import java.util.Collection;
 import java.util.Locale;
+import java.util.Collections;
+import java.util.List;
+import java.util.LinkedList;
 
 /**
  * <p>Writes a set of {@literal <option value="foo">bar</option>} tags to the page based on the
@@ -74,6 +78,24 @@ public class InputOptionsCollectionTag extends HtmlTagSupport implements Tag {
     private Collection collection;
     private String value;
     private String label;
+    private String sort;
+
+    /**
+     * A little container class that holds an entry in the collection of items being used
+     * to generate the options, along with the determined label and value (either from a
+     * property, or a localized value).
+     */
+    public static class Entry {
+        public Object bean, label, value;
+        Entry(Object bean, Object label, Object value) {
+            this.bean = bean;
+            this.label = label;
+            this.value = value;
+        }
+    }
+
+    /** Internal list of entires that is assembled from the items in the collection. */
+    private List<Entry> entries;
 
     /** Sets the collection that will be used to generate options. */
     public void setCollection(Collection collection) {
@@ -115,27 +137,50 @@ public class InputOptionsCollectionTag extends HtmlTagSupport implements Tag {
         return label;
     }
 
+    /**
+     * Sets a comma separated list of properties by which the beans in the collection will
+     * be sorted prior to rendering them as options.  'label' and 'value' are special case
+     * properties that are used to indicate the generated label and value of the option.
+     *
+     * @param sort the name of the attribute(s) used to sort the collection of options
+     */
+    public void setSort(String sort) {
+        this.sort = sort;
+    }
+
+    /** Gets the comma separated list of properties by which the collection is sorted. */
+    public String getSort() {
+        return sort;
+    }
 
     /**
-     * Iterates through the collection and uses an instance of InputOptionTag to generate each
-     * individual option with the correct state.  It is assumed that each element in the collection
+     * Adds an entry to the interal list of items being used to generate options.
+     * @param item the object represented by the option
+     * @param label the actual label for the option
+     * @param value the actual value for the option
+     */
+    protected void addEntry(Object item, Object label, Object value) {
+        if (this.entries == null) this.entries = new LinkedList<Entry>();
+        this.entries.add(new Entry(item, label, value));
+    }
+
+    /**
+     * Iterates through the collection and generates the list of Entry objects that can then
+     * be sorted and rendered into options. It is assumed that each element in the collection
      * has non-null values for the properties specified for generating the label and value.
      *
      * @return SKIP_BODY in all cases
      * @throws JspException if either the label or value attributes specify properties that are
-     *         not present on the beans in the collection, or output cannot be written.
+     *         not present on the beans in the collection
      */
     public int doStartTag() throws JspException {
         String labelProperty = getLabel();
         String valueProperty = getValue();
 
-        Locale locale = getPageContext().getRequest().getLocale();
-        InputOptionTag tag = new InputOptionTag();
-        tag.setParent(this);
-        tag.setPageContext(getPageContext());
-        tag.getAttributes().putAll(getAttributes());
 
         try {
+            Locale locale = getPageContext().getRequest().getLocale();
+
             for (Object item : this.collection) {
                 Class clazz = item.getClass();
 
@@ -155,12 +200,7 @@ public class InputOptionsCollectionTag extends HtmlTagSupport implements Tag {
                 }
                 if (localizedLabel != null) label = localizedLabel;
 
-                tag.setLabel(label.toString());
-                tag.setValue(value);
-                tag.doStartTag();
-                tag.doInitBody();
-                tag.doAfterBody();
-                tag.doEndTag();
+                addEntry(item, label, value);
             }
         }
         catch (ExpressionException ee) {
@@ -173,11 +213,43 @@ public class InputOptionsCollectionTag extends HtmlTagSupport implements Tag {
     }
 
     /**
-     * Does nothing.
+     * Optionally sorts the assembled entries and then renders them into a series of
+     * option tags using an instance of InputOptionTag to do the rendering work.
      *
      * @return EVAL_PAGE in all cases.
      */
     public int doEndTag() throws JspException {
+        // Determine if we're going to be sorting the collection
+        List<Entry> sortedEntries = new LinkedList<Entry>(this.entries);
+        if (this.sort != null) {
+            String[] props = this.sort.split(" *, *");
+            for (int i=0;i<props.length;++i) {
+                if (!props[i].equals("label") && !props[i].equals("value")) {
+                    props[i] = "bean." + props[i];
+                }
+            }
+
+            Collections.sort(sortedEntries,
+                             new BeanComparator(getPageContext().getRequest().getLocale(), props));
+        }
+
+        InputOptionTag tag = new InputOptionTag();
+        tag.setParent(this);
+        tag.setPageContext(getPageContext());
+        tag.getAttributes().putAll(getAttributes());
+
+        for (Entry entry : sortedEntries) {
+            tag.setLabel(entry.label.toString());
+            tag.setValue(value);
+            tag.doStartTag();
+            tag.doInitBody();
+            tag.doAfterBody();
+            tag.doEndTag();
+        }
+
+        // Clean up any temporary state
+        this.entries.clear();
+
         return EVAL_PAGE;
     }
 }
