@@ -561,7 +561,7 @@ public class PropertyExpressionEvaluation {
         }
 
         if (nodeValue != null) {
-            Class leafType = (Class) this.leaf.getValueType();
+            Class leafType = convertToClass(this.leaf.getValueType(), this.leaf);
             if (Map.class.isAssignableFrom(leafType) || Collection.class.isAssignableFrom(leafType)) {
                 nodeValue = this.leaf.getType().getPropertyAccessor().getValue(this.leaf, nodeValue);
 
