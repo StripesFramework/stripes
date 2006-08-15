@@ -17,8 +17,8 @@ package net.sourceforge.stripes.controller;
 import net.sourceforge.stripes.config.BootstrapPropertyResolver;
 import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.config.RuntimeConfiguration;
-import net.sourceforge.stripes.exception.StripesServletException;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
+import net.sourceforge.stripes.exception.StripesServletException;
 import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.util.ReflectUtil;
 
@@ -30,14 +30,11 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Iterator;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * The Stripes filter is used to ensure that all requests coming to a Stripes application
@@ -52,20 +49,11 @@ public class StripesFilter implements Filter {
     /** Key used to lookup the name of the Configuration class used to configure Stripes. */
     public static final String CONFIG_CLASS = "Configuration.Class";
 
-    /** Key used to lookup the name of the maximum post size. */
-    public static final String MAX_POST = "FileUpload.MaximumPostSize";
-
-    /** Path to a temporary directory that will be used to process file uploads. */
-    protected String temporaryDirectoryPath;
-
     /** Log used throughout the class. */
     private static Log log = Log.getInstance(StripesFilter.class);
 
     /** The configuration instance for Stripes. */
     private Configuration configuration;
-
-    /** Stores the maximum post size for a form upload request. */
-    private int maxPostSize = 1024 * 1024 * 10;
 
     /**
      * A place to stash the Configuration object so that other classes in Stripes can access it
@@ -106,40 +94,6 @@ public class StripesFilter implements Filter {
 
         this.configuration.setBootstrapPropertyResolver(bootstrap);
         this.configuration.init();
-
-        // Figure out where the temp directory is, and store that info
-        File tempDir = (File) filterConfig.getServletContext().getAttribute("javax.servlet.context.tempdir");
-        if (tempDir != null) {
-            this.temporaryDirectoryPath = tempDir.getAbsolutePath();
-        }
-        else {
-            this.temporaryDirectoryPath = System.getProperty("java.io.tmpdir");
-        }
-
-        // See if a maximum post size was configured
-        String limit = bootstrap.getProperty(MAX_POST);
-        if (limit != null) {
-            Pattern pattern = Pattern.compile("([\\d,]+)([kKmMgG]?).*");
-            Matcher matcher = pattern.matcher(limit);
-            if (!matcher.matches()) {
-                log.warn("Did not understand value of configuration parameter ", MAX_POST,
-                         " You supplied: ", limit, ". Valid values are any string of numbers ",
-                         "optionally followed by (case insensitive) [k|kb|m|mb|g|gb]. ",
-                         "Default value of ", this.maxPostSize, " bytes will be used instead.");
-            }
-            else {
-                String digits = matcher.group(1);
-                String suffix = matcher.group(2).toLowerCase();
-                int number = Integer.parseInt(digits);
-
-                if ("k".equals(suffix)) { number = number * 1024; }
-                else if ("m".equals(suffix)) {  number = number * 1024 * 1024; }
-                else if ("g".equals(suffix)) { number = number * 1024 * 1024 * 1024; }
-
-                this.maxPostSize = number;
-                log.info("Configured file upload post size limit: ", number, " bytes.");
-            }
-        }
 
         Package pkg = getClass().getPackage();
         log.info("Stripes Initialization Complete. Version: ", pkg.getSpecificationVersion(),
@@ -246,11 +200,7 @@ public class StripesFilter implements Filter {
      */
     protected StripesRequestWrapper wrapRequest(HttpServletRequest servletRequest)
             throws StripesServletException {
-        String tempDirPath = getTempDirectoryPath();
-
-        StripesRequestWrapper request =
-                new StripesRequestWrapper(servletRequest, tempDirPath, this.maxPostSize);
-        return request;
+        return new StripesRequestWrapper(servletRequest);
     }
 
     /**
@@ -291,12 +241,6 @@ public class StripesFilter implements Filter {
             }
         }
     }
-
-    /** Returns the path to the temporary directory that is used to store file uploads. */
-    protected String getTempDirectoryPath() {
-        return this.temporaryDirectoryPath;
-    }
-
 
     /** Does nothing. */
     public void destroy() {

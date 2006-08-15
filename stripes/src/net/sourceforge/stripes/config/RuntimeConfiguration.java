@@ -20,6 +20,7 @@ import net.sourceforge.stripes.controller.ActionResolver;
 import net.sourceforge.stripes.controller.Interceptor;
 import net.sourceforge.stripes.controller.Intercepts;
 import net.sourceforge.stripes.controller.LifecycleStage;
+import net.sourceforge.stripes.controller.multipart.MultipartWrapperFactory;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
 import net.sourceforge.stripes.exception.ExceptionHandler;
 import net.sourceforge.stripes.format.FormatterFactory;
@@ -85,6 +86,9 @@ public class RuntimeConfiguration extends DefaultConfiguration {
     /** The Configuration Key for looking up the name of the ExceptionHandler class */
     public static final String EXCEPTION_HANDLER = "ExceptionHandler.Class";
 
+    /** The Configuration Key for looking up the name of the MultipartWrapperFactory class */
+    public static final String MULTIPART_WRAPPER_FACTORY = "MultipartWrapperFactory.Class";
+
     /** The Configuration Key for looking up the comma separated list of interceptor classes. */
     public static final String INTERCEPTOR_LIST = "Interceptor.Classes";
 
@@ -137,6 +141,11 @@ public class RuntimeConfiguration extends DefaultConfiguration {
     /** Looks for a class name in config and uses that to create the component. */
     @Override protected ExceptionHandler initExceptionHandler() {
         return initializeComponent(ExceptionHandler.class, EXCEPTION_HANDLER);
+    }
+
+    /** Looks for a class name in config and uses that to create the component. */
+    @Override protected MultipartWrapperFactory initMultipartWrapperFactory() {
+        return initializeComponent(MultipartWrapperFactory.class, MULTIPART_WRAPPER_FACTORY);
     }
 
     /**
