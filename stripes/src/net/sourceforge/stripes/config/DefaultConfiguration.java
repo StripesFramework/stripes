@@ -24,6 +24,8 @@ import net.sourceforge.stripes.controller.Interceptor;
 import net.sourceforge.stripes.controller.Intercepts;
 import net.sourceforge.stripes.controller.LifecycleStage;
 import net.sourceforge.stripes.controller.NameBasedActionResolver;
+import net.sourceforge.stripes.controller.multipart.MultipartWrapperFactory;
+import net.sourceforge.stripes.controller.multipart.DefaultMultipartWrapperFactory;
 import net.sourceforge.stripes.exception.DefaultExceptionHandler;
 import net.sourceforge.stripes.exception.ExceptionHandler;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
@@ -80,6 +82,7 @@ public class DefaultConfiguration implements Configuration {
     private PopulationStrategy populationStrategy;
     private Map<LifecycleStage,Collection<Interceptor>> interceptors;
     private ExceptionHandler exceptionHandler;
+    private MultipartWrapperFactory multipartWrapperFactory;
 
     /** Gratefully accepts the BootstrapPropertyResolver handed to the Configuration. */
     public void setBootstrapPropertyResolver(BootstrapPropertyResolver resolver) {
@@ -150,6 +153,12 @@ public class DefaultConfiguration implements Configuration {
             if (this.exceptionHandler == null) {
                 this.exceptionHandler = new DefaultExceptionHandler();
                 this.exceptionHandler.init(this);
+            }
+
+            this.multipartWrapperFactory = initMultipartWrapperFactory();
+            if (this.multipartWrapperFactory == null) {
+                this.multipartWrapperFactory = new DefaultMultipartWrapperFactory();
+                this.multipartWrapperFactory.init(this);
             }
 
             this.interceptors = initInterceptors();
@@ -294,6 +303,21 @@ public class DefaultConfiguration implements Configuration {
 
     /** Allows subclasses to initialize a non-default ExceptionHandler instance to be used. */
     protected ExceptionHandler initExceptionHandler() { return null; }
+
+    /**
+     * Returns an instance of MultipartWrapperFactory that can be used by Stripes to construct
+     * MultipartWrapper instances for dealing with multipart requests (those containing file
+     * uploads).
+     *
+     * @return MultipartWrapperFactory an instance of the wrapper factory
+     */
+    public MultipartWrapperFactory getMultipartWrapperFactory() {
+        return this.multipartWrapperFactory;
+    }
+
+
+    /** Allows subclasses to initialize a non-default MultipartWrapperFactory. */
+    protected MultipartWrapperFactory initMultipartWrapperFactory() { return null; }
 
     /**
      * Returns a list of interceptors that should be executed around the lifecycle stage

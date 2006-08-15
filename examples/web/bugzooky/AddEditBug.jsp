@@ -85,7 +85,7 @@
                     <td>
                         <c:forEach items="${actionBean.bug.attachments}" var="attachment" varStatus="loop">
                             ${attachment.name} (${attachment.size} bytes) -
-                            <stripes:link href="/bugzooky/DownloadAttachment.action">
+                            <stripes:link href="/examples/bugzooky/DownloadAttachment.action">
                                 <stripes:param name="bugId" value="${actionBean.bug.id}"/>
                                 <stripes:param name="attachmentIndex" value="${loop.index}"/>
                                 <em>${attachment.preview}...</em>

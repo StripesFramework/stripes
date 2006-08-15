@@ -25,6 +25,7 @@ import net.sourceforge.stripes.tag.PopulationStrategy;
 import net.sourceforge.stripes.format.FormatterFactory;
 import net.sourceforge.stripes.controller.Interceptor;
 import net.sourceforge.stripes.controller.LifecycleStage;
+import net.sourceforge.stripes.controller.multipart.MultipartWrapperFactory;
 import net.sourceforge.stripes.exception.ExceptionHandler;
 
 import javax.servlet.ServletContext;
@@ -175,4 +176,13 @@ public interface Configuration {
      * @return ExceptionHandler an instance of ExceptionHandler
      */
     ExceptionHandler getExceptionHandler();
+
+    /**
+     * Returns an instance of MultipartWrapperFactory that can be used by Stripes to construct
+     * MultipartWrapper instances for dealing with multipart requests (those containing file
+     * uploads).
+     *
+     * @return MultipartWrapperFactory an instance of the wrapper factory
+     */
+    MultipartWrapperFactory getMultipartWrapperFactory();
 }

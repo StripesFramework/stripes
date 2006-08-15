@@ -14,23 +14,21 @@
  */
 package net.sourceforge.stripes.controller;
 
-import com.oreilly.servlet.MultipartRequest;
 import net.sourceforge.stripes.action.FileBean;
+import net.sourceforge.stripes.controller.multipart.MultipartWrapper;
 import net.sourceforge.stripes.exception.StripesServletException;
 
+import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
-import javax.servlet.ServletRequest;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Map;
-import java.util.Locale;
-import java.util.Collections;
 import java.util.List;
-import java.util.ArrayList;
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
-import java.io.IOException;
+import java.util.Locale;
+import java.util.Map;
 
 /**
  * HttpServletRequestWrapper that is used to make the file upload functionality transparent.
@@ -40,15 +38,9 @@ import java.io.IOException;
  *
  * @author Tim Fennell
  */
-@SuppressWarnings("CLASS") // Request has some deprecated methods we don't touch, so don't warn us!
 public class StripesRequestWrapper extends HttpServletRequestWrapper {
-
-    /** Pattern used to parse useful info out of the IOException cos throws. */
-    private static Pattern exceptionPattern =
-            Pattern.compile("Posted content length of (\\d*) exceeds limit of (\\d*)");
-
     /** The Multipart Request that parses out all the pieces. */
-    private MultipartRequest multipart;
+    private MultipartWrapper multipart;
 
     /** The Locale that is going to be used to process the request. */
     private Locale locale;
@@ -91,55 +83,38 @@ public class StripesRequestWrapper extends HttpServletRequestWrapper {
      * just wrapped and the behaviour is unchanged.
      *
      * @param request the HttpServletRequest to wrap
-     * @param pathToTempDir the path to a temporary directory in which to store files during upload
-     * @param maxTotalPostSize a limit on how much can be uploaded in a single request. Note that
      *        this is not a file size limit, but a post size limit.
      * @throws FileUploadLimitExceededException if the total post size is larger than the limit
      * @throws StripesServletException if any other error occurs constructing the wrapper
      */
-    public StripesRequestWrapper(HttpServletRequest request,
-                                 String pathToTempDir,
-                                 int maxTotalPostSize) throws StripesServletException {
+    public StripesRequestWrapper(HttpServletRequest request) throws StripesServletException {
         super(request);
 
         String contentType = request.getContentType();
         if (contentType != null && contentType.startsWith("multipart/form-data")) {
-            constructMultipartRequest(request, pathToTempDir, maxTotalPostSize);
+            constructMultipartWrapper(request);
         }
     }
 
     /**
-     * Responsible for constructing the MultipartRequest object and setting it on to
+     * Responsible for constructing the MultipartWrapper object and setting it on to
      * the instnace variable 'multipart'.
      *
      * @param request the HttpServletRequest to wrap
-     * @param pathToTempDir the path to a temporary directory in which to store files during upload
-     * @param maxTotalPostSize a limit on how much can be uploaded in a single request. Note that
      *        this is not a file size limit, but a post size limit.
      * @throws StripesServletException if any other error occurs constructing the wrapper
      */
-    protected void constructMultipartRequest(HttpServletRequest request,
-                                             String pathToTempDir,
-                                             int maxTotalPostSize) throws StripesServletException {
+    protected void constructMultipartWrapper(HttpServletRequest request) throws StripesServletException {
         try {
-            this.multipart = new MultipartRequest(request,
-                                                  pathToTempDir,
-                                                  maxTotalPostSize,
-                                                  request.getCharacterEncoding());
+            this.multipart =
+                    StripesFilter.getConfiguration().getMultipartWrapperFactory().wrap(request);
         }
         catch (IOException e) {
-            Matcher matcher = exceptionPattern.matcher(e.getMessage());
-
-            if (matcher.matches()) {
-                throw new FileUploadLimitExceededException(Integer.parseInt(matcher.group(2)),
-                                                           Integer.parseInt(matcher.group(1)));
-            }
-            else {
-                throw new StripesServletException("Could not construct request wrapper.", e);
-            }
+            throw new StripesServletException("Could not construct request wrapper.", e);
         }
     }
 
+    /** Returns true if this request is wrapping a multipart request, false otherwise. */
     public boolean isMultipart() {
         return this.multipart != null;
     }
@@ -167,16 +142,7 @@ public class StripesRequestWrapper extends HttpServletRequestWrapper {
      */
     public String[] getParameterValues(String name) {
         if ( isMultipart() ) {
-            String[] values = this.multipart.getParameterValues(name);
-            if (values != null) {
-                for (int i=0; i<values.length; ++i) {
-                    if (values[i] == null) {
-                        values[i] = "";
-                    }
-                }
-            }
-
-            return values;
+            return this.multipart.getParameterValues(name);
         }
         else {
             return super.getParameterValues(name);
@@ -252,7 +218,7 @@ public class StripesRequestWrapper extends HttpServletRequestWrapper {
      * no file upload parameters are submitted returns an empty enumeration.
      */
     public Enumeration<String> getFileParameterNames() {
-        return this.multipart.getFileNames();
+        return this.multipart.getFileParameterNames();
     }
 
     /**
@@ -264,11 +230,8 @@ public class StripesRequestWrapper extends HttpServletRequestWrapper {
      * @return a FileBean if a file was actually submitted by the user, otherwise null
      */
     public FileBean getFileParameterValue(String name) {
-
-        if (this.multipart.getFile(name) != null) {
-            return new FileBean(this.multipart.getFile(name),
-                                this.multipart.getContentType(name),
-                                this.multipart.getOriginalFileName(name));
+        if (this.multipart != null) {
+            return this.multipart.getFileParameterValue(name);
         }
         else {
             return null;

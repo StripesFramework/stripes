@@ -23,8 +23,8 @@ import net.sourceforge.stripes.exception.StripesServletException;
  * @author Tim Fennell
  */
 public class FileUploadLimitExceededException extends StripesServletException {
-    private int maximum;
-    private int posted;
+    private long maximum;
+    private long posted;
 
     /**
      * Constructs a new exception that contains the limt that was violated, and the size
@@ -33,15 +33,15 @@ public class FileUploadLimitExceededException extends StripesServletException {
      * @param max the current post size limit
      * @param posted the size of the post
      */
-    public FileUploadLimitExceededException(int max, int posted) {
+    public FileUploadLimitExceededException(long max, long posted) {
         super("File post limit exceeded. Limit: " + max + " bytes. Posted: " + posted + " bytes.");
         this.maximum = max;
         this.posted = posted;
     }
 
     /** Gets the limit in bytes for HTTP POSTs. */
-    public int getMaximum() { return maximum; }
+    public long getMaximum() { return maximum; }
 
     /** The size in bytes of the HTTP POST. */
-    public int getPosted() { return posted; }
+    public long getPosted() { return posted; }
 }

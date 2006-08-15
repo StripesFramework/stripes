@@ -14,8 +14,6 @@
  */
 package net.sourceforge.stripes.util;
 
-import com.oreilly.servlet.Base64Decoder;
-import com.oreilly.servlet.Base64Encoder;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
 
 import javax.crypto.Cipher;
@@ -64,7 +62,7 @@ public class CryptoUtil {
             byte[] output = cipher.doFinal(input.getBytes());
 
             // Then base64 encode the bytes
-            return Base64Encoder.encode(output);
+            return Base64.encodeBytes(output);
         }
         catch (Exception e) {
             throw new StripesRuntimeException("Could not encrypt value.", e);
@@ -87,7 +85,7 @@ public class CryptoUtil {
         if (input == null) return null;
 
         // First un-base64 the String
-        byte[] bytes = Base64Decoder.decodeToBytes(input);
+        byte[] bytes = Base64.decode(input);
 
         // Then fetch a cipher and decrypt the bytes
         Cipher cipher = getCipher(request, Cipher.DECRYPT_MODE);
