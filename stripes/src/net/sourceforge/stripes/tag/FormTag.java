@@ -360,7 +360,7 @@ public class FormTag extends HtmlTagSupport implements BodyTag {
             ValidationErrors errors = bean == null ? null : bean.getContext().getValidationErrors();
 
             // If there are validaiton errors, select the first field in error
-            if (errors != null && errors.size() > 0) {
+            if (errors != null && errors.hasFieldErrors()) {
                 List<ValidationError> fieldErrors = errors.get(tag.getName());
                 if (fieldErrors != null && fieldErrors.size() > 0) {
                     tag.setFocus(true);

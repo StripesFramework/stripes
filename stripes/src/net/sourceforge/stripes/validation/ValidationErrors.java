@@ -115,4 +115,19 @@ public class ValidationErrors extends HashMap<String, List<ValidationError>> {
 
         return super.put(field, errors);
     }
+
+    /**
+     * Returns true if there are field-specific errors present, and false if there are
+     * only global errors, or no errors at all.
+     *
+     * @return true if field errors exist, false otherwise
+     */
+    public boolean hasFieldErrors() {
+        if ( keySet().contains(GLOBAL_ERROR) ) {
+            return size() > 1;
+        }
+        else {
+            return size() > 0;
+        }
+    }
 }
