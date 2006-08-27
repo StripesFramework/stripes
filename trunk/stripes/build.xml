@@ -154,6 +154,7 @@
         <group>
             <title>Internal Implementation</title>
             <package name="net.sourceforge.stripes.controller"/>
+            <package name="net.sourceforge.stripes.controller.multipart"/>
             <package name="net.sourceforge.stripes.util"/>
             <package name="net.sourceforge.stripes.util.bean"/>
         </group>
