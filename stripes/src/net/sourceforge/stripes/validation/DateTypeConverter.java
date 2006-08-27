@@ -57,6 +57,7 @@ import java.util.regex.Pattern;
  *     <li>d MMM yy (note that for parsing MMM and MMMM are interchangable)</li>
  *     <li>yyyy M d (note that for parsing M and MM are interchangable)</li>
  *     <li>yyyy MMM d</li>
+ *     <li>EEE MMM dd HH:mm:ss zzz yyyy (the format created by Date.toString())</li>
  *   </ul>
  * </p>
  */
@@ -86,7 +87,8 @@ public class DateTypeConverter implements TypeConverter<Date> {
     public static final String[] formatStrings = new String[] {
         "d MMM yy",
         "yyyy M d",
-        "yyyy MMM d"
+        "yyyy MMM d",
+        "EEE MMM dd HH:mm:ss zzz yyyy"
     };
 
     /**
