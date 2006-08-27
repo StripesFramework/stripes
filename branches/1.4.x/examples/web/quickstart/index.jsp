@@ -14,7 +14,7 @@
     Hi, I'm the Stripes Calculator. I can only do addition. Maybe, some day, a nice programmer
     will come along and teach me how to do other things?
 
-    <stripes:form action="/examples/quickstart/Calculator.action">
+    <stripes:form action="/examples/quickstart/Calculator.action" focus="">
         <stripes:errors/>
         <table>
             <tr>
