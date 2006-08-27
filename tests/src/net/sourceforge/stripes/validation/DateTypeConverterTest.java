@@ -165,4 +165,16 @@ public class DateTypeConverterTest {
         Assert.assertEquals(0, errors.size());
         Assert.assertEquals(format.format(date), "03/01/2006");
     }
+
+    @Test(groups="fast")
+    public void testDateToStringFormat() {
+        Collection<ValidationError> errors = new ArrayList<ValidationError>();
+        DateTypeConverter converter = getConverter(Locale.US);
+        Date now = new Date();
+
+        Date date = converter.convert(now.toString(), Date.class, errors);
+        Assert.assertNotNull(date);
+        Assert.assertEquals(0, errors.size());
+        Assert.assertEquals(format.format(date), format.format(now));
+    }
 }
