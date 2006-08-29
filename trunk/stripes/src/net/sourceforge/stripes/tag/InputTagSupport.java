@@ -381,7 +381,7 @@ public abstract class InputTagSupport extends HtmlTagSupport {
             JspWriter out = getPageContext().getOut();
             out.write("<script type=\"text/javascript\">var z=document.getElementById('");
             out.write(getId());
-            out.write("'); z.focus(); z.select();</script>");
+            out.write("'); try{z.focus(); z.select();} catch(e) {}</script>");
         }
         catch (IOException ioe) {
             throw new StripesJspException("Could not write javascript focus code to jsp writer.", ioe);
