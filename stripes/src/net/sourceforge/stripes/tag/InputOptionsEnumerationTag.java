@@ -84,10 +84,22 @@ public class InputOptionsEnumerationTag extends InputOptionsCollectionTag {
             clazz = (Class<Enum>) ReflectUtil.findClass(this.className);
         }
         catch (Exception e) {
-            throw new StripesJspException
-                    ("Could not process class [" + this.className + "]. Attribute 'enum' on " +
-                            "tag options-enumeration must be the fully qualified name of a " +
-                            "class which is a java 1.5 enum.", e);
+            // Try replacing the last period with a $ just in case the enum in question
+            // is an inner class of another class
+            try {
+                int last = this.className.lastIndexOf('.');
+                if (last > 0) {
+                    String n2 = new StringBuilder(className).replace(last, last+1, "$").toString();
+                    clazz = ReflectUtil.findClass(n2);
+                }
+            }
+            // If our second attempt didn't work, wrap the *original* exception
+            catch (Exception e2) {
+                throw new StripesJspException
+                        ("Could not process class [" + this.className + "]. Attribute 'enum' on " +
+                         "tag options-enumeration must be the fully qualified name of a " +
+                         "class which is a java 1.5 enum.", e);
+            }
         }
 
         if (!clazz.isEnum()) {
