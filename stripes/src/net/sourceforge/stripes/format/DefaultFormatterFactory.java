@@ -21,7 +21,7 @@ import java.util.Locale;
 
 /**
  * Very simple default implementation of a formatter factory that is aware of how to format
- * dates and numbers.
+ * dates, numbers and enums.
  *
  * @author Tim Fennell
  */
@@ -66,6 +66,11 @@ public class DefaultFormatterFactory implements FormatterFactory {
             formatter.setFormatType(formatType);
             formatter.setFormatPattern(formatPattern);
             formatter.setLocale(locale);
+            formatter.init();
+            return formatter;
+        }
+        else if (clazz.isEnum()) {
+            formatter = new EnumFormatter();
             formatter.init();
             return formatter;
         }
