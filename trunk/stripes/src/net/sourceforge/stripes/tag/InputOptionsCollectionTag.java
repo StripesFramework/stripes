@@ -239,12 +239,26 @@ public class InputOptionsCollectionTag extends HtmlTagSupport implements Tag {
         tag.getAttributes().putAll(getAttributes());
 
         for (Entry entry : sortedEntries) {
-            tag.setLabel(entry.label.toString());
-            tag.setValue(entry.value);
-            tag.doStartTag();
-            tag.doInitBody();
-            tag.doAfterBody();
-            tag.doEndTag();
+                tag.setLabel(entry.label.toString());
+                tag.setValue(entry.value);
+            try {
+                tag.doStartTag();
+                tag.doInitBody();
+                tag.doAfterBody();
+                tag.doEndTag();
+            }
+            catch (Throwable t) {
+                /** Catch whatever comes back out of the doCatch() method and deal with it */
+                try { tag.doCatch(t); }
+                catch (Throwable t2) {
+                    if (t2 instanceof JspException) throw (JspException) t2;
+                    if (t2 instanceof RuntimeException) throw (RuntimeException) t2;
+                    else throw new StripesJspException(t2);
+                }
+            }
+            finally {
+                tag.doFinally();
+            }
         }
 
         // Clean up any temporary state
