@@ -45,6 +45,7 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
     private String formatType;
     private String formatPattern;
     private boolean focus;
+    private boolean syntheticId;
 
     /** A list of the errors related to this input tag instance */
     protected List<ValidationError> fieldErrors;
@@ -381,6 +382,7 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
         this.focus = focus;
 
         if ( getId() == null ) {
+            this.syntheticId = true;
             setId(String.valueOf( new Random().nextInt() ));
         }
     }
@@ -391,7 +393,16 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
             JspWriter out = getPageContext().getOut();
             out.write("<script type=\"text/javascript\">var z=document.getElementById('");
             out.write(getId());
-            out.write("'); try{z.focus(); z.select();} catch(e) {}</script>");
+            out.write("'); try{z.focus();");
+            if ("text".equals(getAttributes().get("type")) || "password".equals(getAttributes().get("type"))) {
+                out.write("z.select();");
+            }
+            out.write("} catch(e) {}</script>");
+
+            // Clean up tag state involved with focus
+            this.focus = false;
+            if (this.syntheticId) getAttributes().remove("id");
+            this.syntheticId = false;
         }
         catch (IOException ioe) {
             throw new StripesJspException("Could not write javascript focus code to jsp writer.", ioe);

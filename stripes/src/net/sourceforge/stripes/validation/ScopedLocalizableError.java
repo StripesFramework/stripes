@@ -33,8 +33,10 @@ import java.util.MissingResourceException;
  * <ul>
  *   <li>/cats/KittenDetail.action.age.outOfRange</li>
  *   <li>/cats/KittenDetail.action.age.errorMessage</li>
+ *   <li>age.outOfRange</li>
  *   <li>age.errorMessage</li>
  *   <li>/cats/KittenDetail.action.outOfRange</li>
+ *   <li>/cats/KittenDetail.action.errorMessage</li>
  *   <li>converter.integer.outOfRange</li>
  * </ul>
  *
@@ -73,32 +75,48 @@ public class ScopedLocalizableError extends LocalizableError {
      */
     @Override
     protected String getMessageTemplate(Locale locale) {
-        String name1=null, name2=null, name3=null, name4=null, name5=null;
+        String name1=null, name2=null, name3=null, name4=null, name5=null, name6=null, name7=null;
         name1 = getActionPath() + "." + getFieldName() + "." + key;
+
+        // 1. /cats/KittenDetail.action.age.outOfRange
         String template = LocalizationUtility.getErrorMessage(locale, name1);
 
         if (template == null) {
+            // 2. /cats/KittenDetail.action.age.errorMessage
             name2 = getActionPath() + "." + getFieldName() + "." + DEFAULT_NAME;
             template = LocalizationUtility.getErrorMessage(locale, name2);
         }
         if (template == null) {
-            name3 = getFieldName() + "." + DEFAULT_NAME;
+            // 3. age.outOfRange
+            name3 = getFieldName() + "." + key;
             template = LocalizationUtility.getErrorMessage(locale, name3);
         }
         if (template == null) {
-            name4 = getActionPath() + "." + key;
+            // 4. age.errorMessage
+            name4 = getFieldName() + "." + DEFAULT_NAME;
             template = LocalizationUtility.getErrorMessage(locale, name4);
         }
         if (template == null) {
-            name5 = defaultScope + "." + key;
+            // 5. /cats/KittenDetail.action.outOfRange
+            name5 = getActionPath() + "." + key;
             template = LocalizationUtility.getErrorMessage(locale, name5);
+        }
+        if (template == null) {
+            // 6. /cats/KittenDetail.action.errorMessage
+            name6 = getActionPath() + "." + DEFAULT_NAME;
+            template = LocalizationUtility.getErrorMessage(locale, name6);
+        }
+        if (template == null) {
+            // 7. converter.integer.outOfRange
+            name7 = defaultScope + "." + key;
+            template = LocalizationUtility.getErrorMessage(locale, name7);
         }
 
         if (template == null) {
             throw new MissingResourceException(
                     "Could not find an error message with any of the following keys: " +
                     "'" + name1 + "', '" + name2 + "', '" + name3 + "', '" +
-                    name4 + "', '" + name5 + "'.", null, null
+                    name4 + "', '" + name5 + "', '" + name6 + "', '" + name7 + "'.", null, null
             );
         }
 
