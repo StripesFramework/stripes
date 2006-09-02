@@ -87,12 +87,20 @@ public class InputTextAreaTag extends InputTagSupport implements BodyTag {
     public int doEndInputTag() throws JspException {
         try {
             // Find out if we have a value from the PopulationStrategy
-            Object value   = getSingleOverrideValue();
+            Object value = getSingleOverrideValue();
 
             writeOpenTag(getPageContext().getOut(), "textarea");
 
             // Write out the contents of the text area
             if (value != null) {
+                // Most browsers have this annoying habit of eating the first newline
+                // in a textarea tag. Since this is probably not desired, sometimes
+                // we need to add an extra newline into the output before the value
+                String body = getBodyContentAsString();
+                if (body == null || !body.equals(value)) {
+                    getPageContext().getOut().write('\n');
+                }
+
                 getPageContext().getOut().write( HtmlUtil.encode(format(value)) );
             }
 
