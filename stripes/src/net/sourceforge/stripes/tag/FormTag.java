@@ -30,6 +30,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.tagext.BodyTag;
+import javax.servlet.jsp.tagext.TryCatchFinally;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -44,7 +45,7 @@ import java.util.List;
  *
  * @author Tim Fennell
  */
-public class FormTag extends HtmlTagSupport implements BodyTag {
+public class FormTag extends HtmlTagSupport implements BodyTag, TryCatchFinally {
     /** Log used to log error and debugging information for this class. */
     private static Log log = Log.getInstance(FormTag.class);
 
@@ -227,11 +228,22 @@ public class FormTag extends HtmlTagSupport implements BodyTag {
         catch (IOException ioe) {
             throw new StripesJspException("IOException in FormTag.doEndTag().", ioe);
         }
-        finally {
-            getTagStack().pop();
-        }
 
         return EVAL_PAGE;
+    }
+
+    /** Rethrows the passed in throwable in all cases. */
+    public void doCatch(Throwable throwable) throws Throwable { throw throwable; }
+
+    /**
+     * Used to ensure that the form is always removed from the tag stack so that there is
+     * never any confusion about tag-parent hierarchies.
+     */
+    public void doFinally() {
+        try { getTagStack().pop(); }
+        catch (Throwable t) {
+            /* Supress anything, because otherwise this might mask any causal exception. */
+        }
     }
 
     /**

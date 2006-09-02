@@ -150,10 +150,24 @@ public class InputOptionsEnumerationTag extends HtmlTagSupport implements Tag {
 
                 tag.setLabel(label.toString());
                 tag.setValue(value);
-                tag.doStartTag();
-                tag.doInitBody();
-                tag.doAfterBody();
-                tag.doEndTag();
+				try {
+	                tag.doStartTag();
+	                tag.doInitBody();
+	                tag.doAfterBody();
+	                tag.doEndTag();
+				}
+				catch (Throwable t) {
+	                /** Catch whatever comes back out of the doCatch() method and deal with it */
+	                try { tag.doCatch(t); }
+	                catch (Throwable t2) {
+	                    if (t2 instanceof JspException) throw (JspException) t2;
+	                    if (t2 instanceof RuntimeException) throw (RuntimeException) t2;
+	                    else throw new StripesJspException(t2);
+	                }
+				}
+				finally {
+					tag.doFinally();
+				}
             }
         }
         catch (ExpressionException ee) {
