@@ -16,6 +16,7 @@ package net.sourceforge.stripes.tag;
 
 import net.sourceforge.stripes.controller.StripesConstants;
 import net.sourceforge.stripes.action.ActionBean;
+import net.sourceforge.stripes.exception.StripesJspException;
 
 import javax.servlet.jsp.JspException;
 import java.util.Set;
@@ -95,9 +96,23 @@ public class WizardFieldsTag extends StripesTagSupport {
 
                 if ( !excludes.contains(name) ) {
                     hidden.setName(name);
-                    hidden.doStartTag();
-                    hidden.doAfterBody();
-                    hidden.doEndTag();
+                    try {
+                        hidden.doStartTag();
+                        hidden.doAfterBody();
+                        hidden.doEndTag();
+                    }
+                    catch (Throwable t) {
+                        /** Catch whatever comes back out of the doCatch() method and deal with it */
+                        try { hidden.doCatch(t); }
+                        catch (Throwable t2) {
+                            if (t2 instanceof JspException) throw (JspException) t2;
+                            if (t2 instanceof RuntimeException) throw (RuntimeException) t2;
+                            else throw new StripesJspException(t2);
+                        }
+                    }
+                    finally {
+                        hidden.doFinally();
+                    }
                 }
             }
         }
