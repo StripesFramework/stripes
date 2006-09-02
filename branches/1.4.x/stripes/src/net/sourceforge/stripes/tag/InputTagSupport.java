@@ -26,6 +26,7 @@ import net.sourceforge.stripes.validation.BooleanTypeConverter;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
+import javax.servlet.jsp.tagext.TryCatchFinally;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
@@ -40,7 +41,7 @@ import java.io.IOException;
  *
  * @author Tim Fennell
  */
-public abstract class InputTagSupport extends HtmlTagSupport {
+public abstract class InputTagSupport extends HtmlTagSupport implements TryCatchFinally {
     private String formatType;
     private String formatPattern;
     private boolean focus;
@@ -337,26 +338,35 @@ public abstract class InputTagSupport extends HtmlTagSupport {
      * @return int the value returned by the child class from doStartInputTag()
      */
     public final int doEndTag() throws JspException {
-        try {
-            int result = doEndInputTag();
+        int result = doEndInputTag();
 
-            if (getFieldErrors() != null) {
-                this.errorRenderer.doAfterEndTag();
-            }
-
-            if (this.focus) {
-                makeFocused();
-            }
-
-            this.errorRenderer = null;
-            this.fieldErrors = null;
-            this.fieldErrorsLoaded = false;
-            this.focus = false;
-
-            return result;
+        if (getFieldErrors() != null) {
+            this.errorRenderer.doAfterEndTag();
         }
-        finally {
-            getTagStack().pop();
+
+        if (this.focus) {
+            makeFocused();
+        }
+
+        this.errorRenderer = null;
+        this.fieldErrors = null;
+        this.fieldErrorsLoaded = false;
+        this.focus = false;
+
+        return result;
+    }
+
+    /** Rethrows the passed in throwable in all cases. */
+    public void doCatch(Throwable throwable) throws Throwable { throw throwable; }
+
+    /**
+     * Used to ensure that the input tag is always removed from the tag stack so that there is
+     * never any confusion about tag-parent hierarchies.
+     */
+    public void doFinally() {
+        try { getTagStack().pop(); }
+        catch (Throwable t) {
+            /* Supress anything, because otherwise this might mask any causal exception. */
         }
     }
 
