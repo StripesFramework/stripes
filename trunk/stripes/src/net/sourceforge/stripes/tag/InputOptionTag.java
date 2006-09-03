@@ -15,6 +15,7 @@
 package net.sourceforge.stripes.tag;
 
 import net.sourceforge.stripes.exception.StripesJspException;
+import net.sourceforge.stripes.util.HtmlUtil;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.BodyTag;
@@ -127,7 +128,7 @@ public class InputOptionTag extends InputTagSupport implements BodyTag {
         try {
             writeOpenTag(getPageContext().getOut(), "option");
             if (actualLabel != null) {
-                getPageContext().getOut().write(actualLabel);
+                getPageContext().getOut().write(HtmlUtil.encode(actualLabel));
             }
             writeCloseTag(getPageContext().getOut(), "option");
 
