@@ -28,6 +28,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.lang.reflect.Method;
 
 /**
  * <p>Builds a set of JavaScript statements that will re-construct the value of a Java object,
@@ -160,11 +161,15 @@ public class JavaScriptBuilder {
 
     /**
      * Returns true if the supplied type should be excluded from conversion, otherwise
-     * returns false.
+     * returns false.  A class should be excluded if it is assignable to one of the types
+     * listed for exclusion, or, it is an array of such a type.
      */
     public boolean isExcludedType(Class<?> type) {
         for (Class<?> excludedType : this.excludeClasses) {
             if (excludedType.isAssignableFrom(type)) {
+                return true;
+            }
+            else if (type.isArray() && excludedType.isAssignableFrom(type.getComponentType())) {
                 return true;
             }
         }
@@ -329,22 +334,25 @@ public class JavaScriptBuilder {
 
         for (PropertyDescriptor property : props) {
             try {
-                Object value = property.getReadMethod().invoke(in);
+                Method readMethod = property.getReadMethod();
+                if (readMethod != null) {
+                    Object value = property.getReadMethod().invoke(in);
 
-                if (isExcludedType(property.getPropertyType()) || value == null) {
-                    continue;
-                }
-
-                if (isScalarType(value)) {
-                    if (out.length() > 1) {
-                        out.append(", ");
+                    if (isExcludedType(property.getPropertyType()) || value == null) {
+                        continue;
                     }
-                    out.append(property.getName());
-                    out.append(":");
-                    out.append( getScalarAsString(value) );
-                }
-                else {
-                    buildNode(targetName + "." + property.getName(), value);
+
+                    if (isScalarType(value)) {
+                        if (out.length() > 1) {
+                            out.append(", ");
+                        }
+                        out.append(property.getName());
+                        out.append(":");
+                        out.append( getScalarAsString(value) );
+                    }
+                    else {
+                        buildNode(targetName + "." + property.getName(), value);
+                    }
                 }
             }
             catch (Exception e) {
