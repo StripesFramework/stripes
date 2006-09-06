@@ -1,13 +1,12 @@
 package net.sourceforge.stripes.integration.spring;
 
-import net.sourceforge.stripes.test.TestBean;
-import net.sourceforge.stripes.test.TestActionBean;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
+import net.sourceforge.stripes.test.TestActionBean;
+import net.sourceforge.stripes.test.TestBean;
 import org.springframework.context.support.StaticApplicationContext;
-import org.testng.annotations.Configuration;
-import org.testng.annotations.Test;
-import org.testng.annotations.ExpectedExceptions;
 import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 /**
  * Unit tests for the SpringHelper class that injects spring managed beans
@@ -18,7 +17,7 @@ import org.testng.Assert;
 public class SpringHelperTests {
     StaticApplicationContext ctx;
 
-    @Configuration(beforeTestClass=true, alwaysRun=true)
+    @BeforeClass(alwaysRun=true)
     protected void setupSpringContext() {
         ctx = new StaticApplicationContext();
         ctx.registerSingleton("test/TestBean", TestBean.class);
@@ -134,6 +133,18 @@ public class SpringHelperTests {
 
     ///////////////////////////////////////////////////////////////////////////
 
+    private static class DerivedFromImplicitFieldTarget extends ImplicitFieldTarget {
+    }
+
+    @Test(groups="fast")
+    public void testDerivedFromImplicitFieldInjection() {
+        DerivedFromImplicitFieldTarget target = new DerivedFromImplicitFieldTarget();
+        SpringHelper.injectBeans(target, ctx);
+        Assert.assertNotNull(target.getBean());
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+
     private static class ByTypeTarget {
         @SpringBean private TestBean someBeanOrOther;
         TestBean getBean() { return someBeanOrOther; }
@@ -177,7 +188,7 @@ public class SpringHelperTests {
         @SpringBean TestActionBean someBeanOrOther;
     }
 
-    @Test(groups="fast") @ExpectedExceptions(StripesRuntimeException.class)
+    @Test(groups="fast", expectedExceptions=StripesRuntimeException.class)
     public void testAmbiguousByTypeInjection() {
         AmbiguousByTypeTarget target = new AmbiguousByTypeTarget();
         SpringHelper.injectBeans(target, ctx);
@@ -189,7 +200,7 @@ public class SpringHelperTests {
         @SpringBean("nonExistentBean") TestActionBean someBeanOrOther;
     }
 
-    @Test(groups="fast") @ExpectedExceptions(StripesRuntimeException.class)
+    @Test(groups="fast", expectedExceptions=StripesRuntimeException.class)
     public void testExplicitMisNamedTargetInjection() {
     ExplicitMisNamedTarget target = new ExplicitMisNamedTarget();
         SpringHelper.injectBeans(target, ctx);
@@ -201,7 +212,7 @@ public class SpringHelperTests {
         @SpringBean TestActionBean tstActionBea;
     }
 
-    @Test(groups="fast") @ExpectedExceptions(StripesRuntimeException.class)
+    @Test(groups="fast", expectedExceptions=StripesRuntimeException.class)
     public void testImplicitMisNamedTargetInjection() {
         ImplicitMisNamedTarget target = new ImplicitMisNamedTarget();
         SpringHelper.injectBeans(target, ctx);
@@ -213,7 +224,7 @@ public class SpringHelperTests {
         @SpringBean SpringHelperTests noBeansOfType;
     }
 
-    @Test(groups="fast") @ExpectedExceptions(StripesRuntimeException.class)
+    @Test(groups="fast", expectedExceptions=StripesRuntimeException.class)
     public void testNoBeansOfTargetTypeInjection() {
         NoBeanOfTypeTarget target = new NoBeanOfTypeTarget();
         SpringHelper.injectBeans(target, ctx);
@@ -229,7 +240,7 @@ public class SpringHelperTests {
         }
     }
 
-    @Test(groups="fast") @ExpectedExceptions(StripesRuntimeException.class)
+    @Test(groups="fast", expectedExceptions=StripesRuntimeException.class)
     public void testInvalidSetterSignatureInjection() {
         InvalidSetterSignatureTarget target = new InvalidSetterSignatureTarget();
         SpringHelper.injectBeans(target, ctx);
