@@ -303,14 +303,15 @@ public class DispatcherServlet extends HttpServlet {
 
     /**
      * Restores the previous value of the 'actionBean' attribute in the request. If no
-     * ActionBeans have been saved using {@link #saveActionBean(HttpServletRequest)} then
-     * this revertst the 'actionBean' to null.
+     * ActionBeans have been saved using {@link #saveActionBean(HttpServletRequest)} then this
+     * method has no effect.
      *
      * @param request the current HttpServletRequest
      */
     protected void restoreActionBean(HttpServletRequest request) {
         Stack stack = getActionBeanStack(request, false);
-        Object previous = (stack != null && !stack.empty()) ? stack.pop() : null;
-        request.setAttribute(StripesConstants.REQ_ATTR_ACTION_BEAN, previous);
+        if (stack != null && !stack.empty()) {
+            request.setAttribute(StripesConstants.REQ_ATTR_ACTION_BEAN, stack.pop());
+        }
     }
 }
