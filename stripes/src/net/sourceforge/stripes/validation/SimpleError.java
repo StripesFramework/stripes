@@ -153,31 +153,24 @@ public class SimpleError extends SimpleMessage implements ValidationError {
         return actionPath;
     }
 
-    /** Generated equals method that checks all fields for equality. */
+    /** Generated equals method that ensures the message, field, parameters and action path are all equal. */
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
 
         final SimpleError that = (SimpleError) o;
 
-        if (actionPath != null ? !actionPath.equals(that.actionPath) : that.actionPath != null) {
-            return false;
-        }
-        if (fieldNameKey != null ? !fieldNameKey.equals(that.fieldNameKey) : that.fieldNameKey != null) {
-            return false;
-        }
+        if (actionPath != null ? !actionPath.equals(that.actionPath) : that.actionPath != null) return false;
+        if (fieldNameKey != null ? !fieldNameKey.equals(that.fieldNameKey) : that.fieldNameKey != null) return false;
 
         return true;
     }
 
-    /** Generated hashCode() method. */
+    /** Hashcode based on the message, field name key, action path and parameters. */
     public int hashCode() {
         int result = super.hashCode();
-        result = (fieldNameKey != null ? fieldNameKey.hashCode() : 0);
+        result = 29 * result + (fieldNameKey != null ? fieldNameKey.hashCode() : 0);
         result = 29 * result + (actionPath != null ? actionPath.hashCode() : 0);
         return result;
     }
