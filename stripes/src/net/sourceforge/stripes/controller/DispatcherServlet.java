@@ -131,8 +131,8 @@ public class DispatcherServlet extends HttpServlet {
 
 
             // Resolve the ActionBean, and if an interceptor returns a resolution, bail now
-            Resolution resolution = resolveActionBean(ctx);
             saveActionBean(request);
+            Resolution resolution = resolveActionBean(ctx);
 
             if (resolution == null) {
                 resolution = resolveHandler(ctx);
@@ -303,15 +303,14 @@ public class DispatcherServlet extends HttpServlet {
 
     /**
      * Restores the previous value of the 'actionBean' attribute in the request. If no
-     * ActionBeans have been saved using {@link #saveActionBean(HttpServletRequest)} then this
-     * method has no effect.
+     * ActionBeans have been saved using {@link #saveActionBean(HttpServletRequest)} then
+     * this revertst the 'actionBean' to null.
      *
      * @param request the current HttpServletRequest
      */
     protected void restoreActionBean(HttpServletRequest request) {
         Stack stack = getActionBeanStack(request, false);
-        if (stack != null && !stack.empty()) {
-            request.setAttribute(StripesConstants.REQ_ATTR_ACTION_BEAN, stack.pop());
-        }
+        Object previous = (stack != null && !stack.empty()) ? stack.pop() : null;
+        request.setAttribute(StripesConstants.REQ_ATTR_ACTION_BEAN, previous);
     }
 }
