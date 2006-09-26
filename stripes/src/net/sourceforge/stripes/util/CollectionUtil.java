@@ -41,4 +41,18 @@ public class CollectionUtil {
 
         return false;
     }
+
+    /**
+     * Checks to see if the array contains any values that are non-null non empty-string values.
+     * If it does, returns false.  Returns true for null arrays and zero length arrays, as well
+     * as for arrays consisting only of nulls and empty strings.
+     */
+    public static boolean empty(String[] arr) {
+        if (arr == null || arr.length == 0) return true;
+        for (String s : arr) {
+            if (s != null && !"".equals(s)) return false;
+        }
+
+        return true;
+    }
 }
