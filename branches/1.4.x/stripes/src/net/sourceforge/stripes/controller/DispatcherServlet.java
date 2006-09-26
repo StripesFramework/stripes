@@ -131,8 +131,8 @@ public class DispatcherServlet extends HttpServlet {
 
 
             // Resolve the ActionBean, and if an interceptor returns a resolution, bail now
-            Resolution resolution = resolveActionBean(ctx);
             saveActionBean(request);
+            Resolution resolution = resolveActionBean(ctx);
 
             if (resolution == null) {
                 resolution = resolveHandler(ctx);

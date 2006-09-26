@@ -94,23 +94,25 @@ public class InputHiddenTag extends InputTagSupport implements BodyTag {
         Object valueOrValues = getOverrideValueOrValues();
 
         // Figure out how many times to write it out
-        if (valueOrValues != null) {
-            if (valueOrValues.getClass().isArray()) {
-                for (Object value : (Object[]) valueOrValues) {
-                    getAttributes().put("value", format(value));
-                    writeSingletonTag(getPageContext().getOut(), "input");
-                }
-            }
-            else if (valueOrValues instanceof Collection) {
-                for (Object value : (Collection) valueOrValues) {
-                    getAttributes().put("value", format(value));
-                    writeSingletonTag(getPageContext().getOut(), "input");
-                }
-            }
-            else {
-                getAttributes().put("value", format(valueOrValues));
+        if (valueOrValues == null) {
+            getAttributes().put("value", "");
+            writeSingletonTag(getPageContext().getOut(), "input");
+        }
+        else if (valueOrValues.getClass().isArray()) {
+            for (Object value : (Object[]) valueOrValues) {
+                getAttributes().put("value", format(value));
                 writeSingletonTag(getPageContext().getOut(), "input");
             }
+        }
+        else if (valueOrValues instanceof Collection) {
+            for (Object value : (Collection) valueOrValues) {
+                getAttributes().put("value", format(value));
+                writeSingletonTag(getPageContext().getOut(), "input");
+            }
+        }
+        else {
+            getAttributes().put("value", format(valueOrValues));
+            writeSingletonTag(getPageContext().getOut(), "input");
         }
 
         // Clear out the value from the attributes

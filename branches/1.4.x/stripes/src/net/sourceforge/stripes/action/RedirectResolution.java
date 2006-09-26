@@ -153,7 +153,7 @@ public class RedirectResolution extends OnwardResolution<RedirectResolution> imp
 
         // Prepend the context path if required
         String url = getUrl();
-        if (this.prependContext) {
+        if ( this.prependContext && !"/".equals(request.getContextPath()) ) {
             url = request.getContextPath() + url;
         }
 
