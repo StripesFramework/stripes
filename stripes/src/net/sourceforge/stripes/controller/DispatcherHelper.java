@@ -7,6 +7,7 @@ import net.sourceforge.stripes.action.Resolution;
 import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.exception.StripesServletException;
 import net.sourceforge.stripes.util.Log;
+import net.sourceforge.stripes.util.HtmlUtil;
 import net.sourceforge.stripes.validation.Validatable;
 import net.sourceforge.stripes.validation.ValidationError;
 import net.sourceforge.stripes.validation.ValidationErrorHandler;
@@ -372,7 +373,10 @@ public class DispatcherHelper {
                     // This is done to fill in parameter values for any errors the user
                     // created and didn't add values to
                     if (error.getFieldValue() == null) {
-                        error.setFieldValue(request.getParameter(parameterName));
+                        error.setFieldValue(HtmlUtil.encode(request.getParameter(parameterName)));
+                    }
+                    else {
+                        error.setFieldValue(HtmlUtil.encode(error.getFieldValue()));
                     }
                 }
             }

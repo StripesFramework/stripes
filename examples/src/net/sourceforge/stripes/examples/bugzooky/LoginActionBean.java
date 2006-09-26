@@ -4,7 +4,6 @@ import net.sourceforge.stripes.action.RedirectResolution;
 import net.sourceforge.stripes.action.Resolution;
 import net.sourceforge.stripes.examples.bugzooky.biz.Person;
 import net.sourceforge.stripes.examples.bugzooky.biz.PersonManager;
-import net.sourceforge.stripes.examples.bugzooky.BugzookyActionBean;
 import net.sourceforge.stripes.validation.LocalizableError;
 import net.sourceforge.stripes.validation.Validate;
 import net.sourceforge.stripes.validation.ValidationError;
@@ -48,7 +47,7 @@ public class LoginActionBean extends BugzookyActionBean {
         Person person = pm.getPerson(this.username);
 
         if (person == null) {
-            ValidationError error = new LocalizableError("usernameDoesNotExist", username);
+            ValidationError error = new LocalizableError("usernameDoesNotExist");
             getContext().getValidationErrors().add("username", error);
             return getContext().getSourcePageResolution();
         }
