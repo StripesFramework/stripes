@@ -14,10 +14,7 @@
  */
 package net.sourceforge.stripes.action;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.FileInputStream;
+import java.io.*;
 
 /**
  * <p>Represents a file that was submitted as part of an HTTP POST request.  Provides methods for
@@ -97,8 +94,10 @@ public class FileBean {
     }
 
     /**
-     * Saves the uploaded file to the location on disk represented by File.  This is currently
-     * implemented as a simple rename of the underlying file that was created during upload.
+     * Saves the uploaded file to the location on disk represented by File.  First attemps a
+     * simple rename of the underlying file that was created during upload as this is the
+     * most efficient route. If the rename fails an attempt is made to copy the file bit
+     * by bit to the new File and then the temporary file is removed.
      *
      * @param toFile a File object representing a location
      * @throws IOException if the save will fail for a reason that we can detect up front, for
@@ -119,19 +118,47 @@ public class FileBean {
                     + this.file.getAbsolutePath() + " - writability is required to move the file.");
         }
 
+        File parent = toFile.getAbsoluteFile().getParentFile();
         if (toFile.exists() && !toFile.canWrite()) {
             throw new IOException("Cannot overwrite existing file at "+ toFile.getAbsolutePath());
         }
-        else if (!toFile.exists() && !toFile.getAbsoluteFile().getParentFile().canWrite()) {
+        else if (!parent.exists() && !parent.mkdirs()) {
+            throw new IOException("Parent directory of specified file does not exist and cannot " +
+                " be created. File location supplied: " + toFile.getAbsolutePath());
+        }
+        else if (!toFile.exists() && !parent.canWrite()) {
             throw new IOException("Cannot create new file at location: " + toFile.getAbsolutePath());
         }
 
         this.saved = this.file.renameTo(toFile);
 
+        // If the rename didn't work, try copying the darn thing bit by bit
         if (this.saved == false) {
-            throw new IOException("Tried to save file [" + this.file.getAbsolutePath() + "] to file ["
-            + toFile.getAbsolutePath() + "but got a false from File.renameTo(File).");
+            saveViaCopy(toFile);
         }
+    }
+
+    /**
+     * Attempts to save the uploaded file to the specified file by performing a stream
+     * based copy. This is only used when a rename cannot be executed, e.g. because the
+     * target file is on a different file system than the temporary file.
+     *
+     * @param toFile the file to save to
+     */
+    protected void saveViaCopy(File toFile) throws IOException {
+        BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(toFile));
+        BufferedInputStream   in = new BufferedInputStream(new FileInputStream(this.file));
+
+        int b;
+        while ((b = in.read()) != -1) {
+            out.write(b);
+        }
+
+        in.close();
+        out.close();
+
+        this.file.delete();
+        this.saved = true;
     }
 
     /**
