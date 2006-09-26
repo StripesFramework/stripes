@@ -14,14 +14,15 @@
  */
 package net.sourceforge.stripes.tag;
 
-import net.sourceforge.stripes.controller.StripesConstants;
 import net.sourceforge.stripes.action.ActionBean;
+import net.sourceforge.stripes.controller.StripesConstants;
 import net.sourceforge.stripes.exception.StripesJspException;
+import net.sourceforge.stripes.util.CollectionUtil;
 
 import javax.servlet.jsp.JspException;
-import java.util.Set;
 import java.util.HashSet;
-import java.util.Enumeration;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * <p>Examines the request and include hidden fields for all parameters that have do
@@ -63,6 +64,7 @@ public class WizardFieldsTag extends StripesTagSupport {
         excludes.addAll( form.getRegisteredFields() );
         excludes.add( StripesConstants.URL_KEY_SOURCE_PAGE );
         excludes.add( StripesConstants.URL_KEY_FIELDS_PRESENT );
+        excludes.add( StripesConstants.URL_KEY_EVENT_NAME );
 
         // Use the submitted action bean to eliminate any event related parameters
         ActionBean submittedActionBean = (ActionBean)
@@ -90,11 +92,12 @@ public class WizardFieldsTag extends StripesTagSupport {
             hidden.setParent( getParent() );
 
             // Loop through the request parameters and output the values
-            Enumeration<String> parameterNames = getPageContext().getRequest().getParameterNames();
-            while ( parameterNames.hasMoreElements() ) {
-                String name = parameterNames.nextElement();
+            Map<String,String[]> params = getPageContext().getRequest().getParameterMap();
+            for (Map.Entry<String,String[]> entry : params.entrySet()) {
+                String name = entry.getKey();
+                String[] values = entry.getValue();
 
-                if ( !excludes.contains(name) ) {
+                if ( !excludes.contains(name) && !CollectionUtil.empty(values)  ) {
                     hidden.setName(name);
                     try {
                         hidden.doStartTag();
