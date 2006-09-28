@@ -357,10 +357,11 @@ public class DispatcherHelper {
     public static void fillInValidationErrors(ExecutionContext ctx) {
         ActionBeanContext context = ctx.getActionBeanContext();
         ValidationErrors errors = context.getValidationErrors();
-        HttpServletRequest request = context.getRequest();
 
         if (errors.size() > 0) {
-            String formAction = (String) request.getAttribute(ActionResolver.RESOLVED_ACTION);
+            String formAction = StripesFilter.getConfiguration().getActionResolver()
+                    .getUrlBinding(ctx.getActionBean().getClass());
+            HttpServletRequest request = ctx.getActionBeanContext().getRequest();
 
             /** Since we don't pass form action down the stack, we add it to the errors here. */
             for (Map.Entry<String, List<ValidationError>> entry : errors.entrySet()) {
@@ -368,15 +369,17 @@ public class DispatcherHelper {
                 List<ValidationError> listOfErrors = entry.getValue();
 
                 for (ValidationError error : listOfErrors) {
-                    error.setActionPath(formAction);
+                    // Make sure we process each error only once, no matter how often we're called
+                    if (error.getActionPath() == null) {
+                        error.setActionPath(formAction);
 
-                    // This is done to fill in parameter values for any errors the user
-                    // created and didn't add values to
-                    if (error.getFieldValue() == null) {
-                        error.setFieldValue(HtmlUtil.encode(request.getParameter(parameterName)));
-                    }
-                    else {
-                        error.setFieldValue(HtmlUtil.encode(error.getFieldValue()));
+                        // If the value isn't set, set it, otherwise encode the one that's there
+                        if (error.getFieldValue() == null) {
+                            error.setFieldValue(HtmlUtil.encode(request.getParameter(parameterName)));
+                        }
+                        else {
+                            error.setFieldValue(HtmlUtil.encode(error.getFieldValue()));
+                        }
                     }
                 }
             }
