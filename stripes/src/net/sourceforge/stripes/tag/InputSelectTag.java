@@ -15,6 +15,7 @@
 package net.sourceforge.stripes.tag;
 
 import net.sourceforge.stripes.exception.StripesJspException;
+import net.sourceforge.stripes.validation.BooleanTypeConverter;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.BodyTag;
@@ -35,8 +36,25 @@ public class InputSelectTag extends InputTagSupport implements BodyTag {
     private Object value;
     private Object selectedValueOrValues;
 
-    /** Sets the HTML attribute &quot;multiple&quot;. **/
-    public void setMultiple(String multiple) { set("multiple", multiple); }
+    /**
+     * If the text value passed in matches the empty string or (ignoring case) "multiple",
+     * or if the value can be converted to true by the {@link BooleanTypeConverter} then the
+     * attribute will be set to "multiple", otherwise the attribute will not be output.
+     */
+    public void setMultiple(String multiple) {
+        boolean isMultiple = "multiple".equalsIgnoreCase(multiple) || "".equals(multiple);
+        if (!isMultiple) {
+            BooleanTypeConverter converter = new BooleanTypeConverter();
+            isMultiple = converter.convert(multiple, Boolean.class, null);
+        }
+
+        if (isMultiple) {
+            set("multiple", "multiple");
+        }
+        else {
+            getAttributes().remove("multiple");
+        }
+    }
 
     /** Gets the HTML attribute &quot;multiple&quot;. **/
     public String getMultiple() { return get("multiple"); }
