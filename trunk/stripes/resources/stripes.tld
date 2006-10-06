@@ -1485,8 +1485,10 @@
         <attribute><description>@disabled@</description><name>disabled</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
         <attribute>
             <description>
-                The presence of this attribute will make the select render as a multi-select list
-                instead of a drop-down single-select widget. (HTML Pass-through)
+                If the value passed in matches the empty string or (ignoring case) "multiple",
+                or if the value can reasonably be converted to true then the attribute will be
+                rendered as multiple="multiple" causing the select to render as a multi-select.
+                In all other cases the attribute will be omitted.
             </description>
             <name>multiple</name><required>false</required><rtexprvalue>true</rtexprvalue>
         </attribute>
