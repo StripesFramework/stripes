@@ -1,3 +1,17 @@
+/* Copyright 2005-2006 Tim Fennell
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package net.sourceforge.stripes.controller;
 
 import net.sourceforge.stripes.action.ActionBean;
@@ -6,8 +20,8 @@ import net.sourceforge.stripes.action.DontValidate;
 import net.sourceforge.stripes.action.Resolution;
 import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.exception.StripesServletException;
-import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.util.HtmlUtil;
+import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.validation.Validatable;
 import net.sourceforge.stripes.validation.ValidationError;
 import net.sourceforge.stripes.validation.ValidationErrorHandler;
@@ -18,16 +32,21 @@ import net.sourceforge.stripes.validation.ValidationState;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.PageContext;
 import java.lang.reflect.Method;
+import java.lang.ref.WeakReference;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.WeakHashMap;
 
 /**
- * 
+ * Helper class that contains much of the logic used when dispatching requests in Stripes.
+ * Used primarily by the DispatcherSerlvet, but also by the UseActionBean tag.
+ *
+ * @author Tim Fennell
  */
 public class DispatcherHelper {
     private static final Log log = Log.getInstance(DispatcherHelper.class);
@@ -38,15 +57,29 @@ public class DispatcherHelper {
      * to a particular ActionBean.  The Map will contain a zero length array for ActionBeans
      * that do not have any valiation methods.
      */
-    private static final Map<Class,Method[]> customValidations = new ConcurrentHashMap<Class, Method[]>();
+    private static final Map<Class, WeakReference<Method[]>> customValidations =
+            Collections.synchronizedMap(new WeakHashMap<Class, WeakReference<Method[]>>());
 
     /** A place to hide a page context object so that we can get access to EL classes. */
     private static ThreadLocal<PageContext> pageContextStash = new ThreadLocal<PageContext>();
 
+    /**
+     * Should be called prior to invoking validation related methods to provide the helper
+     * with access to a PageContext object that can be used to manufacture expression
+     * evaluator instances.
+     *
+     * @param ctx a page context object supplied by the container
+     */
     public static void setPageContext(PageContext ctx) {
         pageContextStash.set(ctx);
     }
 
+    /**
+     * Used by the validation subsystem to access a page context that can be used to
+     * create an expression evaluator for use in the expression validation code.
+     *
+     * @return a page context object if one was set with setPageContext()
+     */
     public static PageContext getPageContext() {
         return pageContextStash.get();
     }
@@ -272,7 +305,9 @@ public class DispatcherHelper {
      *         an empty array, but never null.
      */
     public static Method[] findCustomValidationMethods(Class<? extends ActionBean> type) throws Exception {
-        Method[] validations = customValidations.get(type);
+        Method[] validations = null;
+        WeakReference<Method[]> ref = customValidations.get(type);
+        if (ref != null) validations = ref.get();
 
         // Lazily examine the ActionBean and collect this information
         if (validations == null) {
@@ -310,7 +345,7 @@ public class DispatcherHelper {
             }
 
             validations = validationMethods.toArray(new Method[validationMethods.size()]);
-            customValidations.put(type, validations);
+            customValidations.put(type, new WeakReference(validations));
         }
 
         return validations;
