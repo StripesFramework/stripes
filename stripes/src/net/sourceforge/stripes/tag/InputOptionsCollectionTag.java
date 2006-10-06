@@ -189,14 +189,15 @@ public class InputOptionsCollectionTag extends HtmlTagSupport implements Tag {
                 Object value = (valueProperty == null) ? item : BeanUtil.getPropertyValue(valueProperty, item);
 
                 // Try to localize the label
+                String packageName = clazz.getPackage() == null ? "" : clazz.getPackage().getName();
                 String localizedLabel = null;
                 if (label != null) {
                     localizedLabel = LocalizationUtility.getLocalizedFieldName
-                        (clazz.getSimpleName() + "."  + label, clazz.getPackage().getName(), locale);
+                        (clazz.getSimpleName() + "."  + label, packageName, locale);
                 }
                 if (localizedLabel == null && value != null) {
                     localizedLabel = LocalizationUtility.getLocalizedFieldName
-                        (clazz.getSimpleName() + "."  + value, clazz.getPackage().getName(), locale);
+                        (clazz.getSimpleName() + "."  + value, packageName, locale);
                 }
                 if (localizedLabel != null) label = localizedLabel;
 
