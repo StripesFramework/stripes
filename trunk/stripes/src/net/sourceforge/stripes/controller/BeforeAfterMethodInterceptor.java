@@ -115,8 +115,12 @@ public class BeforeAfterMethodInterceptor implements Interceptor {
 
         // Run After filter methods (if any)
         ActionBean bean = context.getActionBean();
-		FilterMethods filterMethods = getFilterMethods(bean.getClass());
+        FilterMethods filterMethods = getFilterMethods(bean.getClass());
 		List<Method> afterMethods = filterMethods.getAfterMethods(stage);
+
+        // Re-get the event name in case we're executing after handler resolution
+        // in which case the name will have been null before, and non-null now
+        event = abc == null ? null : abc.getEventName();
 
         Resolution overrideResolution = null;
         for (Method method : afterMethods) {
