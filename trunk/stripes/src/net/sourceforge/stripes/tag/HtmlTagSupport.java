@@ -190,10 +190,14 @@ public abstract class HtmlTagSupport extends StripesTagSupport implements Dynami
      */
     protected void writeAttributes(JspWriter writer) throws IOException {
         for (Map.Entry<String,String> attr: getAttributes().entrySet() ) {
+            // Skip the output of blank attributes!
+            String value = attr.getValue();
+            if (value == null || value.length() == 0) continue;
+
             writer.print(" ");
             writer.print(attr.getKey());
             writer.print("=\"");
-            writer.print( HtmlUtil.encode(attr.getValue()) );
+            writer.print( HtmlUtil.encode(value) );
             writer.print("\"");
         }
     }
