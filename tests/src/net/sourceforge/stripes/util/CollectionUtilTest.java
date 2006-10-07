@@ -43,4 +43,14 @@ public class CollectionUtilTest {
     public void testEmptyOnNonEmptyCollection3() {
         Assert.assertFalse(CollectionUtil.empty(new String[] {"bar", "splat", "foo"}));
     }
+
+    @Test(groups="fast")
+    public void testApplies() {
+        Assert.assertTrue(CollectionUtil.applies(null, "foo"));
+        Assert.assertTrue(CollectionUtil.applies(new String[] {}, "foo"));
+        Assert.assertTrue(CollectionUtil.applies(new String[] {"bar", "foo"}, "foo"));
+        Assert.assertFalse(CollectionUtil.applies(new String[] {"bar", "f00"}, "foo"));
+        Assert.assertFalse(CollectionUtil.applies(new String[] {"!bar", "!foo"}, "foo"));
+        Assert.assertTrue(CollectionUtil.applies(new String[] {"!bar", "!f00"}, "foo"));
+    }
 }
