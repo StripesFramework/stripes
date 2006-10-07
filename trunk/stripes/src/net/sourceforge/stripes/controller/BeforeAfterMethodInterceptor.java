@@ -18,8 +18,10 @@ import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.action.After;
 import net.sourceforge.stripes.action.Before;
 import net.sourceforge.stripes.action.Resolution;
+import net.sourceforge.stripes.action.ActionBeanContext;
 import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.util.ReflectUtil;
+import net.sourceforge.stripes.util.CollectionUtil;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
@@ -87,6 +89,8 @@ public class BeforeAfterMethodInterceptor implements Interceptor {
      */
 	public Resolution intercept(ExecutionContext context) throws Exception {
 		LifecycleStage stage = context.getLifecycleStage();
+        ActionBeanContext abc = context.getActionBeanContext();
+        String event = abc == null ? null : abc.getEventName();
         Resolution resolution = null;
 
 		// Run @Before methods, as long as there's a bean to run them on
@@ -96,9 +100,12 @@ public class BeforeAfterMethodInterceptor implements Interceptor {
 			List<Method> beforeMethods = filterMethods.getBeforeMethods(stage);
 
             for (Method method : beforeMethods) {
-                resolution = invoke(bean, method, stage, Before.class);
-                if (resolution != null) {
-                    return resolution;
+                String[] on = method.getAnnotation(Before.class).on();
+                if (event == null || CollectionUtil.applies(on, event)) {
+                    resolution = invoke(bean, method, stage, Before.class);
+                    if (resolution != null) {
+                        return resolution;
+                    }
                 }
             }
         }
@@ -113,9 +120,12 @@ public class BeforeAfterMethodInterceptor implements Interceptor {
 
         Resolution overrideResolution = null;
         for (Method method : afterMethods) {
-            overrideResolution = invoke(bean, method, stage, After.class);
-            if (overrideResolution != null) {
-                return overrideResolution;
+            String[] on = method.getAnnotation(After.class).on();
+            if (event == null || CollectionUtil.applies(on, event)) {
+                overrideResolution = invoke(bean, method, stage, After.class);
+                if (overrideResolution != null) {
+                    return overrideResolution;
+                }
             }
         }
 
@@ -215,12 +225,12 @@ public class BeforeAfterMethodInterceptor implements Interceptor {
 
                     if (method.isAnnotationPresent(Before.class)) {
                             Before annotation = method.getAnnotation(Before.class);
-                            filterMethods.addBeforeMethod(annotation.value(), method);
+                            filterMethods.addBeforeMethod(annotation.stages(), method);
                     }
 
                     if (method.isAnnotationPresent(After.class)) {
                         After annotation = method.getAnnotation(After.class);
-                        filterMethods.addAfterMethod(annotation.value(), method);
+                        filterMethods.addAfterMethod(annotation.stages(), method);
                     }
                 }
             }

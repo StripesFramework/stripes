@@ -22,6 +22,7 @@ import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.exception.StripesServletException;
 import net.sourceforge.stripes.util.HtmlUtil;
 import net.sourceforge.stripes.util.Log;
+import net.sourceforge.stripes.util.CollectionUtil;
 import net.sourceforge.stripes.validation.Validatable;
 import net.sourceforge.stripes.validation.ValidationError;
 import net.sourceforge.stripes.validation.ValidationErrorHandler;
@@ -269,28 +270,7 @@ public class DispatcherHelper {
      * @return true if the custom validation should be applied to this event, false otherwise
      */
     public static boolean applies(ValidationMethod info, String event) {
-        final String[] events = info.on();
-
-        if (events.length == 0 || event == null) {
-            return true;
-        }
-        else if (events[0].startsWith("!")) {
-            return !contains(events, "!" + event);
-        }
-        else {
-            return contains(events, event);
-        }
-    }
-
-    /** A quick utility method for linear searching an array of Strings. */
-    private static boolean contains(String[] arr, String target) {
-        for (String item : arr) {
-            if (item.equals(target)) {
-                return true;
-            }
-        }
-
-        return false;
+        return CollectionUtil.applies(info.on(), event);
     }
 
     /**

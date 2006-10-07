@@ -55,4 +55,26 @@ public class CollectionUtil {
 
         return true;
     }
+
+    /**
+     * <p>Checks to see if an event is applicable given an array of event names. The array is
+     * usually derived from the <tt>on</tt> attribute of one of the Stripes annotations
+     * (e.g. {@link net.sourceforge.stripes.validation.ValidationMethod}). The array can
+     * be composed of <i>positive</i> event names (e.g. {"foo", "bar"}) in which case the event
+     * must be contained in the array, or negative event names (e.g. {"!splat", "!whee"}) in
+     * which case the event must not be contained in the array.</p>
+     *
+     * <p>Calling this method with a null or zero length array will always return true.</p>
+     *
+     * @param events an array containing event names or event names prefixed with bangs
+     * @param event the event name to check for applicability given the array
+     * @return true if the array indicates the event is applicable, false otherwise
+     */
+    public static boolean applies(String events[], String event) {
+        if (events == null || events.length == 0) return true;
+        boolean isPositive = events[0].charAt(0) != '!';
+
+        if (isPositive) return contains(events, event);
+        else return !contains(events, "!" + event);
+    }
 }

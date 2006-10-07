@@ -67,5 +67,13 @@ import java.lang.annotation.Target;
 @Documented
 public @interface Before {
 	/** One or more lifecycle stages before which the method should be called. */
-	LifecycleStage[] value() default LifecycleStage.EventHandling; 
+	LifecycleStage[] stages() default LifecycleStage.EventHandling;
+
+    /**
+     * Allows the method to be restricted to one or more events. By default the method will
+     * be executed on all events. Can be used to specify one or more events to apply the method
+     * to (e.g. on={"save", "update"}),  or to specify one or more events <i>not</i> to apply
+     * the method to (e.g. on="!delete").
+     */
+    String[] on() default {};
 }

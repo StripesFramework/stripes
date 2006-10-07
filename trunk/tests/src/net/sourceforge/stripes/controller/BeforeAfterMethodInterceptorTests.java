@@ -166,6 +166,44 @@ public class BeforeAfterMethodInterceptorTests {
         Assert.assertEquals(actionBean.getHasCalledProtectedBeforeMethod(), 0);
     }
 
+    @Test(groups="fast")
+    public void testIntercept_withEventSpecifier() throws Exception {
+        ExecutionContext context = new TestExecutionContext();
+        BeforeAfterMethodInterceptor interceptor = new BeforeAfterMethodInterceptor();
+        TestActionBean2 actionBean = new TestActionBean2();
+        context.setActionBean(actionBean);
+        context.setActionBeanContext(new ActionBeanContext());
+
+        context.getActionBeanContext().setEventName("edit");
+        context.setLifecycleStage(LifecycleStage.EventHandling); // default
+        Assert.assertNotNull(interceptor.intercept(context));
+
+        context.getActionBeanContext().setEventName("save");
+        context.setLifecycleStage(LifecycleStage.EventHandling); // default
+        Assert.assertNotNull(interceptor.intercept(context));
+
+        Assert.assertEquals(actionBean.getHasCalledAfterDefaultStage(), 2);
+        Assert.assertEquals(actionBean.getHasCalledBeforeWithReturn(), 2);
+        Assert.assertEquals(actionBean.getHasCalledBeforeDefaultStage(), 2);
+        Assert.assertEquals(actionBean.getHasCalledAfterWithReturn(), 2);
+        Assert.assertEquals(actionBean.getHasCalledBeforeAfterDefaultStage(), 4);
+        Assert.assertEquals(actionBean.getHasCalledBeforeAfterOnSingleEvent(), 2);
+        Assert.assertEquals(actionBean.getHasCalledProtectedAfterMethod(), 2);
+        Assert.assertEquals(actionBean.getHasCalledProtectedBeforeMethod(), 2);
+
+        Assert.assertEquals(actionBean.getHasCalledAfterSpecificStage(), 0);
+        Assert.assertEquals(actionBean.getHasCalledAfterTwoStages(), 0);
+        Assert.assertEquals(actionBean.getHasCalledAfterWithParameter(), 0);
+        Assert.assertEquals(actionBean.getHasCalledAfterWithReturnAndParameter(), 0);
+        Assert.assertEquals(actionBean.getHasCalledBeforeSpecificStage(), 0);
+        Assert.assertEquals(actionBean.getHasCalledBeforeTwoStages(), 0);
+        Assert.assertEquals(actionBean.getHasCalledBeforeAfterSpecificStage(), 0);
+        Assert.assertEquals(actionBean.getHasCalledBeforeAfterWithParameter(), 0);
+        Assert.assertEquals(actionBean.getHasCalledBeforeWithParameter(), 0);
+        Assert.assertEquals(actionBean.getHasCalledBeforeWithReturnAndParameter(), 0);
+        Assert.assertEquals(actionBean.getHasCalledDummyMethod(), 0);
+    }
+
     /**
      * Test ActionBean class
      * @author Jeppe Cramon
@@ -190,6 +228,7 @@ public class BeforeAfterMethodInterceptorTests {
         private int hasCalledBeforeAfterWithParameter;
         private int hasCalledBeforeAfterSpecificStage;
         private int hasCalledBeforeAfterDefaultStage;
+        private int hasCalledBeforeAfterOnSingleEvent;
 
         public void setContext(ActionBeanContext context) {
         }
@@ -198,7 +237,7 @@ public class BeforeAfterMethodInterceptorTests {
             return null;
         }
 
-        @Before(LifecycleStage.ActionBeanResolution)
+        @Before(stages=LifecycleStage.ActionBeanResolution)
         public void beforeActionBeanResolutionWillNeverBeCalled() {
             hasCalledBeforeActionBeanResolutionWillNeverBeCalled++;
         }
@@ -208,12 +247,12 @@ public class BeforeAfterMethodInterceptorTests {
             hasCalledBeforeDefaultStage++;
         }
 
-        @Before(LifecycleStage.HandlerResolution)
+        @Before(stages=LifecycleStage.HandlerResolution)
         public void beforeSpecificStage() {
             hasCalledBeforeSpecificStage++;
         }
 
-        @Before({LifecycleStage.BindingAndValidation, LifecycleStage.CustomValidation})
+        @Before(stages={LifecycleStage.BindingAndValidation, LifecycleStage.CustomValidation})
         public void beforeTwoStages() {
             hasCalledBeforeTwoStages++;
         }
@@ -237,7 +276,7 @@ public class BeforeAfterMethodInterceptorTests {
             return null;
         }
 
-        /** Intercept methods must be public. */
+        /** Should work just like a public method. */
         @Before
         protected void protectedBeforeMethod() {
             hasCalledProtectedBeforeMethod++;
@@ -253,12 +292,12 @@ public class BeforeAfterMethodInterceptorTests {
             hasCalledAfterDefaultStage++;
         }
 
-        @After(LifecycleStage.ActionBeanResolution)
+        @After(stages=LifecycleStage.ActionBeanResolution)
         public void afterSpecificStage() {
             hasCalledAfterSpecificStage++;
         }
 
-        @After({LifecycleStage.HandlerResolution, LifecycleStage.CustomValidation})
+        @After(stages={LifecycleStage.HandlerResolution, LifecycleStage.CustomValidation})
         public void afterTwoStages() {
             hasCalledAfterTwoStages++;
         }
@@ -283,7 +322,7 @@ public class BeforeAfterMethodInterceptorTests {
             return null;
         }
 
-        /** Not included because methods must be public. */
+        /** Should work just like a public method. */
         @After
         protected void protectedAfterMethod() {
             hasCalledProtectedAfterMethod++;
@@ -298,8 +337,8 @@ public class BeforeAfterMethodInterceptorTests {
         }
 
         /** Invoked only at those stages listed. */
-        @Before(LifecycleStage.BindingAndValidation)
-        @After(LifecycleStage.CustomValidation)
+        @Before(stages=LifecycleStage.BindingAndValidation)
+        @After(stages=LifecycleStage.CustomValidation)
         public void beforeAfterSpecificStage() {
             hasCalledBeforeAfterSpecificStage++;
         }
@@ -308,6 +347,12 @@ public class BeforeAfterMethodInterceptorTests {
         @Before @After
         public void beforeAfterDefaultStage() {
             hasCalledBeforeAfterDefaultStage++;
+        }
+
+        /** Invoked only at default EventHandling stage. */
+        @Before(on="edit") @After(on="save")
+        public void beforeAfterOnSingleEvent() {
+            hasCalledBeforeAfterOnSingleEvent++;
         }
 
         // -- Unit test properties --
@@ -330,6 +375,7 @@ public class BeforeAfterMethodInterceptorTests {
         public int getHasCalledProtectedAfterMethod() { return hasCalledProtectedAfterMethod; }
         public int getHasCalledProtectedBeforeMethod() { return hasCalledProtectedBeforeMethod; }
         public int getHasCalledBeforeAfterDefaultStage() { return hasCalledBeforeAfterDefaultStage; }
+        public int getHasCalledBeforeAfterOnSingleEvent() { return hasCalledBeforeAfterOnSingleEvent; }
     }
 
     private static class TestExecutionContext extends ExecutionContext {
@@ -337,7 +383,5 @@ public class BeforeAfterMethodInterceptorTests {
         public Resolution proceed() throws Exception {
             return new ForwardResolution("wakker");
         }
-
     }
-
 }
