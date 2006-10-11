@@ -9,7 +9,7 @@ package net.sourceforge.stripes.examples.bugzooky.biz;
 public class Attachment {
     private String name;
     private long size;
-    private String data;
+    private byte[] data;
     private String contentType;
 
     public String getName() { return name; }
@@ -18,14 +18,19 @@ public class Attachment {
     public long getSize() { return size; }
     public void setSize(long size) { this.size = size; }
 
-    public String getData() { return data; }
-    public void setData(String data) { this.data = data; }
+    public byte[] getData() { return data; }
+    public void setData(byte[] data) { this.data = data; }
 
     public String getContentType() { return contentType; }
     public void setContentType(String contentType) { this.contentType = contentType; }
 
     public String getPreview() {
-        int endIndex = Math.min(data.length(), 30);
-        return data.substring(0, endIndex);
+        if (contentType.startsWith("text")) {
+            int amount = Math.min(data.length, 30);
+            return new String(data, 0, amount);
+        }
+        else {
+            return "[Binary File]";
+        }
     }
 }

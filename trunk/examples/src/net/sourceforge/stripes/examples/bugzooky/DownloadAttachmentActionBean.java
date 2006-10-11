@@ -6,9 +6,8 @@ import net.sourceforge.stripes.action.StreamingResolution;
 import net.sourceforge.stripes.examples.bugzooky.biz.Attachment;
 import net.sourceforge.stripes.examples.bugzooky.biz.Bug;
 import net.sourceforge.stripes.examples.bugzooky.biz.BugManager;
-import net.sourceforge.stripes.examples.bugzooky.BugzookyActionBean;
 
-import java.io.StringReader;
+import java.io.ByteArrayInputStream;
 
 /**
  * Action that responds to a user's request to download an attachment to a bug.
@@ -35,7 +34,7 @@ public class DownloadAttachmentActionBean extends BugzookyActionBean {
         // Note the use of the chained .setFilename() method, which causes the
         // browser to [prompt to] save the "file" instead of displaying it in browser
         return new StreamingResolution
-                (attachment.getContentType(), new StringReader(attachment.getData()))
+                (attachment.getContentType(), new ByteArrayInputStream(attachment.getData()))
                     .setFilename(attachment.getName());
     }
 }

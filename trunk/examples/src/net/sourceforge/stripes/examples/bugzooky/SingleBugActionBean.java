@@ -3,6 +3,7 @@ package net.sourceforge.stripes.examples.bugzooky;
 import net.sourceforge.stripes.action.DefaultHandler;
 import net.sourceforge.stripes.action.DontValidate;
 import net.sourceforge.stripes.action.FileBean;
+import net.sourceforge.stripes.action.ForwardResolution;
 import net.sourceforge.stripes.action.RedirectResolution;
 import net.sourceforge.stripes.action.Resolution;
 import net.sourceforge.stripes.examples.bugzooky.biz.Attachment;
@@ -12,9 +13,8 @@ import net.sourceforge.stripes.validation.PercentageTypeConverter;
 import net.sourceforge.stripes.validation.Validate;
 import net.sourceforge.stripes.validation.ValidateNestedProperties;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.InputStream;
 
 /**
  * ActionBean that provides method for editing a single bug in detail. Includes an
@@ -45,7 +45,7 @@ public class SingleBugActionBean extends BugzookyActionBean {
     public Resolution preEdit() {
         BugManager bm = new BugManager();
         this.bug = bm.getBug( this.bug.getId() );
-        return new RedirectResolution("/bugzooky/AddEditBug.jsp").flash(this);
+        return new ForwardResolution("/bugzooky/AddEditBug.jsp");
     }
 
     /** Saves (or updates) a bug, and then returns the user to the bug list. */
@@ -60,16 +60,10 @@ public class SingleBugActionBean extends BugzookyActionBean {
             attachment.setSize(this.newAttachment.getSize());
             attachment.setContentType(this.newAttachment.getContentType());
 
-            BufferedReader reader = new BufferedReader
-                    ( new InputStreamReader(this.newAttachment.getInputStream()) );
-            StringBuilder builder = new StringBuilder();
-            String line;
-
-            while ( (line = reader.readLine()) != null ) {
-                builder.append(line).append('\n');
-            }
-
-            attachment.setData(builder.toString());
+            byte[] data = new byte[(int) this.newAttachment.getSize()];
+            InputStream in = this.newAttachment.getInputStream();
+            in.read(data);
+            attachment.setData(data);
             newBug.addAttachment(attachment);
         }
 
