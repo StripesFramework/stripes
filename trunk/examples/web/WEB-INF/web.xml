@@ -23,15 +23,13 @@
         <filter-name>StripesFilter</filter-name>
         <filter-class>net.sourceforge.stripes.controller.StripesFilter</filter-class>
 
-        <!-- Optional init parameters for the Stripes Filter. -->
+        <!-- REQUIRED init parameter for the Stripes Filter. -->
         <init-param>
-            <param-name>ActionResolver.UrlFilters</param-name>
-            <param-value>WEB-INF/classes</param-value>
+            <param-name>ActionResolver.Packages</param-name>
+            <param-value>net.sourceforge.stripes.examples</param-value>
         </init-param>
-        <init-param>
-            <param-name>ActionResolver.PackageFilters</param-name>
-            <param-value>net.sourceforge.stripes.*</param-value>
-        </init-param>
+
+        <!-- Optional init parameter for the Stripes Filter. -->
         <init-param>
             <param-name>ActionBeanContext.Class</param-name>
             <param-value>net.sourceforge.stripes.examples.bugzooky.BugzookyActionBeanContext</param-value>

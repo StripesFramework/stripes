@@ -20,21 +20,19 @@ import net.sourceforge.stripes.action.DefaultHandler;
 import net.sourceforge.stripes.action.HandlesEvent;
 import net.sourceforge.stripes.action.SessionScope;
 import net.sourceforge.stripes.action.UrlBinding;
-import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.config.BootstrapPropertyResolver;
+import net.sourceforge.stripes.config.Configuration;
+import net.sourceforge.stripes.exception.StripesRuntimeException;
 import net.sourceforge.stripes.exception.StripesServletException;
 import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.util.ResolverUtil;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.ServletContext;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.HashSet;
-import java.util.Arrays;
 
 /**
  * <p>Uses Annotations on classes to identify the ActionBean that corresponds to the current
@@ -53,13 +51,21 @@ public class AnnotatedClassActionResolver implements ActionResolver {
      * Configuration key used to lookup a comma-separated list of patterns that are used to
      * restrict the set of URLs in the classpath that are searched for ActionBean classes.
      */
-    private static final String URL_FILTERS = "ActionResolver.UrlFilters";
+    @Deprecated private static final String URL_FILTERS = "ActionResolver.UrlFilters";
 
     /**
      * Configuration key used to lookup a comma-separated list of patterns that are used to
      * restrict the packages that will be scanned for ActionBean classes.
      */
-    private static final String PACKAGE_FILTERS = "ActionResolver.PackageFilters";
+    @Deprecated private static final String PACKAGE_FILTERS = "ActionResolver.PackageFilters";
+
+    /**
+     * Configuration key used to lookup a comma-separated list of package names. The
+     * packages (and their sub-packages) will be scanned for implementations of
+     * ActionBean.
+     * @since Stripes 1.5 
+     */
+    public static final String PACKAGES = "ActionResolver.Packages";
 
     /** Key used to store the default handler in the Map of handler methods. */
     private static final String DEFAULT_HANDLER_KEY = "__default_handler";
@@ -91,7 +97,7 @@ public class AnnotatedClassActionResolver implements ActionResolver {
         this.configuration = configuration;
 
         // Find all the ActionBeans and set up the cache for other components
-        Set<Class<? extends ActionBean>> beans = findClasses(ActionBean.class);
+        Set<Class<? extends ActionBean>> beans = findClasses();
         ActionClassCache.init(beans);
 
         // Process each ActionBean
@@ -462,61 +468,36 @@ public class AnnotatedClassActionResolver implements ActionResolver {
     protected Configuration getConfiguration() { return this.configuration; }
 
     /**
-     * Looks up the set of URL filters to use when scanning the classpath and elsewhere
-     * for instances of ActionBeans.
+     * Helper method to find implementations of ActionBean in the packages specified in
+     * Configuration using the {@link ResolverUtil} class.
      *
-     * @return a set of String filters, possibly empty, never null
+     * @return a set of Class objects that represent subclasses of ActionBean
      */
-    protected Set<String> getUrlFilters() {
-        BootstrapPropertyResolver bootstrap = this.configuration.getBootstrapPropertyResolver();
-        Set<String> urlFilters =new HashSet<String>();
-
-        String temp = bootstrap.getProperty(URL_FILTERS);
-        if (temp != null) {
-            urlFilters.addAll(Arrays.asList( temp.split(",")));
+    protected Set<Class<? extends ActionBean>> findClasses() {
+        BootstrapPropertyResolver bootstrap = getConfiguration().getBootstrapPropertyResolver();
+        if (bootstrap.getProperty(URL_FILTERS) != null || bootstrap.getProperty(PACKAGE_FILTERS) != null) {
+            log.error("The configuration properties '", URL_FILTERS, "' and '", PACKAGE_FILTERS,
+                      "' are deprecated, and NO LONGER SUPPORTED. Please read the upgrade ",
+                      "documentation for Stripes 1.5 for how to resolve this situation. In short ",
+                      "you should specify neither ", URL_FILTERS, " or ", PACKAGE_FILTERS,
+                      ". Instead you should specify a comma separated list of package roots ",
+                      "(e.g. com.myco.web) that should be scanned for implementations of ",
+                      "ActionBean, using the configuration parameter '", PACKAGES,  "'.");
         }
 
-        return urlFilters;
-    }
-
-    /**
-     * Looks up the set of package filters to use when scanning the classpath and elsewhere
-     * for instances of ActionBeans.
-     *
-     * @return a set of String filters, possibly empty, never null
-     */
-    protected Set<String> getPackageFilters() {
-        BootstrapPropertyResolver bootstrap = this.configuration.getBootstrapPropertyResolver();
-        Set<String> packageFilters =new HashSet<String>();
-
-        String temp = bootstrap.getProperty(PACKAGE_FILTERS);
-        if (temp != null) {
-            packageFilters.addAll(Arrays.asList( temp.split(",")));
+        String packages = bootstrap.getProperty(PACKAGES);
+        if (packages == null) {
+            throw new StripesRuntimeException(
+                "You must supply a value for the configuration parameter '" + PACKAGES + "'. The " +
+                "value should be a list of one or more package roots (comma separated) that are " +
+                "to be scanned for ActionBean implementations. The packages specified and all " +
+                "subpackages are examined for implementations of ActionBean."
+            );
         }
 
-        return packageFilters;
-    }
-
-    /**
-     * Uses the configured URL and Package filters to find subclasses/implementations of the
-     * type specified. First tries to find classes using the context classloader, and if that
-     * fails, falls back to using the ServletContext mechanism.
-     *
-     * @param parentType the interface or base class of which to find implementations/subclasses
-     * @return a set of Class objects that represent subclasses of the type provided
-     */
-    protected <T> Set<Class<? extends T>> findClasses(Class<T> parentType) {
-        ResolverUtil<T> resolver = new ResolverUtil<T>();
-        resolver.setPackageFilters(getPackageFilters());
-        resolver.setLocationFilters(getUrlFilters());
-
-        if (!resolver.loadImplementationsFromContextClassloader(parentType)) {
-            ServletContext context = this.configuration.getBootstrapPropertyResolver()
-                    .getFilterConfig().getServletContext();
-
-            resolver.loadImplementationsFromServletContext(parentType, context);
-        }
-
+        String[] pkgs = packages.trim().split("\\s*,\\s*");
+        ResolverUtil<ActionBean> resolver = new ResolverUtil<ActionBean>();
+        resolver.findImplementations(ActionBean.class, pkgs);
         return resolver.getClasses();
     }
 }
