@@ -19,19 +19,17 @@ import net.sourceforge.stripes.config.BootstrapPropertyResolver;
 import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.util.ResolverUtil;
+import net.sourceforge.stripes.controller.AnnotatedClassActionResolver;
 
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.io.IOException;
 
 /**
  * <p>An alternative implementation of {@link ExceptionHandler} that discovers and automatically
@@ -42,19 +40,19 @@ import java.io.IOException;
  *
  * <p>Searches for implementations of AutoExceptionHandler using the same mechanism as is used
  * to discover ActionBean implementations - a search of the classpath for classes that implement
- * the interface. As such is it highly recommended that you specify filters for the search using
- * the following configuration parameters (usually as init-params for the Stripes Filter):</p>
+ * the interface. The search requires one parameter, DelegatingExceptionHandler.Packages, which
+ * should contain a comma separated list of root packages to search for AutoExceptionHandler
+ * classes. If this parameter is <i>not</i> specified, the DelegatingExceptionHandler will use
+ * the configuration parameter that is used for discovering ActionBean instances
+ * (ActionResolver.Packages).  The configuration parameter is usually specified as an
+ * init-param for the Stripes Filter, e.g.:</p>
  *
- * <ul>
- *   <li>
- *     <tt>DelegatingExceptionHandler.UrlFilters</tt> - limits the classpath locations that are
- *     checked.  E.g. <tt>/WEB-INF/classes,/WEB-INF/lib/myproject.jar</tt>
- *   </li>
- *   <li>
- *     <tt>DelegatingExceptionHandler.PackageFilters</tt> - limits the classes checked to those
- *     contained within packages matching one or more filters. E.g. <tt>myproject,exception</tt>
- *   </li>
- * </ul>
+ *<pre>
+ *&lt;init-param&gt;
+ *    &lt;param-name&gt;DelegatingExceptionHandler.Packages&lt;/param-name&gt;
+ *    &lt;param-value&gt;com.myco.web,com.myco.shared&lt;/param-value&gt;
+ *&lt;/init-param&gt;
+ *</pre>
  *
  * <p>When the {@link #handle(Throwable, HttpServletRequest, HttpServletResponse)} is invoked
  * the set of AutoExceptionHandlers is examined to find the handler with the most specific
@@ -74,10 +72,16 @@ public class DelegatingExceptionHandler implements ExceptionHandler {
     private static final Log log = Log.getInstance(DelegatingExceptionHandler.class);
 
     /** Configuration key used to lookup the URL filters used when scanning for handlers. */
-    public static final String URL_FILTERS = "DelegatingExceptionHandler.UrlFilters";
+    @Deprecated public static final String URL_FILTERS = "DelegatingExceptionHandler.UrlFilters";
 
     /** Configuration key used to lookup the package filters used when scanning for handlers. */
-    public static final String PACAKGE_FILTERS = "DelegatingExceptionHandler.PackageFilters";
+    @Deprecated public static final String PACKAGE_FILTERS = "DelegatingExceptionHandler.PackageFilters";
+
+    /**
+     * Configuration key used to lookup the list of packages to scan for auto handlers.
+     * @since Stripes 1.5
+     */
+    public static final String PACKAGES = "DelegatingExceptionHandler.Packages";
 
     private Configuration configuration;
 
@@ -126,7 +130,7 @@ public class DelegatingExceptionHandler implements ExceptionHandler {
         this.configuration = configuration;
 
         // Fetch the AutoExceptionHandler implementations and add them to the cache
-        Set<Class<? extends AutoExceptionHandler>> handlers = findClasses(AutoExceptionHandler.class);
+        Set<Class<? extends AutoExceptionHandler>> handlers = findClasses();
         for (Class<? extends AutoExceptionHandler> handler : handlers) {
             log.debug("Processing class ", handler, " looking for exception handling methods.");
             addHandler(handler);
@@ -225,61 +229,45 @@ public class DelegatingExceptionHandler implements ExceptionHandler {
     }
 
     /**
-     * Looks up the URL filters that will be used when scanning the classpath etc. for
-     * implementations of exception handlers.
+     * Helper method to find implementations of AutoExceptionHandler in the packages specified in
+     * Configuration using the {@link ResolverUtil} class.
      *
-     * @return a set of String filters, possibly empty, never null
+     * @return a set of Class objects that represent subclasses of AutoExceptionHandler
      */
-    protected Set<String> getUrlFilters() {
-        BootstrapPropertyResolver bootstrap = this.configuration.getBootstrapPropertyResolver();
-        Set<String> urlFilters =new HashSet<String>();
-
-        String temp = bootstrap.getProperty(URL_FILTERS);
-        if (temp != null) {
-            urlFilters.addAll(Arrays.asList( temp.split(",")));
+    protected Set<Class<? extends AutoExceptionHandler>> findClasses() {
+        BootstrapPropertyResolver bootstrap = getConfiguration().getBootstrapPropertyResolver();
+        if (bootstrap.getProperty(URL_FILTERS) != null || bootstrap.getProperty(PACKAGE_FILTERS) != null) {
+            log.error("The configuration properties '", URL_FILTERS, "' and '", PACKAGE_FILTERS,
+                      "' are deprecated, and NO LONGER SUPPORTED. Please read the upgrade ",
+                      "documentation for Stripes 1.5 for how to resolve this situation. In short ",
+                      "you should specify neither ", URL_FILTERS, " or ", PACKAGE_FILTERS,
+                      ". Instead you should specify a comma separated list of package roots ",
+                      "(e.g. com.myco.web) that should be scanned for implementations of ",
+                      "AutoExceptionHandler, using the configuration parameter '", PACKAGES,  "'.");
         }
 
-        return urlFilters;
-    }
-
-    /**
-     * Looks up the package filters that will be used when scanning the classpath etc. for
-     * implementations of exception handlers.
-     *
-     * @return a set of String filters, possibly empty, never null
-     */
-    protected Set<String> getPackageFilters() {
-        BootstrapPropertyResolver bootstrap = this.configuration.getBootstrapPropertyResolver();
-        Set<String> packageFilters =new HashSet<String>();
-
-        String temp = bootstrap.getProperty(PACAKGE_FILTERS);
-        if (temp != null) {
-            packageFilters.addAll(Arrays.asList( temp.split(",")));
+        String packages = bootstrap.getProperty(PACKAGES);
+        if (packages == null) {
+            log.info("No configuration value was found for parameter '", PACKAGES,
+                     "' defaulting to using the value of '", AnnotatedClassActionResolver.PACKAGES,
+                     "' instead.");
+            packages = bootstrap.getProperty(AnnotatedClassActionResolver.PACKAGES);
         }
 
-        return packageFilters;
-    }
-
-    /**
-     * Uses the configured URL and Package filters to find subclasses/implementations of the
-     * type specified. First tries to find classes using the context classloader, and if that
-     * fails, falls back to using the ServletContext mechanism.
-     *
-     * @param parentType the interface or base class of which to find implementations/subclasses
-     * @return a set of Class objects that represent subclasses of the type provided
-     */
-    protected <T> Set<Class<? extends T>> findClasses(Class<T> parentType) {
-        ResolverUtil<T> resolver = new ResolverUtil<T>();
-        resolver.setPackageFilters(getPackageFilters());
-        resolver.setLocationFilters(getUrlFilters());
-
-        if (!resolver.loadImplementationsFromContextClassloader(parentType)) {
-            ServletContext context = this.configuration.getBootstrapPropertyResolver()
-                    .getFilterConfig().getServletContext();
-
-            resolver.loadImplementationsFromServletContext(parentType, context);
+        if (packages == null) {
+            throw new StripesRuntimeException(
+                    "You must supply a value for the configuration parameter '" + PACKAGES + "', " +
+                    "or /at least/ a value for '" + AnnotatedClassActionResolver.PACKAGES +
+                    "' when using the DelegatingExceptionHandler. The  value should be a list of " +
+                    "one or more package roots (comma separated) that are to be scanned for " +
+                    "AutoExceptionHandler implementations. The packages specified and all " +
+                    "subpackages are examined for implementations of AutoExceptionHandler."
+            );
         }
 
+        String[] pkgs = packages.trim().split("\\s*,\\s*");
+        ResolverUtil<AutoExceptionHandler> resolver = new ResolverUtil<AutoExceptionHandler>();
+        resolver.findImplementations(AutoExceptionHandler.class, pkgs);
         return resolver.getClasses();
     }
 }
