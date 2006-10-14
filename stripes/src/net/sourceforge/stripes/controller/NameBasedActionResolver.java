@@ -215,8 +215,10 @@ public class NameBasedActionResolver extends AnnotatedClassActionResolver {
 
         // If the method isn't annotated, but does return a resolution and is
         // not abstract (we already know it's public) then use the method name
-        if ( name == null && !Modifier.isAbstract(handler.getModifiers())
-                && Resolution.class.isAssignableFrom(handler.getReturnType()) ) {
+        if ( name == null
+                && !Modifier.isAbstract(handler.getModifiers())
+                    && Resolution.class.isAssignableFrom(handler.getReturnType())
+                        && handler.getParameterTypes().length == 0) {
 
             name = handler.getName();
         }
