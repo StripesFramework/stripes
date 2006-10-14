@@ -16,17 +16,18 @@ package net.sourceforge.stripes.util.bean;
 
 import net.sourceforge.stripes.util.ReflectUtil;
 
-import java.lang.reflect.Type;
-import java.lang.reflect.GenericArrayType;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Field;
-import java.lang.reflect.WildcardType;
+import java.beans.PropertyDescriptor;
 import java.lang.reflect.Array;
+import java.lang.reflect.Field;
+import java.lang.reflect.GenericArrayType;
+import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
+import java.lang.reflect.WildcardType;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Collection;
-import java.beans.PropertyDescriptor;
 
 /**
  * The dynamic partner to a PropertyExpression that represents the evaluation of the expression
@@ -202,10 +203,10 @@ public class PropertyExpressionEvaluation {
         PropertyDescriptor pd = ReflectUtil.getPropertyDescriptor(beanClass, property);
         if (pd != null) {
             if (pd.getReadMethod() != null) {
-                return pd.getReadMethod().getGenericReturnType();
+                return untangleBridgeMethod(pd.getReadMethod()).getGenericReturnType();
             }
             else {
-                return pd.getWriteMethod().getGenericParameterTypes()[0];
+                return untangleBridgeMethod(pd.getWriteMethod()).getGenericParameterTypes()[0];
             }
         }
         else {
@@ -217,6 +218,45 @@ public class PropertyExpressionEvaluation {
                 return field.getGenericType();
             }
         }
+    }
+
+    /**
+     * <p>Locates and returns a non-bridge method for the method supplied. In certain cases the
+     * Introspector will return PropertyDescriptors that contain bridge methods for read
+     * and write methods. This usually results from classes implementing generic interfaces
+     * that contain accessor method specifications with type parameters. Since the bridge
+     * methods have inappropriate/unhelpful return and parameter types it is necessary to
+     * locate the non-bridge method and use that instead.</p>
+     *
+     * <p>When supplied with a non-bridge method, the method parameter passed in is returned
+     * immediately and no other work is performed.</p>
+     *
+     * @param m a Method instance, potentially a bridge method
+     * @return a non-bridge method instance if one is locatable, otherwise the method passed in
+     */
+    protected Method untangleBridgeMethod(Method m) {
+        if (!m.isBridge()) return m;
+
+        try {
+            // If it's a setter method the only way to really find the right method
+            // is to hope that there's only one setter with the same name and a single
+            // parameter!!
+            if (m.getParameterTypes().length == 1) { // deal with set methods
+                String name = m.getName();
+                for (Method m2 : m.getDeclaringClass().getMethods()) {
+                    if (name.equals(m2.getName()) && m2 != m
+                            && m2.getParameterTypes().length == m.getParameterTypes().length) {
+                        return m2;
+                    }
+                }
+            }
+            else { // deal with get methods
+                return m.getDeclaringClass().getMethod(m.getName());
+            }
+        }
+        catch (Exception e) { /* Supress. */ }
+
+        return m;
     }
 
     /**
