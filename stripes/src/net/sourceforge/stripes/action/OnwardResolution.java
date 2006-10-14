@@ -14,10 +14,12 @@
  */
 package net.sourceforge.stripes.action;
 
-import net.sourceforge.stripes.util.UrlBuilder;
 import net.sourceforge.stripes.controller.StripesFilter;
+import net.sourceforge.stripes.util.UrlBuilder;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -89,29 +91,48 @@ public abstract class OnwardResolution<T extends OnwardResolution<T>> {
     }
 
     /**
-     * Adds a request parameter with zero or more values to the URL.  Values may
+     * <p>Adds a request parameter with zero or more values to the URL.  Values may
      * be supplied using varargs, or alternatively by suppling a single value parameter which is
-     * an instance of Collection.
+     * an instance of Collection.</p>
+     *
+     * <p>Note that this method is additive. Therefore writing things like
+     * {@code builder.addParameter("p", "one").addParameter("p", "two");}
+     * will add both {@code p=one} and {@code p=two} to the URL.</p>
      *
      * @param name the name of the URL parameter
      * @param values zero or more scalar values, or a single Collection
      * @return this Resolution so that methods can be chained
      */
     public T addParameter(String name, Object... values) {
-        this.parameters.put(name, values);
+        if (this.parameters.containsKey(name)) {
+            List<Object> temp = Arrays.asList(values);
+            temp.add(this.parameters.get(name));
+            this.parameters.put(name, temp);
+        }
+        else {
+            this.parameters.put(name, values);
+        }
+
         return (T) this;
     }
 
     /**
-     * Bulk adds one or more request parameters to the URL. Each entry in the Map
+     * <p>Bulk adds one or more request parameters to the URL. Each entry in the Map
      * represents a single named parameter, with the values being either a scalar value,
-     * an array or a Collection.
+     * an array or a Collection.</p>
+     *
+     * <p>Note that this method is additive. If a parameter with name X has already been
+     * added and the map contains X as a key, the value(s) in the map will be added to the
+     * URL as well as the previously held values for X.</p>
      *
      * @param parameters a Map of parameters as described above
      * @return this Resolution so that methods can be chained
      */
     public T addParameters(Map<String,Object> parameters) {
-        this.parameters.putAll(parameters);
+        for (Map.Entry<String,Object> entry : parameters.entrySet()) {
+            addParameter(entry.getKey(), entry.getValue());
+        }
+
         return (T) this;
     }
 
