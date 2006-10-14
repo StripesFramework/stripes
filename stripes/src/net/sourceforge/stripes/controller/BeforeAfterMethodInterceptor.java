@@ -114,26 +114,28 @@ public class BeforeAfterMethodInterceptor implements Interceptor {
         resolution = context.proceed();
 
         // Run After filter methods (if any)
-        ActionBean bean = context.getActionBean();
-        FilterMethods filterMethods = getFilterMethods(bean.getClass());
-		List<Method> afterMethods = filterMethods.getAfterMethods(stage);
+        if (context.getActionBean() != null) {
+            ActionBean bean = context.getActionBean();
+            FilterMethods filterMethods = getFilterMethods(bean.getClass());
+            List<Method> afterMethods = filterMethods.getAfterMethods(stage);
 
-        // Re-get the event name in case we're executing after handler resolution
-        // in which case the name will have been null before, and non-null now
-        event = abc == null ? null : abc.getEventName();
+            // Re-get the event name in case we're executing after handler resolution
+            // in which case the name will have been null before, and non-null now
+            event = abc == null ? null : abc.getEventName();
 
-        Resolution overrideResolution = null;
-        for (Method method : afterMethods) {
-            String[] on = method.getAnnotation(After.class).on();
-            if (event == null || CollectionUtil.applies(on, event)) {
-                overrideResolution = invoke(bean, method, stage, After.class);
-                if (overrideResolution != null) {
-                    return overrideResolution;
+            Resolution overrideResolution = null;
+            for (Method method : afterMethods) {
+                String[] on = method.getAnnotation(After.class).on();
+                if (event == null || CollectionUtil.applies(on, event)) {
+                    overrideResolution = invoke(bean, method, stage, After.class);
+                    if (overrideResolution != null) {
+                        return overrideResolution;
+                    }
                 }
             }
         }
-
-		return resolution;
+        
+        return resolution;
 	}
 
     /**
