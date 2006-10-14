@@ -16,7 +16,6 @@ package net.sourceforge.stripes.mock;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
-import javax.servlet.http.HttpSessionContext;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -29,6 +28,7 @@ import java.util.Random;
  * @author Tim Fennell
  * @since Stripes 1.1.1
  */
+@SuppressWarnings("deprecation")
 public class MockHttpSession implements HttpSession {
     private long creationTime = System.currentTimeMillis();
     private String sessionId = String.valueOf(new Random().nextLong());
@@ -62,7 +62,7 @@ public class MockHttpSession implements HttpSession {
     public int getMaxInactiveInterval() { return Integer.MAX_VALUE; }
 
     /** Deprecated method always returns null. */
-    public HttpSessionContext getSessionContext() { return null; }
+    public javax.servlet.http.HttpSessionContext getSessionContext() { return null; }
 
     /** Returns the value of the named attribute from an internal Map. */
     public Object getAttribute(String key) { return this.attributes.get(key); }

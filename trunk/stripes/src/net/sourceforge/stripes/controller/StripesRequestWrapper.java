@@ -38,6 +38,7 @@ import java.util.Map;
  *
  * @author Tim Fennell
  */
+@SuppressWarnings("deprecation") // otherwise deprecated methods in super are warned!
 public class StripesRequestWrapper extends HttpServletRequestWrapper {
     /** The Multipart Request that parses out all the pieces. */
     private MultipartWrapper multipart;

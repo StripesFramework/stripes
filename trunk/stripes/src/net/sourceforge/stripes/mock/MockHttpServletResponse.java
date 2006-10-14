@@ -36,6 +36,7 @@ import java.util.ArrayList;
  * @author Tim Fennell
  * @since Stripes 1.1.1
  */
+@SuppressWarnings("deprecation")
 public class MockHttpServletResponse implements HttpServletResponse {
     private MockServletOutputStream out = new MockServletOutputStream();
     private PrintWriter writer = new PrintWriter(out, true);

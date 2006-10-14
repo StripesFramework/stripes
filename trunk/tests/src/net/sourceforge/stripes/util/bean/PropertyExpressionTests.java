@@ -1,7 +1,6 @@
 package net.sourceforge.stripes.util.bean;
 
 import org.testng.Assert;
-import org.testng.annotations.ExpectedExceptions;
 import org.testng.annotations.Test;
 
 /**
@@ -62,7 +61,7 @@ public class PropertyExpressionTests {
         Assert.assertEquals(root.getNext().getNext().getStringValue(), "bar");
     }
 
-    @Test(groups="fast") @ExpectedExceptions(ParseException.class)
+    @Test(groups="fast", expectedExceptions=ParseException.class)
     public void testBackToBackQuotedStrings() {
         PropertyExpression expr = PropertyExpression.getExpression("foo['bar''splat']");
     }

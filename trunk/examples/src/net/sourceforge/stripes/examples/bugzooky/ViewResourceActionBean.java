@@ -77,7 +77,7 @@ public class ViewResourceActionBean extends BugzookyActionBean {
      */
     public Collection getAvailableResources() {
         ServletContext ctx = getContext().getRequest().getSession().getServletContext();
-        SortedSet resources = new TreeSet();
+        SortedSet<String> resources = new TreeSet<String>();
         resources.addAll( ctx.getResourcePaths("/bugzooky/"));
         resources.addAll( ctx.getResourcePaths("/bugzooky/layout/"));
         resources.addAll( ctx.getResourcePaths("/WEB-INF/src/"));
