@@ -28,8 +28,7 @@ public class StripesTestFixture {
 
             // Add the Stripes Filter
             Map<String,String> filterParams = new HashMap<String,String>();
-            filterParams.put("ActionResolver.UrlFilters", "tests");
-            filterParams.put("ActionResolver.PackageFilters", "net.sourceforge.stripes.*");
+            filterParams.put("ActionResolver.Packages", "net.sourceforge.stripes");
             context.addFilter(StripesFilter.class, "StripesFilter", filterParams);
 
             // Add the Stripes Dispatcher
