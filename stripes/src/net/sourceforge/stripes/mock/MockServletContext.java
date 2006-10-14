@@ -50,6 +50,7 @@ import java.util.Set;
  * @author Tim Fennell
  * @since Stripes 1.1.1
  */
+@SuppressWarnings("deprecation")
 public class MockServletContext implements ServletContext {
     private String contextName;
     private Map<String,String> initParameters = new HashMap<String,String>();

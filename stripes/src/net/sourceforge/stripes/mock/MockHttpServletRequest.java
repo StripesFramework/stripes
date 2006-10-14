@@ -52,6 +52,7 @@ import java.util.Set;
  * @author Tim Fennell
  * @since Stripes 1.1.1
  */
+@SuppressWarnings("deprecation")
 public class MockHttpServletRequest implements HttpServletRequest {
     private String authType;
     private Cookie[] cookies;
