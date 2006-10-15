@@ -17,9 +17,7 @@ package net.sourceforge.stripes.action;
 import net.sourceforge.stripes.controller.StripesFilter;
 import net.sourceforge.stripes.util.UrlBuilder;
 
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -105,9 +103,7 @@ public abstract class OnwardResolution<T extends OnwardResolution<T>> {
      */
     public T addParameter(String name, Object... values) {
         if (this.parameters.containsKey(name)) {
-            List<Object> temp = Arrays.asList(values);
-            temp.add(this.parameters.get(name));
-            this.parameters.put(name, temp);
+            this.parameters.put(name, new Object[] {this.parameters.get(name), values});
         }
         else {
             this.parameters.put(name, values);
