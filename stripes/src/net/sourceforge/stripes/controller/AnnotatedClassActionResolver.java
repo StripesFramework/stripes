@@ -385,19 +385,49 @@ public class AnnotatedClassActionResolver implements ActionResolver {
      * @return String the name of the event submitted, or null if none can be found
      */
     public String getEventName(Class<? extends ActionBean> bean, ActionBeanContext context) {
-        Map<String,Method> mappings = this.eventMappings.get(bean);
-        Map<String,String[]> parameterMap = context.getRequest().getParameterMap();
+        String event = getEventNameFromRequestParams(bean, context);
+        if (event == null) event = getEventNameFromPath(bean, context);
+        if (event == null) event = getEventNameFromEventNameParam(bean, context);
+        return event;
+    }
 
-        // First try the traditional checking based on request parameters
-        for (String event : mappings.keySet()) {
+    /**
+     * Loops through the set of known events for the ActionBean to see if the event
+     * names are present as parameter names in the request.  Returns the first event
+     * name found in the request, or null if none is found.
+     *
+     * @param bean the ActionBean type bound to the request
+     * @param context the ActionBeanContect for the current request
+     * @return String the name of the event submitted, or null if none can be found
+     */
+    protected String getEventNameFromRequestParams(Class<? extends ActionBean> bean,
+                                                   ActionBeanContext context) {
+
+        Map<String,String[]> parameterMap = context.getRequest().getParameterMap();
+        for (String event : this.eventMappings.get(bean).keySet()) {
             if (parameterMap.containsKey(event) || parameterMap.containsKey(event + ".x")) {
                 return event;
             }
         }
 
-        // Then try to find the event based on the path
+        return null;
+    }
+
+    /**
+     * Looks to see if there is extra path information beyond simply the url binding of the
+     * bean. If it does and the next /-separated part of the path matches one of the known
+     * event names for the bean, that event name will be returned, otherwise null.
+     *
+     * @param bean the ActionBean type bound to the request
+     * @param context the ActionBeanContect for the current request
+     * @return String the name of the event submitted, or null if none can be found
+     */
+    protected String getEventNameFromPath(Class<? extends ActionBean> bean,
+                                          ActionBeanContext context) {
+        Map<String,Method> mappings = this.eventMappings.get(bean);
         String path = getRequestedPath(context.getRequest());
         String binding = getUrlBindingFromPath(path);
+
         if (binding != null && path.length() != binding.length()) {
             String extra = path.substring(binding.length() + 1);
             String event = extra.substring(0, Math.max(extra.indexOf("/"), extra.length()));
@@ -406,15 +436,27 @@ public class AnnotatedClassActionResolver implements ActionResolver {
             }
         }
 
-        // Lastly if we still haven't picked an event, look for the special parameter
-        String[] name = parameterMap.get(StripesConstants.URL_KEY_EVENT_NAME);
-        if (name != null && name.length == 1 && mappings.containsKey(name[0])) {
+        return null;
+    }
+
+    /**
+     * Looks to see if there is a single non-empty parameter value for the parameter name
+     * specified by {@link StripesConstants#URL_KEY_EVENT_NAME}. If there is, and it
+     * matches a known event it is returned, otherwise returns null.
+     *
+     * @param bean the ActionBean type bound to the request
+     * @param context the ActionBeanContect for the current request
+     * @return String the name of the event submitted, or null if none can be found
+     */
+    protected String getEventNameFromEventNameParam(Class<? extends ActionBean> bean,
+                                                    ActionBeanContext context) {
+        String[] name = context.getRequest().getParameterValues(StripesConstants.URL_KEY_EVENT_NAME);
+        if (name != null && name.length == 1 && this.eventMappings.get(bean).containsKey(name[0])) {
             return name[0];
         }
 
         return null;
     }
-
 
     /**
      * Uses the Maps constructed earlier to locate the Method which can handle the event.
