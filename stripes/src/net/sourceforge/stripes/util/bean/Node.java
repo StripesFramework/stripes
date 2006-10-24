@@ -68,4 +68,7 @@ public class Node {
     /** Sets the previous node in the expression. */
     protected void setPrevious(Node previous) { this.previous = previous; }
 
+
+    /** Simple toString that returns the text that constructed this node. */
+    public String toString() { return stringValue; }
 }
