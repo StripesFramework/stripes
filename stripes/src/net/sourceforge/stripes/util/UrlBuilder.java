@@ -114,7 +114,7 @@ public class UrlBuilder {
                     addParameter(name, ((Collection) v).toArray());
                 }
                 else if (v.getClass().isArray()) {
-                    addParameter(name, (Object[]) v);
+                    addParameter(name, (Object[]) CollectionUtil.asObjectArray(v));
                 }
                 else {
                     // Figure out whether we already have params or not
