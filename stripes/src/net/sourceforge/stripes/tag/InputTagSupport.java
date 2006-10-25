@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 import java.lang.reflect.Method;
+import java.lang.reflect.Array;
 import java.io.IOException;
 
 /**
@@ -95,10 +96,9 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
         Object unknown = getOverrideValueOrValues();
         Object returnValue = null;
 
-        if (unknown != null && unknown instanceof Object[]) {
-            Object[] array = (Object[]) unknown;
-            if (array.length > 0) {
-                returnValue = array[0];
+        if (unknown != null && unknown.getClass().isArray()) {
+            if (Array.getLength(unknown) > 0) {
+                returnValue = Array.get(unknown, 0);
             }
         }
         else if (unknown != null && unknown instanceof Collection) {
@@ -175,9 +175,10 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
         if (selected != null) {
             String stringValue = (value == null) ? "" : format(value);
 
-            if (selected instanceof Object[]) {
-                Object[] selectedIf = (Object[]) selected;
-                for (Object item : selectedIf) {
+            if (selected.getClass().isArray()) {
+                int length = Array.getLength(selected);
+                for (int i=0; i<length; ++i) {
+                    Object item = Array.get(selected, i);
                     if ( (format(item).equals(stringValue)) ) {
                         return true;
                     }
