@@ -23,33 +23,35 @@ import net.sourceforge.stripes.action.Resolution;
  * they came and the ActionBean instance is discarded.</p>
  *
  * <p>Implementing this interface gives ActionBeans the chance to modify what happens when the
- * binding phase generates errors. The handleValidationErrors method is invoked after binding, but
- * before any custom validation is invoked (if the ActionBean implements Validatable), and is
- * only invoked if there are errors. Also, note that setContext() will always have been
- * invoked prior to handleValidationErrors(), allowing the bean access to the event name
- * and other information.</p>
+ * binding and/or validation phase(s) generate errors. The handleValidationErrors method is
+ * invoked after all validation has completed - i.e. after annotation based validation and any
+ * {@link ValidationMethod}s that are applicable for the current request. Invocation only happens
+ * when one or more validation errors exist. Also, note that {@code setContext()} will always have
+ * been invoked prior to {@link #handleValidationErrors(ValidationErrors)}, allowing the bean
+ * access to the event name and other information.</p>
  *
- * <p>When the handleValidationErrors() method is invoked, the ActionBean may do one or more
- * of the following:</p>
+ * <p>When the {@link #handleValidationErrors(ValidationErrors)}  method is invoked, the
+ * {@link net.sourceforge.stripes.action.ActionBean} may do one or more of the following:</p>
  *
  * <ul>
  *   <li>Modify it's own internal state, e.g. unwind changes made by complex setter methods</li>
  *   <li>Remove validation errors from the ValidationErrors object</li>
  *   <li>Add new validation errors to the ValidationErrors object</li>
  *   <li>Modify errors in the ValidationErrors object</li>
+ *   <li>Any other operation, e.g. rollback a transaction, log an audit message etc.</li>
  *   <li>(Optionally) Re-direct the flow of execution by returning a substitute Resolution</li>
  * </ul>
  *
  * <p>For example, if you want to override the validation service's results and continue
- * execution, you might invoke errors.clear() to remove all the errors.  Doing this makes it
+ * execution, you might invoke {@code errors.clear()} to remove all the errors.  Doing this makes it
  * as though the errors had never been generated!  Or perhaps for a specific ActionBean you'd
  * like to redirect to a different error page instead of the page the user came from, in that
- * case you can simple return a new ForwardResolution or RedirectResolution to change where the
- * user will be sent.</p>
+ * case you can simply return a new {@link net.sourceforge.stripes.action.ForwardResolution} or
+ * {@link net.sourceforge.stripes.action.RedirectResolution} to change where the user will be sent.</p>
  *
- * <p>Returning a Resolution from this method is stricly <b>optional</b>. If a Resolution is
- * returned it will be executed instead of the error resolution.  If null is returned then the
- * error resolution will be executed as normal.</p>
+ * <p>Returning a {@link Resolution} from this method is stricly <b>optional</b>. If a Resolution is
+ * returned it will be executed instead of the error resolution.  If null is returned (and one
+ * or more errors persist) then the error resolution will be executed as normal.</p>
  *
  * @author Tim Fennell
  */
