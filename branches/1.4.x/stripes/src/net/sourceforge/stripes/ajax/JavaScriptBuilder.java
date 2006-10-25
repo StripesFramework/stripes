@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.lang.reflect.Method;
+import java.lang.reflect.Array;
 
 /**
  * <p>Builds a set of JavaScript statements that will re-construct the value of a Java object,
@@ -301,7 +302,7 @@ public class JavaScriptBuilder {
                 buildCollectionNode(targetName, (Collection) in);
             }
             else if (in.getClass().isArray()) {
-                buildArrayNode(targetName, (Object[]) in);
+                buildArrayNode(targetName, in);
             }
             else if (Map.class.isAssignableFrom(in.getClass())) {
                 buildMapNode(targetName, (Map) in);
@@ -418,20 +419,23 @@ public class JavaScriptBuilder {
      * @param targetName The generated name of the array node being translated.
      * @param in The Array being translated.
      */
-    void buildArrayNode(String targetName, Object[] in) throws Exception {
+    void buildArrayNode(String targetName, Object in) throws Exception {
         StringBuilder out = new StringBuilder();
         out.append("[");
 
-        for (int i=0; i<in.length; i++) {
-            if (isScalarType(in[i])) {
-                out.append( getScalarAsString(in[i]) );
+        int length = Array.getLength(in);
+        for (int i=0; i<length; i++) {
+            Object value = Array.get(in, i);
+
+            if (isScalarType(value)) {
+                out.append( getScalarAsString(value) );
             }
             else {
                 out.append("null");
-                buildNode(targetName + "[" + i + "]", in[i]);
+                buildNode(targetName + "[" + i + "]", value);
             }
 
-            if (i != in.length-1) {
+            if (i != length-1) {
                 out.append(", ");
             }
         }
