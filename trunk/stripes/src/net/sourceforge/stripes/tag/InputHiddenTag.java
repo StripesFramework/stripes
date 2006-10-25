@@ -17,6 +17,7 @@ package net.sourceforge.stripes.tag;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.BodyTag;
 import java.util.Collection;
+import java.lang.reflect.Array;
 
 /**
  * <p>Generates one or more {@literal <input type="hidden" ... />} HTML tags based on the value
@@ -99,7 +100,9 @@ public class InputHiddenTag extends InputTagSupport implements BodyTag {
             writeSingletonTag(getPageContext().getOut(), "input");
         }
         else if (valueOrValues.getClass().isArray()) {
-            for (Object value : (Object[]) valueOrValues) {
+            int len = Array.getLength(valueOrValues);
+            for (int i=0; i<len; ++i) {
+                Object value = Array.get(valueOrValues, i);
                 getAttributes().put("value", format(value));
                 writeSingletonTag(getPageContext().getOut(), "input");
             }
