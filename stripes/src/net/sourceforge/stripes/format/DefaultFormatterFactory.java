@@ -69,7 +69,7 @@ public class DefaultFormatterFactory implements FormatterFactory {
             formatter.init();
             return formatter;
         }
-        else if (clazz.isEnum()) {
+        else if (Enum.class.isAssignableFrom(clazz)) {
             formatter = new EnumFormatter();
             formatter.init();
             return formatter;
