@@ -14,13 +14,13 @@
  */
 package net.sourceforge.stripes.tag;
 
-import org.apache.commons.logging.LogFactory;
+import net.sourceforge.stripes.util.Log;
 
-import java.beans.SimpleBeanInfo;
 import java.beans.PropertyDescriptor;
+import java.beans.SimpleBeanInfo;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-import java.lang.reflect.Method;
 
 /**
  * <p>Descirbes the properties supported by the HtmlTagSupport class which is the parent of all the
@@ -34,6 +34,7 @@ import java.lang.reflect.Method;
  * @author Tim Fennell
  */
 public class HtmlTagSupportBeanInfo extends SimpleBeanInfo {
+    private static final Log log = Log.getInstance(HtmlTagSupportBeanInfo.class);
 
     /**
      * Generates a simple set of PropertyDescriptors for the HtmlTagSupport class.
@@ -75,9 +76,7 @@ public class HtmlTagSupportBeanInfo extends SimpleBeanInfo {
         }
         catch (Exception e) {
             // This is crazy talk, we're only doing things that should always succeed
-            LogFactory.getLog(HtmlTagSupportBeanInfo.class).fatal
-                ("Could not contruct bean info for HtmlTagSupport. This is very bad.", e);
-
+            log.fatal(e, "Could not contruct bean info for HtmlTagSupport. This is very bad.");
             return null;
         }
     }
