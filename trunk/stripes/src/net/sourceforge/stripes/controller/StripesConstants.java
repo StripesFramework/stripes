@@ -14,6 +14,11 @@
  */
 package net.sourceforge.stripes.controller;
 
+import net.sourceforge.stripes.util.Literal;
+
+import java.util.Set;
+import java.util.Collections;
+
 /**
  * Container for constant values that are used across more than one class in Stripes.
  *
@@ -39,6 +44,22 @@ public interface StripesConstants {
     String URL_KEY_EVENT_NAME = "_eventName";
 
     /**
+     * The name of a URL parameter that is used to tell Stripes that a flash scope exists
+     * for the current request.
+     */
+    String URL_KEY_FLASH_SCOPE_ID = "__fsk";
+
+    /**
+     * An immutable set of URL keys or request parameters that have special meaning to Stripes and
+     * as a result should not be referenced in binding, validation or other other places that
+     * work on the full set of request parameters.
+     */
+    Set<String> SPECIAL_URL_KEYS = Collections.unmodifiableSet(
+            Literal.set(StripesConstants.URL_KEY_SOURCE_PAGE,
+                        StripesConstants.URL_KEY_FIELDS_PRESENT,
+                        StripesConstants.URL_KEY_FLASH_SCOPE_ID,
+                        StripesConstants.URL_KEY_EVENT_NAME));
+    /**
      * The name under which the ActionBean for a request is stored as a request attribute before
      * forwarding to the JSP.
      */
@@ -62,12 +83,6 @@ public interface StripesConstants {
      * includes etc.
      */
     String REQ_ATTR_TAG_STACK = "__stripes_tag_stack";
-
-    /**
-     * The name of a URL parameter that is used to tell Stripes that a flash scope exists
-     * for the current request.
-     */
-    String URL_KEY_FLASH_SCOPE_ID = "__fsk";
 
     /**
      * The name of a request parameter that holds a Map of flash scopes keyed by the
