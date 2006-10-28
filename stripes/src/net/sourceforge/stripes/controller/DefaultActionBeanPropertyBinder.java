@@ -303,6 +303,13 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
      * Invoked whenever an exception is thrown when attempting to bind a property to an
      * ActionBean.  By default logs some information about the occurrence, but could be overridden
      * to do more intelligent things based on the application.
+     *
+     * @param bean the ActionBean that was the subject of binding
+     * @param name the ParameterName object for the parameter being bound
+     * @param values the list of values being bound, potentially null if the error occurred
+     *        when binding a null value
+     * @param e the exception raised during binding
+     * @param errors the validation errors object associated to the ActionBean
      */
     protected void handlePropertyBindingError(ActionBean bean, ParameterName name, List<Object> values,
                                               Exception e, ValidationErrors errors) {
@@ -336,8 +343,8 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
                     BeanUtil.setPropertyToNull(name, bean);
                 }
                 catch (Exception e) {
-                    log.warn(e, "Could not set property '", name, "' to null on ActionBean of",
-                             "type '", bean.getClass(), "'.");
+                    handlePropertyBindingError(bean, new ParameterName(name), null, e,
+                                               context.getValidationErrors());
                 }
             }
         }
