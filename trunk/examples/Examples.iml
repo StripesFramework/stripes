@@ -53,33 +53,63 @@
   </component>
   <component name="WebModuleProperties">
     <containerElement type="module" name="stripes">
-      <attribute name="method" value="5" />
-      <attribute name="URI" value="/WEB-INF/lib/stripes.jar" />
+      <attribute name="method" value="0" />
+      <attribute name="URI" value="&lt;N/A&gt;" />
     </containerElement>
     <containerElement type="library" level="module">
-      <attribute name="method" value="1" />
-      <attribute name="URI" value="/WEB-INF/lib/jstl.jar" />
+      <attribute name="method" value="0" />
+      <attribute name="URI" value="&lt;N/A&gt;" />
       <url>jar://$MODULE_DIR$/web/WEB-INF/lib/jstl.jar!/</url>
     </containerElement>
     <containerElement type="library" level="module">
-      <attribute name="method" value="1" />
-      <attribute name="URI" value="/WEB-INF/lib/standard.jar" />
+      <attribute name="method" value="0" />
+      <attribute name="URI" value="&lt;N/A&gt;" />
       <url>jar://$MODULE_DIR$/web/WEB-INF/lib/standard.jar!/</url>
     </containerElement>
     <containerElement type="library" level="module">
-      <attribute name="method" value="1" />
-      <attribute name="URI" value="/WEB-INF/lib/stripes.jar" />
+      <attribute name="method" value="0" />
+      <attribute name="URI" value="&lt;N/A&gt;" />
       <url>jar://$MODULE_DIR$/web/WEB-INF/lib/stripes.jar!/</url>
     </containerElement>
     <containerElement type="library" level="module">
-      <attribute name="method" value="1" />
-      <attribute name="URI" value="/WEB-INF/lib/commons-logging.jar" />
+      <attribute name="method" value="0" />
+      <attribute name="URI" value="&lt;N/A&gt;" />
+      <url>jar://$MODULE_DIR$/../stripes/lib/build/jsp-api.jar!/</url>
+    </containerElement>
+    <containerElement type="library" level="module">
+      <attribute name="method" value="0" />
+      <attribute name="URI" value="/WEB-INF/lib/mail.jar" />
+      <url>jar://$MODULE_DIR$/../stripes/lib/build/mail.jar!/</url>
+    </containerElement>
+    <containerElement type="library" level="module">
+      <attribute name="method" value="0" />
+      <attribute name="URI" value="&lt;N/A&gt;" />
+      <url>jar://$MODULE_DIR$/../stripes/lib/build/servlet-api.jar!/</url>
+    </containerElement>
+    <containerElement type="library" level="module">
+      <attribute name="method" value="0" />
+      <attribute name="URI" value="&lt;N/A&gt;" />
       <url>jar://$MODULE_DIR$/../stripes/lib/deploy/commons-logging.jar!/</url>
     </containerElement>
     <containerElement type="library" level="module">
-      <attribute name="method" value="1" />
-      <attribute name="URI" value="/WEB-INF/lib/log4j-1.2.9.jar" />
+      <attribute name="method" value="0" />
+      <attribute name="URI" value="/WEB-INF/lib/cos.jar" />
+      <url>jar://$MODULE_DIR$/../stripes/lib/deploy/cos.jar!/</url>
+    </containerElement>
+    <containerElement type="library" level="module">
+      <attribute name="method" value="0" />
+      <attribute name="URI" value="/WEB-INF/lib/commons-fileupload-1.1.1.jar" />
+      <url>jar://$MODULE_DIR$/../stripes/lib/test/commons-fileupload-1.1.1.jar!/</url>
+    </containerElement>
+    <containerElement type="library" level="module">
+      <attribute name="method" value="0" />
+      <attribute name="URI" value="&lt;N/A&gt;" />
       <url>jar://$MODULE_DIR$/../stripes/lib/test/log4j-1.2.9.jar!/</url>
+    </containerElement>
+    <containerElement type="library" level="module">
+      <attribute name="method" value="0" />
+      <attribute name="URI" value="/WEB-INF/lib/spring.jar" />
+      <url>jar://$MODULE_DIR$/../stripes/lib/test/spring.jar!/</url>
     </containerElement>
     <deploymentDescriptor name="web.xml" url="file://$MODULE_DIR$/web/WEB-INF/web.xml" optional="false" version="2.3" />
     <webroots>
