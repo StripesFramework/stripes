@@ -47,7 +47,7 @@ import java.util.List;
  */
 public class FormTag extends HtmlTagSupport implements BodyTag, TryCatchFinally {
     /** Log used to log error and debugging information for this class. */
-    private static Log log = Log.getInstance(FormTag.class);
+    private static final Log log = Log.getInstance(FormTag.class);
 
     /** Stores the field name (or magic values ''/'first') to set focus on. */
     private String focus;

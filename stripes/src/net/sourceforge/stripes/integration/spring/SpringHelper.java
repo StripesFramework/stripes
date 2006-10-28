@@ -58,7 +58,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author Dan Hayes, Tim Fennell
  */
 public class SpringHelper {
-    private static Log log = Log.getInstance(SpringHelper.class);
+    private static final Log log = Log.getInstance(SpringHelper.class);
 
     /** Lazily filled in map of Class to methods annotated with SpringBean. */
     private static Map<Class<?>, Collection<Method>> methodMap =

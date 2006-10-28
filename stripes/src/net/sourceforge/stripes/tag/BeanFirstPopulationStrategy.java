@@ -35,7 +35,7 @@ import net.sourceforge.stripes.util.Log;
  * @since Stripes 1.4
  */
 public class BeanFirstPopulationStrategy extends DefaultPopulationStrategy {
-    private static Log log = Log.getInstance(BeanFirstPopulationStrategy.class);
+    private static final Log log = Log.getInstance(BeanFirstPopulationStrategy.class);
 
     /**
      * Implementation of the interface method that will follow the search described in the class

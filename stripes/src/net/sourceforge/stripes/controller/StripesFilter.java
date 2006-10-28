@@ -50,7 +50,7 @@ public class StripesFilter implements Filter {
     public static final String CONFIG_CLASS = "Configuration.Class";
 
     /** Log used throughout the class. */
-    private static Log log = Log.getInstance(StripesFilter.class);
+    private static final Log log = Log.getInstance(StripesFilter.class);
 
     /** The configuration instance for Stripes. */
     private Configuration configuration;

@@ -14,17 +14,16 @@
  */
 package net.sourceforge.stripes.action;
 
-import net.sourceforge.stripes.validation.ValidationErrors;
-import net.sourceforge.stripes.controller.StripesConstants;
 import net.sourceforge.stripes.controller.FlashScope;
-import net.sourceforge.stripes.util.Log;
+import net.sourceforge.stripes.controller.StripesConstants;
+import net.sourceforge.stripes.validation.ValidationErrors;
 
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.ServletContext;
-import java.util.Locale;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 /**
  * <p>Encapsulates information about the current request.  Also provides access to the underlying
@@ -39,8 +38,6 @@ import java.util.ArrayList;
  * @author Tim Fennell
  */
 public class ActionBeanContext {
-    private static Log log = Log.getInstance(ActionBeanContext.class);
-
     private HttpServletRequest request;
     private HttpServletResponse response;
     private ServletContext servletContext;

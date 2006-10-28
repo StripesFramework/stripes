@@ -38,7 +38,7 @@ public class DefaultPopulationStrategy implements PopulationStrategy {
     private Configuration config;
 
     /** Log used to log any errors that occur. */
-    private static Log log = Log.getInstance(DefaultPopulationStrategy.class);
+    private static final Log log = Log.getInstance(DefaultPopulationStrategy.class);
 
     /** Called by the Configuration to configure the component. */
     public void init(Configuration configuration) throws Exception {

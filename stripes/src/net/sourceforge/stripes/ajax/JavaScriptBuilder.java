@@ -48,7 +48,7 @@ import java.lang.reflect.Array;
  */
 public class JavaScriptBuilder {
     /** Log instance used to log messages. */
-    static Log log = Log.getInstance(JavaScriptBuilder.class);
+    private static Log log = Log.getInstance(JavaScriptBuilder.class);
 
     /** Holds the set of classes representing the primitive types in Java. */
     static Set<Class<?>> simpleTypes = new HashSet<Class<?>>();

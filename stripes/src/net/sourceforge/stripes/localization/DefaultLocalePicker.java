@@ -51,7 +51,7 @@ public class DefaultLocalePicker implements LocalePicker {
     public static final String LOCALE_LIST = "LocalePicker.Locales";
 
     /** Log instance for use within the class. */
-    private final Log log = Log.getInstance(DefaultLocalePicker.class);
+    private static final Log log = Log.getInstance(DefaultLocalePicker.class);
 
     /** Stores a reference to the configuration passed in at initialization. */
     protected Configuration configuration;
