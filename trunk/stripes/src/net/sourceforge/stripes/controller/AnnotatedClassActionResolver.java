@@ -71,7 +71,7 @@ public class AnnotatedClassActionResolver implements ActionResolver {
     private static final String DEFAULT_HANDLER_KEY = "__default_handler";
 
     /** Log instance for use within in this class. */
-    private Log log = Log.getInstance(AnnotatedClassActionResolver.class);
+    private static final Log log = Log.getInstance(AnnotatedClassActionResolver.class);
 
     /** Handle to the configuration. */
     private Configuration configuration;

@@ -33,7 +33,7 @@ import java.util.Locale;
  */
 public class IndividualErrorTag extends HtmlTagSupport implements Tag {
 
-    private final Log log = Log.getInstance(ErrorsTag.class);
+    private static final Log log = Log.getInstance(ErrorsTag.class);
 
     /**
      * Does nothing

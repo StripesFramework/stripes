@@ -31,7 +31,7 @@ import java.util.ResourceBundle;
  * @since Stripes 1.1
  */
 public class LocalizationUtility {
-    private static Log log = Log.getInstance(LocalizationUtility.class);
+    private static final Log log = Log.getInstance(LocalizationUtility.class);
 
     /**
      * <p>Fetches the localized name for a form field if one exists in the form field resource bundle.

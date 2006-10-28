@@ -85,7 +85,7 @@ import java.util.TreeSet;
  */
 public class ErrorsTag extends HtmlTagSupport implements BodyTag {
 
-    private final Log log = Log.getInstance(ErrorsTag.class);
+    private static final Log log = Log.getInstance(ErrorsTag.class);
 
     /** The header that will be emitted if no header is defined in the resource bundle. */
     public static final String DEFAULT_HEADER =

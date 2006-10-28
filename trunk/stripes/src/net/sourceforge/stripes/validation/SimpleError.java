@@ -50,7 +50,7 @@ import java.util.Locale;
  * @see java.text.MessageFormat
  */
 public class SimpleError extends SimpleMessage implements ValidationError {
-    private static Log log = Log.getInstance(SimpleError.class);
+    private static final Log log = Log.getInstance(SimpleError.class);
 
     private String fieldNameKey;
     private String actionPath;

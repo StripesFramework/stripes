@@ -53,7 +53,7 @@ public class DispatcherServlet extends HttpServlet {
     private Boolean alwaysInvokeValidate;
 
     /** Log used throughout the class. */
-    private static Log log = Log.getInstance(DispatcherServlet.class);
+    private static final Log log = Log.getInstance(DispatcherServlet.class);
 
     /** Implemented as a simple call to doPost(request, response). */
     protected void doGet(HttpServletRequest request, HttpServletResponse response)

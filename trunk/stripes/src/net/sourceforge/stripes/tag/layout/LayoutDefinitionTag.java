@@ -31,7 +31,7 @@ import java.util.Map;
  * @since Stripes 1.1
  */
 public class LayoutDefinitionTag extends StripesTagSupport {
-    private static Log log = Log.getInstance(LayoutDefinitionTag.class);
+    private static final Log log = Log.getInstance(LayoutDefinitionTag.class);
 
     /**
      * Prefix used to construct the request attribute name used to pass context from the

@@ -37,7 +37,7 @@ import java.util.Map;
  */
 public abstract class HtmlTagSupport extends StripesTagSupport implements DynamicAttributes {
     /** Log implementation used to log errors during tag writing. */
-    private final Log log = Log.getInstance(HtmlTagSupport.class);
+    private static final Log log = Log.getInstance(HtmlTagSupport.class);
 
     /** Map containing all attributes of the tag. */
     private final Map<String,String> attributes = new HashMap<String,String>();
