@@ -19,6 +19,7 @@ import net.sourceforge.stripes.localization.LocalizationUtility;
 import net.sourceforge.stripes.util.bean.BeanUtil;
 import net.sourceforge.stripes.util.bean.ExpressionException;
 import net.sourceforge.stripes.util.bean.BeanComparator;
+import net.sourceforge.stripes.util.StringUtil;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.Tag;
@@ -223,7 +224,7 @@ public class InputOptionsCollectionTag extends HtmlTagSupport implements Tag {
         // Determine if we're going to be sorting the collection
         List<Entry> sortedEntries = new LinkedList<Entry>(this.entries);
         if (this.sort != null) {
-            String[] props = this.sort.split(" *, *");
+            String[] props = StringUtil.standardSplit(this.sort);
             for (int i=0;i<props.length;++i) {
                 if (!props[i].equals("label") && !props[i].equals("value")) {
                     props[i] = "bean." + props[i];

@@ -19,6 +19,7 @@ import net.sourceforge.stripes.config.BootstrapPropertyResolver;
 import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.util.ResolverUtil;
+import net.sourceforge.stripes.util.StringUtil;
 import net.sourceforge.stripes.controller.AnnotatedClassActionResolver;
 
 import javax.servlet.ServletException;
@@ -265,7 +266,7 @@ public class DelegatingExceptionHandler implements ExceptionHandler {
             );
         }
 
-        String[] pkgs = packages.trim().split("\\s*,\\s*");
+        String[] pkgs = StringUtil.standardSplit(packages);
         ResolverUtil<AutoExceptionHandler> resolver = new ResolverUtil<AutoExceptionHandler>();
         resolver.findImplementations(AutoExceptionHandler.class, pkgs);
         return resolver.getClasses();
