@@ -30,6 +30,7 @@ import net.sourceforge.stripes.tag.PopulationStrategy;
 import net.sourceforge.stripes.tag.TagErrorRendererFactory;
 import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.util.ReflectUtil;
+import net.sourceforge.stripes.util.StringUtil;
 import net.sourceforge.stripes.validation.TypeConverterFactory;
 
 import java.util.Collection;
@@ -163,7 +164,7 @@ public class RuntimeConfiguration extends DefaultConfiguration {
             return null;
         }
         else {
-            String[] classNames = classList.split(",");
+            String[] classNames = StringUtil.standardSplit(classList);
             Map<LifecycleStage, Collection<Interceptor>> map =
                     new HashMap<LifecycleStage, Collection<Interceptor>>();
 
