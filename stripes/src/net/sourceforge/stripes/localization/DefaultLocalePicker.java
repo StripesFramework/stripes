@@ -16,6 +16,7 @@ package net.sourceforge.stripes.localization;
 
 import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.util.Log;
+import net.sourceforge.stripes.util.StringUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
@@ -79,7 +80,7 @@ public class DefaultLocalePicker implements LocalePicker {
         }
         else {
             // Split apart the Locales on commas, and then parse the local strings into their bits
-            String[] localeStrings = configuredLocales.split(",");
+            String[] localeStrings = StringUtil.standardSplit(configuredLocales);
             for (String localeString : localeStrings) {
                 // Each locale string can be made up of two parts, locale:encoding
                 // and the locale can be made up of up to three segment, e.g. en_US_PC

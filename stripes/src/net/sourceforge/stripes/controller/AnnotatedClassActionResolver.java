@@ -26,6 +26,7 @@ import net.sourceforge.stripes.exception.StripesRuntimeException;
 import net.sourceforge.stripes.exception.StripesServletException;
 import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.util.ResolverUtil;
+import net.sourceforge.stripes.util.StringUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
@@ -537,7 +538,7 @@ public class AnnotatedClassActionResolver implements ActionResolver {
             );
         }
 
-        String[] pkgs = packages.trim().split("\\s*,\\s*");
+        String[] pkgs = StringUtil.standardSplit(packages);
         ResolverUtil<ActionBean> resolver = new ResolverUtil<ActionBean>();
         resolver.findImplementations(ActionBean.class, pkgs);
         return resolver.getClasses();
