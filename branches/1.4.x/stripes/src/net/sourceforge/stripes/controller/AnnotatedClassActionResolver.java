@@ -25,6 +25,7 @@ import net.sourceforge.stripes.config.BootstrapPropertyResolver;
 import net.sourceforge.stripes.exception.StripesServletException;
 import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.util.ResolverUtil;
+import net.sourceforge.stripes.util.StringUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.ServletContext;
@@ -515,7 +516,7 @@ public class AnnotatedClassActionResolver implements ActionResolver {
 
         String temp = bootstrap.getProperty(URL_FILTERS);
         if (temp != null) {
-            urlFilters.addAll(Arrays.asList( temp.split(",")));
+            urlFilters.addAll(Arrays.asList( StringUtil.standardSplit(temp) ));
         }
 
         return urlFilters;
@@ -533,7 +534,7 @@ public class AnnotatedClassActionResolver implements ActionResolver {
 
         String temp = bootstrap.getProperty(PACKAGE_FILTERS);
         if (temp != null) {
-            packageFilters.addAll(Arrays.asList( temp.split(",")));
+            packageFilters.addAll(Arrays.asList( StringUtil.standardSplit(temp) ));
         }
 
         return packageFilters;

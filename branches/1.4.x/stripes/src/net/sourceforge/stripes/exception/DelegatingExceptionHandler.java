@@ -19,6 +19,7 @@ import net.sourceforge.stripes.config.BootstrapPropertyResolver;
 import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.util.ResolverUtil;
+import net.sourceforge.stripes.util.StringUtil;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -236,7 +237,7 @@ public class DelegatingExceptionHandler implements ExceptionHandler {
 
         String temp = bootstrap.getProperty(URL_FILTERS);
         if (temp != null) {
-            urlFilters.addAll(Arrays.asList( temp.split(",")));
+            urlFilters.addAll(Arrays.asList( StringUtil.standardSplit(temp) ));
         }
 
         return urlFilters;
@@ -254,7 +255,7 @@ public class DelegatingExceptionHandler implements ExceptionHandler {
 
         String temp = bootstrap.getProperty(PACAKGE_FILTERS);
         if (temp != null) {
-            packageFilters.addAll(Arrays.asList( temp.split(",")));
+            packageFilters.addAll(Arrays.asList( StringUtil.standardSplit(temp) ));
         }
 
         return packageFilters;
