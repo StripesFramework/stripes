@@ -85,6 +85,7 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
         SPECIAL_KEYS.add(StripesConstants.URL_KEY_SOURCE_PAGE);
         SPECIAL_KEYS.add(StripesConstants.URL_KEY_FIELDS_PRESENT);
         SPECIAL_KEYS.add(StripesConstants.URL_KEY_FLASH_SCOPE_ID);
+		SPECIAL_KEYS.add(StripesConstants.URL_KEY_EVENT_NAME);
     }
 
     /** Map of validation annotations that is built at startup. */
