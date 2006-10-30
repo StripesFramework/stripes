@@ -108,16 +108,18 @@ public class BeforeAfterMethodInterceptor implements Interceptor {
 
         // Run After filter methods (if any)
         ActionBean bean = context.getActionBean();
-		FilterMethods filterMethods = getFilterMethods(bean.getClass());
-		List<Method> afterMethods = filterMethods.getAfterMethods(stage);
+        if (bean != null) {
+			FilterMethods filterMethods = getFilterMethods(bean.getClass());
+			List<Method> afterMethods = filterMethods.getAfterMethods(stage);
 
-        Resolution overrideResolution = null;
-        for (Method method : afterMethods) {
-            overrideResolution = invoke(bean, method, stage, After.class);
-            if (overrideResolution != null) {
-                return overrideResolution;
-            }
-        }
+	        Resolution overrideResolution = null;
+	        for (Method method : afterMethods) {
+	            overrideResolution = invoke(bean, method, stage, After.class);
+	            if (overrideResolution != null) {
+	                return overrideResolution;
+	            }
+	        }
+		}
 
 		return resolution;
 	}
