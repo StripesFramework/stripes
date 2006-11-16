@@ -46,6 +46,32 @@ public class FileBeanTests {
         Assert.assertNull(in.readLine());
     }
 
+    /** Helper method that copies a reader into a writer. */
+    private void copyReaderOut(Reader in) throws IOException {
+        Writer out = null;
+        try {
+            out = new FileWriter(this.to);
+            char[] buf = new char[1024];
+            for (int count; (count = in.read(buf)) > 0;)
+                out.write(buf, 0, count);
+        }
+        finally {
+            try {
+                if (in != null)
+                    in.close();
+            }
+            catch (Exception e) {
+            }
+            try {
+                if (out != null)
+                    out.close();
+            }
+            catch (Exception e) {
+            }
+            this.from.delete();
+        }
+    }
+
     @Test(groups="fast")
     public void testBasicSave() throws Exception {
         FileBean bean = new FileBean(from, "text/plain", "somefile.txt");
@@ -60,11 +86,7 @@ public class FileBeanTests {
     public void testReader() throws Exception {
         FileBean bean = new FileBean(from, "text/plain", "somefile.txt");
 
-        Writer writer = new FileWriter(this.to);
-        Reader reader = bean.getReader();
-        char[] buf = new char[1024];
-        for (int count; (count = reader.read(buf)) > 0;)
-            writer.write(buf, 0, count);
+        copyReaderOut(bean.getReader());
 
         Assert.assertTrue(this.to.exists());
         Assert.assertFalse(this.from.exists());
@@ -76,11 +98,7 @@ public class FileBeanTests {
         String charset = Charset.defaultCharset().name();
         FileBean bean = new FileBean(from, "text/plain", "somefile.txt", charset);
 
-        Writer writer = new FileWriter(this.to);
-        Reader reader = bean.getReader();
-        char[] buf = new char[1024];
-        for (int count; (count = reader.read(buf)) > 0;)
-            writer.write(buf, 0, count);
+        copyReaderOut(bean.getReader());
 
         Assert.assertTrue(this.to.exists());
         Assert.assertFalse(this.from.exists());
@@ -92,11 +110,7 @@ public class FileBeanTests {
         String charset = Charset.defaultCharset().name();
         FileBean bean = new FileBean(from, "text/plain", "somefile.txt");
 
-        Writer writer = new FileWriter(this.to);
-        Reader reader = bean.getReader(charset);
-        char[] buf = new char[1024];
-        for (int count; (count = reader.read(buf)) > 0;)
-            writer.write(buf, 0, count);
+        copyReaderOut(bean.getReader(charset));
 
         Assert.assertTrue(this.to.exists());
         Assert.assertFalse(this.from.exists());
