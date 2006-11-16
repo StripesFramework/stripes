@@ -48,6 +48,7 @@ public class FileBean {
     private String contentType;
     private String fileName;
     private File file;
+    private String charset;
     private boolean saved;
 
 
@@ -62,6 +63,21 @@ public class FileBean {
         this.file = file;
         this.contentType = contentType;
         this.fileName = originalName;
+    }
+    
+    /**
+     * Constructs a FileBean pointing to an on-disk representation of the file uploaded by the user.
+     * 
+     * @param file the File object on the server which holds the uploaded contents of the file
+     * @param contentType the content type of the file declared by the browser during uplaod
+     * @param originalName the name of the file as declared by the user&apos;s browser
+     * @param charset the charset specified by the servlet request
+     */
+    public FileBean(File file, String contentType, String originalName, String charset) {
+        this.file = file;
+        this.contentType = contentType;
+        this.fileName = originalName;
+        this.charset = charset;
     }
 
     /**
@@ -91,6 +107,35 @@ public class FileBean {
      */
     public InputStream getInputStream() throws IOException {
         return new FileInputStream(this.file);
+    }
+    
+    /**
+     * Gets a reader to read characters from the uploaded file. If the servlet request specifies a
+     * charset, then that charset is used. Otherwise, the reader uses the default charset.
+     * 
+     * @return a new reader
+     * @throws UnsupportedEncodingException
+     * @throws IOException
+     */
+    public Reader getReader() throws UnsupportedEncodingException, IOException {
+        if (charset == null) {
+            return new InputStreamReader(getInputStream());
+        }
+        else {
+            return getReader(charset);
+        }
+    }
+
+    /**
+     * Gets a reader to read characters from the uploaded file using the given charset.
+     * 
+     * @param charset the charset the reader should use
+     * @return a new reader
+     * @throws UnsupportedEncodingException
+     * @throws IOException
+     */
+    public Reader getReader(String charset) throws UnsupportedEncodingException, IOException {
+        return new InputStreamReader(getInputStream(), charset);
     }
 
     /**

@@ -6,6 +6,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.Assert;
 
 import java.io.*;
+import java.nio.charset.Charset;
 
 /**
  * Basic set of tests for the FileBean object.
@@ -50,6 +51,53 @@ public class FileBeanTests {
         FileBean bean = new FileBean(from, "text/plain", "somefile.txt");
 
         bean.save(this.to);
+        Assert.assertTrue(this.to.exists());
+        Assert.assertFalse(this.from.exists());
+        assertContents(this.to);
+    }
+
+    @Test(groups = "fast")
+    public void testReader() throws Exception {
+        FileBean bean = new FileBean(from, "text/plain", "somefile.txt");
+
+        Writer writer = new FileWriter(this.to);
+        Reader reader = bean.getReader();
+        char[] buf = new char[1024];
+        for (int count; (count = reader.read(buf)) > 0;)
+            writer.write(buf, 0, count);
+
+        Assert.assertTrue(this.to.exists());
+        Assert.assertFalse(this.from.exists());
+        assertContents(this.to);
+    }
+
+    @Test(groups = "fast")
+    public void testReaderWithCharset1() throws Exception {
+        String charset = Charset.defaultCharset().name();
+        FileBean bean = new FileBean(from, "text/plain", "somefile.txt", charset);
+
+        Writer writer = new FileWriter(this.to);
+        Reader reader = bean.getReader();
+        char[] buf = new char[1024];
+        for (int count; (count = reader.read(buf)) > 0;)
+            writer.write(buf, 0, count);
+
+        Assert.assertTrue(this.to.exists());
+        Assert.assertFalse(this.from.exists());
+        assertContents(this.to);
+    }
+
+    @Test(groups = "fast")
+    public void testReaderWithCharset2() throws Exception {
+        String charset = Charset.defaultCharset().name();
+        FileBean bean = new FileBean(from, "text/plain", "somefile.txt");
+
+        Writer writer = new FileWriter(this.to);
+        Reader reader = bean.getReader(charset);
+        char[] buf = new char[1024];
+        for (int count; (count = reader.read(buf)) > 0;)
+            writer.write(buf, 0, count);
+
         Assert.assertTrue(this.to.exists());
         Assert.assertFalse(this.from.exists());
         assertContents(this.to);

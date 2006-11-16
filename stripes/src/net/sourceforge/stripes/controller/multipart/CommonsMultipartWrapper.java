@@ -46,6 +46,7 @@ import java.util.Iterator;
 public class CommonsMultipartWrapper implements MultipartWrapper {
     private Map<String,FileItem> files = new HashMap<String,FileItem>();
     private Map<String,String[]> parameters = new HashMap<String, String[]>();
+    private String charset;
 
     /**
      * Pseudo-constructor that allows the class to perform any initialization necessary.
@@ -63,6 +64,7 @@ public class CommonsMultipartWrapper implements MultipartWrapper {
     public void build(HttpServletRequest request, File tempDir, long maxPostSize)
             throws IOException, FileUploadLimitExceededException {
         try {
+            this.charset = request.getCharacterEncoding();
             DiskFileItemFactory factory = new DiskFileItemFactory();
             factory.setRepository(tempDir);
             ServletFileUpload upload = new ServletFileUpload(factory);
@@ -151,7 +153,7 @@ public class CommonsMultipartWrapper implements MultipartWrapper {
             // Use an anonymous inner subclass of FileBean that overrides all the
             // methods that rely on having a File present, to use the FileItem
             // created by commons upload instead.
-            return new FileBean(null, item.getContentType(), item.getName()) {
+            return new FileBean(null, item.getContentType(), item.getName(), this.charset) {
                 @Override public long getSize() { return item.getSize(); }
 
                 @Override public InputStream getInputStream() throws IOException {
