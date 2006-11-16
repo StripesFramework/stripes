@@ -43,6 +43,7 @@ public class CosMultipartWrapper implements MultipartWrapper {
             Pattern.compile("Posted content length of (\\d*) exceeds limit of (\\d*)");
 
     private MultipartRequest multipart;
+    private String charset;
     /**
      * Pseudo-constructor that allows the class to perform any initialization necessary.
      *
@@ -60,10 +61,11 @@ public class CosMultipartWrapper implements MultipartWrapper {
             throws IOException, FileUploadLimitExceededException {
 
         try {
+            this.charset = request.getCharacterEncoding();
             this.multipart = new MultipartRequest(request,
                                                   tempDir.getAbsolutePath(),
                                                   (int) maxPostSize,
-                                                  request.getCharacterEncoding());
+                                                  this.charset);
         }
         catch (IOException ioe) {
             Matcher matcher = EXCEPTION_PATTERN.matcher(ioe.getMessage());
@@ -131,7 +133,8 @@ public class CosMultipartWrapper implements MultipartWrapper {
         if (file != null) {
             return new FileBean(file,
                                 this.multipart.getContentType(name),
-                                this.multipart.getOriginalFileName(name));
+                                this.multipart.getOriginalFileName(name),
+                                this.charset);
         }
         else {
             return null;
