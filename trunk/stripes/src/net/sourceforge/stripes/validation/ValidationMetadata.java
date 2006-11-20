@@ -65,7 +65,7 @@ public class ValidationMetadata {
         // Copy over all the simple values
         this.property = property;
         required(validate.required());
-        ignore(ignore());
+        ignore(validate.ignore());
         if (validate.minlength() != -1) minlength(validate.minlength());
         if (validate.maxlength() != -1) maxlength(validate.maxlength());
         if (validate.minvalue() != Double.MIN_VALUE) minvalue(validate.minvalue());
