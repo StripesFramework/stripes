@@ -164,7 +164,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
     public String getCharacterEncoding() { return this.characterEncoding; }
 
     /** Sets the content type for the response. */
-    public void setContentType(String string) { this.contentType = contentType; }
+    public void setContentType(String contentType) { this.contentType = contentType; }
 
     /** Gets the content type for the response. Defaults to text/html. */
     public String getContentType() { return this.contentType; }
