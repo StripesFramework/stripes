@@ -43,7 +43,7 @@ public interface TypeConverter<T> {
      *        converters will return a single type more often than not.
      * @param errors an empty collection of validation errors that should be populated by the
      *        converter for any errors that occur during validation that are user input related.
-     * @return T an instance of the converted type
+     * @return T an instance of the converted type, or null if the input cannot be converted
      */
     T convert(String input, Class<? extends T> targetType, Collection<ValidationError> errors);
 }
