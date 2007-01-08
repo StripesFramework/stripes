@@ -7,6 +7,7 @@ import java.util.Locale;
 import java.util.Collection;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Calendar;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
@@ -153,17 +154,20 @@ public class DateTypeConverterTest {
         Date date = converter.convert("Jan 31", Date.class, errors);
         Assert.assertNotNull(date);
         Assert.assertEquals(0, errors.size());
-        Assert.assertEquals(format.format(date), "01/31/2006");
+        Assert.assertEquals(format.format(date), "01/31/"
+                + Calendar.getInstance().get( Calendar.YEAR ));
 
         date = converter.convert("February 28", Date.class, errors);
         Assert.assertNotNull(date);
         Assert.assertEquals(0, errors.size());
-        Assert.assertEquals(format.format(date), "02/28/2006");
+        Assert.assertEquals(format.format(date), "02/28/"
+                + Calendar.getInstance().get( Calendar.YEAR ));
 
         date = converter.convert("03/01", Date.class, errors);
         Assert.assertNotNull(date);
         Assert.assertEquals(0, errors.size());
-        Assert.assertEquals(format.format(date), "03/01/2006");
+        Assert.assertEquals(format.format(date), "03/01/"
+                + Calendar.getInstance().get( Calendar.YEAR ));
     }
 
     @Test(groups="fast")
