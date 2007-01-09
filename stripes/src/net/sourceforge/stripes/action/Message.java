@@ -15,6 +15,7 @@
 package net.sourceforge.stripes.action;
 
 import java.util.Locale;
+import java.io.Serializable;
 
 /**
  * Represents a message that can be displayed to the user.  Encapsulates commonalities
@@ -23,7 +24,7 @@ import java.util.Locale;
  *
  * @author Tim Fennell
  */
-public interface Message {
+public interface Message extends Serializable {
     /**
      * Provides a message that can be displayed to the user. The message must be a String,
      * and should be in the language and locale appropriate for the user.
