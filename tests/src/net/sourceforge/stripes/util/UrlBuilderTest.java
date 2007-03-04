@@ -15,11 +15,11 @@
  */
 package net.sourceforge.stripes.util;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
-
-import java.util.Map;
-import java.util.HashMap;
 
 /**
  * Simple set of tests for the UrlBuilder class.
@@ -125,7 +125,7 @@ public class UrlBuilderTest {
     public void testUrlWithParameterMap() throws Exception {
         String path = "/test/page.jsp";
         UrlBuilder builder = new UrlBuilder(path, false);
-        Map<Object,Object> map = new HashMap<Object,Object>();
+        Map<Object,Object> map = new LinkedHashMap<Object,Object>();
         map.put("one", "one");
         map.put("two", Literal.list("2", "two"));
         map.put("three", Literal.array("3", "three"));
