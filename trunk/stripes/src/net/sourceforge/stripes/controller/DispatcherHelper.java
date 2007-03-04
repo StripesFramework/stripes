@@ -16,6 +16,7 @@ package net.sourceforge.stripes.controller;
 
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.action.ActionBeanContext;
+import net.sourceforge.stripes.action.DontBind;
 import net.sourceforge.stripes.action.DontValidate;
 import net.sourceforge.stripes.action.Resolution;
 import net.sourceforge.stripes.config.Configuration;
@@ -175,18 +176,25 @@ public class DispatcherHelper {
     public static Resolution doBindingAndValidation(final ExecutionContext ctx,
                                                     final boolean validate) throws Exception {
         // Bind the value to the bean - this includes performing field level validation
-        final boolean doValidate = validate && ctx.getHandler().getAnnotation(DontValidate.class) == null;
+        final boolean doBind = ctx.getHandler().getAnnotation(DontBind.class) == null;
+        final boolean doValidate = doBind && validate && ctx.getHandler().getAnnotation(DontValidate.class) == null;
         final Configuration config = StripesFilter.getConfiguration();
-        ctx.setLifecycleStage(LifecycleStage.BindingAndValidation);
-        ctx.setInterceptors(config.getInterceptors(LifecycleStage.BindingAndValidation));
+        
+        if (doBind) {
+            ctx.setLifecycleStage(LifecycleStage.BindingAndValidation);
+            ctx.setInterceptors(config.getInterceptors(LifecycleStage.BindingAndValidation));
 
-        return ctx.wrap( new Interceptor() {
-            public Resolution intercept(ExecutionContext ctx) throws Exception {
-                ActionBeanPropertyBinder binder = config.getActionBeanPropertyBinder();
-                binder.bind(ctx.getActionBean(), ctx.getActionBeanContext(), doValidate);
-                return null;
-            }
-        });
+            return ctx.wrap(new Interceptor() {
+                public Resolution intercept(ExecutionContext ctx) throws Exception {
+                    ActionBeanPropertyBinder binder = config.getActionBeanPropertyBinder();
+                    binder.bind(ctx.getActionBean(), ctx.getActionBeanContext(), doValidate);
+                    return null;
+                }
+            });
+        }
+        else {
+            return null;
+        }
     }
 
     /**
@@ -202,13 +210,15 @@ public class DispatcherHelper {
                                                 final boolean alwaysInvokeValidate) throws Exception {
         final ValidationErrors errors = ctx.getActionBeanContext().getValidationErrors();
         final ActionBean bean = ctx.getActionBean();
-        final boolean doValidate = ctx.getHandler().getAnnotation(DontValidate.class) == null;
+        final boolean doBind = ctx.getHandler().getAnnotation(DontBind.class) == null;
+        final boolean doValidate = doBind && ctx.getHandler().getAnnotation(DontValidate.class) == null;
         Configuration config = StripesFilter.getConfiguration();
 
         // Run the bean's validate() method if the following conditions are met:
-        //   1. This event is not marked to bypass validation (doValidate == true)
-        //   2. The bean is an instance of Validatable
-        //   3. We have no errors so far OR alwaysInvokeValidate is true
+        //   l. This event is not marked to bypass binding 
+        //   2. This event is not marked to bypass validation (doValidate == true)
+        //   3. The bean is an instance of Validatable
+        //   4. We have no errors so far OR alwaysInvokeValidate is true
         if (doValidate) {
 
             ctx.setLifecycleStage(LifecycleStage.CustomValidation);
