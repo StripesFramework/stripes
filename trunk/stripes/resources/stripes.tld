@@ -349,7 +349,7 @@
 
         <attribute>
             <description>A comma separated list of mime-types accepted for file uploads. (HTML Pass-through)</description>
-            <name>accepts</name><required>false</required><rtexprvalue>true</rtexprvalue>
+            <name>accept</name><required>false</required><rtexprvalue>true</rtexprvalue>
         </attribute>
 
         <!-- Start: Standard HTML attributes -->
