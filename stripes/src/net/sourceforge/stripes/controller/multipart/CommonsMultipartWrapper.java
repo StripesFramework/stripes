@@ -80,7 +80,7 @@ public class CommonsMultipartWrapper implements MultipartWrapper {
                         values = new ArrayList<String>();
                         params.put(item.getFieldName(), values);
                     }
-                    values.add(item.getString());
+                    values.add(charset == null ? item.getString() : item.getString(charset));
                 }
                 // Else store the file param
                 else {
