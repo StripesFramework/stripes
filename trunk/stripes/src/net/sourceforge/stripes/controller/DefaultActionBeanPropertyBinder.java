@@ -189,9 +189,19 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
 
             try {
                 String pname = name.getName(); // exact name of the param in the request
+                
+                if (pname.equals(context.getEventName())) {
+                    String[] values = entry.getValue();
+                    if ((values != null) && ((values.length > 1) || (values[0].length() > 0))) {
+                        log.warn("Attempting to bind ", values.length, " value",
+                                 values.length != 1 ? "s" : "",
+                                 " to a property with the same name as the event (", pname, ")");
+                    }
+                    continue;
+                }
 
                 if (!StripesConstants.SPECIAL_URL_KEYS.contains(pname)
-                        && !pname.equals(context.getEventName()) && !fieldErrors.containsKey(pname)) {
+                        && !fieldErrors.containsKey(pname)) {
                     log.trace("Running binding for property with name: ", name);
 
                     // Determine the target type
