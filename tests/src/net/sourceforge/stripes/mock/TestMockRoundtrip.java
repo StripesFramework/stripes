@@ -217,4 +217,11 @@ public class TestMockRoundtrip implements ActionBean {
         Assert.assertEquals(trip.getDestination(), "/mock/success.jsp");
         Assert.assertEquals(trip.getRequest().getAttribute("integerResult"), new Integer(2));
     }
+    
+    @Test(groups="fast")
+    public void testRequestCaseInsensitive(){
+    	MockHttpServletRequest request = new MockHttpServletRequest("", "");
+    	request.addHeader("User-Agent", "Netscape/6.0");
+    	Assert.assertEquals(request.getHeader("User-Agent"), "Netscape/6.0", MockHttpServletRequest.class + ".addHeader/getHeader do not properly");
+    }
 }

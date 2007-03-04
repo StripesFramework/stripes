@@ -116,6 +116,8 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
     /** Returns any header as a String if it exists. */
     public String getHeader(String name) {
+        if (name != null)
+            name = name.toLowerCase();
         Object header = this.headers.get(name);
         if (header != null) {
             return header.toString();
