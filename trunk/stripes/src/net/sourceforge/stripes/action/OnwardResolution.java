@@ -35,7 +35,7 @@ import java.util.Map;
  */
 public abstract class OnwardResolution<T extends OnwardResolution<T>> {
     protected String path;
-    Map<String,Object> parameters = new HashMap<String,Object>();
+    protected Map<String,Object> parameters = new HashMap<String,Object>();
 
     /**
      * Default constructor that takes the supplied path and stores it for use.
