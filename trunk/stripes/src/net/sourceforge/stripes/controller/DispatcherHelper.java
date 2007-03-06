@@ -176,8 +176,9 @@ public class DispatcherHelper {
     public static Resolution doBindingAndValidation(final ExecutionContext ctx,
                                                     final boolean validate) throws Exception {
         // Bind the value to the bean - this includes performing field level validation
-        final boolean doBind = ctx.getHandler().getAnnotation(DontBind.class) == null;
-        final boolean doValidate = doBind && validate && ctx.getHandler().getAnnotation(DontValidate.class) == null;
+        final Method handler = ctx.getHandler();
+        final boolean doBind = handler != null && handler.getAnnotation(DontBind.class) == null;
+        final boolean doValidate = doBind && validate && handler.getAnnotation(DontValidate.class) == null;
         final Configuration config = StripesFilter.getConfiguration();
         
         if (doBind) {
@@ -210,8 +211,9 @@ public class DispatcherHelper {
                                                 final boolean alwaysInvokeValidate) throws Exception {
         final ValidationErrors errors = ctx.getActionBeanContext().getValidationErrors();
         final ActionBean bean = ctx.getActionBean();
-        final boolean doBind = ctx.getHandler().getAnnotation(DontBind.class) == null;
-        final boolean doValidate = doBind && ctx.getHandler().getAnnotation(DontValidate.class) == null;
+        final Method handler = ctx.getHandler();
+        final boolean doBind = handler != null && handler.getAnnotation(DontBind.class) == null;
+        final boolean doValidate = doBind && handler.getAnnotation(DontValidate.class) == null;
         Configuration config = StripesFilter.getConfiguration();
 
         // Run the bean's validate() method if the following conditions are met:
