@@ -34,8 +34,8 @@ import java.util.Map;
  * @author Tim Fennell
  */
 public abstract class OnwardResolution<T extends OnwardResolution<T>> {
-    protected String path;
-    protected Map<String,Object> parameters = new HashMap<String,Object>();
+    private String path;
+    private Map<String,Object> parameters = new HashMap<String,Object>();
 
     /**
      * Default constructor that takes the supplied path and stores it for use.
@@ -130,6 +130,18 @@ public abstract class OnwardResolution<T extends OnwardResolution<T>> {
         }
 
         return (T) this;
+    }
+
+    /**
+     * <p>Provides access to the Map of parameters that has been accumulated so far
+     * for this resolution. The reference returned is to the internal parameters
+     * map! As such any changed made to the Map will be reflected in the Resolution,
+     * and any subsequent calls to addParameter(s) will be reflected in the Map.</p>
+     *
+     * @return the Map of parameters for the resolution
+     */
+    public Map<String, Object> getParameters() {
+        return parameters;
     }
 
     /**
