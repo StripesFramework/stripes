@@ -156,9 +156,15 @@ public class FormTag extends HtmlTagSupport implements BodyTag, TryCatchFinally 
     ////////////////////////////////////////////////////////////
 
     /**
-     * Does nothing except return EVAL_BODY_BUFFERED.  Everything of interest happens in doEndTag.
+     * Does sanity checks and returns EVAL_BODY_BUFFERED. Everything else of interest happens in
+     * doEndTag.
      */
     public int doStartTag() throws JspException {
+        if (this.actionWithoutContext == null) {
+            throw new StripesJspException("The form tag attributes 'beanClass' and 'action' "
+                    + "are both null. One of the two must be supplied to determine which "
+                    + "action bean should handle the form submission.");
+        }
         getTagStack().push(this);
         return EVAL_BODY_BUFFERED;
     }
