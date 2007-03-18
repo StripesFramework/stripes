@@ -135,4 +135,19 @@ public class UrlBuilderTest {
         Assert.assertEquals(result,
                             "/test/page.jsp?one=one&two=2&two=two&three=3&three=three");
     }
+
+    @Test(groups="fast")
+    public void testUrlWithRepeatedParameters() throws Exception {
+        String path = "/test/page.jsp";
+        UrlBuilder builder = new UrlBuilder(path, false);
+        builder.addParameter("one", "one");
+        builder.addParameter("one", "two", "three");
+        builder.addParameter("one", "four");
+
+        String result = builder.toString();
+        Assert.assertTrue(result.contains("one=one"));
+        Assert.assertTrue(result.contains("one=two"));
+        Assert.assertTrue(result.contains("one=three"));
+        Assert.assertTrue(result.contains("one=four"));
+    }
 }

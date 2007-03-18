@@ -93,39 +93,44 @@ public class UrlBuilder {
      * null, and if so generates a parameter with no value.  URL Encodes the parameter values
      * to make sure that it is safe to insert into the URL.</p>
      *
-     * <p>If a single parameter value is passed, and the value is a Collection, then a parameter
-     * will be added to the URL for each entry in the collection.</p.
+     * <p>If any parameter value passed is a Collection or an Array then this method is called
+     * recursively with the contents of the collection or array. As a result you can pass
+     * arbitrarily nested arrays and collections to this method and it will recurse through them
+     * adding all scalar values as parameters to the URL.</p.
      *
      * @param name the name of the request parameter being added
-     * @param values one or more scalar values for the parameter supplied, or a single Collection
+     * @param values one or more values for the parameter supplied
      */
     public void addParameter(String name, Object... values) {
         try {
-            // Do a little special case checking to see if we were really passed
-            // a collection instead of one or more scalar values
-            if (values != null && values.length == 1 && values[0] instanceof Collection) {
-                values = ((Collection) values[0]).toArray();
-            }
-
             // If values is null or empty, then simply sub in a single empty string
             if (values == null || values.length == 0) {
                 values = Literal.array("");
             }
 
             for (Object v : values) {
-                // Figure out whether we already have params or not
-                if (!this.seenQuestionMark) {
-                    this.url.append('?');
-                    this.seenQuestionMark = true;
+                // Special case: recurse for nested collections and arrays!
+                if (v instanceof Collection) {
+                    addParameter(name, ((Collection) v).toArray());
+                }
+                else if (v.getClass().isArray()) {
+                    addParameter(name, (Object[]) v);
                 }
                 else {
-                    this.url.append(this.parameterSeparator);
-                }
+                    // Figure out whether we already have params or not
+                    if (!this.seenQuestionMark) {
+                        this.url.append('?');
+                        this.seenQuestionMark = true;
+                    }
+                    else {
+                        this.url.append(this.parameterSeparator);
+                    }
 
-                this.url.append(name);
-                this.url.append('=');
-                if (v != null) {
-                    this.url.append( URLEncoder.encode(v.toString(), "UTF-8") );
+                    this.url.append(name);
+                    this.url.append('=');
+                    if (v != null) {
+                        this.url.append( URLEncoder.encode(v.toString(), "UTF-8") );
+                    }
                 }
             }
         }
