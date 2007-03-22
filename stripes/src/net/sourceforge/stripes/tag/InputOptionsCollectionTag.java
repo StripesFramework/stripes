@@ -96,7 +96,7 @@ public class InputOptionsCollectionTag extends HtmlTagSupport implements Tag {
     }
 
     /** Internal list of entires that is assembled from the items in the collection. */
-    private List<Entry> entries;
+    private List<Entry> entries = new LinkedList<Entry>();
 
     /** Sets the collection that will be used to generate options. */
     public void setCollection(Collection collection) {
@@ -161,7 +161,6 @@ public class InputOptionsCollectionTag extends HtmlTagSupport implements Tag {
      * @param value the actual value for the option
      */
     protected void addEntry(Object item, Object label, Object value) {
-        if (this.entries == null) this.entries = new LinkedList<Entry>();
         this.entries.add(new Entry(item, label, value));
     }
 
@@ -175,6 +174,9 @@ public class InputOptionsCollectionTag extends HtmlTagSupport implements Tag {
      *         not present on the beans in the collection
      */
     public int doStartTag() throws JspException {
+    	if (this.collection == null)
+    		return SKIP_BODY;
+    	
         String labelProperty = getLabel();
         String valueProperty = getValue();
 
