@@ -255,6 +255,13 @@ public class ResolverUtil<T> {
         File[] files = location.listFiles();
         StringBuilder builder = null;
 
+		// File.listFiles() can return null when an IO error occurs!
+		if (files == null) {
+			log.warn("Could not list directory " + location.getAbsolutePath() +
+			         " when looking for classes matching: " + test);
+			return;
+		}
+
         for (File file : files) {
             builder = new StringBuilder(100);
             builder.append(parent).append("/").append(file.getName());
