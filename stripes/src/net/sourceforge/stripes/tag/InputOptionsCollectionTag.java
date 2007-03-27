@@ -126,6 +126,9 @@ public class InputOptionsCollectionTag extends HtmlTagSupport implements Tag {
      *         not present on the beans in the collection, or output cannot be written.
      */
     public int doStartTag() throws JspException {
+    	if (this.collection == null)
+    		return SKIP_BODY;
+    	
         String labelProperty = getLabel();
         String valueProperty = getValue();
 
