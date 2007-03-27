@@ -106,4 +106,7 @@ public class InputImageTag extends InputTagSupport {
 
     public void setSrc(String src) { set("src", src); }
     public String getSrc() { return get("src"); }
+
+    public void setValue(String value) { set("value", value); }
+    public String getValue() { return get("value"); }
 }
