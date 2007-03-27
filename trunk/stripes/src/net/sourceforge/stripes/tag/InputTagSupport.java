@@ -340,22 +340,28 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
      * @return int the value returned by the child class from doStartInputTag()
      */
     public final int doEndTag() throws JspException {
-        int result = doEndInputTag();
+        // Wrap in a try/finally because a custom error renderer could throw an
+        // exception, and some containers in their infinite wisdom continue to
+        // cache/pool the tag even after a JSPException is thrown!
+        try {
+            int result = doEndInputTag();
 
-        if (getFieldErrors() != null) {
-            this.errorRenderer.doAfterEndTag();
+            if (getFieldErrors() != null) {
+                this.errorRenderer.doAfterEndTag();
+            }
+
+            if (this.focus) {
+                makeFocused();
+            }
+
+            return result;
         }
-
-        if (this.focus) {
-            makeFocused();
+        finally {
+            this.errorRenderer = null;
+            this.fieldErrors = null;
+            this.fieldErrorsLoaded = false;
+            this.focus = false;
         }
-
-        this.errorRenderer = null;
-        this.fieldErrors = null;
-        this.fieldErrorsLoaded = false;
-        this.focus = false;
-
-        return result;
     }
 
     /** Rethrows the passed in throwable in all cases. */
