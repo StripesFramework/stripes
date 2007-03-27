@@ -394,11 +394,11 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
             JspWriter out = getPageContext().getOut();
             out.write("<script type=\"text/javascript\">var z=document.getElementById('");
             out.write(getId());
-            out.write("'); try{z.focus();");
+            out.write("'); setTimeout('try{z.focus();");
             if ("text".equals(getAttributes().get("type")) || "password".equals(getAttributes().get("type"))) {
                 out.write("z.select();");
             }
-            out.write("} catch(e) {}</script>");
+            out.write("} catch(e) {}', 1);</script>");
 
             // Clean up tag state involved with focus
             this.focus = false;
