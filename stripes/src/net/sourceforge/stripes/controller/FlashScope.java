@@ -325,7 +325,7 @@ public class FlashScope extends HashMap<String,Object> implements Serializable {
                 scopes = getContainer(session);
 
                 if (scopes == null && create) {
-                    synchronized (StripesConstants.REQ_ATTR_FLASH_SCOPE_LOCATION) {
+                    synchronized (FlashScope.class) {
                         // after obtaining a lock, try looking it up again
                         scopes = getContainer(session);
 
