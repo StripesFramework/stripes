@@ -243,7 +243,7 @@ public class InputOptionsCollectionTag extends HtmlTagSupport implements Tag {
         tag.getAttributes().putAll(getAttributes());
 
         for (Entry entry : sortedEntries) {
-                tag.setLabel(entry.label.toString());
+                tag.setLabel(entry.label == null ? null : entry.label.toString());
                 tag.setValue(entry.value);
             try {
                 tag.doStartTag();
