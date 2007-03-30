@@ -15,15 +15,23 @@
 package net.sourceforge.stripes.controller;
 
 import net.sourceforge.stripes.action.ActionBean;
+import net.sourceforge.stripes.action.ActionBeanContext;
+import net.sourceforge.stripes.exception.StripesRuntimeException;
+import net.sourceforge.stripes.exception.StripesServletException;
 import net.sourceforge.stripes.util.Log;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.Serializable;
+import java.lang.reflect.Proxy;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * <p>A FlashScope is an object that can be used to store objects and make them available as
@@ -77,9 +85,33 @@ public class FlashScope extends HashMap<String,Object> implements Serializable {
     public static final int DEFAULT_TIMEOUT_IN_SECONDS = 120;
 
     private static final Log log = Log.getInstance(FlashScope.class);
+    private static final Random random = new Random();
     private long startTime;
     private int timeout = DEFAULT_TIMEOUT_IN_SECONDS;
     private HttpServletRequest request;
+    private Integer key;
+
+    /**
+     * <p>
+     * Protected constructor to prevent random creation of FlashScopes. Uses the request to generate
+     * a key under which the flash scope will be stored, and can be identified by later.
+     * </p>
+     * <p>
+     * This constructor is deprecated. {@link #FlashScope(HttpServletRequest, Integer)} is the
+     * preferred constructor.
+     * </p>
+     * 
+     * @param request the request for which this flash scope will be used.
+     */
+    @Deprecated
+    protected FlashScope(HttpServletRequest request) {
+        this.request = request;
+        StripesRequestWrapper wrapper = StripesRequestWrapper.findStripesWrapper(request);
+        if (wrapper == null)
+            throw new StripesRuntimeException(
+                    "No StripesRequestWrapper was found for the given request");
+        this.key = wrapper.hashCode();
+    }
 
     /**
      * Protected constructor to prevent random creation of FlashScopes. Uses the request
@@ -87,9 +119,11 @@ public class FlashScope extends HashMap<String,Object> implements Serializable {
      * by later.
      *
      * @param request the request for which this flash scope will be used.
+     * @param key the key by which this flash scope can be looked up in the map
      */
-    protected FlashScope(HttpServletRequest request) {
+    protected FlashScope(HttpServletRequest request, Integer key) {
         this.request = request;
+        this.key = key;
     }
 
     /** Returns the timeout in seconds after which the flash scope will be discarded. */
@@ -102,7 +136,7 @@ public class FlashScope extends HashMap<String,Object> implements Serializable {
      * Returns the key used to store this flash scope in the colleciton of flash scopes.
      */
     public Integer key() {
-        return this.request.hashCode();
+        return key;
     }
 
     /**
@@ -115,6 +149,35 @@ public class FlashScope extends HashMap<String,Object> implements Serializable {
      * request was not made) after a period of time, so that it can be removed from session.</p>
      */
     public void requestComplete() {
+        // Clean up any old-age flash scopes
+        Map<Integer, FlashScope> scopes = getContainer(request, false);
+        if (scopes != null && !scopes.isEmpty()) {
+            Iterator<FlashScope> iterator = scopes.values().iterator();
+            while (iterator.hasNext()) {
+                if (iterator.next().isExpired()) {
+                    iterator.remove();
+                }
+            }
+        }
+
+        // Replace the request and response objects for the request cycle that is ending
+        // with objects that are safe to use on the ensuing request.
+        HttpServletRequest flashRequest = FlashRequest.wrapRequest(request);
+        HttpServletResponse flashResponse = (HttpServletResponse) Proxy.newProxyInstance(
+                getClass().getClassLoader(),
+                new Class<?>[] { HttpServletResponse.class },
+                new FlashResponseInvocationHandler());
+        for (Object o : this.values()) {
+            if (o instanceof ActionBean) {
+                ActionBeanContext context = ((ActionBean) o).getContext();
+                if (context != null) {
+                    context.setRequest(flashRequest);
+                    context.setResponse(flashResponse);
+                }
+            }
+        }
+
+        // start timer, clear request
         this.startTime = System.currentTimeMillis();
         this.request = null;
     }
@@ -213,15 +276,28 @@ public class FlashScope extends HashMap<String,Object> implements Serializable {
             return null;
         }
         else {
-            Integer id = new Integer(keyString);
-            Map<Integer,FlashScope> scopes = getContainer(req, false);
-            return (scopes == null) ? null : scopes.remove(id);
+            try {
+                Integer id = new Integer(keyString);
+                Map<Integer, FlashScope> scopes = getContainer(req, false);
+                return scopes == null ? null : scopes.remove(id);
+            }
+            catch (NumberFormatException e) {
+                return null;
+            }
         }
     }
 
     /**
-     * Gets the current flash scope into which items can be stored temporarily.
-     *
+     * <p>
+     * Gets the current flash scope into which items can be stored temporarily. If
+     * <code>create</code> is true, then a new one will be created.
+     * </p>
+     * <p>
+     * It is assumed that the request object will be used by only one thread so access to the
+     * request is not synchronized. Access to the scopes map that is stored in the session and the
+     * static {@link Random} that is used to generate the keys for the map is synchronized.
+     * </p>
+     * 
      * @param req the current request
      * @param create if true then the FlashScope will be created when it does not exist already
      * @return the current FlashScope, or null if it does not exist and create is false
@@ -233,10 +309,20 @@ public class FlashScope extends HashMap<String,Object> implements Serializable {
             return null;
         }
         else {
-            FlashScope scope = scopes.get(req.hashCode());
-            if (scope == null && create) {
-                scope = new FlashScope(req);
-                scopes.put(req.hashCode(), scope);
+            FlashScope scope = null;
+            Integer key = (Integer) req.getAttribute(StripesConstants.REQ_ATTR_CURRENT_FLASH_SCOPE);
+            if (key != null) {
+                scope = scopes.get(key);
+            }
+            else if (create) {
+                synchronized (random) {
+                    do {
+                        key = random.nextInt();
+                    } while (scopes.containsKey(key));
+                    scope = new FlashScope(req, key);
+                    scopes.put(scope.key(), scope);
+                }
+                req.setAttribute(StripesConstants.REQ_ATTR_CURRENT_FLASH_SCOPE, key);
             }
 
             return scope;
@@ -258,12 +344,19 @@ public class FlashScope extends HashMap<String,Object> implements Serializable {
             HttpSession session =  req.getSession(create);
             Map<Integer,FlashScope> scopes = null;
             if (session != null) {
-                 scopes = (Map<Integer,FlashScope>)
-                        session.getAttribute(StripesConstants.REQ_ATTR_FLASH_SCOPE_LOCATION);
+                scopes = getContainer(session);
 
                 if (scopes == null && create) {
-                    scopes = new HashMap<Integer,FlashScope>();
-                    req.getSession().setAttribute(StripesConstants.REQ_ATTR_FLASH_SCOPE_LOCATION, scopes);
+                    synchronized (StripesConstants.REQ_ATTR_FLASH_SCOPE_LOCATION) {
+                        // after obtaining a lock, try looking it up again
+                        scopes = getContainer(session);
+
+                        // if still not there, then create and save it
+                        if (scopes == null) {
+                            scopes = new ConcurrentHashMap<Integer, FlashScope>();
+                            session.setAttribute(StripesConstants.REQ_ATTR_FLASH_SCOPE_LOCATION, scopes);
+                        }
+                    }
                 }
             }
 
@@ -278,5 +371,20 @@ public class FlashScope extends HashMap<String,Object> implements Serializable {
                      "response is already committed!");
             return null;
         }
+    }
+    
+    /**
+     * Internal helper method to retrieve the container for all the flash scopes. Will return null
+     * if the container does not exist.
+     * 
+     * @param session
+     * @return a Map of integer keys to FlashScope objects
+     * @throws IllegalStateException if the session has been invalidated
+     */
+    @SuppressWarnings("unchecked")
+    private static Map<Integer, FlashScope> getContainer(HttpSession session)
+            throws IllegalStateException {
+        return (Map<Integer, FlashScope>) session
+                .getAttribute(StripesConstants.REQ_ATTR_FLASH_SCOPE_LOCATION);
     }
 }
