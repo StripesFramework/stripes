@@ -89,6 +89,9 @@ public interface StripesConstants {
      * hashcode of the request that generated them.
      */
     String REQ_ATTR_FLASH_SCOPE_LOCATION = "__flash_scopes";
+    
+    /** The name of a request attribute that holds the lookup key of the current flash scope. */
+    String REQ_ATTR_CURRENT_FLASH_SCOPE = "__current_flash_scope";
 
     /**
      * Request attribute key defined by the servlet spec for storing the included servlet
