@@ -92,28 +92,6 @@ public class FlashScope extends HashMap<String,Object> implements Serializable {
     private Integer key;
 
     /**
-     * <p>
-     * Protected constructor to prevent random creation of FlashScopes. Uses the request to generate
-     * a key under which the flash scope will be stored, and can be identified by later.
-     * </p>
-     * <p>
-     * This constructor is deprecated. {@link #FlashScope(HttpServletRequest, Integer)} is the
-     * preferred constructor.
-     * </p>
-     * 
-     * @param request the request for which this flash scope will be used.
-     */
-    @Deprecated
-    protected FlashScope(HttpServletRequest request) {
-        this.request = request;
-        StripesRequestWrapper wrapper = StripesRequestWrapper.findStripesWrapper(request);
-        if (wrapper == null)
-            throw new StripesRuntimeException(
-                    "No StripesRequestWrapper was found for the given request");
-        this.key = wrapper.hashCode();
-    }
-
-    /**
      * Protected constructor to prevent random creation of FlashScopes. Uses the request
      * to generate a key under which the flash scope will be stored, and can be identified
      * by later.
