@@ -14,6 +14,7 @@
  */
 package net.sourceforge.stripes.controller;
 
+import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.config.BootstrapPropertyResolver;
 import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.config.RuntimeConfiguration;
@@ -212,8 +213,19 @@ public class StripesFilter implements Filter {
         FlashScope flash = FlashScope.getPrevious(req);
 
         if (flash != null) {
-            for (Map.Entry<String,Object> entry : flash.entrySet()) {
-                req.setAttribute(entry.getKey(), entry.getValue());
+            for (Map.Entry<String, Object> entry : flash.entrySet()) {
+                Object value = entry.getValue();
+                if (value instanceof ActionBean) {
+                    HttpServletRequest tmp = ((ActionBean) value).getContext().getRequest();
+                    if (tmp != null) {
+                        tmp = StripesRequestWrapper.findStripesWrapper(tmp);
+                        if (tmp != null) {
+                            tmp = (HttpServletRequest) ((StripesRequestWrapper) tmp).getRequest();
+                            ((FlashRequest) tmp).setDelegate(req);
+                        }
+                    }
+                }
+                req.setAttribute(entry.getKey(), value);
             }
         }
     }
@@ -229,16 +241,6 @@ public class StripesFilter implements Filter {
         FlashScope flash = FlashScope.getCurrent(req, false);
         if (flash != null) {
             flash.requestComplete();
-        }
-
-        // Clean up any old-age flash scopes
-        Collection<FlashScope> flashes = FlashScope.getAllFlashScopes(req);
-        Iterator<FlashScope> iterator = flashes.iterator();
-        while (iterator.hasNext()) {
-            FlashScope f = iterator.next();
-            if (f.isExpired()) {
-                iterator.remove();
-            }
         }
     }
 

@@ -15,6 +15,9 @@ import net.sourceforge.stripes.action.UrlBinding;
 import net.sourceforge.stripes.action.HandlesEvent;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import java.lang.reflect.Proxy;
 import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
@@ -27,7 +30,7 @@ import java.util.regex.Matcher;
 @UrlBinding("/FlashScopeTests.action")
 public class FlashScopeTests implements ActionBean {
     static final Pattern FLASH_ID_REGEX =
-            Pattern.compile(".*" + StripesConstants.URL_KEY_FLASH_SCOPE_ID + "=(\\d+).*");
+            Pattern.compile(".*" + StripesConstants.URL_KEY_FLASH_SCOPE_ID + "=(-?\\d+).*");
 
     private ActionBeanContext context;
     public ActionBeanContext getContext() { return context; }
@@ -45,6 +48,11 @@ public class FlashScopeTests implements ActionBean {
         }
 
         return new RedirectResolution("/FlashScopeTests.action");
+    }
+    
+    @HandlesEvent("FlashBean")
+    public Resolution flashBean() {
+        return new RedirectResolution("/FlashScopeTests.action").flash(this);
     }
 
     /** A do-nothing test handler. */
@@ -84,5 +92,28 @@ public class FlashScopeTests implements ActionBean {
 
         Assert.assertEquals(FlashScope.getAllFlashScopes(trip2.getRequest()).size(), 0,
                             "FlashScope should have been removed from session after use.");
+        
+        // Test flashing an ActionBean
+        MockRoundtrip trip3 = new MockRoundtrip(ctx, FlashScopeTests.class, (MockHttpSession) trip
+                .getRequest().getSession());
+
+        // Get the flash scope ID from the redirect URL and add it back as a parameter
+        trip3.addParameter(StripesConstants.URL_KEY_FLASH_SCOPE_ID, id);
+        trip3.execute("FlashBean");
+
+        try {
+            ActionBeanContext tmp = trip3.getActionBean(getClass()).getContext();
+            HttpServletResponse response = tmp.getResponse();
+            HttpServletRequest request = tmp.getRequest();
+            Assert.assertNotNull(request);
+            Assert.assertNotNull(response);
+            Assert.assertTrue(Proxy.class.isAssignableFrom(response.getClass()));
+            Assert.assertEquals(StripesRequestWrapper.class, request.getClass());
+            response.isCommitted();
+            Assert.fail(
+                    "Response should have thrown IllegalStateException after request cycle complete");
+        }
+        catch (IllegalStateException e) {
+        }
     }
 }
