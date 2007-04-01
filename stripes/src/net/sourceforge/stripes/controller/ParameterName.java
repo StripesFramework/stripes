@@ -25,7 +25,7 @@ import java.util.regex.Matcher;
  */
 public class ParameterName implements Comparable<ParameterName> {
     /** Stores the regular expression that will remove all [] segments. */
-    public static final Pattern pattern = Pattern.compile("\\[.*\\]");
+    public static final Pattern pattern = Pattern.compile("\\[.*?\\]");
 
     /** Stores the name passed in at construction time. */
     private String name;
@@ -107,6 +107,11 @@ public class ParameterName implements Comparable<ParameterName> {
     public boolean equals(Object obj) {
         return (obj instanceof ParameterName) &&
                 (this == obj || compareTo((ParameterName) obj) == 0);
+    }
+
+    /** Simple hashcode method based on the name of the parameter. */
+    public int hashCode() {
+        return this.name.hashCode();
     }
 
     /**
