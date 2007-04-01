@@ -34,6 +34,7 @@
     <property name="zip.file"     value="${zip.prefix}.zip"/>
     <property name="zip.src.prefix" value="stripes-${stripes.version}-src"/>
     <property name="zip.src.file" value="${zip.src.prefix}.zip"/>
+    <property name="mvn.bundle.file" value="stripes-${stripes.version}-bundle.jar"/>
 
     <!-- =================================================================== -->
     <!-- Builds Stripes, then copies dependencies over into the examples.    -->
@@ -145,6 +146,24 @@
                 <include name="tests/build.xml"/>
             </zipfileset>
         </zip>
+
+		<!-- make the maven2 bundle -->
+		<filter token="stripes.version" value="${stripes.version}"/>
+		<copy file="${stripes.dir}/pom.xml" todir="dist/" filtering="true"/>
+		<copy file="${stripes.dir}/dist/stripes.jar" tofile="dist/stripes-${stripes.version}.jar"/>
+		<jar destfile="dist/stripes-${stripes.version}-sources.jar">
+			<zipfileset dir="stripes/src" prefix="."/>
+			<zipfileset dir="stripes/resources" prefix="."/>
+		</jar>
+		<jar destfile="dist/${mvn.bundle.file}">
+			<zipfileset file="dist/pom.xml" prefix="."/>
+			<zipfileset file="dist/stripes-${stripes.version}-sources.jar" prefix="."/>
+			<zipfileset dir="dist" includes="stripes-${stripes.version}.jar" prefix="."/>
+		</jar>
+		
+		<delete file="dist/stripes-${stripes.version}-sources.jar" quiet="true"/>
+		<delete file="dist/stripes-${stripes.version}.jar" quiet="true"/>
+		<delete file="dist/pom.xml" quiet="true"/>	
     </target>
 
     <!-- =================================================================== -->
