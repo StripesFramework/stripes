@@ -159,7 +159,7 @@ public class InputOptionsCollectionTag extends HtmlTagSupport implements Tag {
                 }
                 if (localizedLabel != null) label = localizedLabel;
 
-                tag.setLabel(label.toString());
+                tag.setLabel(label == null ? null : label.toString());
                 tag.setValue(value);
 				try {
 	                tag.doStartTag();
