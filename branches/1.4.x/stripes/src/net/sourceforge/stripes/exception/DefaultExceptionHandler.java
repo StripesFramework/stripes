@@ -15,6 +15,7 @@
 package net.sourceforge.stripes.exception;
 
 import net.sourceforge.stripes.config.Configuration;
+import net.sourceforge.stripes.util.Log;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -28,11 +29,15 @@ import javax.servlet.ServletException;
  * @since Stripes 1.3
  */
 public class DefaultExceptionHandler implements ExceptionHandler {
+    private static final Log log = Log.getInstance(DefaultExceptionHandler.class);
 
     /** Simply rethrows the exception passed in. */
     public void handle(Throwable throwable,
                        HttpServletRequest request,
                        HttpServletResponse response) throws ServletException {
+
+        log.warn(throwable, "Unhandled exception caught by the Stripes default exception handler.");
+
         if (throwable instanceof ServletException) {
             throw (ServletException) throwable;
         }
