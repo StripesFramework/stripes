@@ -70,15 +70,25 @@ public class FlashRequest implements HttpServletRequest, Serializable {
     private int remotePort;
     private int serverPort;
     
-    public static StripesRequestWrapper wrapRequest(HttpServletRequest request) {
-        try {
-            return new StripesRequestWrapper(new FlashRequest(request));
-        }
-        catch (StripesServletException e) {
-            throw new StripesRuntimeException(e);
-        }
+	/**
+	 * Finds the StripesRequestWrapper for the supplied request and swaps out the underlying
+	 * request for an instance of FlashRequest.
+	 *
+	 * @param request the current HttpServletRequest
+	 * @return the StripesRequestWrapper for this request with the "live" request replaced
+	 */
+    public static StripesRequestWrapper replaceRequest(HttpServletRequest request) {
+        StripesRequestWrapper wrapper = StripesRequestWrapper.findStripesWrapper(request);
+        wrapper.setRequest(new FlashRequest((HttpServletRequest) wrapper.getRequest()));
+        return wrapper;
     }
 
+    /**
+     * Creates a new FlashRequest by copying all appropriate attributes from the prototype
+     * request supplied.
+     *
+     * @param prototype the HttpServletRequest to create a disconnected copy of
+     */
     @SuppressWarnings({ "unchecked", "deprecation" })
     public FlashRequest(HttpServletRequest prototype) {
         // copy properties
