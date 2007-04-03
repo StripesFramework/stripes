@@ -140,7 +140,7 @@ public class FlashScope extends HashMap<String,Object> implements Serializable {
 
         // Replace the request and response objects for the request cycle that is ending
         // with objects that are safe to use on the ensuing request.
-        HttpServletRequest flashRequest = FlashRequest.wrapRequest(request);
+        HttpServletRequest flashRequest = FlashRequest.replaceRequest(request);
         HttpServletResponse flashResponse = (HttpServletResponse) Proxy.newProxyInstance(
                 getClass().getClassLoader(),
                 new Class<?>[] { HttpServletResponse.class },
