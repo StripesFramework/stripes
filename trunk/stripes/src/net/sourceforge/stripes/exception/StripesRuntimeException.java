@@ -20,6 +20,7 @@ package net.sourceforge.stripes.exception;
  *
  * @author Tim Fennell
  */
+@SuppressWarnings("serial")
 public class StripesRuntimeException extends RuntimeException {
     public StripesRuntimeException(String message) {
         super(message);

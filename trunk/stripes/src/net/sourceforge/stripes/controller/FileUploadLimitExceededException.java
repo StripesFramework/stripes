@@ -22,6 +22,7 @@ import net.sourceforge.stripes.exception.StripesServletException;
  *
  * @author Tim Fennell
  */
+@SuppressWarnings("serial")
 public class FileUploadLimitExceededException extends StripesServletException {
     private long maximum;
     private long posted;

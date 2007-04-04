@@ -27,6 +27,7 @@ import java.util.List;
  *
  * @author Tim Fennell
  */
+@SuppressWarnings("serial")
 public class ValidationErrors extends HashMap<String, List<ValidationError>> {
 
     /** Key that is used to store global (i.e. non-field specific) errors. */

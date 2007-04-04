@@ -27,6 +27,7 @@ import java.util.ResourceBundle;
  *
  * @author Tim Fennell 
  */
+@SuppressWarnings("serial")
 public class LocalizableMessage extends SimpleMessage {
     private String messageKey;
 

@@ -22,6 +22,7 @@ import javax.servlet.jsp.JspException;
  *
  * @author Tim Fennell
  */
+@SuppressWarnings("serial")
 public class StripesJspException extends JspException {
     public StripesJspException(String string) {
         super(string);

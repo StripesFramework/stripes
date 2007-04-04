@@ -22,6 +22,7 @@ package net.sourceforge.stripes.util.bean;
  * @author Tim Fennell
  * @since Stripes 1.4
  */
+@SuppressWarnings("serial")
 public class EvaluationException extends ExpressionException {
     /** Constructs an exception with the supplied message. */
     public EvaluationException(String message) {

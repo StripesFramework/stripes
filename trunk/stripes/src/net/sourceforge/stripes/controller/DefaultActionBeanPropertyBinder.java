@@ -914,6 +914,7 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
     }
 }
 
+@SuppressWarnings("serial")
 class Row extends HashMap<ParameterName,String[]> {
     private boolean hasNonEmptyValues = false;
 

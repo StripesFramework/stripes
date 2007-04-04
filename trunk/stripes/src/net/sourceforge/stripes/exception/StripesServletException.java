@@ -22,6 +22,7 @@ import javax.servlet.ServletException;
  *
  * @author Tim Fennell
  */
+@SuppressWarnings("serial")
 public class StripesServletException extends ServletException {
     public StripesServletException(String string) {
         super(string);
