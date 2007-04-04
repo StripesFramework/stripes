@@ -41,6 +41,7 @@ import java.util.Stack;
  *
  * @author Tim Fennell
  */
+@SuppressWarnings("serial")
 public class DispatcherServlet extends HttpServlet {
     /**
      * Configuration key used to lookup up a property that determines whether or not beans'

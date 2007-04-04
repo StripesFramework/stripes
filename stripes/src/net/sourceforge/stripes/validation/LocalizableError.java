@@ -57,6 +57,7 @@ import java.util.MissingResourceException;
  * @see java.text.MessageFormat
  * @see java.util.ResourceBundle
  */
+@SuppressWarnings("serial")
 public class LocalizableError extends SimpleError {
     private String messageKey;
 

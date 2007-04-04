@@ -41,6 +41,7 @@ import java.text.MessageFormat;
  * @author Tim Fennell
  * @see java.text.MessageFormat
  */
+@SuppressWarnings("serial")
 public class SimpleMessage implements Message {
     private String message;
 

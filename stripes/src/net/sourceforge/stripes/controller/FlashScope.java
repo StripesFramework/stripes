@@ -78,6 +78,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author Tim Fennell
  * @since Stripes 1.2
  */
+@SuppressWarnings("serial")
 public class FlashScope extends HashMap<String,Object> implements Serializable {
     /** The default timeout for a flash scope. */
     public static final int DEFAULT_TIMEOUT_IN_SECONDS = 120;
