@@ -16,8 +16,6 @@ package net.sourceforge.stripes.validation;
 
 import net.sourceforge.stripes.action.Message;
 
-import java.util.Locale;
-
 /**
  * Interface to which all error objects in Stripes should conform.
  *
