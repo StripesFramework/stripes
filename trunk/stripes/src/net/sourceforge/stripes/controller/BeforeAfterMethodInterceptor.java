@@ -69,9 +69,6 @@ public class BeforeAfterMethodInterceptor implements Interceptor {
 	/** Log used throughout the intercetor */
 	private static final Log log = Log.getInstance(BeforeAfterMethodInterceptor.class);
 
-    /** No arguments array used for filter method invocations */
-	private static final Object[] NO_ARGUMENTS = new Object[] {};
-
     /** Cache of the FilterMethods for the different ActionBean classes */
 	private Map<Class<? extends ActionBean>, FilterMethods> filterMethodsCache =
             new ConcurrentHashMap<Class<? extends ActionBean>, FilterMethods>();

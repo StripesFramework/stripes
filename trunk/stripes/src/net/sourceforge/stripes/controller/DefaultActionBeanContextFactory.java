@@ -41,7 +41,7 @@ public class DefaultActionBeanContextFactory implements ActionBeanContextFactory
 
     /** Stores the configuration, and looks up the ActionBeanContext class specified. */
     public void init(Configuration configuration) throws Exception {
-        this.configuration = configuration;
+        setConfiguration(configuration);
 
         String name = configuration.getBootstrapPropertyResolver().getProperty(CONTEXT_CLASS_NAME);
         if (name != null) {
@@ -69,4 +69,14 @@ public class DefaultActionBeanContextFactory implements ActionBeanContextFactory
             "ActionBeanContext class: " + this.contextClass, e);
         }
     }
+
+	protected Configuration getConfiguration()
+	{
+		return configuration;
+	}
+
+	protected void setConfiguration(Configuration configuration)
+	{
+		this.configuration = configuration;
+	}
 }

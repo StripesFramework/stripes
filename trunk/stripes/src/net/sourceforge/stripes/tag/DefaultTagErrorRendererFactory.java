@@ -50,7 +50,7 @@ public class DefaultTagErrorRendererFactory implements TagErrorRendererFactory {
      * thrown and the factory is deemed invalid.
      */
     public void init(Configuration configuration) throws Exception {
-        this.configuration = configuration;
+        setConfiguration(configuration);
 
         String className = configuration.getBootstrapPropertyResolver().
                 getProperty(RENDERER_CLASS_KEY);
@@ -86,4 +86,14 @@ public class DefaultTagErrorRendererFactory implements TagErrorRendererFactory {
                 "that the class is public and has a no-arg public constructor.", e);
         }
     }
+
+	protected Configuration getConfiguration()
+	{
+		return configuration;
+	}
+
+	protected void setConfiguration(Configuration configuration)
+	{
+		this.configuration = configuration;
+	}
 }

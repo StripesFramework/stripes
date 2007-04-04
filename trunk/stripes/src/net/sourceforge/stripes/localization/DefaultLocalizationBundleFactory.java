@@ -45,7 +45,7 @@ public class DefaultLocalizationBundleFactory implements LocalizationBundleFacto
      * the default bundle names are put in place.
      */
     public void init(Configuration configuration) throws Exception {
-        this.configuration = configuration;
+        setConfiguration(configuration);
 
         this.errorBundleName = configuration.getBootstrapPropertyResolver().
                 getProperty("LocalizationBundleFactory.ErrorMessageBundle");
@@ -119,4 +119,14 @@ public class DefaultLocalizationBundleFactory implements LocalizationBundleFacto
             throw mre2;
         }
     }
+
+	protected Configuration getConfiguration()
+	{
+		return configuration;
+	}
+
+	protected void setConfiguration(Configuration configuration)
+	{
+		this.configuration = configuration;
+	}
 }
