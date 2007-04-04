@@ -126,4 +126,9 @@ public class ParamTag implements BodyTag {
 
     /** Does nothing. */
     public void release() { /* Do nothing. */ }
+
+	public PageContext getPageContext()
+	{
+		return pageContext;
+	}
 }

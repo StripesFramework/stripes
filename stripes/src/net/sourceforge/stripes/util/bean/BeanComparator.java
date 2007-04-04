@@ -29,8 +29,6 @@ import java.util.Locale;
  */
 public class BeanComparator implements Comparator<Object> {
     private Locale locale;
-    private Collator collator;
-    private String[] properties;
     private PropertyExpression[] expressions;
 
     /**
@@ -52,8 +50,6 @@ public class BeanComparator implements Comparator<Object> {
      */
     public BeanComparator(Locale locale, String... properties) {
         this.locale = locale;
-        this.collator = Collator.getInstance(locale);
-        this.properties = properties;
         this.expressions = new PropertyExpression[properties.length];
 
         for (int i=0; i<properties.length; ++i) {
@@ -102,7 +98,7 @@ public class BeanComparator implements Comparator<Object> {
             else {
                 String string1 = prop1.toString();
                 String string2 = prop2.toString();
-                retval = this.collator.compare(string1, string2);
+                retval = collator.compare(string1, string2);
             }
 
             if (retval != 0) break;
