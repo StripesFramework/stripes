@@ -16,8 +16,6 @@ package net.sourceforge.stripes.controller;
 
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.action.ActionBeanContext;
-import net.sourceforge.stripes.exception.StripesRuntimeException;
-import net.sourceforge.stripes.exception.StripesServletException;
 import net.sourceforge.stripes.util.Log;
 
 import javax.servlet.http.HttpServletRequest;

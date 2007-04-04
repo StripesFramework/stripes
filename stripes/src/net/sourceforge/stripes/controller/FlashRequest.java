@@ -16,9 +16,6 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import net.sourceforge.stripes.exception.StripesRuntimeException;
-import net.sourceforge.stripes.exception.StripesServletException;
-
 /**
  * Captures the state of an {@link javax.servlet.http.HttpServletRequest} so that the information
  * contained therein can be carried over to the next request for use by the flash scope. There are
