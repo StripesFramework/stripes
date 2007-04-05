@@ -24,7 +24,6 @@ import net.sourceforge.stripes.exception.StripesServletException;
 import net.sourceforge.stripes.util.HtmlUtil;
 import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.util.CollectionUtil;
-import net.sourceforge.stripes.validation.Validatable;
 import net.sourceforge.stripes.validation.ValidationError;
 import net.sourceforge.stripes.validation.ValidationErrorHandler;
 import net.sourceforge.stripes.validation.ValidationErrors;
@@ -227,11 +226,12 @@ public class DispatcherHelper {
             ctx.setInterceptors(config.getInterceptors(LifecycleStage.CustomValidation));
 
             return ctx.wrap( new Interceptor() {
-                public Resolution intercept(ExecutionContext context) throws Exception {
+                @SuppressWarnings("deprecation")
+				public Resolution intercept(ExecutionContext context) throws Exception {
 
                     // Run the legacy style validate() method
-                    if ( (alwaysInvokeValidate || errors.isEmpty()) && bean instanceof Validatable) {
-                        ((Validatable) bean).validate(errors);
+                    if ( (alwaysInvokeValidate || errors.isEmpty()) && bean instanceof net.sourceforge.stripes.validation.Validatable) {
+                        ((net.sourceforge.stripes.validation.Validatable) bean).validate(errors);
                     }
 
                     // Run any of the new style validation methods
