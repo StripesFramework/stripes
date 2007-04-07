@@ -35,6 +35,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import static java.lang.reflect.Modifier.isPublic;
 import java.beans.PropertyDescriptor;
 import java.beans.BeanInfo;
 import java.beans.Introspector;
@@ -308,6 +309,66 @@ public class ReflectUtil {
 
         return pds.get(property);
     }
+
+    /**
+     * <p>Attempts to find an accessible version of the method passed in, where accessible
+     * is defined as the method itself being public and the declaring class being public.
+     * Mostly useful as a workaround to the situation when
+     * {@link PropertyDescriptor#getReadMethod()} and/or
+     * {@link java.beans.PropertyDescriptor#getWriteMethod()} returns methods that are not
+     * accessible (usually due to public implementations of interface methods in private
+     * classes).</p>
+     *
+     * <p>Checks the method passed in and if it already meets these criteria it is returned
+     * immediately. In general this leads to very little performance overhead</p>
+     *
+     * <p>If the method does not meet the critieria then the class' interfaces are scanned
+     * for a matching method. If one is not found, then the class' superclass hierarchy
+     * is searched. Finally, if no matching method can be found the original method is
+     * returned.</p>
+     *
+     * @param m a method that may or may not be accessible
+     * @return either an accessible version of the same method, or the method passed in if
+     *         an accessible version cannot be found
+     * @throws Exception
+     */
+    public static Method findAccessibleMethod(final Method m) {
+        // If the passed in method is accessible, then just give it back.
+        if (isPublic(m.getModifiers()) && isPublic(m.getDeclaringClass().getModifiers())) return m;
+        if (m.isAccessible()) return m;
+
+        final Class<?> clazz    = m.getDeclaringClass();
+        final String name    = m.getName();
+        final Class<?>[] ptypes = m.getParameterTypes();
+
+        // Else, loop through the interfaces for the declaring class, looking for a
+        // public version of the method that we can call
+        for (Class<?> iface : clazz.getInterfaces()) {
+            try {
+                Method m2 = iface.getMethod(name, ptypes);
+                if (m2.isAccessible()) return m2;
+                if (isPublic(iface.getModifiers()) && isPublic(m2.getModifiers())) return m2;
+            }
+            catch (NoSuchMethodException nsme) { /* Not Unexpected. */ }
+        }
+
+        // Else loop through the superclasses looking for a public method
+        Class<?> c = clazz.getSuperclass();
+        while (c != null) {
+            try {
+                Method m2 = c.getMethod(name, ptypes);
+                if (m2.isAccessible()) return m2;
+                if (isPublic(c.getModifiers()) && isPublic(m2.getModifiers())) return m2;
+            }
+            catch (NoSuchMethodException nsme) { /* Not Unexpected. */ }
+
+            c = c.getSuperclass();
+        }
+
+        // If we haven't found anything at this point, just give up!
+        return m;
+    }
+
 
 
     /**
