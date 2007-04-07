@@ -7,6 +7,8 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
 
 /**
  * 
@@ -268,4 +270,17 @@ public class PropertyExpressionEvaluationTests {
         Assert.assertEquals(false, root.isBooleanProperty());
     }
 
+    /**
+     * Tests a bug whereby the Introspector/PropertyDescriptor returns inaccessible
+     * methods for getKey() and getValue() on all the JDK implementations of Map. A general
+     * fix has been implmented to work up the chain and find an accessible method to invoke.
+     */
+    @Test(groups="fast")
+    public void testMapEntryPropertyDescriptorBug() throws Exception {
+        Map<String,String> map = new HashMap<String,String>();
+        map.put("key", "value");
+        Map.Entry<String,String> entry = map.entrySet().iterator().next();
+        String value = (String) BeanUtil.getPropertyValue("value", entry);
+        Assert.assertEquals(value, "value");
+    }
 }
