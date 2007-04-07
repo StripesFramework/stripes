@@ -47,6 +47,7 @@ public class JavaBeanPropertyAccessor implements PropertyAccessor<Object> {
             if (pd != null) {
                 Method m = pd.getReadMethod();
                 if (m != null) {
+                    m = ReflectUtil.findAccessibleMethod(m);
                     return m.invoke(bean);
                 }
                 else {
@@ -88,6 +89,7 @@ public class JavaBeanPropertyAccessor implements PropertyAccessor<Object> {
             if (pd != null) {
                 Method m = pd.getWriteMethod();
                 if (m != null) {
+                    m = ReflectUtil.findAccessibleMethod(m);
                     m.invoke(bean, value);
                 }
                 else {
