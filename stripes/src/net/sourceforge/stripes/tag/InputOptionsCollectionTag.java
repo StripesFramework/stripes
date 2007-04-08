@@ -20,6 +20,7 @@ import net.sourceforge.stripes.util.bean.BeanUtil;
 import net.sourceforge.stripes.util.bean.ExpressionException;
 import net.sourceforge.stripes.util.bean.BeanComparator;
 import net.sourceforge.stripes.util.StringUtil;
+import net.sourceforge.stripes.util.CollectionUtil;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.Tag;
@@ -98,13 +99,34 @@ public class InputOptionsCollectionTag extends HtmlTagSupport implements Tag {
     /** Internal list of entires that is assembled from the items in the collection. */
     private List<Entry> entries = new LinkedList<Entry>();
 
-    /** Sets the collection that will be used to generate options. */
-    public void setCollection(Collection collection) {
-        this.collection = collection;
+    /**
+     * <p>Sets the collection that will be used to generate options. In this case the term
+     * collection is used in the loosest possible sense - it means either a bonafide instance
+     * of {@link java.util.Collection}, or an implementation of {@link Iterable} other than a
+     * Collection, or an array of Objects or primitives.</p>
+     *
+     * <p>In the case of any input which is not an {@link java.util.Collection} it is converted
+     * to a Collection before storing it.</p>
+     *
+     * @param in either a Collection, an Iterable or an Array
+     */
+    public void setCollection(Object in) {
+        if (in == null) this.collection = null;
+        else if (in instanceof Collection) this.collection = (Collection) in;
+        else if (in instanceof Iterable) this.collection = CollectionUtil.asList((Iterable) in);
+        else if (in.getClass().isArray()) this.collection = CollectionUtil.asList(in);
+        else {
+            throw new IllegalArgumentException
+                ("A 'collection' was supplied that is not of a supported type: " + in.getClass());
+        }
     }
 
-    /** Returns the value set with setCollection(). */
-    public Collection getCollection() {
+    /**
+     * Returns the value set by {@link #setCollection(Object)}. In the case that a
+     * {@link java.util.Collection} was supplied, the same collection will be returned. In all
+     * other cases a new collection created to hold the supplied elements will be returned.
+     */
+    public Object getCollection() {
         return this.collection;
     }
 
