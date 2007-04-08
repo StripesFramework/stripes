@@ -37,7 +37,7 @@ import java.util.Locale;
  * @author Tim Fennell
  */
 public class BooleanTypeConverter implements TypeConverter<Boolean> {
-    private static final Collection<String> truths = new HashSet();
+    private static final Collection<String> truths = new HashSet<String>();
 
     static {
         truths.add("true");

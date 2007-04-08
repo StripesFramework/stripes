@@ -125,7 +125,8 @@ public class StripesRequestWrapper extends HttpServletRequestWrapper {
      * the request is multipart then the information is sourced from the parsed multipart object
      * otherwise it is just pulled out of the request in the usual manner.
      */
-    public Enumeration<String> getParameterNames() {
+    @SuppressWarnings("unchecked")
+	public Enumeration<String> getParameterNames() {
         if ( isMultipart() ) {
             return this.multipart.getParameterNames();
         }
@@ -168,9 +169,10 @@ public class StripesRequestWrapper extends HttpServletRequestWrapper {
     /**
      * Returns a map of parameter name and values.
      */
-    public Map<String,String[]> getParameterMap() {
+    @SuppressWarnings("unchecked")
+	public Map<String,String[]> getParameterMap() {
         if (isMultipart()) {
-            Map parameterMap = new HashMap();
+            Map<String,String[]> parameterMap = new HashMap<String,String[]>();
             Enumeration names = this.multipart.getParameterNames();
 
             while (names.hasMoreElements()) {
@@ -198,8 +200,8 @@ public class StripesRequestWrapper extends HttpServletRequestWrapper {
      *  Returns a single element enumeration containing the selected Locale for this request.
      *  @see net.sourceforge.stripes.localization.LocalePicker
      */
-    public Enumeration getLocales() {
-        List list = new ArrayList();
+    public Enumeration<Locale> getLocales() {
+        List<Locale> list = new ArrayList<Locale>();
         list.add(this.locale);
         return Collections.enumeration(list);
     }
