@@ -33,7 +33,8 @@ public class EnumeratedTypeConverter implements TypeConverter<Enum> {
         // Do nothing
     }
 
-    public Enum convert(String input,
+    @SuppressWarnings("unchecked")
+	public Enum convert(String input,
                         Class<? extends Enum> targetType,
                         Collection<ValidationError> errors) {
 

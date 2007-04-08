@@ -83,7 +83,8 @@ public class OneToManyTypeConverter implements TypeConverter<Object> {
      * @return a Collection containing one or more items of targetType, or null if any
      *         ValidationErrors occur.
      */
-    public Collection<? extends Object> convert(String input,
+    @SuppressWarnings("unchecked")
+	public Collection<? extends Object> convert(String input,
                                           Class<? extends Object> targetType,
                                           Collection<ValidationError> errors) {
 

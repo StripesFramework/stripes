@@ -101,7 +101,8 @@ public abstract class OnwardResolution<T extends OnwardResolution<T>> {
      * @param values zero or more scalar values, or a single Collection
      * @return this Resolution so that methods can be chained
      */
-    public T addParameter(String name, Object... values) {
+    @SuppressWarnings("unchecked")
+	public T addParameter(String name, Object... values) {
         if (this.parameters.containsKey(name)) {
             this.parameters.put(name, new Object[] {this.parameters.get(name), values});
         }
@@ -124,7 +125,8 @@ public abstract class OnwardResolution<T extends OnwardResolution<T>> {
      * @param parameters a Map of parameters as described above
      * @return this Resolution so that methods can be chained
      */
-    public T addParameters(Map<String,Object> parameters) {
+    @SuppressWarnings("unchecked")
+	public T addParameters(Map<String,Object> parameters) {
         for (Map.Entry<String,Object> entry : parameters.entrySet()) {
             addParameter(entry.getKey(), entry.getValue());
         }

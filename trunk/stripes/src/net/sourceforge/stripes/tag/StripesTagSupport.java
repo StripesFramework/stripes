@@ -130,7 +130,8 @@ public abstract class StripesTagSupport implements Tag {
      *
      * @return T Tag of the type supplied, or null if none can be found
      */
-    protected <T extends Tag> T getParentTag(Class<T> tagType) {
+    @SuppressWarnings("unchecked")
+	protected <T extends Tag> T getParentTag(Class<T> tagType) {
         Tag parent = getParent();
         while (parent != null) {
             if (tagType.isAssignableFrom(parent.getClass())) {
@@ -157,7 +158,8 @@ public abstract class StripesTagSupport implements Tag {
      * Stripes tags find one another when they are spread across multiple included JSPs
      * and/or tag files - situations in which the usual parent tag relationship fails.
      */
-    protected Stack<StripesTagSupport> getTagStack() {
+    @SuppressWarnings("unchecked")
+	protected Stack<StripesTagSupport> getTagStack() {
         Stack<StripesTagSupport> stack = (Stack<StripesTagSupport>)
                 getPageContext().getRequest().getAttribute(StripesConstants.REQ_ATTR_TAG_STACK);
 
@@ -178,7 +180,8 @@ public abstract class StripesTagSupport implements Tag {
      * @param nameOrClass either the String FQN of an ActionBean class, or a Class object
      * @return the appropriate ActionBean class or null
      */
-    protected Class<? extends ActionBean> getActionBeanType(Object nameOrClass) {
+    @SuppressWarnings("unchecked")
+	protected Class<? extends ActionBean> getActionBeanType(Object nameOrClass) {
         Class result = null;
 
         // Figure out if it's a String of Class (or something else?) and act appropriately

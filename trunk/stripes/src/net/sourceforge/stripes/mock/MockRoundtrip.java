@@ -187,7 +187,8 @@ public class MockRoundtrip {
      * @param type the Class object representing the ActionBean type expected
      * @return the instance of the ActionBean that was created by Stripes
      */
-    public <A extends ActionBean> A getActionBean(Class<A> type) {
+    @SuppressWarnings("unchecked")
+	public <A extends ActionBean> A getActionBean(Class<A> type) {
         return (A) this.request.getAttribute(getUrlBinding(type, this.context));
     }
 

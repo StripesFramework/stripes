@@ -141,7 +141,8 @@ public class MessagesTag extends HtmlTagSupport {
      *
      * @return List<Message> a possibly null list of messages to display
      */
-    protected List<Message> getMessages() {
+    @SuppressWarnings("unchecked")
+	protected List<Message> getMessages() {
         HttpServletRequest request = (HttpServletRequest) getPageContext().getRequest();
         List<Message> messages = (List<Message>) request.getAttribute( getKey() );
 

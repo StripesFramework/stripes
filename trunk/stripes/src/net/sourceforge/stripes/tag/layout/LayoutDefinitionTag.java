@@ -48,7 +48,8 @@ public class LayoutDefinitionTag extends StripesTagSupport {
      *
      * @return EVAL_BODY_INCLUDE in all cases.
      */
-    public int doStartTag() throws JspException {
+    @SuppressWarnings("unchecked")
+	public int doStartTag() throws JspException {
         // Since the layout-render tag pushes a new writer onto the stack, we can clear the
         // buffer here to make sure we don't output anything outside the layout-def tag.
         try {

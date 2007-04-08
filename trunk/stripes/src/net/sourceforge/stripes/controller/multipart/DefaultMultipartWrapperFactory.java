@@ -60,7 +60,8 @@ public class DefaultMultipartWrapperFactory implements MultipartWrapperFactory {
      * @param config the Configuration object being used by Stripes
      * @throws Exception should be thrown if the component cannot be configured well enough to use.
      */
-    public void init(Configuration config) throws Exception {
+    @SuppressWarnings("unchecked")
+	public void init(Configuration config) throws Exception {
         // Determine which class we're using
         String type = config.getBootstrapPropertyResolver().getProperty(WRAPPER_CLASS_NAME);
         if (type == null) type = DEFAULT_IMPLEMENTATION;
@@ -105,8 +106,6 @@ public class DefaultMultipartWrapperFactory implements MultipartWrapperFactory {
                 log.info("Configured file upload post size limit: ", number, " bytes.");
             }
         }
-
-
     }
 
     /**

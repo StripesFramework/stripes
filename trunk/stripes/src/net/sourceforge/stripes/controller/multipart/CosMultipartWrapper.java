@@ -86,7 +86,8 @@ public class CosMultipartWrapper implements MultipartWrapper {
      *
      * @return an Enumeration of all non-file parameter names in the rqequest
      */
-    public Enumeration<String> getParameterNames() {
+    @SuppressWarnings("unchecked")
+	public Enumeration<String> getParameterNames() {
         return this.multipart.getParameterNames();
     }
 
@@ -117,7 +118,8 @@ public class CosMultipartWrapper implements MultipartWrapper {
      *
      * @return the names of all file parameters in the request.
      */
-    public Enumeration<String> getFileParameterNames() {
+    @SuppressWarnings("unchecked")
+	public Enumeration<String> getFileParameterNames() {
         return this.multipart.getFileNames();
     }
 

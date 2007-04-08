@@ -48,7 +48,8 @@ public class ListPropertyAccessor implements PropertyAccessor<List> {
      * @param list the target list
      * @param value the value to be stored at the specified index
      */
-    public void setValue(NodeEvaluation evaluation, List list, Object value) {
+    @SuppressWarnings("unchecked")
+	public void setValue(NodeEvaluation evaluation, List list, Object value) {
         int index = getKey(evaluation);
         for (int i=list.size(); i<=index; ++i) {
             list.add(null);

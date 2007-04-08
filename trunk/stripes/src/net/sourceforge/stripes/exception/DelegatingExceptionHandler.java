@@ -147,7 +147,8 @@ public class DelegatingExceptionHandler implements ExceptionHandler {
      * @param handlerClass the AutoExceptionHandler class being configured
      * @throws Exception if the AutoExceptionHandler class cannot be instantiated
      */
-    protected void addHandler(Class<? extends AutoExceptionHandler> handlerClass) throws Exception {
+    @SuppressWarnings("unchecked")
+	protected void addHandler(Class<? extends AutoExceptionHandler> handlerClass) throws Exception {
         Method[] methods = handlerClass.getMethods();
         for (Method method : methods) {
             // Check the method Signature

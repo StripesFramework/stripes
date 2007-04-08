@@ -275,7 +275,8 @@ public class PropertyExpressionEvaluation {
      * @throws EvaluationException if the previous node is a List or Map and does not contain
      *         enough information to determine the type
      */
-    protected Type getTypeViaInstances(NodeEvaluation end)
+    @SuppressWarnings("unchecked")
+	protected Type getTypeViaInstances(NodeEvaluation end)
         throws EvaluationException, NoSuchPropertyException {
         Object previous;
         Object value = this.bean;
@@ -510,7 +511,8 @@ public class PropertyExpressionEvaluation {
      *
      * @return the value stored on the bean for this expression/property
      */
-    public Object getValue() {
+    @SuppressWarnings("unchecked")
+	public Object getValue() {
         Object nodeValue = this.bean;
         for (NodeEvaluation node = this.root; node != null && nodeValue != null; node = node.getNext()) {
             nodeValue = node.getType().getPropertyAccessor().getValue(node, nodeValue);
@@ -531,7 +533,8 @@ public class PropertyExpressionEvaluation {
      * @param propertyValue the value to be set for the property of the bean
      * @throws EvaluationException if intermediate null properties cannot be instantiated
      */
-    public void setValue(Object propertyValue) throws EvaluationException {
+    @SuppressWarnings("unchecked")
+	public void setValue(Object propertyValue) throws EvaluationException {
         Object nodeValue = this.bean;
         for (NodeEvaluation node = this.root; node != this.leaf && nodeValue != null; node = node.getNext()) {
             PropertyAccessor accessor = node.getType().getPropertyAccessor();
@@ -557,7 +560,8 @@ public class PropertyExpressionEvaluation {
      * @return an instance of the appropriate type
      * @throws EvaluationException if an instance cannot be created
      */
-    private Object getDefaultValue(NodeEvaluation node) throws EvaluationException {
+    @SuppressWarnings("unchecked")
+	private Object getDefaultValue(NodeEvaluation node) throws EvaluationException {
         try {
             Class clazz = convertToClass(node.getValueType(), node);
 
@@ -594,7 +598,8 @@ public class PropertyExpressionEvaluation {
      *
      * @throws EvaluationException if any exceptions are thrown during the process of nulling out
      */
-    public void setToNull() throws EvaluationException {
+    @SuppressWarnings("unchecked")
+	public void setToNull() throws EvaluationException {
         Object nodeValue = this.bean;
         for (NodeEvaluation node = this.root; node != this.leaf && nodeValue != null; node = node.getNext()) {
             nodeValue = node.getType().getPropertyAccessor().getValue(node, nodeValue);
