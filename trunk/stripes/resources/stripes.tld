@@ -1026,7 +1026,7 @@
     <tag>
         <description><![CDATA[
             <p>Writes a set of &lt;option value=&quot;foo&quot;&gt;bar&lt;/option&gt; tags to the
-            page based on the contents of a Collection.  Each element in the collection is
+            page based on the contents of a Collection, Iterable or Array. Each element in the collection is
             represented by a single option tag on the page.  Uses the label and value attributes
             on the tag to name the properties of the objects in the Collection that should be used
             to generate the body of the HTML option tag and the value attribute of the HTML option
@@ -1101,14 +1101,15 @@
         </attribute>
         <attribute>
             <description>
-                The collection of beans to use to generate options.  This value must resolve to
-                a Collection, and therefore it will most often be an EL expression
+                The 'collection' of beans to use to generate options.  This value must resolve to
+                one of the following: a real java.util.Collection, an instance of
+                java.lang.Iterable or an array. It will therefore most often be an EL expression
                 (or a scriptlet, if you must).
             </description>
             <name>collection</name>
             <required>true</required>
             <rtexprvalue>true</rtexprvalue>
-            <type>java.util.Collection</type>
+            <type>java.lang.Object</type>
         </attribute>
 
         <!-- Start: Standard HTML attributes -->
