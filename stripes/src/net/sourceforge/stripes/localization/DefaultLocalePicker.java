@@ -140,7 +140,8 @@ public class DefaultLocalePicker implements LocalePicker {
      * @param request the request being processed
      * @return a Locale to use in processing the request
      */
-    public Locale pickLocale(HttpServletRequest request) {
+    @SuppressWarnings("unchecked")
+	public Locale pickLocale(HttpServletRequest request) {
         Locale oneWayMatch = null;
         Locale twoWayMatch= null;
 

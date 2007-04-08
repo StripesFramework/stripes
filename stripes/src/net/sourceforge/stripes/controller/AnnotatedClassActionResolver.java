@@ -401,7 +401,8 @@ public class AnnotatedClassActionResolver implements ActionResolver {
      * @param context the ActionBeanContect for the current request
      * @return String the name of the event submitted, or null if none can be found
      */
-    protected String getEventNameFromRequestParams(Class<? extends ActionBean> bean,
+    @SuppressWarnings("unchecked")
+	protected String getEventNameFromRequestParams(Class<? extends ActionBean> bean,
                                                    ActionBeanContext context) {
 
         Map<String,String[]> parameterMap = context.getRequest().getParameterMap();

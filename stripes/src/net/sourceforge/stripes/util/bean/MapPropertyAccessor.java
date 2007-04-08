@@ -54,7 +54,8 @@ public class MapPropertyAccessor implements PropertyAccessor<Map> {
      * @param map the target Map
      * @value the value to be stored in the map under the specified key
      */
-    public void setValue(NodeEvaluation evaluation, Map map, Object value) {
+    @SuppressWarnings("unchecked")
+	public void setValue(NodeEvaluation evaluation, Map map, Object value) {
         Object key = getKey(evaluation);
         if (value == null) {
             map.remove(key);
@@ -72,7 +73,8 @@ public class MapPropertyAccessor implements PropertyAccessor<Map> {
      * @param evaluation the current node evaluation
      * @return the key to use when interacting with the Map
      */
-    protected Object getKey(NodeEvaluation evaluation) {
+    @SuppressWarnings("unchecked")
+	protected Object getKey(NodeEvaluation evaluation) {
         Class declaredType = evaluation.getKeyType();
         Class nodeType     = evaluation.getNode().getTypedValue().getClass();
 

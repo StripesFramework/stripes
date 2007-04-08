@@ -72,7 +72,8 @@ public class BeanComparator implements Comparator<Object> {
      * @throws ClassCastException if the arguments' types, or the types of the properties,
      *         prevent them from being compared by this Comparator.
      */
-    public int compare(Object o1, Object o2) {
+    @SuppressWarnings("unchecked")
+	public int compare(Object o1, Object o2) {
         int retval = 0;
         Collator collator = Collator.getInstance(this.locale);
 

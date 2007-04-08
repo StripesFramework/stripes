@@ -176,7 +176,8 @@ public class ActionBeanContext {
      *
      * @return a List of Message objects associated with the current request, never null.
      */
-    public List<Message> getMessages(String key) {
+    @SuppressWarnings("unchecked")
+	public List<Message> getMessages(String key) {
         FlashScope scope = FlashScope.getCurrent(getRequest(), true);
         List<Message> messages = (List<Message>) scope.get(key);
 

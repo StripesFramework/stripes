@@ -130,7 +130,8 @@ public class RedirectResolution extends OnwardResolution<RedirectResolution> imp
      * @throws ServletException thrown when the Servlet container encounters an error
      * @throws IOException thrown when the Servlet container encounters an error
      */
-    public void execute(HttpServletRequest request, HttpServletResponse response)
+    @SuppressWarnings("unchecked")
+	public void execute(HttpServletRequest request, HttpServletResponse response)
         throws ServletException, IOException {
 
         if (this.includeRequestParameters) {

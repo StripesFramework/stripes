@@ -90,7 +90,8 @@ public class LayoutRenderTag extends StripesTagSupport implements BodyTag, Dynam
      * @return EVAL_PAGE in all cases.
      * @throws JspException if any exceptions are encountered processing the request
      */
-    public int doEndTag() throws JspException {
+    @SuppressWarnings("unchecked")
+	public int doEndTag() throws JspException {
         try {
             HttpServletRequest request = (HttpServletRequest) getPageContext().getRequest();
 

@@ -157,7 +157,8 @@ public class RuntimeConfiguration extends DefaultConfiguration {
      *
      * @return a Map of {@link LifecycleStage} to Collection of {@link Interceptor}
      */
-    @Override
+    @SuppressWarnings("unchecked")
+	@Override
     protected Map<LifecycleStage, Collection<Interceptor>> initInterceptors() {
         String classList = getBootstrapPropertyResolver().getProperty(INTERCEPTOR_LIST);
         if (classList == null) {
@@ -222,7 +223,8 @@ public class RuntimeConfiguration extends DefaultConfiguration {
      * @param propertyName the name of the property to look up for the class name
      * @return an instance of the component, or null if one was not configured.
      */
-    protected <T extends ConfigurableComponent> T initializeComponent(Class<T> componentType,
+    @SuppressWarnings("unchecked")
+	protected <T extends ConfigurableComponent> T initializeComponent(Class<T> componentType,
                                                                       String propertyName) {
         String className = getBootstrapPropertyResolver().getProperty(propertyName);
 

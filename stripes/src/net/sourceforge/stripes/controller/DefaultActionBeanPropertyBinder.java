@@ -343,7 +343,8 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
      * @param bean the ActionBean being bound to
      * @param context the current ActionBeanContext
      */
-    protected void bindMissingValuesAsNull(ActionBean bean, ActionBeanContext context) {
+    @SuppressWarnings("unchecked")
+	protected void bindMissingValuesAsNull(ActionBean bean, ActionBeanContext context) {
         HttpServletRequest request = context.getRequest();
         Set<String> paramatersSubmitted = request.getParameterMap().keySet();
 
@@ -421,7 +422,8 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
      * @param targetType the declared type of the property on the ActionBean
      * @throws Exception if the property cannot be bound for any reason
      */
-    protected void bindNonNullValue(ActionBean bean,
+    @SuppressWarnings("unchecked")
+	protected void bindNonNullValue(ActionBean bean,
                                     PropertyExpressionEvaluation propertyEvaluation,
                                     List<Object> valueOrValues,
                                     Class targetType,
@@ -478,7 +480,8 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
      * Returns a SortedMap so that when iterated over parameter names are accessed in order
      * of length of parameter name.
      */
-    protected SortedMap<ParameterName, String[]> getParameters(ActionBeanContext context) {
+    @SuppressWarnings("unchecked")
+	protected SortedMap<ParameterName, String[]> getParameters(ActionBeanContext context) {
         Map<String, String[]> requestParameters = context.getRequest().getParameterMap();
         SortedMap<ParameterName, String[]> parameters = new TreeMap<ParameterName,String[]>();
 
@@ -850,7 +853,8 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
      * @return List<Object> a List of objects containing only objects of the desired type. It is
      *         not guaranteed to be the same length as the values array passed in.
      */
-    private List<Object> convert(ActionBean bean,
+    @SuppressWarnings("unchecked")
+	private List<Object> convert(ActionBean bean,
                                  ParameterName propertyName,
                                  String[] values,
                                  Class propertyType,

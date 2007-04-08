@@ -85,7 +85,8 @@ public class ResolverUtil<T> {
         public IsA(Class parentType) { this.parent = parentType; }
 
         /** Returns true if type is assignable to the parent type supplied in the constructor. */
-        public boolean matches(Class type) {
+        @SuppressWarnings("unchecked")
+		public boolean matches(Class type) {
             return type != null && parent.isAssignableFrom(type);
         }
 
@@ -105,7 +106,8 @@ public class ResolverUtil<T> {
         public AnnotatedWith(Class<? extends Annotation> annotation) { this.annotation = annotation; }
 
         /** Returns true if the type is annotated with the class provided to the constructor. */
-        public boolean matches(Class type) {
+        @SuppressWarnings("unchecked")
+		public boolean matches(Class type) {
             return type != null && type.isAnnotationPresent(annotation);
         }
 
@@ -311,7 +313,8 @@ public class ResolverUtil<T> {
      * @param test the test used to determine if the class matches
      * @param fqn the fully qualified name of a class
      */
-    protected void addIfMatching(Test test, String fqn) {
+    @SuppressWarnings("unchecked")
+	protected void addIfMatching(Test test, String fqn) {
         try {
             String externalName = fqn.substring(0, fqn.indexOf('.')).replace('/', '.');
             ClassLoader loader = getClassLoader();

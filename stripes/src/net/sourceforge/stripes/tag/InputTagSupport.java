@@ -229,7 +229,8 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
      * be found, then a simple String.valueOf(input) will be returned.  If the value passed in
      * is null, then the empty string will be returned.
      */
-    protected String format(Object input) {
+    @SuppressWarnings("unchecked")
+	protected String format(Object input) {
         if (input == null) {
             return "";
         }

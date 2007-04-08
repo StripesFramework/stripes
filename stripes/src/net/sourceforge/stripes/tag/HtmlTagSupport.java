@@ -211,7 +211,8 @@ public abstract class HtmlTagSupport extends StripesTagSupport implements Dynami
      * @param resultType the Class representing the desired return type from the expression
      * @throws StripesJspException when an ELException occurs trying to evaluate the expression
      */
-    protected <R> R evaluateExpression(String expression, Class<R> resultType) throws StripesJspException {
+    @SuppressWarnings("unchecked")
+	protected <R> R evaluateExpression(String expression, Class<R> resultType) throws StripesJspException {
         try {
             return (R) this.pageContext.getExpressionEvaluator().
                 evaluate(expression, resultType, this.pageContext.getVariableResolver(), null);

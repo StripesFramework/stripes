@@ -57,7 +57,8 @@ public class WizardFieldsTag extends StripesTagSupport {
      * Performs the main work of the tag, as described in the class level javadoc.
      * @return EVAL_PAGE in all cases.
      */
-    public int doEndTag() throws JspException {
+    @SuppressWarnings("unchecked")
+	public int doEndTag() throws JspException {
         // Figure out the list of parameters we should not include
         FormTag form = getParentTag(FormTag.class);
         Set<String> excludes = new HashSet<String>();

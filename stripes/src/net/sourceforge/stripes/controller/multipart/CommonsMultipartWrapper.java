@@ -61,7 +61,8 @@ public class CommonsMultipartWrapper implements MultipartWrapper {
      * @throws FileUploadLimitExceededException if the POST content is longer than the
      *                     maxPostSize supplied.
      */
-    public void build(HttpServletRequest request, File tempDir, long maxPostSize)
+    @SuppressWarnings("unchecked")
+	public void build(HttpServletRequest request, File tempDir, long maxPostSize)
             throws IOException, FileUploadLimitExceededException {
         try {
             this.charset = request.getCharacterEncoding();
