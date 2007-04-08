@@ -14,6 +14,7 @@
  */
 package net.sourceforge.stripes.controller;
 
+import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.action.ActionBeanContext;
 import net.sourceforge.stripes.action.Resolution;
 import net.sourceforge.stripes.config.Configuration;
@@ -278,10 +279,11 @@ public class DispatcherServlet extends HttpServlet {
      * @param request the current HttpServletRequest
      * @return the Stack if present, or if creation is requested
      */
-    protected Stack getActionBeanStack(HttpServletRequest request, boolean create) {
-        Stack stack = (Stack) request.getAttribute(StripesConstants.REQ_ATTR_ACTION_BEAN_STACK);
+    @SuppressWarnings("unchecked")
+	protected Stack<ActionBean> getActionBeanStack(HttpServletRequest request, boolean create) {
+        Stack<ActionBean> stack = (Stack<ActionBean>) request.getAttribute(StripesConstants.REQ_ATTR_ACTION_BEAN_STACK);
         if (stack == null && create) {
-            stack = new Stack();
+            stack = new Stack<ActionBean>();
             request.setAttribute(StripesConstants.REQ_ATTR_ACTION_BEAN_STACK, stack);
         }
 
@@ -297,8 +299,8 @@ public class DispatcherServlet extends HttpServlet {
      */
     protected void saveActionBean(HttpServletRequest request) {
         if (request.getAttribute(StripesConstants.REQ_ATTR_ACTION_BEAN) != null) {
-            Stack stack = getActionBeanStack(request, true);
-            stack.push(request.getAttribute(StripesConstants.REQ_ATTR_ACTION_BEAN));
+            Stack<ActionBean> stack = getActionBeanStack(request, true);
+            stack.push((ActionBean) request.getAttribute(StripesConstants.REQ_ATTR_ACTION_BEAN));
         }
     }
 

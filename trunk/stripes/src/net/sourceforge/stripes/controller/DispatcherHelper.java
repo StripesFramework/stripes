@@ -337,7 +337,7 @@ public class DispatcherHelper {
             }
 
             validations = validationMethods.toArray(new Method[validationMethods.size()]);
-            customValidations.put(type, new WeakReference(validations));
+            customValidations.put(type, new WeakReference<Method[]>(validations));
         }
 
         return validations;

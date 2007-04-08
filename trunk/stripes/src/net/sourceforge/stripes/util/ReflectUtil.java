@@ -101,7 +101,8 @@ public class ReflectUtil {
      * @return a Class object representing the implementing type, or null if one is
      *         not found
      */
-    public static Class getImplementingClass(Class iface) {
+    @SuppressWarnings("unchecked")
+	public static <T> Class<T> getImplementingClass(Class<T> iface) {
         return interfaceImplementations.get(iface);
     }
 
@@ -114,9 +115,9 @@ public class ReflectUtil {
      * @throws InstantiationException if no implementation type has been configured
      * @throws IllegalAccessException if thrown by the JVM during class instantiation
      */
-    public static <T> T getInterfaceInstance(Class<T> interfaceType)
+	public static <T> T getInterfaceInstance(Class<T> interfaceType)
             throws InstantiationException, IllegalAccessException {
-        Class impl = getImplementingClass(interfaceType);
+        Class<T> impl = getImplementingClass(interfaceType);
         if (impl == null) {
             throw new InstantiationException(
                     "Stripes needed to instantiate a property who's declared type as an " +
@@ -131,7 +132,7 @@ public class ReflectUtil {
                     "might get implemented.");
         }
         else {
-            return (T) impl.newInstance();
+            return impl.newInstance();
         }
     }
 

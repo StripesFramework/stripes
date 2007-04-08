@@ -258,7 +258,7 @@ public class SiteStructureTool implements AnnotationProcessor, AnnotationProcess
             }
 
             // Now find the resolutions and add those to the event info
-            SortedSet resolutions = getResolutions(methodDec);
+            SortedSet<String> resolutions = getResolutions(methodDec);
             event.setResolutions(resolutions);
 
             ActionBeanInfo info = this.infos.get(classDec.getQualifiedName());
