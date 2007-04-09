@@ -22,8 +22,9 @@ package net.sourceforge.stripes.util.bean;
  * @author Tim Fennell
  * @since Stripes 1.4
  */
-@SuppressWarnings("serial")
 public class ParseException extends ExpressionException {
+	private static final long serialVersionUID = 1L;
+
     private String expression;
 
     /** Constructs an exception with the supplied expression and message. */

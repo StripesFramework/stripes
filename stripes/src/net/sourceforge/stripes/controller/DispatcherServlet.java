@@ -42,9 +42,10 @@ import java.util.Stack;
  *
  * @author Tim Fennell
  */
-@SuppressWarnings("serial")
 public class DispatcherServlet extends HttpServlet {
-    /**
+	private static final long serialVersionUID = 1L;
+
+	/**
      * Configuration key used to lookup up a property that determines whether or not beans'
      * custom validate() method gets invoked when validation errors are generated during
      * the binding process

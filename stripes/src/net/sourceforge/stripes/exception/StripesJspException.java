@@ -22,8 +22,9 @@ import javax.servlet.jsp.JspException;
  *
  * @author Tim Fennell
  */
-@SuppressWarnings("serial")
 public class StripesJspException extends JspException {
+	private static final long serialVersionUID = 1L;
+
     public StripesJspException(String string) {
         super(string);
     }

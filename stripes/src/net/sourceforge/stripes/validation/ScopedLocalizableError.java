@@ -47,8 +47,9 @@ import java.util.MissingResourceException;
  *
  * @author Tim Fennell
  */
-@SuppressWarnings("serial")
 public class ScopedLocalizableError extends LocalizableError {
+	private static final long serialVersionUID = 1L;
+
     /** Default key that is used for looking up error messages. */
     public static final String DEFAULT_NAME = "errorMessage";
 

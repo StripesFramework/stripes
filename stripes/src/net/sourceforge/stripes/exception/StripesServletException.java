@@ -22,8 +22,9 @@ import javax.servlet.ServletException;
  *
  * @author Tim Fennell
  */
-@SuppressWarnings("serial")
 public class StripesServletException extends ServletException {
+	private static final long serialVersionUID = 1L;
+
     public StripesServletException(String string) {
         super(string);
     }

@@ -13,8 +13,9 @@ import java.lang.reflect.Method;
  * @author Ben Gunter
  * @since Stripes 1.4.3
  */
-@SuppressWarnings("serial")
 public class FlashResponseInvocationHandler implements InvocationHandler, Serializable {
+	private static final long serialVersionUID = 1L;
+
     public Object invoke(Object object, Method method, Object[] objects) throws Throwable {
         throw new IllegalStateException(
                 "Attempt to call " + method + " after the request cycle has completed. " +

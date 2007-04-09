@@ -27,8 +27,8 @@ import java.util.List;
  *
  * @author Tim Fennell
  */
-@SuppressWarnings("serial")
 public class ValidationErrors extends HashMap<String, List<ValidationError>> {
+	private static final long serialVersionUID = 1L;
 
     /** Key that is used to store global (i.e. non-field specific) errors. */
     public static final String GLOBAL_ERROR = "__stripes_global_error";

@@ -27,8 +27,9 @@ import java.util.ResourceBundle;
  *
  * @author Tim Fennell 
  */
-@SuppressWarnings("serial")
 public class LocalizableMessage extends SimpleMessage {
+	private static final long serialVersionUID = 1L;
+
     private String messageKey;
 
     /**
