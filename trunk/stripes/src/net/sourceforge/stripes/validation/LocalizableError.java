@@ -57,8 +57,9 @@ import java.util.MissingResourceException;
  * @see java.text.MessageFormat
  * @see java.util.ResourceBundle
  */
-@SuppressWarnings("serial")
 public class LocalizableError extends SimpleError {
+	private static final long serialVersionUID = 1L;
+
     private String messageKey;
 
     /**

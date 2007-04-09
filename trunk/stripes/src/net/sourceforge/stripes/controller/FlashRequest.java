@@ -29,8 +29,9 @@ import javax.servlet.http.HttpSession;
  * @author Ben Gunter
  * @since Stripes 1.4.3
  */
-@SuppressWarnings("serial")
 public class FlashRequest implements HttpServletRequest, Serializable {
+	private static final long serialVersionUID = 1L;
+
     private Cookie[] cookies;
     private HttpServletRequest delegate;
     private List<Locale> locales;

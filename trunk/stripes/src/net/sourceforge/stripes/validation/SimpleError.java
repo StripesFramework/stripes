@@ -49,8 +49,9 @@ import java.util.Locale;
  *
  * @see java.text.MessageFormat
  */
-@SuppressWarnings("serial")
 public class SimpleError extends SimpleMessage implements ValidationError {
+	private static final long serialVersionUID = 1L;
+
     private static final Log log = Log.getInstance(SimpleError.class);
 
     private String fieldNameKey;

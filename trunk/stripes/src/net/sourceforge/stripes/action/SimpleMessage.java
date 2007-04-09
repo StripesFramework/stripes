@@ -41,8 +41,9 @@ import java.text.MessageFormat;
  * @author Tim Fennell
  * @see java.text.MessageFormat
  */
-@SuppressWarnings("serial")
 public class SimpleMessage implements Message {
+	private static final long serialVersionUID = 1L;
+
     private String message;
 
     /**

@@ -918,8 +918,9 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
     }
 }
 
-@SuppressWarnings("serial")
 class Row extends HashMap<ParameterName,String[]> {
+	private static final long serialVersionUID = 1L;
+
     private boolean hasNonEmptyValues = false;
 
     /**

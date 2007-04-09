@@ -22,8 +22,9 @@ package net.sourceforge.stripes.util.bean;
  * @author Tim Fennell
  * @since Stripes 1.4
  */
-@SuppressWarnings("serial")
 public class EvaluationException extends ExpressionException {
+	private static final long serialVersionUID = 1L;
+	
     /** Constructs an exception with the supplied message. */
     public EvaluationException(String message) {
         super(message);

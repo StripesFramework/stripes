@@ -25,8 +25,9 @@ import net.sourceforge.stripes.exception.StripesRuntimeException;
  * @author Tim Fennell
  * @since Stripes 1.4
  */
-@SuppressWarnings("serial")
 public class ExpressionException extends StripesRuntimeException {
+	private static final long serialVersionUID = 1L;
+	
     /** Constructs an exception with the supplied message. */
     public ExpressionException(String message) {
         super(message);

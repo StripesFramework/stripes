@@ -20,8 +20,9 @@ package net.sourceforge.stripes.exception;
  *
  * @author Tim Fennell
  */
-@SuppressWarnings("serial")
 public class StripesRuntimeException extends RuntimeException {
+	private static final long serialVersionUID = 1L;
+
     public StripesRuntimeException(String message) {
         super(message);
     }
