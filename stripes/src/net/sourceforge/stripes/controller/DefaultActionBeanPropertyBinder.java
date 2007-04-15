@@ -192,10 +192,11 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
                 
                 if (pname.equals(context.getEventName())) {
                     String[] values = entry.getValue();
-                    if ((values != null) && ((values.length > 1) || (values[0].length() > 0))) {
-                        log.warn("Attempting to bind ", values.length, " value",
-                                 values.length != 1 ? "s" : "",
-                                 " to a property with the same name as the event (", pname, ")");
+                    if ((values != null) && (values.length > 1)) {
+                        log.warn("Attempting to bind ",
+                        		values.length,
+                        		" values to a property with the same name as the event (",
+                        		pname, ")");
                     }
                     continue;
                 }
