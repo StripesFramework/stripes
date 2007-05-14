@@ -176,8 +176,8 @@ public class DispatcherHelper {
                                                     final boolean validate) throws Exception {
         // Bind the value to the bean - this includes performing field level validation
         final Method handler = ctx.getHandler();
-        final boolean doBind = handler != null && handler.getAnnotation(DontBind.class) == null;
-        final boolean doValidate = doBind && validate && handler.getAnnotation(DontValidate.class) == null;
+        final boolean doBind = handler == null || handler.getAnnotation(DontBind.class) == null;
+        final boolean doValidate = validate && handler != null && handler.getAnnotation(DontValidate.class) == null;
         final Configuration config = StripesFilter.getConfiguration();
         
         if (doBind) {
