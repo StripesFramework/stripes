@@ -110,7 +110,8 @@ public class InputOptionsCollectionTag extends HtmlTagSupport implements Tag {
      *
      * @param in either a Collection, an Iterable or an Array
      */
-    public void setCollection(Object in) {
+    @SuppressWarnings("unchecked")
+	public void setCollection(Object in) {
         if (in == null) this.collection = null;
         else if (in instanceof Collection) this.collection = (Collection) in;
         else if (in instanceof Iterable) this.collection = CollectionUtil.asList((Iterable) in);
