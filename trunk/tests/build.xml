@@ -65,7 +65,7 @@
     <!-- classpath.                                                          -->
     <!-- =================================================================== -->
     <target name="compile" depends="init">
-        <javac destdir="${classes.dir}" debug="on">
+        <javac target="1.5" destdir="${classes.dir}" debug="on">
             <src path="${src.dir}"/>
             <classpath refid="class.path"/>
         </javac>
