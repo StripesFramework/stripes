@@ -46,6 +46,7 @@ import org.apache.log4j.Level;
  * @version $Id: Log4JLogger.java 370672 2006-01-19 23:52:23Z skitching $
  */
 
+@SuppressWarnings({ "serial", "deprecation" })
 public class Log4JLogger implements Log, Serializable {
 
     // ------------------------------------------------------------- Attributes
