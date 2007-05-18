@@ -49,6 +49,7 @@ public class WizardFieldsTag extends StripesTagSupport {
     public boolean isCurrentFormOnly() { return currentFormOnly; }
 
     /** Skips over the body because there shouldn't be one. */
+    @Override
     public int doStartTag() throws JspException {
         return SKIP_BODY;
     }
@@ -57,6 +58,7 @@ public class WizardFieldsTag extends StripesTagSupport {
      * Performs the main work of the tag, as described in the class level javadoc.
      * @return EVAL_PAGE in all cases.
      */
+    @Override
     @SuppressWarnings("unchecked")
 	public int doEndTag() throws JspException {
         // Figure out the list of parameters we should not include

@@ -308,6 +308,7 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
      *
      * @return int the value returned by the child class from doStartInputTag()
      */
+    @Override
     public final int doStartTag() throws JspException {
         getTagStack().push(this);
         registerWithParentForm();
@@ -340,6 +341,7 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
      *
      * @return int the value returned by the child class from doStartInputTag()
      */
+    @Override
     public final int doEndTag() throws JspException {
         // Wrap in a try/finally because a custom error renderer could throw an
         // exception, and some containers in their infinite wisdom continue to

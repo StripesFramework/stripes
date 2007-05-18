@@ -71,6 +71,7 @@ public class InputCheckBoxTag extends InputTagSupport implements BodyTag {
 
 
     /** Does nothing. */
+    @Override
     public int doStartInputTag() throws JspException {
         return EVAL_BODY_BUFFERED;
     }
@@ -89,6 +90,7 @@ public class InputCheckBoxTag extends InputTagSupport implements BodyTag {
      * Returns the body of the tag if it is present and not empty, otherwise returns
      * the value of the 'checked' attribute.
      */
+    @Override
     public Object getValueOnPage() {
         Object value = getBodyContentAsString();
         if (value != null) {
@@ -107,6 +109,7 @@ public class InputCheckBoxTag extends InputTagSupport implements BodyTag {
      * @throws JspException if the checkbox is not contained inside a stripes InputFormTag, or has
      *         problems writing to the output.
      */
+    @Override
     public int doEndInputTag() throws JspException {
         // Find out if we have a value from the PopulationStrategy
         Object checked = getOverrideValueOrValues();

@@ -235,6 +235,7 @@ public class FileBean {
     /**
      * Returns the name of the file and the content type in a String format.
      */
+    @Override
     public String toString() {
         return "FileBean{" +
             "contentType='" + contentType + "'" +

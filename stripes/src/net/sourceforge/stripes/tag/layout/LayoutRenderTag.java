@@ -64,6 +64,7 @@ public class LayoutRenderTag extends StripesTagSupport implements BodyTag, Dynam
      *
      * @return EVAL_BODY_BUFFERED in all cases
      */
+    @Override
     public int doStartTag() throws JspException {
         pushPageContextAttributes(this.context.getParameters());
         return EVAL_BODY_BUFFERED;
@@ -90,6 +91,7 @@ public class LayoutRenderTag extends StripesTagSupport implements BodyTag, Dynam
      * @return EVAL_PAGE in all cases.
      * @throws JspException if any exceptions are encountered processing the request
      */
+    @Override
     @SuppressWarnings("unchecked")
 	public int doEndTag() throws JspException {
         try {

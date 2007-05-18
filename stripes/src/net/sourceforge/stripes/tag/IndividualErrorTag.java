@@ -40,6 +40,7 @@ public class IndividualErrorTag extends HtmlTagSupport implements Tag {
      * @return SKIP_BODY always
      * @throws JspException
      */
+    @Override
     public int doStartTag() throws JspException {
         return SKIP_BODY;
     }
@@ -49,6 +50,7 @@ public class IndividualErrorTag extends HtmlTagSupport implements Tag {
      *
      * @return EVAL_PAGE in all circumstances
      */
+    @Override
     public int doEndTag() throws JspException {
 
         Locale locale = getPageContext().getRequest().getLocale();

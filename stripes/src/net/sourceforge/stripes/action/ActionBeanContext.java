@@ -237,6 +237,7 @@ public class ActionBeanContext {
      * Returns a String with the name of the event for which the instance holds context, and
      * the set of validation errors, if any.
      */
+    @Override
     public String toString() {
         return "ActionBeanContext{" +
             "eventName='" + eventName + "'" +

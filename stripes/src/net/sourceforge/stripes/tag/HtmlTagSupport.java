@@ -85,6 +85,7 @@ public abstract class HtmlTagSupport extends StripesTagSupport implements Dynami
     }
 
     /** Release method to clean up the state of the tag ready for re-use. */
+    @Override
     public void release() {
         this.pageContext = null;
         this.parentTag = null;
@@ -229,6 +230,7 @@ public abstract class HtmlTagSupport extends StripesTagSupport implements Dynami
      * Returns a String representation of the class, including the map of attributes that
      * are set on the tag, the toString of its parent tag, and the pageContext.
      */
+    @Override
     public String toString() {
         return getClass().getSimpleName()+ "{" +
             "attributes=" + attributes +

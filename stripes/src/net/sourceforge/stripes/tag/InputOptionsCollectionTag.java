@@ -196,6 +196,7 @@ public class InputOptionsCollectionTag extends HtmlTagSupport implements Tag {
      * @throws JspException if either the label or value attributes specify properties that are
      *         not present on the beans in the collection
      */
+    @Override
     public int doStartTag() throws JspException {
     	if (this.collection == null)
     		return SKIP_BODY;
@@ -245,6 +246,7 @@ public class InputOptionsCollectionTag extends HtmlTagSupport implements Tag {
      *
      * @return EVAL_PAGE in all cases.
      */
+    @Override
     public int doEndTag() throws JspException {
         // Determine if we're going to be sorting the collection
         List<Entry> sortedEntries = new LinkedList<Entry>(this.entries);

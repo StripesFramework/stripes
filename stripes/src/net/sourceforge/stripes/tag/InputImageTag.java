@@ -58,6 +58,7 @@ public class InputImageTag extends InputTagSupport {
      * Does nothing.
      * @return SKIP_BODY in all cases
      */
+    @Override
     public int doStartInputTag() throws JspException { return SKIP_BODY; }
 
     /**
@@ -67,6 +68,7 @@ public class InputImageTag extends InputTagSupport {
      *
      * @return EVAL_PAGE always
      */
+    @Override
     public int doEndInputTag() throws JspException {
         String name = getAttributes().get("name");
         Locale locale = getPageContext().getRequest().getLocale();

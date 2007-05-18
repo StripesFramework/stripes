@@ -119,6 +119,7 @@ public class InputSelectTag extends InputTagSupport implements BodyTag {
      * @return EVAL_BODY_INCLUDE in all cases
      * @throws JspException if the enclosing form tag cannot be found or output cannot be written
      */
+    @Override
     public int doStartInputTag() throws JspException {
         writeOpenTag(getPageContext().getOut(), "select");
         Object override = getOverrideValueOrValues();
@@ -144,6 +145,7 @@ public class InputSelectTag extends InputTagSupport implements BodyTag {
      * @return EVAL_PAGE in all cases
      * @throws JspException if output cannot be written.
      */
+    @Override
     public int doEndInputTag() throws JspException {
         writeCloseTag(getPageContext().getOut(), "select");
         this.selectedValueOrValues = this.value; // reset incase the tag is reused
@@ -151,6 +153,7 @@ public class InputSelectTag extends InputTagSupport implements BodyTag {
     }
 
     /** Releases the discovered selected values and then calls super-release(). */
+    @Override
     public void release() {
         this.selectedValueOrValues = null;
         super.release();

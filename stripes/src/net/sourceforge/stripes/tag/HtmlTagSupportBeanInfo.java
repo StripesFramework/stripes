@@ -39,6 +39,7 @@ public class HtmlTagSupportBeanInfo extends SimpleBeanInfo {
     /**
      * Generates a simple set of PropertyDescriptors for the HtmlTagSupport class.
      */
+    @Override
     public PropertyDescriptor[] getPropertyDescriptors() {
         try {
             List<PropertyDescriptor> descriptors = new ArrayList<PropertyDescriptor>();

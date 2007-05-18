@@ -48,6 +48,7 @@ public class LayoutDefinitionTag extends StripesTagSupport {
      *
      * @return EVAL_BODY_INCLUDE in all cases.
      */
+    @Override
     @SuppressWarnings("unchecked")
 	public int doStartTag() throws JspException {
         // Since the layout-render tag pushes a new writer onto the stack, we can clear the
@@ -86,6 +87,7 @@ public class LayoutDefinitionTag extends StripesTagSupport {
      * Causes page evaluation to end once the end of the layout definition is reached.
      * @return SKIP_PAGE in all cases
      */
+    @Override
     public int doEndTag() throws JspException {
         return SKIP_PAGE;
     }

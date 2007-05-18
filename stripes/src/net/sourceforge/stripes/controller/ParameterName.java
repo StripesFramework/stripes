@@ -104,12 +104,14 @@ public class ParameterName implements Comparable<ParameterName> {
      * see if we can short circuit, and then checks for equality of the name attribute for
      * a real test.
      */
+    @Override
     public boolean equals(Object obj) {
         return (obj instanceof ParameterName) &&
                 (this == obj || compareTo((ParameterName) obj) == 0);
     }
 
     /** Simple hashcode method based on the name of the parameter. */
+    @Override
     public int hashCode() {
         return this.name.hashCode();
     }
@@ -119,6 +121,7 @@ public class ParameterName implements Comparable<ParameterName> {
      * the most useful thing to see in log messages, which is the only place toString will
      * be used.
      */
+    @Override
     public String toString() {
         return this.name;
     }

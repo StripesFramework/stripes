@@ -76,6 +76,7 @@ public class MessagesTag extends HtmlTagSupport {
      * Does nothing, all processing is performed in doEndTag().
      * @return SKIP_BODY in all cases.
      */
+    @Override
     public int doStartTag() throws JspException {
         return SKIP_BODY;
     }
@@ -84,6 +85,7 @@ public class MessagesTag extends HtmlTagSupport {
      * Outputs the set of messages approprate for this tag.
      * @return EVAL_PAGE always
      */
+    @Override
     public int doEndTag() throws JspException {
         try {
             List<Message> messages = getMessages();

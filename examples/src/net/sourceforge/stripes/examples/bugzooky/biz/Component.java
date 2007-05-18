@@ -31,6 +31,7 @@ public class Component {
     public void setName(String name) { this.name = name; }
 
     /** Perform equality checks based on identity. */
+    @Override
     public boolean equals(Object obj) {
         return (obj instanceof Component) && this.id == ((Component) obj).id;
     }

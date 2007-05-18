@@ -78,6 +78,7 @@ public class InputOptionsEnumerationTag extends InputOptionsCollectionTag {
      * @throws JspException if the class name supplied is not a valid class, or cannot be cast
      *         to Class<Enum>.
      */
+    @Override
     @SuppressWarnings("unchecked")
 	public int doStartTag() throws JspException {
         Class<Enum> clazz = null;

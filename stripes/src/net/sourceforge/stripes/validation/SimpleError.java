@@ -92,6 +92,7 @@ public class SimpleError extends SimpleMessage implements ValidationError {
      * @param locale the locale of the current request
      * @return String the message stored under the messageKey supplied
      */
+    @Override
     public String getMessage(Locale locale) {
         resolveFieldName(locale);
         return super.getMessage(locale);
@@ -156,6 +157,7 @@ public class SimpleError extends SimpleMessage implements ValidationError {
     }
 
     /** Generated equals method that ensures the message, field, parameters and action path are all equal. */
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
@@ -170,6 +172,7 @@ public class SimpleError extends SimpleMessage implements ValidationError {
     }
 
     /** Hashcode based on the message, field name key, action path and parameters. */
+    @Override
     public int hashCode() {
         int result = super.hashCode();
         result = 29 * result + (fieldNameKey != null ? fieldNameKey.hashCode() : 0);

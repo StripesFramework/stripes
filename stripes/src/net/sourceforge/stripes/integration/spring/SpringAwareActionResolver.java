@@ -48,6 +48,7 @@ public class SpringAwareActionResolver extends NameBasedActionResolver {
      * @return the newly instantiated ActionBean
      * @throws Exception if configured SpringBeans cannot be located, or are ambiguous
      */
+    @Override
     protected ActionBean makeNewActionBean(Class<? extends ActionBean> type,
                                            ActionBeanContext context) throws Exception {
 

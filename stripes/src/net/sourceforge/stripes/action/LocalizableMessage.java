@@ -66,6 +66,7 @@ public class LocalizableMessage extends SimpleMessage {
      * @param o an instance of LocalizableMessage or subclass thereof
      * @return true if the two messages would produce the same user message, false otherwise
      */
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -87,6 +88,7 @@ public class LocalizableMessage extends SimpleMessage {
     }
 
     /** Generated hashCode method. */
+    @Override
     public int hashCode() {
         int result = super.hashCode();
         result = 29 * result + (messageKey != null ? messageKey.hashCode() : 0);

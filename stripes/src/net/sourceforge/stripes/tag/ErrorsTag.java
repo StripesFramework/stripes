@@ -203,6 +203,7 @@ public class ErrorsTag extends HtmlTagSupport implements BodyTag {
      * @return SKIP_BODY if the errors are not to be output, or there aren't any<br/>
      *         EVAL_BODY_TAG if there are errors to display
      */
+    @Override
     public int doStartTag() throws JspException {
         HttpServletRequest request = (HttpServletRequest) getPageContext().getRequest();
         ActionBean mainBean = (ActionBean) request.getAttribute(StripesConstants.REQ_ATTR_ACTION_BEAN);
@@ -314,6 +315,7 @@ public class ErrorsTag extends HtmlTagSupport implements BodyTag {
      * @return EVAL_PAGE always
      * @throws JspException
      */
+    @Override
     public int doEndTag() throws JspException {
         try {
             JspWriter writer = getPageContext().getOut();
