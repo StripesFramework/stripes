@@ -80,6 +80,7 @@ public class UseActionBeanTag extends StripesTagSupport {
      * @return SKIP_BODY in all cases.
      * @throws JspException if the ActionBean could not be instantiate and executed
      */
+    @Override
     public int doStartTag() throws JspException {
         // Check to see if the action bean already exists
         ActionBean actionBean = (ActionBean) getPageContext().findAttribute(binding);
@@ -184,6 +185,7 @@ public class UseActionBeanTag extends StripesTagSupport {
      * Does nothing.
      * @return EVAL_PAGE in all cases.
      */
+    @Override
     public int doEndTag() { return EVAL_PAGE; }
 
     /**

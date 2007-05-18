@@ -59,6 +59,7 @@ public class DispatcherServlet extends HttpServlet {
     private static final Log log = Log.getInstance(DispatcherServlet.class);
 
     /** Implemented as a simple call to doPost(request, response). */
+    @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
         throws ServletException, IOException {
         doPost(request, response);
@@ -84,6 +85,7 @@ public class DispatcherServlet extends HttpServlet {
      * @param response the HttpServletResponse paired to the request
      * @throws ServletException thrown when the system fails to process the request in any way
      */
+    @Override
     protected void doPost(final HttpServletRequest request, final HttpServletResponse response)
         throws ServletException {
 

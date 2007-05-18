@@ -126,6 +126,7 @@ public class ScopedLocalizableError extends LocalizableError {
     }
 
     /** Generated equals method that checks all fields and super.equals(). */
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -150,6 +151,7 @@ public class ScopedLocalizableError extends LocalizableError {
     }
 
     /** Generated hashCode() method. */
+    @Override
     public int hashCode() {
         int result = super.hashCode();
         result = 29 * result + (defaultScope != null ? defaultScope.hashCode() : 0);

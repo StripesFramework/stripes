@@ -26,6 +26,7 @@ import javax.servlet.jsp.JspException;
  */
 public class ErrorsFooterTag extends HtmlTagSupport implements Tag {
 
+    @Override
     public int doStartTag() throws JspException {
         ErrorsTag errorsTag = getParentTag(ErrorsTag.class);
 
@@ -35,6 +36,7 @@ public class ErrorsFooterTag extends HtmlTagSupport implements Tag {
             return SKIP_BODY;
     }
 
+    @Override
     public int doEndTag() throws JspException {
         return EVAL_PAGE;
     }

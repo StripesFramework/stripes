@@ -128,6 +128,7 @@ public class SimpleMessage implements Message {
      * @param o another object that is a SimpleMessage or subclass thereof
      * @return true if the two objects will generate the same user message, false otherwise
      */
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -149,6 +150,7 @@ public class SimpleMessage implements Message {
     }
 
     /** Generated hashcode method. */
+    @Override
     public int hashCode() {
         return (message != null ? message.hashCode() : 0);
     }

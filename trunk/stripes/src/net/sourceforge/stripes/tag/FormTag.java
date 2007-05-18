@@ -159,6 +159,7 @@ public class FormTag extends HtmlTagSupport implements BodyTag, TryCatchFinally 
      * Does sanity checks and returns EVAL_BODY_BUFFERED. Everything else of interest happens in
      * doEndTag.
      */
+    @Override
     public int doStartTag() throws JspException {
         if (this.actionWithoutContext == null) {
             throw new StripesJspException("The form tag attributes 'beanClass' and 'action' "
@@ -190,6 +191,7 @@ public class FormTag extends HtmlTagSupport implements BodyTag, TryCatchFinally 
      * necessary.  A prime example of this is the InputFileTag, which needs to ensure that the form
      * method is POST and the enctype is correct.</p>
      */
+    @Override
     public int doEndTag() throws JspException {
         try {
             // Default the method to post

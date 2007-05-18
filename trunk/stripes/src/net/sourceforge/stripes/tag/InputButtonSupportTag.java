@@ -46,6 +46,7 @@ public class InputButtonSupportTag extends InputTagSupport implements BodyTag {
      * Does nothing.
      * @return EVAL_BODY_BUFFERED in all cases.
      */
+    @Override
     public int doStartInputTag() throws JspException {
         return EVAL_BODY_BUFFERED;
     }
@@ -67,6 +68,7 @@ public class InputButtonSupportTag extends InputTagSupport implements BodyTag {
      * @return EVAL_PAGE in all cases.
      * @throws javax.servlet.jsp.JspException if output cannot be written.
      */
+    @Override
     public int doEndInputTag() throws JspException {
         // Find out if we have a value from the PopulationStrategy
         String body = getBodyContentAsString();

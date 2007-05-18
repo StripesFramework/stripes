@@ -29,6 +29,7 @@ import javax.servlet.jsp.tagext.TagData;
 public class ErrorsTagExtraInfo extends TagExtraInfo {
 
     /** Returns an array of length two, for the variables exposed. */
+    @Override
     public VariableInfo[] getVariableInfo(TagData data) {
         VariableInfo[]  scriptVars = new VariableInfo[2];
 

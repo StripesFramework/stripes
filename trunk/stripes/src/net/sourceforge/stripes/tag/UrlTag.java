@@ -40,6 +40,7 @@ public class UrlTag extends LinkTagSupport implements BodyTag {
      * Does nothing.
      * @return {@link #EVAL_BODY_BUFFERED} in all cases.
      */
+    @Override
     public int doStartTag() throws JspException { return EVAL_BODY_BUFFERED; }
 
     /** Does nothing. */
@@ -58,6 +59,7 @@ public class UrlTag extends LinkTagSupport implements BodyTag {
      * @return {@link #EVAL_PAGE} in all cases.
      * @throws JspException if the output stream cannot be written to.
      */
+    @Override
     public int doEndTag() throws JspException {
         String url = buildUrl();
 

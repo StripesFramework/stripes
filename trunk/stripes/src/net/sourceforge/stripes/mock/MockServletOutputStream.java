@@ -29,6 +29,7 @@ public class MockServletOutputStream extends ServletOutputStream {
     private ByteArrayOutputStream out = new ByteArrayOutputStream();
 
     /** Pass through method calls ByteArrayOutputStream.write(int b). */
+    @Override
     public void write(int b) throws IOException { out.write(b); }
 
     /** Returns the array of bytes that have been written to the output stream. */

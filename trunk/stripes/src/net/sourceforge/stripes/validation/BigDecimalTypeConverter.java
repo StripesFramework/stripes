@@ -36,6 +36,7 @@ public class BigDecimalTypeConverter extends NumberTypeConverterSupport
      * to a decimal format and ensures that a BigDecimal is parsed instead of a Long or
      * Double.
      */
+    @Override
     protected NumberFormat[] getNumberFormats() {
         NumberFormat[] formats = super.getNumberFormats();
         for (NumberFormat format : formats) {

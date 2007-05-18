@@ -66,6 +66,7 @@ public class InputHiddenTag extends InputTagSupport implements BodyTag {
      *
      * @return EVAL_BODY_BUFFERED to always buffer the body (so it can be used as the value)
      */
+    @Override
     public int doStartInputTag() throws JspException {
         return EVAL_BODY_BUFFERED;
     }
@@ -90,6 +91,7 @@ public class InputHiddenTag extends InputTagSupport implements BodyTag {
      * @return EVAL_PAGE in all cases.
      * @throws JspException if the enclosing form tag cannot be found, or output cannot be written.
      */
+    @Override
     public int doEndInputTag() throws JspException {
         // Find out if we have a value from the PopulationStrategy
         Object valueOrValues = getOverrideValueOrValues();

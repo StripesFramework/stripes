@@ -45,6 +45,7 @@ public class BeanFirstPopulationStrategy extends DefaultPopulationStrategy {
      * @return Object will be one of null, a single Object or an Array of Objects depending upon
      *         what was submitted in the prior request, and what is declared on the ActionBean
      */
+    @Override
     public Object getValue(InputTagSupport tag) throws StripesJspException {
         // If the specific tag is in error, grab the values from the request
         if (tag.hasErrors()) {

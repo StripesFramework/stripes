@@ -26,6 +26,7 @@ import javax.servlet.jsp.tagext.Tag;
  */
 public class ErrorsHeaderTag extends HtmlTagSupport implements Tag {
 
+    @Override
     public int doStartTag() throws JspException {
         ErrorsTag errorsTag = getParentTag(ErrorsTag.class);
         if (errorsTag.isFirst())
@@ -34,6 +35,7 @@ public class ErrorsHeaderTag extends HtmlTagSupport implements Tag {
             return SKIP_BODY;
     }
 
+    @Override
     public int doEndTag() throws JspException {
         return EVAL_PAGE;
     }

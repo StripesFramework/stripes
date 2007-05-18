@@ -52,6 +52,7 @@ public class LayoutComponentTag extends StripesTagSupport implements BodyTag {
      *
      * @return EVAL_BODY_BUFFERED, EVAL_BODY_INCLUDE or SKIP_BODY as described above.
      */
+    @Override
     public int doStartTag() throws JspException {
         this.definitionTag = getParentTag(LayoutDefinitionTag.class);
         this.renderTag = getParentTag(LayoutRenderTag.class);
@@ -82,6 +83,7 @@ public class LayoutComponentTag extends StripesTagSupport implements BodyTag {
      *
      * @return EVAL_PAGE in all cases.
      */
+    @Override
     public int doEndTag() throws JspException {
         if (this.renderTag != null && this.bodyContent != null) {
             this.renderTag.addComponent(this.name, this.bodyContent.getString());

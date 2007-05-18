@@ -125,6 +125,7 @@ public class StripesRequestWrapper extends HttpServletRequestWrapper {
      * the request is multipart then the information is sourced from the parsed multipart object
      * otherwise it is just pulled out of the request in the usual manner.
      */
+    @Override
     @SuppressWarnings("unchecked")
 	public Enumeration<String> getParameterNames() {
         if ( isMultipart() ) {
@@ -142,6 +143,7 @@ public class StripesRequestWrapper extends HttpServletRequestWrapper {
      * HttpServletRequest.getParameterValues(String).  Values for file uploads cannot be retrieved
      * in this way (though parameters sent along with file uploads can).
      */
+    @Override
     public String[] getParameterValues(String name) {
         if ( isMultipart() ) {
             return this.multipart.getParameterValues(name);
@@ -155,6 +157,7 @@ public class StripesRequestWrapper extends HttpServletRequestWrapper {
      * Retrieves the first value of the specified parameter from the request. If the parameter was
      * not sent, null will be returned.
      */
+    @Override
     public String getParameter(String name) {
         String[] values = getParameterValues(name);
         if (values != null && values.length > 0) {
@@ -169,6 +172,7 @@ public class StripesRequestWrapper extends HttpServletRequestWrapper {
     /**
      * Returns a map of parameter name and values.
      */
+    @Override
     @SuppressWarnings("unchecked")
 	public Map<String,String[]> getParameterMap() {
         if (isMultipart()) {
@@ -192,6 +196,7 @@ public class StripesRequestWrapper extends HttpServletRequestWrapper {
      * @return a Locale object representing the chosen locale for the request.
      * @see net.sourceforge.stripes.localization.LocalePicker
      */
+    @Override
     public Locale getLocale() {
         return locale;
     }
@@ -200,6 +205,7 @@ public class StripesRequestWrapper extends HttpServletRequestWrapper {
      *  Returns a single element enumeration containing the selected Locale for this request.
      *  @see net.sourceforge.stripes.localization.LocalePicker
      */
+    @Override
     public Enumeration<Locale> getLocales() {
         List<Locale> list = new ArrayList<Locale>();
         list.add(this.locale);

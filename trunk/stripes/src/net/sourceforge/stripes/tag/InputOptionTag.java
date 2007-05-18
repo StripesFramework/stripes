@@ -71,6 +71,7 @@ public class InputOptionTag extends InputTagSupport implements BodyTag {
      * Does nothing.
      * @return EVAL_BODY_BUFFERED in all cases.
      */
+    @Override
     public int doStartInputTag() throws JspException {
         return EVAL_BODY_BUFFERED;
     }
@@ -95,6 +96,7 @@ public class InputOptionTag extends InputTagSupport implements BodyTag {
      * @throws JspException if the option is not contained inside an InputSelectTag or output
      *         cannot be written.
      */
+    @Override
     public int doEndInputTag() throws JspException {
         // Find our mandatory enclosing select tag
         InputSelectTag selectTag = getParentTag(InputSelectTag.class);
@@ -148,6 +150,7 @@ public class InputOptionTag extends InputTagSupport implements BodyTag {
      * the form tag. This is done because options are not standalone input tags, but
      * always part of a select tag (which gets registered).
      */
+    @Override
     protected void registerWithParentForm() throws StripesJspException {
         // Do nothing, options are not standalone fields and should not register
     }

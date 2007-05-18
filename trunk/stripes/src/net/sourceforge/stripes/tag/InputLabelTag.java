@@ -64,6 +64,7 @@ public class InputLabelTag extends InputTagSupport implements BodyTag {
      * the JSP container as it also tracks whether or not the container has set the name, in
      * order to correctly handle pooling.
      */
+    @Override
     public void setName(String name) {
         super.setName(name);
         this.nameSet = true;
@@ -73,6 +74,7 @@ public class InputLabelTag extends InputTagSupport implements BodyTag {
      * Does nothing.
      * @return EVAL_BODY_BUFFERED in all cases.
      */
+    @Override
     public int doStartInputTag() throws JspException {
         return EVAL_BODY_BUFFERED;
     }
@@ -93,6 +95,7 @@ public class InputLabelTag extends InputTagSupport implements BodyTag {
      * @return EVAL_PAGE in all cases.
      * @throws JspException if an IOException is encountered writing to the output stream.
      */
+    @Override
     public int doEndInputTag() throws JspException {
         try {
             String label = getLocalizedFieldName();
@@ -125,12 +128,14 @@ public class InputLabelTag extends InputTagSupport implements BodyTag {
     }
 
     /** Overridden to do nothing, since a label isn't really a form field. */
+    @Override
     protected void registerWithParentForm() throws StripesJspException { }
 
     /**
      * Wraps the parent loadErrors() to supress exceptions when the label is outside of a
      * stripes form tag.
      */
+    @Override
     protected void loadErrors() {
         try {
             super.loadErrors();

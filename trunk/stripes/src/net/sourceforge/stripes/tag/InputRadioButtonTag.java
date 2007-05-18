@@ -66,6 +66,7 @@ public class InputRadioButtonTag extends InputTagSupport implements BodyTag {
      * Sets the input tag type to "radio".
      * @return EVAL_BODY_BUFFERED in all cases.
      */
+    @Override
     public int doStartInputTag() throws JspException {
         return EVAL_BODY_BUFFERED;
     }
@@ -85,6 +86,7 @@ public class InputRadioButtonTag extends InputTagSupport implements BodyTag {
      * Returns the body of the tag if it is present and not empty, otherwise returns
      * the value of the 'checked' attribute.
      */
+    @Override
     public Object getValueOnPage() {
         String body         = getBodyContentAsString();
         if (body != null) {
@@ -102,6 +104,7 @@ public class InputRadioButtonTag extends InputTagSupport implements BodyTag {
      * @return EVAL_PAGE in all cases.
      * @throws JspException if the parent form tag cannot be found, or output cannot be written.
      */
+    @Override
     public int doEndInputTag() throws JspException {
         Object actualChecked = getSingleOverrideValue();
         String formattedValue = format(this.value);

@@ -66,6 +66,7 @@ public class Person {
     }
 
     /** Equality is determined to be when the ID numbers match. */
+    @Override
     public boolean equals(Object obj) {
         return (obj instanceof Person) && this.id == ((Person) obj).id;
     }

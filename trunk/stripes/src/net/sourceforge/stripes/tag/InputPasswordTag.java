@@ -44,6 +44,7 @@ public class InputPasswordTag extends InputTextTag {
         getAttributes().put("type", "password");
     }
 
+    @Override
     public int doEndInputTag() throws JspException {
         if (this.repopulate) {
             // If repopulate is set, delegate to the parent input text tag

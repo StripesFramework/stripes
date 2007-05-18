@@ -36,6 +36,7 @@ public class LinkTag extends LinkTagSupport implements BodyTag {
      * Does nothing.
      * @return EVAL_BODY_BUFFERED in all cases
      */
+    @Override
     public int doStartTag() throws JspException {
         return EVAL_BODY_BUFFERED;
     }
@@ -58,6 +59,7 @@ public class LinkTag extends LinkTagSupport implements BodyTag {
      * @return EVAL_PAGE in all cases
      * @throws JspException
      */
+    @Override
     public int doEndTag() throws JspException {
         try {
             set("href", buildUrl());

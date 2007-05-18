@@ -199,6 +199,7 @@ public class ValidationMetadata {
      *
      * @return a human readable string form of the metadata
      */
+    @Override
     public String toString() {
         return "ValidationMetadata{" +
                 (required ? "required=" + required : "") +

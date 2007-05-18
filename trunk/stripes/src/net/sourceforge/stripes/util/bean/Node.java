@@ -70,5 +70,6 @@ public class Node {
 
 
     /** Simple toString that returns the text that constructed this node. */
+    @Override
     public String toString() { return stringValue; }
 }
