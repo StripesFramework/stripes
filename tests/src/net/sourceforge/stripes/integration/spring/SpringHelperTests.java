@@ -45,6 +45,7 @@ public class SpringHelperTests {
 
     private static class ExplicitPrivateSetterTarget {
         private TestBean bean;
+        @SuppressWarnings("unused")
         @SpringBean("test/TestBean")
         private void setBean(TestBean bean) { this.bean = bean; }
         TestBean getBean() { return bean; }
@@ -165,6 +166,7 @@ public class SpringHelperTests {
         TestActionBean number3; // explicit private method
         TestActionBean number4; // explicit public method
 
+        @SuppressWarnings("unused")
         @SpringBean("test/testActionBean")
         private void setNumber3(TestActionBean value) { this.number3 = value; }
 
@@ -254,6 +256,7 @@ public class SpringHelperTests {
         TestActionBean number3; // explicit private method
         TestActionBean number4; // explicit public method
 
+        @SuppressWarnings("unused")
         @SpringBean("test/testActionBean")
         private void setNumber3(TestActionBean value) { this.number3 = value; }
 

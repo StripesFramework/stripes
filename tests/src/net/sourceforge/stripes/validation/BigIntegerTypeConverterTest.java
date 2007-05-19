@@ -71,6 +71,7 @@ public class BigIntegerTypeConverterTest {
         TypeConverter<BigInteger> converter = new BigIntegerTypeConverter();
         converter.setLocale(Locale.US);
         Collection<ValidationError> errors = errors();
+        @SuppressWarnings("unused")
         BigInteger result = converter.convert(number, BigInteger.class, errors);
         Assert.assertEquals(errors.size(), 1);
     }
