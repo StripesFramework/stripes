@@ -62,6 +62,7 @@ public class BigDecimalTypeConverterTest {
         TypeConverter<BigDecimal> converter = new BigDecimalTypeConverter();
         converter.setLocale(Locale.US);
         Collection<ValidationError> errors = errors();
+        @SuppressWarnings("unused")
         BigDecimal result = converter.convert(number, BigDecimal.class, errors);
         Assert.assertEquals(errors.size(), 1);
     }

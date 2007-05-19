@@ -63,6 +63,7 @@ public class PropertyExpressionTests {
 
     @Test(groups="fast", expectedExceptions=ParseException.class)
     public void testBackToBackQuotedStrings() {
+        @SuppressWarnings("unused")
         PropertyExpression expr = PropertyExpression.getExpression("foo['bar''splat']");
     }
 

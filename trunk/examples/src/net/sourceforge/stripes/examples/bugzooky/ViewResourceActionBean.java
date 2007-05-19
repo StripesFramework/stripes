@@ -75,6 +75,7 @@ public class ViewResourceActionBean extends BugzookyActionBean {
      * Method used when this ActionBean is used as a view helper. Returns a listing of all the
      * JSPs and ActionBeans available for viewing.
      */
+    @SuppressWarnings("unchecked")
     public Collection getAvailableResources() {
         ServletContext ctx = getContext().getRequest().getSession().getServletContext();
         SortedSet<String> resources = new TreeSet<String>();

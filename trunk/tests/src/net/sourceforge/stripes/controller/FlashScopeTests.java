@@ -37,6 +37,7 @@ public class FlashScopeTests implements ActionBean {
     public void setContext(ActionBeanContext context) { this.context = context; }
 
     /** A test handler that moves all request parameters into a flash scope. */
+    @SuppressWarnings("unchecked")
     @DefaultHandler
     public Resolution flash() {
         HttpServletRequest req = getContext().getRequest();

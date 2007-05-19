@@ -239,6 +239,7 @@ public class MapBindingTests implements ActionBean {
         Assert.assertNotNull(bean.getMapDateDate().get(key));
     }
 
+    @SuppressWarnings("unchecked")
     @Before(stages=LifecycleStage.BindingAndValidation)
     public void populateTypelessMap() {
         this.typelessMap = new HashMap();
