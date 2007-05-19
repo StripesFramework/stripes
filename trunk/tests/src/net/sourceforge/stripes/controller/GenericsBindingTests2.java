@@ -11,21 +11,25 @@ import org.testng.annotations.Test;
  * @author Tim Fennell
  */
 public class GenericsBindingTests2 extends GenericsBindingTests {
+    @Override
     @Test(groups="fast")
     public void testSimpleTypeVariable() throws Exception {
         super.testSimpleTypeVariable();
     }
 
+    @Override
     @Test(groups="fast")
     public void testTypeVariableLists() throws Exception {
         super.testTypeVariableLists();
     }
 
+    @Override
     @Test(groups="fast")
     public void testTypeVariableMaps() throws Exception {
         super.testTypeVariableMaps();
     }
 
+    @Override
     @Test(groups="fast")
     public void testTypeVariableNestedProperties() throws Exception {
         super.testTypeVariableNestedProperties();
