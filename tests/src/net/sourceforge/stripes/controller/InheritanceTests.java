@@ -45,12 +45,15 @@ public class InheritanceTests extends SuperclassActionBean {
 
     // Overridden getter methods that simply allow additional validations to be added
 
+    @Override
     @Validate(required=false) // override validation on the Field
     public String getOne() { return super.getOne(); }
 
+    @Override
     @Validate(required=true,minlength=25) // override and add validation on the Method
     public String getTwo() { return super.getTwo(); }
 
+    @Override
     @Validate(mask="\\d+") // add valiations where there were none
     public String getFour() { return super.getFour(); }
 
