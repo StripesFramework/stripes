@@ -113,7 +113,7 @@ public class UrlBuilder {
                 if (v instanceof Collection) {
                     addParameter(name, ((Collection) v).toArray());
                 }
-                else if (v.getClass().isArray()) {
+                else if (v != null && v.getClass().isArray()) {
                     addParameter(name, (Object[]) CollectionUtil.asObjectArray(v));
                 }
                 else {
