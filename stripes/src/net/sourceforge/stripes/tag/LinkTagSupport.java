@@ -36,6 +36,7 @@ public abstract class LinkTagSupport extends HtmlTagSupport implements Parameter
     private String event;
     private Object beanclass;
     private String url;
+    private boolean addSourcePage = false;
 
     /**
      * Gets the URL that is supplied by the user/developer on the page. This is the basis
@@ -100,6 +101,20 @@ public abstract class LinkTagSupport extends HtmlTagSupport implements Parameter
     public Object getBeanclass() { return beanclass; }
 
     /**
+     * Get the flag that indicates if the _sourcePage parameter should be
+     * appended to the URL.
+     * 
+     * @return true if _sourcePage is to be appended to the URL; false otherwise
+     */
+    public boolean isAddSourcePage() { return addSourcePage; }
+
+    /**
+     * Set the flag that indicates if the _sourcePage parameter should be
+     * appended to the URL.
+     */
+    public void setAddSourcePage(boolean addSourcePage) { this.addSourcePage = addSourcePage; }
+
+    /**
      * Returns the base URL that should be used for building the link. This is derived from
      * the 'beanclass' attribute if it is set, else from the 'url' attribute.
      *
@@ -153,7 +168,9 @@ public abstract class LinkTagSupport extends HtmlTagSupport implements Parameter
         if (this.event != null) {
             builder.addParameter(this.event);
         }
-        builder.addParameter(StripesConstants.URL_KEY_SOURCE_PAGE, request.getServletPath());
+        if (addSourcePage) {
+            builder.addParameter(StripesConstants.URL_KEY_SOURCE_PAGE, request.getServletPath());
+        }
         builder.addParameters(this.parameters);
 
         return response.encodeURL(builder.toString());

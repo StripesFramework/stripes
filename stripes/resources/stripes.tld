@@ -790,6 +790,13 @@
         </attribute>
         <attribute>
             <description>
+                Indicates if the _sourcePage parameter should be appended to the URL. Default
+                value is false.
+            </description>
+            <name>addSourcePage</name><required>false</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>
                 The fully qualified name of an ActionBean class, or alternatively a Class instance
                 for an ActionBean class.  An alternative to the 'href' attribute, the 'beanclass'
                 attribute will generate an href appropriate for the ActionBean identified. Note
