@@ -14,10 +14,13 @@
  */
 package net.sourceforge.stripes.format;
 
-import net.sourceforge.stripes.config.Configuration;
-
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
+
+import net.sourceforge.stripes.config.Configuration;
+import net.sourceforge.stripes.util.Log;
 
 /**
  * Very simple default implementation of a formatter factory that is aware of how to format
@@ -26,6 +29,11 @@ import java.util.Locale;
  * @author Tim Fennell
  */
 public class DefaultFormatterFactory implements FormatterFactory {
+    /** A rather generic-heavy Map that maps target type to Formatter. */
+    private Map<Class, Class<? extends Formatter>> formatters =
+        new HashMap<Class, Class<? extends Formatter>>();
+
+    /** Stores a reference to the Configuration passed in at initialization time. */
     private Configuration configuration;
 
     /** Stores a reference to the configuration and returns. */
@@ -36,6 +44,27 @@ public class DefaultFormatterFactory implements FormatterFactory {
     /** Allows subclasses to access the stored configuration if needed. */
     protected Configuration getConfiguration() {
         return this.configuration;
+    }
+
+    /**
+     * Gets the (rather confusing) Map of Formatter objects.  The Map uses the target class
+     * as the key in the Map, and the Class object representing the Formatter as the value.
+     *
+     * @return the Map of Formatter classes
+     */
+    protected Map<Class,Class<? extends Formatter>> getFormatters() {
+        return this.formatters;
+    }
+
+    /**
+     * Adds a Formatter to the set of registered Formatters, overriding an existing
+     * formatter if one was registered for the type.
+     *
+     * @param targetType the type for which the formatter will handle formatting
+     * @param formatterClass the implementation class that will handle the formatting
+     */
+    protected void add(Class targetType, Class<? extends Formatter> formatterClass) {
+        this.formatters.put(targetType, formatterClass);
     }
 
     /**
@@ -53,7 +82,17 @@ public class DefaultFormatterFactory implements FormatterFactory {
         Formatter formatter = null;
 
         // Figure out if we have a type we can format
-        if (Date.class.isAssignableFrom(clazz)) {
+        if (formatters.containsKey(clazz)) {
+            Class<? extends Formatter> formatterClass = formatters.get(clazz);
+            try {
+                return getInstance(formatterClass, formatType, formatPattern, locale);
+            }
+            catch (Exception e) {
+                Log.getInstance(getClass()).error(e, "Unable to instantiate Formatter ", formatterClass);
+                return null;
+            }
+        }
+        else if (Date.class.isAssignableFrom(clazz)) {
             formatter = new DateFormatter();
             formatter.setFormatType(formatType);
             formatter.setFormatPattern(formatPattern);
@@ -77,5 +116,24 @@ public class DefaultFormatterFactory implements FormatterFactory {
         else {
             return null;
         }
+    }
+
+    /**
+     * Gets an instance of the Formatter class specified.
+     *
+     * @param clazz the Formatter type that is desired
+     * @return an instance of the Formatter specified
+     * @throws Exception if there is a problem instantiating the Formatter
+     */
+    public Formatter getInstance(Class<? extends Formatter> clazz,
+            String formatType, String formatPattern, Locale locale)
+            throws Exception {
+        // TODO: add thread local caching of formatter classes
+        Formatter formatter = clazz.newInstance();
+        formatter.setFormatType(formatType);
+        formatter.setFormatPattern(formatPattern);
+        formatter.setLocale(locale);
+        formatter.init();
+        return formatter;
     }
 }
