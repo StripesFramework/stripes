@@ -458,6 +458,14 @@
             <description>Scripting code run prior to the form being submitted to the server, (HTML Pass-through)</description>
             <name>onsubmit</name><required>false</required><rtexprvalue>true</rtexprvalue>
         </attribute>
+        <attribute>
+            <description>
+                Indicates whether or not to actually render the HTML &lt;FORM&gt; tag and certain
+                hidden inputs, such as _sourcePage. This is useful when using AJAX to insert
+                elements into an existing &lt;FORM&gt;.
+            </description>
+            <name>partial</name><required>false</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
 
         <!-- Start: Standard HTML attributes -->
         <attribute><description>@class@</description><name>class</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
