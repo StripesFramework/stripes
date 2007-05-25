@@ -52,6 +52,7 @@ public class FormTag extends HtmlTagSupport implements BodyTag, TryCatchFinally 
     /** Stores the field name (or magic values ''/'first') to set focus on. */
     private String focus;
     private boolean focusSet = false;
+    private boolean partial = false;
 
     /** Stores the value of the action attribute before the context gets appended. */
     private String actionWithoutContext;
@@ -123,6 +124,10 @@ public class FormTag extends HtmlTagSupport implements BodyTag, TryCatchFinally 
     /** Gets the name of the field that should receive focus when the form is rendered. */
     public String getFocus() { return focus; }
 
+    /** Gets the flag that indicates if this is a partial form. */
+    public boolean isPartial() { return partial; }
+    /** Sets the flag that indicates if this is a partial form. */
+    public void setPartial(boolean partial) { this.partial = partial; }
 
     ////////////////////////////////////////////////////////////
     // Additional attributes specific to the form tag
@@ -200,28 +205,32 @@ public class FormTag extends HtmlTagSupport implements BodyTag, TryCatchFinally 
             }
 
             JspWriter out = getPageContext().getOut();
-            writeOpenTag(out, "form");
+            if (!partial) {
+                writeOpenTag(out, "form");
+            }
             getBodyContent().writeOut( getPageContext().getOut() );
 
-            // Write out a hidden field with the name of the page in it....
-            // The div is necessary in order to be XHTML compliant, where a form can contain
-            // only block level elements (which seems stupid, but whatever).
-            out.write("<div style=\"display: none;\">");
-            out.write("<input type=\"hidden\" name=\"");
-            out.write(StripesConstants.URL_KEY_SOURCE_PAGE);
-            out.write("\" value=\"");
-            HttpServletRequest request = (HttpServletRequest) getPageContext().getRequest();
-            out.write( request.getServletPath());
-            out.write("\" />");
+            if (!partial) {
+                // Write out a hidden field with the name of the page in it....
+                // The div is necessary in order to be XHTML compliant, where a form can contain
+                // only block level elements (which seems stupid, but whatever).
+                out.write("<div style=\"display: none;\">");
+                out.write("<input type=\"hidden\" name=\"");
+                out.write(StripesConstants.URL_KEY_SOURCE_PAGE);
+                out.write("\" value=\"");
+                HttpServletRequest request = (HttpServletRequest) getPageContext().getRequest();
+                out.write(request.getServletPath());
+                out.write("\" />");
 
-            if (isWizard()) {
-                writeWizardFields();
+                if (isWizard()) {
+                    writeWizardFields();
+                }
+
+                writeFieldsPresentHiddenField(out);
+                out.write("</div>");
+
+                writeCloseTag(getPageContext().getOut(), "form");
             }
-
-            writeFieldsPresentHiddenField(out);
-            out.write("</div>");
-
-            writeCloseTag(getPageContext().getOut(), "form");
 
             // Write out a warning if focus didn't find a field
             if (this.focus != null && !this.focusSet) {
