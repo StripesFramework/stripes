@@ -114,7 +114,7 @@ public class UrlBuilder {
                     addParameter(name, ((Collection) v).toArray());
                 }
                 else if (v != null && v.getClass().isArray()) {
-                    addParameter(name, (Object[]) CollectionUtil.asObjectArray(v));
+                    addParameter(name, CollectionUtil.asObjectArray(v));
                 }
                 else {
                     // Figure out whether we already have params or not
@@ -157,8 +157,7 @@ public class UrlBuilder {
                 addParameter(name, (Object) null);
             }
             else if (valueOrValues.getClass().isArray()) {
-                Object[] values = (Object[]) valueOrValues;
-                addParameter(name, values);
+                addParameter(name, CollectionUtil.asObjectArray(valueOrValues));
             }
             else if (valueOrValues instanceof Collection) {
                 Collection values = (Collection) valueOrValues;
