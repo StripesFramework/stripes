@@ -60,7 +60,20 @@ public class StripesFilter implements Filter {
      * Configuration.  Doing this allows multiple Stripes Configurations to exist in a single
      * Classloader since the Configuration is not located statically.
      */
-    private static ThreadLocal<Configuration> configurationStash = new ThreadLocal<Configuration>();
+    private static final ThreadLocal<Configuration> configurationStash = new ThreadLocal<Configuration>();
+
+    /**
+     * Some operations should only be done if the current invocation of
+     * {@link #doFilter(ServletRequest, ServletResponse, FilterChain)} is the
+     * first in the filter chain. This {@link ThreadLocal} keeps track of
+     * whether such operations should be done or not.
+     */
+    private static final ThreadLocal<Boolean> initialInvocation = new ThreadLocal<Boolean>() {
+        @Override
+        protected Boolean initialValue() {
+            return true;
+        }
+    };
 
     /**
      * Performs the necessary initialization for the StripesFilter.  Mainly this involves deciding
@@ -143,6 +156,12 @@ public class StripesFilter implements Filter {
         HttpServletRequest httpRequest = (HttpServletRequest) servletRequest;
         HttpServletResponse httpResponse = (HttpServletResponse) servletResponse;
 
+        // check the flag that indicates if this is the initial invocation
+        boolean initial = initialInvocation.get();
+        if (initial) {
+            initialInvocation.set(false);
+        }
+
         // Wrap pretty much everything in a try/catch so that we can funnel even the most
         // bizarre or unexpected exceptions into the exception handler
         try {
@@ -183,8 +202,13 @@ public class StripesFilter implements Filter {
             this.configuration.getExceptionHandler().handle(t, httpRequest, httpResponse);
         }
         finally {
+            // reset the flag that indicates if this is the initial invocation
+            if (initial) {
+                initialInvocation.set(true);
+                flashOutbound(httpRequest);
+            }
+
             // Once the request is processed, take the Configuration back out of thread local
-            flashOutbound(httpRequest);
             StripesFilter.configurationStash.set(null);
         }
     }
