@@ -198,7 +198,7 @@ public final class Log {
         StringBuilder builder = new StringBuilder(128);
         for (Object part : messageParts) {
             if (part instanceof Object[]) {
-                builder.append( Arrays.toString((Object[]) CollectionUtil.asObjectArray(part) ));
+                builder.append( Arrays.toString(CollectionUtil.asObjectArray(part) ));
             }
             else {
                 builder.append(part);
