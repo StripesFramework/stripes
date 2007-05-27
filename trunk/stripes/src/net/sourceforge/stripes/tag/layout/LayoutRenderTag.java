@@ -14,6 +14,7 @@
  */
 package net.sourceforge.stripes.tag.layout;
 
+import net.sourceforge.stripes.controller.StripesFilter;
 import net.sourceforge.stripes.exception.StripesJspException;
 import net.sourceforge.stripes.tag.StripesTagSupport;
 
@@ -109,7 +110,7 @@ public class LayoutRenderTag extends StripesTagSupport implements BodyTag, Dynam
 
             // Check that the page named is actually there, because some containers will
             // just quietly ignore includes of non-existent pages!
-            URL target = request.getSession().getServletContext().getResource(this.name);
+            URL target = StripesFilter.getConfiguration().getServletContext().getResource(this.name);
             if (target == null) {
                 throw new StripesJspException(
                     "Attempt made to render a layout that does not exist. The layout name " +

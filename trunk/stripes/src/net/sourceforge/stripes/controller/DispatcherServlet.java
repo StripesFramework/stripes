@@ -124,7 +124,7 @@ public class DispatcherServlet extends HttpServlet {
                                                                             abc.getRequest(), // req
                                                                             abc.getResponse(), // res
                                                                             null,   // error page url
-                                                                            true,   // need session
+                                                                            (request.getSession(false) != null), // needsSession - don't force a session creation if one doesn't already exist
                                                                             abc.getResponse().getBufferSize(),
                                                                             true); // autoflush
                 DispatcherHelper.setPageContext(pageContext);

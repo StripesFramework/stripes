@@ -15,6 +15,7 @@
 package net.sourceforge.stripes.integration.spring;
 
 import net.sourceforge.stripes.action.ActionBeanContext;
+import net.sourceforge.stripes.controller.StripesFilter;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
 import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.util.ReflectUtil;
@@ -77,7 +78,7 @@ public class SpringHelper {
      * @param context the ActionBeanContext represented by the current request
      */
     public static void injectBeans(Object bean, ActionBeanContext context) {
-        injectBeans(bean, context.getRequest().getSession().getServletContext());
+        injectBeans(bean, StripesFilter.getConfiguration().getServletContext());
     }
 
     /**
