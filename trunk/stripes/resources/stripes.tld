@@ -1972,6 +1972,43 @@
         <dynamic-attributes>true</dynamic-attributes>
     </tag>
 
+    <tag>
+        <description><![CDATA[
+            Formats an object using Stripes' formatting facilities. If no formatter is available
+            for the object, then toString() is called. Null values are formatted as an empty
+            string. If a 'var' attribute is specified, the generated URL will be written to that
+            variable, otherwise it will be written into the page.
+        ]]></description>
+        <display-name>format</display-name>
+        <name>format</name>
+        <tag-class>net.sourceforge.stripes.tag.FormatTag</tag-class>
+        <body-content>empty</body-content>
+        <attribute>
+            <description>
+                The object to be formatted.
+            </description>
+            <name>value</name><required>true</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>
+                The (optional) name of a scoped variable to store the formatted value in. If no
+                name is specified then the value will be written directly to the page instead. See
+                also the 'scope' attribute to control which scope the variable gets set in.
+            </description>
+            <name>var</name><required>false</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>
+                The (optional) name of the JSP scope into which to set the variable specified by
+                the var attribute. Valid values are 'page', 'request', 'session' and 'application'.
+                Defaults to 'page'.
+            </description>
+            <name>scope</name><required>false</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute><description>@formatType@</description><name>formatType</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@formatPattern@</description><name>formatPattern</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+    </tag>
+
     <function>
         <description>
             Returns the name of the supplied Java 5 enumeration value; useful since EL will
