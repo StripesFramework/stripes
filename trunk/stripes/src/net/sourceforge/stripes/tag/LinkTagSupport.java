@@ -14,6 +14,7 @@
  */
 package net.sourceforge.stripes.tag;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -26,6 +27,7 @@ import net.sourceforge.stripes.controller.StripesFilter;
 import net.sourceforge.stripes.exception.StripesJspException;
 import net.sourceforge.stripes.format.Formatter;
 import net.sourceforge.stripes.format.FormatterFactory;
+import net.sourceforge.stripes.util.CollectionUtil;
 import net.sourceforge.stripes.util.UrlBuilder;
 
 /**
@@ -180,7 +182,25 @@ public abstract class LinkTagSupport extends HtmlTagSupport implements Parameter
         // format parameters before appending to URL
         Map<String, Object> parameters = new HashMap<String, Object>(this.parameters);
         for (Entry<String, Object> entry : parameters.entrySet()) {
-            entry.setValue(format(entry.getValue()));
+            Object value = entry.getValue();
+            if (value != null && value.getClass().isArray()) {
+                Object[] raw = CollectionUtil.asObjectArray(value);
+                String[] formatted = new String[raw.length];
+                for (int i = 0; i < raw.length; i++)
+                    formatted[i] = format(raw[i]);
+                value = formatted;
+            }
+            else if (value instanceof Collection) {
+                String[] formatted = new String[((Collection) value).size()];
+                int index = 0;
+                for (Object o : ((Collection) value))
+                    formatted[index++] = format(o);
+                value = formatted;
+            }
+            else {
+                value = format(value);
+            }
+            entry.setValue(value);
         }
         builder.addParameters(parameters);
 
