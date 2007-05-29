@@ -52,7 +52,7 @@ public class MapPropertyAccessor implements PropertyAccessor<Map> {
      * Sets the value stored in the Map under the key specified by the current node.
      * @param evaluation the current node evaluation
      * @param map the target Map
-     * @value the value to be stored in the map under the specified key
+     * @param value the value to be stored in the map under the specified key
      */
     @SuppressWarnings("unchecked")
 	public void setValue(NodeEvaluation evaluation, Map map, Object value) {

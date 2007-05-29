@@ -331,7 +331,6 @@ public class ReflectUtil {
      * @param m a method that may or may not be accessible
      * @return either an accessible version of the same method, or the method passed in if
      *         an accessible version cannot be found
-     * @throws Exception
      */
     public static Method findAccessibleMethod(final Method m) {
         // If the passed in method is accessible, then just give it back.
