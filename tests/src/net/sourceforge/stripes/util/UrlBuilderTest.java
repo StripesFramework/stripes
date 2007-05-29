@@ -16,6 +16,7 @@
 package net.sourceforge.stripes.util;
 
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import org.testng.Assert;
@@ -31,7 +32,7 @@ public class UrlBuilderTest {
     @Test(groups="fast")
     public void testBasicUrl() throws Exception {
         String path = "/test/page.jsp";
-        UrlBuilder builder = new UrlBuilder(path, false);
+        UrlBuilder builder = new UrlBuilder(Locale.getDefault(), path, false);
         String result = builder.toString();
         Assert.assertEquals(result, path);
     }
@@ -39,7 +40,7 @@ public class UrlBuilderTest {
     @Test(groups="fast")
     public void testUrlWithParameters() throws Exception {
         String path = "/test/page.jsp";
-        UrlBuilder builder = new UrlBuilder(path, false);
+        UrlBuilder builder = new UrlBuilder(Locale.getDefault(), path, false);
         builder.addParameter("one", 1);
         builder.addParameter("two", 2);
         builder.addParameter("three", 3);
@@ -50,7 +51,7 @@ public class UrlBuilderTest {
     @Test(groups="fast")
     public void testUrlWithParametersAndAnchor() throws Exception {
         String path = "/test/page.jsp#someAnchor";
-        UrlBuilder builder = new UrlBuilder(path, false);
+        UrlBuilder builder = new UrlBuilder(Locale.getDefault(), path, false);
         builder.addParameter("one", 1);
         builder.addParameter("two", 2);
         builder.addParameter("three", 3);
@@ -61,7 +62,7 @@ public class UrlBuilderTest {
     @Test(groups="fast")
     public void testUrlWithParametersAndAnchor2() throws Exception {
         String path = "/test/page.jsp#someAnchor";
-        UrlBuilder builder = new UrlBuilder(path, false);
+        UrlBuilder builder = new UrlBuilder(Locale.getDefault(), path, false);
         builder.addParameter("one", 1);
         builder.addParameter("two", 2);
         builder.addParameter("three", 3);
@@ -73,7 +74,7 @@ public class UrlBuilderTest {
     @Test(groups="fast")
     public void testUrlWithParametersAndAnchor3() throws Exception {
         String path = "/test/page.jsp#someAnchor";
-        UrlBuilder builder = new UrlBuilder(path, false);
+        UrlBuilder builder = new UrlBuilder(Locale.getDefault(), path, false);
         builder.addParameter("one", 1);
         builder.addParameter("two", 2);
         builder.addParameter("three", 3);
@@ -85,7 +86,7 @@ public class UrlBuilderTest {
     @Test(groups="fast")
     public void testUrlWithParameterVarargs() throws Exception {
         String path = "/test/page.jsp";
-        UrlBuilder builder = new UrlBuilder(path, false);
+        UrlBuilder builder = new UrlBuilder(Locale.getDefault(), path, false);
         builder.addParameter("one", 1, "one", "uno", "i");
         String result = builder.toString();
         Assert.assertEquals(result, "/test/page.jsp?one=1&one=one&one=uno&one=i");
@@ -94,7 +95,7 @@ public class UrlBuilderTest {
     @Test(groups="fast")
     public void testUrlWithValuelessParameter() throws Exception {
         String path = "/test/page.jsp";
-        UrlBuilder builder = new UrlBuilder(path, false);
+        UrlBuilder builder = new UrlBuilder(Locale.getDefault(), path, false);
         builder.addParameter("one");
         builder.addParameter("two", "");
         builder.addParameter("three");
@@ -105,7 +106,7 @@ public class UrlBuilderTest {
     @Test(groups="fast")
     public void testUrlWithParameterArray() throws Exception {
         String path = "/test/page.jsp";
-        UrlBuilder builder = new UrlBuilder(path, false);
+        UrlBuilder builder = new UrlBuilder(Locale.getDefault(), path, false);
         builder.addParameter("one", (Object[]) Literal.array("1", "one", "uno", "i") );
         String result = builder.toString();
         Assert.assertEquals(result, "/test/page.jsp?one=1&one=one&one=uno&one=i");
@@ -114,7 +115,7 @@ public class UrlBuilderTest {
     @Test(groups="fast")
     public void testUrlWithParameterCollection() throws Exception {
         String path = "/test/page.jsp";
-        UrlBuilder builder = new UrlBuilder(path, false);
+        UrlBuilder builder = new UrlBuilder(Locale.getDefault(), path, false);
 
         builder.addParameter("one", Literal.list("1", "one", "uno", "i") );
         String result = builder.toString();
@@ -124,7 +125,7 @@ public class UrlBuilderTest {
     @Test(groups="fast")
     public void testUrlWithParameterMap() throws Exception {
         String path = "/test/page.jsp";
-        UrlBuilder builder = new UrlBuilder(path, false);
+        UrlBuilder builder = new UrlBuilder(Locale.getDefault(), path, false);
         Map<Object,Object> map = new LinkedHashMap<Object,Object>();
         map.put("one", "one");
         map.put("two", Literal.list("2", "two"));
@@ -139,7 +140,7 @@ public class UrlBuilderTest {
     @Test(groups="fast")
     public void testUrlWithRepeatedParameters() throws Exception {
         String path = "/test/page.jsp";
-        UrlBuilder builder = new UrlBuilder(path, false);
+        UrlBuilder builder = new UrlBuilder(Locale.getDefault(), path, false);
         builder.addParameter("one", "one");
         builder.addParameter("one", "two", "three");
         builder.addParameter("one", "four");

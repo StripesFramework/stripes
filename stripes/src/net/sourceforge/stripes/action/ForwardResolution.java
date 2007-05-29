@@ -92,7 +92,7 @@ public class ForwardResolution extends OnwardResolution<ForwardResolution> imple
     public void execute(HttpServletRequest request, HttpServletResponse response)
         throws ServletException, IOException {
 
-        String path = getUrl();
+        String path = getUrl(request.getLocale());
 
         // Figure out if we're inside an include, and use an include instead of a forward
         if (autoInclude && request.getAttribute(StripesConstants.REQ_ATTR_INCLUDE_PATH) != null) {

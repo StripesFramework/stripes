@@ -14,11 +14,13 @@
  */
 package net.sourceforge.stripes.action;
 
-import net.sourceforge.stripes.controller.StripesFilter;
-import net.sourceforge.stripes.util.UrlBuilder;
-
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
+
+import net.sourceforge.stripes.controller.StripesFilter;
+import net.sourceforge.stripes.format.Formatter;
+import net.sourceforge.stripes.util.UrlBuilder;
 
 /**
  * <p>Abstract class that provides a consistent API for all Resolutions that send the user onward to
@@ -148,11 +150,25 @@ public abstract class OnwardResolution<T extends OnwardResolution<T>> {
     }
 
     /**
+	 * Constructs the URL for the resolution by taking the path and appending
+	 * any parameters supplied.
+	 * 
+	 * @deprecated As of Stripes 1.5, this method has been replaced by
+	 *             {@link #getUrl(Locale)}.
+	 */
+    @Deprecated
+    public String getUrl() {
+    	return getUrl(Locale.getDefault());
+    }
+
+    /**
      * Constructs the URL for the resolution by taking the path and appending any parameters
      * supplied.
+     * 
+     * @param locale the locale to be used by {@link Formatter}s when formatting parameters
      */
-    public String getUrl() {
-        UrlBuilder builder = new UrlBuilder(path, false);
+    public String getUrl(Locale locale) {
+        UrlBuilder builder = new UrlBuilder(locale, path, false);
         builder.addParameters(this.parameters);
         return builder.toString();
     }
