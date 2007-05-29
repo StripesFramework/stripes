@@ -14,14 +14,19 @@
  */
 package net.sourceforge.stripes.tag;
 
-import net.sourceforge.stripes.exception.StripesJspException;
-import net.sourceforge.stripes.util.UrlBuilder;
-import net.sourceforge.stripes.controller.StripesConstants;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Map;
-import java.util.HashMap;
+
+import net.sourceforge.stripes.controller.StripesConstants;
+import net.sourceforge.stripes.controller.StripesFilter;
+import net.sourceforge.stripes.exception.StripesJspException;
+import net.sourceforge.stripes.format.Formatter;
+import net.sourceforge.stripes.format.FormatterFactory;
+import net.sourceforge.stripes.util.UrlBuilder;
 
 /**
  * Abstract support class for generating links.  Used by both the LinkTag (which generates
@@ -171,8 +176,38 @@ public abstract class LinkTagSupport extends HtmlTagSupport implements Parameter
         if (addSourcePage) {
             builder.addParameter(StripesConstants.URL_KEY_SOURCE_PAGE, request.getServletPath());
         }
-        builder.addParameters(this.parameters);
+
+        // format parameters before appending to URL
+        Map<String, Object> parameters = new HashMap<String, Object>(this.parameters);
+        for (Entry<String, Object> entry : parameters.entrySet()) {
+            entry.setValue(format(entry.getValue()));
+        }
+        builder.addParameters(parameters);
 
         return response.encodeURL(builder.toString());
+    }
+
+    /**
+     * Attempts to format an object using an appropriate {@link Formatter}. If
+     * no formatter is available for the object, then this method will call
+     * <code>toString()</code> on the object. A null <code>value</code> will
+     * be formatted as an empty string.
+     * 
+     * @param value
+     *            the object to be formatted
+     * @return the formatted value
+     */
+    @SuppressWarnings("unchecked")
+    protected String format(Object value) {
+        if (value == null)
+            return "";
+
+        FormatterFactory factory = StripesFilter.getConfiguration().getFormatterFactory();
+        Formatter formatter = factory.getFormatter(value.getClass(),
+                getPageContext().getRequest().getLocale(), null, null);
+        if (formatter == null)
+            return String.valueOf(value);
+        else
+            return formatter.format(value);
     }
 }
