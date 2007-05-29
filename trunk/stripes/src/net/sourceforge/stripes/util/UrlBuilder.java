@@ -14,12 +14,16 @@
  */
 package net.sourceforge.stripes.util;
 
-import net.sourceforge.stripes.exception.StripesRuntimeException;
-
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Collection;
+import java.util.Locale;
 import java.util.Map;
+
+import net.sourceforge.stripes.controller.StripesFilter;
+import net.sourceforge.stripes.exception.StripesRuntimeException;
+import net.sourceforge.stripes.format.Formatter;
+import net.sourceforge.stripes.format.FormatterFactory;
 
 /**
  * <p>Simple class that encapsulates the process of building up a URL from a path fragment
@@ -36,6 +40,7 @@ import java.util.Map;
  * @since Stripes 1.1.2
  */
 public class UrlBuilder {
+	private Locale locale;
     private StringBuilder url = new StringBuilder(256);
     boolean seenQuestionMark = false;
     private String parameterSeparator;
@@ -50,8 +55,27 @@ public class UrlBuilder {
      * @param url the path part of the URL
      * @param isForPage true if the URL is to be embedded in a page (e.g. in an anchor of img
      *        tag), false if for some other purpose.
-     */
+	 * @deprecated As of Stripes 1.5, this constructor has been replaced by
+	 *             {@link #UrlBuilder(Locale, String, boolean)}.
+	 */
+    @Deprecated
     public UrlBuilder(String url, boolean isForPage) {
+    	this(Locale.getDefault(), url, isForPage);
+    }
+
+    /**
+     * Constructs a UrlBuilder with the path to a resource. Parameters can be added
+     * later using addParameter().  If the link is to be used in a page then the ampersand
+     * character usually used to separate parameters will be escaped using the XML entity
+     * for ampersand.
+     *
+     * @param locale the locale to use when formatting parameters with a {@link Formatter}
+     * @param url the path part of the URL
+     * @param isForPage true if the URL is to be embedded in a page (e.g. in an anchor of img
+     *        tag), false if for some other purpose.
+     */
+    public UrlBuilder(Locale locale, String url, boolean isForPage) {
+    	this.locale = locale;
         if (url != null) {
             // Check to see if there is an embedded anchor, and strip it out for later
             int index = url.indexOf('#');
@@ -129,7 +153,7 @@ public class UrlBuilder {
                     this.url.append(name);
                     this.url.append('=');
                     if (v != null) {
-                        this.url.append( URLEncoder.encode(v.toString(), "UTF-8") );
+                        this.url.append( URLEncoder.encode(format(v), "UTF-8") );
                     }
                 }
             }
@@ -160,8 +184,7 @@ public class UrlBuilder {
                 addParameter(name, CollectionUtil.asObjectArray(valueOrValues));
             }
             else if (valueOrValues instanceof Collection) {
-                Collection values = (Collection) valueOrValues;
-                addParameter(name, values);
+                addParameter(name, (Collection) valueOrValues);
             }
             else {
                 addParameter(name, valueOrValues);
@@ -207,4 +230,29 @@ public class UrlBuilder {
             return this.url.toString();
         }
     }
+
+    /**
+     * Attempts to format an object using an appropriate {@link Formatter}. If
+     * no formatter is available for the object, then this method will call
+     * <code>toString()</code> on the object. A null <code>value</code> will
+     * be formatted as an empty string.
+     * 
+     * @param value
+     *            the object to be formatted
+     * @return the formatted value
+     */
+    @SuppressWarnings("unchecked")
+    protected String format(Object value) {
+		if (value == null) {
+			return "";
+		}
+		else {
+			FormatterFactory factory = StripesFilter.getConfiguration().getFormatterFactory();
+			Formatter formatter = factory.getFormatter(value.getClass(), locale, null, null);
+			if (formatter == null)
+				return value.toString();
+			else
+				return formatter.format(value);
+		}
+	}
 }
