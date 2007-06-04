@@ -94,6 +94,12 @@ public interface StripesConstants {
     String REQ_ATTR_CURRENT_FLASH_SCOPE = "__current_flash_scope";
 
     /**
+	 * The name of a request attribute that is checked first to determine the
+	 * name of the event that should fire.
+	 */
+	String REQ_ATTR_EVENT_NAME = "__stripes_event_name";
+
+    /**
      * Request attribute key defined by the servlet spec for storing the included servlet
      * path when processing a server side include.
      */
