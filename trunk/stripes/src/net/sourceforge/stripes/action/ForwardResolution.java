@@ -41,6 +41,7 @@ import java.io.IOException;
 public class ForwardResolution extends OnwardResolution<ForwardResolution> implements Resolution {
     private boolean autoInclude = true;
     private static final Log log = Log.getInstance(ForwardResolution.class);
+    private String event;
 
     /**
      * Simple constructor that takes in the path to forward the user to.
@@ -71,6 +72,7 @@ public class ForwardResolution extends OnwardResolution<ForwardResolution> imple
      */
     public ForwardResolution(Class<? extends ActionBean> beanType, String event) {
         super(beanType, event);
+        this.event = event;
     }
 
     /**
@@ -94,6 +96,10 @@ public class ForwardResolution extends OnwardResolution<ForwardResolution> imple
 
         String path = getUrl(request.getLocale());
 
+        // Set event name as a request attribute
+        String oldEvent = (String) request.getAttribute(StripesConstants.REQ_ATTR_EVENT_NAME);
+        request.setAttribute(StripesConstants.REQ_ATTR_EVENT_NAME, event);
+
         // Figure out if we're inside an include, and use an include instead of a forward
         if (autoInclude && request.getAttribute(StripesConstants.REQ_ATTR_INCLUDE_PATH) != null) {
             log.trace("Including URL: ", path);
@@ -103,5 +109,8 @@ public class ForwardResolution extends OnwardResolution<ForwardResolution> imple
             log.trace("Forwarding to URL: ", path);
             request.getRequestDispatcher(path).forward(request, response);
         }
+
+        // Revert event name to its original value
+        request.setAttribute(StripesConstants.REQ_ATTR_EVENT_NAME, oldEvent);
     }
 }

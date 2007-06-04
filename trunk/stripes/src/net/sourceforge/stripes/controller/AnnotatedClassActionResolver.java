@@ -386,11 +386,28 @@ public class AnnotatedClassActionResolver implements ActionResolver {
      * @return String the name of the event submitted, or null if none can be found
      */
     public String getEventName(Class<? extends ActionBean> bean, ActionBeanContext context) {
-        String event = getEventNameFromRequestParams(bean, context);
+        String event = getEventNameFromRequestAttribute(bean, context);
+        if (event == null) event = getEventNameFromRequestParams(bean, context);
         if (event == null) event = getEventNameFromPath(bean, context);
         if (event == null) event = getEventNameFromEventNameParam(bean, context);
         return event;
     }
+
+    /**
+	 * Checks a special request attribute to get the event name. This attribute
+	 * may be set when the presence of the original request parameters on a
+	 * forwarded request makes it difficult to determine which event to fire.
+	 * 
+	 * @param bean the ActionBean type bound to the request
+	 * @param context the ActionBeanContect for the current request
+	 * @return the name of the event submitted, or null if none can be found
+	 * @see StripesConstants#REQ_ATTR_EVENT_NAME
+	 */
+	protected String getEventNameFromRequestAttribute(
+			Class<? extends ActionBean> bean, ActionBeanContext context) {
+		return (String) context.getRequest().getAttribute(
+				StripesConstants.REQ_ATTR_EVENT_NAME);
+	}
 
     /**
      * Loops through the set of known events for the ActionBean to see if the event
