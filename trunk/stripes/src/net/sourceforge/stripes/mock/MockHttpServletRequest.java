@@ -61,7 +61,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
     private Map<String,String[]> parameters = new HashMap<String,String[]>();
     private String method = "POST";
     private HttpSession session;
-    private String chacarcterEncoding = "UTF-8";
+    private String characterEncoding = "UTF-8";
     private List<Locale> locales = new ArrayList<Locale>();
     private Principal userPrincipal;
     private Set<String> roles = new HashSet<String>();
@@ -248,10 +248,10 @@ public class MockHttpServletRequest implements HttpServletRequest {
     }
 
     /** Gets the character encoding, defaults to UTF-8. */
-    public String getCharacterEncoding() { return this.chacarcterEncoding; }
+    public String getCharacterEncoding() { return this.characterEncoding; }
 
     /** Sets the character encoding that will be returned by getCharacterEncoding(). */
-    public void setCharacterEncoding(String encoding) { this.chacarcterEncoding = encoding; }
+    public void setCharacterEncoding(String encoding) { this.characterEncoding = encoding; }
 
     /** Always returns -1 (unknown). */
     public int getContentLength() { return -1; }
