@@ -47,7 +47,12 @@ public abstract class HtmlTagSupport extends StripesTagSupport implements Dynami
 
     /** Sets the named attribute to the supplied value. */
     protected final void set(String name, String value) {
-        this.attributes.put(name, value);
+        if (value == null) {
+            this.attributes.remove(name);
+        }
+        else {
+            this.attributes.put(name, value);
+        }
     }
 
     /** Gets the value of the named attribute, or null if it is not set. */
