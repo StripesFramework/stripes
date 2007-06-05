@@ -394,20 +394,20 @@ public class AnnotatedClassActionResolver implements ActionResolver {
     }
 
     /**
-	 * Checks a special request attribute to get the event name. This attribute
-	 * may be set when the presence of the original request parameters on a
-	 * forwarded request makes it difficult to determine which event to fire.
-	 * 
-	 * @param bean the ActionBean type bound to the request
-	 * @param context the ActionBeanContect for the current request
-	 * @return the name of the event submitted, or null if none can be found
-	 * @see StripesConstants#REQ_ATTR_EVENT_NAME
-	 */
-	protected String getEventNameFromRequestAttribute(
-			Class<? extends ActionBean> bean, ActionBeanContext context) {
-		return (String) context.getRequest().getAttribute(
-				StripesConstants.REQ_ATTR_EVENT_NAME);
-	}
+     * Checks a special request attribute to get the event name. This attribute
+     * may be set when the presence of the original request parameters on a
+     * forwarded request makes it difficult to determine which event to fire.
+     * 
+     * @param bean the ActionBean type bound to the request
+     * @param context the ActionBeanContect for the current request
+     * @return the name of the event submitted, or null if none can be found
+     * @see StripesConstants#REQ_ATTR_EVENT_NAME
+     */
+    protected String getEventNameFromRequestAttribute(
+            Class<? extends ActionBean> bean, ActionBeanContext context) {
+        return (String) context.getRequest().getAttribute(
+                StripesConstants.REQ_ATTR_EVENT_NAME);
+    }
 
     /**
      * Loops through the set of known events for the ActionBean to see if the event
@@ -419,7 +419,7 @@ public class AnnotatedClassActionResolver implements ActionResolver {
      * @return String the name of the event submitted, or null if none can be found
      */
     @SuppressWarnings("unchecked")
-	protected String getEventNameFromRequestParams(Class<? extends ActionBean> bean,
+    protected String getEventNameFromRequestParams(Class<? extends ActionBean> bean,
                                                    ActionBeanContext context) {
 
         Map<String,String[]> parameterMap = context.getRequest().getParameterMap();
