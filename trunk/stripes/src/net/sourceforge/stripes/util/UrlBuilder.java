@@ -41,7 +41,7 @@ import net.sourceforge.stripes.format.FormatterFactory;
  * @since Stripes 1.1.2
  */
 public class UrlBuilder {
-	private Locale locale;
+    private Locale locale;
     private StringBuilder url = new StringBuilder(256);
     boolean seenQuestionMark = false;
     private String parameterSeparator;
@@ -56,12 +56,12 @@ public class UrlBuilder {
      * @param url the path part of the URL
      * @param isForPage true if the URL is to be embedded in a page (e.g. in an anchor of img
      *        tag), false if for some other purpose.
-	 * @deprecated As of Stripes 1.5, this constructor has been replaced by
-	 *             {@link #UrlBuilder(Locale, String, boolean)}.
-	 */
+     * @deprecated As of Stripes 1.5, this constructor has been replaced by
+     *             {@link #UrlBuilder(Locale, String, boolean)}.
+     */
     @Deprecated
     public UrlBuilder(String url, boolean isForPage) {
-    	this(Locale.getDefault(), url, isForPage);
+        this(Locale.getDefault(), url, isForPage);
     }
 
     /**
@@ -76,7 +76,7 @@ public class UrlBuilder {
      *        tag), false if for some other purpose.
      */
     public UrlBuilder(Locale locale, String url, boolean isForPage) {
-    	this.locale = locale;
+        this.locale = locale;
         if (url != null) {
             // Check to see if there is an embedded anchor, and strip it out for later
             int index = url.indexOf('#');
