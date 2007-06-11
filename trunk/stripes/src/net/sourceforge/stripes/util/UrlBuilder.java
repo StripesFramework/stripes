@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.Locale;
 import java.util.Map;
 
+import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.controller.StripesFilter;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
 import net.sourceforge.stripes.format.Formatter;
@@ -243,16 +244,35 @@ public class UrlBuilder {
      */
     @SuppressWarnings("unchecked")
     protected String format(Object value) {
-		if (value == null) {
-			return "";
-		}
-		else {
-			FormatterFactory factory = StripesFilter.getConfiguration().getFormatterFactory();
-			Formatter formatter = factory.getFormatter(value.getClass(), locale, null, null);
-			if (formatter == null)
-				return value.toString();
-			else
-				return formatter.format(value);
-		}
-	}
+        if (value == null) {
+            return "";
+        }
+        else {
+            Formatter formatter = getFormatter(value);
+            if (formatter == null)
+                return value.toString();
+            else
+                return formatter.format(value);
+        }
+    }
+
+    /**
+     * Tries to get a formatter for the given value using the {@link FormatterFactory}. Returns
+     * null if there is no {@link Configuration} or {@link FormatterFactory} available (e.g. in a
+     * test environment) or if there is no {@link Formatter} configured for the value's type.
+     * 
+     * @param value the object to be formatted
+     * @return a formatter, if one can be found; null otherwise
+     */
+    protected Formatter getFormatter(Object value) {
+        Configuration configuration = StripesFilter.getConfiguration();
+        if (configuration == null)
+            return null;
+
+        FormatterFactory factory = configuration.getFormatterFactory();
+        if (factory == null)
+            return null;
+
+        return factory.getFormatter(value.getClass(), locale, null, null);
+    }
 }
