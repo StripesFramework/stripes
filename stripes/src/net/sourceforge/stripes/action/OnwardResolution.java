@@ -129,8 +129,8 @@ public abstract class OnwardResolution<T extends OnwardResolution<T>> {
      * @return this Resolution so that methods can be chained
      */
     @SuppressWarnings("unchecked")
-	public T addParameters(Map<String,Object> parameters) {
-        for (Map.Entry<String,Object> entry : parameters.entrySet()) {
+	public T addParameters(Map<String,? extends Object> parameters) {
+        for (Map.Entry<String,? extends Object> entry : parameters.entrySet()) {
             addParameter(entry.getKey(), entry.getValue());
         }
 
