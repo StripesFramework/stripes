@@ -107,7 +107,11 @@ public abstract class OnwardResolution<T extends OnwardResolution<T>> {
     @SuppressWarnings("unchecked")
 	public T addParameter(String name, Object... values) {
         if (this.parameters.containsKey(name)) {
-            this.parameters.put(name, new Object[] {this.parameters.get(name), values});
+            Object[] src = (Object[]) this.parameters.get(name);
+            Object[] dst = new Object[src.length + values.length];
+            System.arraycopy(src, 0, dst, 0, src.length);
+            System.arraycopy(values, 0, dst, src.length, values.length);
+            this.parameters.put(name, dst);
         }
         else {
             this.parameters.put(name, values);
