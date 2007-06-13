@@ -63,7 +63,7 @@ public class UrlBuilder {
     }
 
     private Class<? extends ActionBean> beanType;
-    private String path;
+    private String baseUrl;
     private String anchor;
     private Locale locale;
     private String parameterSeparator;
@@ -110,7 +110,7 @@ public class UrlBuilder {
                 url = url.substring(0, index);
             }
 
-            this.path = url;
+            this.baseUrl = url;
         }
     }
 
@@ -356,7 +356,7 @@ public class UrlBuilder {
      */
     protected String getBaseURL() {
         if (beanType == null)
-            return path;
+            return baseUrl;
 
         UrlBinding binding = UrlBindingFactory.getInstance().getBindingPrototype(beanType);
         if (binding == null) {
