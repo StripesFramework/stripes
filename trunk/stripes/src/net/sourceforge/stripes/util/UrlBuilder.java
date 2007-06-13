@@ -16,12 +16,19 @@ package net.sourceforge.stripes.util;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.controller.StripesFilter;
+import net.sourceforge.stripes.controller.UrlBinding;
+import net.sourceforge.stripes.controller.UrlBindingFactory;
+import net.sourceforge.stripes.controller.UrlBindingParameter;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
 import net.sourceforge.stripes.format.Formatter;
 import net.sourceforge.stripes.format.FormatterFactory;
@@ -41,11 +48,27 @@ import net.sourceforge.stripes.format.FormatterFactory;
  * @since Stripes 1.1.2
  */
 public class UrlBuilder {
-    private Locale locale;
-    private StringBuilder url = new StringBuilder(256);
-    boolean seenQuestionMark = false;
-    private String parameterSeparator;
+    /**
+     * Holds the name and value of a parameter to be appended to the URL.
+     */
+    private static class Parameter {
+        String name;
+        Object value;
+        boolean skip;
+
+        Parameter(String name, Object value) {
+            this.name = name;
+            this.value = value;
+        }
+    }
+
+    private Class<? extends ActionBean> beanType;
+    private String path;
     private String anchor;
+    private Locale locale;
+    private String parameterSeparator;
+    private List<Parameter> parameters = new ArrayList<Parameter>();
+    private String url;
 
     /**
      * Constructs a UrlBuilder with the path to a resource. Parameters can be added
@@ -76,19 +99,45 @@ public class UrlBuilder {
      *        tag), false if for some other purpose.
      */
     public UrlBuilder(Locale locale, String url, boolean isForPage) {
-        this.locale = locale;
+        this(locale, isForPage);
         if (url != null) {
             // Check to see if there is an embedded anchor, and strip it out for later
             int index = url.indexOf('#');
             if (index != -1) {
-                this.anchor = url.substring(index+1);
+                if (index < url.length() - 1) {
+                    this.anchor = url.substring(index + 1);
+                }
                 url = url.substring(0, index);
             }
 
-            this.url.append(url);
-            this.seenQuestionMark = this.url.indexOf("?") != -1;
+            this.path = url;
         }
+    }
 
+    /**
+     * Constructs a UrlBuilder that references an {@link ActionBean}. Parameters can be added later
+     * using addParameter(). If the link is to be used in a page then the ampersand character
+     * usually used to separate parameters will be escaped using the XML entity for ampersand.
+     * 
+     * @param locale the locale to use when formatting parameters with a {@link Formatter}
+     * @param beanType {@link ActionBean} class for which the URL will be built
+     * @param isForPage true if the URL is to be embedded in a page (e.g. in an anchor of img tag),
+     *            false if for some other purpose.
+     */
+    public UrlBuilder(Locale locale, Class<? extends ActionBean> beanType, boolean isForPage) {
+        this(locale, isForPage);
+        this.beanType = beanType;
+    }
+
+    /**
+     * Sets the locale and sets the parameter separator based on the value of <code>isForPage</code>.
+     * 
+     * @param locale the locale to use when formatting parameters with a {@link Formatter}
+     * @param isForPage true if the URL is to be embedded in a page (e.g. in an anchor of img tag),
+     *            false if for some other purpose.
+     */
+    protected UrlBuilder(Locale locale, boolean isForPage) {
+        this.locale = locale;
         if (isForPage) {
             this.parameterSeparator = "&amp;";
         }
@@ -127,40 +176,23 @@ public class UrlBuilder {
      * @param values one or more values for the parameter supplied
      */
     public void addParameter(String name, Object... values) {
-        try {
-            // If values is null or empty, then simply sub in a single empty string
-            if (values == null || values.length == 0) {
-                values = Literal.array("");
-            }
-
-            for (Object v : values) {
-                // Special case: recurse for nested collections and arrays!
-                if (v instanceof Collection) {
-                    addParameter(name, ((Collection) v).toArray());
-                }
-                else if (v != null && v.getClass().isArray()) {
-                    addParameter(name, CollectionUtil.asObjectArray(v));
-                }
-                else {
-                    // Figure out whether we already have params or not
-                    if (!this.seenQuestionMark) {
-                        this.url.append('?');
-                        this.seenQuestionMark = true;
-                    }
-                    else {
-                        this.url.append(this.parameterSeparator);
-                    }
-
-                    this.url.append(name);
-                    this.url.append('=');
-                    if (v != null) {
-                        this.url.append( URLEncoder.encode(format(v), "UTF-8") );
-                    }
-                }
-            }
+        // If values is null or empty, then simply sub in a single empty string
+        if (values == null || values.length == 0) {
+            values = Literal.array("");
         }
-        catch (UnsupportedEncodingException uee) {
-            throw new StripesRuntimeException("Unsupported encoding?  UTF-8?  That's unpossible.");
+
+        for (Object v : values) {
+            // Special case: recurse for nested collections and arrays!
+            if (v instanceof Collection) {
+                addParameter(name, ((Collection) v).toArray());
+            }
+            else if (v != null && v.getClass().isArray()) {
+                addParameter(name, CollectionUtil.asObjectArray(v));
+            }
+            else {
+                parameters.add(new Parameter(name, v));
+                url = null;
+            }
         }
     }
 
@@ -224,11 +256,14 @@ public class UrlBuilder {
      */
     @Override
     public String toString() {
-        if (this.anchor != null && !"".equals(this.anchor)) {
-            return this.url.toString() + "#" + this.anchor;
+        if (url == null) {
+            url = build();
+        }
+        if (this.anchor != null && this.anchor.length() > 0) {
+            return url + "#" + this.anchor;
         }
         else {
-            return this.url.toString();
+            return url;
         }
     }
 
@@ -274,5 +309,100 @@ public class UrlBuilder {
             return null;
 
         return factory.getFormatter(value.getClass(), locale, null, null);
+    }
+
+    /**
+     * Build and return the URL
+     */
+    protected String build() {
+        try {
+            StringBuilder buffer = new StringBuilder(256);
+            buffer.append(getBaseURL());
+            boolean seenQuestionMark = buffer.indexOf("?") != -1;
+            for (Parameter pair : parameters) {
+                if (pair.skip)
+                    continue;
+
+                // Figure out whether we already have params or not
+                if (!seenQuestionMark) {
+                    buffer.append('?');
+                    seenQuestionMark = true;
+                }
+                else {
+                    buffer.append(getParameterSeparator());
+                }
+                buffer.append(pair.name);
+                buffer.append('=');
+                if (pair.value != null) {
+                    buffer.append(URLEncoder.encode(format(pair.value), "UTF-8"));
+                }
+            }
+            return buffer.toString();
+        }
+        catch (UnsupportedEncodingException uee) {
+            throw new StripesRuntimeException("Unsupported encoding?  UTF-8?  That's unpossible.");
+        }
+    }
+
+    /**
+     * Get the base URL (without a query string). If an {@link ActionBean} class was passed to
+     * {@link #UrlBuilder(Locale, Class, boolean)}, then this method will return the URL binding
+     * that is mapped to that class, including any URI parameters that are available. Otherwise, it
+     * returns the URL string with which this object was initialized.
+     * 
+     * @return the base URL, without a query string
+     * @see #UrlBuilder(Locale, Class, boolean)
+     * @see #UrlBuilder(Locale, String, boolean)
+     */
+    protected String getBaseURL() {
+        if (beanType == null)
+            return path;
+
+        UrlBinding binding = UrlBindingFactory.getInstance().getBindingPrototype(beanType);
+        if (binding == null) {
+            return StripesFilter.getConfiguration().getActionResolver().getUrlBinding(beanType);
+        }
+
+        Map<String, Parameter> map = new HashMap<String, Parameter>();
+        for (Parameter p : parameters) {
+            p.skip = false;
+            if (!map.containsKey(p.name))
+                map.put(p.name, p);
+        }
+
+        StringBuilder buf = new StringBuilder(256);
+        buf.append(binding.getPath());
+
+        String nextLiteral = null;
+        for (Object component : binding.getComponents()) {
+            if (component instanceof String) {
+                nextLiteral = (String) component;
+            }
+            else if (component instanceof UrlBindingParameter) {
+                UrlBindingParameter parameter = (UrlBindingParameter) component;
+                boolean ok = false;
+                if (map.containsKey(parameter.getName())) {
+                    Parameter assigned = map.get(parameter.getName());
+                    String value = format(assigned.value);
+                    if (value != null && value.length() > 0) {
+                        if (nextLiteral != null) {
+                            buf.append(nextLiteral);
+                        }
+
+                        buf.append(value);
+                        assigned.skip = true;
+                        ok = true;
+                    }
+                }
+                nextLiteral = null;
+                if (!ok)
+                    break;
+            }
+        }
+        if (nextLiteral != null) {
+            buf.append(nextLiteral);
+        }
+
+        return buf.toString();
     }
 }

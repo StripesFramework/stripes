@@ -36,6 +36,7 @@ import net.sourceforge.stripes.util.UrlBuilder;
  * @author Tim Fennell
  */
 public abstract class OnwardResolution<T extends OnwardResolution<T>> {
+    private Class<? extends ActionBean> beanType;
     private String path;
     private Map<String,Object> parameters = new HashMap<String,Object>();
 
@@ -55,6 +56,7 @@ public abstract class OnwardResolution<T extends OnwardResolution<T>> {
      */
     public OnwardResolution(Class<? extends ActionBean> beanType) {
         this(StripesFilter.getConfiguration().getActionResolver().getUrlBinding(beanType));
+        this.beanType = beanType;
     }
 
     /**
@@ -86,9 +88,12 @@ public abstract class OnwardResolution<T extends OnwardResolution<T>> {
      */
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "{" +
-            "path='" + path + "'" +
-            "}";
+        if (beanType == null) {
+            return getClass().getSimpleName() + "{path='" + path + "'}";
+        }
+        else {
+            return getClass().getSimpleName() + "{beanType='" + beanType.getName() + "'}";
+        }
     }
 
     /**
@@ -172,7 +177,13 @@ public abstract class OnwardResolution<T extends OnwardResolution<T>> {
      * @param locale the locale to be used by {@link Formatter}s when formatting parameters
      */
     public String getUrl(Locale locale) {
-        UrlBuilder builder = new UrlBuilder(locale, path, false);
+        UrlBuilder builder;
+        if (beanType == null) {
+            builder = new UrlBuilder(locale, path, false);
+        }
+        else {
+            builder = new UrlBuilder(locale, beanType, false);
+        }
         builder.addParameters(this.parameters);
         return builder.toString();
     }

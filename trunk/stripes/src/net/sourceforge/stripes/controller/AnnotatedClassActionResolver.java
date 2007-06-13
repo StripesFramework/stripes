@@ -19,7 +19,6 @@ import net.sourceforge.stripes.action.ActionBeanContext;
 import net.sourceforge.stripes.action.DefaultHandler;
 import net.sourceforge.stripes.action.HandlesEvent;
 import net.sourceforge.stripes.action.SessionScope;
-import net.sourceforge.stripes.action.UrlBinding;
 import net.sourceforge.stripes.config.BootstrapPropertyResolver;
 import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
@@ -77,10 +76,6 @@ public class AnnotatedClassActionResolver implements ActionResolver {
     /** Handle to the configuration. */
     private Configuration configuration;
 
-    /** Map of form names to Class objects representing subclasses of ActionBean. */
-    private Map<String,Class<? extends ActionBean>> formBeans =
-            new HashMap<String,Class<? extends ActionBean>>();
-
     /**
      * Map used to resolve the methods handling events within form beans. Maps the class
      * representing a subclass of ActionBean to a Map of event names to Method objects.
@@ -117,11 +112,17 @@ public class AnnotatedClassActionResolver implements ActionResolver {
      */
     protected void addActionBean(Class<? extends ActionBean> clazz) {
         String binding = getUrlBinding(clazz);
+        if (binding == null)
+            return;
+
+        // make sure mapping exists in cache
+        UrlBinding proto = UrlBindingFactory.getInstance().getBindingPrototype(clazz);
+        if (proto == null) {
+            UrlBindingFactory.getInstance().addBinding(clazz, new UrlBinding(clazz, binding));
+        }
 
         // Only process the class if it's properly annotated
         if (binding != null) {
-            this.formBeans.put(binding, clazz);
-
             // Construct the mapping of event->method for the class
             Map<String, Method> classMappings = new HashMap<String, Method>();
             processMethods(clazz, classMappings);
@@ -130,13 +131,13 @@ public class AnnotatedClassActionResolver implements ActionResolver {
             this.eventMappings.put(clazz, classMappings);
 
             // Print out the event mappings nicely
-            for (Map.Entry<String,Method> entry : classMappings.entrySet()) {
-                String event   = entry.getKey();
+            for (Map.Entry<String, Method> entry : classMappings.entrySet()) {
+                String event = entry.getKey();
                 Method handler = entry.getValue();
                 boolean isDefault = DEFAULT_HANDLER_KEY.equals(event);
 
                 log.debug("Bound: ", clazz.getSimpleName(), ".", handler.getName(), "() ==> ",
-                          binding, isDefault ? "" : "?" + event);
+                        binding, isDefault ? "" : "?" + event);
             }
         }
     }
@@ -152,23 +153,8 @@ public class AnnotatedClassActionResolver implements ActionResolver {
      *         supplied cannot be mapped to an ActionBean.
      */
     public String getUrlBindingFromPath(String path) {
-        String binding = null;
-        while (binding == null && path != null) {
-            if (this.formBeans.containsKey(path)) {
-                binding = path;
-            }
-            else {
-                int lastSlash = path.lastIndexOf("/");
-                if (lastSlash > 0) {
-                    path = path.substring(0, lastSlash);
-                }
-                else {
-                    path = null;
-                }
-            }
-        }
-
-        return binding;
+        UrlBinding mapping = UrlBindingFactory.getInstance().getBindingPrototype(path);
+        return mapping == null ? null : mapping.getPath();
     }
 
     /**
@@ -181,13 +167,8 @@ public class AnnotatedClassActionResolver implements ActionResolver {
      * @return the UrlBinding or null if none can be determined
      */
     public String getUrlBinding(Class<? extends ActionBean> clazz) {
-        UrlBinding binding = clazz.getAnnotation(UrlBinding.class);
-        if (binding != null) {
-            return binding.value();
-        }
-        else {
-            return null;
-        }
+        UrlBinding mapping = UrlBindingFactory.getInstance().getBindingPrototype(clazz);
+        return mapping == null ? null : mapping.getPath();
     }
 
     /**
@@ -247,7 +228,8 @@ public class AnnotatedClassActionResolver implements ActionResolver {
      *         is made using the path specified or null if no ActionBean matches.
      */
     public Class<? extends ActionBean> getActionBeanType(String path) {
-        return this.formBeans.get(getUrlBindingFromPath(path));
+        UrlBinding binding = UrlBindingFactory.getInstance().getBindingPrototype(path);
+        return binding == null ? null : binding.getBeanType();
     }
 
     /**
@@ -259,9 +241,15 @@ public class AnnotatedClassActionResolver implements ActionResolver {
      * @return the name of the form to be used for this request
      */
     public ActionBean getActionBean(ActionBeanContext context) throws StripesServletException {
-        // Defensively construct the URL that was used to hit the dispatcher
-        HttpServletRequest request = context.getRequest();
-        String path = getRequestedPath(request);
+        String path;
+        StripesRequestWrapper request = (StripesRequestWrapper) context.getRequest();
+        UrlBinding binding = UrlBindingFactory.getInstance().getBindingPrototype(request);
+        if (binding == null) {
+            path = getRequestedPath(request);
+        }
+        else {
+            path = binding.getPath();
+        }
 
         ActionBean bean = getActionBean(context, path);
         request.setAttribute(RESOLVED_ACTION, getUrlBindingFromPath(path));
@@ -306,9 +294,7 @@ public class AnnotatedClassActionResolver implements ActionResolver {
      */
     public ActionBean getActionBean(ActionBeanContext context, String path)
             throws StripesServletException {
-
-        String urlBinding = getUrlBindingFromPath(path);
-        Class<? extends ActionBean> beanClass = this.formBeans.get(urlBinding);
+        Class<? extends ActionBean> beanClass = getActionBeanType(path);
         ActionBean bean;
 
         if (beanClass == null) {
@@ -316,7 +302,7 @@ public class AnnotatedClassActionResolver implements ActionResolver {
                     "Could not locate an ActionBean that is bound to the URL [" + path +
                             "]. Commons reasons for this include mis-matched URLs and forgetting " +
                             "to implement ActionBean in your class. Registered ActionBeans are: " +
-                            this.formBeans);
+                            UrlBindingFactory.getInstance());
         }
 
         try {

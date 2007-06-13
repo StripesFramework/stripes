@@ -32,6 +32,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.Locale;
 import java.util.Map;
 
@@ -196,7 +197,9 @@ public class StripesFilter implements Filter {
 
             // Execute the rest of the chain
             flashInbound(request);
-            filterChain.doFilter(request, servletResponse);
+            if (!rewriteRequest(httpRequest, httpResponse)) {
+                filterChain.doFilter(request, servletResponse);
+            }
         }
         catch (Throwable t) {
             this.configuration.getExceptionHandler().handle(t, httpRequest, httpResponse);
@@ -264,6 +267,62 @@ public class StripesFilter implements Filter {
         if (flash != null) {
             flash.requestComplete();
         }
+    }
+
+    /**
+     * Uses the {@link UrlBindingFactory} (if any) to determine if this URL should be rewritten. If
+     * necessary, the request will be rewritten and forwarded.
+     * 
+     * @param request servlet request
+     * @param response servlet response
+     * @return True if the request was forwarded. False if it was not.
+     * @throws ServletException
+     * @throws IOException
+     */
+    protected boolean rewriteRequest(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        // if bypass flag not set, then check for rewrite
+        boolean rewrite = false;
+        UrlBinding binding = null;
+        if (request.getAttribute(StripesConstants.REQ_ATTR_BYPASS_REWRITE) == null) {
+            binding = UrlBindingFactory.getInstance().getBinding(request);
+            rewrite = binding != null && binding.getParameters().size() > 0;
+        }
+
+        // if all that worked out to be true, then the URL needs to be rewritten
+        if (rewrite) {
+            // get request URI sans the context path
+            StringBuilder url;
+            int contextLength = request.getContextPath().length();
+            if (contextLength > 1)
+                url = new StringBuilder(request.getRequestURI().substring(contextLength));
+            else
+                url = new StringBuilder(request.getRequestURI());
+
+            // append the binding parameters to the query string
+            char separator = '?';
+            for (UrlBindingParameter p : binding.getParameters()) {
+                String name = p.getName();
+                if (name != null) {
+                    String value = p.getValue();
+                    if (value != null) {
+                        name = URLEncoder.encode(name, "UTF-8");
+                        value = URLEncoder.encode(value, "UTF-8");
+                        url.append(separator).append(name).append('=').append(value);
+                        separator = '&';
+                    }
+                }
+            }
+
+            // forward to rewritten request
+            request.setAttribute(StripesConstants.REQ_ATTR_BYPASS_REWRITE, Boolean.TRUE);
+            request.getRequestDispatcher(url.toString()).forward(request, response);
+        }
+        else {
+            request.removeAttribute(StripesConstants.REQ_ATTR_BYPASS_REWRITE);
+        }
+
+        return rewrite;
     }
 
     /** Does nothing. */
