@@ -64,6 +64,7 @@ public class UrlBinding {
         this.beanType = beanType;
         this.path = path;
         this.components = Collections.emptyList();
+        this.parameters = Collections.emptyList();
     }
 
     /**
