@@ -62,7 +62,6 @@ public class UrlBuilder {
         }
     }
 
-    private Class<? extends ActionBean> beanType;
     private String baseUrl;
     private String anchor;
     private Locale locale;
@@ -126,7 +125,7 @@ public class UrlBuilder {
      */
     public UrlBuilder(Locale locale, Class<? extends ActionBean> beanType, boolean isForPage) {
         this(locale, isForPage);
-        this.beanType = beanType;
+        this.baseUrl = StripesFilter.getConfiguration().getActionResolver().getUrlBinding(beanType);
     }
 
     /**
@@ -345,22 +344,20 @@ public class UrlBuilder {
     }
 
     /**
-     * Get the base URL (without a query string). If an {@link ActionBean} class was passed to
-     * {@link #UrlBuilder(Locale, Class, boolean)}, then this method will return the URL binding
-     * that is mapped to that class, including any URI parameters that are available. Otherwise, it
-     * returns the URL string with which this object was initialized.
+     * Get the base URL (without a query string). If a {@link UrlBinding} exists for the URL or
+     * {@link ActionBean} type that was passed into the constructor, then this method will return
+     * the base URL after appending any URI parameters that have been added with a call to
+     * {@link #addParameter(String, Object[])} or {@link #addParameters(Map)}. Otherwise, it
+     * returns the original base URL.
      * 
      * @return the base URL, without a query string
      * @see #UrlBuilder(Locale, Class, boolean)
      * @see #UrlBuilder(Locale, String, boolean)
      */
     protected String getBaseURL() {
-        if (beanType == null)
+        UrlBinding binding = UrlBindingFactory.getInstance().getBindingPrototype(baseUrl);
+        if (binding == null || binding.getParameters().size() == 0) {
             return baseUrl;
-
-        UrlBinding binding = UrlBindingFactory.getInstance().getBindingPrototype(beanType);
-        if (binding == null) {
-            return StripesFilter.getConfiguration().getActionResolver().getUrlBinding(beanType);
         }
 
         Map<String, Parameter> map = new HashMap<String, Parameter>();
