@@ -16,7 +16,6 @@ package net.sourceforge.stripes.tag;
 
 import net.sourceforge.stripes.exception.StripesJspException;
 import net.sourceforge.stripes.util.UrlBuilder;
-import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.controller.StripesConstants;
 
 import javax.servlet.http.HttpServletRequest;
@@ -154,18 +153,11 @@ public abstract class LinkTagSupport extends HtmlTagSupport implements Parameter
         HttpServletRequest request = (HttpServletRequest) getPageContext().getRequest();
         HttpServletResponse response = (HttpServletResponse) getPageContext().getResponse();
 
-        UrlBuilder builder;
-        Class<? extends ActionBean> beanclass = getActionBeanType(this.beanclass);
-        if (beanclass == null) {
-            String base = getPreferredBaseUrl();
-            builder = new UrlBuilder(pageContext.getRequest().getLocale(), base, false);
-        }
-        else {
-            builder = new UrlBuilder(pageContext.getRequest().getLocale(), beanclass, false);
-        }
 
         // Add all the parameters and reset the href attribute; pass to false here because
         // the HtmlTagSupport will HtmlEncode the ampersands for us
+        String base = getPreferredBaseUrl();
+        UrlBuilder builder = new UrlBuilder(pageContext.getRequest().getLocale(), base, false);
         if (this.event != null) {
             builder.addParameter(this.event);
         }
