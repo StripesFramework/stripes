@@ -330,8 +330,7 @@ public class UrlBuilder {
                 else {
                     buffer.append(getParameterSeparator());
                 }
-                buffer.append(pair.name);
-                buffer.append('=');
+                buffer.append(URLEncoder.encode(pair.name, "UTF-8")).append('=');
                 if (pair.value != null) {
                     buffer.append(URLEncoder.encode(format(pair.value), "UTF-8"));
                 }
