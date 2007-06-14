@@ -110,7 +110,8 @@ public class UrlBindingParameter {
 
     @Override
     public int hashCode() {
-        return getValue().hashCode();
+        String value = getValue();
+        return value == null ? 0 : value.hashCode();
     }
 
     @Override
