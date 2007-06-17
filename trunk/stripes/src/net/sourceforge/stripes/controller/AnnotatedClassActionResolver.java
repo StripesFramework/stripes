@@ -241,16 +241,9 @@ public class AnnotatedClassActionResolver implements ActionResolver {
      * @return the name of the form to be used for this request
      */
     public ActionBean getActionBean(ActionBeanContext context) throws StripesServletException {
-        String path;
-        StripesRequestWrapper request = (StripesRequestWrapper) context.getRequest();
+        HttpServletRequest request = context.getRequest();
         UrlBinding binding = UrlBindingFactory.getInstance().getBindingPrototype(request);
-        if (binding == null) {
-            path = getRequestedPath(request);
-        }
-        else {
-            path = binding.getPath();
-        }
-
+        String path = binding == null ? getRequestedPath(request) : binding.getPath();
         ActionBean bean = getActionBean(context, path);
         request.setAttribute(RESOLVED_ACTION, getUrlBindingFromPath(path));
         return bean;
