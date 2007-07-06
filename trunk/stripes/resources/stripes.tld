@@ -1155,6 +1155,91 @@
 
     <tag>
         <description><![CDATA[
+            <p>Writes a set of &lt;option value=&quot;foo&quot;&gt;bar&lt;/option&gt; tags to the
+            page based on the contents of a Map. Each Map.Entry in the Map is represented by a single
+            option tag on the page.  Uses the label and value attributes on the tag to name the
+            properties of the objects in the Map.Entry that should be used to generate the body of the
+            HTML option tag and the value attribute of the HTML option tag respectively.  If either
+            (or both) of the label or value properties are ommitted the Map.Entry value or key will
+            be used respectively.</p>
+
+            <p>E.g. a tag declaration that looks like:</p>
+            <pre>&lt;stripes:options-map map=&quot;${cats}&quot;/&gt;</pre>
+
+            <p>would cause the container to look for a Map called &quot;cats&quot; across
+            the various JSP scopes and set it on the tag.  The tag would then proceed to iterate
+            through that Map calling getKey() and getValue() on each cat to produce HTML option tags.</p>
+
+            <p>The tag will attempt to localize the labels attributes of the option tags that are
+            generated. To do this it will look up labels in the field resource bundle. If no
+            localized label can be found then the value of the label property will be used.</p>
+
+            <p>All other attributes on the tag (other than map, label, and sort) are passed
+            directly through to the stripes:option tag which is used to generate the individual
+            HTML options tags. As a result the stripes:options-map will exhibit the
+            same re-population/selection behaviour as the regular options tag.</p>
+
+            <p>Since the tag has no use for one it does not allow a body.</p>
+        ]]></description>
+        <display-name>options-map</display-name>
+        <name>options-map</name>
+        <tag-class>net.sourceforge.stripes.tag.InputOptionsMapTag</tag-class>
+        <body-content>empty</body-content>
+
+        <attribute>
+            <description>
+                The name of the property (of the beans in the collection) that should be used to
+                generate the label of each option (i.e. the text displayed to the user).
+            </description>
+            <name>label</name><required>false</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>
+                A comma separated list of bean properties by which the collection
+                should be sorted before rendering the options. Special values of
+                'label' and 'value' indicate that the options should be sorted by the
+                label and value respectively - even when using localized or derived values.
+            </description>
+            <name>sort</name><required>false</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>
+                The Map to use to generate options.
+            </description>
+            <name>map</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.util.Map</type>
+        </attribute>
+
+        <!-- Start: Standard HTML attributes -->
+        <attribute><description>@accesskey@</description><name>accesskey</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@class@</description><name>class</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@dir@</description><name>dir</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@id@</description><name>id</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@lang@</description><name>lang</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onblur@</description><name>onblur</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onchange@</description><name>onchange</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onclick@</description><name>onclick</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@ondblclick@</description><name>ondblclick</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onfocus@</description><name>onfocus</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onkeydown@</description><name>onkeydown</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onkeypress@</description><name>onkeypress</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onkeyup@</description><name>onkeyup</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmousedown@</description><name>onmousedown</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmousemove@</description><name>onmousemove</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmouseout@</description><name>onmouseout</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmouseover@</description><name>onmouseover</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onmouseup@</description><name>onmouseup</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@onselect@</description><name>onselect</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@style@</description><name>style</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@tabindex@</description><name>tabindex</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <attribute><description>@title@</description><name>title</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+        <!-- End: Standard HTML attributes -->
+    </tag>
+
+    <tag>
+        <description><![CDATA[
             <p>Writes a set of &lt;option value="foo"&gt;bar&lt;/option&gt; tags to the page based on the
             values of a enum.  Each value in the enum is represented by a single option tag on the page. The
             options will be generated in ordinal value order (i.e. the order they are declared in the
