@@ -23,7 +23,7 @@ import net.sourceforge.stripes.tag.InputOptionsCollectionTag;
 /**
  * <p>Extracts the {@link java.util.Set} of {@link java.util.Map.Entry} from the
  * specified {@link java.util.Map} and uses it as the {@link java.util.Collection}
- * for the superclass (@link net.sourceforge.stripes.tag.InputOptionsCollectionTag}.</p>
+ * for the superclass {@link net.sourceforge.stripes.tag.InputOptionsCollectionTag}.</p>
  * 
  * <p>The value and label parameters will be set to "key" and "value" respectively
  * if they are null.</p>
@@ -36,18 +36,20 @@ public class InputOptionsMapTag extends InputOptionsCollectionTag
 	private Map<? extends Object,? extends Object> map;
 
 	/**
-	 * @return the {@link java.util.Map} passed in via {@link setMap}
+	 * <p>Returns the {@link java.util.Map} that was passed in via setMap().</p>
+	 * 
+	 * @return the {@link java.util.Map} passed in via setMap().
 	 */
 	public Map<? extends Object, ? extends Object> getMap() {
 		return map;
 	}
 
     /**
-     * <p>This function simply passes the result of {@link java.util.Map.entrySet}
+     * <p>This function simply passes the result of Map.entrySet()
      * as the collection to be used by the superclass and sets the value and label
      * variables if they have not already been set.</p>
      *
-     * @param in a Map
+     * @param map a Map
      */
 	public void setMap(Map<? extends Object, ? extends Object> map)	{
 		this.map = map;
