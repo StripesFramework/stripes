@@ -77,7 +77,7 @@ import java.util.LinkedList;
  * @author Tim Fennell
  */
 public class InputOptionsCollectionTag extends HtmlTagSupport implements Tag {
-    private Collection collection;
+    private Collection<? extends Object> collection;
     private String value;
     private String label;
     private String sort;
@@ -209,7 +209,7 @@ public class InputOptionsCollectionTag extends HtmlTagSupport implements Tag {
             Locale locale = getPageContext().getRequest().getLocale();
 
             for (Object item : this.collection) {
-                Class clazz = item.getClass();
+                Class<? extends Object> clazz = item.getClass();
 
                 // Lookup the bean properties for the label and value
                 Object label = (labelProperty == null) ? item : BeanUtil.getPropertyValue(labelProperty, item);
@@ -292,6 +292,9 @@ public class InputOptionsCollectionTag extends HtmlTagSupport implements Tag {
 
         // Clean up any temporary state
         this.entries.clear();
+        this.collection = null;
+        this.value = null;
+        this.label = null;
 
         return EVAL_PAGE;
     }
