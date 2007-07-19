@@ -306,8 +306,12 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
     protected boolean isBindingAllowed(PropertyExpressionEvaluation eval) {
         // Ensure no-one is trying to bind into the ActionBeanContext!!
         Type firstNodeType = eval.getRootNode().getValueType();
-        return !(firstNodeType instanceof Class &&
-                 ActionBeanContext.class.isAssignableFrom((Class) firstNodeType));
+        if (firstNodeType instanceof Class &&
+                 ActionBeanContext.class.isAssignableFrom((Class) firstNodeType)) {
+            return false;
+        } else {
+            return BindingPolicyManager.getInstance().isBindingAllowed(eval);
+        }
     }
 
     /**
