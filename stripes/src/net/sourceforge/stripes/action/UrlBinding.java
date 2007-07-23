@@ -21,10 +21,29 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.ElementType;
 
 /**
- * Annotation used to bind ActionBean classes to a specific path within the web appliction.
+ * <p>
+ * Annotation used to bind ActionBean classes to a specific path within the web application.
  * The AnnotatedClassActionResolver will examine the URL submitted and extract the section
  * that is relative to the web-app root.  That will be compared with the URL specified in
  * the UrlBinding annotation, to find the ActionBean that should process the chosen request.
+ * </p>
+ * <p>
+ * Stripes supports "Clean URLs" through the {@link UrlBinding} annotation. Parameters may
+ * be embedded in the URL by placing the parameter name inside braces ({}). For example,
+ * <code>@UrlBinding("/foo/{bar}/{baz}")</code> maps the action to "/foo" and indicates
+ * that the "bar" and "baz" parameters may be embedded in the URL. In this case, the URL
+ * /foo/abc/123 would invoke the action with bar set to "abc" and baz set to "123". The
+ * literal strings between parameters can be any string.  
+ * </p>
+ * <p>
+ * The special parameter name $event may be used to embed the event name in a clean URL.
+ * For example, given <code>@UrlBinding("/foo/{$event}")</code> the "bar" event could be
+ * invoked with the URL /foo/bar. 
+ * </p>
+ * <p>
+ * Any number of parameters and/or literals may be excluded from the end of a request URL.
+ * The missing parameters will simply be null when the request is dispatched.
+ * </p>
  *
  * @author Tim Fennell
  */
