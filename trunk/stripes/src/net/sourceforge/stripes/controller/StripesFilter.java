@@ -305,7 +305,11 @@ public class StripesFilter implements Filter {
                 String name = p.getName();
                 if (name != null) {
                     String value = p.getValue();
-                    if (value != null) {
+                    if (UrlBindingParameter.PARAMETER_NAME_EVENT.equals(name)) {
+                        name = value;
+                        value = "";
+                    }
+                    if (name != null && value != null) {
                         name = URLEncoder.encode(name, "UTF-8");
                         value = URLEncoder.encode(value, "UTF-8");
                         url.append(separator).append(name).append('=').append(value);

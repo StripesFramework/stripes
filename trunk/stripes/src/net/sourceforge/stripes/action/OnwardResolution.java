@@ -19,7 +19,6 @@ import java.util.Locale;
 import java.util.Map;
 
 import net.sourceforge.stripes.controller.StripesFilter;
-import net.sourceforge.stripes.format.Formatter;
 import net.sourceforge.stripes.util.UrlBuilder;
 
 /**
@@ -37,6 +36,7 @@ import net.sourceforge.stripes.util.UrlBuilder;
  */
 public abstract class OnwardResolution<T extends OnwardResolution<T>> {
     private String path;
+    private String event;
     private Map<String,Object> parameters = new HashMap<String,Object>();
 
     /**
@@ -67,7 +67,7 @@ public abstract class OnwardResolution<T extends OnwardResolution<T>> {
      */
     public OnwardResolution(Class<? extends ActionBean> beanType, String event) {
         this(beanType);
-        addParameter(event);
+        this.event = event;
     }
 
     /** Accessor for the path that the user should be sent to. */
@@ -173,6 +173,9 @@ public abstract class OnwardResolution<T extends OnwardResolution<T>> {
      */
     public String getUrl(Locale locale) {
         UrlBuilder builder = new UrlBuilder(locale, path, false);
+        if (event != null) {
+            builder.setEvent(event);
+        }
         builder.addParameters(this.parameters);
         return builder.toString();
     }
