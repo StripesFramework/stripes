@@ -159,7 +159,7 @@ public abstract class LinkTagSupport extends HtmlTagSupport implements Parameter
         String base = getPreferredBaseUrl();
         UrlBuilder builder = new UrlBuilder(pageContext.getRequest().getLocale(), base, false);
         if (this.event != null) {
-            builder.addParameter(this.event);
+            builder.setEvent(this.event);
         }
         if (addSourcePage) {
             builder.addParameter(StripesConstants.URL_KEY_SOURCE_PAGE, request.getServletPath());

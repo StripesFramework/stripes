@@ -66,6 +66,7 @@ public class UrlBuilder {
     private String anchor;
     private Locale locale;
     private String parameterSeparator;
+    private Parameter event;
     private List<Parameter> parameters = new ArrayList<Parameter>();
     private String url;
 
@@ -143,6 +144,22 @@ public class UrlBuilder {
         else {
             this.parameterSeparator = "&";
         }
+    }
+
+    /**
+     * Get the name of the event to be executed by this URL.
+     */
+    public String getEvent() {
+        return (String) (event == null ? null : event.value);
+    }
+
+    /**
+     * Set the name of the event to be executed by this URL.
+     * 
+     * @param event the event name
+     */
+    public void setEvent(String event) {
+        this.event = new Parameter(UrlBindingParameter.PARAMETER_NAME_EVENT, event);
     }
 
     /**
@@ -315,6 +332,17 @@ public class UrlBuilder {
      */
     protected String build() {
         try {
+            // special handling for event parameter
+            List<Parameter> parameters;
+            if (event == null || (event != null && !event.skip)) {
+                parameters = this.parameters;
+            }
+            else {
+                parameters = new ArrayList<Parameter>(this.parameters.size() + 1);
+                parameters.add(new Parameter((String) this.event.value, ""));
+                parameters.addAll(this.parameters);
+            }
+
             StringBuilder buffer = new StringBuilder(256);
             buffer.append(getBaseURL());
             boolean seenQuestionMark = buffer.indexOf("?") != -1;
@@ -364,6 +392,10 @@ public class UrlBuilder {
             p.skip = false;
             if (!map.containsKey(p.name))
                 map.put(p.name, p);
+        }
+        if (event != null) {
+            map.put(event.name, event);
+            event.skip = false;
         }
 
         StringBuilder buf = new StringBuilder(256);

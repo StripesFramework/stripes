@@ -21,6 +21,9 @@ package net.sourceforge.stripes.controller;
  * @since Stripes 1.5
  */
 public class UrlBindingParameter {
+    /** The special parameter name for the event to execute */
+    public static final String PARAMETER_NAME_EVENT = "$event";
+
     protected String name;
     protected String value;
     protected String defaultValue;
