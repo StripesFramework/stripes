@@ -334,7 +334,7 @@ public class UrlBuilder {
         try {
             // special handling for event parameter
             List<Parameter> parameters;
-            if (event == null || (event != null && !event.skip)) {
+            if (event == null || event.skip) {
                 parameters = this.parameters;
             }
             else {
