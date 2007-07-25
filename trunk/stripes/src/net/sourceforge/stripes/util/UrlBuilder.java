@@ -54,11 +54,14 @@ public class UrlBuilder {
     private static class Parameter {
         String name;
         Object value;
-        boolean skip;
 
         Parameter(String name, Object value) {
             this.name = name;
             this.value = value;
+        }
+
+        public String toString() {
+            return "" + this.name + "=" + this.value;
         }
     }
 
@@ -333,22 +336,19 @@ public class UrlBuilder {
     protected String build() {
         try {
             // special handling for event parameter
-            List<Parameter> parameters;
-            if (event == null || event.skip) {
-                parameters = this.parameters;
+            List<Parameter> parameters = new ArrayList<Parameter>(this.parameters.size() + 1);
+            if (this.event != null) {
+                parameters.add(this.event);
             }
-            else {
-                parameters = new ArrayList<Parameter>(this.parameters.size() + 1);
-                parameters.add(new Parameter((String) this.event.value, ""));
-                parameters.addAll(this.parameters);
-            }
+            parameters.addAll(this.parameters);
 
             StringBuilder buffer = new StringBuilder(256);
-            buffer.append(getBaseURL());
+            buffer.append(getBaseURL(this.baseUrl, parameters));
             boolean seenQuestionMark = buffer.indexOf("?") != -1;
-            for (Parameter pair : parameters) {
-                if (pair.skip)
-                    continue;
+            for (Parameter param : parameters) {
+                // special handling for event parameter
+                if (param == this.event)
+                    param = new Parameter((String) this.event.value, "");
 
                 // Figure out whether we already have params or not
                 if (!seenQuestionMark) {
@@ -358,9 +358,9 @@ public class UrlBuilder {
                 else {
                     buffer.append(getParameterSeparator());
                 }
-                buffer.append(URLEncoder.encode(pair.name, "UTF-8")).append('=');
-                if (pair.value != null) {
-                    buffer.append(URLEncoder.encode(format(pair.value), "UTF-8"));
+                buffer.append(URLEncoder.encode(param.name, "UTF-8")).append('=');
+                if (param.value != null) {
+                    buffer.append(URLEncoder.encode(format(param.value), "UTF-8"));
                 }
             }
             return buffer.toString();
@@ -377,11 +377,16 @@ public class UrlBuilder {
      * {@link #addParameter(String, Object[])} or {@link #addParameters(Map)}. Otherwise, it
      * returns the original base URL.
      * 
+     * @param baseUrl The base URL to start with. In many cases, this value will be returned
+     *            unchanged.
+     * @param parameters The query parameters. Any parameters that should not be appended to the
+     *            query string by {@link #build()} (e.g., because they are embedded in the URL)
+     *            should be removed from the collection before this method returns.
      * @return the base URL, without a query string
      * @see #UrlBuilder(Locale, Class, boolean)
      * @see #UrlBuilder(Locale, String, boolean)
      */
-    protected String getBaseURL() {
+    protected String getBaseURL(String baseUrl, Collection<Parameter> parameters) {
         UrlBinding binding = UrlBindingFactory.getInstance().getBindingPrototype(baseUrl);
         if (binding == null || binding.getParameters().size() == 0) {
             return baseUrl;
@@ -389,13 +394,8 @@ public class UrlBuilder {
 
         Map<String, Parameter> map = new HashMap<String, Parameter>();
         for (Parameter p : parameters) {
-            p.skip = false;
             if (!map.containsKey(p.name))
                 map.put(p.name, p);
-        }
-        if (event != null) {
-            map.put(event.name, event);
-            event.skip = false;
         }
 
         StringBuilder buf = new StringBuilder(256);
@@ -418,7 +418,7 @@ public class UrlBuilder {
                         }
 
                         buf.append(value);
-                        assigned.skip = true;
+                        parameters.remove(assigned);
                         ok = true;
                     }
                 }
