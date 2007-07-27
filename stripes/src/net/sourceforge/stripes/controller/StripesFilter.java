@@ -289,21 +289,10 @@ public class StripesFilter implements Filter {
             rewrite = binding != null && binding.getParameters().size() > 0;
         }
 
-        // if all that worked out to be true, then the URL needs to be rewritten
-        String relative = null;
-        if (rewrite) {
-            // get request URI sans the context path
-            int contextLength = request.getContextPath().length();
-            if (contextLength > 1)
-                relative = request.getRequestURI().substring(contextLength);
-            else
-                relative = request.getRequestURI();
-            rewrite = relative.length() > binding.getPath().length();
-        }
-
+        StringBuilder url = null;
         if (rewrite) {
             // append the binding parameters to the query string
-            StringBuilder url = new StringBuilder(binding.getPath());
+            url = new StringBuilder(binding.getPath());
             char separator = '?';
             for (UrlBindingParameter p : binding.getParameters()) {
                 String name = p.getName();
@@ -321,12 +310,16 @@ public class StripesFilter implements Filter {
                     }
                 }
             }
+            rewrite = url.length() > binding.getPath().length();
+        }
 
+        if (rewrite) {
             // forward to rewritten request
             request.setAttribute(StripesConstants.REQ_ATTR_BYPASS_REWRITE, Boolean.TRUE);
             request.getRequestDispatcher(url.toString()).forward(request, response);
         }
         else {
+            // turn off the bypass flag
             request.removeAttribute(StripesConstants.REQ_ATTR_BYPASS_REWRITE);
         }
 
