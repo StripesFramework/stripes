@@ -20,8 +20,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import net.sourceforge.stripes.controller.LifecycleStage;
-
 /**
  * Marker annotation to specify that the event handled by the annotated method should skip
  * {@link LifecycleStage#BindingAndValidation} altogether. This is useful for events which ignore
