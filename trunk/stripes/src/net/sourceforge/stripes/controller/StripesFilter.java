@@ -291,8 +291,14 @@ public class StripesFilter implements Filter {
 
         StringBuilder url = null;
         if (rewrite) {
+            // get request URI sans the context path
+            int contextLength = request.getContextPath().length();
+            if (contextLength > 1)
+                url = new StringBuilder(request.getRequestURI().substring(contextLength));
+            else
+                url = new StringBuilder(request.getRequestURI());
+
             // append the binding parameters to the query string
-            url = new StringBuilder(binding.getPath());
             char separator = '?';
             for (UrlBindingParameter p : binding.getParameters()) {
                 String name = p.getName();
