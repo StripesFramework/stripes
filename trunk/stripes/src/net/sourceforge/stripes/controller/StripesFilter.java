@@ -292,11 +292,12 @@ public class StripesFilter implements Filter {
         StringBuilder url = null;
         if (rewrite) {
             // get request URI sans the context path
-            int contextLength = request.getContextPath().length();
-            if (contextLength > 1)
-                url = new StringBuilder(request.getRequestURI().substring(contextLength));
+            int length = request.getContextPath().length();
+            if (length > 1)
+                url = new StringBuilder(request.getRequestURI().substring(length));
             else
                 url = new StringBuilder(request.getRequestURI());
+            length = url.length();
 
             // append the binding parameters to the query string
             char separator = '?';
@@ -316,7 +317,7 @@ public class StripesFilter implements Filter {
                     }
                 }
             }
-            rewrite = url.length() > binding.getPath().length();
+            rewrite = url.length() > length;
         }
 
         if (rewrite) {
