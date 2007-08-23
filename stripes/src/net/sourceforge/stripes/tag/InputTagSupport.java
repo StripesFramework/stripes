@@ -29,8 +29,10 @@ import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.tagext.TryCatchFinally;
 import java.util.Collection;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Locale;
 import java.util.Random;
+import java.util.Stack;
 import java.lang.reflect.Method;
 import java.lang.reflect.Array;
 import java.io.IOException;
@@ -147,6 +149,19 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
      */
     protected FormTag getParentFormTag() throws StripesJspException {
         FormTag parent = getParentTag(FormTag.class);
+
+        // find the first non-partial parent form tag
+        if (parent != null && parent.isPartial()) {
+            Stack<StripesTagSupport> stack = getTagStack();
+            ListIterator<StripesTagSupport> iter = stack.listIterator(stack.size());
+            while (iter.hasPrevious()) {
+                StripesTagSupport tag = iter.previous();
+                if (tag instanceof FormTag && !((FormTag) tag).isPartial()) {
+                    parent = (FormTag) tag;
+                    break;
+                }
+            }
+        }
 
         if (parent == null) {
             throw new StripesJspException
