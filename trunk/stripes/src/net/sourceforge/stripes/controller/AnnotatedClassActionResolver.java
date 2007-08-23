@@ -21,6 +21,7 @@ import net.sourceforge.stripes.action.HandlesEvent;
 import net.sourceforge.stripes.action.SessionScope;
 import net.sourceforge.stripes.config.BootstrapPropertyResolver;
 import net.sourceforge.stripes.config.Configuration;
+import net.sourceforge.stripes.exception.ActionBeanNotFoundException;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
 import net.sourceforge.stripes.exception.StripesServletException;
 import net.sourceforge.stripes.util.Log;
@@ -291,11 +292,8 @@ public class AnnotatedClassActionResolver implements ActionResolver {
         ActionBean bean;
 
         if (beanClass == null) {
-            throw new StripesServletException(
-                    "Could not locate an ActionBean that is bound to the URL [" + path +
-                            "]. Commons reasons for this include mis-matched URLs and forgetting " +
-                            "to implement ActionBean in your class. Registered ActionBeans are: " +
-                            UrlBindingFactory.getInstance());
+            throw new ActionBeanNotFoundException(
+                    path, UrlBindingFactory.getInstance().getPathMap());
         }
 
         try {

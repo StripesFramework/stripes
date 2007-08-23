@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -233,6 +234,19 @@ public class UrlBindingFactory {
         catch (UnsupportedEncodingException e) {
             throw new StripesRuntimeException(e);
         }
+    }
+
+    /**
+     * Get all the {@link ActionBean}s classes that have been found.
+     * 
+     * @return an immutable collection of {@link ActionBean} classes
+     */
+    public HashMap<String, Class<? extends ActionBean>> getPathMap() {
+        HashMap<String, Class<? extends ActionBean>> map = new HashMap<String, Class<? extends ActionBean>>();
+        for (Entry<String, UrlBinding> entry : pathCache.entrySet()) {
+            map.put(entry.getKey(), entry.getValue().getBeanType());
+        }
+        return map;
     }
 
     /**
