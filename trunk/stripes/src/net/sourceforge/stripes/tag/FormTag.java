@@ -205,12 +205,12 @@ public class FormTag extends HtmlTagSupport implements BodyTag, TryCatchFinally 
             }
 
             JspWriter out = getPageContext().getOut();
-            if (!partial) {
+            if (!isPartial()) {
                 writeOpenTag(out, "form");
             }
             getBodyContent().writeOut( getPageContext().getOut() );
 
-            if (!partial) {
+            if (!isPartial()) {
                 // Write out a hidden field with the name of the page in it....
                 // The div is necessary in order to be XHTML compliant, where a form can contain
                 // only block level elements (which seems stupid, but whatever).
