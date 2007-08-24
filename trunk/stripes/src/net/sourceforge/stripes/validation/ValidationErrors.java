@@ -60,6 +60,8 @@ public class ValidationErrors extends HashMap<String, List<ValidationError>> {
      * @param error a ValidationError to add to that field
      */
     public void add(String field, ValidationError error) {
+        if (field == null || field.length() == 0)
+            throw new IllegalArgumentException("field must not be empty or null");
         put(field, error);
     }
 
