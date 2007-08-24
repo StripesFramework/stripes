@@ -89,11 +89,15 @@ public class MockServletContext implements ServletContext {
 
     /** Uses the current classloader to fetch the resource if it can. */
     public URL getResource(String name) throws MalformedURLException {
+        while (name.startsWith("/"))
+            name = name.substring(1);
         return Thread.currentThread().getContextClassLoader().getResource(name);
     }
 
     /** Uses the current classloader to fetch the resource if it can. */
     public InputStream getResourceAsStream(String name) {
+        while (name.startsWith("/"))
+            name = name.substring(1);
         return Thread.currentThread().getContextClassLoader().getResourceAsStream(name);
     }
 
