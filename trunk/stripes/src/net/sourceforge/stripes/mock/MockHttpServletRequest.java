@@ -201,7 +201,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
     }
 
     /** Returns the request URI as defined by the servlet spec. */
-    public String getRequestURI() { return this.contextPath + this.pathInfo; }
+    public String getRequestURI() { return this.contextPath + this.servletPath + this.pathInfo; }
 
     /** Returns (an attempt at) a reconstructed URL based on it's constituent parts. */
     public StringBuffer getRequestURL() {
