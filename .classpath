@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" output="examples/web/WEB-INF/classes" path="examples/src"/>
+	<classpathentry kind="src" output="stripes/classes" path="stripes/src"/>
+	<classpathentry kind="src" output="tests/classes" path="tests/src"/>
+	<classpathentry kind="lib" path="build/lib/hostedqa.jar"/>
+	<classpathentry kind="lib" path="dist/stripes-1.5-sources.jar"/>
+	<classpathentry kind="lib" path="dist/stripes-1.5.jar"/>
+	<classpathentry kind="lib" path="examples/web/WEB-INF/lib/commons-logging.jar"/>
+	<classpathentry kind="lib" path="examples/web/WEB-INF/lib/cos.jar"/>
+	<classpathentry kind="lib" path="examples/web/WEB-INF/lib/jstl.jar"/>
+	<classpathentry kind="lib" path="examples/web/WEB-INF/lib/log4j-1.2.9.jar"/>
+	<classpathentry kind="lib" path="examples/web/WEB-INF/lib/standard.jar"/>
+	<classpathentry kind="lib" path="examples/web/WEB-INF/lib/stripes.jar"/>
+	<classpathentry kind="lib" path="stripes/lib/build/jsp-api.jar"/>
+	<classpathentry kind="lib" path="stripes/lib/build/mail.jar"/>
+	<classpathentry kind="lib" path="stripes/lib/build/servlet-api.jar"/>
+	<classpathentry kind="lib" path="stripes/lib/build/tlddoc.jar"/>
+	<classpathentry kind="lib" path="stripes/lib/deploy/commons-logging.jar"/>
+	<classpathentry kind="lib" path="stripes/lib/deploy/cos.jar"/>
+	<classpathentry kind="lib" path="stripes/lib/test/commons-fileupload-1.2.jar"/>
+	<classpathentry kind="lib" path="stripes/lib/test/commons-io-1.2.jar"/>
+	<classpathentry kind="lib" path="stripes/lib/test/log4j-1.2.9.jar"/>
+	<classpathentry kind="lib" path="stripes/lib/test/spring.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="tests/lib/testng-5.5-jdk15.jar"/>
+	<classpathentry kind="output" path="stripes/classes"/>
+</classpath>

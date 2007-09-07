@@ -13,7 +13,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/testng-5.0.2-jdk15.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/testng-5.5-jdk15.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
