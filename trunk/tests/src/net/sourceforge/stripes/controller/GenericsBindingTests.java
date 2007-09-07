@@ -34,7 +34,7 @@ public class GenericsBindingTests
 
     /** Makes a roundtrip using the current instances' type. */
     protected MockRoundtrip getRoundtrip() {
-        return new MockRoundtrip(StripesTestFixture.getServletContext(), getClass());
+        return new MockRoundtrip(StripesTestFixture.getServletContext(), GenericsBindingTests.class);
     }
 
     @Test(groups="fast")
@@ -43,7 +43,7 @@ public class GenericsBindingTests
         trip.addParameter("number", "123.4");
         trip.execute();
 
-        GenericsBindingTests bean = trip.getActionBean(getClass());
+        GenericsBindingTests bean = trip.getActionBean(GenericsBindingTests.class);
         Assert.assertNotNull(bean.getNumber());
         Assert.assertEquals(bean.getNumber(), new Double(123.4));
     }
@@ -56,7 +56,7 @@ public class GenericsBindingTests
         trip.addParameter("list[2]", "yes");
         trip.execute();
 
-        GenericsBindingTests bean = trip.getActionBean(getClass());
+        GenericsBindingTests bean = trip.getActionBean(GenericsBindingTests.class);
         Assert.assertNotNull(bean.getList());
         Assert.assertEquals(bean.getList().get(0), Boolean.TRUE);
         Assert.assertEquals(bean.getList().get(1), Boolean.FALSE);
@@ -71,7 +71,7 @@ public class GenericsBindingTests
         trip.addParameter("map[30]", "1/1/2030");
         trip.execute();
 
-        GenericsBindingTests bean = trip.getActionBean(getClass());
+        GenericsBindingTests bean = trip.getActionBean(GenericsBindingTests.class);
         Assert.assertNotNull(bean.getMap());
         Assert.assertEquals(bean.getMap().get(10l), makeDate(2010,1,1));
         Assert.assertEquals(bean.getMap().get(20l), makeDate(2020,1,1));
@@ -85,7 +85,7 @@ public class GenericsBindingTests
         trip.addParameter("bean.stringProperty", "foobar");
         trip.execute();
 
-        GenericsBindingTests bean = trip.getActionBean(getClass());
+        GenericsBindingTests bean = trip.getActionBean(GenericsBindingTests.class);
         Assert.assertNotNull(bean.getBean());
         Assert.assertEquals(bean.getBean().getLongProperty(), new Long(1234));
         Assert.assertEquals(bean.getBean().getStringProperty(), "foobar");
