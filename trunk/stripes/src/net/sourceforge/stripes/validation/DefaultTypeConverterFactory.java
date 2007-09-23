@@ -41,7 +41,7 @@ public class DefaultTypeConverterFactory implements TypeConverterFactory {
     /**
      * Places all the known convertible types and type converters into an instance level Map.
      */
-    public void init(Configuration configuration) {
+    public void init(final Configuration configuration) {
         this.configuration = configuration;
 
         converters.put(Boolean.class, BooleanTypeConverter.class);
@@ -66,6 +66,7 @@ public class DefaultTypeConverterFactory implements TypeConverterFactory {
         converters.put(String.class, StringTypeConverter.class);
         converters.put(Object.class, ObjectTypeConverter.class);
         converters.put(Character.class, CharacterTypeConverter.class);
+        converters.put(Character.TYPE, CharacterTypeConverter.class); 
     }
 
     /** Provides subclasses with access to the configuration provided at initialization. */
