@@ -296,25 +296,26 @@ public class AnnotatedClassActionResolver implements ActionResolver {
                     path, UrlBindingFactory.getInstance().getPathMap());
         }
 
+        String bindingPath = getUrlBinding(beanClass);
         try {
             HttpServletRequest request = context.getRequest();
 
             if (beanClass.isAnnotationPresent(SessionScope.class)) {
-                bean = (ActionBean) request.getSession().getAttribute(path);
+                bean = (ActionBean) request.getSession().getAttribute(bindingPath);
 
                 if (bean == null) {
                     bean = makeNewActionBean(beanClass, context);
-                    request.getSession().setAttribute(path, bean);
+                    request.getSession().setAttribute(bindingPath, bean);
                 }
 
                 bean.setContext(context);
             }
             else {
-                bean = (ActionBean) request.getAttribute(path);
+                bean = (ActionBean) request.getAttribute(bindingPath);
                 if (bean == null) {
                     bean = makeNewActionBean(beanClass, context);
                     bean.setContext(context);
-                    request.setAttribute(path, bean);
+                    request.setAttribute(bindingPath, bean);
                 }
             }
 
