@@ -198,7 +198,7 @@ public abstract class HtmlTagSupport extends StripesTagSupport implements Dynami
         for (Map.Entry<String,String> attr: getAttributes().entrySet() ) {
             // Skip the output of blank attributes!
             String value = attr.getValue();
-            if (value == null || value.length() == 0) continue;
+            if (value == null) continue;
 
             writer.print(" ");
             writer.print(attr.getKey());
