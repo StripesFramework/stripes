@@ -22,6 +22,7 @@ import net.sourceforge.stripes.exception.StripesJspException;
 import net.sourceforge.stripes.util.CryptoUtil;
 import net.sourceforge.stripes.util.HtmlUtil;
 import net.sourceforge.stripes.util.Log;
+import net.sourceforge.stripes.util.UrlBuilder;
 import net.sourceforge.stripes.validation.ValidationErrors;
 import net.sourceforge.stripes.validation.ValidationError;
 
@@ -45,7 +46,7 @@ import java.util.List;
  *
  * @author Tim Fennell
  */
-public class FormTag extends HtmlTagSupport implements BodyTag, TryCatchFinally {
+public class FormTag extends HtmlTagSupport implements BodyTag, TryCatchFinally, ParameterizableTag {
     /** Log used to log error and debugging information for this class. */
     private static final Log log = Log.getInstance(FormTag.class);
 
@@ -56,6 +57,9 @@ public class FormTag extends HtmlTagSupport implements BodyTag, TryCatchFinally 
 
     /** Stores the value of the action attribute before the context gets appended. */
     private String actionWithoutContext;
+
+    /** Builds the action attribute with parameters */
+    private UrlBuilder urlBuilder;
 
     /** A map of field name to field type for all fields registered with the form. */
     private Map<String,Class> fieldsPresent = new HashMap<String,Class>();
@@ -79,18 +83,6 @@ public class FormTag extends HtmlTagSupport implements BodyTag, TryCatchFinally 
         else {
             this.actionWithoutContext = action;
         }
-
-        if (action.startsWith("/")) {
-            HttpServletRequest request = (HttpServletRequest) getPageContext().getRequest();
-            String contextPath = request.getContextPath();
-
-            if (contextPath != null && !"/".equals(contextPath) && !action.contains(contextPath + "/")) {
-                action = contextPath + action;
-            }
-        }
-
-        HttpServletResponse response = (HttpServletResponse) getPageContext().getResponse();
-        set("action", response.encodeURL(action));
     }
 
     public String getAction() { return this.actionWithoutContext; }
@@ -172,6 +164,7 @@ public class FormTag extends HtmlTagSupport implements BodyTag, TryCatchFinally 
                     + "action bean should handle the form submission.");
         }
         getTagStack().push(this);
+        urlBuilder = new UrlBuilder(pageContext.getRequest().getLocale(), getAction(), false);
         return EVAL_BODY_BUFFERED;
     }
 
@@ -203,6 +196,8 @@ public class FormTag extends HtmlTagSupport implements BodyTag, TryCatchFinally 
             if (getMethod() == null) {
                 setMethod("post");
             }
+
+			set("action", buildAction());
 
             JspWriter out = getPageContext().getOut();
             if (!isPartial()) {
@@ -420,5 +415,38 @@ public class FormTag extends HtmlTagSupport implements BodyTag, TryCatchFinally 
      */
     public Set<String> getRegisteredFields() {
         return this.fieldsPresent.keySet();
+    }
+
+    /**
+     * Appends a parameter to the "action" attribute of the form tag. For clean URLs the value will
+     * be embedded in the URL if possible. Otherwise, it will be added to the query string.
+     * 
+     * @param name the parameter name
+     * @param valueOrValues the parameter value(s)
+     * @see ParameterizableTag#addParameter(String, Object)
+     */
+	@Override
+	public void addParameter(String name, Object valueOrValues) {
+        urlBuilder.addParameter(name, valueOrValues);
+    }
+
+    /**
+     * Builds the action attribute, including the context path and any parameters.
+     * 
+     * @return the action attribute
+     */
+    protected String buildAction() {
+        String action = urlBuilder.toString();
+        if (action.startsWith("/")) {
+            HttpServletRequest request = (HttpServletRequest) getPageContext().getRequest();
+            String contextPath = request.getContextPath();
+
+            if (contextPath != null && !"/".equals(contextPath)
+                    && !action.contains(contextPath + "/")) {
+                action = contextPath + action;
+            }
+        }
+        HttpServletResponse response = (HttpServletResponse) getPageContext().getResponse();
+        return response.encodeURL(action);
     }
 }
