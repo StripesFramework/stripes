@@ -197,7 +197,7 @@ public class FormTag extends HtmlTagSupport implements BodyTag, TryCatchFinally,
                 setMethod("post");
             }
 
-			set("action", buildAction());
+            set("action", buildAction());
 
             JspWriter out = getPageContext().getOut();
             if (!isPartial()) {
@@ -425,8 +425,8 @@ public class FormTag extends HtmlTagSupport implements BodyTag, TryCatchFinally,
      * @param valueOrValues the parameter value(s)
      * @see ParameterizableTag#addParameter(String, Object)
      */
-	@Override
-	public void addParameter(String name, Object valueOrValues) {
+    @Override
+    public void addParameter(String name, Object valueOrValues) {
         urlBuilder.addParameter(name, valueOrValues);
     }
 
