@@ -19,7 +19,7 @@ import java.util.Date;
  * @author Tim Fennell
  */
 public class GenericsBindingTests
-     extends GenericsBindingTestsBaseClass<TestBean,Double,Boolean,Long, Date>
+     extends GenericsBindingTestsBaseClass<TestBean,Double,Boolean,Long,Date>
   implements ActionBean {
 
     // Stuff necessary to implement ActionBean!
@@ -46,6 +46,20 @@ public class GenericsBindingTests
         GenericsBindingTests bean = trip.getActionBean(GenericsBindingTests.class);
         Assert.assertNotNull(bean.getNumber());
         Assert.assertEquals(bean.getNumber(), new Double(123.4));
+    }
+
+    @Test(groups="fast")
+    public void testGenericBean() throws Exception {
+        MockRoundtrip trip = getRoundtrip();
+        trip.addParameter("genericBean.genericA", "123.4");
+        trip.addParameter("genericBean.genericB", "true");
+        trip.execute();
+
+        GenericsBindingTests bean = trip.getActionBean(GenericsBindingTests.class);
+        Assert.assertNotNull(bean.getGenericBean().getGenericA());
+        Assert.assertEquals(bean.getGenericBean().getGenericA(), new Double(123.4));
+        Assert.assertNotNull(bean.getGenericBean().getGenericB());
+        Assert.assertEquals(bean.getGenericBean().getGenericB(), Boolean.TRUE);
     }
 
     @Test(groups="fast")
