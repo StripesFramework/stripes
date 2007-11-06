@@ -25,7 +25,9 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -136,8 +138,7 @@ public class PropertyExpressionEvaluation {
             // Else if it's parameterized and it's a List or Map, get the next type
             if (type instanceof ParameterizedType) {
                 ParameterizedType ptype = (ParameterizedType) type;
-                // TODO: convert to using convertToClass() here
-                Type rawType = ptype.getRawType();
+                Type rawType = convertToClass(type, current);
 
                 if (rawType instanceof Class) {
                     Class rawClass = (Class) rawType;
@@ -163,7 +164,7 @@ public class PropertyExpressionEvaluation {
                     }
                 }
                 else {
-                    // Raw type is not a class?  What on earth do we do now?
+                    // XXX Raw type is not a class?  What on earth do we do now?
                     break;
                 }
             }
@@ -175,6 +176,7 @@ public class PropertyExpressionEvaluation {
                 String property = current.getNode().getStringValue();
                 type = getBeanPropertyType(clazz, property);
 
+                // XXX What do we do if type is a generic type?
                 if (type != null) {
                     current.setValueType(type);
                     current.setType(NodeType.BeanProperty);
@@ -182,9 +184,8 @@ public class PropertyExpressionEvaluation {
                 else {
                     type = getTypeViaInstances(current);
                     if (type == null) {
-
+                        // XXX What do we do now?
                     }
-
                 }
             }
         }
@@ -392,40 +393,78 @@ public class PropertyExpressionEvaluation {
      * @param type the TypeVariable to try and find a more concrete type for
      * @return the actual type argument for the type variable if possible, or null
      */
-    protected Type getTypeVariableValue(NodeEvaluation evaluation, TypeVariable type) {
-        // First try to locate the last node that is a bonafide Class and not some other Type
+    protected Type getTypeVariableValue(NodeEvaluation evaluation, TypeVariable typeVar) {
+
+        // Type map from TypeVariables to the corresponding Type.
+        List<HashMap<TypeVariable, Type>> typemap = new ArrayList<HashMap<TypeVariable, Type>>();
+
+        // Scan the evaluation chain for the first class or any parameterized types.
         Class lastBean = this.bean.getClass();
-        for (NodeEvaluation n = evaluation.getPrevious(); n != null; n=n.getPrevious()) {
-            if (n.getValueType() instanceof Class) {
+        for (NodeEvaluation n = evaluation.getPrevious(); n != null; n = n.getPrevious()) {
+            Type type = n.getValueType();
+
+            // Bean class found?  Stop searching.
+            if (type instanceof Class) {
                 lastBean = (Class) n.getValueType();
                 break;
+
+            // Parameterized type?  Add to the typemap and keep going.
+            } else if (type instanceof ParameterizedType) {
+                addTypeMappings(typemap, (ParameterizedType) type);
             }
         }
 
-        // Now if the super type is parameterized try and loop through the type variables
-        // and type arguments in tandem matching a concrete parameter to the type variable
-        for (Class beanClass=lastBean; beanClass != null; beanClass=beanClass.getSuperclass()) {
-            Type stype = beanClass.getGenericSuperclass();
+        // Add the bean class and all its superclasses to the typemap.
+        for (Class c = lastBean; c != null; c = c.getSuperclass()) {
+            Type t = c.getGenericSuperclass();
+            if (t instanceof ParameterizedType) {
+                addTypeMappings(typemap, (ParameterizedType) t);
+            }
+        }
 
-            if (stype instanceof ParameterizedType) {
-                ParameterizedType ptype = (ParameterizedType) stype;
-                Type sclass = ptype.getRawType();
+        // Now traverse the typemap list, mapping the TypeVariable.
+        Type type = null;
+        for (int i = typemap.size() - 1; i >= 0; i--) {
 
-                if (sclass instanceof Class) {
-                    Class parent = (Class) sclass;
-                    TypeVariable[] variables = parent.getTypeParameters();
-                    Type[] arguments = ptype.getActualTypeArguments();
+            // Map the type variable to a type.
+            if ((type = typemap.get(i).get(typeVar)) != null) {
 
-                    for (int i=0; i<variables.length && i<arguments.length; ++i) {
-                        if (variables[i] == type) {
-                            return arguments[i];
-                        }
-                    }
+                // Reached a real class?  Done.
+                if (type instanceof Class) {
+                    break;
+
+                // Another TypeVariable? Keep going.
+                } else if (type instanceof TypeVariable) {
+                    typeVar = (TypeVariable) type;
                 }
             }
         }
+        return type;
+    }
 
-        return null;
+   /**
+    * Build a map of TypeVariables to Types.  We have to traverse the class hierarchy
+    * from subclass to superclass, but the mapping of TypeVariables to Types has to start
+    * from the place were the type variable was originally defined (superclass) and map
+    * to the place where the type is bound to an actual class (subclass).  We therefore
+    * need to build up the mapings sub to super and then traverse super to sub.
+    *
+    * @param paramType parameterized type to add to the map.
+    */
+    private void addTypeMappings(List<HashMap<TypeVariable, Type>> typemap,
+      ParameterizedType paramType) {
+        Type rawType = paramType.getRawType();
+        if (rawType instanceof Class) {
+            Class rawClass = (Class) rawType;
+            TypeVariable[] vars = rawClass.getTypeParameters();
+            Type[] args = paramType.getActualTypeArguments();
+            HashMap<TypeVariable, Type> entry =
+              new HashMap<TypeVariable, Type>(vars.length);
+            for (int i = 0;  i < vars.length && i < args.length; ++i) {
+                entry.put(vars[i], args[i]);
+            }
+            typemap.add(entry);
+        }
     }
 
     /**
@@ -630,5 +669,4 @@ public class PropertyExpressionEvaluation {
             }
         }
     }
-
 }
