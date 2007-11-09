@@ -56,13 +56,7 @@ public class MapPropertyAccessor implements PropertyAccessor<Map> {
      */
     @SuppressWarnings("unchecked")
 	public void setValue(NodeEvaluation evaluation, Map map, Object value) {
-        Object key = getKey(evaluation);
-        if (value == null) {
-            map.remove(key);
-        }
-        else {
-            map.put(key, value);
-        }
+        map.put(getKey(evaluation), value);
     }
 
     /**
