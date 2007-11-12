@@ -14,6 +14,14 @@
  */
 package net.sourceforge.stripes.config;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Map;
+
+import javax.servlet.ServletContext;
+
 import net.sourceforge.stripes.controller.ActionBeanContextFactory;
 import net.sourceforge.stripes.controller.ActionBeanPropertyBinder;
 import net.sourceforge.stripes.controller.ActionResolver;
@@ -24,8 +32,8 @@ import net.sourceforge.stripes.controller.Interceptor;
 import net.sourceforge.stripes.controller.Intercepts;
 import net.sourceforge.stripes.controller.LifecycleStage;
 import net.sourceforge.stripes.controller.NameBasedActionResolver;
-import net.sourceforge.stripes.controller.multipart.MultipartWrapperFactory;
 import net.sourceforge.stripes.controller.multipart.DefaultMultipartWrapperFactory;
+import net.sourceforge.stripes.controller.multipart.MultipartWrapperFactory;
 import net.sourceforge.stripes.exception.DefaultExceptionHandler;
 import net.sourceforge.stripes.exception.ExceptionHandler;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
@@ -39,15 +47,9 @@ import net.sourceforge.stripes.tag.DefaultPopulationStrategy;
 import net.sourceforge.stripes.tag.DefaultTagErrorRendererFactory;
 import net.sourceforge.stripes.tag.PopulationStrategy;
 import net.sourceforge.stripes.tag.TagErrorRendererFactory;
+import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.validation.DefaultTypeConverterFactory;
 import net.sourceforge.stripes.validation.TypeConverterFactory;
-
-import javax.servlet.ServletContext;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * <p>Centralized location for defaults for all Configuration properties.  This implementation does
@@ -70,6 +72,9 @@ import java.util.Map;
  * @author Tim Fennell
  */
 public class DefaultConfiguration implements Configuration {
+    /** Log implementation for use within this class. */
+    private static final Log log = Log.getInstance(DefaultConfiguration.class);
+
     private BootstrapPropertyResolver resolver;
     private ActionResolver actionResolver;
     private ActionBeanPropertyBinder actionBeanPropertyBinder;
@@ -161,17 +166,14 @@ public class DefaultConfiguration implements Configuration {
                 this.multipartWrapperFactory.init(this);
             }
 
-            this.interceptors = initInterceptors();
-            if (this.interceptors == null) {
-                this.interceptors = new HashMap<LifecycleStage, Collection<Interceptor>>();
-                Class<? extends Interceptor> bam = BeforeAfterMethodInterceptor.class;
-                BeforeAfterMethodInterceptor interceptor = new BeforeAfterMethodInterceptor();
-
-                for (LifecycleStage stage : bam.getAnnotation(Intercepts.class).value()) {
-                    Collection<Interceptor> instances = new ArrayList<Interceptor>();
-                    instances.add(interceptor);
-                    this.interceptors.put(stage, instances);
-                }
+            this.interceptors = new HashMap<LifecycleStage, Collection<Interceptor>>();
+            Map<LifecycleStage, Collection<Interceptor>> map = initCoreInterceptors();
+            if (map != null) {
+                this.interceptors.putAll(map);
+            }
+            map = initInterceptors();
+            if (map != null) {
+                this.interceptors.putAll(map);
             }
         }
         catch (Exception e) {
@@ -329,6 +331,56 @@ public class DefaultConfiguration implements Configuration {
         if (interceptors == null) {
             interceptors = Collections.emptyList();
         }
+        return interceptors;
+    }
+    
+    /**
+     * Adds the interceptor to the map, associating it with the {@link LifecycleStage}s indicated
+     * by the {@link Intercepts} annotation. If the interceptor implements
+     * {@link ConfigurableComponent}, then its init() method will be called.
+     */
+    protected void addInterceptor(Map<LifecycleStage, Collection<Interceptor>> map,
+            Interceptor interceptor) {
+        Class<? extends Interceptor> type = interceptor.getClass();
+        Intercepts intercepts = type.getAnnotation(Intercepts.class);
+        if (intercepts == null) {
+            log.error("An interceptor of type ", type.getName(), " was configured ",
+                    "but was not marked with an @Intercepts annotation. As a ",
+                    "result it is not possible to determine at which ",
+                    "lifecycle stages the interceptor should be applied. This ",
+                    "interceptor will be ignored.");
+            return;
+        }
+        else {
+            log.debug("Configuring interceptor '", type.getSimpleName(),
+                    "', for lifecycle stages: ", intercepts.value());
+        }
+
+        // call init() if the interceptor implements ConfigurableComponent
+        if (interceptor instanceof ConfigurableComponent) {
+            try {
+                ((ConfigurableComponent) interceptor).init(this);
+            }
+            catch (Exception e) {
+                log.error("Error initializing interceptor of type " + type.getName(), e);
+            }
+        }
+
+        for (LifecycleStage stage : intercepts.value()) {
+            Collection<Interceptor> stack = map.get(stage);
+            if (stack == null) {
+                stack = new LinkedList<Interceptor>();
+                map.put(stage, stack);
+            }
+
+            stack.add(interceptor);
+        }
+    }
+
+    /** Instantiates the core interceptors, allowing subclasses to override the default behavior */
+    protected Map<LifecycleStage, Collection<Interceptor>> initCoreInterceptors() {
+        Map<LifecycleStage, Collection<Interceptor>> interceptors = new HashMap<LifecycleStage, Collection<Interceptor>>();
+        addInterceptor(interceptors, new BeforeAfterMethodInterceptor());
         return interceptors;
     }
 
