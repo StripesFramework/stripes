@@ -14,15 +14,18 @@
  */
 package net.sourceforge.stripes.config;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
 import net.sourceforge.stripes.controller.ActionBeanContextFactory;
 import net.sourceforge.stripes.controller.ActionBeanPropertyBinder;
 import net.sourceforge.stripes.controller.ActionResolver;
 import net.sourceforge.stripes.controller.Interceptor;
-import net.sourceforge.stripes.controller.Intercepts;
 import net.sourceforge.stripes.controller.LifecycleStage;
 import net.sourceforge.stripes.controller.multipart.MultipartWrapperFactory;
-import net.sourceforge.stripes.exception.StripesRuntimeException;
 import net.sourceforge.stripes.exception.ExceptionHandler;
+import net.sourceforge.stripes.exception.StripesRuntimeException;
 import net.sourceforge.stripes.format.FormatterFactory;
 import net.sourceforge.stripes.localization.LocalePicker;
 import net.sourceforge.stripes.localization.LocalizationBundleFactory;
@@ -32,11 +35,6 @@ import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.util.ReflectUtil;
 import net.sourceforge.stripes.util.StringUtil;
 import net.sourceforge.stripes.validation.TypeConverterFactory;
-
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
 
 /**
  * <p>Configuration class that uses the BootstrapPropertyResolver to look for configuration values,
@@ -89,6 +87,9 @@ public class RuntimeConfiguration extends DefaultConfiguration {
 
     /** The Configuration Key for looking up the name of the MultipartWrapperFactory class */
     public static final String MULTIPART_WRAPPER_FACTORY = "MultipartWrapperFactory.Class";
+    
+    /** The Configuration Key for looking up the comma separated list of core interceptor classes. */
+    public static final String CORE_INTERCEPTOR_LIST = "CoreInterceptor.Classes";
 
     /** The Configuration Key for looking up the comma separated list of interceptor classes. */
     public static final String INTERCEPTOR_LIST = "Interceptor.Classes";
@@ -151,16 +152,43 @@ public class RuntimeConfiguration extends DefaultConfiguration {
 
     /**
      * Looks for a list of class names separated by commas under the configuration key
+     * {@link #CORE_INTERCEPTOR_LIST}.  White space surrounding the class names is trimmed,
+     * the classes instantiated and then stored under the lifecycle stage(s) they should
+     * intercept.
+     * 
+     * @return a Map of {@link LifecycleStage} to Collection of {@link Interceptor}
+     */
+    @Override
+    protected Map<LifecycleStage, Collection<Interceptor>> initCoreInterceptors() {
+        String classList = getBootstrapPropertyResolver().getProperty(CORE_INTERCEPTOR_LIST);
+        if (classList == null)
+            return super.initCoreInterceptors();
+        else
+            return initInterceptors(classList);
+    }
+
+    /**
+     * Looks for a list of class names separated by commas under the configuration key
      * {@link #INTERCEPTOR_LIST}.  White space surrounding the class names is trimmed,
      * the classes instantiated and then stored under the lifecycle stage(s) they should
      * intercept.
      *
      * @return a Map of {@link LifecycleStage} to Collection of {@link Interceptor}
      */
-    @SuppressWarnings("unchecked")
 	@Override
     protected Map<LifecycleStage, Collection<Interceptor>> initInterceptors() {
         String classList = getBootstrapPropertyResolver().getProperty(INTERCEPTOR_LIST);
+        return initInterceptors(classList);
+    }
+
+    /**
+     * Splits a comma-separated list of class names and maps each {@link LifecycleStage} to the
+     * interceptors in the list that intercept it.
+     * 
+     * @return a Map of {@link LifecycleStage} to Collection of {@link Interceptor}
+     */
+	@SuppressWarnings("unchecked")
+    protected Map<LifecycleStage, Collection<Interceptor>> initInterceptors(String classList) {
         if (classList == null) {
             return null;
         }
@@ -172,35 +200,8 @@ public class RuntimeConfiguration extends DefaultConfiguration {
             for (String className : classNames) {
                 try {
                     Class<? extends Interceptor> type = ReflectUtil.findClass(className.trim());
-                    Intercepts intercepts = type.getAnnotation(Intercepts.class);
-                    if (intercepts == null) {
-                        log.error("An interceptor of type ", type.getName(), " was configured ",
-                                  "but was not marked with an @Intercepts annotation. As a ",
-                                  "result it is not possible to determine at which ",
-                                  "lifecycle stages the interceprot should be applied. This ",
-                                  "interceptor will be ignored.");
-                    }
-                    else {
-                        log.debug("Configuring interceptor '", type.getSimpleName(),
-                                  "', for lifecycle stages: ", intercepts.value());
-                    }
-
-                    // Instantiate it and optionally call init() if the interceptor
-                    // implements ConfigurableComponent
                     Interceptor interceptor = type.newInstance();
-                    if (interceptor instanceof ConfigurableComponent) {
-                        ((ConfigurableComponent) interceptor).init(this);
-                    }
-
-                    for (LifecycleStage stage : intercepts.value()) {
-                        Collection<Interceptor> stack = map.get(stage);
-                        if (stack == null) {
-                            stack = new LinkedList<Interceptor>();
-                            map.put(stage, stack);
-                        }
-
-                        stack.add(interceptor);
-                    }
+                    addInterceptor(map, interceptor);
                 }
                 catch (Exception e) {
                     throw new StripesRuntimeException(
