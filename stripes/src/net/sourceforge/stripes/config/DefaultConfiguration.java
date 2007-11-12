@@ -169,11 +169,11 @@ public class DefaultConfiguration implements Configuration {
             this.interceptors = new HashMap<LifecycleStage, Collection<Interceptor>>();
             Map<LifecycleStage, Collection<Interceptor>> map = initCoreInterceptors();
             if (map != null) {
-                this.interceptors.putAll(map);
+                mergeInterceptorMaps(this.interceptors, map);
             }
             map = initInterceptors();
             if (map != null) {
-                this.interceptors.putAll(map);
+                mergeInterceptorMaps(this.interceptors, map);
             }
         }
         catch (Exception e) {
@@ -332,6 +332,23 @@ public class DefaultConfiguration implements Configuration {
             interceptors = Collections.emptyList();
         }
         return interceptors;
+    }
+    
+    /**
+     * Merges the two {@link Map}s of {@link LifecycleStage} to {@link Collection} of
+     * {@link Interceptor}. A simple {@link Map#putAll(Map)} does not work because it overwrites
+     * the collections in the map instead of adding to them.
+     */
+    protected void mergeInterceptorMaps(Map<LifecycleStage, Collection<Interceptor>> dst,
+            Map<LifecycleStage, Collection<Interceptor>> src) {
+        for (Map.Entry<LifecycleStage, Collection<Interceptor>> entry : src.entrySet()) {
+            Collection<Interceptor> collection = dst.get(entry.getKey());
+            if (collection == null) {
+                collection = new LinkedList<Interceptor>();
+                dst.put(entry.getKey(), collection);
+            }
+            collection.addAll(entry.getValue());
+        }
     }
     
     /**
