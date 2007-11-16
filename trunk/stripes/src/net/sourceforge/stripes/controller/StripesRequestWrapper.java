@@ -14,21 +14,25 @@
  */
 package net.sourceforge.stripes.controller;
 
-import net.sourceforge.stripes.action.FileBean;
-import net.sourceforge.stripes.controller.multipart.MultipartWrapper;
-import net.sourceforge.stripes.exception.StripesServletException;
-
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
+
+import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
+
+import net.sourceforge.stripes.action.FileBean;
+import net.sourceforge.stripes.controller.multipart.MultipartWrapper;
+import net.sourceforge.stripes.exception.StripesServletException;
 
 /**
  * HttpServletRequestWrapper that is used to make the file upload functionality transparent.
@@ -45,6 +49,9 @@ public class StripesRequestWrapper extends HttpServletRequestWrapper {
 
     /** The Locale that is going to be used to process the request. */
     private Locale locale;
+    
+    /** Local copy of the parameter map, into which URI-embedded parameters will be merged. */
+    private Map<String, String[]> parameterMap;
 
     /**
      * Looks for the StripesRequesetWrapper for the specific request and returns it. This is done
@@ -128,12 +135,7 @@ public class StripesRequestWrapper extends HttpServletRequestWrapper {
     @Override
     @SuppressWarnings("unchecked")
 	public Enumeration<String> getParameterNames() {
-        if ( isMultipart() ) {
-            return this.multipart.getParameterNames();
-        }
-        else {
-            return super.getParameterNames();
-        }
+        return Collections.enumeration(getParameterMap().keySet());
     }
 
     /**
@@ -145,12 +147,7 @@ public class StripesRequestWrapper extends HttpServletRequestWrapper {
      */
     @Override
     public String[] getParameterValues(String name) {
-        if ( isMultipart() ) {
-            return this.multipart.getParameterValues(name);
-        }
-        else {
-            return super.getParameterValues(name);
-        }
+        return getParameterMap().get(name);
     }
 
     /**
@@ -168,13 +165,96 @@ public class StripesRequestWrapper extends HttpServletRequestWrapper {
         }
     }
 
+    /**
+     * If the request is a clean URL, then extract the parameters from the URI and merge with the
+     * parameters from the query string and/or request body.
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    public Map<String, String[]> getParameterMap() {
+        // lazy initialization
+        if (this.parameterMap != null)
+            return this.parameterMap;
+
+        UrlBinding binding = UrlBindingFactory.getInstance().getBinding(this);
+        Map<String, List<String>> params = null;
+        if (binding != null && binding.getParameters().size() > 0) {
+            for (UrlBindingParameter p : binding.getParameters()) {
+                String name = p.getName();
+                if (name != null) {
+                    String value = p.getValue();
+                    if (UrlBindingParameter.PARAMETER_NAME_EVENT.equals(name)) {
+                        name = value;
+                        value = "";
+                    }
+                    if (name != null && value != null) {
+                        if (params == null) {
+                            params = new LinkedHashMap<String, List<String>>();
+                        }
+                        List<String> list = params.get(name);
+                        if (list == null) {
+                            list = new ArrayList<String>();
+                            params.put(name, list);
+                        }
+                        list.add(value);
+                    }
+                }
+            }
+        }
+
+        if (params == null) {
+            // if no URI parameters then just use the parameter map from the wrapped request
+            this.parameterMap = Collections.unmodifiableMap(getParameterMapFromRequest());
+        }
+        else {
+            // merge the original request parameters with those from the URI
+            LinkedHashMap<String, String[]> merged = new LinkedHashMap<String, String[]>(
+                    getParameterMapFromRequest());
+            for (Entry<String, List<String>> entry : params.entrySet()) {
+                String name = entry.getKey();
+                String[] value = mergeParameters(merged.get(name), entry.getValue());
+                merged.put(name, value);
+            }
+            this.parameterMap = Collections.unmodifiableMap(merged);
+        }
+
+        return this.parameterMap;
+    }
+    
+    /**
+     * Merges request parameter values from the original request with the parameters that are
+     * embedded in the URI. Either or both arguments may be empty or null.
+     * 
+     * @param request the parameters from the original request
+     * @param uri parameters extracted from the URI
+     * @return the merged parameter values
+     */
+    protected String[] mergeParameters(String[] request, List<String> uri) {
+        if (request == null || request.length == 0) {
+            if (uri == null || uri.size() == 0)
+                return null;
+            else
+                return uri.toArray(new String[uri.size()]);
+        }
+        else if (uri == null || uri.size() == 0) {
+            return request;
+        }
+        else {
+            String[] merged = new String[request.length + uri.size()];
+            System.arraycopy(merged, 0, request, 0, request.length);
+            Iterator<String> iterator = uri.iterator();
+            for (int i = request.length; iterator.hasNext(); i++) {
+                merged[i] = iterator.next();
+            }
+            return merged;
+        }
+    }
 
     /**
      * Returns a map of parameter name and values.
      */
-    @Override
     @SuppressWarnings("unchecked")
-	public Map<String,String[]> getParameterMap() {
+    protected Map<String,String[]> getParameterMapFromRequest() {
         if (isMultipart()) {
             Map<String,String[]> parameterMap = new HashMap<String,String[]>();
             Enumeration names = this.multipart.getParameterNames();
