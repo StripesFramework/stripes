@@ -100,12 +100,6 @@ public interface StripesConstants {
     String REQ_ATTR_EVENT_NAME = "__stripes_event_name";
 
     /**
-     * The name of the request attribute that is set when a request is rewritten and forwarded so
-     * that the request will not be rewritten again.
-     */
-    String REQ_ATTR_BYPASS_REWRITE = "__stripes_bypass_rewrite";
-
-    /**
      * Request attribute key defined by the servlet spec for storing the included servlet
      * path when processing a server side include.
      */
