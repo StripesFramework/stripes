@@ -147,13 +147,18 @@ public class UrlBindingFactory {
         if (prototype == null)
             return null;
 
+        // ignore trailing slashes in the URI
+        int length = uri.length();
+        while (uri.charAt(length - 1) == '/')
+            --length;
+
         // extract the request parameters and add to new binding object
         ArrayList<Object> components = new ArrayList<Object>(prototype.getComponents().size());
         int index = prototype.getPath().length();
         UrlBindingParameter current = null;
         String value = null;
         Iterator<Object> iter = prototype.getComponents().iterator();
-        while (index < uri.length() && iter.hasNext()) {
+        while (index < length && iter.hasNext()) {
             Object component = iter.next();
             if (component instanceof String) {
                 // extract the parameter value from the URI
@@ -164,8 +169,8 @@ public class UrlBindingFactory {
                     index = end + literal.length();
                 }
                 else {
-                    value = uri.substring(index);
-                    index = uri.length();
+                    value = uri.substring(index, length);
+                    index = length;
                 }
 
                 // add to the binding
@@ -182,8 +187,8 @@ public class UrlBindingFactory {
         }
 
         // if component iterator ended before end of string, then grab remainder of string
-        if (index < uri.length()) {
-            value = uri.substring(index);
+        if (index < length) {
+            value = uri.substring(index, length);
         }
 
         // parameter was last component in list
