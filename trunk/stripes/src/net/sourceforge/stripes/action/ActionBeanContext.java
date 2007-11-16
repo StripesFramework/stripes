@@ -254,7 +254,6 @@ class ValidationErrorReportResolution implements Resolution {
         this.errors = errors;
     }
 
-    @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
         // log an exception for the stack trace
         Exception exception = new IllegalStateException(
