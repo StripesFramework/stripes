@@ -14,16 +14,24 @@
  */
 package net.sourceforge.stripes.action;
 
-import net.sourceforge.stripes.controller.FlashScope;
-import net.sourceforge.stripes.controller.StripesConstants;
-import net.sourceforge.stripes.validation.ValidationErrors;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
+
+import net.sourceforge.stripes.controller.FlashScope;
+import net.sourceforge.stripes.controller.StripesConstants;
+import net.sourceforge.stripes.controller.StripesFilter;
+import net.sourceforge.stripes.tag.ErrorsTag;
+import net.sourceforge.stripes.util.Log;
+import net.sourceforge.stripes.validation.ValidationError;
+import net.sourceforge.stripes.validation.ValidationErrors;
 
 /**
  * <p>Encapsulates information about the current request.  Also provides access to the underlying
@@ -217,15 +225,7 @@ public class ActionBeanContext {
         String sourcePage = request.getParameter(StripesConstants.URL_KEY_SOURCE_PAGE);
 
         if (sourcePage == null) {
-            throw new IllegalStateException(
-                    "Here's how it is. Someone (quite possible the Stripes Dispatcher) needed " +
-                    "to get the source page resolution. But no source page was supplied in the " +
-                    "request, and unless you override ActionBeanContext.getSourcePageResolution() " +
-                    "you're going to need that value. When you use a <stripes:form> tag a hidden " +
-                    "field called '" + StripesConstants.URL_KEY_SOURCE_PAGE + "' is included. " +
-                    "If you write your own forms or links that could generate validation errors, " +
-                    "you must include a value  for this parameter. This can be done by calling " +
-                    "request.getServletPath().");
+            return new ValidationErrorReportResolution(getValidationErrors());
         }
         else {
             return new ForwardResolution(sourcePage);
@@ -243,5 +243,100 @@ public class ActionBeanContext {
             "eventName='" + eventName + "'" +
             ", validationErrors=" + validationErrors +
             "}";
+    }
+}
+
+class ValidationErrorReportResolution implements Resolution {
+    private static final Log log = Log.getInstance(ValidationErrorReportResolution.class);
+    private ValidationErrors errors;
+
+    protected ValidationErrorReportResolution(ValidationErrors errors) {
+        this.errors = errors;
+    }
+
+    @Override
+    public void execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        // log an exception for the stack trace
+        Exception exception = new IllegalStateException(
+                "Here's how it is. Someone (quite possibly the Stripes Dispatcher) needed " +
+                "to get the source page resolution. But no source page was supplied in the " +
+                "request, and unless you override ActionBeanContext.getSourcePageResolution() " +
+                "you're going to need that value. When you use a <stripes:form> tag a hidden " +
+                "field called '" + StripesConstants.URL_KEY_SOURCE_PAGE + "' is included. " +
+                "If you write your own forms or links that could generate validation errors, " +
+                "you must include a value  for this parameter. This can be done by calling " +
+                "request.getServletPath().");
+        log.error(exception);
+        
+        // start the HTML error report
+        response.setContentType("text/html");
+        PrintWriter writer = response.getWriter();
+        writer.println("<html>");
+        writer.println("<head><title>Stripes validation error report</title></head>");
+        writer.println("<body style=\"font-family: Arial, sans-serif; font-size: 10pt;\">");
+        writer.println("<h1>Stripes validation error report</h1><p>");
+        writer.println(exception.getMessage());
+        writer.println("</p><h2>Validation errors</h2><p>");
+        sendErrors(request, response);
+        writer.println("</p></body></html>");
+    }
+    
+    protected void sendErrors(HttpServletRequest request, HttpServletResponse response)
+            throws Exception {
+        // Output all errors in a standard format
+        Locale locale = request.getLocale();
+        ResourceBundle bundle = null;
+
+        try {
+            bundle = StripesFilter.getConfiguration().getLocalizationBundleFactory()
+                    .getErrorMessageBundle(locale);
+        }
+        catch (MissingResourceException mre) {
+            log.warn(getClass().getName(), " could not find the error messages resource bundle. ",
+                    "As a result default headers/footers etc. will be used. Check that ",
+                    "you have a StripesResources.properties in your classpath (unless ",
+                    "of course you have configured a different bundle).");
+        }
+
+        // Fetch the header and footer
+        String header = getResource(bundle, "header", ErrorsTag.DEFAULT_HEADER);
+        String footer = getResource(bundle, "footer", ErrorsTag.DEFAULT_FOOTER);
+        String openElement = getResource(bundle, "beforeError", "<li>");
+        String closeElement = getResource(bundle, "afterError", "</li>");
+
+        // Write out the error messages
+        PrintWriter writer = response.getWriter();
+        writer.write(header);
+
+        for (List<ValidationError> list : errors.values()) {
+            for (ValidationError fieldError : list) {
+                writer.write(openElement);
+                writer.write(fieldError.getMessage(locale));
+                writer.write(closeElement);
+            }
+        }
+
+        writer.write(footer);
+    }
+
+    /**
+     * Utility method that is used to lookup the resources used for the errors header,
+     * footer, and the strings that go before and after each error.
+     *
+     * @param bundle the bundle to look up the resource from
+     * @param name the name of the resource to lookup (prefixes will be added)
+     * @param fallback a value to return if no resource can be found
+     * @return the value to use for the named resource
+     */
+    protected String getResource(ResourceBundle bundle, String name, String fallback) {
+        if (bundle == null) {
+            return fallback;
+        }
+
+        String resource;
+        try { resource = bundle.getString("stripes.errors." + name); }
+        catch (MissingResourceException mre) { resource = fallback; }
+
+        return resource;
     }
 }
