@@ -317,6 +317,14 @@ public class AnnotatedClassActionResolver implements ActionResolver {
                     bean.setContext(context);
                     request.setAttribute(bindingPath, bean);
                 }
+                else {
+                    if (bean.getContext() == null) {
+                        bean.setContext(context);
+                    }
+                    else {
+                        bean.getContext().setRequest(request);
+                    }
+                }
             }
 
             return bean;
