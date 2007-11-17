@@ -197,7 +197,10 @@ public class StripesRequestWrapper extends HttpServletRequestWrapper {
             this.parameterMap = mergeURIParameters(params);
         }
         else {
-            this.parameterMap = new MergedParameterMap(this, mergeURIParameters(null));
+            Map<String, String[]> params = mergeURIParameters(null);
+            if (params != null) {
+                this.parameterMap = new MergedParameterMap(this, params);
+            }
         }
 
         this.parametersInitialized = true;
