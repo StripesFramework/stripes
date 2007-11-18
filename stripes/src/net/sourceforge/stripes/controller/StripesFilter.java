@@ -90,7 +90,7 @@ public class StripesFilter implements Filter {
         // we'll just use the DefaultConfiguration
         if (configurationClassName != null) {
             try {
-                Class clazz = ReflectUtil.findClass(configurationClassName);
+                Class<?> clazz = ReflectUtil.findClass(configurationClassName);
                 this.configuration = (Configuration) clazz.newInstance();
             }
             catch (Exception e) {
@@ -206,10 +206,10 @@ public class StripesFilter implements Filter {
             if (initial) {
                 initialInvocation.set(true);
                 flashOutbound(httpRequest);
-            }
 
-            // Once the request is processed, take the Configuration back out of thread local
-            StripesFilter.configurationStash.set(null);
+                // Once the request is processed, take the Configuration back out of thread local
+                StripesFilter.configurationStash.remove();
+            }
         }
     }
 
