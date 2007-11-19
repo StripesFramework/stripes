@@ -17,11 +17,15 @@ package net.sourceforge.stripes.validation;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Locale;
-import java.util.Calendar;
 import java.util.regex.Pattern;
+
+import net.sourceforge.stripes.validation.ScopedLocalizableError;
+import net.sourceforge.stripes.validation.TypeConverter;
+import net.sourceforge.stripes.validation.ValidationError;
 
 /**
  * <p>A TypeConverter that aggressively attempts to convert a String to a java.util.Date object.
@@ -46,9 +50,9 @@ import java.util.regex.Pattern;
  * or even override getDateFormats() to change how the DateFormat objects get constructed.</p>
  *
  * <p>The set of formats used is constructed by taking the default SHORT, MEDIUM and LONG formats
- * for the input locale (and replacing all non-space separator characters with spaces) and adding
- * formats based on the format strings supplied by getFormatStrings().  This results in a list of
- * DateFormats with the following patterns:</p>
+ * for the input locale (and replacing all non-space separator characters with spaces), supplied by
+ * getDefaultLocalizedFormats(), and adding formats based on the format strings supplied by getFormatStrings().  
+ * This results in a list of DateFormats with the following patterns:</p>
  *
  *   <ul>
  *     <li>SHORT  (e.g. 'M d yy' for Locale.US)</li>
@@ -75,6 +79,13 @@ public class DateTypeConverter implements TypeConverter<Date> {
     }
 
     /**
+     * @return the current input locale.
+     */
+    public Locale getLocale() {
+    	return locale;
+    }
+    
+    /**
      * A pattern used to pre-process Strings before the parsing attempt is made.  Since
      * SimpleDateFormat stricly enforces that the separator characters in the input are the same
      * as those in the pattern, this regular expression is used to remove commas, slashes, hyphens
@@ -90,58 +101,62 @@ public class DateTypeConverter implements TypeConverter<Date> {
         "yyyy MMM d",
         "EEE MMM dd HH:mm:ss zzz yyyy"
     };
-
+    
     /**
-     * <p>Returns an array of format strings that will be used, in order, to try and parse the date.
+     * Returns an array of format strings that will be used, in order, to try and parse the date.
      * This method can be overridden to make DateTypeConverter use a different set of format
-     * Strings.  Two caveats apply:</p>
-     *
-     * <ol>
-     *   <li>
-     *       Given that pre-processing converts most common separator characters into spaces,
-     *       patterns should be expressed with spaces as separators, not slashes, hyphens etc.
-     *   </li>
-     *   <li>
-     *       In all cases getDateFormats() will return formats based on this list <b>preceeded</b>
-     *       by the standard SHORT, MEDIUM and LONG formats for the input locale.
-     *   </li>
-     * </ol>
+     * Strings. Given that pre-processing converts most common separator characters into spaces,
+     * patterns should be expressed with spaces as separators, not slashes, hyphens etc.
      */
     protected String[] getFormatStrings() {
         return DateTypeConverter.formatStrings;
     }
+    
+    /**
+     * Returns an array of 3 DateFormats which are based upon the standard SHORT, MEDIUM and LONG
+     * formats for the input locale, with all separator characters replaced with spaces.
+     */
+    protected SimpleDateFormat[] getDefaultLocalizedFormats() {
+    	SimpleDateFormat[] dateFormats = new SimpleDateFormat[3];
+        
+    	dateFormats[0] = (SimpleDateFormat) DateFormat.getDateInstance(DateFormat.SHORT, locale);
+        dateFormats[0].applyPattern( preProcessInput(dateFormats[0].toPattern()) );
+
+        dateFormats[1] = (SimpleDateFormat) DateFormat.getDateInstance(DateFormat.MEDIUM, locale);
+        dateFormats[1].applyPattern( preProcessInput(dateFormats[1].toPattern()) );
+
+        dateFormats[2] = (SimpleDateFormat) DateFormat.getDateInstance(DateFormat.LONG, locale);
+        dateFormats[2].applyPattern( preProcessInput(dateFormats[2].toPattern()) );
+        
+        return dateFormats;
+    }
+    
 
     /**
      * Returns an array of DateFormat objects that will be used in sequence to try and parse the
      * date String. This method will be called once when the DateTypeConverter instance is
-     * initialized.  By default it returns an array three larger than the list of format
-     * strings returned by getFormatStrings().  The first three slots in the array are filled
-     * with DateFormats which are based upon the standard SHORT, MEDIUM and LONG formats for
-     * the input locale, with all separator characters replaced with spaces.
+     * initialized. It returns an array that combines the dateformats returned by
+     * getDefaultLocalizedFormats() and getFormatStrings(), in that order.
      */
     protected DateFormat[] getDateFormats() {
         String[] formatStrings = getFormatStrings();
-        SimpleDateFormat[] dateFormats = new SimpleDateFormat[formatStrings.length + 3];
+        SimpleDateFormat[] defaultLocalizedFormats = getDefaultLocalizedFormats();
+        
+        SimpleDateFormat[] dateFormats = 
+        	new SimpleDateFormat[defaultLocalizedFormats.length + formatStrings.length];
 
-        // First create the ones from the format Strings
-        for (int i=0; i<formatStrings.length; ++i) {
-            dateFormats[i+3] = new SimpleDateFormat(formatStrings[i], locale);
-            dateFormats[i+3].setLenient(false);
+        // Put the default localized dateformats in the aggregated array
+        for (int i=0; i<defaultLocalizedFormats.length; i++) {
+            dateFormats[i] = defaultLocalizedFormats[i];
+            dateFormats[i].setLenient(false);
         }
-
-        // And then create the ones from the default input locale
-        dateFormats[0] = (SimpleDateFormat) DateFormat.getDateInstance(DateFormat.SHORT, locale);
-        dateFormats[0].applyPattern( preProcessInput(dateFormats[0].toPattern()) );
-        dateFormats[0].setLenient(false);
-
-        dateFormats[1] = (SimpleDateFormat) DateFormat.getDateInstance(DateFormat.MEDIUM, locale);
-        dateFormats[1].applyPattern( preProcessInput(dateFormats[1].toPattern()) );
-        dateFormats[1].setLenient(false);
-
-        dateFormats[2] = (SimpleDateFormat) DateFormat.getDateInstance(DateFormat.LONG, locale);
-        dateFormats[2].applyPattern( preProcessInput(dateFormats[2].toPattern()) );
-        dateFormats[2].setLenient(false);
-
+        
+        // Create the dateFormats from the format Strings
+        for (int i=0; i<formatStrings.length; i++) {
+            dateFormats[i+defaultLocalizedFormats.length] = new SimpleDateFormat(formatStrings[i], locale);
+            dateFormats[i+defaultLocalizedFormats.length].setLenient(false);
+        }
+        
         return dateFormats;
     }
 
