@@ -191,7 +191,7 @@ public class StripesRequestWrapper extends HttpServletRequestWrapper {
 
             while (names.hasMoreElements()) {
                 String name = (String) names.nextElement();
-                params.put(name, getParameterValues(name));
+                params.put(name, this.multipart.getParameterValues(name));
             }
 
             this.parameterMap = mergeURIParameters(params);
