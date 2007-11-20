@@ -228,8 +228,10 @@ public class StripesRequestWrapper extends HttpServletRequestWrapper {
                             values = new String[] { value };
                         }
                         else {
-                            values = Arrays.copyOf(values, values.length + 1);
-                            values[values.length - 1] = value;
+                            String[] tmp = new String[values.length + 1];
+                            System.arraycopy(values, 0, tmp, 0, values.length);
+                            tmp[tmp.length - 1] = value;
+                            values = tmp;
                         }
                         params.put(name, values);
                     }
@@ -442,7 +444,8 @@ class MergedParameterMap implements Map<String, String[]> {
             return requestParams;
         }
         else {
-            String[] merged = Arrays.copyOf(uriParams, uriParams.length + uriParams.length);
+            String[] merged = new String[uriParams.length + requestParams.length];
+            System.arraycopy(uriParams, 0, merged, 0, uriParams.length);
             System.arraycopy(requestParams, 0, merged, uriParams.length, requestParams.length);
             return merged;
         }
