@@ -43,13 +43,13 @@ import java.lang.annotation.Target;
  * }
  *
  * // Runs after binding and validation have completed
- * {@literal @After(LifecycleStage.BindingAndValidation)}
+ * {@literal @After(stages = LifecycleStage.BindingAndValidation)}
  * public void doPostValidationStuff() {
  *    ...
  * }
  *
  * // Runs twice, once after each validation-related stage
- * {@literal @}After({LifecycleStage.BindingAndValidation, LifecycleStage.CustomValidation})
+ * {@literal @}After(stages = {LifecycleStage.BindingAndValidation, LifecycleStage.CustomValidation})
  * public void doMorePostValidationStuff() {
  *    ...
  * }
