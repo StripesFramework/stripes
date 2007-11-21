@@ -45,13 +45,13 @@ import java.lang.annotation.Target;
  * }
  *
  * // Runs before binding and validation are executed
- * {@literal @Before(LifecycleStage.BindingAndValidation)}
+ * {@literal @Before(stages = LifecycleStage.BindingAndValidation)}
  * public void doPreValidationStuff() {
  *    ...
  * }
  *
  * // Runs twice, once before each validation-related stage
- * {@literal @}Before({LifecycleStage.BindingAndValidation, LifecycleStage.CustomValidation})
+ * {@literal @}Before(stages = {LifecycleStage.BindingAndValidation, LifecycleStage.CustomValidation})
  * public void doMorePreValidationStuff() {
  *    ...
  * }
@@ -61,7 +61,8 @@ import java.lang.annotation.Target;
  * @see net.sourceforge.stripes.controller.BeforeAfterMethodInterceptor
  * @author Jeppe Cramon
  * @since Stripes 1.3
- */@Retention(RetentionPolicy.RUNTIME)
+ */
+@Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
 @Inherited
 @Documented
