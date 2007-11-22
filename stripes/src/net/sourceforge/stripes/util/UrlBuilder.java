@@ -393,6 +393,11 @@ public class UrlBuilder {
             return baseUrl;
         }
 
+        // if any extra path info is present then do not add URI parameters
+        if (binding.getPath().length() < baseUrl.length()) {
+            return baseUrl;
+        }
+
         Map<String, Parameter> map = new HashMap<String, Parameter>();
         for (Parameter p : parameters) {
             if (!map.containsKey(p.name))
@@ -400,7 +405,7 @@ public class UrlBuilder {
         }
 
         StringBuilder buf = new StringBuilder(256);
-        buf.append(binding.getPath());
+        buf.append(baseUrl);
 
         String nextLiteral = null;
         for (Object component : binding.getComponents()) {
