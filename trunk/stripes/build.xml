@@ -163,7 +163,7 @@
 
   <target name="tlddoc" depends="init" description="Generates Tag Library Documentation.">
       <java fork="true" jar="${lib.dir}/build/tlddoc.jar" failonerror="false">
-          <arg line="-d ${doc.dir}/taglib"/>
+          <arg line="-d '${doc.dir}/taglib'"/>
           <arg line="-doctitle 'Stripes ${stripes.version} Tag Library Documentation'"/>
           <arg line="-windowtitle 'Stripes ${stripes.version} Tag Library Documentation'"/>
           <arg value="${classes.dir}/META-INF/stripes.tld"/>
