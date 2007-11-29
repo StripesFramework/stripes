@@ -87,12 +87,12 @@ public class DateTypeConverter implements TypeConverter<Date> {
     
     /**
      * A pattern used to pre-process Strings before the parsing attempt is made.  Since
-     * SimpleDateFormat stricly enforces that the separator characters in the input are the same
+     * SimpleDateFormat strictly enforces that the separator characters in the input are the same
      * as those in the pattern, this regular expression is used to remove commas, slashes, hyphens
      * and periods from the input String (replacing them with spaces) and to collapse multiple
      * white-space characters into a single space.
      */
-    public static final Pattern pattern = Pattern.compile("[\\s,-/\\.]+");
+    public static final Pattern pattern = Pattern.compile("(?<!GMT)[\\s,-/\\.]+");
 
     /** The default set of date patterns used to parse dates with SimpleDateFormat. */
     public static final String[] formatStrings = new String[] {
