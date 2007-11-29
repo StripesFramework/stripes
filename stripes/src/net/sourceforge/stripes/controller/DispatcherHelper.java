@@ -56,10 +56,10 @@ public class DispatcherHelper {
      * A Map that is used to cache the validation method that are discovered for each
      * ActionBean.  Entries are added to this map the first time that a request is made
      * to a particular ActionBean.  The Map will contain a zero length array for ActionBeans
-     * that do not have any valiation methods.
+     * that do not have any validation methods.
      */
-    private static final Map<Class, WeakReference<Method[]>> customValidations =
-            Collections.synchronizedMap(new WeakHashMap<Class, WeakReference<Method[]>>());
+    private static final Map<Class<?>, WeakReference<Method[]>> customValidations =
+            Collections.synchronizedMap(new WeakHashMap<Class<?>, WeakReference<Method[]>>());
 
     /** A place to hide a page context object so that we can get access to EL classes. */
     private static ThreadLocal<PageContext> pageContextStash = new ThreadLocal<PageContext>();
@@ -244,7 +244,7 @@ public class DispatcherHelper {
                                    || errors.isEmpty();
 
                         if (run && applies(ann, ctx.getActionBeanContext().getEventName())) {
-                            Class[] args = validation.getParameterTypes();
+                            Class<?>[] args = validation.getParameterTypes();
                             if (args.length == 1 && args[0].equals(ValidationErrors.class)) {
                                 validation.invoke(bean, errors);
                             }
@@ -325,7 +325,7 @@ public class DispatcherHelper {
                 }
             });
 
-            Class temp = type;
+            Class<?> temp = type;
             while ( temp != null ) {
                 for (Method method : temp.getDeclaredMethods()) {
                     if (method.getAnnotation(ValidationMethod.class) != null) {

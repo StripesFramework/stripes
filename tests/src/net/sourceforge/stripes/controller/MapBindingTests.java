@@ -64,9 +64,12 @@ public class MapBindingTests implements ActionBean {
     public void setMapDateDate(Map<Date, Date> mapDateDate) { this.mapDateDate = mapDateDate; }
 
     /** A map completely lacking in type information!!. */
-    private Map typelessMap;
-    public Map getTypelessMap() { return typelessMap; }
-    public void setTypelessMap(Map typelessMap) { this.typelessMap = typelessMap; }
+    @SuppressWarnings("unchecked")
+	private Map typelessMap;
+    @SuppressWarnings("unchecked")
+	public Map getTypelessMap() { return typelessMap; }
+    @SuppressWarnings("unchecked")
+	public void setTypelessMap(Map typelessMap) { this.typelessMap = typelessMap; }
 
     /** Helper method to create a roundtrip with the TestActionBean class. */
     protected MockRoundtrip getRoundtrip() {

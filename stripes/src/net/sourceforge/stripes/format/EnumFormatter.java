@@ -25,7 +25,7 @@ import java.util.Locale;
  * @author Tim Fennell
  * @since Stripes 1.4.1
  */
-public class EnumFormatter implements Formatter<Enum> {
+public class EnumFormatter implements Formatter<Enum<?>> {
     /** Does nothing. Format types are not supported for Enums. */
     public void setFormatType(String formatType) { }
 
@@ -46,7 +46,7 @@ public class EnumFormatter implements Formatter<Enum> {
      * @param input an object of a type that the formatter knows how to format
      * @return a String version of the input, formatted for the chosen locale
      */
-    public String format(Enum input) {
+    public String format(Enum<?> input) {
         if (input != null) return input.name();
         else return null;
     }

@@ -56,7 +56,7 @@ import java.util.Locale;
  * <p>Strictly speaking the {@code OneToManyTypeConverter} returns a {@link java.util.Collection}
  * of converted items. It does not have any way of inferring the collection type that should be
  * used, and so by default it will always return an instance of {@link java.util.List}. This
- * behaviour can easily be overridde by extending this class and overriding
+ * behaviour can easily be override by extending this class and overriding
  * {@link #getCollectionInstance()}.</p>
  *
  * <p>Note that the converter itself does not create any {@link ValidationError}s, but that
@@ -108,7 +108,8 @@ public class OneToManyTypeConverter implements TypeConverter<Object> {
      *
      * @return an instance of {@link java.util.List}
      */
-    public Collection getCollectionInstance() {
+    @SuppressWarnings("unchecked")
+	public Collection getCollectionInstance() {
         return new LinkedList<Object>();
     }
 
@@ -131,7 +132,8 @@ public class OneToManyTypeConverter implements TypeConverter<Object> {
      * @param targetType the type that each item should be converted to.
      * @return a TypeConverter for use in converting each individual item.
      */
-    protected TypeConverter getSingleItemTypeConverter(Class targetType) {
+    @SuppressWarnings("unchecked")
+	protected TypeConverter getSingleItemTypeConverter(Class targetType) {
         try {
             TypeConverterFactory factory = StripesFilter.getConfiguration().getTypeConverterFactory();
             return factory.getTypeConverter(targetType, this.locale);

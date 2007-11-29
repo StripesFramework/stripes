@@ -32,8 +32,8 @@ import java.math.BigDecimal;
  */
 public class DefaultTypeConverterFactory implements TypeConverterFactory {
     /** A rather generic-heavy Map that maps target type to TypeConverter. */
-    private Map<Class, Class<? extends TypeConverter>> converters =
-        new HashMap<Class, Class<? extends TypeConverter>>();
+    private Map<Class<?>, Class<? extends TypeConverter<?>>> converters =
+        new HashMap<Class<?>, Class<? extends TypeConverter<?>>>();
 
     /** Stores a reference to the Configuration passed in at initialization time. */
     private Configuration configuration;
@@ -80,7 +80,7 @@ public class DefaultTypeConverterFactory implements TypeConverterFactory {
      *
      * @return the Map of TypeConverter classes
      */
-    protected Map<Class,Class<? extends TypeConverter>> getTypeConverters() {
+    protected Map<Class<?>,Class<? extends TypeConverter<?>>> getTypeConverters() {
         return this.converters;
     }
 
@@ -91,7 +91,7 @@ public class DefaultTypeConverterFactory implements TypeConverterFactory {
      * @param targetType the type for which the converter will handle conversions
      * @param converterClass the implementation class that will handle the conversions
      */
-    protected void add(Class targetType, Class<? extends TypeConverter> converterClass) {
+    protected void add(Class<?> targetType, Class<? extends TypeConverter<?>> converterClass) {
         this.converters.put(targetType, converterClass);
     }
 
@@ -106,9 +106,10 @@ public class DefaultTypeConverterFactory implements TypeConverterFactory {
      * @return an instance of a TypeConverter which will convert Strings to the desired type
      * @throws Exception if the TypeConverter cannot be instantiated
      */
-    public TypeConverter getTypeConverter(Class forType, Locale locale) throws Exception {
+    @SuppressWarnings("unchecked")
+	public TypeConverter getTypeConverter(Class forType, Locale locale) throws Exception {
         // First take a look in our map of Converters for one registered for this type.
-        Class<? extends TypeConverter> clazz = this.converters.get(forType);
+        Class<? extends TypeConverter<?>> clazz = this.converters.get(forType);
 
         if (clazz != null) {
             return getInstance(clazz, locale );
@@ -129,10 +130,11 @@ public class DefaultTypeConverterFactory implements TypeConverterFactory {
      * @return an instance of the TypeConverter specified
      * @throws Exception if there is a problem instantiating the TypeConverter
      */
-    public TypeConverter getInstance(Class<? extends TypeConverter> clazz, Locale locale)
+    @SuppressWarnings("unchecked")
+	public TypeConverter getInstance(Class<? extends TypeConverter> clazz, Locale locale)
     throws Exception {
         // TODO: add thread local caching of converter classes
-        TypeConverter converter = clazz.newInstance();
+        TypeConverter<?> converter = clazz.newInstance();
         converter.setLocale(locale);
         return converter;
     }

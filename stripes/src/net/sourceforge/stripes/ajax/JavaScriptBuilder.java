@@ -185,7 +185,7 @@ public class JavaScriptBuilder {
     public boolean isScalarType(Object in) {
         if (in == null) return true; // Though not strictly scalar, null can be treated as such
 
-        Class type = in.getClass();
+        Class<? extends Object> type = in.getClass();
         return simpleTypes.contains(type)
             || Number.class.isAssignableFrom(type)
             || String.class.isAssignableFrom(type)
@@ -200,7 +200,7 @@ public class JavaScriptBuilder {
     public String getScalarAsString(Object in) {
         if (in == null) return "null";
 
-        Class type = in.getClass();
+        Class<? extends Object> type = in.getClass();
 
         if (String.class.isAssignableFrom(type)) {
             return quote((String) in);
@@ -299,13 +299,13 @@ public class JavaScriptBuilder {
             this.visitedIdentities.add(systemId);
 
             if (Collection.class.isAssignableFrom(in.getClass())) {
-                buildCollectionNode(targetName, (Collection) in);
+                buildCollectionNode(targetName, (Collection<?>) in);
             }
             else if (in.getClass().isArray()) {
                 buildArrayNode(targetName, in);
             }
             else if (Map.class.isAssignableFrom(in.getClass())) {
-                buildMapNode(targetName, (Map) in);
+                buildMapNode(targetName, (Map<?, ?>) in);
             }
             else {
                 buildObjectNode(targetName, in);
@@ -364,7 +364,7 @@ public class JavaScriptBuilder {
 
         // Do something a little extra for enums
         if (Enum.class.isAssignableFrom(in.getClass())) {
-            Enum e = (Enum) in;
+            Enum<?> e = (Enum<?>) in;
 
             if (out.length() > 1) { out.append(", "); }
             out.append("ordinal:").append( getScalarAsString(e.ordinal()) );
@@ -448,7 +448,7 @@ public class JavaScriptBuilder {
      * Builds an object node that is of type collection.  Simply converts the collection
      * to an array, and delegates to buildArrayNode().
      */
-    void buildCollectionNode(String targetName, Collection in) throws Exception {
+    void buildCollectionNode(String targetName, Collection<?> in) throws Exception {
         buildArrayNode(targetName, in.toArray());
     }
 }

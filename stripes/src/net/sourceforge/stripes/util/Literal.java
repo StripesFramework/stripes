@@ -73,7 +73,7 @@ public class Literal {
     }
 
     /** Returns a new SortedSet instance containing the supplied elements. */
-    public static <T extends Comparable> SortedSet<T> sortedSet(T... elements) {
+    public static <T extends Comparable<?>> SortedSet<T> sortedSet(T... elements) {
         SortedSet<T> set = new TreeSet<T>();
         Collections.addAll(set, elements);
         return set;

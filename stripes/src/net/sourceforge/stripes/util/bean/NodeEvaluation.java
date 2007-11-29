@@ -28,7 +28,7 @@ public class NodeEvaluation {
     private Node node;
     private NodeType type;
     private Type valueType;
-    private Class keyType;
+    private Class<?> keyType;
     private PropertyExpressionEvaluation expressionEvaluation;
     private NodeEvaluation next, previous;
 
@@ -71,10 +71,10 @@ public class NodeEvaluation {
      *
      * @return a Class object or null
      */
-    public Class getKeyType() { return keyType; }
+    public Class<?> getKeyType() { return keyType; }
 
     /** Gets the class object which represents the key type for this node if applicable. */
-    public void setKeyType(Class keyType) { this.keyType = keyType; }
+    public void setKeyType(Class<?> keyType) { this.keyType = keyType; }
 
     /** Gets the next NodeEvaluation in the chain, or null if this is the terminal node. */
     public NodeEvaluation getNext() { return next; }

@@ -110,7 +110,7 @@ public class InputHiddenTag extends InputTagSupport implements BodyTag {
             }
         }
         else if (valueOrValues instanceof Collection) {
-            for (Object value : (Collection) valueOrValues) {
+            for (Object value : (Collection<?>) valueOrValues) {
                 getAttributes().put("value", format(value));
                 writeSingletonTag(getPageContext().getOut(), "input");
             }

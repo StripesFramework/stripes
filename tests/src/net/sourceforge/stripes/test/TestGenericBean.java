@@ -1,9 +1,5 @@
 package net.sourceforge.stripes.test;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 /**
  * A JavaBean that is a generic type.
  *

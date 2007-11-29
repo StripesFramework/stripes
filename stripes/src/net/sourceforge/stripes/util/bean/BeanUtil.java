@@ -38,7 +38,7 @@ public class BeanUtil {
      * @throws EvaluationException if the expression is valid, but cannot be evaluated against
      *         this bean
      */
-    public static Class getPropertyType(String expression, Object bean)
+    public static Class<?> getPropertyType(String expression, Object bean)
             throws ParseException, EvaluationException {
 
         return getEvaluation(expression, bean).getType();

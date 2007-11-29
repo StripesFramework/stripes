@@ -98,9 +98,9 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
      * @param clazz the ActionBean subclasses (or parent thereof) in question
      * @param fieldValidations a map of fieldname->ValidationMetadata in which to store validations
      */
-    protected void processClassAnnotations(Class clazz,
+    protected void processClassAnnotations(Class<?> clazz,
             Map<String, ValidationMetadata> fieldValidations) {
-        Class superclass = clazz.getSuperclass();
+        Class<?> superclass = clazz.getSuperclass();
         if (superclass != null) {
             processClassAnnotations(superclass, fieldValidations);
         }
@@ -214,8 +214,8 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
                             name.getStrippedName());
                     PropertyExpressionEvaluation eval = new PropertyExpressionEvaluation(
                             PropertyExpression.getExpression(pname), bean);
-                    Class type = eval.getType();
-                    Class scalarType = eval.getScalarType();
+                    Class<?> type = eval.getType();
+                    Class<?> scalarType = eval.getScalarType();
 
                     // Check to see if binding into this expression is permitted
                     if (!isBindingAllowed(eval))
@@ -484,7 +484,7 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
      * @param type the declared type of the property on the ActionBean
      * @throws ExpressionException if the value cannot be manipulated for any reason
      */
-    protected void bindNullValue(ActionBean bean, String property, Class type)
+    protected void bindNullValue(ActionBean bean, String property, Class<?> type)
             throws ExpressionException {
         BeanUtil.setPropertyToNull(property, bean);
     }

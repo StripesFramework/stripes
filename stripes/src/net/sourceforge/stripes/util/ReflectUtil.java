@@ -48,8 +48,8 @@ import java.beans.IntrospectionException;
  */
 public class ReflectUtil {
     /** A cache of property descriptors by class and property name */
-    private static Map<Class, Map<String, PropertyDescriptor>> propertyDescriptors =
-            new ConcurrentHashMap<Class, Map<String, PropertyDescriptor>>();
+    private static Map<Class<?>, Map<String, PropertyDescriptor>> propertyDescriptors =
+            new ConcurrentHashMap<Class<?>, Map<String, PropertyDescriptor>>();
 
     /** Static helper class, shouldn't be constructed. */
     private ReflectUtil() {}
@@ -57,15 +57,15 @@ public class ReflectUtil {
     /**
      * Holds a map of commonly used interface types (mostly collections) to a class that
      * implements the interface and will, by default, be instantiated when an instance
-     * of the iterface is needed.
+     * of the interface is needed.
      */
-    protected static final Map<Class,Class> interfaceImplementations = new HashMap<Class,Class>();
+    protected static final Map<Class<?>,Class<?>> interfaceImplementations = new HashMap<Class<?>,Class<?>>();
 
     /**
      * Holds a map of primitive type to the default value for that primitive type.  Isn't it
      * odd that there's no way to get this programmatically from the Class objects?
      */
-    protected static final Map<Class,Object> primitiveDefaults = new HashMap<Class,Object>();
+    protected static final Map<Class<?>,Object> primitiveDefaults = new HashMap<Class<?>,Object>();
 
     static {
         interfaceImplementations.put(Collection.class, ArrayList.class);
@@ -101,13 +101,13 @@ public class ReflectUtil {
      * @return a Class object representing the implementing type, or null if one is
      *         not found
      */
-    public static Class getImplementingClass(Class iface) {
+    public static Class<?> getImplementingClass(Class<?> iface) {
         return interfaceImplementations.get(iface);
     }
 
     /**
      * Attempts to determine an implementing class for the interface provided and instantiate
-     * it using a default constructror.
+     * it using a default constructor.
      *
      * @param interfaceType an interface (or abstract class) to make an instance of
      * @return an instance of the interface type supplied
@@ -146,7 +146,8 @@ public class ReflectUtil {
      * @return the Class object representing the class
      * @throws ClassNotFoundException if the class cannot be loaded
      */
-    public static Class findClass(String name) throws ClassNotFoundException {
+    @SuppressWarnings("unchecked") // this allows us to assign without casting
+	public static Class findClass(String name) throws ClassNotFoundException {
         return Thread.currentThread().getContextClassLoader().loadClass(name);
     }
 
@@ -288,7 +289,7 @@ public class ReflectUtil {
      * @param property the String name of the property to look for
      * @return the PropertyDescriptor or null if none is found with a matching name
      */
-    public static PropertyDescriptor getPropertyDescriptor(Class clazz, String property) {
+    public static PropertyDescriptor getPropertyDescriptor(Class<?> clazz, String property) {
         Map<String,PropertyDescriptor> pds = propertyDescriptors.get(clazz);
         if (pds == null) {
             try {
@@ -379,7 +380,7 @@ public class ReflectUtil {
      * @param property the name of the property/field to look for
      * @return the Field object or null if no matching field exists
      */
-    public static Field getField(Class clazz, String property) {
+    public static Field getField(Class<?> clazz, String property) {
         try {
             Field field = clazz.getField(property);
             return !Modifier.isStatic(field.getModifiers()) ? field : null;
@@ -396,7 +397,7 @@ public class ReflectUtil {
      * @param clazz the class for which to find the default value
      * @return null for non-primitive types and an appropriate wrapper instance for primitves
      */
-    public static Object getDefaultValue(Class clazz) {
+    public static Object getDefaultValue(Class<?> clazz) {
         if (clazz.isPrimitive()) {
             return primitiveDefaults.get(clazz);
         }

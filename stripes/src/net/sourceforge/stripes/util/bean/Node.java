@@ -40,7 +40,7 @@ public class Node {
      * type determined for the text in this node, not the type of the property/sub-property
      * represented by this node in an evaluation against a specific bean.
      */
-    public Class getExpresssionNodeType() {
+    public Class<? extends Object> getExpresssionNodeType() {
         return typedValue.getClass();
     }
 

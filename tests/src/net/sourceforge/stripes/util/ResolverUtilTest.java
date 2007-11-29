@@ -22,9 +22,9 @@ public class ResolverUtilTest {
     public void testSimpleFind() throws Exception {
         // Because the tests package depends on stripes, it's safe to assume that
         // there will be some TypeConverter subclasses in the classpath
-        ResolverUtil<TypeConverter> resolver = new ResolverUtil<TypeConverter>();
+        ResolverUtil<TypeConverter<?>> resolver = new ResolverUtil<TypeConverter<?>>();
         resolver.findImplementations(TypeConverter.class, "net");
-        Set<Class<? extends TypeConverter>> impls = resolver.getClasses();
+        Set<Class<? extends TypeConverter<?>>> impls = resolver.getClasses();
 
         // Check on a few random converters
         Assert.assertTrue(impls.contains(BooleanTypeConverter.class),
@@ -42,9 +42,9 @@ public class ResolverUtilTest {
     public void testMoreSpecificFind() throws Exception {
         // Because the tests package depends on stripes, it's safe to assume that
         // there will be some TypeConverter subclasses in the classpath
-        ResolverUtil<TypeConverter> resolver = new ResolverUtil<TypeConverter>();
+        ResolverUtil<TypeConverter<?>> resolver = new ResolverUtil<TypeConverter<?>>();
         resolver.findImplementations(TypeConverter.class, "net.sourceforge.stripes.validation");
-        Set<Class<? extends TypeConverter>> impls = resolver.getClasses();
+        Set<Class<? extends TypeConverter<?>>> impls = resolver.getClasses();
 
         // Check on a few random converters
         Assert.assertTrue(impls.contains(BooleanTypeConverter.class),

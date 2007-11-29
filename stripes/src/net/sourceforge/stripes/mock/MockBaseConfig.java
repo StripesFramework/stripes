@@ -53,7 +53,7 @@ public class MockBaseConfig {
     }
 
     /** Gets an enumeration of all the init parameter names present. */
-    public Enumeration getInitParameterNames() {
+    public Enumeration<String> getInitParameterNames() {
         return Collections.enumeration( this.initParameters.keySet() );
     }
 }

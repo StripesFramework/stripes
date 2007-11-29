@@ -187,7 +187,7 @@ public class DelegatingExceptionHandler implements ExceptionHandler {
                        HttpServletResponse response) throws ServletException, IOException {
         try {
             Throwable actual = unwrap(throwable);
-            Class type = actual.getClass();
+            Class<?> type = actual.getClass();
             HandlerProxy proxy = null;
 
             while (type != null && proxy == null) {
