@@ -71,7 +71,7 @@ public class MockHttpSession implements HttpSession {
     public Object getValue(String key) { return getAttribute(key); }
 
     /** Returns an enumeration of all the attribute names in the session. */
-    public Enumeration getAttributeNames() {
+    public Enumeration<String> getAttributeNames() {
         return Collections.enumeration(this.attributes.keySet());
     }
 

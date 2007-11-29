@@ -204,7 +204,7 @@ public class UrlBuilder {
         for (Object v : values) {
             // Special case: recurse for nested collections and arrays!
             if (v instanceof Collection) {
-                addParameter(name, ((Collection) v).toArray());
+                addParameter(name, ((Collection<?>) v).toArray());
             }
             else if (v != null && v.getClass().isArray()) {
                 addParameter(name, CollectionUtil.asObjectArray(v));
@@ -237,7 +237,7 @@ public class UrlBuilder {
                 addParameter(name, CollectionUtil.asObjectArray(valueOrValues));
             }
             else if (valueOrValues instanceof Collection) {
-                addParameter(name, (Collection) valueOrValues);
+                addParameter(name, (Collection<?>) valueOrValues);
             }
             else {
                 addParameter(name, valueOrValues);
@@ -248,7 +248,7 @@ public class UrlBuilder {
     /**
      * Gets the anchor, if any, that will be appended to the URL. E.g. if this method
      * returns 'input' then the URL will be terminated with '#input' in order to instruct
-     * the browser to navigate to the HTML anchor callled 'input' when accessing the URL.
+     * the browser to navigate to the HTML anchor called 'input' when accessing the URL.
      *
      * @return the anchor (if any) without the leading pound sign, or null
      */
@@ -319,7 +319,8 @@ public class UrlBuilder {
      * @param value the object to be formatted
      * @return a formatter, if one can be found; null otherwise
      */
-    protected Formatter getFormatter(Object value) {
+    @SuppressWarnings("unchecked")
+	protected Formatter getFormatter(Object value) {
         Configuration configuration = StripesFilter.getConfiguration();
         if (configuration == null)
             return null;

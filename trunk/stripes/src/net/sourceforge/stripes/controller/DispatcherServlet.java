@@ -315,7 +315,7 @@ public class DispatcherServlet extends HttpServlet {
      * @param request the current HttpServletRequest
      */
     protected void restoreActionBean(HttpServletRequest request) {
-        Stack stack = getActionBeanStack(request, false);
+        Stack<ActionBean> stack = getActionBeanStack(request, false);
         if (stack != null && !stack.empty()) {
             request.setAttribute(StripesConstants.REQ_ATTR_ACTION_BEAN, stack.pop());
         }

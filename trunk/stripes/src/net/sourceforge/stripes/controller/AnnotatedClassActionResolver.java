@@ -177,9 +177,9 @@ public class AnnotatedClassActionResolver implements ActionResolver {
      * working it's way down again, to find method annotations and ensure that child
      * class annotations take precedence.
      */
-    protected void processMethods(Class clazz, Map<String,Method> classMappings) {
+    protected void processMethods(Class<?> clazz, Map<String,Method> classMappings) {
         // Do the super class first if there is one
-        Class superclass = clazz.getSuperclass();
+        Class<?> superclass = clazz.getSuperclass();
         if (superclass != null) {
             processMethods(superclass, classMappings);
         }

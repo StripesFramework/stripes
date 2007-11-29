@@ -62,7 +62,7 @@ public class FormTag extends HtmlTagSupport implements BodyTag, TryCatchFinally,
     private UrlBuilder urlBuilder;
 
     /** A map of field name to field type for all fields registered with the form. */
-    private Map<String,Class> fieldsPresent = new HashMap<String,Class>();
+    private Map<String,Class<?>> fieldsPresent = new HashMap<String,Class<?>>();
 
     /**
      * Sets the action for the form.  If the form action begins with a slash, and does not
@@ -283,8 +283,8 @@ public class FormTag extends HtmlTagSupport implements BodyTag, TryCatchFinally,
             namesToInclude.addAll(this.fieldsPresent.keySet());
         }
         else {
-            for (Map.Entry<String,Class> entry : this.fieldsPresent.entrySet()) {
-                Class fieldClass = entry.getValue();
+            for (Map.Entry<String,Class<?>> entry : this.fieldsPresent.entrySet()) {
+                Class<?> fieldClass = entry.getValue();
                 if (InputSelectTag.class.isAssignableFrom(fieldClass)
                         || InputCheckBoxTag.class.isAssignableFrom(fieldClass)) {
                     namesToInclude.add(entry.getKey());

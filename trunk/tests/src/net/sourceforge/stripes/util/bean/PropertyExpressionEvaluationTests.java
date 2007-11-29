@@ -18,7 +18,7 @@ public class PropertyExpressionEvaluationTests {
     public void testGetBasicPropertyType() {
         PropertyExpression expr = PropertyExpression.getExpression("singleLong");
         PropertyExpressionEvaluation eval = new PropertyExpressionEvaluation(expr, new TestActionBean());
-        Class type = eval.getType();
+        Class<?> type = eval.getType();
         Assert.assertEquals(type, Long.class);
     }
 
@@ -26,7 +26,7 @@ public class PropertyExpressionEvaluationTests {
     public void testGetPropertyTypeWithPropertyAccess() {
         PropertyExpression expr = PropertyExpression.getExpression("publicLong");
         PropertyExpressionEvaluation eval = new PropertyExpressionEvaluation(expr, new TestActionBean());
-        Class type = eval.getType();
+        Class<?> type = eval.getType();
         Assert.assertEquals(type, Long.class);
     }
 
@@ -34,7 +34,7 @@ public class PropertyExpressionEvaluationTests {
     public void testGetPropertyTypeForListOfLongs() {
         PropertyExpression expr = PropertyExpression.getExpression("listOfLongs[17]");
         PropertyExpressionEvaluation eval = new PropertyExpressionEvaluation(expr, new TestActionBean());
-        Class type = eval.getType();
+        Class<?> type = eval.getType();
         Assert.assertEquals(type, Long.class);
     }
 
@@ -42,7 +42,7 @@ public class PropertyExpressionEvaluationTests {
     public void testGetPropertyTypeForReadThroughList() {
         PropertyExpression expr = PropertyExpression.getExpression("listOfBeans[3].enumProperty");
         PropertyExpressionEvaluation eval = new PropertyExpressionEvaluation(expr, new TestActionBean());
-        Class type = eval.getType();
+        Class<?> type = eval.getType();
         Assert.assertEquals(type, TestEnum.class);
     }
 
@@ -50,7 +50,7 @@ public class PropertyExpressionEvaluationTests {
     public void testGetPropertyTypeWithBackToBackMapIndexing() {
         PropertyExpression expr = PropertyExpression.getExpression("nestedMap['foo']['bar']");
         PropertyExpressionEvaluation eval = new PropertyExpressionEvaluation(expr, new TestBean());
-        Class type = eval.getType();
+        Class<?> type = eval.getType();
         Assert.assertEquals(type, Boolean.class);
     }
 
@@ -58,7 +58,7 @@ public class PropertyExpressionEvaluationTests {
     public void testGetPropertyTypeWithBackToBackListArrayIndexing() {
         PropertyExpression expr = PropertyExpression.getExpression("genericArray[1][0]");
         PropertyExpressionEvaluation eval = new PropertyExpressionEvaluation(expr, new TestBean());
-        Class type = eval.getType();
+        Class<?> type = eval.getType();
         Assert.assertEquals(type, Float.class);
     }
 

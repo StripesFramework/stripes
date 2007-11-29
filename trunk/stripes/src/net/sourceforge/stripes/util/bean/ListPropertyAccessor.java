@@ -18,13 +18,13 @@ import java.util.List;
 
 /**
  * Implementation of {@link PropertyAccessor} for interacting with Lists. Automatically
- * expands the list to make the supplied list index valid for set operations, and supresses
+ * expands the list to make the supplied list index valid for set operations, and suppresses
  * IndexOutOfBoundsExceptions during get operations.
  * 
  * @author Tim Fennell
  * @since Stripes 1.4
  */
-public class ListPropertyAccessor implements PropertyAccessor<List> {
+public class ListPropertyAccessor implements PropertyAccessor<List<?>> {
     /**
      * Fetches the value stored at the index specified by the current node. If the index is
      * out of bounds, will return null.
@@ -33,7 +33,7 @@ public class ListPropertyAccessor implements PropertyAccessor<List> {
      * @param list the target list
      * @return the corresponding item in the list, or null if the list is not long enough
      */
-    public Object getValue(NodeEvaluation evaluation, List list) {
+    public Object getValue(NodeEvaluation evaluation, List<?> list) {
         int index = getKey(evaluation);
         try { return list.get(index); }
         catch (IndexOutOfBoundsException ioobe) { return null; }
@@ -42,7 +42,7 @@ public class ListPropertyAccessor implements PropertyAccessor<List> {
     /**
      * Sets the value at the index specified by the current node to the supplied value. If
      * the list is not long enough it is expanded (filling with nulls) until it is large
-     * enough to accomodate the supplied index.
+     * enough to accommodate the supplied index.
      *
      * @param evaluation the current node evaluation
      * @param list the target list

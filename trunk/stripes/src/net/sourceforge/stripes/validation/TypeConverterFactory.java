@@ -29,7 +29,7 @@ import java.util.Locale;
  */
 public interface TypeConverterFactory extends ConfigurableComponent {
     /**
-     * Gets the applicable type converter for the class passed in.  The TypeConverter retuned must
+     * Gets the applicable type converter for the class passed in.  The TypeConverter returned must
      * create objects of the type supplied, or possibly a suitable derived type.
      *
      * @param forType the type/Class that is the target type of the conversion.  It is assumed that
@@ -39,7 +39,8 @@ public interface TypeConverterFactory extends ConfigurableComponent {
      * @return an instance of a TypeConverter which will convert Strings to the desired type
      * @throws Exception if the TypeConverter cannot be instantiated
      */
-    TypeConverter getTypeConverter(Class forType, Locale locale) throws Exception;
+    @SuppressWarnings("unchecked")
+	TypeConverter getTypeConverter(Class forType, Locale locale) throws Exception;
 
     /**
      * Gets an instance of the TypeConverter class specified.
@@ -49,5 +50,6 @@ public interface TypeConverterFactory extends ConfigurableComponent {
      * @return an instance of the TypeConverter specified
      * @throws Exception if the TypeConverter cannot be instantiated
      */
-    TypeConverter getInstance(Class<? extends TypeConverter> clazz, Locale locale) throws Exception;
+    @SuppressWarnings("unchecked")
+	TypeConverter getInstance(Class<? extends TypeConverter> clazz, Locale locale) throws Exception;
 }

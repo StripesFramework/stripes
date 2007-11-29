@@ -30,8 +30,8 @@ import net.sourceforge.stripes.util.Log;
  */
 public class DefaultFormatterFactory implements FormatterFactory {
     /** A rather generic-heavy Map that maps target type to Formatter. */
-    private Map<Class, Class<? extends Formatter>> formatters =
-        new HashMap<Class, Class<? extends Formatter>>();
+    private Map<Class<?>, Class<? extends Formatter<?>>> formatters =
+        new HashMap<Class<?>, Class<? extends Formatter<?>>>();
 
     /** Stores a reference to the Configuration passed in at initialization time. */
     private Configuration configuration;
@@ -52,7 +52,7 @@ public class DefaultFormatterFactory implements FormatterFactory {
      *
      * @return the Map of Formatter classes
      */
-    protected Map<Class,Class<? extends Formatter>> getFormatters() {
+    protected Map<Class<?>,Class<? extends Formatter<?>>> getFormatters() {
         return this.formatters;
     }
 
@@ -63,7 +63,7 @@ public class DefaultFormatterFactory implements FormatterFactory {
      * @param targetType the type for which the formatter will handle formatting
      * @param formatterClass the implementation class that will handle the formatting
      */
-    protected void add(Class targetType, Class<? extends Formatter> formatterClass) {
+    protected void add(Class<?> targetType, Class<? extends Formatter<?>> formatterClass) {
         this.formatters.put(targetType, formatterClass);
     }
 
@@ -78,12 +78,12 @@ public class DefaultFormatterFactory implements FormatterFactory {
      * @param formatPattern a named format string, or a format pattern
      * @return Formatter an instance of a Formatter, or null
      */
-    public Formatter getFormatter(Class clazz, Locale locale, String formatType, String formatPattern) {
-        Formatter formatter = null;
+    public Formatter<?> getFormatter(Class<?> clazz, Locale locale, String formatType, String formatPattern) {
+        Formatter<?> formatter = null;
 
         // Figure out if we have a type we can format
         if (formatters.containsKey(clazz)) {
-            Class<? extends Formatter> formatterClass = formatters.get(clazz);
+            Class<? extends Formatter<?>> formatterClass = formatters.get(clazz);
             try {
                 return getInstance(formatterClass, formatType, formatPattern, locale);
             }
@@ -125,11 +125,11 @@ public class DefaultFormatterFactory implements FormatterFactory {
      * @return an instance of the Formatter specified
      * @throws Exception if there is a problem instantiating the Formatter
      */
-    public Formatter getInstance(Class<? extends Formatter> clazz,
+    public Formatter<?> getInstance(Class<? extends Formatter<?>> clazz,
             String formatType, String formatPattern, Locale locale)
             throws Exception {
         // TODO: add thread local caching of formatter classes
-        Formatter formatter = clazz.newInstance();
+        Formatter<?> formatter = clazz.newInstance();
         formatter.setFormatType(formatType);
         formatter.setFormatPattern(formatPattern);
         formatter.setLocale(locale);

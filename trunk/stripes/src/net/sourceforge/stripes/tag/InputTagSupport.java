@@ -104,7 +104,7 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
             }
         }
         else if (unknown != null && unknown instanceof Collection) {
-            Collection collection = (Collection) unknown;
+            Collection<?> collection = (Collection<?>) unknown;
             if (collection.size() > 0) {
                 returnValue = collection.iterator().next();
             }
@@ -200,7 +200,7 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
                 }
             }
             else if (selected instanceof Collection) {
-                Collection selectedIf = (Collection) selected;
+                Collection<?> selectedIf = (Collection<?>) selected;
                 for (Object item : selectedIf) {
                     if ( (format(item).equals(stringValue)) ) {
                         return true;

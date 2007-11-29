@@ -128,7 +128,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
     }
 
     /** Returns an enumeration with single value of the named header, or an empty enum if no value. */
-    public Enumeration getHeaders(String name) {
+    public Enumeration<String> getHeaders(String name) {
         String header = getHeader(name);
         Collection<String> values = new ArrayList<String>();
         if (header != null) {
@@ -138,7 +138,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
     }
 
     /** Returns an enumeration containing all the names of headers supplied. */
-    public Enumeration getHeaderNames() { return Collections.enumeration(headers.keySet()); }
+    public Enumeration<String> getHeaderNames() { return Collections.enumeration(headers.keySet()); }
 
     /** Gets the named header as an int. Must have been set as an Integer with addHeader(). */
     public int getIntHeader(String name) {
@@ -243,7 +243,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
     public Object getAttribute(String key) { return this.attributes.get(key); }
 
     /** Gets an enumeration of all request attribute names. */
-    public Enumeration getAttributeNames() {
+    public Enumeration<String> getAttributeNames() {
         return Collections.enumeration(this.attributes.keySet());
     }
 
@@ -273,7 +273,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
     }
 
     /** Gets an enumeration containing all the parameter names present. */
-    public Enumeration getParameterNames() {
+    public Enumeration<String> getParameterNames() {
         return Collections.enumeration(this.parameters.keySet());
     }
 

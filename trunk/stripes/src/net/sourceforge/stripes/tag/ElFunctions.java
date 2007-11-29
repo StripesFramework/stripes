@@ -25,7 +25,7 @@ package net.sourceforge.stripes.tag;
 public class ElFunctions {
 
     /** Gets the name of the supplied enumerated value. */
-    public static String name(Enum e) {
+    public static String name(Enum<?> e) {
         return e.name();
     }
 }

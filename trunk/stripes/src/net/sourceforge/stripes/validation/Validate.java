@@ -116,6 +116,7 @@ public @interface Validate {
      * is specified (which should be very common) then the default converter for the target type of
      * object will be used.
      */
-    Class<? extends TypeConverter> converter() default TypeConverter.class;
+    @SuppressWarnings("unchecked")
+	Class<? extends TypeConverter> converter() default TypeConverter.class;
 
 }

@@ -71,7 +71,7 @@ public class ResolverUtil<T> {
          * Will be called repeatedly with candidate classes. Must return True if a class
          * is to be included in the results, false otherwise.
          */
-        boolean matches(Class type);
+        boolean matches(Class<?> type);
     }
 
     /**
@@ -79,10 +79,10 @@ public class ResolverUtil<T> {
      * that this test will match the parent type itself if it is presented for matching.
      */
     public static class IsA implements Test {
-        private Class parent;
+        private Class<?> parent;
 
         /** Constructs an IsA test using the supplied Class as the parent class/interface. */
-        public IsA(Class parentType) { this.parent = parentType; }
+        public IsA(Class<?> parentType) { this.parent = parentType; }
 
         /** Returns true if type is assignable to the parent type supplied in the constructor. */
         @SuppressWarnings("unchecked")
@@ -162,7 +162,7 @@ public class ResolverUtil<T> {
      * @param parent the class of interface to find subclasses or implementations of
      * @param packageNames one or more package names to scan (including subpackages) for classes
      */
-    public void findImplementations(Class parent, String... packageNames) {
+    public void findImplementations(Class<?> parent, String... packageNames) {
         if (packageNames == null) return;
 
         Test test = new IsA(parent);

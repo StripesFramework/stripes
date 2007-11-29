@@ -37,7 +37,7 @@ public final class Log {
      * @param clazz the Class which is going to be doing the logging
      * @return a Log instance with which to log
      */
-    public static Log getInstance(Class clazz) {
+    public static Log getInstance(Class<?> clazz) {
         return new Log( LogFactory.getLog(clazz) );
     }
 

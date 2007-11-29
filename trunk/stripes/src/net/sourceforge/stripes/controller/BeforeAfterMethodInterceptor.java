@@ -143,7 +143,7 @@ public class BeforeAfterMethodInterceptor implements Interceptor {
      */
     protected Resolution invoke(ActionBean bean, Method m, LifecycleStage stage,
                                 Class<? extends Annotation> when) throws Exception {
-        Class beanClass = bean.getClass();
+        Class<? extends ActionBean> beanClass = bean.getClass();
         Object retval = null;
 
         log.debug("Calling @Before method '", m.getName(), "' at LifecycleStage '",

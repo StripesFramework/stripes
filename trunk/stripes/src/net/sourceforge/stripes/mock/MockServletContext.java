@@ -83,7 +83,7 @@ public class MockServletContext implements ServletContext {
     public String getMimeType(String file) { return null; }
 
     /** Always returns null (i.e. there are no resources under this path). */
-    public Set getResourcePaths(String path) {
+    public Set<?> getResourcePaths(String path) {
         return null;
     }
 
@@ -115,12 +115,12 @@ public class MockServletContext implements ServletContext {
     public Servlet getServlet(String string) throws ServletException { return null; }
 
     /** Deprecated method always returns an empty enumeration. */
-    public Enumeration getServlets() {
+    public Enumeration<?> getServlets() {
         return Collections.enumeration( Collections.emptySet() );
     }
 
     /** Deprecated method always returns an empty enumeration. */
-    public Enumeration getServletNames() {
+    public Enumeration<?> getServletNames() {
         return Collections.enumeration( Collections.emptySet() );
     }
 
@@ -164,7 +164,7 @@ public class MockServletContext implements ServletContext {
     }
 
     /** Returns an enumeration of all the initialization parameters in the context. */
-    public Enumeration getInitParameterNames() {
+    public Enumeration<String> getInitParameterNames() {
         return Collections.enumeration( this.initParameters.keySet() );
     }
 
@@ -174,7 +174,7 @@ public class MockServletContext implements ServletContext {
     }
 
     /** Returns an enumeration of all the names of attributes in the context. */
-    public Enumeration getAttributeNames() {
+    public Enumeration<String> getAttributeNames() {
         return Collections.enumeration( this.attributes.keySet() );
     }
 

@@ -41,7 +41,8 @@ public class ValidationMetadata {
     private Double minvalue, maxvalue;
     private Pattern mask;
     private String expression;
-    Class<? extends TypeConverter> converter;
+    @SuppressWarnings("unchecked")
+	Class<? extends TypeConverter> converter;
 
     /**
      * Constructs a ValidationMetadata object for the specified property. Further constraints
@@ -154,13 +155,15 @@ public class ValidationMetadata {
     public Pattern mask() { return this.mask; }
 
     /** Sets the overridden TypeConveter to use to convert values. */
-    public ValidationMetadata converter(Class<? extends TypeConverter> converter) {
+	@SuppressWarnings("unchecked")
+	public ValidationMetadata converter(Class<? extends TypeConverter> converter) {
         this.converter = converter;
         return this;
     }
 
     /** Returns the overridden TypeConverter if there is one, or null. */
-    public Class<? extends TypeConverter> converter() { return this.converter; }
+    @SuppressWarnings("unchecked")
+	public Class<? extends TypeConverter> converter() { return this.converter; }
 
     /** Sets the expression that should be used to validate values. */
     public ValidationMetadata expression(String expression) {

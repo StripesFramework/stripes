@@ -38,7 +38,8 @@ public class TestActionBean implements ActionBean {
     private TestBean testBean;
     private String singleString;
     private Long singleLong;
-    private List nakedListOfLongs;
+    @SuppressWarnings("unchecked")
+	private List nakedListOfLongs;
     private int[] intArray;
     private String setOnlyString;
     public Long publicLong;
@@ -78,9 +79,11 @@ public class TestActionBean implements ActionBean {
     public void setSingleLong(Long singleLong) { this.singleLong = singleLong; }
 
     /** A non-generic list to make sure specifying the converter is used properly. */
-    @Validate(converter=LongTypeConverter.class)
+    @SuppressWarnings("unchecked")
+	@Validate(converter=LongTypeConverter.class)
     public List getNakedListOfLongs() { return nakedListOfLongs; }
-    public void setNakedListOfLongs(List nakedListOfLongs) { this.nakedListOfLongs = nakedListOfLongs; }
+    @SuppressWarnings("unchecked")
+	public void setNakedListOfLongs(List nakedListOfLongs) { this.nakedListOfLongs = nakedListOfLongs; }
 
     /** An array of primitive ints to test out Array binding. */
     public int[] getIntArray() { return intArray; }

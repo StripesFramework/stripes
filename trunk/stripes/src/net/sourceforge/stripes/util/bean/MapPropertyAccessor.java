@@ -29,12 +29,12 @@ import java.lang.reflect.Constructor;
 /**
  * Implementation of {@link PropertyAccessor} for interacting with Maps. Uses information
  * stored in the node evaluation to determine the correct type for the Map key and converts
- * the key using Stripes' type converion system.
+ * the key using Stripes' type conversion system.
  *
  * @author Tim Fennell
  * @since Stripes 1.4
  */
-public class MapPropertyAccessor implements PropertyAccessor<Map> {
+public class MapPropertyAccessor implements PropertyAccessor<Map<?,?>> {
     private static final Log log = Log.getInstance(MapPropertyAccessor.class);
 
     /**
@@ -43,7 +43,7 @@ public class MapPropertyAccessor implements PropertyAccessor<Map> {
      * @param map the target Map
      * @return the value stored in the map under the specified key
      */
-    public Object getValue(NodeEvaluation evaluation, Map map) {
+    public Object getValue(NodeEvaluation evaluation, Map<?,?> map) {
         Object key = getKey(evaluation);
         return map.get(key);
     }

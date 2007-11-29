@@ -33,7 +33,7 @@ public enum NodeType {
     /** Represents an item stored in a Java array. */
       ArrayEntry(new ArrayPropertyAccessor()   );
 
-    private PropertyAccessor propertyAccessor;
+    private PropertyAccessor<?> propertyAccessor;
 
     /**
      * Private constructor which allows each enum to specify the type of property accessor
@@ -41,7 +41,7 @@ public enum NodeType {
      *
      * @param accessor an instance of a PropertyAccessor applicable for this node type
      */
-    private NodeType(PropertyAccessor accessor) {
+    private NodeType(PropertyAccessor<?> accessor) {
         this.propertyAccessor = accessor;
     }
 
@@ -50,7 +50,8 @@ public enum NodeType {
      * of this type.
      * @return an instance of PropertyAccessor
      */
-    public PropertyAccessor getPropertyAccessor() {
+    @SuppressWarnings("unchecked")
+	public PropertyAccessor getPropertyAccessor() {
         return propertyAccessor;
     }
 }

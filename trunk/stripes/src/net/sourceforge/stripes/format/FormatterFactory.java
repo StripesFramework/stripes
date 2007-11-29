@@ -38,5 +38,5 @@ public interface FormatterFactory extends ConfigurableComponent {
      * @return Formatter an instance of a Formatter, or null if no Formatter is available for
      *         the type specified
      */
-    Formatter getFormatter(Class clazz, Locale locale, String formatType, String formatPattern);
+    Formatter<?> getFormatter(Class<?> clazz, Locale locale, String formatType, String formatPattern);
 }
