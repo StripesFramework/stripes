@@ -434,8 +434,13 @@ public class UrlBuilder {
                     break;
             }
         }
+
+        // always append trailing literal if one is present
         if (nextLiteral != null) {
             buf.append(nextLiteral);
+        }
+        else if (binding.getSuffix() != null) {
+            buf.append(binding.getSuffix());
         }
 
         return buf.toString();

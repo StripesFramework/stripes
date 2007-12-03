@@ -152,6 +152,12 @@ public class UrlBindingFactory {
         while (uri.charAt(length - 1) == '/')
             --length;
 
+        // check for literal suffix in prototype and ignore it if found
+        String suffix = prototype.getSuffix();
+        if (suffix != null && uri.endsWith(suffix)) {
+            length -= suffix.length();
+        }
+
         // extract the request parameters and add to new binding object
         ArrayList<Object> components = new ArrayList<Object>(prototype.getComponents().size());
         int index = prototype.getPath().length();
