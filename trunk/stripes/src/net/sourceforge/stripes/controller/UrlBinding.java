@@ -29,7 +29,7 @@ import net.sourceforge.stripes.action.ActionBean;
  */
 public class UrlBinding {
     protected Class<? extends ActionBean> beanType;
-    protected String path;
+    protected String path, suffix;
     protected List<Object> components;
     protected List<UrlBindingParameter> parameters;
 
@@ -50,6 +50,13 @@ public class UrlBinding {
         for (Object component : components) {
             if (component instanceof UrlBindingParameter) {
                 this.parameters.add((UrlBindingParameter) component);
+            }
+        }
+
+        if (this.parameters.size() > 0) {
+            Object last = this.components.get(this.components.size() - 1);
+            if (last instanceof String) {
+                this.suffix = (String) last;
             }
         }
     }
@@ -95,6 +102,14 @@ public class UrlBinding {
      */
     public String getPath() {
         return path;
+    }
+
+    /**
+     * If this binding includes one or more parameters and the last component is a {@link String},
+     * then this method will return that last component. Otherwise, it returns null.
+     */
+    public String getSuffix() {
+        return suffix;
     }
 
     @Override
