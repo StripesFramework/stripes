@@ -1820,7 +1820,7 @@
             Similar to the link tag except that the behaviour closely approximates the JSTL
             c:url tag. Generates a URL containing the necessary source-page and event
             parameters. If a 'var' attribute is specified, the generated URL will be written
-            to that variable, otherwise it will be written into the page.
+            to that variable, otherwise it will be written into the page. Like c:url the constructed url is not encoded.
         ]]></description>
         <display-name>url</display-name>
         <name>url</name>
