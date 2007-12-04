@@ -444,10 +444,14 @@ class MergedParameterMap implements Map<String, String[]> {
      * {@link #pushUriParameters(HttpServletRequest)}.
      */
     public void popUriParameters() {
-        if (this.uriParamStack.isEmpty())
+        if (this.uriParamStack.isEmpty()) {
             this.uriParams = null;
-        else
+            this.request = null;
+        }
+        else {
             this.uriParams = this.uriParamStack.pop();
+            this.request = this.requestStack.pop();
+        }
     }
 
     /**
