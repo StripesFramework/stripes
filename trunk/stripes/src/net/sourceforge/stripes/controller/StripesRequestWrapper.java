@@ -20,13 +20,13 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.Stack;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
@@ -40,7 +40,7 @@ import net.sourceforge.stripes.exception.StripesServletException;
  * HttpServletRequestWrapper that is used to make the file upload functionality transparent.
  * Every request handled by Stripes is wrapped.  Those containing multipart form file uploads
  * are parsed and treated differently, while normal requests are silently wrapped and all calls
- * are delgated to the real request.
+ * are delegated to the real request.
  *
  * @author Tim Fennell
  */
@@ -52,11 +52,8 @@ public class StripesRequestWrapper extends HttpServletRequestWrapper {
     /** The Locale that is going to be used to process the request. */
     private Locale locale;
 
-    /** Flag that indicates if parameters have been initialized. */
-    private boolean parametersInitialized;
-
     /** Local copy of the parameter map, into which URI-embedded parameters will be merged. */
-    private Map<String, String[]> parameterMap;
+    private MergedParameterMap parameterMap;
 
     /**
      * Looks for the StripesRequesetWrapper for the specific request and returns it. This is done
@@ -111,7 +108,7 @@ public class StripesRequestWrapper extends HttpServletRequestWrapper {
 
     /**
      * Responsible for constructing the MultipartWrapper object and setting it on to
-     * the instnace variable 'multipart'.
+     * the instance variable 'multipart'.
      *
      * @param request the HttpServletRequest to wrap
      *        this is not a file size limit, but a post size limit.
@@ -177,69 +174,30 @@ public class StripesRequestWrapper extends HttpServletRequestWrapper {
     @SuppressWarnings("unchecked")
     @Override
     public Map<String, String[]> getParameterMap() {
-        // lazy initialization
-        if (this.parametersInitialized) {
-            if (this.parameterMap == null)
-                return super.getParameterMap();
+        if (this.parameterMap == null) {
+            if (isMultipart())
+                this.parameterMap = new MergedParameterMap(this, this.multipart);
             else
-                return this.parameterMap;
+                this.parameterMap = new MergedParameterMap(this);
         }
 
-        if (isMultipart()) {
-            Map<String, String[]> params = new HashMap<String, String[]>();
-            Enumeration names = this.multipart.getParameterNames();
-
-            while (names.hasMoreElements()) {
-                String name = (String) names.nextElement();
-                params.put(name, this.multipart.getParameterValues(name));
-            }
-
-            this.parameterMap = mergeURIParameters(params);
-        }
-        else {
-            Map<String, String[]> params = mergeURIParameters(null);
-            if (params != null) {
-                this.parameterMap = new MergedParameterMap(this, params);
-            }
-        }
-
-        this.parametersInitialized = true;
-        return getParameterMap();
+        return this.parameterMap;
     }
 
-    /** Merges URI-embedded parameters into an existing parameter map. */
-    protected Map<String, String[]> mergeURIParameters(Map<String, String[]> params) {
-        UrlBinding binding = UrlBindingFactory.getInstance().getBinding(this);
-        if (binding != null && binding.getParameters().size() > 0) {
-            for (UrlBindingParameter p : binding.getParameters()) {
-                String name = p.getName();
-                if (name != null) {
-                    String value = p.getValue();
-                    if (UrlBindingParameter.PARAMETER_NAME_EVENT.equals(name)) {
-                        name = value;
-                        value = "";
-                    }
-                    if (name != null && value != null) {
-                        if (params == null) {
-                            params = new LinkedHashMap<String, String[]>();
-                        }
-                        String[] values = params.get(name);
-                        if (values == null) {
-                            values = new String[] { value };
-                        }
-                        else {
-                            String[] tmp = new String[values.length + 1];
-                            System.arraycopy(values, 0, tmp, 0, values.length);
-                            tmp[tmp.length - 1] = value;
-                            values = tmp;
-                        }
-                        params.put(name, values);
-                    }
-                }
-            }
-        }
-        
-        return params;
+    /**
+     * Extract new URI parameters from the URI of the given {@code request} and merge them with the
+     * previous URI parameters.
+     */
+    public void pushUriParameters(HttpServletRequestWrapper request) {
+        this.parameterMap.pushUriParameters(request);
+    }
+
+    /**
+     * Restore the URI parameters to the state they were in before the previous call to
+     * {@link #pushUriParameters(HttpServletRequest)}.
+     */
+    public void popUriParameters() {
+        this.parameterMap.popUriParameters();
     }
 
     /**
@@ -299,6 +257,12 @@ public class StripesRequestWrapper extends HttpServletRequestWrapper {
     }
 }
 
+/**
+ * A {@link Map} implementation that is used by {@link StripesRequestWrapper} to merge URI parameter
+ * values with request parameter values on the fly.
+ * 
+ * @author Ben Gunter
+ */
 class MergedParameterMap implements Map<String, String[]> {
     protected class Entry implements Map.Entry<String, String[]> {
         private String key;
@@ -336,12 +300,46 @@ class MergedParameterMap implements Map<String, String[]> {
         }
     }
 
-    private StripesRequestWrapper request;
+    private HttpServletRequestWrapper request;
+    private Stack<HttpServletRequestWrapper> requestStack;
     private Map<String, String[]> uriParams;
+    private Stack<Map<String, String[]>> uriParamStack;
 
-    protected MergedParameterMap(StripesRequestWrapper request, Map<String, String[]> uriParams) {
+    protected MergedParameterMap(StripesRequestWrapper request) {
         this.request = request;
-        this.uriParams = uriParams;
+        this.uriParams = getUriParameters(request);
+        if (this.uriParams == null) {
+            this.uriParams = Collections.emptyMap();
+        }
+    }
+
+    protected MergedParameterMap(StripesRequestWrapper request, MultipartWrapper multipart) {
+        this.request = request;
+
+        // extract URI parameters
+        Map<String, String[]> uriParams = getUriParameters(request);
+
+        /*
+         * Special handling of parameters if this is a multipart request. The parameters will be
+         * pulled from the MultipartWrapper and merged in with the URI parameters.
+         */
+        Map<String, String[]> multipartParams = null;
+        Enumeration<?> names = multipart.getParameterNames();
+        if (names != null && names.hasMoreElements()) {
+            multipartParams = new LinkedHashMap<String, String[]>();
+            while (names.hasMoreElements()) {
+                String name = (String) names.nextElement();
+                multipartParams.put(name, multipart.getParameterValues(name));
+            }
+        }
+
+        // if no multipart params and no URI params then use empty map
+        if (uriParams == null && multipartParams == null) {
+            this.uriParams = Collections.emptyMap();
+        }
+        else {
+            this.uriParams = mergeParameters(uriParams, multipartParams);
+        }
     }
 
     public void clear() {
@@ -422,18 +420,110 @@ class MergedParameterMap implements Map<String, String[]> {
     /** Get the parameter map from the request that is wrapped by the {@link StripesRequestWrapper}. */
     @SuppressWarnings("unchecked")
     protected Map<String, String[]> getParameterMap() {
-        return request.getRequest().getParameterMap();
+        return request == null ? Collections.emptyMap() : request.getRequest().getParameterMap();
     }
 
     /**
-     * Merges request parameter values from the original request with the parameters that are
+     * Extract new URI parameters from the URI of the given {@code request} and merge them with the
+     * previous URI parameters.
+     */
+    public void pushUriParameters(HttpServletRequestWrapper request) {
+        if (this.uriParamStack == null) {
+            this.uriParamStack = new Stack<Map<String, String[]>>();
+            this.requestStack = new Stack<HttpServletRequestWrapper>();
+        }
+        Map<String, String[]> map = getUriParameters(request);
+        this.uriParamStack.push(this.uriParams);
+        this.uriParams = mergeParameters(this.uriParams, map);
+        this.requestStack.push(request);
+        this.request = request;
+    }
+
+    /**
+     * Restore the URI parameters to the state they were in before the previous call to
+     * {@link #pushUriParameters(HttpServletRequest)}.
+     */
+    public void popUriParameters() {
+        if (this.uriParamStack.isEmpty())
+            this.uriParams = null;
+        else
+            this.uriParams = this.uriParamStack.pop();
+    }
+
+    /**
+     * Extract any parameters embedded in the URI of the given {@code request} and return them in a
+     * {@link Map}. If no parameters are present in the URI, then return null.
+     */
+    public static Map<String, String[]> getUriParameters(HttpServletRequest request) {
+        Map<String, String[]> params = null;
+        UrlBinding binding = UrlBindingFactory.getInstance().getBinding(request);
+        if (binding != null && binding.getParameters().size() > 0) {
+            for (UrlBindingParameter p : binding.getParameters()) {
+                String name = p.getName();
+                if (name != null) {
+                    String value = p.getValue();
+                    if (UrlBindingParameter.PARAMETER_NAME_EVENT.equals(name)) {
+                        name = value;
+                        value = "";
+                    }
+                    if (name != null && value != null) {
+                        if (params == null) {
+                            params = new LinkedHashMap<String, String[]>();
+                        }
+                        String[] values = params.get(name);
+                        if (values == null) {
+                            values = new String[] { value };
+                        }
+                        else {
+                            String[] tmp = new String[values.length + 1];
+                            System.arraycopy(values, 0, tmp, 0, values.length);
+                            tmp[tmp.length - 1] = value;
+                            values = tmp;
+                        }
+                        params.put(name, values);
+                    }
+                }
+            }
+        }
+
+        return params;
+    }
+
+    /** Merge the values from {@code source} into {@code target}. */
+    public static Map<String, String[]> mergeParameters(Map<String, String[]> target,
+            Map<String, String[]> source) {
+        // target must not be null and we must not modify source
+        if (target == null)
+            target = new LinkedHashMap<String, String[]>();
+
+        // nothing to do if source is null or empty
+        if (source == null || source.isEmpty())
+            return target;
+
+        // merge the values from source that already exist in target
+        for (Map.Entry<String, String[]> entry : target.entrySet()) {
+            entry.setValue(mergeParameters(entry.getValue(), source.get(entry.getKey())));
+        }
+
+        // copy the values from source that do not exist in target
+        for (Map.Entry<String, String[]> entry : source.entrySet()) {
+            if (!target.containsKey(entry.getKey())) {
+                target.put(entry.getKey(), entry.getValue());
+            }
+        }
+
+        return target;
+    }
+
+    /**
+     * Merge request parameter values from the original request with the parameters that are
      * embedded in the URI. Either or both arguments may be empty or null.
      * 
      * @param requestParams the parameters from the original request
      * @param uriParams parameters extracted from the URI
      * @return the merged parameter values
      */
-    protected String[] mergeParameters(String[] requestParams, String[] uriParams) {
+    public static String[] mergeParameters(String[] requestParams, String[] uriParams) {
         if (requestParams == null || requestParams.length == 0) {
             if (uriParams == null || uriParams.length == 0)
                 return null;
