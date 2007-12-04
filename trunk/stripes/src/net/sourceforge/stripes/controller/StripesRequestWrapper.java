@@ -301,7 +301,6 @@ class MergedParameterMap implements Map<String, String[]> {
     }
 
     private HttpServletRequestWrapper request;
-    private Stack<HttpServletRequestWrapper> requestStack;
     private Map<String, String[]> uriParams;
     private Stack<Map<String, String[]>> uriParamStack;
 
@@ -430,13 +429,10 @@ class MergedParameterMap implements Map<String, String[]> {
     public void pushUriParameters(HttpServletRequestWrapper request) {
         if (this.uriParamStack == null) {
             this.uriParamStack = new Stack<Map<String, String[]>>();
-            this.requestStack = new Stack<HttpServletRequestWrapper>();
         }
         Map<String, String[]> map = getUriParameters(request);
         this.uriParamStack.push(this.uriParams);
         this.uriParams = mergeParameters(this.uriParams, map);
-        this.requestStack.push(request);
-        this.request = request;
     }
 
     /**
@@ -446,11 +442,9 @@ class MergedParameterMap implements Map<String, String[]> {
     public void popUriParameters() {
         if (this.uriParamStack.isEmpty()) {
             this.uriParams = null;
-            this.request = null;
         }
         else {
             this.uriParams = this.uriParamStack.pop();
-            this.request = this.requestStack.pop();
         }
     }
 
