@@ -30,6 +30,7 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Locale;
@@ -197,6 +198,11 @@ public class StripesFilter implements Filter {
                 }
                 httpRequest = request;
             }
+            else {
+                // process URI parameters on subsequent invocations
+                StripesRequestWrapper.findStripesWrapper(httpRequest).pushUriParameters(
+                        (HttpServletRequestWrapper) httpRequest);
+            }
 
             // Execute the rest of the chain
             flashInbound(httpRequest);
@@ -213,6 +219,10 @@ public class StripesFilter implements Filter {
 
                 // Once the request is processed, take the Configuration back out of thread local
                 StripesFilter.configurationStash.remove();
+            }
+            else {
+                // restore URI parameters to their previous state
+                StripesRequestWrapper.findStripesWrapper(httpRequest).popUriParameters();
             }
         }
     }
