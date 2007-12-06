@@ -38,7 +38,7 @@ import java.lang.annotation.Target;
  * <li>{@code @HttpCache(allow=true)} - Same as above.</li>
  * <li>{@code @HttpCache(allow=false)} - Set headers to disable caching and immediately expire the
  * document.</li>
- * <li>{@code @HttpCache(expires=3600)} - Caching is allowed. The document expires in 10 minutes.</li>
+ * <li>{@code @HttpCache(expires=600)} - Caching is allowed. The document expires in 10 minutes.</li>
  * </ul>
  * </p>
  * 
@@ -50,6 +50,9 @@ import java.lang.annotation.Target;
 @Inherited
 @Documented
 public @interface HttpCache {
+    /** Default value for {@link #expires()}. */
+    public static final int DEFAULT_EXPIRES = Integer.MIN_VALUE;
+
     /** Indicates whether the response should be cached by the client. */
     boolean allow() default true;
 
@@ -58,5 +61,5 @@ public @interface HttpCache {
      * false, then this value is ignored and zero is used. If {@link #allow()} is true and this
      * value is less than zero, then no Expires header is sent.
      */
-    int expires() default 0;
+    int expires() default DEFAULT_EXPIRES;
 }

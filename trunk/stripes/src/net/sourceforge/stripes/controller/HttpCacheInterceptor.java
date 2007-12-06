@@ -99,7 +99,7 @@ public class HttpCacheInterceptor implements Interceptor {
                 HttpServletResponse response = context.getResponse();
                 if (annotation.allow()) {
                     long expires = annotation.expires();
-                    if (expires >= 0) {
+                    if (expires != HttpCache.DEFAULT_EXPIRES) {
                         logger.debug("Response expires in ", expires, " seconds");
                         expires = expires * 1000 + System.currentTimeMillis();
                         response.setDateHeader("Expires", expires);
@@ -152,11 +152,12 @@ public class HttpCacheInterceptor implements Interceptor {
         if (annotation != null) {
             logger.debug("Found ", HttpCache.class.getSimpleName(), " for ", beanClass.getName(),
                     ".", method.getName(), "()");
-            if (annotation.allow() && annotation.expires() < 0) {
+            int expires = annotation.expires();
+            if (annotation.allow() && expires != HttpCache.DEFAULT_EXPIRES && expires < 0) {
                 logger.warn(HttpCache.class.getSimpleName(), " for ", beanClass.getName(), ".",
                         method.getName(), "() allows caching but expires in the past");
             }
-            else if (!annotation.allow() && annotation.expires() != 0) {
+            else if (!annotation.allow() && expires != HttpCache.DEFAULT_EXPIRES) {
                 logger.warn(HttpCache.class.getSimpleName(), " for ", beanClass.getName(), ".",
                         method.getName(), "() disables caching but explicitly sets expires");
             }
