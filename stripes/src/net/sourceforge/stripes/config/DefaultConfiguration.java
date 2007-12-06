@@ -28,6 +28,7 @@ import net.sourceforge.stripes.controller.ActionResolver;
 import net.sourceforge.stripes.controller.BeforeAfterMethodInterceptor;
 import net.sourceforge.stripes.controller.DefaultActionBeanContextFactory;
 import net.sourceforge.stripes.controller.DefaultActionBeanPropertyBinder;
+import net.sourceforge.stripes.controller.HttpCacheInterceptor;
 import net.sourceforge.stripes.controller.Interceptor;
 import net.sourceforge.stripes.controller.Intercepts;
 import net.sourceforge.stripes.controller.LifecycleStage;
@@ -398,6 +399,7 @@ public class DefaultConfiguration implements Configuration {
     protected Map<LifecycleStage, Collection<Interceptor>> initCoreInterceptors() {
         Map<LifecycleStage, Collection<Interceptor>> interceptors = new HashMap<LifecycleStage, Collection<Interceptor>>();
         addInterceptor(interceptors, new BeforeAfterMethodInterceptor());
+        addInterceptor(interceptors, new HttpCacheInterceptor());
         return interceptors;
     }
 
