@@ -353,22 +353,27 @@ public class DispatcherHelper {
      *         should be processed in favor of continuing on to handler invocation
      */
     public static Resolution handleValidationErrors(ExecutionContext ctx) throws Exception {
-        ActionBean bean            = ctx.getActionBean();
-        ActionBeanContext context  = ctx.getActionBeanContext();
-        ValidationErrors errors    = context.getValidationErrors();
-        Resolution resolution = null;
+        DontValidate annotation = ctx.getHandler().getAnnotation(DontValidate.class);
+        boolean doValidate = annotation == null || !annotation.ignoreBindingErrors();
 
         // If we have errors, add the action path to them
         fillInValidationErrors(ctx);
 
-        // Now if we have errors and the bean wants to handle them...
-        if (errors.size() > 0 && bean instanceof ValidationErrorHandler) {
-            resolution = ((ValidationErrorHandler) bean).handleValidationErrors(errors);
-        }
+        Resolution resolution = null;
+        if (doValidate) {
+            ActionBean bean = ctx.getActionBean();
+            ActionBeanContext context = ctx.getActionBeanContext();
+            ValidationErrors errors = context.getValidationErrors();
 
-        // If there are still errors see if we need to lookup the resolution
-        if (errors.size() > 0 && resolution == null) {
-            resolution  = context.getSourcePageResolution();
+            // Now if we have errors and the bean wants to handle them...
+            if (errors.size() > 0 && bean instanceof ValidationErrorHandler) {
+                resolution = ((ValidationErrorHandler) bean).handleValidationErrors(errors);
+            }
+
+            // If there are still errors see if we need to lookup the resolution
+            if (errors.size() > 0 && resolution == null) {
+                resolution = context.getSourcePageResolution();
+            }
         }
 
         return resolution;
