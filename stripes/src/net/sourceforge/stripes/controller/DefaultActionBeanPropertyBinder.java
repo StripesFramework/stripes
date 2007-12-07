@@ -525,10 +525,16 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
      * characters and makes the next character lower case.
      */
     protected String getPropertyName(String methodName) {
-        if (methodName.length() > 3)
+        if (methodName.length() > 3
+                && (methodName.startsWith("get") || methodName.startsWith("set"))) {
             return methodName.substring(3, 4).toLowerCase() + methodName.substring(4);
-        else
+        }
+        else if (methodName.length() > 2 && methodName.startsWith("is")) {
+            return methodName.substring(2, 3).toLowerCase() + methodName.substring(3);
+        }
+        else {
             return "";
+        }
     }
 
     /**
