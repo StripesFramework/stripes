@@ -62,7 +62,7 @@ public class CryptoUtil {
             byte[] output = cipher.doFinal(input.getBytes());
 
             // Then base64 encode the bytes
-            return Base64.encodeBytes(output);
+            return Base64.encodeBytes(output, Base64.URL_SAFE);
         }
         catch (Exception e) {
             throw new StripesRuntimeException("Could not encrypt value.", e);
@@ -85,7 +85,7 @@ public class CryptoUtil {
         if (input == null) return null;
 
         // First un-base64 the String
-        byte[] bytes = Base64.decode(input);
+        byte[] bytes = Base64.decode(input, Base64.URL_SAFE);
 
         // Then fetch a cipher and decrypt the bytes
         Cipher cipher = getCipher(request, Cipher.DECRYPT_MODE);
