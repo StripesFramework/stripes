@@ -21,15 +21,25 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.ElementType;
 
 /**
- * Marker annotation to specify that the event handled by the annotated method should not have
- * validation run on it before the handler is invoked.  In this case type conversion will still
- * occur, but all other forms of validation (including ActionBean.validate() if it exists) will
- * be by-passed.
- *
+ * Specify that the event handled by the annotated method should not have validation run on it
+ * before the handler is invoked. Note that even if there are no normal validation errors for a
+ * request, there may still be errors during type conversion and binding. Such errors are also
+ * ignored by default. That behavior can be modified using the {@link #ignoreBindingErrors()}
+ * element of this annotation.
+ * 
  * @author Tim Fennell
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD})
 @Documented
 public @interface DontValidate {
+    /**
+     * If true (the default) then any validation errors that might occur during type conversion and
+     * binding will be ignored. If false then Stripes will forward back to the source page as it
+     * normally would when it encounters validation errors. In either case, any errors that occur
+     * during binding will be present in the {@link ActionBeanContext}.
+     * 
+     * @see ActionBeanContext#getValidationErrors()
+     */
+    boolean ignoreBindingErrors() default true;
 }
