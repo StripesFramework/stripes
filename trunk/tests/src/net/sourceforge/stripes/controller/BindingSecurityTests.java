@@ -1,10 +1,14 @@
 package net.sourceforge.stripes.controller;
 
+import net.sourceforge.stripes.StripesTestFixture;
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.action.ActionBeanContext;
+import net.sourceforge.stripes.action.DefaultHandler;
+import net.sourceforge.stripes.action.Resolution;
 import net.sourceforge.stripes.action.StrictBinding;
 import net.sourceforge.stripes.action.StrictBinding.Policy;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
+import net.sourceforge.stripes.mock.MockRoundtrip;
 import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.util.bean.PropertyExpression;
 import net.sourceforge.stripes.util.bean.PropertyExpressionEvaluation;
@@ -19,6 +23,8 @@ import org.testng.annotations.Test;
  */
 public class BindingSecurityTests {
     public static class NoAnnotation implements ActionBean {
+        private ActionBeanContext context;
+
         public String[] getTestProperties() {
             return new String[] { "foo", "bar", "baz" };
         }
@@ -28,10 +34,11 @@ public class BindingSecurityTests {
         }
 
         public ActionBeanContext getContext() {
-            return null;
+            return context;
         }
 
         public void setContext(ActionBeanContext context) {
+            this.context = context;
         }
 
         private String foo, bar, baz;
@@ -60,10 +67,9 @@ public class BindingSecurityTests {
             this.baz = baz;
         }
 
-        public void reset() {
-            foo = null;
-            bar = null;
-            baz = null;
+        @DefaultHandler
+        public Resolution execute() {
+            return null;
         }
     }
 
@@ -115,7 +121,7 @@ public class BindingSecurityTests {
     public static class HonorValidateAnnotations extends BindingSecurityTests.NoAnnotation {
         @Override
         public boolean[] getExpectSuccess() {
-            return new boolean[] { true, true, true, false, true };
+            return new boolean[] { true, true, true, true, true };
         }
 
         @Override
@@ -200,16 +206,25 @@ public class BindingSecurityTests {
         }
     }
 
-    public void evaluate(NoAnnotation bean) throws InstantiationException, IllegalAccessException {
+    public void evaluate(NoAnnotation bean) throws Exception {
         String[] properties = bean.getTestProperties();
         boolean[] expect = bean.getExpectSuccess();
+
+        Class<? extends NoAnnotation> beanType = bean.getClass();
+        MockRoundtrip trip = new MockRoundtrip(StripesTestFixture.getServletContext(), beanType);
+        for (String p : properties)
+            trip.addParameter(p, p + "Value");
+        trip.execute();
+
+        bean = trip.getActionBean(beanType);
         for (int i = 0; i < properties.length; i++) {
-            log.debug("Testing ", bean.getClass().getSimpleName(), ".", properties[i]);
+            String fullName = beanType.getSimpleName() + "." + properties[i];
+            log.debug("Testing binding security on ", fullName);
             PropertyExpression pe = PropertyExpression.getExpression(properties[i]);
             PropertyExpressionEvaluation eval = new PropertyExpressionEvaluation(pe, bean);
-            boolean allowed = BindingPolicyManager.getInstance(bean.getClass()).isBindingAllowed(
-                    eval);
-            Assert.assertEquals(allowed, expect[i]);
+            Object value = eval.getValue();
+            Assert.assertEquals(value != null, expect[i], "Property " + fullName + " should "
+                    + (expect[i] ? "" : "not") + " be null but it is" + (expect[i] ? " not" : ""));
         }
     }
 
