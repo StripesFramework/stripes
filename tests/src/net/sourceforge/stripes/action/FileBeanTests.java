@@ -171,11 +171,17 @@ public class FileBeanTests {
     @Test(groups="fast")
     public void testIntoDirectoryThatDoesNotExistYet() throws Exception {
         FileBean bean = new FileBean(from, "text/plain", "somefile.txt");
+        File realTo = this.to;
         this.to = new File(this.to, "somechild.txt");
-
-        bean.save(this.to);
-        Assert.assertTrue(this.to.exists());
-        Assert.assertFalse(this.from.exists());
-        assertContents(this.to);
+        try {
+            bean.save(this.to);
+            Assert.assertTrue(this.to.exists());
+            Assert.assertFalse(this.from.exists());
+            assertContents(this.to);
+        }
+        finally {
+            this.to.delete();
+            this.to = realTo;
+        }
     }
 }
