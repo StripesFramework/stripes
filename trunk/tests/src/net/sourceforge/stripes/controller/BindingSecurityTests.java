@@ -223,8 +223,8 @@ public class BindingSecurityTests {
             PropertyExpression pe = PropertyExpression.getExpression(properties[i]);
             PropertyExpressionEvaluation eval = new PropertyExpressionEvaluation(pe, bean);
             Object value = eval.getValue();
-            Assert.assertEquals(value != null, expect[i], "Property " + fullName + " should "
-                    + (expect[i] ? "" : "not") + " be null but it is" + (expect[i] ? " not" : ""));
+            Assert.assertEquals(value != null, expect[i], "Property " + fullName + " should"
+                    + (expect[i] ? " not" : "") + " be null but it is" + (expect[i] ? "" : " not"));
         }
     }
 
