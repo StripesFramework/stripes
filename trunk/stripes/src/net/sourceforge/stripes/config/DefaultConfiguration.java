@@ -50,7 +50,9 @@ import net.sourceforge.stripes.tag.PopulationStrategy;
 import net.sourceforge.stripes.tag.TagErrorRendererFactory;
 import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.validation.DefaultTypeConverterFactory;
+import net.sourceforge.stripes.validation.DefaultValidationMetadataProvider;
 import net.sourceforge.stripes.validation.TypeConverterFactory;
+import net.sourceforge.stripes.validation.ValidationMetadataProvider;
 
 /**
  * <p>Centralized location for defaults for all Configuration properties.  This implementation does
@@ -90,6 +92,7 @@ public class DefaultConfiguration implements Configuration {
     private Map<LifecycleStage,Collection<Interceptor>> interceptors;
     private ExceptionHandler exceptionHandler;
     private MultipartWrapperFactory multipartWrapperFactory;
+    private ValidationMetadataProvider validationMetadataProvider;
 
     /** Gratefully accepts the BootstrapPropertyResolver handed to the Configuration. */
     public void setBootstrapPropertyResolver(BootstrapPropertyResolver resolver) {
@@ -174,6 +177,12 @@ public class DefaultConfiguration implements Configuration {
             if (this.multipartWrapperFactory == null) {
                 this.multipartWrapperFactory = new DefaultMultipartWrapperFactory();
                 this.multipartWrapperFactory.init(this);
+            }
+
+            this.validationMetadataProvider = initValidationMetadataProvider();
+            if (this.validationMetadataProvider == null) {
+                this.validationMetadataProvider = new DefaultValidationMetadataProvider();
+                this.validationMetadataProvider.init(this);
             }
 
             this.interceptors = new HashMap<LifecycleStage, Collection<Interceptor>>();
@@ -345,6 +354,20 @@ public class DefaultConfiguration implements Configuration {
 
     /** Allows subclasses to initialize a non-default MultipartWrapperFactory. */
     protected MultipartWrapperFactory initMultipartWrapperFactory() { return null; }
+
+    /**
+     * Returns an instance of {@link ValidationMetadataProvider} that can be used by Stripes to
+     * determine what validations need to be applied during
+     * {@link LifecycleStage#BindingAndValidation}.
+     * 
+     * @return an instance of {@link ValidationMetadataProvider}
+     */
+    public ValidationMetadataProvider getValidationMetadataProvider() {
+        return this.validationMetadataProvider;
+    }
+
+    /** Allows subclasses to initialize a non-default {@link ValidationMetadataProvider}. */
+    protected ValidationMetadataProvider initValidationMetadataProvider() { return null; }
 
     /**
      * Returns a list of interceptors that should be executed around the lifecycle stage

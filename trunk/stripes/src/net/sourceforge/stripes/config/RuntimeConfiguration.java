@@ -35,6 +35,7 @@ import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.util.ReflectUtil;
 import net.sourceforge.stripes.util.StringUtil;
 import net.sourceforge.stripes.validation.TypeConverterFactory;
+import net.sourceforge.stripes.validation.ValidationMetadataProvider;
 
 /**
  * <p>Configuration class that uses the BootstrapPropertyResolver to look for configuration values,
@@ -90,7 +91,10 @@ public class RuntimeConfiguration extends DefaultConfiguration {
 
     /** The Configuration Key for looking up the name of the MultipartWrapperFactory class */
     public static final String MULTIPART_WRAPPER_FACTORY = "MultipartWrapperFactory.Class";
-    
+
+    /** The Configuration Key for looking up the name of the ValidationMetadataProvider class */
+    public static final String VALIDATION_METADATA_PROVIDER = "ValidationMetadataProvider.Class";
+
     /** The Configuration Key for looking up the comma separated list of core interceptor classes. */
     public static final String CORE_INTERCEPTOR_LIST = "CoreInterceptor.Classes";
 
@@ -161,6 +165,11 @@ public class RuntimeConfiguration extends DefaultConfiguration {
     /** Looks for a class name in config and uses that to create the component. */
     @Override protected MultipartWrapperFactory initMultipartWrapperFactory() {
         return initializeComponent(MultipartWrapperFactory.class, MULTIPART_WRAPPER_FACTORY);
+    }
+
+    /** Looks for a class name in config and uses that to create the component. */
+    @Override protected ValidationMetadataProvider initValidationMetadataProvider() {
+        return initializeComponent(ValidationMetadataProvider.class, VALIDATION_METADATA_PROVIDER);
     }
 
     /**

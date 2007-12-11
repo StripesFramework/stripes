@@ -20,6 +20,7 @@ import net.sourceforge.stripes.controller.ActionBeanContextFactory;
 import net.sourceforge.stripes.localization.LocalizationBundleFactory;
 import net.sourceforge.stripes.localization.LocalePicker;
 import net.sourceforge.stripes.validation.TypeConverterFactory;
+import net.sourceforge.stripes.validation.ValidationMetadataProvider;
 import net.sourceforge.stripes.tag.TagErrorRendererFactory;
 import net.sourceforge.stripes.tag.PopulationStrategy;
 import net.sourceforge.stripes.format.FormatterFactory;
@@ -191,4 +192,13 @@ public interface Configuration {
      * @return MultipartWrapperFactory an instance of the wrapper factory
      */
     MultipartWrapperFactory getMultipartWrapperFactory();
+
+    /**
+     * Returns an instance of {@link ValidationMetadataProvider} that can be used by Stripes to
+     * determine what validations need to be applied during
+     * {@link LifecycleStage#BindingAndValidation}.
+     * 
+     * @return an instance of {@link ValidationMetadataProvider}
+     */
+    ValidationMetadataProvider getValidationMetadataProvider();
 }

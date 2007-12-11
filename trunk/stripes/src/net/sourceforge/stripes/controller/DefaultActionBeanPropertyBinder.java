@@ -53,9 +53,6 @@ import java.util.*;
 public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder {
     private static final Log log = Log.getInstance(DefaultActionBeanPropertyBinder.class);
 
-    /** Map of validation annotations that is built at startup. */
-    private Map<Class<? extends ActionBean>, Map<String, ValidationMetadata>> validations;
-
     /** Configuration instance passed in at initialization time. */
     private Configuration configuration;
 
@@ -65,93 +62,6 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
      */
     public void init(Configuration configuration) throws Exception {
         this.configuration = configuration;
-        Set<Class<? extends ActionBean>> beanClasses = ActionClassCache.getInstance()
-                .getActionBeanClasses();
-        this.validations = new HashMap<Class<? extends ActionBean>, Map<String, ValidationMetadata>>();
-
-        for (Class<? extends ActionBean> beanClass : beanClasses) {
-            Map<String, ValidationMetadata> fieldValidations = new HashMap<String, ValidationMetadata>();
-            processClassAnnotations(beanClass, fieldValidations);
-            this.validations.put(beanClass, fieldValidations);
-
-            // Print out a pretty debug message showing what validations got configured
-            StringBuilder builder = new StringBuilder(128);
-            for (Map.Entry<String, ValidationMetadata> entry : fieldValidations.entrySet()) {
-                if (builder.length() > 0) {
-                    builder.append(", ");
-                }
-                builder.append(entry.getKey());
-                builder.append("->");
-                builder.append(entry.getValue());
-            }
-
-            log.debug("Loaded validations for ActionBean ", beanClass.getSimpleName(), ": ",
-                    builder.length() > 0 ? builder : "<none>");
-        }
-    }
-
-    /**
-     * Helper method that processes a class looking for validation annotations. Will recurse and
-     * process the superclasses first in order to ensure that annotations lower down the inheritance
-     * hierarchy take precedence over those higher up.
-     * 
-     * @param clazz the ActionBean subclasses (or parent thereof) in question
-     * @param fieldValidations a map of fieldname->ValidationMetadata in which to store validations
-     */
-    protected void processClassAnnotations(Class<?> clazz,
-            Map<String, ValidationMetadata> fieldValidations) {
-        Class<?> superclass = clazz.getSuperclass();
-        if (superclass != null) {
-            processClassAnnotations(superclass, fieldValidations);
-        }
-
-        // Process the methods on the class
-        Method[] methods = clazz.getDeclaredMethods();
-        for (Method method : methods) {
-            if (!Modifier.isPublic(method.getModifiers())) {
-                continue; // only public methods!
-            }
-
-            processPropertyAnnotations(getPropertyName(method.getName()), method
-                    .getAnnotation(Validate.class), method
-                    .getAnnotation(ValidateNestedProperties.class), fieldValidations);
-        }
-
-        // Process the fields for validation annotations
-        Field[] fields = clazz.getDeclaredFields();
-        for (Field field : fields) {
-            processPropertyAnnotations(field.getName(), field.getAnnotation(Validate.class), field
-                    .getAnnotation(ValidateNestedProperties.class), fieldValidations);
-        }
-    }
-
-    /**
-     * Helper method that takes the name of a property on the ActionBean along with the property's
-     * (potentially null) Validate and ValidateNestedProperties annotations and stores the
-     * information in to the internval cache of validation information.
-     */
-    protected void processPropertyAnnotations(String name, Validate validate,
-            ValidateNestedProperties nested, Map<String, ValidationMetadata> fieldValidations) {
-        if (validate != null) {
-            fieldValidations.put(name, new ValidationMetadata(name, validate));
-        }
-
-        if (nested != null) {
-            Validate[] validations = nested.value();
-            for (Validate nestedValidate : validations) {
-                if ("".equals(nestedValidate.field())) {
-                    log.warn("Nested validation on field ", name,
-                            " used without nested field name: ", ReflectUtil
-                                    .toString(nestedValidate));
-                }
-                else {
-                    String nestedName = name + "." + nestedValidate.field();
-                    fieldValidations.put(nestedName, new ValidationMetadata(nestedName,
-                            nestedValidate));
-                }
-            }
-        }
-
     }
 
     /**
@@ -174,6 +84,8 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
      */
     public ValidationErrors bind(ActionBean bean, ActionBeanContext context, boolean validate) {
         ValidationErrors fieldErrors = context.getValidationErrors();
+        Map<String, ValidationMetadata> validationInfos = this.configuration
+                .getValidationMetadataProvider().getValidationMetadata(bean.getClass());
 
         // Take the ParameterMap and turn the keys into ParameterNames
         Map<ParameterName, String[]> parameters = getParameters(context);
@@ -210,8 +122,7 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
                     log.trace("Running binding for property with name: ", name);
 
                     // Determine the target type
-                    ValidationMetadata validationInfo = this.validations.get(bean.getClass()).get(
-                            name.getStrippedName());
+                    ValidationMetadata validationInfo = validationInfos.get(name.getStrippedName());
                     PropertyExpressionEvaluation eval = new PropertyExpressionEvaluation(
                             PropertyExpression.getExpression(pname), bean);
                     Class<?> type = eval.getType();
@@ -520,24 +431,6 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
     }
 
     /**
-     * Helper method that returns the name of the property when supplied with the corresponding get
-     * or set method. Does not do anything particularly intelligent, just drops the first three
-     * characters and makes the next character lower case.
-     */
-    protected String getPropertyName(String methodName) {
-        if (methodName.length() > 3
-                && (methodName.startsWith("get") || methodName.startsWith("set"))) {
-            return methodName.substring(3, 4).toLowerCase() + methodName.substring(4);
-        }
-        else if (methodName.length() > 2 && methodName.startsWith("is")) {
-            return methodName.substring(2, 3).toLowerCase() + methodName.substring(3);
-        }
-        else {
-            return "";
-        }
-    }
-
-    /**
      * Validates that all required fields have been submitted. This is done by looping through the
      * set of validation annotations and checking that each field marked as required was submitted
      * in the request and submitted with a non-empty value.
@@ -556,7 +449,8 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
             }
         }
 
-        Map<String, ValidationMetadata> validationInfos = this.validations.get(bean.getClass());
+        Map<String, ValidationMetadata> validationInfos = this.configuration
+                .getValidationMetadataProvider().getValidationMetadata(bean.getClass());
         StripesRequestWrapper req = StripesRequestWrapper.findStripesWrapper(bean.getContext()
                 .getRequest());
 
@@ -738,12 +632,13 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
     protected void doPostConversionValidations(ActionBean bean,
             Map<ParameterName, List<Object>> convertedValues, ValidationErrors errors) {
 
+        Map<String, ValidationMetadata> validationInfos = this.configuration
+                .getValidationMetadataProvider().getValidationMetadata(bean.getClass());
         for (Map.Entry<ParameterName, List<Object>> entry : convertedValues.entrySet()) {
             // Sort out what we need to validate this field
             ParameterName name = entry.getKey();
             List<Object> values = entry.getValue();
-            ValidationMetadata validationInfo = this.validations.get(bean.getClass()).get(
-                    name.getStrippedName());
+            ValidationMetadata validationInfo = validationInfos.get(name.getStrippedName());
 
             if (values.size() == 0 || validationInfo == null) {
                 continue;
@@ -875,7 +770,7 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
      *         not guaranteed to be the same length as the values array passed in.
      */
     @SuppressWarnings("unchecked")
-    private List<Object> convert(ActionBean bean, ParameterName propertyName, String[] values,
+    protected List<Object> convert(ActionBean bean, ParameterName propertyName, String[] values,
             Class propertyType, ValidationMetadata validationInfo, List<ValidationError> errors)
             throws Exception {
 

@@ -14,27 +14,25 @@
  */
 package net.sourceforge.stripes.controller;
 
-import java.beans.Introspector;
-import java.beans.PropertyDescriptor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.action.ActionBeanContext;
 import net.sourceforge.stripes.action.StrictBinding;
 import net.sourceforge.stripes.action.StrictBinding.Policy;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
 import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.util.bean.PropertyExpressionEvaluation;
-import net.sourceforge.stripes.validation.Validate;
-import net.sourceforge.stripes.validation.ValidateNestedProperties;
+import net.sourceforge.stripes.validation.ValidationMetadata;
+import net.sourceforge.stripes.validation.ValidationMetadataProvider;
 
 /**
  * Manages the policies observed by {@link DefaultActionBeanPropertyBinder} when binding properties
@@ -181,96 +179,20 @@ public class BindingPolicyManager {
     }
 
     /**
-     * Get all the properties and nested properties of the given class to which a {@link Validate}
-     * annotation is applied. The annotation may be applied to the property's read method, write
-     * method, or field declaration. If a property has a {@link ValidateNestedProperties}
-     * annotation, then the nested properties named in its {@link Validate} annotations will be
-     * included as well. However, the {@link ValidateNestedProperties} annotation alone is not
-     * sufficient to include a property; it must have its own {@link Validate} annotation.
+     * Get all the properties and nested properties of the given class for which there is a
+     * corresponding {@link ValidationMetadata}, as returned by
+     * {@link ValidationMetadataProvider#getValidationMetadata(Class, String)}. The idea here is
+     * that if the bean property must be validated, then it is expected that the property may be
+     * bound to the bean.
      * 
      * @param beanClass a class
      * @return The validated properties. If no properties are annotated then null.
+     * @see ValidationMetadataProvider#getValidationMetadata(Class)
      */
     protected String[] getValidatedProperties(Class<?> beanClass) {
-        // for the sake of pretty code, i declare these first
-        Method method;
-        Validate simple;
-        ValidateNestedProperties nested;
-        List<Validate> simples = new ArrayList<Validate>();
-        List<ValidateNestedProperties> nesteds = new ArrayList<ValidateNestedProperties>();
-        List<String> properties = new ArrayList<String>();
-        try {
-            PropertyDescriptor[] pds = Introspector.getBeanInfo(beanClass).getPropertyDescriptors();
-            for (PropertyDescriptor pd : pds) {
-                String propertyName = pd.getName();
-                simples.clear();
-                nesteds.clear();
-
-                // check getter method
-                method = pd.getReadMethod();
-                if (method != null) {
-                    simple = method.getAnnotation(Validate.class);
-                    nested = method.getAnnotation(ValidateNestedProperties.class);
-                    if (simple != null)
-                        simples.add(simple);
-                    if (nested != null)
-                        nesteds.add(nested);
-                }
-
-                // check setter method
-                method = pd.getWriteMethod();
-                if (method != null) {
-                    simple = method.getAnnotation(Validate.class);
-                    nested = method.getAnnotation(ValidateNestedProperties.class);
-                    if (simple != null)
-                        simples.add(simple);
-                    if (nested != null)
-                        nesteds.add(nested);
-                }
-
-                // check the field (possibly declared in a superclass) with the same
-                // name as the property for annotations
-                Field field = null;
-                for (Class<?> c = beanClass; c != null && field == null; c = c.getSuperclass()) {
-                    try {
-                        field = c.getDeclaredField(propertyName);
-                    }
-                    catch (NoSuchFieldException e) {
-                    }
-                }
-                if (field != null) {
-                    simple = field.getAnnotation(Validate.class);
-                    nested = field.getAnnotation(ValidateNestedProperties.class);
-                    if (simple != null)
-                        simples.add(simple);
-                    if (nested != null)
-                        nesteds.add(nested);
-                }
-
-                // add to allow list if @Validate present
-                if (!simples.isEmpty())
-                    properties.add(propertyName);
-
-                // add all sub-properties referenced in @ValidateNestedProperties
-                for (ValidateNestedProperties vnp : nesteds) {
-                    Validate[] validates = vnp.value();
-                    if (validates != null) {
-                        for (Validate validate : validates) {
-                            if (validate.field() != null) {
-                                properties.add(propertyName + '.' + validate.field());
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        catch (Exception e) {
-            log.error(e, "%%% Failure checking @Validate annotations ", getClass().getName());
-            StripesRuntimeException sre = new StripesRuntimeException(e.getMessage(), e);
-            sre.setStackTrace(e.getStackTrace());
-            throw sre;
-        }
-        return properties.size() == 0 ? null : properties.toArray(new String[properties.size()]);
+        Set<String> properties = StripesFilter.getConfiguration().getValidationMetadataProvider()
+                .getValidationMetadata(beanClass).keySet();
+        return new ArrayList<String>(properties).toArray(new String[properties.size()]);
     }
 
     /**
