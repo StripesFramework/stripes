@@ -55,6 +55,9 @@ public class RuntimeConfiguration extends DefaultConfiguration {
     /** Log implementation for use within this class. */
     private static final Log log = Log.getInstance(RuntimeConfiguration.class);
 
+    /** The Configuration Key for enabling debug mode. */
+    public static final String DEBUG_MODE = "Stripes.DebugMode";
+
     /** The Configuration Key for looking up the name of the ActionResolver class. */
     public static final String ACTION_RESOLVER = "ActionResolver.Class";
 
@@ -94,6 +97,16 @@ public class RuntimeConfiguration extends DefaultConfiguration {
     /** The Configuration Key for looking up the comma separated list of interceptor classes. */
     public static final String INTERCEPTOR_LIST = "Interceptor.Classes";
 
+    /** Looks for a true/false value in config. */
+    @Override protected Boolean initDebugMode() {
+        try {
+            return Boolean.valueOf(getBootstrapPropertyResolver().getProperty(DEBUG_MODE)
+                    .toLowerCase());
+        }
+        catch (Exception e) {
+            return null;
+        }
+    }
 
     /** Looks for a class name in config and uses that to create the component. */
     @Override protected ActionResolver initActionResolver() {

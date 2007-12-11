@@ -76,6 +76,7 @@ public class DefaultConfiguration implements Configuration {
     /** Log implementation for use within this class. */
     private static final Log log = Log.getInstance(DefaultConfiguration.class);
 
+    private boolean debugMode;
     private BootstrapPropertyResolver resolver;
     private ActionResolver actionResolver;
     private ActionBeanPropertyBinder actionBeanPropertyBinder;
@@ -101,6 +102,14 @@ public class DefaultConfiguration implements Configuration {
      */
     public void init() {
         try {
+        	Boolean debugMode = initDebugMode();
+            if (debugMode != null) {
+                this.debugMode = debugMode;
+            }
+            else {
+                this.debugMode = false;
+            }
+
             this.actionResolver = initActionResolver();
             if (this.actionResolver == null) {
                 this.actionResolver = new NameBasedActionResolver();
@@ -197,6 +206,21 @@ public class DefaultConfiguration implements Configuration {
     public ServletContext getServletContext() {
         return getBootstrapPropertyResolver().getFilterConfig().getServletContext();
     }
+
+	/** Enable or disable debug mode. */
+	public void setDebugMode(boolean debugMode) {
+		this.debugMode = debugMode;
+	}
+
+	/** Returns true if the Stripes application is running in debug mode. */
+	public boolean isDebugMode() {
+		return debugMode;
+	}
+
+	/** Allows subclasses to initialize a non-default debug mode value. */
+	protected Boolean initDebugMode() {
+		return null;
+	}
 
     /**
      * Returns an instance of {@link NameBasedActionResolver} unless a subclass has
