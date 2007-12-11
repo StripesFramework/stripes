@@ -23,14 +23,16 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
 import net.sourceforge.stripes.util.Log;
 
 /**
- * Provides a globally accessible cache of validation metadata for properties of {@link ActionBean}
- * classes.
+ * An implementation of {@link ValidationMetadataProvider} that scans classes and their superclasses
+ * for properties annotated with {@link Validate} and/or {@link ValidateNestedProperties} and
+ * exposes the validation metadata specified by those annotations. When searching for annotations,
+ * this implementation looks first at the property's read method (getter), then its write method
+ * (setter), and finally at the field itself.
  * 
  * @author Ben Gunter
  * @since Stripes 1.5
