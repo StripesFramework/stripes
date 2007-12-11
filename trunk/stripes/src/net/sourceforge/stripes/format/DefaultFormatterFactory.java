@@ -15,7 +15,7 @@
 package net.sourceforge.stripes.format;
 
 import java.util.Date;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 
@@ -31,7 +31,7 @@ import net.sourceforge.stripes.util.Log;
 public class DefaultFormatterFactory implements FormatterFactory {
     /** A rather generic-heavy Map that maps target type to Formatter. */
     private Map<Class<?>, Class<? extends Formatter<?>>> formatters =
-        new HashMap<Class<?>, Class<? extends Formatter<?>>>();
+        new LinkedHashMap<Class<?>, Class<? extends Formatter<?>>>();
 
     /** Stores a reference to the Configuration passed in at initialization time. */
     private Configuration configuration;
@@ -79,11 +79,17 @@ public class DefaultFormatterFactory implements FormatterFactory {
      * @return Formatter an instance of a Formatter, or null
      */
     public Formatter<?> getFormatter(Class<?> clazz, Locale locale, String formatType, String formatPattern) {
-        Formatter<?> formatter = null;
-
         // Figure out if we have a type we can format
+        Class<? extends Formatter<?>> formatterClass = null;
         if (formatters.containsKey(clazz)) {
-            Class<? extends Formatter<?>> formatterClass = formatters.get(clazz);
+            formatterClass = formatters.get(clazz);
+        }
+        else {
+            formatterClass = findFormatterClass(clazz);
+        }
+
+        // If a formatter class was found then instantiate and initialize it
+        if (formatterClass != null) {
             try {
                 return getInstance(formatterClass, formatType, formatPattern, locale);
             }
@@ -92,30 +98,48 @@ public class DefaultFormatterFactory implements FormatterFactory {
                 return null;
             }
         }
-        else if (Date.class.isAssignableFrom(clazz)) {
-            formatter = new DateFormatter();
-            formatter.setFormatType(formatType);
-            formatter.setFormatPattern(formatPattern);
-            formatter.setLocale(locale);
-            formatter.init();
-            return formatter;
-        }
-        else if (Number.class.isAssignableFrom(clazz)) {
-            formatter = new NumberFormatter();
-            formatter.setFormatType(formatType);
-            formatter.setFormatPattern(formatPattern);
-            formatter.setLocale(locale);
-            formatter.init();
-            return formatter;
-        }
-        else if (Enum.class.isAssignableFrom(clazz)) {
-            formatter = new EnumFormatter();
-            formatter.init();
-            return formatter;
-        }
         else {
             return null;
         }
+    }
+
+    /**
+     * Searches all registered formatters looking for the first one that can format an object of
+     * type {@code targetClass}. First searches formatters added by calls to
+     * {@link #add(Class, Class)} and then searches the set of built-in formatters. Any formatter
+     * that can format a superclass or implemented interface of {@code targetClass} is considered a
+     * match. Thus, the order in which formatters are registered through {@link #add(Class, Class)}
+     * may be important.
+     * 
+     * @param targetClass the class of the object that needs to be formatted
+     * @return the first applicable formatter found or null if no match could be found
+     */
+    protected Class<? extends Formatter<?>> findFormatterClass(Class<?> targetClass) {
+        // check the formatters that have been added
+        Class<? extends Formatter<?>> formatterClass = null;
+        for (Map.Entry<Class<?>, Class<? extends Formatter<?>>> entry : formatters.entrySet()) {
+            if (entry.getKey().isAssignableFrom(targetClass)) {
+                formatterClass = entry.getValue();
+                break;
+            }
+        }
+
+        // if none found, then check the built-in formatters
+        if (formatterClass == null) {
+            if (Number.class.isAssignableFrom(targetClass)) {
+                formatterClass = NumberFormatter.class;
+            }
+            else if (Date.class.isAssignableFrom(targetClass)) {
+                formatterClass = DateFormatter.class;
+            }
+            else if (Enum.class.isAssignableFrom(targetClass)) {
+                formatterClass = EnumFormatter.class;
+            }
+        }
+
+        // cache it, even if it's null
+        formatters.put(targetClass, formatterClass);
+        return formatterClass;
     }
 
     /**
