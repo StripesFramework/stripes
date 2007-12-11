@@ -20,7 +20,8 @@ import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.config.ConfigurableComponent;
 
 /**
- * 
+ * Provides a globally accessible source of validation metadata for properties and nested properties
+ * of {@link ActionBean} classes.
  * 
  * @author Ben Gunter
  * @since Stripes 1.5
