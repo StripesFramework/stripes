@@ -78,6 +78,12 @@ public interface Configuration {
      */
     ServletContext getServletContext();
 
+    /** Enable or disable debug mode. */
+    void setDebugMode(boolean debugMode);
+
+    /** Returns true if the Stripes application is running in debug mode. */
+    boolean isDebugMode();
+
     /**
      * Returns an instance of ActionResolver that will be used by Stripes to lookup and resolve
      * ActionBeans.  The instance should be cached by the Configuration since multiple entities
