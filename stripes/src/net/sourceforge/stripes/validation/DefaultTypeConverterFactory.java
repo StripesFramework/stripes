@@ -91,10 +91,10 @@ public class DefaultTypeConverterFactory implements TypeConverterFactory {
      * @param targetType the type for which the converter will handle conversions
      * @param converterClass the implementation class that will handle the conversions
      */
-    protected void add(Class<?> targetType, Class<? extends TypeConverter<?>> converterClass) {
+    public void add(Class<?> targetType, Class<? extends TypeConverter<?>> converterClass) {
         this.converters.put(targetType, converterClass);
     }
-
+    
     /**
      * Gets the applicable type converter for the class passed in.  This is based on the default
      * set of type converters which are stored in a Map on this class.  Enums are a special case,
