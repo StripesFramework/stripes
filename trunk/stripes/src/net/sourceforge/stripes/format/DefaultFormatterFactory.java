@@ -20,6 +20,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import net.sourceforge.stripes.config.Configuration;
+import net.sourceforge.stripes.tag.EncryptedValue;
 import net.sourceforge.stripes.util.Log;
 
 /**
@@ -134,6 +135,9 @@ public class DefaultFormatterFactory implements FormatterFactory {
             }
             else if (Enum.class.isAssignableFrom(targetClass)) {
                 formatterClass = EnumFormatter.class;
+            }
+            else if (EncryptedValue.class.isAssignableFrom(targetClass)) {
+                formatterClass = EncryptedValueFormatter.class;
             }
         }
 

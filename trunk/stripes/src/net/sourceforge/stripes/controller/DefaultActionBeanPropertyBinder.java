@@ -778,28 +778,34 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
 
         // Dig up the type converter
         TypeConverter converter = null;
+        HttpServletRequest request = bean.getContext().getRequest();
         if (validationInfo != null && validationInfo.converter() != null) {
             converter = this.configuration.getTypeConverterFactory().getInstance(
-                    validationInfo.converter(), bean.getContext().getRequest().getLocale());
+                    validationInfo.converter(), request.getLocale());
         }
         else {
             converter = this.configuration.getTypeConverterFactory().getTypeConverter(propertyType,
-                    bean.getContext().getRequest().getLocale());
+                    request.getLocale());
         }
 
         log.debug("Converting ", values.length, " value(s) using converter ", converter);
 
         for (int i = 0; i < values.length; ++i) {
-            if (!"".equals(values[i])) {
+            String value = values[i];
+            if (!"".equals(value)) {
                 try {
+                    if (validationInfo != null && validationInfo.encrypted()) {
+                        value = CryptoUtil.decrypt(values[i], request);
+                    }
+
                     Object retval = null;
                     if (converter != null) {
-                        retval = converter.convert(values[i], propertyType, errors);
+                        retval = converter.convert(value, propertyType, errors);
                     }
                     else {
                         Constructor constructor = propertyType.getConstructor(String.class);
                         if (constructor != null) {
-                            retval = constructor.newInstance(values[i]);
+                            retval = constructor.newInstance(value);
                         }
                         else {
                             log.debug("Could not find a way to convert the parameter ",
@@ -817,7 +823,7 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
                     // Set the field name and value on the error
                     for (ValidationError error : errors) {
                         error.setFieldName(propertyName.getStrippedName());
-                        error.setFieldValue(values[i]);
+                        error.setFieldValue(value);
                     }
                 }
                 catch (Exception e) {
