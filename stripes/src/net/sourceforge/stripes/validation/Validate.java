@@ -22,7 +22,7 @@ import java.lang.annotation.Documented;
 
 /**
  * Primary annotation used to specify validations for form fields.  Allows quick and easy
- * specifiction of the most common types of validation logic, as well as a way to specify
+ * specification of the most common types of validation logic, as well as a way to specify
  * custom validations.
  *
  * @author Tim Fennell
@@ -37,6 +37,14 @@ public @interface Validate {
      * when specifying nested validations.
      */
     String field() default "";
+
+    /**
+     * If true, then a parameter value to be bound to this field must be an encrypted string. It
+     * also implies that when the value of this field is rendered by certain tags (e.g.,
+     * {@link InputHiddenTag}) that it is to be rendered as an encrypted string. This prevents
+     * clients from injecting random values.
+     */
+    boolean encrypted() default false;
 
     /**
      * If set to true, requires that a non-null, non-empty value must be submitted for the field.

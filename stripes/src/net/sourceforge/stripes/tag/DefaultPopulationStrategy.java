@@ -14,6 +14,8 @@
  */
 package net.sourceforge.stripes.tag;
 
+import javax.servlet.http.HttpServletRequest;
+
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.exception.StripesJspException;
@@ -21,6 +23,7 @@ import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.util.bean.BeanUtil;
 import net.sourceforge.stripes.util.bean.ExpressionException;
 import net.sourceforge.stripes.validation.ValidationErrors;
+import net.sourceforge.stripes.validation.ValidationMetadata;
 
 /**
  * <p>Default implementation of the form input tag population strategy. First looks to see if there
@@ -61,6 +64,7 @@ public class DefaultPopulationStrategy implements PopulationStrategy {
     public Object getValue(InputTagSupport tag) throws StripesJspException {
         // Look first for something that the user submitted in the current request
         Object value = getValuesFromRequest(tag);
+        boolean fromRequest = value != null;
 
         // If that's not there, let's look on the ActionBean
         if (value == null) {
@@ -70,6 +74,24 @@ public class DefaultPopulationStrategy implements PopulationStrategy {
         // And if there's no value there, look at the tag's own value
         if (value == null) {
             value = getValueFromTag(tag);
+        }
+
+        /*
+         * If the value was pulled from a request parameter, then it should already be encrypted and
+         * should repopulate as-is. Otherwise, if the validation directive says it should be
+         * encrypted, then prepare it for encryption now.
+         */
+        if (!fromRequest) {
+            Class<? extends ActionBean> beanType = config.getActionResolver().getActionBeanType(
+                    tag.getParentFormTag().getAction());
+            if (beanType != null) {
+                ValidationMetadata validate = config.getValidationMetadataProvider()
+                        .getValidationMetadata(beanType, tag.getName());
+                if (validate != null && validate.encrypted()) {
+                    value = new EncryptedValue(value, ((HttpServletRequest) tag.getPageContext()
+                            .getRequest()));
+                }
+            }
         }
 
         return value;

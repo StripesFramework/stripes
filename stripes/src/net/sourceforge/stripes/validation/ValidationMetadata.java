@@ -32,8 +32,9 @@ import java.util.regex.Pattern;
  * @since Stripes 1.5
  */
 public class ValidationMetadata {
-    String property;
-    boolean required;
+    private String property;
+    private boolean encrypted;
+    private boolean required;
     private Set<String> on;
     private boolean onIsPositive;
     private boolean ignore;
@@ -42,7 +43,7 @@ public class ValidationMetadata {
     private Pattern mask;
     private String expression;
     @SuppressWarnings("unchecked")
-	Class<? extends TypeConverter> converter;
+	private Class<? extends TypeConverter> converter;
 
     /**
      * Constructs a ValidationMetadata object for the specified property. Further constraints
@@ -65,6 +66,7 @@ public class ValidationMetadata {
     public ValidationMetadata(String property, Validate validate) {
         // Copy over all the simple values
         this.property = property;
+        encrypted(validate.encrypted());
         required(validate.required());
         ignore(validate.ignore());
         if (validate.minlength() != -1) minlength(validate.minlength());
@@ -81,6 +83,15 @@ public class ValidationMetadata {
     public String getProperty() {
         return this.property;
     }
+
+    /** Sets the encrypted flag for this field. True = encrypted, false = plain text. */
+    public ValidationMetadata encrypted(boolean encrypted) {
+        this.encrypted = encrypted;
+        return this;
+    }
+
+    /** Returns true if the field in question is encrypted. */
+    public boolean encrypted() { return encrypted; }
 
     /** Sets the required-ness of this field. True = required, false = not required. */
     public ValidationMetadata required(boolean required) {
