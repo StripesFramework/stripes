@@ -14,10 +14,11 @@
  */
 package net.sourceforge.stripes.format;
 
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.tag.EncryptedValue;
@@ -36,10 +37,12 @@ public class DefaultFormatterFactory implements FormatterFactory {
     private static final Log log = Log.getInstance(DefaultFormatterFactory.class);
 
     /** A rather generic-heavy Map that maps target type to Formatter. */
-    private Map<Class<?>, Class<? extends Formatter<?>>> formatters = new ConcurrentHashMap<Class<?>, Class<? extends Formatter<?>>>();
+    private Map<Class<?>, Class<? extends Formatter<?>>> formatters = Collections
+            .synchronizedMap(new HashMap<Class<?>, Class<? extends Formatter<?>>>());
 
     /** Cache of indirect formatter results. */
-    private Map<Class<?>, Class<? extends Formatter<?>>> classCache = new ConcurrentHashMap<Class<?>, Class<? extends Formatter<?>>>();
+    private Map<Class<?>, Class<? extends Formatter<?>>> classCache = Collections
+            .synchronizedMap(new HashMap<Class<?>, Class<? extends Formatter<?>>>());
 
     /** Stores a reference to the Configuration passed in at initialization time. */
     private Configuration configuration;
