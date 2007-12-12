@@ -113,7 +113,7 @@ public class DefaultFormatterFactory implements FormatterFactory {
             }
         }
         else {
-            log.debug("Couldn't find a Formatter for ", clazz);
+            log.trace("Couldn't find a formatter for ", clazz);
             return null;
         }
     }
