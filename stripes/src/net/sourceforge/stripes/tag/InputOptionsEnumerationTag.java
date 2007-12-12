@@ -116,7 +116,6 @@ public class InputOptionsEnumerationTag extends InputOptionsCollectionTag {
             Locale locale = getPageContext().getRequest().getLocale();
 
             for (Enum item : enums) {
-                Object value = item.name();
                 Object label = null;
                 String packageName = clazz.getPackage() == null ? "" : clazz.getPackage().getName();
 
@@ -133,7 +132,7 @@ public class InputOptionsEnumerationTag extends InputOptionsCollectionTag {
                     }
                 }
 
-                addEntry(item, label, value);
+                addEntry(item, label, item);
             }
         }
         catch (ExpressionException ee) {
