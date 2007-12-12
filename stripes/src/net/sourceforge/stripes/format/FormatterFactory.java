@@ -39,4 +39,17 @@ public interface FormatterFactory extends ConfigurableComponent {
      *         the type specified
      */
     Formatter<?> getFormatter(Class<?> clazz, Locale locale, String formatType, String formatPattern);
+
+    /**
+     * Adds a formatter to the set of registered formatters, overriding an existing formatter if one
+     * was already registered for the type. This is an optional operation. If an implementation does
+     * not support adding formatters at runtime, then it must throw
+     * {@link UnsupportedOperationException}.
+     * 
+     * @param targetType the type for which the formatter will handle formatting
+     * @param formatterClass the implementation class that will handle the formatting
+     * @throws UnsupportedOperationException if the implementation does not support adding
+     *             formatters at runtime
+     */
+    public void add(Class<?> targetType, Class<? extends Formatter<?>> formatterClass);
 }
