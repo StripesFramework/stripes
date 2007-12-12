@@ -120,13 +120,29 @@ public class DefaultFormatterFactory implements FormatterFactory {
 
     /**
      * Search for a formatter class that best matches the requested class, first checking the
-     * specified class, then it's interfaces, then superclasses, and then the superclasses of its
-     * interfaces.
+     * specified class, then all the interfaces it implements, then all its superclasses and the
+     * interfaces they implement, and finally all the superclasses of the interfaces implemented by
+     * {@code targetClass}.
      * 
      * @param targetClass the class of the object that needs to be formatted
      * @return the first applicable formatter found or null if no match could be found
      */
     protected Class<? extends Formatter<?>> findFormatterClass(Class<?> targetClass) {
+        Class<? extends Formatter<?>> formatterClass = findInSuperclasses(targetClass);
+        if (formatterClass == null)
+            formatterClass = findInInterfaces(targetClass, targetClass.getInterfaces());
+        return formatterClass;
+    }
+
+    /**
+     * Called first by {@link #findFormatterClass(Class)}. Search for a formatter class that best
+     * matches the requested class, first checking the specified class, then all the interfaces it
+     * implements. If no match is found, repeat the process for each superclass.
+     * 
+     * @param targetClass the class of the object that needs to be formatted
+     * @return the first applicable formatter found or null if no match could be found
+     */
+    protected Class<? extends Formatter<?>> findInSuperclasses(Class<?> targetClass) {
         // Check for a known formatter for the class
         if (formatters.containsKey(targetClass))
             return formatters.get(targetClass);
@@ -150,13 +166,32 @@ public class DefaultFormatterFactory implements FormatterFactory {
             }
         }
 
-        // Check superclasses of implemented interfaces
-        for (Class<?> iface : targetClass.getInterfaces()) {
-            for (Class<?> superiface : iface.getInterfaces()) {
-                if ((formatterClass = formatters.get(superiface)) != null)
-                    return cacheFormatterClass(targetClass, formatterClass);
-                else if ((formatterClass = classCache.get(superiface)) != null)
-                    return cacheFormatterClass(targetClass, formatterClass);
+        // Nothing found, so cache null
+        return cacheFormatterClass(targetClass, null);
+    }
+
+    /**
+     * Called second by {@link #findFormatterClass(Class)}, after
+     * {@link #findInSuperclasses(Class)}. Search for a formatter class that best matches the
+     * requested class by checking the superclasses of every interface implemented by
+     * {@code targetClass}.
+     * 
+     * @param targetClass the class of the object that needs to be formatted
+     * @param ifaces an array of interfaces to search
+     * @return the first applicable formatter found or null if no match could be found
+     */
+    protected Class<? extends Formatter<?>> findInInterfaces(Class<?> targetClass,
+            Class<?>... ifaces) {
+        Class<? extends Formatter<?>> formatterClass = null;
+        for (Class<?> iface : ifaces) {
+            if ((formatterClass = formatters.get(iface)) != null) {
+                return cacheFormatterClass(targetClass, formatterClass);
+            }
+            else if ((formatterClass = classCache.get(iface)) != null) {
+                return cacheFormatterClass(targetClass, formatterClass);
+            }
+            else if ((formatterClass = findInInterfaces(targetClass, iface.getInterfaces())) != null) {
+                return cacheFormatterClass(targetClass, formatterClass);
             }
         }
 

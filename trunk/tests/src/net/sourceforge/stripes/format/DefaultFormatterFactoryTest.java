@@ -148,6 +148,28 @@ public class DefaultFormatterFactoryTest {
         Assert.assertEquals(YFormatter.class, formatter.getClass());
     }
 
+    public static void main(String[] args) throws Exception {
+        DefaultFormatterFactoryTest test = new DefaultFormatterFactoryTest();
+        test.testFormatterSuperclass();
+        test.testFormatterInterface();
+        test.testNullFormatterIsNeverBestMatch();
+        test.testFormatterSuperclassImplementsInterface();
+        test.testFormatterForInterfaceSuperclass();
+    }
+
+    public void testFormatterForInterfaceSuperclass() throws Exception {
+        DefaultFormatterFactory factory = new DefaultFormatterFactory();
+        factory.init(new DefaultConfiguration());
+
+        Locale locale = Locale.getDefault();
+        Formatter<?> formatter;
+
+        factory.add(IfaceLevel1.class, IfaceLevel1Formatter.class);
+
+        formatter = factory.getFormatter(ImplementsIfaceWithSuperclasses.class, locale, null, null);
+        Assert.assertEquals(IfaceLevel1Formatter.class, formatter.getClass());
+    }
+
     public static class A {
     }
 
@@ -224,5 +246,20 @@ public class DefaultFormatterFactoryTest {
     }
 
     public static class ZFormatter extends DummyFormatter<Z> {
+    }
+
+    public static interface IfaceLevel1 {
+    }
+
+    public static interface IfaceLevel2 extends IfaceLevel1 {
+    }
+
+    public static interface IfaceLevel3 extends IfaceLevel2 {
+    }
+
+    public static class IfaceLevel1Formatter extends DummyFormatter<IfaceLevel1> {
+    }
+
+    public static class ImplementsIfaceWithSuperclasses implements IfaceLevel3 {
     }
 }
