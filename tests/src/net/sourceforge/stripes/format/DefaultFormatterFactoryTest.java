@@ -104,10 +104,10 @@ public class DefaultFormatterFactoryTest {
         formatter = factory.getFormatter(B.class, locale, null, null);
         Assert.assertNull(formatter);
 
-        // then try to get a formatter for C
-        factory.add(C.class, CTC.class);
-        formatter = factory.getFormatter(C.class, locale, null, null);
-        Assert.assertEquals(CTC.class, formatter.getClass());
+        // then register formatter for A and try to get formatter for C
+        factory.add(A.class, ATC.class);
+        formatter = factory.getFormatter(A.class, locale, null, null);
+        Assert.assertEquals(ATC.class, formatter.getClass());
     }
 
     public static class A {
