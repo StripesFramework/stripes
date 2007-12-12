@@ -134,29 +134,29 @@ public class DefaultFormatterFactory implements FormatterFactory {
             return classCache.get(targetClass);
 
         // Check directly implemented interfaces
+        Class<? extends Formatter<?>> formatterClass;
         for (Class<?> iface : targetClass.getInterfaces()) {
-            if (formatters.containsKey(iface))
-                return cacheFormatterClass(targetClass, formatters.get(iface));
-            else if (classCache.containsKey(iface))
-                return cacheFormatterClass(targetClass, classCache.get(iface));
+            if ((formatterClass = formatters.get(iface)) != null)
+                return cacheFormatterClass(targetClass, formatterClass);
+            else if ((formatterClass = classCache.get(iface)) != null)
+                return cacheFormatterClass(targetClass, formatterClass);
         }
 
         // Check superclasses
-        Class<?> parent = targetClass;
-        while ((parent = parent.getSuperclass()) != null) {
-            if (formatters.containsKey(parent))
-                return cacheFormatterClass(targetClass, formatters.get(parent));
-            else if (classCache.containsKey(parent))
-                return cacheFormatterClass(targetClass, classCache.get(parent));
+        Class<?> parent = targetClass.getSuperclass();
+        if (parent != null) {
+            if ((formatterClass = findFormatterClass(parent)) != null) {
+                return cacheFormatterClass(targetClass, formatterClass);
+            }
         }
 
         // Check superclasses of implemented interfaces
         for (Class<?> iface : targetClass.getInterfaces()) {
             for (Class<?> superiface : iface.getInterfaces()) {
-                if (formatters.containsKey(superiface))
-                    return cacheFormatterClass(targetClass, formatters.get(superiface));
-                else if (classCache.containsKey(superiface))
-                    return cacheFormatterClass(targetClass, classCache.get(superiface));
+                if ((formatterClass = formatters.get(superiface)) != null)
+                    return cacheFormatterClass(targetClass, formatterClass);
+                else if ((formatterClass = classCache.get(superiface)) != null)
+                    return cacheFormatterClass(targetClass, formatterClass);
             }
         }
 
