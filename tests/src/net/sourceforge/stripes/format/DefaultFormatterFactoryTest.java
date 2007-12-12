@@ -16,32 +16,32 @@ public class DefaultFormatterFactoryTest {
         Locale locale = Locale.getDefault();
         Formatter<?> formatter;
 
-        factory.add(A.class, ATC.class);
+        factory.add(A.class, AFormatter.class);
 
         formatter = factory.getFormatter(A.class, locale, null, null);
-        Assert.assertEquals(ATC.class, formatter.getClass());
+        Assert.assertEquals(AFormatter.class, formatter.getClass());
         formatter = factory.getFormatter(B.class, locale, null, null);
-        Assert.assertEquals(ATC.class, formatter.getClass());
+        Assert.assertEquals(AFormatter.class, formatter.getClass());
         formatter = factory.getFormatter(C.class, locale, null, null);
-        Assert.assertEquals(ATC.class, formatter.getClass());
+        Assert.assertEquals(AFormatter.class, formatter.getClass());
 
-        factory.add(B.class, BTC.class);
+        factory.add(B.class, BFormatter.class);
 
         formatter = factory.getFormatter(A.class, locale, null, null);
-        Assert.assertEquals(ATC.class, formatter.getClass());
+        Assert.assertEquals(AFormatter.class, formatter.getClass());
         formatter = factory.getFormatter(B.class, locale, null, null);
-        Assert.assertEquals(BTC.class, formatter.getClass());
+        Assert.assertEquals(BFormatter.class, formatter.getClass());
         formatter = factory.getFormatter(C.class, locale, null, null);
-        Assert.assertEquals(BTC.class, formatter.getClass());
+        Assert.assertEquals(BFormatter.class, formatter.getClass());
 
-        factory.add(C.class, CTC.class);
+        factory.add(C.class, CFormatter.class);
 
         formatter = factory.getFormatter(A.class, locale, null, null);
-        Assert.assertEquals(ATC.class, formatter.getClass());
+        Assert.assertEquals(AFormatter.class, formatter.getClass());
         formatter = factory.getFormatter(B.class, locale, null, null);
-        Assert.assertEquals(BTC.class, formatter.getClass());
+        Assert.assertEquals(BFormatter.class, formatter.getClass());
         formatter = factory.getFormatter(C.class, locale, null, null);
-        Assert.assertEquals(CTC.class, formatter.getClass());
+        Assert.assertEquals(CFormatter.class, formatter.getClass());
     }
 
     @Test(groups = "fast")
@@ -52,44 +52,44 @@ public class DefaultFormatterFactoryTest {
         Locale locale = Locale.getDefault();
         Formatter<?> formatter;
 
-        factory.add(X.class, XTC.class);
+        factory.add(X.class, XFormatter.class);
 
         formatter = factory.getFormatter(L.class, locale, null, null);
-        Assert.assertEquals(XTC.class, formatter.getClass());
+        Assert.assertEquals(XFormatter.class, formatter.getClass());
         formatter = factory.getFormatter(M.class, locale, null, null);
-        Assert.assertEquals(XTC.class, formatter.getClass());
+        Assert.assertEquals(XFormatter.class, formatter.getClass());
         formatter = factory.getFormatter(N.class, locale, null, null);
-        Assert.assertEquals(XTC.class, formatter.getClass());
+        Assert.assertEquals(XFormatter.class, formatter.getClass());
         formatter = factory.getFormatter(O.class, locale, null, null);
-        Assert.assertEquals(XTC.class, formatter.getClass());
+        Assert.assertEquals(XFormatter.class, formatter.getClass());
         formatter = factory.getFormatter(P.class, locale, null, null);
-        Assert.assertEquals(XTC.class, formatter.getClass());
+        Assert.assertEquals(XFormatter.class, formatter.getClass());
 
-        factory.add(Y.class, YTC.class);
+        factory.add(Y.class, YFormatter.class);
 
         formatter = factory.getFormatter(L.class, locale, null, null);
-        Assert.assertEquals(XTC.class, formatter.getClass());
+        Assert.assertEquals(XFormatter.class, formatter.getClass());
         formatter = factory.getFormatter(M.class, locale, null, null);
-        Assert.assertEquals(YTC.class, formatter.getClass());
+        Assert.assertEquals(YFormatter.class, formatter.getClass());
         formatter = factory.getFormatter(N.class, locale, null, null);
-        Assert.assertEquals(YTC.class, formatter.getClass());
+        Assert.assertEquals(YFormatter.class, formatter.getClass());
         formatter = factory.getFormatter(O.class, locale, null, null);
-        Assert.assertEquals(YTC.class, formatter.getClass());
+        Assert.assertEquals(YFormatter.class, formatter.getClass());
         formatter = factory.getFormatter(P.class, locale, null, null);
-        Assert.assertEquals(YTC.class, formatter.getClass());
+        Assert.assertEquals(YFormatter.class, formatter.getClass());
 
-        factory.add(Z.class, ZTC.class);
+        factory.add(Z.class, ZFormatter.class);
 
         formatter = factory.getFormatter(L.class, locale, null, null);
-        Assert.assertEquals(XTC.class, formatter.getClass());
+        Assert.assertEquals(XFormatter.class, formatter.getClass());
         formatter = factory.getFormatter(M.class, locale, null, null);
-        Assert.assertEquals(YTC.class, formatter.getClass());
+        Assert.assertEquals(YFormatter.class, formatter.getClass());
         formatter = factory.getFormatter(N.class, locale, null, null);
-        Assert.assertEquals(ZTC.class, formatter.getClass());
+        Assert.assertEquals(ZFormatter.class, formatter.getClass());
         formatter = factory.getFormatter(O.class, locale, null, null);
-        Assert.assertEquals(YTC.class, formatter.getClass());
+        Assert.assertEquals(YFormatter.class, formatter.getClass());
         formatter = factory.getFormatter(P.class, locale, null, null);
-        Assert.assertEquals(ZTC.class, formatter.getClass());
+        Assert.assertEquals(ZFormatter.class, formatter.getClass());
     }
 
     @Test(groups = "fast")
@@ -105,9 +105,47 @@ public class DefaultFormatterFactoryTest {
         Assert.assertNull(formatter);
 
         // then register formatter for A and try to get formatter for C
-        factory.add(A.class, ATC.class);
+        factory.add(A.class, AFormatter.class);
         formatter = factory.getFormatter(A.class, locale, null, null);
-        Assert.assertEquals(ATC.class, formatter.getClass());
+        Assert.assertEquals(AFormatter.class, formatter.getClass());
+    }
+
+    @Test(groups = "fast")
+    public void testFormatterSuperclassImplementsInterface() throws Exception {
+        DefaultFormatterFactory factory = new DefaultFormatterFactory();
+        factory.init(new DefaultConfiguration());
+
+        Locale locale = Locale.getDefault();
+        Formatter<?> formatter;
+
+        // simple test to get formatter for a superclass interface
+        factory.add(X.class, XFormatter.class);
+        factory.add(Y.class, YFormatter.class);
+        factory.add(Z.class, ZFormatter.class);
+
+        formatter = factory.getFormatter(SuperclassImplementsX.class, locale, null, null);
+        Assert.assertEquals(XFormatter.class, formatter.getClass());
+        formatter = factory.getFormatter(SuperclassImplementsY.class, locale, null, null);
+        Assert.assertEquals(YFormatter.class, formatter.getClass());
+        formatter = factory.getFormatter(SuperclassImplementsZ.class, locale, null, null);
+        Assert.assertEquals(ZFormatter.class, formatter.getClass());
+
+        /*
+         * test that if Z extends Y extends X and Y implements I and a formatter is registered for
+         * both X and I then the formatter returned for Y and Z is the I formatter
+         */
+        factory = new DefaultFormatterFactory();
+        factory.init(new DefaultConfiguration());
+
+        factory.add(SuperclassImplementsX.class, XFormatter.class); // mapping for base class
+        factory.add(Y.class, YFormatter.class); // mapping for interface in the middle
+
+        formatter = factory.getFormatter(SuperclassImplementsX.class, locale, null, null);
+        Assert.assertEquals(XFormatter.class, formatter.getClass());
+        formatter = factory.getFormatter(SuperclassImplementsY.class, locale, null, null);
+        Assert.assertEquals(YFormatter.class, formatter.getClass());
+        formatter = factory.getFormatter(SuperclassImplementsZ.class, locale, null, null);
+        Assert.assertEquals(YFormatter.class, formatter.getClass());
     }
 
     public static class A {
@@ -137,13 +175,13 @@ public class DefaultFormatterFactoryTest {
         }
     }
 
-    public static class ATC extends DummyFormatter<A> {
+    public static class AFormatter extends DummyFormatter<A> {
     }
 
-    public static class BTC extends DummyFormatter<B> {
+    public static class BFormatter extends DummyFormatter<B> {
     }
 
-    public static class CTC extends DummyFormatter<C> {
+    public static class CFormatter extends DummyFormatter<C> {
     }
 
     public interface X {
@@ -170,12 +208,21 @@ public class DefaultFormatterFactoryTest {
     public static class P extends O implements Z {
     }
 
-    public static class XTC extends DummyFormatter<X> {
+    public static class SuperclassImplementsX extends L {
     }
 
-    public static class YTC extends DummyFormatter<Y> {
+    public static class SuperclassImplementsY extends M {
     }
 
-    public static class ZTC extends DummyFormatter<Z> {
+    public static class SuperclassImplementsZ extends N {
+    }
+
+    public static class XFormatter extends DummyFormatter<X> {
+    }
+
+    public static class YFormatter extends DummyFormatter<Y> {
+    }
+
+    public static class ZFormatter extends DummyFormatter<Z> {
     }
 }
