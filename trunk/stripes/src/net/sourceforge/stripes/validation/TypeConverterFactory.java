@@ -52,4 +52,17 @@ public interface TypeConverterFactory extends ConfigurableComponent {
      */
     @SuppressWarnings("unchecked")
 	TypeConverter getInstance(Class<? extends TypeConverter> clazz, Locale locale) throws Exception;
+
+    /**
+     * Adds a type converter to the set of registered type converters, overriding an existing
+     * converter if one was already registered for the type. This is an optional operation.
+     * Implementations that do not support adding type converters at runtime must throw
+     * {@link UnsupportedOperationException}.
+     * 
+     * @param targetType the type for which the converter will handle conversions
+     * @param converterClass the implementation class that will handle the conversions
+     * @throws UnsupportedOperationException if the implementation does not support adding type
+     *             converters at runtime
+     */
+    public void add(Class<?> targetType, Class<? extends TypeConverter<?>> converterClass);
 }
