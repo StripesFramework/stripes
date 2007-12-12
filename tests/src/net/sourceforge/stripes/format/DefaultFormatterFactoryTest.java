@@ -92,6 +92,24 @@ public class DefaultFormatterFactoryTest {
         Assert.assertEquals(ZTC.class, formatter.getClass());
     }
 
+    @Test(groups = "fast")
+    public void testNullFormatterIsNeverBestMatch() throws Exception {
+        DefaultFormatterFactory factory = new DefaultFormatterFactory();
+        factory.init(new DefaultConfiguration());
+
+        Locale locale = Locale.getDefault();
+        Formatter<?> formatter;
+
+        // cause null formatter to be cached for B
+        formatter = factory.getFormatter(B.class, locale, null, null);
+        Assert.assertNull(formatter);
+
+        // then try to get a formatter for C
+        factory.add(C.class, CTC.class);
+        formatter = factory.getFormatter(C.class, locale, null, null);
+        Assert.assertEquals(CTC.class, formatter.getClass());
+    }
+
     public static class A {
     }
 
