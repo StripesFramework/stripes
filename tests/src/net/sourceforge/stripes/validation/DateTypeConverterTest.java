@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Calendar;
+import java.util.MissingResourceException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
@@ -22,7 +23,13 @@ public class DateTypeConverterTest {
     private DateFormat format = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
 
     private DateTypeConverter getConverter(Locale locale) {
-        DateTypeConverter converter = new DateTypeConverter();
+        DateTypeConverter converter = new DateTypeConverter(){
+            @Override
+            protected String getResourceString(final String key) throws MissingResourceException {
+                throw new MissingResourceException("Bundle not available to unit tests.", "", key);
+            }
+        };
+
         converter.setLocale(locale);
         return converter;
     }
