@@ -14,11 +14,14 @@
  */
 package net.sourceforge.stripes.tag;
 
+import java.security.GeneralSecurityException;
+
 import javax.servlet.http.HttpServletRequest;
 
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.exception.StripesJspException;
+import net.sourceforge.stripes.util.CryptoUtil;
 import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.util.bean.BeanUtil;
 import net.sourceforge.stripes.util.bean.ExpressionException;
@@ -64,7 +67,6 @@ public class DefaultPopulationStrategy implements PopulationStrategy {
     public Object getValue(InputTagSupport tag) throws StripesJspException {
         // Look first for something that the user submitted in the current request
         Object value = getValuesFromRequest(tag);
-        boolean fromRequest = value != null;
 
         // If that's not there, let's look on the ActionBean
         if (value == null) {
@@ -74,24 +76,6 @@ public class DefaultPopulationStrategy implements PopulationStrategy {
         // And if there's no value there, look at the tag's own value
         if (value == null) {
             value = getValueFromTag(tag);
-        }
-
-        /*
-         * If the value was pulled from a request parameter, then it should already be encrypted and
-         * should repopulate as-is. Otherwise, if the validation directive says it should be
-         * encrypted, then prepare it for encryption now.
-         */
-        if (!fromRequest) {
-            Class<? extends ActionBean> beanType = config.getActionResolver().getActionBeanType(
-                    tag.getParentFormTag().getAction());
-            if (beanType != null) {
-                ValidationMetadata validate = config.getValidationMetadataProvider()
-                        .getValidationMetadata(beanType, tag.getName());
-                if (validate != null && validate.encrypted()) {
-                    value = new EncryptedValue(value, ((HttpServletRequest) tag.getPageContext()
-                            .getRequest()));
-                }
-            }
         }
 
         return value;
@@ -105,7 +89,44 @@ public class DefaultPopulationStrategy implements PopulationStrategy {
      * @return a String[] if values are found, null otherwise
      */
     protected String[] getValuesFromRequest(InputTagSupport tag) throws StripesJspException {
-        return tag.getPageContext().getRequest().getParameterValues(tag.getName());
+        String[] value = tag.getPageContext().getRequest().getParameterValues(tag.getName());
+
+        /*
+         * If the value was pulled from a request parameter and the ActionBean property it would
+         * bind to is flagged as encrypted, then the value needs to be decrypted now.
+         */
+        if (value != null) {
+            // find the action bean class we're dealing with
+            Class<? extends ActionBean> beanClass = null;
+            ActionBean bean = tag.getActionBean();
+            if (bean != null) {
+                beanClass = bean.getClass();
+            }
+            else {
+                beanClass = config.getActionResolver().getActionBeanType(
+                        tag.getParentFormTag().getAction());
+            }
+
+            if (beanClass != null) {
+                ValidationMetadata validate = config.getValidationMetadataProvider()
+                        .getValidationMetadata(beanClass, tag.getName());
+                if (validate != null && validate.encrypted()) {
+                    try {
+                        String[] copy = new String[value.length];
+                        for (int i = 0; i < copy.length; i++) {
+                            copy[i] = CryptoUtil.decrypt(value[i], ((HttpServletRequest) tag
+                                    .getPageContext().getRequest()));
+                        }
+                        value = copy;
+                    }
+                    catch (GeneralSecurityException e) {
+                        throw new StripesJspException(e);
+                    }
+                }
+            }
+        }
+
+        return value;
     }
 
     /**

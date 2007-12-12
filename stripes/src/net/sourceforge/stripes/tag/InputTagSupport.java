@@ -15,15 +15,19 @@
 package net.sourceforge.stripes.tag;
 
 import net.sourceforge.stripes.action.ActionBean;
+import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.controller.StripesFilter;
 import net.sourceforge.stripes.exception.StripesJspException;
+import net.sourceforge.stripes.exception.StripesRuntimeException;
 import net.sourceforge.stripes.format.Formatter;
 import net.sourceforge.stripes.format.FormatterFactory;
 import net.sourceforge.stripes.localization.LocalizationUtility;
 import net.sourceforge.stripes.validation.ValidationError;
 import net.sourceforge.stripes.validation.ValidationErrors;
 import net.sourceforge.stripes.validation.BooleanTypeConverter;
+import net.sourceforge.stripes.validation.ValidationMetadata;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.tagext.TryCatchFinally;
@@ -250,7 +254,44 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
             return "";
         }
 
-        FormatterFactory factory = StripesFilter.getConfiguration().getFormatterFactory();
+        Configuration config = StripesFilter.getConfiguration();
+        try {
+            // find the action bean class we're dealing with
+            Class<? extends ActionBean> beanClass = null;
+            ActionBean bean = getActionBean();
+            if (bean != null) {
+                beanClass = bean.getClass();
+            }
+            else {
+                beanClass = config.getActionResolver().getActionBeanType(
+                        getParentFormTag().getAction());
+            }
+
+            // if a bean class was found then check the encrypted flag on this property
+            if (beanClass != null) {
+                // ascend the tag stack until a tag name is found
+                String name = getName();
+                if (name == null) {
+                    InputTagSupport tag = getParentTag(InputTagSupport.class);
+                    while (name == null && tag != null) {
+                        name = tag.getName();
+                    }
+                }
+
+                // check validation for encryption flag
+                ValidationMetadata validate = config.getValidationMetadataProvider()
+                        .getValidationMetadata(beanClass, name);
+                if (validate != null && validate.encrypted()) {
+                    input = new EncryptedValue(input, (HttpServletRequest) getPageContext()
+                            .getRequest());
+                }
+            }
+        }
+        catch (JspException e) {
+            throw new StripesRuntimeException(e);
+        }
+
+        FormatterFactory factory = config.getFormatterFactory();
         Formatter formatter = factory.getFormatter(input.getClass(),
                                                    getPageContext().getRequest().getLocale(),
                                                    this.formatType,
