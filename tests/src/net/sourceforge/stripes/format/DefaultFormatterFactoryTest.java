@@ -148,13 +148,43 @@ public class DefaultFormatterFactoryTest {
         Assert.assertEquals(YFormatter.class, formatter.getClass());
     }
 
-    public static void main(String[] args) throws Exception {
-        DefaultFormatterFactoryTest test = new DefaultFormatterFactoryTest();
-        test.testFormatterSuperclass();
-        test.testFormatterInterface();
-        test.testNullFormatterIsNeverBestMatch();
-        test.testFormatterSuperclassImplementsInterface();
-        test.testFormatterForInterfaceSuperclass();
+    @Test(groups = "fast")
+    public void testFormatterInstanceCaching() throws Exception {
+        DefaultFormatterFactory factory = new DefaultFormatterFactory();
+        factory.init(new DefaultConfiguration());
+
+        Locale locale = Locale.getDefault();
+        Formatter<?> first, second;
+
+        // register some formatters
+        factory.add(X.class, XFormatter.class);
+        factory.add(Y.class, YFormatter.class);
+        factory.add(Z.class, ZFormatter.class);
+
+        // get each twice in succession and compare the references to make sure it's the same object
+        first = factory.getFormatter(SuperclassImplementsX.class, locale, null, null);
+        second = factory.getFormatter(SuperclassImplementsX.class, locale, null, null);
+        Assert.assertTrue(first == second);
+        first = factory.getFormatter(SuperclassImplementsY.class, locale, null, null);
+        second = factory.getFormatter(SuperclassImplementsY.class, locale, null, null);
+        Assert.assertTrue(first == second);
+        first = factory.getFormatter(SuperclassImplementsZ.class, locale, null, null);
+        second = factory.getFormatter(SuperclassImplementsZ.class, locale, null, null);
+        Assert.assertTrue(first == second);
+
+        // do it again but force a cache clear between gets
+        first = factory.getFormatter(SuperclassImplementsX.class, locale, null, null);
+        factory.add(X.class, XFormatter.class);
+        second = factory.getFormatter(SuperclassImplementsX.class, locale, null, null);
+        Assert.assertFalse(first == second);
+        first = factory.getFormatter(SuperclassImplementsY.class, locale, null, null);
+        factory.add(Y.class, YFormatter.class);
+        second = factory.getFormatter(SuperclassImplementsY.class, locale, null, null);
+        Assert.assertFalse(first == second);
+        first = factory.getFormatter(SuperclassImplementsZ.class, locale, null, null);
+        factory.add(Z.class, ZFormatter.class);
+        second = factory.getFormatter(SuperclassImplementsZ.class, locale, null, null);
+        Assert.assertFalse(first == second);
     }
 
     public void testFormatterForInterfaceSuperclass() throws Exception {
