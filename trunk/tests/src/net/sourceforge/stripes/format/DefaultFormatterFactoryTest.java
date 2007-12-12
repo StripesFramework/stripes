@@ -106,7 +106,7 @@ public class DefaultFormatterFactoryTest {
 
         // then register formatter for A and try to get formatter for C
         factory.add(A.class, AFormatter.class);
-        formatter = factory.getFormatter(A.class, locale, null, null);
+        formatter = factory.getFormatter(C.class, locale, null, null);
         Assert.assertEquals(AFormatter.class, formatter.getClass());
     }
 
