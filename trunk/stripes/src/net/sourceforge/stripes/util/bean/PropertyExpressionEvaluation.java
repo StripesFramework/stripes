@@ -390,7 +390,7 @@ public class PropertyExpressionEvaluation {
      * TypeParameter provided.
      *
      * @param evaluation the current NodeEvaluation
-     * @param type the TypeVariable to try and find a more concrete type for
+     * @param typeVar the TypeVariable to try and find a more concrete type for
      * @return the actual type argument for the type variable if possible, or null
      */
     protected Type getTypeVariableValue(NodeEvaluation evaluation, TypeVariable<?> typeVar) {

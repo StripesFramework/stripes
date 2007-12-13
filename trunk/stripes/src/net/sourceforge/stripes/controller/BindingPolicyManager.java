@@ -89,7 +89,7 @@ public class BindingPolicyManager {
     /**
      * Create a new instance to handle binding security for the given type.
      * 
-     * @param beanType the type to which the binding policy applies
+     * @param beanClass the class to which the binding policy applies
      */
     protected BindingPolicyManager(Class<?> beanClass) {
         try {
@@ -207,7 +207,6 @@ public class BindingPolicyManager {
     /**
      * Get the default policy.
      * 
-     * @param beanType the class whose policy is to be looked up
      * @return the policy
      */
     public Policy getDefaultPolicy() {
@@ -219,7 +218,7 @@ public class BindingPolicyManager {
      * 
      * @param globArray an array of property name globs, each of which may be a comma separated list
      *            of globs
-     * @return
+     * @return the pattern
      */
     protected Pattern globToPattern(String... globArray) {
         if (globArray == null || globArray.length == 0)

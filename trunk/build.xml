@@ -87,7 +87,7 @@
     <!-- =================================================================== -->
     <!-- Generates the documentation for the stripes and examples projects.  -->
     <!-- =================================================================== -->
-    <target name="doc" description="Generates the Stripes JavaDoc and Tag Library documentation.">
+    <target name="doc" depends="build" description="Generates the Stripes JavaDoc and Tag Library documentation.">
         <ant dir="${stripes.dir}" target="javadoc"/>
         <ant dir="${stripes.dir}" target="tlddoc"/>
         <ant dir="${examples.dir}" target="javadoc"/>

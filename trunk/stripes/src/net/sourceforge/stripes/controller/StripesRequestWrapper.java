@@ -194,7 +194,7 @@ public class StripesRequestWrapper extends HttpServletRequestWrapper {
 
     /**
      * Restore the URI parameters to the state they were in before the previous call to
-     * {@link #pushUriParameters(HttpServletRequest)}.
+     * {@link #pushUriParameters(HttpServletRequestWrapper)}.
      */
     public void popUriParameters() {
         this.parameterMap.popUriParameters();
@@ -437,7 +437,7 @@ class MergedParameterMap implements Map<String, String[]> {
 
     /**
      * Restore the URI parameters to the state they were in before the previous call to
-     * {@link #pushUriParameters(HttpServletRequest)}.
+     * {@link #pushUriParameters(HttpServletRequestWrapper)}.
      */
     public void popUriParameters() {
         if (this.uriParamStack.isEmpty()) {
