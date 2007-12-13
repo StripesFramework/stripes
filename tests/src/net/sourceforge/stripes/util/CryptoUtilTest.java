@@ -65,4 +65,11 @@ public class CryptoUtilTest {
 
         Assert.assertNull(decrypted, "Decrypting null should give back null.");
     }
+    
+    @Test(groups = "fast")
+    public void decryptBogusInputTest() throws Exception {
+        String input = CryptoUtil.encrypt("This is bogus!", getRequest());
+        String decrypted = CryptoUtil.decrypt(input, getRequest());
+        Assert.assertNull(decrypted, "Decrypting a bogus input should give back null.");
+    }
 }
