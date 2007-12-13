@@ -14,6 +14,8 @@
  */
 package net.sourceforge.stripes.action;
 
+import net.sourceforge.stripes.validation.ValidationErrorHandler;
+
 /**
  * <p>Interface for all classes that respond to user interface events. Implementations receive
  * information about the event (usually a form submission) in two ways.  The first is through a

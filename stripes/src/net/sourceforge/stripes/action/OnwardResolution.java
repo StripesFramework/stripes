@@ -19,6 +19,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import net.sourceforge.stripes.controller.StripesFilter;
+import net.sourceforge.stripes.format.Formatter;
 import net.sourceforge.stripes.util.UrlBuilder;
 
 /**

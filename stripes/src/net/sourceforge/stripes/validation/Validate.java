@@ -20,6 +20,8 @@ import java.lang.annotation.Target;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Documented;
 
+import net.sourceforge.stripes.tag.InputHiddenTag;
+
 /**
  * Primary annotation used to specify validations for form fields.  Allows quick and easy
  * specification of the most common types of validation logic, as well as a way to specify
