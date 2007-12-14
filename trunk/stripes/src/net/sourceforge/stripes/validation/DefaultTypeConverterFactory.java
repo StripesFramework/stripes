@@ -15,7 +15,9 @@
 package net.sourceforge.stripes.validation;
 
 import net.sourceforge.stripes.config.Configuration;
+import net.sourceforge.stripes.util.Log;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Date;
@@ -31,9 +33,32 @@ import java.math.BigDecimal;
  * @author Tim Fennell
  */
 public class DefaultTypeConverterFactory implements TypeConverterFactory {
+    private static final Log log = Log.getInstance(DefaultTypeConverterFactory.class);
+
     /** A rather generic-heavy Map that maps target type to TypeConverter. */
     private Map<Class<?>, Class<? extends TypeConverter<?>>> converters =
         new HashMap<Class<?>, Class<? extends TypeConverter<?>>>();
+
+    /** Cache of indirect type converter results. */
+    private Map<Class<?>, Class<? extends TypeConverter<?>>> classCache = Collections
+            .synchronizedMap(new HashMap<Class<?>, Class<? extends TypeConverter<?>>>());
+
+    /** Thread local cache of type converter instances. */
+    @SuppressWarnings("unchecked")
+    private ThreadLocal<Map<Class<? extends TypeConverter>, TypeConverter>> instanceCache = new ThreadLocal<Map<Class<? extends TypeConverter>, TypeConverter>>() {
+        @Override
+        protected Map<Class<? extends TypeConverter>, TypeConverter> initialValue() {
+            return new HashMap<Class<? extends TypeConverter>, TypeConverter>();
+        }
+    };
+
+    /** Thread local flag that, if true, causes the instance cache to be reset in each thread. */
+    private ThreadLocal<Boolean> clearInstanceCache = new ThreadLocal<Boolean>() {
+        @Override
+        protected Boolean initialValue() {
+            return false;
+        }
+    };
 
     /** Stores a reference to the Configuration passed in at initialization time. */
     private Configuration configuration;
@@ -93,6 +118,7 @@ public class DefaultTypeConverterFactory implements TypeConverterFactory {
      */
     public void add(Class<?> targetType, Class<? extends TypeConverter<?>> converterClass) {
         this.converters.put(targetType, converterClass);
+        clearCache();
     }
     
     /**
@@ -108,19 +134,64 @@ public class DefaultTypeConverterFactory implements TypeConverterFactory {
      */
     @SuppressWarnings("unchecked")
 	public TypeConverter getTypeConverter(Class forType, Locale locale) throws Exception {
-        // First take a look in our map of Converters for one registered for this type.
-        Class<? extends TypeConverter<?>> clazz = this.converters.get(forType);
-
-        if (clazz != null) {
-            return getInstance(clazz, locale );
-        }
-        else if (forType.isEnum()) {
-            // If we didn't find one, maybe this class is an enum?
-            return getInstance(EnumeratedTypeConverter.class, locale);
+        Class<? extends TypeConverter<?>> converterClass = findTypeConverterClass(forType);
+        if (converterClass != null) {
+            try {
+                return getInstance(converterClass, locale);
+            }
+            catch (Exception e) {
+                log.error(e, "Unable to instantiate type converter ", converterClass);
+                return null;
+            }
         }
         else {
+            log.trace("Couldn't find a type converter for ", forType);
             return null;
         }
+    }
+    
+    /**
+     * Search for a type converter class that best matches the requested class.
+     * 
+     * @param targetClass the class of the object that needs to be converter
+     * @return the first applicable type converter found or null if no match could be found
+     */
+    @SuppressWarnings("unchecked")
+    protected Class<? extends TypeConverter<?>> findTypeConverterClass(Class<?> targetClass) {
+        if (converters.containsKey(targetClass))
+            return converters.get(targetClass);
+        else if (classCache.containsKey(targetClass))
+            return classCache.get(targetClass);
+        else if (targetClass.isEnum())
+            return cacheTypeConverterClass(targetClass, EnumeratedTypeConverter.class);
+        else
+            return cacheTypeConverterClass(targetClass, null);
+    }
+
+    /**
+     * Add converter class {@code converterClass} for converting objects of type {@code clazz}.
+     * 
+     * @param clazz the type of object being converted
+     * @param converterClass the class of the converter
+     * @return the {@code targetType} parameter
+     */
+    protected Class<? extends TypeConverter<?>> cacheTypeConverterClass(Class<?> clazz,
+            Class<? extends TypeConverter<?>> converterClass) {
+        log.debug("Caching type converter for ", clazz, " => ", converterClass);
+        classCache.put(clazz, converterClass);
+        return converterClass;
+    }
+
+    /** Clear the instance cache. This is called by {@link #add(Class, Class)}. */
+    protected synchronized void clearCache() {
+        log.debug("Clearing type converter cache");
+        classCache.clear();
+        clearInstanceCache = new ThreadLocal<Boolean>() {
+            @Override
+            protected Boolean initialValue() {
+                return true;
+            }
+        };
     }
 
     /**
@@ -131,10 +202,22 @@ public class DefaultTypeConverterFactory implements TypeConverterFactory {
      * @throws Exception if there is a problem instantiating the TypeConverter
      */
     @SuppressWarnings("unchecked")
-	public TypeConverter getInstance(Class<? extends TypeConverter> clazz, Locale locale)
-    throws Exception {
-        // TODO: add thread local caching of converter classes
-        TypeConverter<?> converter = clazz.newInstance();
+    public TypeConverter getInstance(Class<? extends TypeConverter> clazz, Locale locale)
+            throws Exception {
+        // If the reset flag is turned on, then clear the cache and turn the flag off
+        if (clearInstanceCache.get()) {
+            log.debug("Clearing type converter instance cache for thread ",
+                    Thread.currentThread().getName());
+            instanceCache.get().clear();
+            clearInstanceCache.set(false);
+        }
+
+        TypeConverter converter = instanceCache.get().get(clazz);
+        if (converter == null) {
+            converter = clazz.newInstance();
+            log.debug("Caching instance of type converter ", clazz);
+            instanceCache.get().put(clazz, converter);
+        }
         converter.setLocale(locale);
         return converter;
     }
