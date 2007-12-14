@@ -97,8 +97,7 @@ public class DefaultFormatterFactory implements FormatterFactory {
      */
     public void add(Class<?> targetType, Class<? extends Formatter<?>> formatterClass) {
         this.formatters.put(targetType, formatterClass);
-        if (classCache.size() > 0)
-            clearCache();
+        clearCache();
     }
 
     /** Clear the class and instance caches. This is called by {@link #add(Class, Class)}. */
