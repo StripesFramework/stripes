@@ -35,7 +35,7 @@ import net.sourceforge.stripes.util.UrlBuilder;
  *
  * @author Tim Fennell
  */
-public abstract class OnwardResolution<T extends OnwardResolution<T>> {
+public abstract class OnwardResolution<T extends OnwardResolution<T>> implements Resolution {
     private String path;
     private String event;
     private Map<String,Object> parameters = new HashMap<String,Object>();
