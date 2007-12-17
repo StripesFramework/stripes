@@ -2094,6 +2094,60 @@
         <attribute><description>@formatPattern@</description><name>formatPattern</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
     </tag>
 
+    <tag>
+        <description><![CDATA[
+            Creates a script section containing form field metadata.
+        ]]></description>
+        <display-name>field-metadata</display-name>
+        <name>field-metadata</name>
+        <tag-class>net.sourceforge.stripes.tag.FieldMetadataTag</tag-class>
+        <body-content>JSP</body-content>
+        <attribute>
+            <description>
+                The name of the JavaScript variable to place the field metadata into.
+            </description>
+            <name>var</name><required>true</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>
+                Comma separated list of fields to provide metadata for. Stripes input tags
+                that come before the field-metadata tag inside a Stripes form tag will
+                automatically be included. This attribute may be used if you aren't using
+                Stripes form or input tags or if you are dynamically building the form. 
+            </description>
+            <name>fields</name><required>false</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>
+                Setting this to true causes the class names to be included in the output.
+            </description>
+            <name>includeType</name><required>false</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>
+                Setting this to true causes the fully qualified class name to be included
+                instead of the simple class name.
+            </description>
+            <name>fqn</name><required>false</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>
+                If supplied, should match a URL to which an ActionBean has been bound. Unused
+                if this tag is enclosed in a Stripes form tag.
+            </description>
+            <name>action</name><required>false</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>
+                The fully qualified name of an ActionBean class, or alternatively a Class instance
+                for an ActionBean class.  An alternative to the 'action' attribute. Unused
+                if this tag is enclosed in a Stripes form tag.
+            </description>
+            <name>beanclass</name><required>false</required><rtexprvalue>true</rtexprvalue>
+            <type>java.lang.Object</type>
+        </attribute>
+    </tag>
+
     <function>
         <description>
             Returns the name of the supplied Java 5 enumeration value; useful since EL will
