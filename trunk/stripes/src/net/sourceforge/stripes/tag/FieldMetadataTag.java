@@ -118,8 +118,14 @@ public class FieldMetadataTag extends HtmlTagSupport implements BodyTag {
         
         for (String field : fields) {
 
-            PropertyExpressionEvaluation eval = new PropertyExpressionEvaluation(PropertyExpression
-                    .getExpression(field), bean);
+            PropertyExpressionEvaluation eval = null;
+            
+            try {
+                eval = new PropertyExpressionEvaluation(PropertyExpression.getExpression(field), bean);
+            }
+            catch (Exception e) {
+                continue;
+            }
 
             Class<?> fieldType = eval.getType();
 
