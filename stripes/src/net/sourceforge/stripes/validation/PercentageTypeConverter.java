@@ -15,9 +15,9 @@
 package net.sourceforge.stripes.validation;
 
 import java.util.Collection;
-import java.util.ArrayList;
 import java.text.NumberFormat;
 import java.math.BigDecimal;
+import java.util.regex.Pattern;
 
 /**
  * <p>A locale aware number converter that parses percentages. Consistent with other areas of
@@ -31,10 +31,30 @@ import java.math.BigDecimal;
 public class PercentageTypeConverter extends NumberTypeConverterSupport
                                      implements TypeConverter<Number> {
 
+    /** Pattern used to remove any spaces between the value and the % sign. */
+    public static final Pattern PRE_PROCESS_PATTERN = Pattern.compile("[\\s]+%");
+
     /** Returns a single percentage instance of NumberFormat. */
     @Override
     protected NumberFormat[] getNumberFormats() {
         return new NumberFormat[] { NumberFormat.getPercentInstance(getLocale()) };
+    }
+
+    /**
+     * Pre-processes the input by first using {@link NumberTypeConverterSupport#preprocess(String)}
+     * and further pre-processing by adding the % sign if it is missing, any removing any spaces
+     * between the value and the % sign.
+     */
+    @Override
+    protected String preprocess(String input) {
+        String output = super.preprocess(input);
+
+        if (!output.endsWith("%")) {
+            output = output + "%";
+        }
+        output = PRE_PROCESS_PATTERN.matcher(output).replaceAll("%");
+
+        return output;
     }
 
     /**
@@ -44,18 +64,6 @@ public class PercentageTypeConverter extends NumberTypeConverterSupport
      */
     public Number convert(String input, Class<? extends Number> targetType, Collection<ValidationError> errors) {
         Number number = parse(input, errors);
-
-        // Since NumberFormat's percentage instance is insistent that the % sign must be
-        // present (how dumb), if there are errors, let's take a second shot at parsing
-        if (errors.size() > 0) {
-            Collection<ValidationError> errorsToo = new ArrayList<ValidationError>();
-            number = parse(input + "%", errorsToo);
-
-            // If we met with success, clear out the original errors
-            if (errorsToo.size() == 0) {
-                errors.clear();
-            }
-        }
 
         if (errors.size() == 0) {
             if (targetType.equals(Float.class) || targetType.equals(Float.TYPE)) {
