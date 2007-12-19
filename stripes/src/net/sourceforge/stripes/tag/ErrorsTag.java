@@ -58,7 +58,7 @@ import java.util.TreeSet;
  *
  * <p>The errors tag can also be used to display errors for a single field by supplying it
  * with a 'field' attribute which matches the name of a field on the page. In this case the tag
- * will display only if errors exist for the named field.  In this mode the tag will fist look for
+ * will display only if errors exist for the named field.  In this mode the tag will first look for
  * resources named:</p>
  *
  * <ul>
