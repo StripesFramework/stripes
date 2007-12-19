@@ -44,7 +44,7 @@
             the value of the button (i.e. the text on the button that the user sees) from a
             localized resource bundle.</p>
 
-            <p>The tag will set it's value using the first non-null result from the following list:</p>
+            <p>The tag will set its value using the first non-null result from the following list:</p>
             <ul>
               <li>formName.buttonName from the localized resource bundle</li>
               <li>buttonName from the localized resource bundle</li>
@@ -226,7 +226,7 @@
             <p>The second mode allows customization of the output for a specific page by nesting
             the following tag inside the errors tag: &lt;stripes:individual-error&gt;,
             &lt;stripes:error-header&gt; and &lt;stripes:error-footer&gt;. An example, re-creating
-            the default output using this technique follow:</p>
+            the default output using this technique follows:</p>
 
 <pre>&lt;stripes:errors&gt;
      &lt;stripes:errors-header&gt;&lt;div class=&quot;errorHeader&quot;&gt;Validation Errors&lt;/div&gt;&lt;ul&gt;&lt;/stripes:errors-header&gt;
@@ -237,7 +237,7 @@
 
             <p>The errors tag can be used to display errors for a single field by supplying it
             with a 'field' attribute which matches the name of a field on the page. In this case the tag
-            will display only if errors exist for the named field.  In this mode the tag will fist look for
+            will display only if errors exist for the named field.  In this mode the tag will first look for
             resources named:</p>
 
             <ul>
@@ -258,7 +258,7 @@
             If the tag is inside a form tag, it will display only errors that are associated
             with that form. If supplied with an 'action' attribute, it will display errors only errors
             associated with a request to that URL. Finally, if neither is the case, it will display
-            errors associated with the action bean for the current request..</p>
+            errors associated with the action bean for the current request.</p>
 
         ]]></description>
         <display-name>errors</display-name>
@@ -931,7 +931,7 @@
     <tag>
         <description><![CDATA[
             <p>Generates an &lt;option value=&quot;foo&quot;&gt;Fooey&lt;/option&gt; HTML tag.
-            Coordinates with an enclosing select tag to determine it's state (i.e. whether or not
+            Coordinates with an enclosing select tag to determine its state (i.e. whether or not
             it is selected.)  As a result some of the logic regarding state repopulation is a bit
             complex.</p>
 
@@ -1480,7 +1480,7 @@
             the value of the button (i.e. the text on the button that the user sees) from a
             localized resource bundle.</p>
 
-            <p>The tag will set it's value using the first non-null result from the following list:</p>
+            <p>The tag will set its value using the first non-null result from the following list:</p>
             <ul>
               <li>formName.buttonName from the localized resource bundle</li>
               <li>buttonName from the localized resource bundle</li>
@@ -1602,7 +1602,7 @@
             the value of the button (i.e. the text on the button that the user sees) from a
             localized resource bundle.</p>
 
-            <p>The tag will set it's value using the first non-null result from the following list:</p>
+            <p>The tag will set its value using the first non-null result from the following list:</p>
             <ul>
               <li>formName.buttonName from the localized resource bundle</li>
               <li>buttonName from the localized resource bundle</li>
@@ -1725,10 +1725,10 @@
             first non-null value in the following list:</p>
 
             <ul>
-              <il>A value with the same name in the HttpServletRequest</li>
-              <il>A value on the ActionBean if an ActionBean instance is present</li>
-              <il>The contents of the body of the textarea</li>
-              <il>The value attribute of the tag</li>
+              <li>A value with the same name in the HttpServletRequest</li>
+              <li>A value on the ActionBean if an ActionBean instance is present</li>
+              <li>The contents of the body of the textarea</li>
+              <li>The value attribute of the tag</li>
             </ul>
         ]]></description>
         <display-name>textarea</display-name>
@@ -2085,7 +2085,7 @@
                 Comma separated list of fields to provide metadata for. Stripes input tags
                 that come before the field-metadata tag inside a Stripes form tag will
                 automatically be included. This attribute may be used if you aren't using
-                Stripes form or input tags or if you are dynamically building the form. 
+                Stripes form or input tags or if you are dynamically building the form.
             </description>
             <name>fields</name><required>false</required><rtexprvalue>true</rtexprvalue>
         </attribute>
