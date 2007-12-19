@@ -1,14 +1,10 @@
 package net.sourceforge.stripes.util;
 
-import org.testng.annotations.Test;
-import org.testng.Assert;
-import net.sourceforge.stripes.mock.MockHttpServletRequest;
-import net.sourceforge.stripes.mock.MockHttpSession;
-import net.sourceforge.stripes.StripesTestFixture;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.crypto.SecretKey;
 import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
 /**
  * Basic tests for the CryptoUtil
@@ -16,13 +12,6 @@ import javax.crypto.KeyGenerator;
  * @author Tim Fennell
  */
 public class CryptoUtilTest {
-
-    /** Manufactures a mock request. */
-    protected HttpServletRequest getRequest() {
-        MockHttpServletRequest request = new MockHttpServletRequest("/foo", "/bar");
-        request.setSession(new MockHttpSession(StripesTestFixture.getServletContext()));
-        return request;
-    }
 
     @Test(groups="fast")
     public void basicEncryptionTest() throws Exception {
