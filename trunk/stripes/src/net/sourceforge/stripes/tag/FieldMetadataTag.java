@@ -135,9 +135,13 @@ public class FieldMetadataTag extends HtmlTagSupport implements BodyTag {
 
             if (fieldType.isPrimitive() || Number.class.isAssignableFrom(fieldType)
                     || Date.class.isAssignableFrom(fieldType) || includeType)
-                fieldInfo.append("type:").append("'").append(
-                        fqn ? fieldType.getName() : fieldType.getSimpleName()).append("'");
-
+                fieldInfo.append("type:")
+                        .append("'")
+                        .append(fqn ? fieldType.getName() : fieldType.getSimpleName())
+                        .append("'");
+            
+            Class<?> typeConverterClass = null;
+            
             if (data != null) {
                 if (data.encrypted())
                     fieldInfo.append(fieldInfo.length() > 0 ? "," : "").append("encrypted:")
@@ -160,7 +164,32 @@ public class FieldMetadataTag extends HtmlTagSupport implements BodyTag {
                 if (data.maxvalue() != null)
                     fieldInfo.append(fieldInfo.length() > 0 ? "," : "").append("maxvalue:").append(
                             data.maxvalue());
+                
+                typeConverterClass = data.converter();
             }
+
+            // If we couldn't get the converter from the validation annotation
+            // try to get it from the TypeConverterFactory
+            if (typeConverterClass == null) {
+                try {
+                    typeConverterClass = StripesFilter.getConfiguration().getTypeConverterFactory()
+                            .getTypeConverter(fieldType, pageContext.getRequest().getLocale())
+                            .getClass();
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+            if (typeConverterClass != null) {
+                fieldInfo.append(fieldInfo.length() > 0 ? "," : "")
+                        .append("typeConverter:")
+                        .append("'")
+                        .append(fqn ? typeConverterClass.getName() : typeConverterClass.getSimpleName())
+                        .append("'");
+            }
+
+
             if (fieldInfo.length() > 0) {
                 if (first)
                     first = false;
