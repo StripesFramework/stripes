@@ -7,6 +7,13 @@ import net.sourceforge.stripes.mock.MockHttpSession;
 import net.sourceforge.stripes.StripesTestFixture;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.crypto.SecretKey;
+import javax.crypto.KeyGenerator;
+import javax.crypto.spec.SecretKeySpec;
+import java.io.InputStream;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.security.KeyStore;
 
 /**
  * Basic tests for the CryptoUtil
@@ -68,8 +75,31 @@ public class CryptoUtilTest {
     
     @Test(groups = "fast")
     public void decryptBogusInputTest() throws Exception {
-        String input = CryptoUtil.encrypt("This is bogus!", getRequest());
+        String input = "_sipApTvfAXjncUGTRUf4OwZJBdz4Mbp2ZxqVyzkKio=";
         String decrypted = CryptoUtil.decrypt(input, getRequest());
         Assert.assertNull(decrypted, "Decrypting a bogus input should give back null.");
     }
+
+    @Test(groups="fast")
+    public void replacementKeyTest() throws Exception {
+        SecretKey oldKey = CryptoUtil.getSecretKey(); // cache the old key
+
+        try {
+            KeyGenerator gen = KeyGenerator.getInstance("AES");
+            SecretKey key = gen.generateKey();
+            CryptoUtil.setSecretKey(key);
+            String input = "A string to be encrypted with a different algorigthm and key!";
+            String output = CryptoUtil.encrypt(input, null);
+            String result = CryptoUtil.decrypt(output, null);
+
+            Assert.assertEquals(input, result);
+        }
+        finally {
+            CryptoUtil.setSecretKey(oldKey);
+        }
+
+
+
+    }
+
 }
