@@ -299,8 +299,7 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
      */
     protected Collection<String> getFieldsPresentInfo(ActionBean bean) {
         ActionBeanContext ctx = bean.getContext();
-        HttpServletRequest request = ctx.getRequest();
-        String fieldsPresent = request.getParameter(StripesConstants.URL_KEY_FIELDS_PRESENT);
+        String fieldsPresent = ctx.getRequest().getParameter(StripesConstants.URL_KEY_FIELDS_PRESENT);
         Wizard wizard = bean.getClass().getAnnotation(Wizard.class);
         boolean isWizard = wizard != null;
 
@@ -319,7 +318,7 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
         }
         else {
             try {
-                fieldsPresent = CryptoUtil.decrypt(fieldsPresent, request);
+                fieldsPresent = CryptoUtil.decrypt(fieldsPresent);
             }
             catch (GeneralSecurityException gse) {
                 if (isWizard) {
@@ -778,14 +777,14 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
 
         // Dig up the type converter
         TypeConverter converter = null;
-        HttpServletRequest request = bean.getContext().getRequest();
+        Locale locale = bean.getContext().getRequest().getLocale();
         if (validationInfo != null && validationInfo.converter() != null) {
             converter = this.configuration.getTypeConverterFactory().getInstance(
-                    validationInfo.converter(), request.getLocale());
+                    validationInfo.converter(), locale);
         }
         else {
             converter = this.configuration.getTypeConverterFactory().getTypeConverter(propertyType,
-                    request.getLocale());
+                    locale);
         }
 
         log.debug("Converting ", values.length, " value(s) using converter ", converter);
@@ -795,7 +794,7 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
             if (!"".equals(value)) {
                 try {
                     if (validationInfo != null && validationInfo.encrypted()) {
-                        value = CryptoUtil.decrypt(values[i], request);
+                        value = CryptoUtil.decrypt(values[i]);
                     }
 
                     Object retval = null;

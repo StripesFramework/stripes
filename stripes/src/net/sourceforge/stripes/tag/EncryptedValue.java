@@ -14,33 +14,30 @@
  */
 package net.sourceforge.stripes.tag;
 
-import javax.servlet.http.HttpServletRequest;
+import net.sourceforge.stripes.action.ActionBean;
+import net.sourceforge.stripes.format.EncryptedValueFormatter;
+import net.sourceforge.stripes.format.Formatter;
 
 /**
  * A simple class that wraps an object that is intended to be encrypted before it is written into a
- * JSP page. This class, coupled with
+ * JSP page. This class, coupled with {@link EncryptedValueFormatter}, allows for
+ * {@link ActionBean} properties marked as encrypted to be encrypted transparently to the normal
+ * {@link Formatter} for the value.
  * 
  * @author Ben Gunter
  */
 public class EncryptedValue {
     private Object value;
-    private HttpServletRequest request;
 
     /**
-     * Create a new instance that wraps the given {@code value}. The encryption routine requires
-     * access to the {@code request} to get the encryption key.
+     * Create a new instance that wraps the given {@code value}.
      */
-    public EncryptedValue(Object value, HttpServletRequest request) {
+    public EncryptedValue(Object value) {
         this.value = value;
-        this.request = request;
     }
 
     /** Get the actual value that is to be encrypted. */
     public Object getValue() {
         return value;
-    }
-
-    public HttpServletRequest getRequest() {
-        return request;
     }
 }

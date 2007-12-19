@@ -16,8 +16,6 @@ package net.sourceforge.stripes.tag;
 
 import java.security.GeneralSecurityException;
 
-import javax.servlet.http.HttpServletRequest;
-
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.exception.StripesJspException;
@@ -114,8 +112,7 @@ public class DefaultPopulationStrategy implements PopulationStrategy {
                     try {
                         String[] copy = new String[value.length];
                         for (int i = 0; i < copy.length; i++) {
-                            copy[i] = CryptoUtil.decrypt(value[i], ((HttpServletRequest) tag
-                                    .getPageContext().getRequest()));
+                            copy[i] = CryptoUtil.decrypt(value[i]);
                         }
                         value = copy;
                     }

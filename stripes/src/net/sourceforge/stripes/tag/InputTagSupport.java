@@ -27,7 +27,6 @@ import net.sourceforge.stripes.validation.ValidationErrors;
 import net.sourceforge.stripes.validation.BooleanTypeConverter;
 import net.sourceforge.stripes.validation.ValidationMetadata;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.tagext.TryCatchFinally;
@@ -282,8 +281,7 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
                 ValidationMetadata validate = config.getValidationMetadataProvider()
                         .getValidationMetadata(beanClass, name);
                 if (validate != null && validate.encrypted()) {
-                    input = new EncryptedValue(input, (HttpServletRequest) getPageContext()
-                            .getRequest());
+                    input = new EncryptedValue(input);
                 }
             }
         }

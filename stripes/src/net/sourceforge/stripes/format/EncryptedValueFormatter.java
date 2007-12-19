@@ -55,21 +55,20 @@ public class EncryptedValueFormatter implements Formatter<EncryptedValue> {
 
         // look up the type converter
         FormatterFactory factory = StripesFilter.getConfiguration().getFormatterFactory();
-        Formatter formatter = factory.getFormatter(object.getClass(), locale, formatType,
-                formatPattern);
+        Formatter formatter = factory.getFormatter(object.getClass(), locale, formatType, formatPattern);
 
         // format the value to plain text
         String value;
         if (formatter != null)
             value = formatter.format(object);
         else
-            value = String.valueOf(object);
+            value = object.toString();
 
         // encrypt the value
         if (value == null)
             value = "";
         else
-            value = CryptoUtil.encrypt(value, input.getRequest());
+            value = CryptoUtil.encrypt(value);
 
         return value;
     }

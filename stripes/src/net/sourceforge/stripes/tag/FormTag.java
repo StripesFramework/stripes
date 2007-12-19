@@ -294,8 +294,7 @@ public class FormTag extends HtmlTagSupport implements BodyTag, TryCatchFinally,
 
         // Combine the names into a delimited String and encrypt it
         String hiddenFieldValue = HtmlUtil.combineValues(namesToInclude);
-        HttpServletRequest request = (HttpServletRequest) getPageContext().getRequest();
-        hiddenFieldValue = CryptoUtil.encrypt(hiddenFieldValue, request);
+        hiddenFieldValue = CryptoUtil.encrypt(hiddenFieldValue);
 
         out.write("<input type=\"hidden\" name=\"");
         out.write(StripesConstants.URL_KEY_FIELDS_PRESENT);
