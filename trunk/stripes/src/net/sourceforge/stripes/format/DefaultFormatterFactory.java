@@ -14,11 +14,11 @@
  */
 package net.sourceforge.stripes.format;
 
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.tag.EncryptedValue;
@@ -37,12 +37,10 @@ public class DefaultFormatterFactory implements FormatterFactory {
     private static final Log log = Log.getInstance(DefaultFormatterFactory.class);
 
     /** A rather generic-heavy Map that maps target type to Formatter. */
-    private Map<Class<?>, Class<? extends Formatter<?>>> formatters = Collections
-            .synchronizedMap(new HashMap<Class<?>, Class<? extends Formatter<?>>>());
+    private Map<Class<?>, Class<? extends Formatter<?>>> formatters = new ConcurrentHashMap<Class<?>, Class<? extends Formatter<?>>>();
 
     /** Cache of indirect formatter results. */
-    private Map<Class<?>, Class<? extends Formatter<?>>> classCache = Collections
-            .synchronizedMap(new HashMap<Class<?>, Class<? extends Formatter<?>>>());
+    private Map<Class<?>, Class<? extends Formatter<?>>> classCache = new ConcurrentHashMap<Class<?>, Class<? extends Formatter<?>>>();
 
     /** Thread local cache of formatter instances. */
     private ThreadLocal<Map<Class<? extends Formatter<?>>, Formatter<?>>> instanceCache = new ThreadLocal<Map<Class<? extends Formatter<?>>, Formatter<?>>>() {
@@ -146,11 +144,11 @@ public class DefaultFormatterFactory implements FormatterFactory {
      * {@code targetClass}.
      * 
      * @param targetClass the class of the object that needs to be formatted
-     * @return the first applicable formatter found or null if no match could be found
+     * @return the best applicable formatter
      */
     protected Class<? extends Formatter<?>> findFormatterClass(Class<?> targetClass) {
         Class<? extends Formatter<?>> formatterClass = findInSuperclasses(targetClass);
-        if (formatterClass == null)
+        if (formatterClass == ObjectFormatter.class)
             formatterClass = findInInterfaces(targetClass, targetClass.getInterfaces());
         return formatterClass;
     }
@@ -161,7 +159,7 @@ public class DefaultFormatterFactory implements FormatterFactory {
      * implements. If no match is found, repeat the process for each superclass.
      * 
      * @param targetClass the class of the object that needs to be formatted
-     * @return the first applicable formatter found or null if no match could be found
+     * @return the first applicable formatter found or ObjectFormatter.class if no match could be found
      */
     protected Class<? extends Formatter<?>> findInSuperclasses(Class<?> targetClass) {
         // Check for a known formatter for the class
@@ -187,8 +185,8 @@ public class DefaultFormatterFactory implements FormatterFactory {
             }
         }
 
-        // Nothing found, so cache null
-        return cacheFormatterClass(targetClass, null);
+        // Nothing found, so cache default ObjectFormatter
+        return cacheFormatterClass(targetClass, ObjectFormatter.class);
     }
 
     /**
@@ -199,7 +197,7 @@ public class DefaultFormatterFactory implements FormatterFactory {
      * 
      * @param targetClass the class of the object that needs to be formatted
      * @param ifaces an array of interfaces to search
-     * @return the first applicable formatter found or null if no match could be found
+     * @return the first applicable formatter found or ObjectFormatter.class if no match could be found
      */
     protected Class<? extends Formatter<?>> findInInterfaces(Class<?> targetClass,
             Class<?>... ifaces) {
@@ -216,8 +214,8 @@ public class DefaultFormatterFactory implements FormatterFactory {
             }
         }
 
-        // Nothing found, so cache null
-        return cacheFormatterClass(targetClass, null);
+        // Nothing found, so cache default ObjectFormatter
+        return cacheFormatterClass(targetClass, ObjectFormatter.class);
     }
 
     /**
