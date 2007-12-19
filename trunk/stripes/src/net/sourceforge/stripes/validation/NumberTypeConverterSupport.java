@@ -50,16 +50,6 @@ public class NumberTypeConverterSupport {
 
 
     /**
-     * Fetches a NumberFormat that can be used to parse non-decimal numbers.
-     * @deprecated Use getNumberFormats() instead which is capable of returning multiple
-     *            formats for parsing. This method will be removed in Stripes 1.3.
-     */
-    @Deprecated()
-    protected NumberFormat getNumberFormat() {
-        return NumberFormat.getInstance(this.locale);
-    }
-
-    /**
      * Fetches one or more NumberFormat instances that can be used to parse numbers
      * for the current locale. The default implementation returns two instances, one
      * regular NumberFormat and a currency instance of NumberFormat.
@@ -68,7 +58,7 @@ public class NumberTypeConverterSupport {
      */
     protected NumberFormat[] getNumberFormats() {
         return new NumberFormat[] {
-                getNumberFormat() // TODO: inline and remove getNumberFormat() in 1.3
+                NumberFormat.getInstance(this.locale)
         };
     }
 
