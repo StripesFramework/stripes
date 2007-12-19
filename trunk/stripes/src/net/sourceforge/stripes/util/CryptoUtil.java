@@ -21,19 +21,12 @@ import net.sourceforge.stripes.config.Configuration;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.SecretKeySpec;
 import javax.crypto.spec.DESedeKeySpec;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
-import java.security.KeyStore;
-import java.util.regex.Pattern;
-import java.io.InputStream;
-import java.io.FileInputStream;
 
 /**
  * <p>Cryptographic utility that can encrypt and decrypt Strings using a key stored in
