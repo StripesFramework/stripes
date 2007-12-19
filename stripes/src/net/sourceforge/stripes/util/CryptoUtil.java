@@ -26,6 +26,7 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.DESedeKeySpec;
 import javax.servlet.http.HttpServletRequest;
 import java.security.GeneralSecurityException;
+import java.security.MessageDigest;
 import java.security.SecureRandom;
 
 /**
@@ -240,6 +241,18 @@ public class CryptoUtil {
                     material = new byte[MIN_KEY_BYTES];
                     new SecureRandom().nextBytes(material);
                 }
+                // Hash the key string given in config
+                else {
+                    MessageDigest digest = MessageDigest.getInstance("SHA1");
+                    int length = digest.getDigestLength();
+                    byte[] hashed = new byte[MIN_KEY_BYTES];
+                    for (int i = 0; i < hashed.length; i += length) {
+                        material = digest.digest(material);
+                        System.arraycopy(material, 0, hashed, i,
+                                Math.min(length, MIN_KEY_BYTES - i));
+                    }
+                    material = hashed;
+                }
 
                 // Now manufacture the actual Secret Key instance
                 SecretKeyFactory factory = SecretKeyFactory.getInstance(CryptoUtil.ALGORITHM);
@@ -265,10 +278,7 @@ public class CryptoUtil {
             Configuration config = StripesFilter.getConfiguration();
             if (config != null) {
                 String key = config.getBootstrapPropertyResolver().getProperty(CONFIG_ENCRYPTION_KEY);
-
-                // Make they key really big just in case
                 if (key != null) {
-                    while (key.length() < MIN_KEY_BYTES)  key += key;
                     return key.getBytes();
                 }
             }
