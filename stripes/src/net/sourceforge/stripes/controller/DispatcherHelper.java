@@ -228,12 +228,6 @@ public class DispatcherHelper {
             return ctx.wrap( new Interceptor() {
                 @SuppressWarnings("deprecation")
 				public Resolution intercept(ExecutionContext context) throws Exception {
-
-                    // Run the legacy style validate() method
-                    if ( (alwaysInvokeValidate || errors.isEmpty()) && bean instanceof net.sourceforge.stripes.validation.Validatable) {
-                        ((net.sourceforge.stripes.validation.Validatable) bean).validate(errors);
-                    }
-
                     // Run any of the new style validation methods
                     Method[] validations = findCustomValidationMethods(bean.getClass());
                     for (Method validation : validations) {

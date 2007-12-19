@@ -764,9 +764,9 @@
     <tag>
         <description><![CDATA[
             <p>Tag that generates HTML links, used for linking to pages and ActionBean events
-            within a Stripes application. Works in concert with zero or more nested link-param tags
+            within a Stripes application. Works in concert with zero or more nested param tags
             in order to allow addition of arbitrary parameters to any URL. The body of the tag,
-            minus any link-param tags, is trimmed for whitespace at either end, and is then used
+            minus any param tags, is trimmed for whitespace at either end, and is then used
             as the contents of the link body.</p>
 
             <p>There are two attributes which are not a mirrors of attributes on the HTML anchor
@@ -879,34 +879,6 @@
         <attribute><description>@title@</description><name>title</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
         <!-- End: Standard HTML attributes -->
         <dynamic-attributes>@dynattrs@</dynamic-attributes>
-    </tag>
-
-    <tag>
-        <description><![CDATA[
-            <b>DEPRECATED. Use the 'param' tag instead.</b>
-            Used to add parameters to a link that has been created with a stripes:link tag. If
-            the value attribute is present it will be used. If the value attribute is not present,
-            then the body of the tag will be used as the parameter value.  The value attribute
-            may identify either a scalar value, an Array or a Collection.  In the latter two cases
-            a URL parameter will be added per value in the Array or Collection.
-        ]]></description>
-        <display-name>link-param</display-name>
-        <name>link-param</name>
-        <tag-class>net.sourceforge.stripes.tag.LinkParamTag</tag-class>
-        <body-content>JSP</body-content>
-        <attribute>
-            <description>The name of the URL parameter.</description>
-            <name>name</name>
-            <required>true</required>
-            <rtexprvalue>true</rtexprvalue>
-        </attribute>
-        <attribute>
-            <description>The value (or values) of the URL parameter.</description>
-            <name>value</name>
-            <required>false</required>
-            <rtexprvalue>true</rtexprvalue>
-            <type>java.lang.Object</type>
-        </attribute>
     </tag>
 
     <tag>
@@ -1335,7 +1307,7 @@
              an Array or a Collection.  In the latter two cases a URL parameter will be added per
              value in the Array or Collection.
         ]]></description>
-        <display-name>link-param</display-name>
+        <display-name>param</display-name>
         <name>param</name>
         <tag-class>net.sourceforge.stripes.tag.ParamTag</tag-class>
         <body-content>JSP</body-content>
