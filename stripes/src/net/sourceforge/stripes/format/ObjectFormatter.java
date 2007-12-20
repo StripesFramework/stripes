@@ -17,7 +17,7 @@ package net.sourceforge.stripes.format;
 import java.util.Locale;
 
 /**
- * This is the default formatter. It simply calls toString on the
+ * This is the default formatter. It simply calls String.valueOf() on the
  * object being formatted.
  *
  * @author Aaron Porter
@@ -26,13 +26,13 @@ import java.util.Locale;
 public class ObjectFormatter implements Formatter<Object> {
 
     /**
-     * Converts the supplied parameter to a string by calling toString().
+     * Converts the supplied parameter to a string using String.valueOf().
      * 
      * @param input an object of a type that the formatter knows how to format
-     * @return input.toString()
+     * @return String.valueOf(input)
      */
     public String format(Object input) {
-        return input.toString();
+        return String.valueOf(input);
     }
 
     /** Does nothing. */
