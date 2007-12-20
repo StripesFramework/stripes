@@ -18,6 +18,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -32,6 +33,9 @@ import net.sourceforge.stripes.controller.UrlBindingParameter;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
 import net.sourceforge.stripes.format.Formatter;
 import net.sourceforge.stripes.format.FormatterFactory;
+import net.sourceforge.stripes.tag.EncryptedValue;
+import net.sourceforge.stripes.validation.ValidationMetadata;
+import net.sourceforge.stripes.validation.ValidationMetadataProvider;
 
 /**
  * <p>Simple class that encapsulates the process of building up a URL from a path fragment
@@ -130,7 +134,14 @@ public class UrlBuilder {
      */
     public UrlBuilder(Locale locale, Class<? extends ActionBean> beanType, boolean isForPage) {
         this(locale, isForPage);
-        this.baseUrl = StripesFilter.getConfiguration().getActionResolver().getUrlBinding(beanType);
+        Configuration configuration = StripesFilter.getConfiguration();
+        if (configuration != null) {
+            this.baseUrl = configuration.getActionResolver().getUrlBinding(beanType);
+        }
+        else {
+            throw new StripesRuntimeException("Unable to lookup URL binding for ActionBean class "
+                    + "because there is no Configuration object available.");
+        }
     }
 
     /**
@@ -333,6 +344,32 @@ public class UrlBuilder {
     }
 
     /**
+     * Get a map of property names to {@link ValidationMetadata} for the {@link ActionBean} class
+     * bound to the URL being built. If the URL does not point to an ActionBean class or no
+     * validation metadata exists for the ActionBean class then an empty map will be returned.
+     * 
+     * @return a map of ActionBean property names to their validation metadata
+     * @see ValidationMetadataProvider#getValidationMetadata(Class)
+     */
+    protected Map<String, ValidationMetadata> getValidationMetadata() {
+        Map<String, ValidationMetadata> validations = null;
+        Configuration configuration = StripesFilter.getConfiguration();
+        if (configuration != null) {
+            Class<? extends ActionBean> beanType = configuration.getActionResolver()
+                    .getActionBeanType(this.baseUrl);
+            if (beanType != null) {
+                validations = configuration.getValidationMetadataProvider().getValidationMetadata(
+                        beanType);
+            }
+        }
+
+        if (validations == null)
+            validations = Collections.emptyMap();
+
+        return validations;
+    }
+
+    /**
      * Build and return the URL
      */
     protected String build() {
@@ -343,6 +380,9 @@ public class UrlBuilder {
                 parameters.add(this.event);
             }
             parameters.addAll(this.parameters);
+
+            // lookup validation info for the bean class to find encrypted properties
+            Map<String, ValidationMetadata> validations = getValidationMetadata();
 
             StringBuilder buffer = new StringBuilder(256);
             buffer.append(getBaseURL(this.baseUrl, parameters));
@@ -362,7 +402,13 @@ public class UrlBuilder {
                 }
                 buffer.append(URLEncoder.encode(param.name, "UTF-8")).append('=');
                 if (param.value != null) {
-                    buffer.append(URLEncoder.encode(format(param.value), "UTF-8"));
+                    ValidationMetadata validation = validations.get(param.name);
+                    String value;
+                    if (validation != null && validation.encrypted())
+                        value = format(new EncryptedValue(param.value));
+                    else
+                        value = format(param.value);
+                    buffer.append(URLEncoder.encode(value, "UTF-8"));
                 }
             }
             return buffer.toString();
@@ -399,6 +445,10 @@ public class UrlBuilder {
             return baseUrl;
         }
 
+        // lookup validation info for the bean class to find encrypted properties
+        Map<String, ValidationMetadata> validations = getValidationMetadata();
+
+        // map the declared URI parameter names to values
         Map<String, Parameter> map = new HashMap<String, Parameter>();
         for (Parameter p : parameters) {
             if (!map.containsKey(p.name))
@@ -418,7 +468,13 @@ public class UrlBuilder {
                 boolean ok = false;
                 if (map.containsKey(parameter.getName())) {
                     Parameter assigned = map.get(parameter.getName());
-                    String value = format(assigned.value);
+                    ValidationMetadata validation = validations.get(parameter.getName());
+                    String value;
+                    if (validation != null && validation.encrypted())
+                        value = format(new EncryptedValue(assigned.value));
+                    else
+                        value = format(assigned.value);
+
                     if (value != null && value.length() > 0) {
                         if (nextLiteral != null) {
                             buf.append(nextLiteral);
