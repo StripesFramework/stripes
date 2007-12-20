@@ -102,7 +102,7 @@ public class DefaultFormatterFactoryTest {
 
         // cause null formatter to be cached for B
         formatter = factory.getFormatter(B.class, locale, null, null);
-        Assert.assertNull(formatter);
+        Assert.assertEquals(ObjectFormatter.class, formatter.getClass());
 
         // then register formatter for A and try to get formatter for C
         factory.add(A.class, AFormatter.class);
