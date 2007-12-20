@@ -28,7 +28,7 @@ public class StringTypeConverter implements TypeConverter<String> {
     /** Does Nothing */
     public void setLocale(Locale locale) { }
 
-    /** Simple returns the input String un-modified in any way. */
+    /** Simply returns the input String un-modified in any way. */
     public String convert(String input, Class<? extends String> targetType, Collection<ValidationError> errors) {
         return input;
     }
