@@ -168,13 +168,13 @@ public class DefaultFormatterFactory implements FormatterFactory {
      */
     protected Class<? extends Formatter<?>> findInSuperclasses(Class<?> targetClass) {
         // Check for a known formatter for the class
-        if (formatters.containsKey(targetClass))
-            return formatters.get(targetClass);
-        else if (classCache.containsKey(targetClass))
-            return classCache.get(targetClass);
+        Class<? extends Formatter<?>> formatterClass;
+        if ((formatterClass = formatters.get(targetClass)) != null)
+            return formatterClass;
+        else if ((formatterClass = classCache.get(targetClass)) != null)
+            return formatterClass;
 
         // Check directly implemented interfaces
-        Class<? extends Formatter<?>> formatterClass;
         for (Class<?> iface : targetClass.getInterfaces()) {
             if ((formatterClass = formatters.get(iface)) != null)
                 return cacheFormatterClass(targetClass, formatterClass);
@@ -185,7 +185,7 @@ public class DefaultFormatterFactory implements FormatterFactory {
         // Check superclasses
         Class<?> parent = targetClass.getSuperclass();
         if (parent != null) {
-            if ((formatterClass = findFormatterClass(parent)) != null) {
+            if ((formatterClass = findInSuperclasses(parent)) != null) {
                 return cacheFormatterClass(targetClass, formatterClass);
             }
         }
