@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.Date;
 import java.util.Locale;
+import java.util.concurrent.ConcurrentHashMap;
 import java.math.BigInteger;
 import java.math.BigDecimal;
 
@@ -37,28 +38,11 @@ public class DefaultTypeConverterFactory implements TypeConverterFactory {
 
     /** A rather generic-heavy Map that maps target type to TypeConverter. */
     private Map<Class<?>, Class<? extends TypeConverter<?>>> converters =
-        new HashMap<Class<?>, Class<? extends TypeConverter<?>>>();
+        new ConcurrentHashMap<Class<?>, Class<? extends TypeConverter<?>>>();
 
     /** Cache of indirect type converter results. */
-    private Map<Class<?>, Class<? extends TypeConverter<?>>> classCache = Collections
-            .synchronizedMap(new HashMap<Class<?>, Class<? extends TypeConverter<?>>>());
-
-    /** Thread local cache of type converter instances. */
-    @SuppressWarnings("unchecked")
-    private ThreadLocal<Map<Class<? extends TypeConverter>, TypeConverter>> instanceCache = new ThreadLocal<Map<Class<? extends TypeConverter>, TypeConverter>>() {
-        @Override
-        protected Map<Class<? extends TypeConverter>, TypeConverter> initialValue() {
-            return new HashMap<Class<? extends TypeConverter>, TypeConverter>();
-        }
-    };
-
-    /** Thread local flag that, if true, causes the instance cache to be reset in each thread. */
-    private ThreadLocal<Boolean> clearInstanceCache = new ThreadLocal<Boolean>() {
-        @Override
-        protected Boolean initialValue() {
-            return false;
-        }
-    };
+    private Map<Class<?>, Class<? extends TypeConverter<?>>> classCache =
+            new ConcurrentHashMap<Class<?>, Class<? extends TypeConverter<?>>>();
 
     /** Stores a reference to the Configuration passed in at initialization time. */
     private Configuration configuration;
@@ -183,15 +167,9 @@ public class DefaultTypeConverterFactory implements TypeConverterFactory {
     }
 
     /** Clear the instance cache. This is called by {@link #add(Class, Class)}. */
-    protected synchronized void clearCache() {
+    protected void clearCache() {
         log.debug("Clearing type converter cache");
         classCache.clear();
-        clearInstanceCache = new ThreadLocal<Boolean>() {
-            @Override
-            protected Boolean initialValue() {
-                return true;
-            }
-        };
     }
 
     /**
@@ -202,22 +180,8 @@ public class DefaultTypeConverterFactory implements TypeConverterFactory {
      * @throws Exception if there is a problem instantiating the TypeConverter
      */
     @SuppressWarnings("unchecked")
-    public TypeConverter getInstance(Class<? extends TypeConverter> clazz, Locale locale)
-            throws Exception {
-        // If the reset flag is turned on, then clear the cache and turn the flag off
-        if (clearInstanceCache.get()) {
-            log.debug("Clearing type converter instance cache for thread ",
-                    Thread.currentThread().getName());
-            instanceCache.get().clear();
-            clearInstanceCache.set(false);
-        }
-
-        TypeConverter converter = instanceCache.get().get(clazz);
-        if (converter == null) {
-            converter = clazz.newInstance();
-            log.debug("Caching instance of type converter ", clazz);
-            instanceCache.get().put(clazz, converter);
-        }
+    public TypeConverter getInstance(Class<? extends TypeConverter> clazz, Locale locale) throws Exception {
+        TypeConverter converter = clazz.newInstance();
         converter.setLocale(locale);
         return converter;
     }
