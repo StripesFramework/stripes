@@ -148,9 +148,14 @@ public class DefaultFormatterFactory implements FormatterFactory {
      */
     protected Class<? extends Formatter<?>> findFormatterClass(Class<?> targetClass) {
         Class<? extends Formatter<?>> formatterClass = findInSuperclasses(targetClass);
-        if (formatterClass == ObjectFormatter.class)
-            formatterClass = findInInterfaces(targetClass, targetClass.getInterfaces());
-        return formatterClass;
+        if (formatterClass != null)
+            return formatterClass;
+
+        formatterClass = findInInterfaces(targetClass, targetClass.getInterfaces());
+        if (formatterClass != null)
+            return formatterClass;
+
+        return cacheFormatterClass(targetClass, ObjectFormatter.class);
     }
 
     /**
@@ -159,7 +164,7 @@ public class DefaultFormatterFactory implements FormatterFactory {
      * implements. If no match is found, repeat the process for each superclass.
      * 
      * @param targetClass the class of the object that needs to be formatted
-     * @return the first applicable formatter found or ObjectFormatter.class if no match could be found
+     * @return the first applicable formatter found or null if no match could be found
      */
     protected Class<? extends Formatter<?>> findInSuperclasses(Class<?> targetClass) {
         // Check for a known formatter for the class
@@ -185,8 +190,8 @@ public class DefaultFormatterFactory implements FormatterFactory {
             }
         }
 
-        // Nothing found, so cache default ObjectFormatter
-        return cacheFormatterClass(targetClass, ObjectFormatter.class);
+        // Nothing found, so return null
+        return null;
     }
 
     /**
@@ -197,7 +202,7 @@ public class DefaultFormatterFactory implements FormatterFactory {
      * 
      * @param targetClass the class of the object that needs to be formatted
      * @param ifaces an array of interfaces to search
-     * @return the first applicable formatter found or ObjectFormatter.class if no match could be found
+     * @return the first applicable formatter found or null if no match could be found
      */
     protected Class<? extends Formatter<?>> findInInterfaces(Class<?> targetClass,
             Class<?>... ifaces) {
@@ -214,8 +219,8 @@ public class DefaultFormatterFactory implements FormatterFactory {
             }
         }
 
-        // Nothing found, so cache default ObjectFormatter
-        return cacheFormatterClass(targetClass, ObjectFormatter.class);
+        // Nothing found, so return null
+        return null;
     }
 
     /**
