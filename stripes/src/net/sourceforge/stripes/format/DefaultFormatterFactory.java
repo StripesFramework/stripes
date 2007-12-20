@@ -42,22 +42,6 @@ public class DefaultFormatterFactory implements FormatterFactory {
     /** Cache of indirect formatter results. */
     private Map<Class<?>, Class<? extends Formatter<?>>> classCache = new ConcurrentHashMap<Class<?>, Class<? extends Formatter<?>>>();
 
-    /** Thread local cache of formatter instances. */
-    private ThreadLocal<Map<Class<? extends Formatter<?>>, Formatter<?>>> instanceCache = new ThreadLocal<Map<Class<? extends Formatter<?>>, Formatter<?>>>() {
-        @Override
-        protected Map<Class<? extends Formatter<?>>, Formatter<?>> initialValue() {
-            return new HashMap<Class<? extends Formatter<?>>, Formatter<?>>();
-        }
-    };
-
-    /** Thread local flag that, if true, causes the instance cache to be reset in each thread. */
-    private ThreadLocal<Boolean> clearInstanceCache = new ThreadLocal<Boolean>() {
-        @Override
-        protected Boolean initialValue() {
-            return false;
-        }
-    };
-
     /** Stores a reference to the Configuration passed in at initialization time. */
     private Configuration configuration;
 
@@ -99,15 +83,9 @@ public class DefaultFormatterFactory implements FormatterFactory {
     }
 
     /** Clear the class and instance caches. This is called by {@link #add(Class, Class)}. */
-    protected synchronized void clearCache() {
+    protected void clearCache() {
         log.debug("Clearing formatter cache");
         classCache.clear();
-        clearInstanceCache = new ThreadLocal<Boolean>() {
-            @Override
-            protected Boolean initialValue() {
-                return true;
-            }
-        };
     }
 
     /**
@@ -247,21 +225,8 @@ public class DefaultFormatterFactory implements FormatterFactory {
     public Formatter<?> getInstance(Class<? extends Formatter<?>> clazz,
             String formatType, String formatPattern, Locale locale)
             throws Exception {
-        // If the reset flag is turned on, then clear the cache and turn the flag off
-        if (clearInstanceCache.get()) {
-            log.debug("Clearing formatter instance cache for thread ",
-                    Thread.currentThread().getName());
-            instanceCache.get().clear();
-            clearInstanceCache.set(false);
-        }
 
-        // Look for an instance in the cache. If none is found then create one and cache it.
-        Formatter<?> formatter = instanceCache.get().get(clazz);
-        if (formatter == null) {
-            formatter = clazz.newInstance();
-            log.debug("Caching instance of formatter ", clazz);
-            instanceCache.get().put(clazz, formatter);
-        }
+        Formatter<?> formatter = clazz.newInstance();
         formatter.setFormatType(formatType);
         formatter.setFormatPattern(formatPattern);
         formatter.setLocale(locale);
