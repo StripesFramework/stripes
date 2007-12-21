@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 
 import javax.servlet.jsp.JspException;
@@ -42,6 +43,10 @@ public class FieldMetadataTag extends HtmlTagSupport implements BodyTag {
     private boolean fqn = false;
     /** Stores the value of the action attribute before the context gets appended. */
     private String actionWithoutContext;
+    
+    public FormTag getForm() {
+        return getParentTag(FormTag.class);
+    }
 
     /**
      * Builds a string that contains field metadata in a JavaScript object.
@@ -53,7 +58,7 @@ public class FieldMetadataTag extends HtmlTagSupport implements BodyTag {
 
         String action = getAction();
 
-        FormTag form = getParentTag(FormTag.class);
+        FormTag form = getForm();
 
         if (form != null) {
             if (action != null)
@@ -222,7 +227,7 @@ public class FieldMetadataTag extends HtmlTagSupport implements BodyTag {
 
     @Override
     public int doStartTag() throws JspException {
-        getPageContext().setAttribute(getVar(), getMetadata());
+        getPageContext().setAttribute(getVar(), new Var(getMetadata()));
         return EVAL_BODY_BUFFERED;
     }
 
@@ -367,5 +372,28 @@ public class FieldMetadataTag extends HtmlTagSupport implements BodyTag {
     /** Corresponding getter for 'beanclass', will always return null. */
     public Object getBeanclass() {
         return null;
+    }
+    /**
+     * This is what is placed into the request attribute. It allows us to
+     * get the field metadata as well as the form id.
+     */
+    public class Var {
+        private String fieldMetadata, formId;
+
+        private Var(String fieldMetadata) {
+            this.fieldMetadata = fieldMetadata;
+            FormTag form = getForm();
+            if (form.getId() == null)
+                form.setId("stripes-" + new Random().nextInt());
+            this.formId = form.getId();
+        }
+
+        public String toString() {
+            return fieldMetadata;
+        }
+
+        public String getFormId() {
+            return formId;
+        }
     }
 }
