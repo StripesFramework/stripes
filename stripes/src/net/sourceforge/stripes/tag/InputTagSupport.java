@@ -270,15 +270,7 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
         Configuration config = StripesFilter.getConfiguration();
         try {
             // find the action bean class we're dealing with
-            Class<? extends ActionBean> beanClass = null;
-            ActionBean bean = getActionBean();
-            if (bean != null) {
-                beanClass = bean.getClass();
-            }
-            else {
-                beanClass = config.getActionResolver().getActionBeanType(
-                        getParentFormTag().getAction());
-            }
+            Class<? extends ActionBean> beanClass = getParentFormTag().getActionBeanClass();
 
             // if a bean class was found then check the encrypted flag on this property
             if (beanClass != null) {

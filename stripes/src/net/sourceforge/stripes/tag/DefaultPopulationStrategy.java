@@ -95,16 +95,7 @@ public class DefaultPopulationStrategy implements PopulationStrategy {
          */
         if (value != null) {
             // find the action bean class we're dealing with
-            Class<? extends ActionBean> beanClass = null;
-            ActionBean bean = tag.getActionBean();
-            if (bean != null) {
-                beanClass = bean.getClass();
-            }
-            else {
-                beanClass = config.getActionResolver().getActionBeanType(
-                        tag.getParentFormTag().getAction());
-            }
-
+            Class<? extends ActionBean> beanClass = tag.getParentFormTag().getActionBeanClass();
             if (beanClass != null) {
                 ValidationMetadata validate = config.getValidationMetadataProvider()
                         .getValidationMetadata(beanClass, tag.getName());
