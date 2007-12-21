@@ -16,7 +16,6 @@ package net.sourceforge.stripes.tag;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.http.HttpServletRequest;
-import java.util.Locale;
 
 /**
  * <p>Tag class that generates an image button for use in HTML forms, e.g:</p>
@@ -68,11 +67,8 @@ public class InputImageTag extends InputTagSupport {
      */
     @Override
     public int doEndInputTag() throws JspException {
-        String name = getAttributes().get("name");
-        Locale locale = getPageContext().getRequest().getLocale();
-        String actionPath = getParentFormTag().getAction();
-
         // See if we should use a URL to a localized image
+        String name = getAttributes().get("name");
         String src = getLocalizedFieldName(name + ".src");
         if (src != null) { setSrc(src); }
 

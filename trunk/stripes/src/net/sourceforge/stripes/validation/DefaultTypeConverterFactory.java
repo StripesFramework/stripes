@@ -17,9 +17,7 @@ package net.sourceforge.stripes.validation;
 import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.util.Log;
 
-import java.util.Collections;
 import java.util.Map;
-import java.util.HashMap;
 import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.ConcurrentHashMap;
