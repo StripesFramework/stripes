@@ -18,6 +18,7 @@ import net.sourceforge.stripes.controller.ParameterName;
 import net.sourceforge.stripes.controller.StripesFilter;
 import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.config.Configuration;
+import net.sourceforge.stripes.action.ActionBean;
 
 import java.util.Locale;
 import java.util.MissingResourceException;
@@ -38,7 +39,8 @@ public class LocalizationUtility {
      * If for any reason a localized value cannot be found (e.g. the bundle cannot be found, or
      * does not contain the required properties) then null will be returned.</p>
      *
-     * <p>Looks first for a property called {@code actionPath.fieldName} in the resource bundle, and
+     * <p>Looks first for a property called {@code beanClassFQN.fieldName} in the resource bundle.
+     * If that is undefined, it next looks for {@code actionPath.fieldName} and
      * if not defined, looks for a property called {@code fieldName}.  Will Strip any indexing
      * from the field name prior to using it to construct property names (e.g. foo[12] will become
      * simply foo).</p>
@@ -51,6 +53,7 @@ public class LocalizationUtility {
      */
     public static String getLocalizedFieldName(String fieldName,
                                                String actionPath,
+                                               Class<? extends ActionBean> beanclass,
                                                Locale locale) {
 
         String name = new ParameterName(fieldName).getStrippedName();
@@ -66,16 +69,22 @@ public class LocalizationUtility {
             return null;
         }
 
-        try {
-            localizedValue = bundle.getString(actionPath + "." + name);
+        // First with the bean class
+        if (beanclass != null) {
+            try { localizedValue = bundle.getString(beanclass.getName() + "." + name); }
+            catch (MissingResourceException mre) { /* do nothing */ }
         }
-        catch (MissingResourceException mre) {
-            try {
-                localizedValue = bundle.getString(name);
-            }
-            catch (MissingResourceException mre2) {
-                return null;
-            }
+
+        // Then the action path (THIS IS DEPRECATED)
+        if (localizedValue == null) {
+            try { localizedValue = bundle.getString(actionPath + "." + name); }
+            catch (MissingResourceException mre) { /* do nothing */ }
+        }
+
+        // Lastly, all by itself
+        if (localizedValue == null) {
+            try { localizedValue = bundle.getString(name); }
+            catch (MissingResourceException mre2) { /* do nothing */ }
         }
 
         return localizedValue;

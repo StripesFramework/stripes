@@ -46,8 +46,9 @@
 
             <p>The tag will set its value using the first non-null result from the following list:</p>
             <ul>
-              <li>formName.buttonName from the localized resource bundle</li>
-              <li>buttonName from the localized resource bundle</li>
+              <li>resource: <code>{actionFQN}.{buttonName}</code></li>
+              <li>resource: <code>{actionPath}.{buttonName}</code> (deprecated)</li>
+              <li>resource: <code>{buttonName}</code></li>
               <li>the body of the tag</li>
               <li>the value attribute of the tag</li>
             </ul>
@@ -563,7 +564,8 @@
            <tt>alt</tt> text of the image.  In order it will look for and use:</p>
 
            <ul>
-             <li>resource: <tt>actionPath.inputName.[src|alt]</tt></li>
+             <li>resource: <tt>actionFQN.inputName.[src|alt]</tt></li>
+             <li>resource: <tt>actionPath.inputName.[src|alt]</tt> (deprecated)</li>
              <li>resource: <tt>inputName.[src|alt]</tt></li>
              <li>tag attributes: <tt>src</tt> and <tt>alt</tt>
            </ul>
@@ -666,8 +668,9 @@
              order:</p>
 
             <ul>
-                <li>{formAction}.{name} in the form field localization bundle</li>
-                <li>{name} in the form field localization bundle</li>
+                <li>resource: <code>{actionFQN}.{name}</code></li>
+                <li>resource: <code>{actionPath}.{name}</code> (deprecated)</li>
+                <li>resource: <code>{name}</code></li>
                 <li>The body of the label tag</li>
                 <li>A warning message telling you to supply a label value somewhere!</li>
             </ul>
@@ -1482,8 +1485,9 @@
 
             <p>The tag will set its value using the first non-null result from the following list:</p>
             <ul>
-              <li>formName.buttonName from the localized resource bundle</li>
-              <li>buttonName from the localized resource bundle</li>
+              <li>resource: <code>{actionFQN}.{buttonName}</code></li>
+              <li>resource: <code>{actionPath}.{buttonName}</code> (deprecated)</li>
+              <li>resource: <code>{buttonName}</code></li>
               <li>the body of the tag</li>
               <li>the value attribute of the tag</li>
             </ul>
@@ -1604,8 +1608,9 @@
 
             <p>The tag will set its value using the first non-null result from the following list:</p>
             <ul>
-              <li>formName.buttonName from the localized resource bundle</li>
-              <li>buttonName from the localized resource bundle</li>
+              <li>resource: <code>{actionFQN}.{buttonName}</code></li>
+              <li>resource: <code>{actionPath}.{buttonName}</code> (deprecated)</li>
+              <li>resource: <code>{buttonName}</code></li>
               <li>the body of the tag</li>
               <li>the value attribute of the tag</li>
             </ul>

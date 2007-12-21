@@ -14,8 +14,6 @@
  */
 package net.sourceforge.stripes.tag;
 
-import net.sourceforge.stripes.localization.LocalizationUtility;
-
 import javax.servlet.jsp.JspException;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Locale;
@@ -75,16 +73,12 @@ public class InputImageTag extends InputTagSupport {
         String actionPath = getParentFormTag().getAction();
 
         // See if we should use a URL to a localized image
-        String src = LocalizationUtility.getLocalizedFieldName(name + ".src", actionPath, locale);
-        if (src != null) {
-            setSrc(src);
-        }
+        String src = getLocalizedFieldName(name + ".src");
+        if (src != null) { setSrc(src); }
 
         // And see if we have localized alt text too
-        String alt = LocalizationUtility.getLocalizedFieldName(name + ".alt", actionPath, locale);
-        if (alt != null) {
-            setAlt(alt);
-        }
+        String alt = getLocalizedFieldName(name + ".alt");
+        if (alt != null) { setAlt(alt); }
 
         // Prepend the context path to the src URL
         src = getSrc();

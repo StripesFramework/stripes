@@ -15,6 +15,7 @@
 package net.sourceforge.stripes.validation;
 
 import net.sourceforge.stripes.action.SimpleMessage;
+import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.localization.LocalizationUtility;
 import net.sourceforge.stripes.util.Log;
 
@@ -56,6 +57,7 @@ public class SimpleError extends SimpleMessage implements ValidationError {
 
     private String fieldNameKey;
     private String actionPath;
+    private Class<? extends ActionBean> beanclass;
 
     /**
      * Constructs a simple error message.
@@ -114,6 +116,7 @@ public class SimpleError extends SimpleMessage implements ValidationError {
             getReplacementParameters()[0] =
                     LocalizationUtility.getLocalizedFieldName(this.fieldNameKey,
                                                               this.actionPath,
+                                                              this.beanclass,
                                                               locale);
 
             if (getReplacementParameters()[0] == null) {
@@ -155,6 +158,12 @@ public class SimpleError extends SimpleMessage implements ValidationError {
     public String getActionPath() {
         return actionPath;
     }
+
+    /** Returns the class of the ActionBean associated to the request. */
+    public Class<? extends ActionBean> getBeanclass() { return beanclass; }
+
+    /** Sets the class of the ActionBean associated to the request. */
+    public void setBeanclass(final Class<? extends ActionBean> beanclass) { this.beanclass = beanclass; }
 
     /** Generated equals method that ensures the message, field, parameters and action path are all equal. */
     @Override

@@ -79,12 +79,16 @@ public class LocalizableError extends SimpleError {
     /**
      * Method responsible for using the information supplied to the error object to find a
      * message template. In this class this is done simply by looking up the resource
-     * corresponding to the messageKey supplied in the constructor.
+     * corresponding to the messageKey supplied in the constructor, first with the FQN
+     * prepended, then with the action path prepended and finally bare.
      */
     @Override
     protected String getMessageTemplate(Locale locale) {
-        String template = LocalizationUtility.getErrorMessage(locale,
-                                                              getActionPath() + "." + messageKey);
+        String template = LocalizationUtility.getErrorMessage(locale, getBeanclass().getName() + "." + messageKey);
+
+        if (template == null) {
+            template = LocalizationUtility.getErrorMessage(locale, getActionPath() + "." + messageKey);
+        }
         if (template == null) {
             template = LocalizationUtility.getErrorMessage(locale, messageKey);
         }

@@ -220,11 +220,11 @@ public class InputOptionsCollectionTag extends HtmlTagSupport implements Tag {
                 String localizedLabel = null;
                 if (label != null) {
                     localizedLabel = LocalizationUtility.getLocalizedFieldName
-                        (clazz.getSimpleName() + "."  + label, packageName, locale);
+                        (clazz.getSimpleName() + "."  + label, packageName, null, locale);
                 }
                 if (localizedLabel == null && value != null) {
                     localizedLabel = LocalizationUtility.getLocalizedFieldName
-                        (clazz.getSimpleName() + "."  + value, packageName, locale);
+                        (clazz.getSimpleName() + "."  + value, packageName, null, locale);
                 }
                 if (localizedLabel != null) label = localizedLabel;
 
