@@ -464,27 +464,38 @@ public class UrlBuilder {
                 nextLiteral = (String) component;
             }
             else if (component instanceof UrlBindingParameter) {
-                UrlBindingParameter parameter = (UrlBindingParameter) component;
                 boolean ok = false;
-                if (map.containsKey(parameter.getName())) {
-                    Parameter assigned = map.get(parameter.getName());
-                    ValidationMetadata validation = validations.get(parameter.getName());
-                    String value;
-                    if (validation != null && validation.encrypted())
-                        value = format(new EncryptedValue(assigned.value));
-                    else
-                        value = format(assigned.value);
 
-                    if (value != null && value.length() > 0) {
+                // get the value for the parameter, falling back to default value if present
+                UrlBindingParameter parameter = (UrlBindingParameter) component;
+                Parameter assigned = map.get(parameter.getName());
+                Object value;
+                if (assigned != null && assigned.value != null)
+                    value = assigned.value;
+                else
+                    value = parameter.getDefaultValue();
+
+                if (value != null) {
+                    // format (and maybe encrypt) the value as a string
+                    ValidationMetadata validation = validations.get(parameter.getName());
+                    String formatted;
+                    if (validation != null && validation.encrypted())
+                        formatted = format(new EncryptedValue(value));
+                    else
+                        formatted = format(value);
+
+                    // if after formatting we still have a value then embed it in the URI
+                    if (formatted != null && formatted.length() > 0) {
                         if (nextLiteral != null) {
                             buf.append(nextLiteral);
                         }
 
-                        buf.append(value);
+                        buf.append(formatted);
                         parameters.remove(assigned);
                         ok = true;
                     }
                 }
+
                 nextLiteral = null;
                 if (!ok)
                     break;
