@@ -14,6 +14,11 @@
  */
 package net.sourceforge.stripes.controller;
 
+import java.lang.reflect.Method;
+
+import net.sourceforge.stripes.action.ActionBean;
+import net.sourceforge.stripes.action.HandlesEvent;
+
 /**
  * A parameter to a clean URL.
  * 
@@ -24,6 +29,7 @@ public class UrlBindingParameter {
     /** The special parameter name for the event to execute */
     public static final String PARAMETER_NAME_EVENT = "$event";
 
+    protected Class<? extends ActionBean> beanClass;
     protected String name;
     protected String value;
     protected String defaultValue;
@@ -35,9 +41,8 @@ public class UrlBindingParameter {
      * @param name parameter name
      * @param value parameter value
      */
-    public UrlBindingParameter(String name, String value) {
-        this.name = name;
-        this.value = value;
+    public UrlBindingParameter(Class<? extends ActionBean> beanClass, String name, String value) {
+        this(beanClass, name, value, null);
     }
 
     /**
@@ -47,8 +52,8 @@ public class UrlBindingParameter {
      * @param value parameter value
      * @param defaultValue default value to use if value is null
      */
-    public UrlBindingParameter(String name, String value, String defaultValue) {
-        super();
+    public UrlBindingParameter(Class<? extends ActionBean> beanClass, String name, String value, String defaultValue) {
+        this.beanClass = beanClass;
         this.name = name;
         this.value = value;
         this.defaultValue = defaultValue;
@@ -60,7 +65,7 @@ public class UrlBindingParameter {
      * @param prototype a parameter
      */
     public UrlBindingParameter(UrlBindingParameter prototype) {
-        this(prototype.name, prototype.value, prototype.defaultValue);
+        this(prototype.beanClass, prototype.name, prototype.value, prototype.defaultValue);
     }
 
     /**
@@ -71,7 +76,12 @@ public class UrlBindingParameter {
      * @param value the new parameter value
      */
     public UrlBindingParameter(UrlBindingParameter prototype, String value) {
-        this(prototype.name, value, prototype.defaultValue);
+        this(prototype.beanClass, prototype.name, value, prototype.defaultValue);
+    }
+
+    /** Get the {@link ActionBean} class to which the {@link UrlBinding} applies. */
+    public Class<? extends ActionBean> getBeanClass() {
+        return beanClass;
     }
 
     /**
@@ -81,6 +91,22 @@ public class UrlBindingParameter {
      * @return the default value
      */
     public String getDefaultValue() {
+        // for $event parameters with no explicit default value, get default from action resolver
+        if (this.defaultValue == null && PARAMETER_NAME_EVENT.equals(name)) {
+            try {
+                Method defaultHandler = StripesFilter.getConfiguration().getActionResolver()
+                        .getDefaultHandler(beanClass);
+                HandlesEvent annotation = defaultHandler.getAnnotation(HandlesEvent.class);
+                if (annotation != null)
+                    this.defaultValue = annotation.value();
+                else
+                    this.defaultValue = defaultHandler.getName();
+            }
+            catch (Exception e) {
+                /* Ignore any exceptions and just return null. */
+            }
+        }
+
         return defaultValue;
     }
 
