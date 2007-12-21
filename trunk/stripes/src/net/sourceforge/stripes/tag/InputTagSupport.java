@@ -453,7 +453,7 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
 
         if ( getId() == null ) {
             this.syntheticId = true;
-            setId("stripes:" + new Random().nextInt());
+            setId("stripes-" + new Random().nextInt());
         }
     }
 
