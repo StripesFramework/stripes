@@ -332,7 +332,7 @@ public class UrlBindingFactory {
                         --braceLevel;
                     }
                     if (braceLevel == 0) {
-                        components.add(parseUrlBindingParameter(buf.toString()));
+                        components.add(parseUrlBindingParameter(beanType, buf.toString()));
                         buf.setLength(0);
                         continue;
                     }
@@ -357,7 +357,7 @@ public class UrlBindingFactory {
             else if (path == null)
                 path = buf.toString();
             else if (c == '}')
-                components.add(parseUrlBindingParameter(buf.toString()));
+                components.add(parseUrlBindingParameter(beanType, buf.toString()));
             else
                 components.add(buf.toString());
         }
@@ -370,10 +370,12 @@ public class UrlBindingFactory {
      * {@link UrlBindingParameter} with the corresponding name and default value properties set
      * accordingly.
      * 
+     * @param beanClass the bean class to which the binding applies
      * @param string the parameter string
      * @return a parameter object
      */
-    protected static UrlBindingParameter parseUrlBindingParameter(String string) {
+    protected static UrlBindingParameter parseUrlBindingParameter(
+            Class<? extends ActionBean> beanClass, String string) {
         char[] chars = string.toCharArray();
         char c = 0;
         boolean escape = false;
@@ -398,7 +400,7 @@ public class UrlBindingFactory {
         }
 
         String dflt = defaultValue.length() < 1 ? null : defaultValue.toString();
-        return new UrlBindingParameter(name.toString(), null, dflt) {
+        return new UrlBindingParameter(beanClass, name.toString(), null, dflt) {
             @Override
             public String getValue() {
                 throw new UnsupportedOperationException(
