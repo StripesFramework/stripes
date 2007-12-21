@@ -122,6 +122,7 @@ public class InputOptionsEnumerationTag extends InputOptionsCollectionTag {
                 // Check for a localized label using class.ENUM_VALUE and package.class.ENUM_VALUE
                 label = LocalizationUtility.getLocalizedFieldName(clazz.getSimpleName() + "." + item.name(),
                                                                   packageName,
+                                                                  null,
                                                                   locale);
                 if (label == null) {
                     if (getLabel() != null) {

@@ -15,6 +15,7 @@
 package net.sourceforge.stripes.validation;
 
 import net.sourceforge.stripes.action.Message;
+import net.sourceforge.stripes.action.ActionBean;
 
 /**
  * Interface to which all error objects in Stripes should conform.
@@ -40,6 +41,12 @@ public interface ValidationError extends Message {
      */
     void setActionPath(String actionPath);
 
+    /**
+     * Provides the message with access to the class of the ActionBean that is bound
+     * to the current request.
+     */
+    void setBeanclass(Class<? extends ActionBean> clazz);
+
     /** Returns the name of the field in error, if one was supplied. */
     String getFieldName();
 
@@ -48,5 +55,8 @@ public interface ValidationError extends Message {
 
     /** Returns the action path of the form/ActionBean, if one was supplied. */
     String getActionPath();
+
+    /** Returns the class of the ActionBean associated to the request. */
+    Class<? extends ActionBean> getBeanclass();
 }
 

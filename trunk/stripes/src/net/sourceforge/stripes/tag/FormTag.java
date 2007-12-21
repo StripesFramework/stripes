@@ -18,6 +18,7 @@ import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.action.Wizard;
 import net.sourceforge.stripes.controller.StripesConstants;
 import net.sourceforge.stripes.controller.StripesFilter;
+import net.sourceforge.stripes.controller.ActionResolver;
 import net.sourceforge.stripes.exception.StripesJspException;
 import net.sourceforge.stripes.util.CryptoUtil;
 import net.sourceforge.stripes.util.HtmlUtil;
@@ -58,6 +59,8 @@ public class FormTag extends HtmlTagSupport implements BodyTag, TryCatchFinally,
     /** Stores the value of the action attribute before the context gets appended. */
     private String actionWithoutContext;
 
+    private Class<? extends ActionBean> actionBeanClass;
+
     /** Builds the action attribute with parameters */
     private UrlBuilder urlBuilder;
 
@@ -86,6 +89,16 @@ public class FormTag extends HtmlTagSupport implements BodyTag, TryCatchFinally,
     }
 
     public String getAction() { return this.actionWithoutContext; }
+
+    /** Lazily looks up and returns the type of action bean the form will submit to. */
+    protected Class<? extends ActionBean> getActionBeanClass() {
+        if (this.actionBeanClass == null) {
+            ActionResolver resolver = StripesFilter.getConfiguration().getActionResolver();
+            this.actionBeanClass = resolver.getActionBeanType(this.actionWithoutContext);
+        }
+
+        return this.actionBeanClass;
+    }
 
     /**
      * Sets the 'action' attribute by inspecting the bean class provided and asking the current

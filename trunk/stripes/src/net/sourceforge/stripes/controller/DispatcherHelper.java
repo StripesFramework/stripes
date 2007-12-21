@@ -398,6 +398,7 @@ public class DispatcherHelper {
                     // Make sure we process each error only once, no matter how often we're called
                     if (error.getActionPath() == null) {
                         error.setActionPath(formAction);
+                        error.setBeanclass(ctx.getActionBean().getClass());
 
                         // If the value isn't set, set it, otherwise encode the one that's there
                         if (error.getFieldValue() == null) {

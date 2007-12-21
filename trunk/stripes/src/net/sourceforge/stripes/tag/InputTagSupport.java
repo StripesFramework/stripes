@@ -224,22 +224,36 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
     /**
      * Fetches the localized name for this field if one exists in the resource bundle. Relies on
      * there being a "name" attribute on the tag, and the pageContext being set on the tag. First
-     * checks for a value of {actionPath}.{fieldName} in the specified bundle, and if that exists,
-     * returns it.  If that does not exist, will look for just "fieldName".
+     * checks for a value of {actionBean FQN}.{fieldName} in the specified bundle, then
+     * {actionPath}.{fieldName} then just "fieldName".
      *
      * @return a localized field name if one can be found, or null if one cannot be found.
      */
     protected String getLocalizedFieldName() throws StripesJspException {
         String name = getAttributes().get("name");
-        Locale locale = getPageContext().getRequest().getLocale();
-        String actionPath = null;
+        return getLocalizedFieldName(name);
+    }
 
-        try {
-            actionPath = getParentFormTag().getAction();
-        }
+    /**
+     * Attempts to fetch a "field name" resource from the localization bundle. Delegates
+     * to {@link LocalizationUtility#getLocalizedFieldName(String, String, Class, java.util.Locale)}
+     *
+     * @param name the field name or resource to look up
+     * @return the localized String corresponding to the name provided
+     * @throws StripesJspException
+     */
+    protected String getLocalizedFieldName(final String name) throws StripesJspException {
+        Locale locale = getPageContext().getRequest().getLocale();
+        FormTag form = null;
+
+        try { form = getParentFormTag(); }
         catch (StripesJspException sje) { /* Do nothing. */}
 
-        return LocalizationUtility.getLocalizedFieldName(name, actionPath, locale);
+        return LocalizationUtility.getLocalizedFieldName(name,
+                                                         form == null ? null : form.getAction(),
+                                                         form == null ? null : form.getActionBeanClass(),
+                                                         locale);
+
     }
 
     /**
