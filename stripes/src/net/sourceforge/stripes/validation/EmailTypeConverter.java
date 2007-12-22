@@ -30,7 +30,10 @@ import java.util.Locale;
  * will be looked for in the following order:</p>
  *
  * <ul>
+ *   <li>beanClassFQN.fieldName.invalidEmail</li>
  *   <li>actionPath.fieldName.invalidEmail</li>
+ *   <li>fieldName.invalidEmail</li>
+ *   <li>beanClassFQN.invalidEmail</li>
  *   <li>actionPath.invalidEmail</li>
  *   <li>converter.email.invalidEmail</li>
  * </ul>
@@ -39,7 +42,7 @@ import java.util.Locale;
  * @since Stripes 1.2
  */
 public class EmailTypeConverter implements TypeConverter<String> {
-    /** Accepts the Locale provide, but does nothing with it since emails are Locale-less. */
+    /** Accepts the Locale provided, but does nothing with it since emails are Locale-less. */
     public void setLocale(Locale locale) { /** Doesn't matter for email. */}
 
     /**

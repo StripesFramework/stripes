@@ -24,7 +24,7 @@ import java.util.MissingResourceException;
  * class looks for an error message in a single place based on the key provided,
  * ScopedLocalizableError performs a scoped search for an error message.</p>
  *
- * <p>As an example, let's say that the IntegerConverter raises an error messsage with the values
+ * <p>As an example, let's say that the IntegerConverter raises an error message with the values
  * defaultScope=<em>converter.integer</em> and key=<em>outOfRange</em>, for a field called
  * <em>age</em> on an ActionBean bound to <em>/cats/KittenDetail.action</em>.  Based on this information
  * an instance of ScopedLocalizableError would fetch the resource bundle and look for error message
@@ -64,7 +64,7 @@ public class ScopedLocalizableError extends LocalizableError {
      * Constructs a ScopedLocalizableError with the supplied information.
      *
      * @param defaultScope the default scope under which to look for the error message should more
-     *        specificly scoped lookups fail
+     *        specifically scoped lookups fail
      * @param key the name of the message to lookup
      * @param parameters an optional number of replacement parameters to be used in the message
      */

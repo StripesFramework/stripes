@@ -104,7 +104,7 @@ public class FormTag extends HtmlTagSupport implements BodyTag, TryCatchFinally,
      * Sets the 'action' attribute by inspecting the bean class provided and asking the current
      * ActionResolver what the appropriate URL is.
      *
-     * @param beanclass the Strin FQN of the class, or a Class representing the class
+     * @param beanclass the String FQN of the class, or a Class representing the class
      * @throws StripesJspException if the URL cannot be determined for any reason, most likely
      *         because of a mis-spelled class name, or a class that's not an ActionBean
      */
@@ -418,7 +418,7 @@ public class FormTag extends HtmlTagSupport implements BodyTag, TryCatchFinally,
     }
 
     /**
-     * Gets the set of all field names for which fields have been refered withing the form up
+     * Gets the set of all field names for which fields have been referred within the form up
      * until the point of calling this method. If this is called during doEndTag it will contain
      * all field names, if it is called during the body of the tag it will only contain the
      * input elements which have been processed up until that point.

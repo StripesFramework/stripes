@@ -36,23 +36,27 @@ import java.util.MissingResourceException;
  * like &quot;<em>Fixed</em> is not a valid <em>status</em> when trying to create a new
  * <em>bug</em>&quot;.</p>
  *
- * <p>First looks for a resource with the action path prepended to the supplied message key. If
- * that cannot be found then looks for a resource with the exact message key provided. This allows
+ * <p>First looks for a resource with the action bean FQN prepended to the supplied message key. If
+ * If that cannot be found then looks with the action path as a prefix instead of the FQN. Failing
+ * that, the last attempt looks for a resource with the exact message key provided. This allows
  * developers to segregate their error messages by action without having to repeat the action
  * path in the ActionBean.  For example a message constructed with
  * {@code new LocalizableError("insufficientBalance")} might look for message resources with
  * the following keys:</p>
  *
  * <ul>
+ *   <li>{@code com.myco.TransferActionBean.insufficientBalance}</li>
  *   <li>{@code /account/Transfer.action.insufficientBalance}</li>
  *   <li>{@code insufficientBalance}</li>
  * </ul>
  *
  * <p>One last point of interest is where the user friendly field name comes from. Firstly an
  * attempt is made to look up the localized name in the applicable resource bundle using the
+ * String <em>beanClassFQN.fieldName</em> where beanClassFQN is the fully qualified name of the
+ * bean class, and fieldName is the name of the field on the form. The second attempt is made with 
  * String <em>actionPath.fieldName</em> where actionPath is the action of the form in the JSP
- * (or equally, the path given in the @UrlBinding annotation in the ActionBean class),
- * and fieldName is the name of the field on the form.</p>
+ * (or equally, the path given in the @UrlBinding annotation in the ActionBean class). Finally,
+ * the last attempt uses fieldName by itself.</p>
  *
  * @see java.text.MessageFormat
  * @see java.util.ResourceBundle
