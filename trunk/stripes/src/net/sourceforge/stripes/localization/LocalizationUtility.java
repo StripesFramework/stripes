@@ -41,7 +41,7 @@ public class LocalizationUtility {
      *
      * <p>Looks first for a property called {@code beanClassFQN.fieldName} in the resource bundle.
      * If that is undefined, it next looks for {@code actionPath.fieldName} and
-     * if not defined, looks for a property called {@code fieldName}.  Will Strip any indexing
+     * if not defined, looks for a property called {@code fieldName}.  Will strip any indexing
      * from the field name prior to using it to construct property names (e.g. foo[12] will become
      * simply foo).</p>
      *
@@ -93,7 +93,7 @@ public class LocalizationUtility {
 
     /**
      * Makes a half hearted attempt to convert the property name of a field into a human
-     * friendly name by breaking it on periods and upper case letters and capitablizing each word.
+     * friendly name by breaking it on periods and upper case letters and capitalizing each word.
      * This is only used when developers do not provide names for their fields.
      *
      * @param fieldNameKey the programmatic name of a form field
@@ -130,7 +130,7 @@ public class LocalizationUtility {
     /**
      * Looks up the specified key in the error message resource bundle. If the
      * bundle is missing or if the resource cannot be found, will return null
-     * insted of throwing an exception.
+     * instead of throwing an exception.
      *
      * @param locale the locale in which to lookup the resource
      * @param key the exact resource key to lookup

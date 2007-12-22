@@ -22,21 +22,30 @@ import java.util.Locale;
  * being converted qualifies as a credit card number. This DOES NOT check to see if an actual card
  * with the specified number exists, only that it appears to be a valid card number.</p>
  *
+ * <p>If the credit card number is not valid a single error message will be generated.  The error
+ * message is a scoped message with a default scope of <tt>converter.creditCard</tt> and name
+ * <tt>invalidCreditCard</tt>.  As a result error messages will be looked for in the following
+ * order:</p>
+ *
  * <ul>
+ *   <li>beanClassFQN.fieldName.invalidCreditCard</li>
  *   <li>actionPath.fieldName.invalidCreditCard</li>
+ *   <li>fieldName.invalidCreditCard</li>
+ *   <li>beanClassFQN.invalidCreditCard</li>
  *   <li>actionPath.invalidCreditCard</li>
- *   <li>converter.email.invalidCreditCard</li>
+ *   <li>converter.creditCard.invalidCreditCard</li>
  * </ul>
  *
  * @author Aaron Porter
  * @since Stripes 1.5
- */public class CreditCardTypeConverter implements TypeConverter<String> {
+ */
+public class CreditCardTypeConverter implements TypeConverter<String> {
      // Recognized card types
      public enum Type {
          AMEX,DinersClub,Discover,enRoute,JCB,MasterCard,VISA
      }
 
-    /** Accepts the Locale provide, but does nothing with it since credit card numbers are Locale-less. */
+    /** Accepts the Locale provided, but does nothing with it since credit card numbers are Locale-less. */
     public void setLocale(Locale locale) { /** Doesn't matter for credit cards. */ }
 
     /**

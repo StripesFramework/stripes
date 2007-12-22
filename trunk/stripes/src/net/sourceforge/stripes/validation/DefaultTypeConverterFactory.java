@@ -135,7 +135,7 @@ public class DefaultTypeConverterFactory implements TypeConverterFactory {
     /**
      * Search for a type converter class that best matches the requested class.
      * 
-     * @param targetClass the class of the object that needs to be converter
+     * @param targetClass the class of the object that needs to be converted
      * @return the first applicable type converter found or null if no match could be found
      */
     @SuppressWarnings("unchecked")

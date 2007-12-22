@@ -44,9 +44,11 @@ import java.util.Locale;
  *
  * <p>One last point of interest is where the user friendly field name comes from. Firstly an
  * attempt is made to look up the localized name in the applicable resource bundle using the
+ * String <em>beanClassFQN.fieldName</em> where beanClassFQN is the fully qualified name of the
+ * bean class, and fieldName is the name of the field on the form. The second attempt is made with 
  * String <em>actionPath.fieldName</em> where actionPath is the action of the form in the JSP
- * (or equally, the path given in the @UrlBinding annotation in the ActionBean class),
- * and fieldName is the name of the field on the form.</p>
+ * (or equally, the path given in the @UrlBinding annotation in the ActionBean class). Finally,
+ * the last attempt uses fieldName by itself.</p>
  *
  * @see java.text.MessageFormat
  */
@@ -134,7 +136,7 @@ public class SimpleError extends SimpleMessage implements ValidationError {
         this.fieldNameKey = name;
     }
 
-    /** Provides sublcasses access to the field name. */
+    /** Provides subclasses access to the field name. */
     public String getFieldName() {
         return this.fieldNameKey;
     }
