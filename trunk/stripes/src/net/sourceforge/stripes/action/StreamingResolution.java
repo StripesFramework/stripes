@@ -19,6 +19,7 @@ import net.sourceforge.stripes.exception.StripesRuntimeException;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.Reader;
@@ -32,7 +33,7 @@ import java.io.StringReader;
  * <p>Optionally supports the use of a file name which, if set, will cause a
  * Content-Disposition header to be written to the output, resulting in a "Save As" type
  * dialog box appearing in the user's browser. If you do not wish to supply a file name, but
- * wish to acheive this behaviour, simple supply a file name of "".</p>
+ * wish to achieve this behaviour, simple supply a file name of "".</p>
  *
  * <p>StreamingResolution is designed to be subclassed where necessary to provide streaming
  * output where the data being streamed is not contained in an InputStream or Reader. This

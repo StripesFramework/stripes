@@ -30,7 +30,7 @@ import java.lang.annotation.Documented;
  * of Stripes to treat it like any other ActionBean.</p>
  *
  * <p>Since session scope ActionBeans are not generally encouraged by the author, very few
- * allowances will be made in Stripes to accomodate session scope beans.  This means that
+ * allowances will be made in Stripes to accommodate session scope beans.  This means that
  * additional mechanisms to handle session scope beans do not exist.  However, there are
  * general mechanisms built in to Stripes that will allow you to overcome most if not all issues
  * that arise from Session scoping ActionBeans.</p>
