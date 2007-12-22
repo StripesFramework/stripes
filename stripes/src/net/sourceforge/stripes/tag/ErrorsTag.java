@@ -47,7 +47,7 @@ import java.util.TreeSet;
  * (StripesResources.properties unless you have configured another).  If the properties are
  * undefined, the tag will output the text "Validation Errors" in a div with css class errorHeader,
  * then output an unordered list of error messages.  The following four resource strings
- * (shown with their default values) can be modified to create different default ouput:</p>
+ * (shown with their default values) can be modified to create different default output:</p>
  *
  * <ul>
  *   <li>stripes.errors.header={@literal <div class="errorHeader">Validation Errors</div><ul>}</li>
@@ -69,7 +69,7 @@ import java.util.TreeSet;
  * </ul>
  *
  * <p>If the {@code fieldErrors} resources cannot be found, the tag will default to using the
- * sames resources and defaults as when displaying for all fields.</p>
+ * same resources and defaults as when displaying for all fields.</p>
  *
  * <p>Similar to the above, field specific, manner of display the errors tag can also be used
  * to output only errors not associated with a field, i.e. global errors.  This is done by setting
@@ -413,7 +413,7 @@ public class ErrorsTag extends HtmlTagSupport implements BodyTag {
      */
     private static class ErrorComparator implements Comparator<ValidationError> {
         public int compare(ValidationError e1, ValidationError e2) {
-            // Identical errors should be supressed
+            // Identical errors should be suppressed
             if (e1.equals(e2)) {
                 return 0;
             }
