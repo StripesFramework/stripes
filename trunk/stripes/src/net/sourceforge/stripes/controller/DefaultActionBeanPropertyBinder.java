@@ -263,7 +263,7 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
     }
 
     /**
-     * Uses a hidden field to deterine what (if any) fields were present in the form but did not get
+     * Uses a hidden field to determine what (if any) fields were present in the form but did not get
      * submitted to the server. For each such field the value is "softly" set to null on the
      * ActionBean. This is not uncommon for checkboxes, and also for multi-selects.
      * 
@@ -626,7 +626,7 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
      * 
      * @param bean the ActionBean that is undergoing validation and binding
      * @param convertedValues a map of ParameterName to all converted values for each field
-     * @param errors the validaiton errors object to put errors in to
+     * @param errors the validation errors object to put errors in to
      */
     protected void doPostConversionValidations(ActionBean bean,
             Map<ParameterName, List<Object>> convertedValues, ValidationErrors errors) {
@@ -676,7 +676,7 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
     /**
      * Performs validation of attribute values using a JSP EL expression if one is defined in the
      * {@literal @}Validate annotation. The expression is evaluated once for each value converted.
-     * Makes use of a custom VariableResolver implemenation to make properties of the ActionBean
+     * Makes use of a custom VariableResolver implementation to make properties of the ActionBean
      * available.
      * 
      * @param bean the ActionBean who's property is being validated
