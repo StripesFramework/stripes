@@ -106,7 +106,7 @@ public class JavaScriptBuilder {
      * convert them to JavaScript.
      *
      * @return String a fragment of JavaScript that will define and return the JavaScript
-     *         equivelant of the Java object supplied to the builder.
+     *         equivalent of the Java object supplied to the builder.
      */
     public String build() {
         Writer writer = new StringWriter();

@@ -71,7 +71,7 @@ public class SimpleMessage implements Message {
      * Helper constructor to allow subclasses to provide and manipulate replacement
      * parameters without having to supply a message String.
      *
-     * @param parameters zero or more paremeters for replacement into the message
+     * @param parameters zero or more parameters for replacement into the message
      */
     protected SimpleMessage(Object... parameters) {
         this.replacementParameters = parameters;
@@ -94,7 +94,7 @@ public class SimpleMessage implements Message {
     }
 
     /**
-     * Simply returns the message passed in at Construction time. Designed to be overridded by
+     * Simply returns the message passed in at Construction time. Designed to be overridden by
      * subclasses to lookup messages from resource bundles.
      *
      * @param locale the Locale of the message template desired

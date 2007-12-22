@@ -28,7 +28,7 @@ import javax.servlet.http.HttpServletResponse;
 public interface Resolution {
     /**
      * Called by the Stripes dispatcher to invoke the Resolution.  Should use the request and
-     * response provided to direct the user to an approprirate view.
+     * response provided to direct the user to an appropriate view.
      *
      * @param request the current HttpServletRequest
      * @param response the current HttpServletResponse

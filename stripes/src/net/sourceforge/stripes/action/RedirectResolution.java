@@ -35,7 +35,7 @@ import java.util.HashSet;
  * any URL before redirecting the request. To prevent the context path from being prepended
  * use the constructor: {@code RedirectResolution(String,boolean)}.</p>
  *
- * <p>It is also possible to append paramters to the URL to which the user will be redirected.
+ * <p>It is also possible to append parameters to the URL to which the user will be redirected.
  * This can be done by manually adding parameters with the addParameter() and addParameters()
  * methods, and by invoking includeRequestParameters() which will cause all of the current
  * request parameters to be included into the URL.</p>

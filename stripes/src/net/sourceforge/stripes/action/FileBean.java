@@ -28,7 +28,7 @@ import java.io.*;
  * effect a save by <em>moving</em> the temporary file to the desired location.  In this case there
  * is no need to call delete(), although doing so will not delete the saved file. The second way is
  * to simply call delete().  This is more applicable when consuming the file as an InputStream. An
- * exmaple code fragment for reading a text based file might look like this:</p>
+ * example code fragment for reading a text based file might look like this:</p>
  *
  * <pre>
  * FileBean bean = getUserIcon();
@@ -56,7 +56,7 @@ public class FileBean {
      * Constructs a FileBean pointing to an on-disk representation of the file uploaded by the user.
      *
      * @param file the File object on the server which holds the uploaded contents of the file
-     * @param contentType the content type of the file declared by the browser during uplaod
+     * @param contentType the content type of the file declared by the browser during upload
      * @param originalName the name of the file as declared by the user&apos;s browser
      */
     public FileBean(File file, String contentType, String originalName) {
@@ -69,7 +69,7 @@ public class FileBean {
      * Constructs a FileBean pointing to an on-disk representation of the file uploaded by the user.
      * 
      * @param file the File object on the server which holds the uploaded contents of the file
-     * @param contentType the content type of the file declared by the browser during uplaod
+     * @param contentType the content type of the file declared by the browser during upload
      * @param originalName the name of the file as declared by the user&apos;s browser
      * @param charset the charset specified by the servlet request
      */
@@ -81,7 +81,7 @@ public class FileBean {
     }
 
     /**
-     * Returns the name of the file that the user selected and uplaoded (this is not necessarily
+     * Returns the name of the file that the user selected and uploaded (this is not necessarily
      * the name that the underlying file is now stored on the server using).
      */
     public String getFileName() {
@@ -89,7 +89,7 @@ public class FileBean {
     }
 
     /**
-     * Returns the content type of the file that the user selected and uplaoded.
+     * Returns the content type of the file that the user selected and uploaded.
      */
     public String getContentType() {
         return contentType;
@@ -139,7 +139,7 @@ public class FileBean {
     }
 
     /**
-     * Saves the uploaded file to the location on disk represented by File.  First attemps a
+     * Saves the uploaded file to the location on disk represented by File.  First attempts a
      * simple rename of the underlying file that was created during upload as this is the
      * most efficient route. If the rename fails an attempt is made to copy the file bit
      * by bit to the new File and then the temporary file is removed.
