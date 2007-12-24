@@ -37,7 +37,7 @@ import java.util.Iterator;
  * An implementation of MultipartWrapper that uses Jakarta Commons FileUpload (from apache)
  * to parse the request parts. This implementation requires that both commons-fileupload and
  * commons-io be present in the classpath.  While this implementation does introduce additional
- * dependencies, it's licensing (ASL 2.0) is significantly less restrictive than the licesing
+ * dependencies, it's licensing (ASL 2.0) is significantly less restrictive than the licensing
  * for COS - the other alternative provided by Stripes.
  *
  * @author Tim Fennell
@@ -56,7 +56,7 @@ public class CommonsMultipartWrapper implements MultipartWrapper {
      *        file parts as they are uploaded if this is desirable
      * @param maxPostSize the size in bytes beyond which the request should not be read, and a
      *                    FileUploadLimitExceeded exception should be thrown
-     * @throws IOException if a problem occurrs processing the request of storing temporary
+     * @throws IOException if a problem occurs processing the request of storing temporary
      *                    files
      * @throws FileUploadLimitExceededException if the POST content is longer than the
      *                     maxPostSize supplied.
@@ -110,14 +110,14 @@ public class CommonsMultipartWrapper implements MultipartWrapper {
      * Fetches the names of all non-file parameters in the request. Directly analogous to the
      * method of the same name in HttpServletRequest when the request is non-multipart.
      *
-     * @return an Enumeration of all non-file parameter names in the rqequest
+     * @return an Enumeration of all non-file parameter names in the request
      */
     public Enumeration<String> getParameterNames() {
         return new IteratorEnumeration(this.parameters.keySet().iterator());
     }
 
     /**
-     * Fetches all values of a specifical parameter in the request. To simulate the HTTP request
+     * Fetches all values of a specific parameter in the request. To simulate the HTTP request
      * style, the array should be null for non-present parameters, and values in the array should
      * never be null - the empty String should be used when there is value.
      *
@@ -139,7 +139,7 @@ public class CommonsMultipartWrapper implements MultipartWrapper {
     }
 
     /**
-     * Responsible for contructing a FileBean object for the named file parameter. If there is no
+     * Responsible for constructing a FileBean object for the named file parameter. If there is no
      * file parameter with the specified name this method should return null.
      *
      * @param name the name of the file parameter
@@ -196,4 +196,3 @@ public class CommonsMultipartWrapper implements MultipartWrapper {
         public String nextElement() { return this.iterator.next(); }
     }
 }
-

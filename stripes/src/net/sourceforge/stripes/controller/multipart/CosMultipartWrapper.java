@@ -30,7 +30,7 @@ import java.util.regex.Pattern;
  * multipart parser implementation. This is the default implementation in Stripes and is
  * generally preferred as it is a) free for use and b) has no other dependencies! However,
  * commercial redistribution of the COS library requires licensing from Jason Hunter, so
- * this implemenation may not be applicable for commercial products that are distributed/sold
+ * this implementation may not be applicable for commercial products that are distributed/sold
  * (though it is fine for commercial applications that are simply developed and hosted by the
  * company developing them).
  *
@@ -52,7 +52,7 @@ public class CosMultipartWrapper implements MultipartWrapper {
      *        file parts as they are uploaded if this is desirable
      * @param maxPostSize the size in bytes beyond which the request should not be read, and a
      *                    FileUploadLimitExceeded exception should be thrown
-     * @throws IOException if a problem occurrs processing the request of storing temporary
+     * @throws IOException if a problem occurs processing the request of storing temporary
      *                     files
      * @throws FileUploadLimitExceededException if the POST content is longer than the
      *         maxPostSize supplied.
@@ -84,7 +84,7 @@ public class CosMultipartWrapper implements MultipartWrapper {
      * Fetches the names of all non-file parameters in the request. Directly analogous to the method
      * of the same name in HttpServletRequest when the request is non-multipart.
      *
-     * @return an Enumeration of all non-file parameter names in the rqequest
+     * @return an Enumeration of all non-file parameter names in the request
      */
     @SuppressWarnings("unchecked")
 	public Enumeration<String> getParameterNames() {
@@ -92,7 +92,7 @@ public class CosMultipartWrapper implements MultipartWrapper {
     }
 
     /**
-     * Fetches all values of a specifical parameter in the request. To simulate the HTTP request
+     * Fetches all values of a specific parameter in the request. To simulate the HTTP request
      * style, the array should be null for non-present parameters, and values in the array should
      * never be null - the empty String should be used when there is value.
      *
@@ -124,7 +124,7 @@ public class CosMultipartWrapper implements MultipartWrapper {
     }
 
     /**
-     * Responsible for contructing a FileBean object for the named file parameter. If there is no
+     * Responsible for constructing a FileBean object for the named file parameter. If there is no
      * file parameter with the specified name this method should return null.
      *
      * @param name the name of the file parameter
