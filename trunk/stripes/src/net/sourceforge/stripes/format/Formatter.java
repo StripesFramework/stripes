@@ -28,7 +28,7 @@ import java.util.Locale;
  * reasonable defaults.  Locale will always be provided.  After the setters have been called,
  * init() will be called, and the Formatter should use this opportunity to construct any internal
  * objects necessary to perform formatting.  The format() method will then be called one or more
- * times before the Formatter is eventually deferenced.</p>
+ * times before the Formatter is eventually dereferenced.</p>
  *
  * @author Tim Fennell
  */
