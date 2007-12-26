@@ -42,7 +42,7 @@ import java.util.Collection;
  * <p>Implementations of Configuration should fail fast.  At initialization time they should
  * detect as many failures as possible and raise an exception.  Since exceptions in Configuration
  * are considered fatal there are no exception specifications and implementations are expected to
- * throw runtime exceptions with plenty of details about the failiure and its suspected cause(s).</p>
+ * throw runtime exceptions with plenty of details about the failure and its suspected cause(s).</p>
  *
  * @author Tim Fennell
  */
@@ -95,7 +95,7 @@ public interface Configuration {
     ActionResolver getActionResolver();
 
     /**
-     * Returns an instance of ACtionBeanPropertyBinder that is responsible for binding all
+     * Returns an instance of ActionBeanPropertyBinder that is responsible for binding all
      * properties to all ActionBeans at runtime.  The instance should be cached by the Configuration
      * since multiple entities in the system may access the ActionBeanPropertyBinder throughout the
      * lifetime of the application.
@@ -116,7 +116,7 @@ public interface Configuration {
 
     /**
      * Returns an instance of LocalizationBundleFactory that is responsible for looking up
-     * resource bundles for the varying localization needs ot a web application. The instance should
+     * resource bundles for the varying localization needs of a web application. The instance should
      * be cached by the Configuration since multiple entities in the system may access the
      * LocalizationBundleFactory throughout the lifetime of the application.
      *

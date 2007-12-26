@@ -16,7 +16,7 @@ package net.sourceforge.stripes.config;
 
 /**
  * Interface which is extended by all the major configurable chunks of Stripes.  Allows a
- * Configration to instantiate and pass configuration to each of the main components in a
+ * Configuration to instantiate and pass configuration to each of the main components in a
  * standardized manner.  It is expected that all ConfigurableComponents will have a public
  * no-arg constructor.
  *

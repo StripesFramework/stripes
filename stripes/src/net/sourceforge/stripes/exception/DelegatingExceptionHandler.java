@@ -142,7 +142,7 @@ public class DelegatingExceptionHandler implements ExceptionHandler {
      * Adds an AutoExceptionHandler class to the set of configured handles. Examines
      * all the methods on the class looking for public non-abstract methods with a signature
      * matching that described in the documentation for AutoExceptionHandler.  Each method
-     * is wrappped in a HandlerProxy and stored in a cache by the exception type it takes.
+     * is wrapped in a HandlerProxy and stored in a cache by the exception type it takes.
      *
      * @param handlerClass the AutoExceptionHandler class being configured
      * @throws Exception if the AutoExceptionHandler class cannot be instantiated

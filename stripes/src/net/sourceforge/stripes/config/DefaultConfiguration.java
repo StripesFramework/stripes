@@ -66,7 +66,7 @@ import net.sourceforge.stripes.validation.ValidationMetadataProvider;
  * further configuration properties are supplied behaves identically to the DefaultConfiguration.</p>
  *
  * <p>The DefaultConfiguration is designed to be easily extended as needed.  The init() method
- * ensures that compoments are initialized in the correct order (taking dependencies into account),
+ * ensures that components are initialized in the correct order (taking dependencies into account),
  * and should generally not be overridden. It invokes a number of initXXX() methods, one per
  * configurable component. Subclasses should override any of the initXXX() methods desirable to
  * return a fully initialized instance of the relevant component type, or null if the default is
@@ -277,7 +277,7 @@ public class DefaultConfiguration implements Configuration {
         return this.typeConverterFactory;
     }
 
-    /** Allows subclasses to initizlize a non-default TypeConverterFactory. */
+    /** Allows subclasses to initialize a non-default TypeConverterFactory. */
     protected TypeConverterFactory initTypeConverterFactory() { return null; }
 
     /**
@@ -321,7 +321,7 @@ public class DefaultConfiguration implements Configuration {
     protected TagErrorRendererFactory initTagErrorRendererFactory() { return null; }
 
     /**
-     * Returns an instance of a PopulationsStrategy.  Unless a sublcass has picked another
+     * Returns an instance of a PopulationsStrategy.  Unless a subclass has picked another
      * implementation, will return an instance of
      * {@link net.sourceforge.stripes.tag.DefaultPopulationStrategy}.
      */
@@ -331,7 +331,7 @@ public class DefaultConfiguration implements Configuration {
     protected PopulationStrategy initPopulationStrategy() { return null; }
 
     /**
-     * Returns an instance of an ExceptionHandler.  Unless a sublcass has picked another
+     * Returns an instance of an ExceptionHandler.  Unless a subclass has picked another
      * implementation, will return an instance of
      * {@link net.sourceforge.stripes.exception.DefaultExceptionHandler}.
      */
