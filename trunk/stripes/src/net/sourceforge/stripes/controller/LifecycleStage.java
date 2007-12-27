@@ -60,5 +60,19 @@ public enum LifecycleStage {
      * as the outcome of an event handler, or because some other mechanism short circuits
      * processing by returning a Resolution. 
      */
-    ResolutionExecution
+    ResolutionExecution,
+    
+    /**
+     * Executed before any processing occurs on the request. No Stripes processing is
+     * associated with this stage. It is simply provided as a hook for interceptors.
+     */
+    RequestInit,
+    
+    /**
+     * Final lifecycle stage. Executes in the finally block of the request so it will
+     * always be called when a request terminates regardless of any other conditions.
+     * This is only useful for cleaning up because Resolution execution has already
+     * occurred.
+     */
+    RequestComplete
 }
