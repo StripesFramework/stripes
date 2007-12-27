@@ -21,10 +21,8 @@ import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 
 import net.sourceforge.stripes.action.ActionBean;
-import net.sourceforge.stripes.action.ActionBeanContext;
 import net.sourceforge.stripes.action.HttpCache;
 import net.sourceforge.stripes.action.Resolution;
-import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.util.Log;
 
 /**
@@ -71,32 +69,16 @@ public class HttpCacheInterceptor implements Interceptor {
     private Map<CacheKey, HttpCache> cache = new HashMap<CacheKey, HttpCache>(128);
 
     public Resolution intercept(ExecutionContext ctx) throws Exception {
-        final Configuration config = StripesFilter.getConfiguration();
-        final ActionResolver resolver = config.getActionResolver();
-        final ActionBeanContext context = ctx.getActionBeanContext();
-        final ActionBean actionBean = resolver.getActionBean(context);
-        final Class<? extends ActionBean> beanClass = actionBean.getClass();
-        final String eventName = resolver.getEventName(beanClass, context);
-
-        // Look up the event handler method
-        final Method handler;
-        if (eventName != null) {
-            handler = resolver.getHandler(beanClass, eventName);
-        }
-        else {
-            handler = resolver.getDefaultHandler(beanClass);
-            if (handler != null) {
-                context.setEventName(resolver.getHandledEvent(handler));
-            }
-        }
-
-        if (handler != null) {
+        final ActionBean actionBean = ctx.getActionBean();
+        final Method handler = ctx.getHandler();
+        if (ctx.isResolutionFromHandler() && (actionBean != null) && (handler != null)) {
+            final Class<? extends ActionBean> beanClass = actionBean.getClass();
             // if caching is disabled, then set the appropriate response headers
             logger.debug("Looking for ", HttpCache.class.getSimpleName(), " on ", beanClass
                     .getName(), ".", handler.getName(), "()");
             HttpCache annotation = getAnnotation(handler, beanClass);
             if (annotation != null) {
-                HttpServletResponse response = context.getResponse();
+                HttpServletResponse response = ctx.getActionBeanContext().getResponse();
                 if (annotation.allow()) {
                     long expires = annotation.expires();
                     if (expires != HttpCache.DEFAULT_EXPIRES) {
@@ -112,10 +94,6 @@ public class HttpCacheInterceptor implements Interceptor {
                     response.setHeader("Pragma", "no-cache");
                 }
             }
-        }
-        else {
-            logger.warn("No handler method found for ActionBean [", beanClass.getName(),
-                    "] and eventName [ ", eventName, "]");
         }
 
         return ctx.proceed();

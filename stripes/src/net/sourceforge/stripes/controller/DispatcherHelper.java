@@ -95,6 +95,9 @@ public class DispatcherHelper {
      *         be aborted in favor of another Resolution, null otherwise.
      */
     public static Resolution resolveActionBean(final ExecutionContext ctx) throws Exception {
+        final Configuration config = StripesFilter.getConfiguration();
+        ctx.setLifecycleStage(LifecycleStage.ActionBeanResolution);
+        ctx.setInterceptors(config.getInterceptors(LifecycleStage.ActionBeanResolution));
         return  ctx.wrap( new Interceptor() {
             public Resolution intercept(ExecutionContext ctx) throws Exception {
                 // Look up the ActionBean and set it on the context
@@ -437,6 +440,7 @@ public class DispatcherHelper {
                 Object returnValue = handler.invoke(bean);
 
                 if (returnValue != null && returnValue instanceof Resolution) {
+                    ctx.setResolutionFromHandler(true);
                     return (Resolution) returnValue;
                 }
                 else if (returnValue != null) {
