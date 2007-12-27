@@ -201,7 +201,7 @@ public class DefaultConfiguration implements Configuration {
         }
     }
 
-    /** Returns a reference to the resolver supplied at initialziation time. */
+    /** Returns a reference to the resolver supplied at initialization time. */
     public BootstrapPropertyResolver getBootstrapPropertyResolver() {
         return this.resolver;
     }
@@ -252,7 +252,7 @@ public class DefaultConfiguration implements Configuration {
         return this.actionBeanPropertyBinder;
     }
 
-    /** Allows subclasses to initizlize a non-default ActionBeanPropertyBinder. */
+    /** Allows subclasses to initialize a non-default ActionBeanPropertyBinder. */
     protected ActionBeanPropertyBinder initActionBeanPropertyBinder() { return null; }
 
     /**
