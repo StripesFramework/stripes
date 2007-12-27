@@ -28,9 +28,9 @@ import java.lang.reflect.Method;
  * available to {@link Interceptor} classes that are interleaved with the regular request
  * processing lifecycle.</p>
  *
- * <p>The ExecutionContext is not populated all at once, but in pieces as the request progreses.
+ * <p>The ExecutionContext is not populated all at once, but in pieces as the request progresses.
  * Check the accessor method for each item for information on when that item becomes available
- * in the reuest processing lifecycle.</p>
+ * in the request processing lifecycle.</p>
  *
  * @author Tim Fennell
  * @since Stripes 1.3
@@ -46,6 +46,7 @@ public class ExecutionContext {
     private Method handler;
     private Resolution resolution;
     private LifecycleStage lifecycleStage;
+    private boolean resolutionFromHandler = false;
 
     /**
      * Used by the {@link DispatcherServlet} to initialize and/or swap out the list of
@@ -156,5 +157,13 @@ public class ExecutionContext {
         else {
             return this.target.intercept(this);
         }
+    }
+
+    public boolean isResolutionFromHandler() {
+        return resolutionFromHandler;
+    }
+
+    public void setResolutionFromHandler(boolean resolutionFromHandler) {
+        this.resolutionFromHandler = resolutionFromHandler;
     }
 }
