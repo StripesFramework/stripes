@@ -94,11 +94,12 @@ public class DispatcherServlet extends HttpServlet {
         doOneTimeConfiguration();
 
         ///////////////////////////////////////////////////////////////////////
-        // Here beings the reall processing of the request!
+        // Here beings the real processing of the request!
         ///////////////////////////////////////////////////////////////////////
         log.trace("Dispatching request to URL: ", request.getRequestURI());
 
         PageContext pageContext = null;
+        final ExecutionContext ctx = new ExecutionContext();
 
         try {
             final Configuration config = StripesFilter.getConfiguration();
@@ -109,9 +110,6 @@ public class DispatcherServlet extends HttpServlet {
             context.setServletContext(getServletContext());
 
             // Then setup the ExecutionContext that we'll use to process this request
-            final ExecutionContext ctx = new ExecutionContext();
-            ctx.setInterceptors(config.getInterceptors(LifecycleStage.ActionBeanResolution));
-            ctx.setLifecycleStage(LifecycleStage.ActionBeanResolution);
             ctx.setActionBeanContext(context);
 
             // It's unclear whether this usage of the JspFactory will work in all containers. It looks
@@ -134,38 +132,42 @@ public class DispatcherServlet extends HttpServlet {
                 // try and make use of expression validation, otherwise this is just noise
             }
 
-
             // Resolve the ActionBean, and if an interceptor returns a resolution, bail now
             saveActionBean(request);
-            Resolution resolution = resolveActionBean(ctx);
-
+            
+            Resolution resolution = requestInit(ctx);
+            
             if (resolution == null) {
-                resolution = resolveHandler(ctx);
+                resolution = resolveActionBean(ctx);
 
                 if (resolution == null) {
-                    // Then run binding and validation
-                    resolution = doBindingAndValidation(ctx);
+                    resolution = resolveHandler(ctx);
 
                     if (resolution == null) {
-                        // Then continue on to custom validation
-                        resolution = doCustomValidation(ctx);
+                        // Then run binding and validation
+                        resolution = doBindingAndValidation(ctx);
 
                         if (resolution == null) {
-                            // And then validation error handling
-                            resolution = handleValidationErrors(ctx);
+                            // Then continue on to custom validation
+                            resolution = doCustomValidation(ctx);
 
                             if (resolution == null) {
-                                // And finally(ish) invoking of the event handler
-                                resolution = invokeEventHandler(ctx);
+                                // And then validation error handling
+                                resolution = handleValidationErrors(ctx);
 
-                                // If the event produced errors, fill them in
-                                DispatcherHelper.fillInValidationErrors(ctx);
+                                if (resolution == null) {
+                                    // And finally(ish) invoking of the event handler
+                                    resolution = invokeEventHandler(ctx);
+                                    
+                                    // If the event produced errors, fill them in
+                                    DispatcherHelper.fillInValidationErrors(ctx);
+                                }
                             }
                         }
                     }
                 }
             }
-
+            
             // Whatever stage it came from, execute the resolution
             if (resolution != null) {
                 executeResolution(ctx, resolution);
@@ -194,7 +196,40 @@ public class DispatcherServlet extends HttpServlet {
                 JspFactory.getDefaultFactory().releasePageContext(pageContext);
                 DispatcherHelper.setPageContext(null);
             }
+            
+            requestComplete(ctx);
+            
             restoreActionBean(request);
+        }
+    }
+
+    /**
+     * Calls interceptors listening for RequestInit. There is no Stripes code that
+     * executes for this lifecycle stage.
+     */
+    private Resolution requestInit(ExecutionContext ctx) throws Exception {
+        ctx.setLifecycleStage(LifecycleStage.RequestInit);
+        ctx.setInterceptors(StripesFilter.getConfiguration().getInterceptors(LifecycleStage.RequestInit));
+        return ctx.wrap(new Interceptor() {public Resolution intercept(ExecutionContext context) throws Exception {return null;}});
+    }
+
+    /**
+     * Calls interceptors listening for RequestComplete. There is no Stripes code
+     * that executes for this lifecycle stage. In addition, any response from
+     * interceptors is ignored because it is too late to execute a Resolution at
+     * this point.
+     */
+    private void requestComplete(ExecutionContext ctx) {
+        ctx.setLifecycleStage(LifecycleStage.RequestComplete);
+        ctx.setInterceptors(StripesFilter.getConfiguration().getInterceptors(LifecycleStage.RequestComplete));
+        try {
+            Resolution resolution = ctx.wrap(new Interceptor() {public Resolution intercept(ExecutionContext context) throws Exception {return null;}});
+            if (resolution != null)
+                log.warn("Resolutions returned from interceptors for ", ctx.getLifecycleStage(),
+                        " are ignored because it is too late to execute them.");
+        }
+        catch (Exception e) {
+            log.error(e);
         }
     }
 
