@@ -134,9 +134,8 @@
                 <include name="examples/web/**"/>
                 <exclude name="examples/web/WEB-INF/src/**"/>
                 <exclude name="examples/web/WEB-INF/classes/**"/>
-                <exclude name="examples/web/WEB-INF/lib/commons-logging.jar"/>
                 <exclude name="examples/web/WEB-INF/lib/cos.jar"/>
-                <exclude name="examples/web/WEB-INF/lib/ognl-2.6.7.jar"/>
+                <exclude name="examples/web/WEB-INF/lib/slf4j-api.jar"/>
                 <exclude name="examples/web/WEB-INF/lib/spring.jar"/>
                 <exclude name="examples/web/WEB-INF/lib/stripes.jar"/>
                 <include name="examples/build.xml"/>

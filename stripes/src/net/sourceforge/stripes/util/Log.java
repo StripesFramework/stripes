@@ -14,38 +14,38 @@
  */
 package net.sourceforge.stripes.util;
 
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 import java.util.Arrays;
 
 /**
- * <p>A <em>wafer thin</em> wrapper around Commons logging that uses var-args to make it
- * much more efficient to call the logging methods in commons logging without having to
- * surround every call site with calls to Log.isXXXEnabled().  All the methods on this
- * class take a variable length list of arguments and, only if logging is enabled for
- * the level and channel being logged to, will those arguments be toString()'d and
- * appended together.</p>
+ * <p>A <em>wafer thin</em> wrapper around SLF4J (Simple Logging Facade for Java) that uses var-args
+ * to make it much more efficient to call the logging methods without having to surround every call
+ * site with calls to Logger.isXXXEnabled().  All the methods on this class take a variable length
+ * list of arguments and, only if logging is enabled for the level and channel being logged to, will
+ * those arguments be toString()'d and appended together.</p>
  *
  * @author Tim Fennell
  */
 public final class Log {
-    private org.apache.commons.logging.Log realLog;
+    private Logger realLog;
 
     /**
      * Get a Log instance to perform logging within the Class specified.  Returns an instance
-     * of this class which wraps an instance of the commons logging Log class.
+     * of this class which wraps an instance of the SLF4J Logger class.
      * @param clazz the Class which is going to be doing the logging
      * @return a Log instance with which to log
      */
     public static Log getInstance(Class<?> clazz) {
-        return new Log( LogFactory.getLog(clazz) );
+        return new Log( LoggerFactory.getLogger(clazz) );
     }
 
     /**
-     * Private constructor which creates a new Log instance wrapping the commons Log instance
+     * Private constructor which creates a new Logger instance wrapping the SLF4J Logger instance
      * provided.  Only used by the static getInstance() method on this class.
      */
-    private Log(org.apache.commons.logging.Log realLog) {
+    private Log(Logger realLog) {
         this.realLog = realLog;
     }
 
@@ -56,8 +56,8 @@ public final class Log {
      *        to form the log message.
      */
     public final void fatal(Throwable throwable, Object... messageParts) {
-        if (this.realLog.isFatalEnabled()) {
-            this.realLog.fatal(combineParts(messageParts), throwable);
+        if (this.realLog.isErrorEnabled()) {
+            this.realLog.error(combineParts(messageParts), throwable);
         }
     }
 
@@ -129,8 +129,8 @@ public final class Log {
      *        to form the log message.
      */
     public final void fatal(Object... messageParts) {
-        if (this.realLog.isFatalEnabled()) {
-            this.realLog.fatal(combineParts(messageParts));
+        if (this.realLog.isErrorEnabled()) {
+            this.realLog.error(combineParts(messageParts));
         }
     }
 
@@ -192,7 +192,7 @@ public final class Log {
 
     /**
      * Combines all the message parts handed in to the logger in order to pass them in to
-     * the commons logging interface.
+     * the SLF4J interface.
      */
     private String combineParts(Object[] messageParts) {
         StringBuilder builder = new StringBuilder(128);
