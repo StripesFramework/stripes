@@ -787,7 +787,7 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
                     locale);
         }
 
-        log.debug("Converting ", values.length, " value(s) using converter ", converter);
+        log.debug("Converting ", values.length, " value(s) using converter ", converter.getClass().getName());
 
         for (int i = 0; i < values.length; ++i) {
             String value = values[i];
