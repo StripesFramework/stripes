@@ -342,10 +342,8 @@ public class CryptoUtil {
 
         // compare to first bytes of array
         for (int i = HASH_CODE_SIZE - 1; i >= 0; i--) {
-            if (value[i] != (byte) (hash & 0xff)) {
-                System.out.println("" + value[i] + "!=" + (hash & 0xff));
+            if (value[i] != (byte) (hash & 0xff))
                 return false;
-            }
             hash >>>= 8;
         }
         return true;
