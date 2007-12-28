@@ -14,9 +14,12 @@
  */
 package net.sourceforge.stripes.config;
 
+import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import net.sourceforge.stripes.controller.ActionBeanContextFactory;
 import net.sourceforge.stripes.controller.ActionBeanPropertyBinder;
@@ -26,6 +29,7 @@ import net.sourceforge.stripes.controller.LifecycleStage;
 import net.sourceforge.stripes.controller.multipart.MultipartWrapperFactory;
 import net.sourceforge.stripes.exception.ExceptionHandler;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
+import net.sourceforge.stripes.format.Formatter;
 import net.sourceforge.stripes.format.FormatterFactory;
 import net.sourceforge.stripes.localization.LocalePicker;
 import net.sourceforge.stripes.localization.LocalizationBundleFactory;
@@ -33,7 +37,9 @@ import net.sourceforge.stripes.tag.PopulationStrategy;
 import net.sourceforge.stripes.tag.TagErrorRendererFactory;
 import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.util.ReflectUtil;
+import net.sourceforge.stripes.util.ResolverUtil;
 import net.sourceforge.stripes.util.StringUtil;
+import net.sourceforge.stripes.validation.TypeConverter;
 import net.sourceforge.stripes.validation.TypeConverterFactory;
 import net.sourceforge.stripes.validation.ValidationMetadataProvider;
 
@@ -100,6 +106,9 @@ public class RuntimeConfiguration extends DefaultConfiguration {
 
     /** The Configuration Key for looking up the comma separated list of interceptor classes. */
     public static final String INTERCEPTOR_LIST = "Interceptor.Classes";
+    
+    /** The Configuration Key for looking up the comma separated list of extension packages. */
+    public static final String EXTENSION_LIST = "Extension.Packages";
 
     /** Looks for a true/false value in config. */
     @Override protected Boolean initDebugMode() {
@@ -186,7 +195,7 @@ public class RuntimeConfiguration extends DefaultConfiguration {
         if (classList == null)
             return super.initCoreInterceptors();
         else
-            return initInterceptors(classList);
+            return initInterceptors(classList, false);
     }
 
     /**
@@ -200,48 +209,65 @@ public class RuntimeConfiguration extends DefaultConfiguration {
 	@Override
     protected Map<LifecycleStage, Collection<Interceptor>> initInterceptors() {
         String classList = getBootstrapPropertyResolver().getProperty(INTERCEPTOR_LIST);
-        return initInterceptors(classList);
+        return initInterceptors(classList, true);
     }
 
     /**
      * Splits a comma-separated list of class names and maps each {@link LifecycleStage} to the
-     * interceptors in the list that intercept it.
+     * interceptors in the list that intercept it. Also automatically finds Interceptors in
+     * packages listed in {@link #EXTENSION_LIST} if searchExtensionPackages is true.
      * 
      * @return a Map of {@link LifecycleStage} to Collection of {@link Interceptor}
      */
-	@SuppressWarnings("unchecked")
-    protected Map<LifecycleStage, Collection<Interceptor>> initInterceptors(String classList) {
-        if (classList == null) {
-            return null;
-        }
-        else {
+    @SuppressWarnings("unchecked")
+    protected Map<LifecycleStage, Collection<Interceptor>> initInterceptors(
+            String classList, boolean searchExtensionPackages) {
+        Set<Class<? extends Interceptor>> classes = new HashSet<Class<? extends Interceptor>>();
+        if (classList != null) {
             String[] classNames = StringUtil.standardSplit(classList);
-            Map<LifecycleStage, Collection<Interceptor>> map =
-                    new HashMap<LifecycleStage, Collection<Interceptor>>();
-
             for (String className : classNames) {
+                className = className.trim();
                 try {
-                    Class<? extends Interceptor> type = ReflectUtil.findClass(className.trim());
-                    Interceptor interceptor = type.newInstance();
-                    addInterceptor(map, interceptor);
+                    classes.add(ReflectUtil.findClass(className));
                 }
-                catch (Exception e) {
-                    throw new StripesRuntimeException(
-                            "Could not instantiate one or more configured Interceptors. The " +
-                            "property '" + INTERCEPTOR_LIST + "' contained [" + classList +
-                            "]. This value must contain fully qualified class names separated " +
-                            "by commas.", e);
+                catch (ClassNotFoundException e) {
+                    throw new StripesRuntimeException("Could not find configured Interceptor ["
+                            + className + "]. The " + "property '" + INTERCEPTOR_LIST
+                            + "' contained [" + classList
+                            + "]. This value must contain fully qualified class names separated "
+                            + "by commas.");
                 }
             }
-
-            return map;
         }
+
+        if (searchExtensionPackages) {
+            ResolverUtil<Interceptor> resolver = new ResolverUtil<Interceptor>();
+            String[] packages = StringUtil.standardSplit(getBootstrapPropertyResolver()
+                    .getProperty(EXTENSION_LIST));
+            resolver.findImplementations(Interceptor.class, packages);
+            classes.addAll(resolver.getClasses());
+        }
+        
+        Map<LifecycleStage, Collection<Interceptor>> map = new HashMap<LifecycleStage, Collection<Interceptor>>();
+
+        for (Class<? extends Interceptor> type : classes) {
+            try {
+                Interceptor interceptor = type.newInstance();
+                addInterceptor(map, interceptor);
+            }
+            catch (Exception e) {
+                throw new StripesRuntimeException("Could not instantiate configured Interceptor ["
+                        + type.getClass().getName() + "].", e);
+            }
+        }
+
+        return map;
     }
 
     /**
-     * Internal utility method that is used to implement the main pattern of this class: lookup
-     * the name of a class based on a property name, instantiate the named class and initialize it.
-     *
+     * Internal utility method that is used to implement the main pattern of this class: lookup the
+     * name of a class based on a property name, instantiate the named class and initialize it.
+     * 
      * @param componentType a Class object representing a subclass of ConfigurableComponent
      * @param propertyName the name of the property to look up for the class name
      * @return an instance of the component, or null if one was not configured.
@@ -249,27 +275,100 @@ public class RuntimeConfiguration extends DefaultConfiguration {
     @SuppressWarnings("unchecked")
 	protected <T extends ConfigurableComponent> T initializeComponent(Class<T> componentType,
                                                                       String propertyName) {
+        T component = null;
+        
+        String componentTypeName = componentType.getSimpleName();
         String className = getBootstrapPropertyResolver().getProperty(propertyName);
 
-        if (className != null) {
-            String componentTypeName = componentType.getSimpleName();
-            try {
+        try {
+            if (className != null) {
                 log.info("Found configured ", componentTypeName, " class [", className,
-                         "], attempting to instantiate and initialize.");
+                        "], attempting to instantiate and initialize.");
 
-                T component = (T) ReflectUtil.findClass(className).newInstance();
+                component = (T) ReflectUtil.findClass(className).newInstance();
+            }
+            else {
+                ResolverUtil<T> resolver = new ResolverUtil<T>();
+                String[] packages = StringUtil.standardSplit(getBootstrapPropertyResolver().getProperty(EXTENSION_LIST));
+                resolver.findImplementations(componentType, packages);
+                Set<Class<? extends T>> classes = resolver.getClasses();
+                if (classes.size() == 1) {
+                    Class<? extends T> clazz = classes.iterator().next();
+                    className = clazz.getName();
+                    log.info("Automatically found configured ", componentTypeName, " class [", className,
+                            "], attempting to instantiate and initialize.");
+                    component = clazz.newInstance();
+                }
+                else if (classes.size() > 1) {
+                    throw new StripesRuntimeException("Found too many classes implementing " + componentTypeName + ": " + classes);
+                }
+            }
+
+            if (component != null) {
                 component.init(this);
                 return component;
             }
-            catch (Exception e) {
-                throw new StripesRuntimeException("Could not instantiate configured "
-                        + componentTypeName + " of type [" + className + "]. Please check "
-                        + "the configuration parameters specified in your web.xml.", e);
+            else {
+                return null;
             }
         }
-        else {
-            return null;
+        catch (Exception e) {
+            throw new StripesRuntimeException("Could not instantiate configured "
+                    + componentTypeName + " of type [" + className
+                    + "]. Please check "
+                    + "the configuration parameters specified in your web.xml.", e);
+        }
+    }
+
+    /**
+     * Calls super.init() then adds Formatters and TypeConverters found in
+     * packages listed in {@link #EXTENSION_LIST} to their respective factories.
+     */
+    @Override
+    public void init() {
+        super.init();
+        
+        String[] packages = StringUtil.standardSplit(getBootstrapPropertyResolver().getProperty(
+                EXTENSION_LIST));
+
+        Set<Class<? extends Formatter<?>>> formatters = new ResolverUtil<Formatter<?>>()
+                .findImplementations(Formatter.class, packages).getClasses();
+        for (Class<? extends Formatter<?>> formatter : formatters) {
+            Type[] typeArguments = ReflectUtil.getActualTypeArguments(formatter, Formatter.class);
+            log.trace("Found Formatter [", formatter, "] - type parameters: ", typeArguments);
+            if ((typeArguments != null) && (typeArguments.length == 1)
+                    && !typeArguments[0].equals(Object.class)) {
+                log.debug("Adding auto-discovered Formatter [", formatter, "] for [", typeArguments[0], "] (from type parameter)");
+                getFormatterFactory().add((Class<?>) typeArguments[0], formatter);
+            }
+            
+            TargetTypes targetTypes = formatter.getAnnotation(TargetTypes.class);
+            if (targetTypes != null) {
+                for (Class<?> targetType : targetTypes.value()) {
+                    log.debug("Adding auto-discovered Formatter [", formatter, "] for [", targetType, "] (from TargetTypes annotation)");
+                    getFormatterFactory().add(targetType, formatter);
+                }
+            }
+        }
+
+        Set<Class<? extends TypeConverter<?>>> typeConverters = new ResolverUtil<TypeConverter<?>>()
+                .findImplementations(TypeConverter.class, packages).getClasses();
+        for (Class<? extends TypeConverter<?>> typeConverter : typeConverters) {
+            Type[] typeArguments = ReflectUtil.getActualTypeArguments(typeConverter, TypeConverter.class);
+            log.trace("Found TypeConverter [", typeConverter, "] - type parameters: ", typeArguments);
+            if ((typeArguments != null) && (typeArguments.length == 1)
+                    && !typeArguments[0].equals(Object.class)) {
+                log.debug("Adding auto-discovered TypeConverter [", typeConverter, "] for [", typeArguments[0], "] (from type parameter)");
+                getTypeConverterFactory().add((Class<?>) typeArguments[0], typeConverter);
+            }
+            
+            TargetTypes targetTypes = typeConverter.getAnnotation(TargetTypes.class);
+            if (targetTypes != null) {
+                for (Class<?> targetType : targetTypes.value()) {
+                    log.debug("Adding auto-discovered TypeConverter [", typeConverter, "] for [", targetType, "] (from TargetTypes annotation)");
+                    getTypeConverterFactory().add(targetType, typeConverter);
+                }
+            }
         }
     }
 }
-

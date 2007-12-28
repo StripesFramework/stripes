@@ -14,6 +14,7 @@
  */
 package net.sourceforge.stripes.format;
 
+import java.lang.annotation.Annotation;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Map;
@@ -137,8 +138,8 @@ public class DefaultFormatterFactory implements FormatterFactory {
 
     /**
      * Called first by {@link #findFormatterClass(Class)}. Search for a formatter class that best
-     * matches the requested class, first checking the specified class, then all the interfaces it
-     * implements. If no match is found, repeat the process for each superclass.
+     * matches the requested class, first checking the specified class, second all the interfaces it
+     * implements, third annotations. If no match is found, repeat the process for each superclass.
      * 
      * @param targetClass the class of the object that needs to be formatted
      * @return the first applicable formatter found or null if no match could be found
@@ -159,6 +160,13 @@ public class DefaultFormatterFactory implements FormatterFactory {
                 return cacheFormatterClass(targetClass, formatterClass);
         }
 
+        // Check for annotations
+        for (Annotation annotation : targetClass.getAnnotations()) {
+            Class<? extends Annotation> annotationType = annotation.annotationType();
+            if (formatters.containsKey(annotationType))
+                return cacheFormatterClass(targetClass, formatters.get(annotationType));
+        }
+        
         // Check superclasses
         Class<?> parent = targetClass.getSuperclass();
         if (parent != null) {
