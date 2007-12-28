@@ -102,7 +102,7 @@ public class ResolverUtil<T> {
     public static class AnnotatedWith implements Test {
         private Class<? extends Annotation> annotation;
 
-        /** Construts an AnnotatedWith test for the specified annotation type. */
+        /** Constructs an AnnotatedWith test for the specified annotation type. */
         public AnnotatedWith(Class<? extends Annotation> annotation) { this.annotation = annotation; }
 
         /** Returns true if the type is annotated with the class provided to the constructor. */
@@ -162,29 +162,33 @@ public class ResolverUtil<T> {
      * @param parent the class of interface to find subclasses or implementations of
      * @param packageNames one or more package names to scan (including subpackages) for classes
      */
-    public void findImplementations(Class<?> parent, String... packageNames) {
-        if (packageNames == null) return;
+    public ResolverUtil<T> findImplementations(Class<?> parent, String... packageNames) {
+        if (packageNames == null) return this;
 
         Test test = new IsA(parent);
         for (String pkg : packageNames) {
             find(test, pkg);
         }
+        
+        return this;
     }
 
     /**
-     * Attempts to discover classes that are annotated with to the annotation. Accumulated
+     * Attempts to discover classes that are annotated with the annotation. Accumulated
      * classes can be accessed by calling {@link #getClasses()}.
      *
      * @param annotation the annotation that should be present on matching classes
      * @param packageNames one or more package names to scan (including subpackages) for classes
      */
-    public void findAnnotated(Class<? extends Annotation> annotation, String... packageNames) {
-        if (packageNames == null) return;
+    public ResolverUtil<T> findAnnotated(Class<? extends Annotation> annotation, String... packageNames) {
+        if (packageNames == null) return this;
 
         Test test = new AnnotatedWith(annotation);
         for (String pkg : packageNames) {
             find(test, pkg);
         }
+        
+        return this;
     }
 
     /**
@@ -197,7 +201,7 @@ public class ResolverUtil<T> {
      * @param packageName the name of the package from which to start scanning for
      *        classes, e.g. {@code net.sourceforge.stripes}
      */
-    public void find(Test test, String packageName) {
+    public ResolverUtil<T> find(Test test, String packageName) {
         packageName = packageName.replace('.', '/');
         ClassLoader loader = getClassLoader();
         Enumeration<URL> urls;
@@ -207,7 +211,7 @@ public class ResolverUtil<T> {
         }
         catch (IOException ioe) {
             log.warn("Could not read package: " + packageName, ioe);
-            return;
+            return this;
         }
 
         while (urls.hasMoreElements()) {
@@ -238,6 +242,8 @@ public class ResolverUtil<T> {
                 log.warn("could not read entries", ioe);
             }
         }
+        
+        return this;
     }
 
 
