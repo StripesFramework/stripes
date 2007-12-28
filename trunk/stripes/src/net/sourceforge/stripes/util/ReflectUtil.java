@@ -35,6 +35,9 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+
 import static java.lang.reflect.Modifier.isPublic;
 import java.beans.PropertyDescriptor;
 import java.beans.BeanInfo;
@@ -395,7 +398,7 @@ public class ReflectUtil {
      * when the JVM initializes instance variables.
      *
      * @param clazz the class for which to find the default value
-     * @return null for non-primitive types and an appropriate wrapper instance for primitves
+     * @return null for non-primitive types and an appropriate wrapper instance for primitives
      */
     public static Object getDefaultValue(Class<?> clazz) {
         if (clazz.isPrimitive()) {
@@ -404,5 +407,66 @@ public class ReflectUtil {
         else {
             return null;
         }
+    }
+    
+    /**
+     * Returns a set of all interfaces implemented by class supplied. This includes all
+     * interfaces directly implemented by this class as well as those implemented by
+     * superclasses or interface superclasses.
+     * 
+     * @param clazz
+     * @return all interfaces implemented by this class
+     */
+    public static Set<Class<?>> getImplementedInterfaces(Class<?> clazz)
+    {
+        Set<Class<?>> interfaces = new HashSet<Class<?>>();
+        
+        if (clazz.isInterface())
+            interfaces.add(clazz);
+
+        while (clazz != null) {
+            for (Class<?> iface : clazz.getInterfaces())
+                interfaces.addAll(getImplementedInterfaces(iface));
+            clazz = clazz.getSuperclass();
+        } 
+
+        return interfaces;
+    }
+
+    /**
+     * Returns an array of Type objects representing the actual type arguments
+     * to targetType used by clazz.
+     * 
+     * @param clazz the implementing class (or subclass)
+     * @param targetType the implemented generic class or interface
+     * @return an array of Type objects or null
+     */
+    public static Type[] getActualTypeArguments(Class<?> clazz, Class<?> targetType) {
+        Set<Class<?>> classes = new HashSet<Class<?>>();
+        classes.add(clazz);
+        
+        if (targetType.isInterface())
+            classes.addAll(getImplementedInterfaces(clazz));
+        else {
+            Class<?> superClass = clazz.getSuperclass();
+            while (superClass != null) {
+                classes.add(superClass);
+                superClass = superClass.getSuperclass();
+            }
+        }
+        
+            
+        for (Class<?> search : classes) {
+            for (Type type : (targetType.isInterface() ? search.getGenericInterfaces()
+                    : new Type[] { search.getGenericSuperclass() })) {
+                if (type instanceof ParameterizedType) {
+                    ParameterizedType parameterizedType = (ParameterizedType) type;
+                    if (targetType.equals(parameterizedType.getRawType()))
+                        return parameterizedType.getActualTypeArguments();
+                }
+            }
+        }
+
+        return null;
     }
 }
