@@ -13,7 +13,7 @@
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/deploy/commons-logging.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/deploy/slf4j-api.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />

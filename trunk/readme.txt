@@ -57,7 +57,7 @@ Contents
    -> Copy the following files into your classpath (preferably WEB-INF/lib
       for deployment)
         -> lib/stripes.jar
-        -> lib/commons-logging.jar
+        -> lib/slf4j-api.jar
         -> lib/cos.jar
 
    -> Copy 'lib/StripesResources.properties' into /WEB-INF/classes or in to another
@@ -115,14 +115,13 @@ Contents
    Stripes is distributed with a small number of libraries on which it depends.
    Those libraries are:
    
-   -> Jakarta Commons Logging (http://jakarta.apache.org/commons/logging/)
-      Commons logging is used to provide Stripes with a logging mechanism that
+   -> Simple Logging Facade for Java (http://www.slf4j.org)
+      SLF4J is used to provide Stripes with a logging mechanism that
       does not tie it to a specific logging implementation. In reality, most
-      users will probably be using Log4J, and so will need to configure commons
-      logging to point at Log4J.  A sample configuration file is included in
-      the example application at: examples/src/commons-logging.properties
-      Commons Logging is licensed under the Apache License Version 2.0, a copy
-      of which is included in lib/commons-logging.license
+      users will probably be using Log4J, and so will need to configure SLF4J
+      to point at Log4J.
+      SLF4J is licensed under the MIT License, a copy of which is included in
+      lib/slf4j.license
       
    -> COS or com.oreilly.servlets by Jason Hunter (http://servlets.com/cos/)
       COS provides one of only a couple of good implementations to handle HTTP

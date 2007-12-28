@@ -13,15 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */ 
-
-
 package net.sourceforge.stripes.util;
 
 import java.io.Serializable;
-import org.apache.commons.logging.Log;
 import org.apache.log4j.Logger;
 import org.apache.log4j.Priority;
 import org.apache.log4j.Level;
+import org.slf4j.helpers.MarkerIgnoringBase;
+import org.slf4j.helpers.MessageFormatter;
 
 /**
  * Implementation of {@link Log} that maps directly to a
@@ -47,13 +46,13 @@ import org.apache.log4j.Level;
  */
 
 @SuppressWarnings({ "serial", "deprecation" })
-public class Log4JLogger implements Log, Serializable {
+public class Log4JLogger extends MarkerIgnoringBase implements org.slf4j.Logger, Serializable {
 
     // ------------------------------------------------------------- Attributes
 
     /** The fully qualified name of the Log4JLogger class.
      * 
-     *  ADP - This is the only change from the original in commons-logging-1.1-src */
+     *  ADP - This is the only change from the original in slf4j-api */
     private static final String FQCN = net.sourceforge.stripes.util.Log.class.getName();
     
     /** Log to this logger */
@@ -95,13 +94,11 @@ public class Log4JLogger implements Log, Serializable {
             traceLevel = Priority.DEBUG;
         }
     }
-
     
     // ------------------------------------------------------------ Constructor
 
     public Log4JLogger() {
     }
-
 
     /**
      * Base constructor.
@@ -113,11 +110,10 @@ public class Log4JLogger implements Log, Serializable {
 
     /** For use with a log4j factory.
      */
-    public Log4JLogger(Logger logger ) {
+    public Log4JLogger(Logger logger) {
         this.name = logger.getName();
         this.logger=logger;
     }
-
 
     // --------------------------------------------------------- 
     // Implementation
@@ -136,6 +132,12 @@ public class Log4JLogger implements Log, Serializable {
     // version 1.2 of log4j.
     // --------------------------------------------------------- 
 
+    /**
+     * Returns the name of this logger instance.
+     */
+    public String getName() {
+        return getLogger().getName();
+    }
 
     /**
      * Logs a message with <code>org.apache.log4j.Priority.TRACE</code>.
@@ -143,12 +145,11 @@ public class Log4JLogger implements Log, Serializable {
      * level, the message will be logged at the <code>DEBUG</code> level.
      *
      * @param message to log
-     * @see org.apache.commons.logging.Log#trace(Object)
+     * @see org.slf4j.Logger#trace(Object)
      */
-    public void trace(Object message) {
-        getLogger().log(FQCN, traceLevel, message, null );
+    public void trace(String message) {
+        getLogger().log(FQCN, traceLevel, message, null);
     }
-
 
     /**
      * Logs a message with <code>org.apache.log4j.Priority.TRACE</code>.
@@ -157,21 +158,72 @@ public class Log4JLogger implements Log, Serializable {
      *
      * @param message to log
      * @param t log this cause
-     * @see org.apache.commons.logging.Log#trace(Object, Throwable)
+     * @see org.slf4j.Logger#trace(Object, Throwable)
      */
-    public void trace(Object message, Throwable t) {
-        getLogger().log(FQCN, traceLevel, message, t );
+    public void trace(String message, Throwable t) {
+        getLogger().log(FQCN, traceLevel, message, t);
     }
 
+    /**
+     * Log a message at level TRACE according to the specified format and
+     * argument.
+     *
+     * <p>This form avoids superfluous object creation when the logger
+     * is disabled for level TRACE. </p>
+     *
+     * @param format the format string
+     * @param arg  the argument
+     */
+    public void trace(String format, Object arg) {
+        if (isTraceEnabled()) {
+            String msgStr = MessageFormatter.format(format, arg);
+            getLogger().log(FQCN, traceLevel, msgStr, null);
+        }
+    }
+
+    /**
+     * Log a message at level TRACE according to the specified format and
+     * arguments.
+     *
+     * <p>This form avoids superfluous object creation when the logger
+     * is disabled for the TRACE level. </p>
+     *
+     * @param format the format string
+     * @param arg1  the first argument
+     * @param arg2  the second argument
+     */
+    public void trace(String format, Object arg1, Object arg2) {
+        if (isTraceEnabled()) {
+            String msgStr = MessageFormatter.format(format, arg1, arg2);
+            logger.log(FQCN, traceLevel, msgStr, null);
+        }
+    }
+    
+    /**
+     * Log a message at level TRACE according to the specified format and
+     * arguments.
+     *
+     * <p>This form avoids superfluous object creation when the logger
+     * is disabled for the TRACE level. </p>
+     *
+     * @param format the format string
+     * @param argArray an array of arguments
+     */
+    public void trace(String format, Object[] argArray) {
+        if (isTraceEnabled()) {
+            String msgStr = MessageFormatter.arrayFormat(format, argArray);
+            logger.log(FQCN, traceLevel, msgStr, null);
+        }
+    }
 
     /**
      * Logs a message with <code>org.apache.log4j.Priority.DEBUG</code>.
      *
      * @param message to log
-     * @see org.apache.commons.logging.Log#debug(Object)
+     * @see org.slf4j.Logger#debug(Object)
      */
-    public void debug(Object message) {
-        getLogger().log(FQCN, Priority.DEBUG, message, null );
+    public void debug(String message) {
+        getLogger().log(FQCN, Priority.DEBUG, message, null);
     }
 
     /**
@@ -179,104 +231,282 @@ public class Log4JLogger implements Log, Serializable {
      *
      * @param message to log
      * @param t log this cause
-     * @see org.apache.commons.logging.Log#debug(Object, Throwable)
+     * @see org.slf4j.Logger#debug(Object, Throwable)
      */
-    public void debug(Object message, Throwable t) {
-        getLogger().log(FQCN, Priority.DEBUG, message, t );
+    public void debug(String message, Throwable t) {
+        getLogger().log(FQCN, Priority.DEBUG, message, t);
     }
 
+    /**
+     * Log a message at level DEBUG according to the specified format and
+     * argument.
+     *
+     * <p>This form avoids superfluous object creation when the logger
+     * is disabled for level DEBUG. </p>
+     *
+     * @param format the format string
+     * @param arg  the argument
+     */
+    public void debug(String format, Object arg) {
+        if (logger.isDebugEnabled()) {
+            String msgStr = MessageFormatter.format(format, arg);
+            logger.log(FQCN, Priority.DEBUG, msgStr, null);
+        }
+    }
+
+    /**
+     * Log a message at level DEBUG according to the specified format and
+     * arguments.
+     *
+     * <p>This form avoids superfluous object creation when the logger
+     * is disabled for the DEBUG level. </p>
+     *
+     * @param format the format string
+     * @param arg1  the first argument
+     * @param arg2  the second argument
+     */
+    public void debug(String format, Object arg1, Object arg2) {
+        if (logger.isDebugEnabled()) {
+            String msgStr = MessageFormatter.format(format, arg1, arg2);
+            logger.log(FQCN, Priority.DEBUG, msgStr, null);
+        }
+    }
+    
+    /**
+     * Log a message at level DEBUG according to the specified format and
+     * arguments.
+     *
+     * <p>This form avoids superfluous object creation when the logger
+     * is disabled for the DEBUG level. </p>
+     *
+     * @param format the format string
+     * @param argArray an array of arguments
+     */
+    public void debug(String format, Object[] argArray) {
+        if (logger.isDebugEnabled()) {
+            String msgStr = MessageFormatter.arrayFormat(format, argArray);
+            logger.log(FQCN, Priority.DEBUG, msgStr, null);
+        }
+    }
 
     /**
      * Logs a message with <code>org.apache.log4j.Priority.INFO</code>.
      *
      * @param message to log
-     * @see org.apache.commons.logging.Log#info(Object)
+     * @see org.slf4j.Logger#info(Object)
      */
-    public void info(Object message) {
-        getLogger().log(FQCN, Priority.INFO, message, null );
+    public void info(String message) {
+        getLogger().log(FQCN, Priority.INFO, message, null);
     }
-
 
     /**
      * Logs a message with <code>org.apache.log4j.Priority.INFO</code>.
      *
      * @param message to log
      * @param t log this cause
-     * @see org.apache.commons.logging.Log#info(Object, Throwable)
+     * @see org.slf4j.Logger#info(Object, Throwable)
      */
-    public void info(Object message, Throwable t) {
-        getLogger().log(FQCN, Priority.INFO, message, t );
+    public void info(String message, Throwable t) {
+        getLogger().log(FQCN, Priority.INFO, message, t);
     }
 
+    /**
+     * Log a message at level INFO according to the specified format and
+     * argument.
+     *
+     * <p>This form avoids superfluous object creation when the logger
+     * is disabled for the INFO level. </p>
+     *
+     * @param format the format string
+     * @param arg  the argument
+     */
+    public void info(String format, Object arg) {
+        if (logger.isInfoEnabled()) {
+            String msgStr = MessageFormatter.format(format, arg);
+            logger.log(FQCN, Level.INFO, msgStr, null);
+        }
+    }
+
+    /**
+     * Log a message at the INFO level according to the specified format
+     * and arguments.
+     *
+     * <p>This form avoids superfluous object creation when the logger
+     * is disabled for the INFO level. </p>
+     *
+     * @param format the format string
+     * @param arg1  the first argument
+     * @param arg2  the second argument
+     */
+    public void info(String format, Object arg1, Object arg2) {
+        if (logger.isInfoEnabled()) {
+            String msgStr = MessageFormatter.format(format, arg1, arg2);
+            logger.log(FQCN, Level.INFO, msgStr, null);
+        }
+    }
+
+    /**
+     * Log a message at level INFO according to the specified format and
+     * arguments.
+     *
+     * <p>This form avoids superfluous object creation when the logger
+     * is disabled for the INFO level. </p>
+     *
+     * @param format the format string
+     * @param argArray an array of arguments
+     */
+    public void info(String format, Object[] argArray) {
+        if (logger.isInfoEnabled()) {
+            String msgStr = MessageFormatter.arrayFormat(format, argArray);
+            logger.log(FQCN, Level.INFO, msgStr, null);
+        }
+    }
 
     /**
      * Logs a message with <code>org.apache.log4j.Priority.WARN</code>.
      *
      * @param message to log
-     * @see org.apache.commons.logging.Log#warn(Object)
+     * @see org.slf4j.Logger#warn(Object)
      */
-    public void warn(Object message) {
-        getLogger().log(FQCN, Priority.WARN, message, null );
+    public void warn(String message) {
+        getLogger().log(FQCN, Priority.WARN, message, null);
     }
-
 
     /**
      * Logs a message with <code>org.apache.log4j.Priority.WARN</code>.
      *
      * @param message to log
      * @param t log this cause
-     * @see org.apache.commons.logging.Log#warn(Object, Throwable)
+     * @see org.slf4j.Logger#warn(Object, Throwable)
      */
-    public void warn(Object message, Throwable t) {
-        getLogger().log(FQCN, Priority.WARN, message, t );
+    public void warn(String message, Throwable t) {
+        getLogger().log(FQCN, Priority.WARN, message, t);
     }
 
+    /**
+     * Log a message at the WARN level according to the specified
+     * format and argument.
+     *
+     * <p>This form avoids superfluous object creation when the logger
+     * is disabled for the WARN level. </p>
+     *
+     * @param format the format string
+     * @param arg  the argument
+     */
+    public void warn(String format, Object arg) {
+        if (logger.isEnabledFor(Level.WARN)) {
+            String msgStr = MessageFormatter.format(format, arg);
+            logger.log(FQCN, Level.WARN, msgStr, null);
+        }
+    }
+
+    /**
+     * Log a message at the WARN level according to the specified
+     * format and arguments.
+     *
+     * <p>This form avoids superfluous object creation when the logger
+     * is disabled for the WARN level. </p>
+     *
+     * @param format the format string
+     * @param arg1  the first argument
+     * @param arg2  the second argument
+     */
+    public void warn(String format, Object arg1, Object arg2) {
+        if (logger.isEnabledFor(Level.WARN)) {
+            String msgStr = MessageFormatter.format(format, arg1, arg2);
+            logger.log(FQCN, Level.WARN, msgStr, null);
+        }
+    }
+
+    /**
+     * Log a message at level WARN according to the specified format and
+     * arguments.
+     *
+     * <p>This form avoids superfluous object creation when the logger
+     * is disabled for the WARN level. </p>
+     *
+     * @param format the format string
+     * @param argArray an array of arguments
+     */
+    public void warn(String format, Object[] argArray) {
+        if (logger.isEnabledFor(Level.WARN)) {
+            String msgStr = MessageFormatter.arrayFormat(format, argArray);
+            logger.log(FQCN, Level.WARN, msgStr, null);
+        }
+    }
 
     /**
      * Logs a message with <code>org.apache.log4j.Priority.ERROR</code>.
      *
      * @param message to log
-     * @see org.apache.commons.logging.Log#error(Object)
+     * @see org.slf4j.Logger#error(Object)
      */
-    public void error(Object message) {
-        getLogger().log(FQCN, Priority.ERROR, message, null );
+    public void error(String message) {
+        getLogger().log(FQCN, Priority.ERROR, message, null);
     }
-
 
     /**
      * Logs a message with <code>org.apache.log4j.Priority.ERROR</code>.
      *
      * @param message to log
      * @param t log this cause
-     * @see org.apache.commons.logging.Log#error(Object, Throwable)
+     * @see org.slf4j.Logger#error(Object, Throwable)
      */
-    public void error(Object message, Throwable t) {
-        getLogger().log(FQCN, Priority.ERROR, message, t );
+    public void error(String message, Throwable t) {
+        getLogger().log(FQCN, Priority.ERROR, message, t);
     }
-
 
     /**
-     * Logs a message with <code>org.apache.log4j.Priority.FATAL</code>.
+     * Log a message at the ERROR level according to the specified
+     * format and argument.
      *
-     * @param message to log
-     * @see org.apache.commons.logging.Log#fatal(Object)
+     * <p>This form avoids superfluous object creation when the logger
+     * is disabled for the ERROR level. </p>
+     *
+     * @param format the format string
+     * @param arg  the argument
      */
-    public void fatal(Object message) {
-        getLogger().log(FQCN, Priority.FATAL, message, null );
+    public void error(String format, Object arg) {
+        if (logger.isEnabledFor(Level.ERROR)) {
+            String msgStr = MessageFormatter.format(format, arg);
+            logger.log(FQCN, Level.ERROR, msgStr, null);
+        }
     }
-
 
     /**
-     * Logs a message with <code>org.apache.log4j.Priority.FATAL</code>.
+     * Log a message at the ERROR level according to the specified
+     * format and arguments.
      *
-     * @param message to log
-     * @param t log this cause
-     * @see org.apache.commons.logging.Log#fatal(Object, Throwable)
+     * <p>This form avoids superfluous object creation when the logger
+     * is disabled for the ERROR level. </p>
+     *
+     * @param format the format string
+     * @param arg1  the first argument
+     * @param arg2  the second argument
      */
-    public void fatal(Object message, Throwable t) {
-        getLogger().log(FQCN, Priority.FATAL, message, t );
+    public void error(String format, Object arg1, Object arg2) {
+        if (logger.isEnabledFor(Level.ERROR)) {
+            String msgStr = MessageFormatter.format(format, arg1, arg2);
+            logger.log(FQCN, Level.ERROR, msgStr, null);
+        }
     }
 
+    /**
+     * Log a message at level ERROR according to the specified format and
+     * arguments.
+     *
+     * <p>This form avoids superfluous object creation when the logger
+     * is disabled for the ERROR level. </p>
+     *
+     * @param format the format string
+     * @param argArray an array of arguments
+     */
+    public void error(String format, Object[] argArray) {
+        if (logger.isEnabledFor(Level.ERROR)) {
+            String msgStr = MessageFormatter.arrayFormat(format, argArray);
+            logger.log(FQCN, Level.ERROR, msgStr, null);
+        }
+    }
 
     /**
      * Return the native Logger instance we are using.
@@ -288,7 +518,6 @@ public class Log4JLogger implements Log, Serializable {
         return (this.logger);
     }
 
-
     /**
      * Check whether the Log4j Logger used is enabled for <code>DEBUG</code> priority.
      */
@@ -296,22 +525,12 @@ public class Log4JLogger implements Log, Serializable {
         return getLogger().isDebugEnabled();
     }
 
-
-     /**
+    /**
      * Check whether the Log4j Logger used is enabled for <code>ERROR</code> priority.
      */
     public boolean isErrorEnabled() {
         return getLogger().isEnabledFor(Priority.ERROR);
     }
-
-
-    /**
-     * Check whether the Log4j Logger used is enabled for <code>FATAL</code> priority.
-     */
-    public boolean isFatalEnabled() {
-        return getLogger().isEnabledFor(Priority.FATAL);
-    }
-
 
     /**
      * Check whether the Log4j Logger used is enabled for <code>INFO</code> priority.
@@ -319,7 +538,6 @@ public class Log4JLogger implements Log, Serializable {
     public boolean isInfoEnabled() {
         return getLogger().isInfoEnabled();
     }
-
 
     /**
      * Check whether the Log4j Logger used is enabled for <code>TRACE</code> priority.
