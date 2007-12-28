@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.ConcurrentHashMap;
+import java.lang.annotation.Annotation;
 import java.math.BigInteger;
 import java.math.BigDecimal;
 
@@ -146,8 +147,15 @@ public class DefaultTypeConverterFactory implements TypeConverterFactory {
             return classCache.get(targetClass);
         else if (targetClass.isEnum())
             return cacheTypeConverterClass(targetClass, EnumeratedTypeConverter.class);
-        else
-            return cacheTypeConverterClass(targetClass, null);
+        else {
+            for (Annotation annotation : targetClass.getAnnotations()) {
+                Class<? extends Annotation> annotationType = annotation.annotationType();
+                if (converters.containsKey(annotationType))
+                    return cacheTypeConverterClass(targetClass, converters.get(annotationType));
+            }
+        }
+            
+        return null;
     }
 
     /**
