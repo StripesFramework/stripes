@@ -77,16 +77,14 @@ public class CryptoUtil {
     /** The number of bytes that should be used to generate the nonce value. */
     private static final int NONCE_SIZE = 2;
 
-    /**
-     * Magic number to be prefixed to data before encryption. When a value is decrypted, the
-     * resulting byte array must begin with the magic number (after the nonce value) to ensure
-     * that it was encrypted with the current secret key.
-     */
-    private static final byte[] MAGIC_NUMBER = new byte[] {'|'};
-    private static final int MAGIC_NUMBER_LENGTH = MAGIC_NUMBER.length;
+    /** A seed number used when generating a hash code from a byte array. */
+    private static final int HASH_CODE_SEED = 5381;
+
+    /** The number of bytes required to hold the hash code (sizeof short) */
+    private static final int HASH_CODE_SIZE = 2;
 
     /** Short hand for the combined size of the nonce + magic number. */
-    private static final int DISCARD_BYTES = NONCE_SIZE + MAGIC_NUMBER_LENGTH;
+    private static final int DISCARD_BYTES = NONCE_SIZE + HASH_CODE_SIZE;
 
     /** The options used for Base64 Encoding. */
     private static final int BASE64_OPTIONS = Base64.URL_SAFE | Base64.DONT_BREAK_LINES;
@@ -127,9 +125,11 @@ public class CryptoUtil {
             int size = cipher.getOutputSize(DISCARD_BYTES + inputLength);
             byte[] output = new byte[size];
 
-            // Then encrypt along with the nonce and the magic number
-            int index = cipher.update(nextNonce(), 0, NONCE_SIZE, output, 0);
-            index = cipher.update(MAGIC_NUMBER, 0, MAGIC_NUMBER_LENGTH, output, index);
+            // Then encrypt along with the nonce and the hash code
+            byte[] nonce = nextNonce();
+            byte[] hash = generateHashCode(nonce, inbytes);
+            int index = cipher.update(hash, 0, HASH_CODE_SIZE, output, 0);
+            index = cipher.update(nonce, 0, NONCE_SIZE, output, index);
             cipher.doFinal(inbytes, 0, inbytes.length, output, index);
 
             // Then base64 encode the bytes
@@ -189,12 +189,10 @@ public class CryptoUtil {
             return null;
         }
 
-        // Check for the magic number so we don't eat garbage
-        for (int i = 0; i < MAGIC_NUMBER_LENGTH; ++i) {
-            if (MAGIC_NUMBER[i] != output[i + NONCE_SIZE]) {
-                log.warn("Input was not encrypted with the current encryption key: ", input);
-                return null;
-            }
+        // Check the hash code so we don't eat garbage
+        if (!checkHashCode(output)) {
+            log.warn("Input was not encrypted with the current encryption key: ", input);
+            return null;
         }
 
         return new String(output, DISCARD_BYTES, output.length - DISCARD_BYTES);
@@ -308,5 +306,48 @@ public class CryptoUtil {
         byte[] nonce = new byte[NONCE_SIZE];
         CryptoUtil.random.nextBytes(nonce);
         return nonce;
+    }
+
+    /** Generates and returns a hash code from the given byte arrays */
+    protected static byte[] generateHashCode(byte[]... byteses) {
+        long hash = HASH_CODE_SEED;
+        for (int i = 0; i < byteses.length; i++) {
+            byte[] bytes = byteses[i];
+            for (int j = 0; j < bytes.length; j++) {
+                hash = (((hash << 5) + hash) + bytes[j]);
+            }
+        }
+
+        // convert to bytes
+        byte[] hashBytes = new byte[HASH_CODE_SIZE];
+        for (int i = HASH_CODE_SIZE - 1; i >= 0; i--) {
+            hashBytes[i] = (byte) (hash & 0xff);
+            hash >>>= 8;
+        }
+        return hashBytes;
+    }
+
+    /**
+     * Checks the hash code in the first bytes of the value to make sure it is correct.
+     * 
+     * @param value byte array that contains the hash code and the bytes from which the hash code
+     *            was generated
+     * @return true if the hash code is valid; otherwise, false
+     */
+    protected static boolean checkHashCode(byte[] value) {
+        // generate hash
+        long hash = HASH_CODE_SEED;
+        for (int i = HASH_CODE_SIZE; i < value.length; i++)
+            hash = (((hash << 5) + hash) + value[i]);
+
+        // compare to first bytes of array
+        for (int i = HASH_CODE_SIZE - 1; i >= 0; i--) {
+            if (value[i] != (byte) (hash & 0xff)) {
+                System.out.println("" + value[i] + "!=" + (hash & 0xff));
+                return false;
+            }
+            hash >>>= 8;
+        }
+        return true;
     }
 }
