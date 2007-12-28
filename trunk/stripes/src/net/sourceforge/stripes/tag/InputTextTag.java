@@ -17,6 +17,8 @@ package net.sourceforge.stripes.tag;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.BodyTag;
 
+import net.sourceforge.stripes.validation.ValidationMetadata;
+
 /**
  * <p>Tag that generates HTML form fields of type
  * {@literal <input type="text" name="foo" value="bar"/>}, which can dynamically re-populate their
@@ -89,6 +91,12 @@ import javax.servlet.jsp.tagext.BodyTag;
         // Figure out where to pull the value from
         if (value != null) {
             getAttributes().put("value", format(value));
+        }
+        
+        if (getMaxlength() == null) {
+            ValidationMetadata validation = getValidationMetadata();
+            if (validation.maxlength() != null)
+                setMaxlength(validation.maxlength().toString());
         }
 
         writeSingletonTag(getPageContext().getOut(), "input");

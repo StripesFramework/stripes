@@ -15,7 +15,6 @@
 package net.sourceforge.stripes.tag;
 
 import net.sourceforge.stripes.action.ActionBean;
-import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.controller.StripesFilter;
 import net.sourceforge.stripes.exception.StripesJspException;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
@@ -255,6 +254,29 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
                                                          locale);
 
     }
+    
+    protected ValidationMetadata getValidationMetadata() throws StripesJspException {
+        // find the action bean class we're dealing with
+        Class<? extends ActionBean> beanClass = getParentFormTag().getActionBeanClass();
+
+        if (beanClass != null) {
+            // ascend the tag stack until a tag name is found
+            String name = getName();
+            if (name == null) {
+                InputTagSupport tag = getParentTag(InputTagSupport.class);
+                while (name == null && tag != null) {
+                    name = tag.getName();
+                }
+            }
+
+            // check validation for encryption flag
+            return StripesFilter.getConfiguration().getValidationMetadataProvider()
+                    .getValidationMetadata(beanClass, name);
+        }
+        else {
+            return null;
+        }
+    }
 
     /**
      * Attempts to format an object using the Stripes formatting system.  If no formatter can
@@ -267,35 +289,19 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
             return "";
         }
 
-        Configuration config = StripesFilter.getConfiguration();
         try {
-            // find the action bean class we're dealing with
-            Class<? extends ActionBean> beanClass = getParentFormTag().getActionBeanClass();
 
-            // if a bean class was found then check the encrypted flag on this property
-            if (beanClass != null) {
-                // ascend the tag stack until a tag name is found
-                String name = getName();
-                if (name == null) {
-                    InputTagSupport tag = getParentTag(InputTagSupport.class);
-                    while (name == null && tag != null) {
-                        name = tag.getName();
-                    }
-                }
-
-                // check validation for encryption flag
-                ValidationMetadata validate = config.getValidationMetadataProvider()
-                        .getValidationMetadata(beanClass, name);
-                if (validate != null && validate.encrypted()) {
-                    input = new EncryptedValue(input);
-                }
+            // check validation for encryption flag
+            ValidationMetadata validate = getValidationMetadata();
+            if (validate != null && validate.encrypted()) {
+                input = new EncryptedValue(input);
             }
         }
         catch (JspException e) {
             throw new StripesRuntimeException(e);
         }
 
-        FormatterFactory factory = config.getFormatterFactory();
+        FormatterFactory factory = StripesFilter.getConfiguration().getFormatterFactory();
         Formatter formatter = factory.getFormatter(input.getClass(),
                                                    getPageContext().getRequest().getLocale(),
                                                    this.formatType,
