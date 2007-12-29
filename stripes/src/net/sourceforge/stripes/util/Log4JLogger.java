@@ -67,7 +67,7 @@ public class Log4JLogger extends MarkerIgnoringBase implements org.slf4j.Logger,
     // Static Initializer.
     //
     // Note that this must come after the static variable declarations
-    // otherwise initialiser expressions associated with those variables
+    // otherwise initializer expressions associated with those variables
     // will override any settings done here.
     //
     // Verify that log4j is available, and that it is version 1.2.
@@ -145,7 +145,7 @@ public class Log4JLogger extends MarkerIgnoringBase implements org.slf4j.Logger,
      * level, the message will be logged at the <code>DEBUG</code> level.
      *
      * @param message to log
-     * @see org.slf4j.Logger#trace(Object)
+     * @see org.slf4j.Logger#trace(String)
      */
     public void trace(String message) {
         getLogger().log(FQCN, traceLevel, message, null);
@@ -158,7 +158,7 @@ public class Log4JLogger extends MarkerIgnoringBase implements org.slf4j.Logger,
      *
      * @param message to log
      * @param t log this cause
-     * @see org.slf4j.Logger#trace(Object, Throwable)
+     * @see org.slf4j.Logger#trace(String, Throwable)
      */
     public void trace(String message, Throwable t) {
         getLogger().log(FQCN, traceLevel, message, t);
@@ -220,7 +220,7 @@ public class Log4JLogger extends MarkerIgnoringBase implements org.slf4j.Logger,
      * Logs a message with <code>org.apache.log4j.Priority.DEBUG</code>.
      *
      * @param message to log
-     * @see org.slf4j.Logger#debug(Object)
+     * @see org.slf4j.Logger#debug(String)
      */
     public void debug(String message) {
         getLogger().log(FQCN, Priority.DEBUG, message, null);
@@ -231,7 +231,7 @@ public class Log4JLogger extends MarkerIgnoringBase implements org.slf4j.Logger,
      *
      * @param message to log
      * @param t log this cause
-     * @see org.slf4j.Logger#debug(Object, Throwable)
+     * @see org.slf4j.Logger#debug(String, Throwable)
      */
     public void debug(String message, Throwable t) {
         getLogger().log(FQCN, Priority.DEBUG, message, t);
@@ -293,7 +293,7 @@ public class Log4JLogger extends MarkerIgnoringBase implements org.slf4j.Logger,
      * Logs a message with <code>org.apache.log4j.Priority.INFO</code>.
      *
      * @param message to log
-     * @see org.slf4j.Logger#info(Object)
+     * @see org.slf4j.Logger#info(String)
      */
     public void info(String message) {
         getLogger().log(FQCN, Priority.INFO, message, null);
@@ -304,7 +304,7 @@ public class Log4JLogger extends MarkerIgnoringBase implements org.slf4j.Logger,
      *
      * @param message to log
      * @param t log this cause
-     * @see org.slf4j.Logger#info(Object, Throwable)
+     * @see org.slf4j.Logger#info(String, Throwable)
      */
     public void info(String message, Throwable t) {
         getLogger().log(FQCN, Priority.INFO, message, t);
@@ -366,7 +366,7 @@ public class Log4JLogger extends MarkerIgnoringBase implements org.slf4j.Logger,
      * Logs a message with <code>org.apache.log4j.Priority.WARN</code>.
      *
      * @param message to log
-     * @see org.slf4j.Logger#warn(Object)
+     * @see org.slf4j.Logger#warn(String)
      */
     public void warn(String message) {
         getLogger().log(FQCN, Priority.WARN, message, null);
@@ -377,7 +377,7 @@ public class Log4JLogger extends MarkerIgnoringBase implements org.slf4j.Logger,
      *
      * @param message to log
      * @param t log this cause
-     * @see org.slf4j.Logger#warn(Object, Throwable)
+     * @see org.slf4j.Logger#warn(String, Throwable)
      */
     public void warn(String message, Throwable t) {
         getLogger().log(FQCN, Priority.WARN, message, t);
@@ -439,7 +439,7 @@ public class Log4JLogger extends MarkerIgnoringBase implements org.slf4j.Logger,
      * Logs a message with <code>org.apache.log4j.Priority.ERROR</code>.
      *
      * @param message to log
-     * @see org.slf4j.Logger#error(Object)
+     * @see org.slf4j.Logger#error(String)
      */
     public void error(String message) {
         getLogger().log(FQCN, Priority.ERROR, message, null);
@@ -450,7 +450,7 @@ public class Log4JLogger extends MarkerIgnoringBase implements org.slf4j.Logger,
      *
      * @param message to log
      * @param t log this cause
-     * @see org.slf4j.Logger#error(Object, Throwable)
+     * @see org.slf4j.Logger#error(String, Throwable)
      */
     public void error(String message, Throwable t) {
         getLogger().log(FQCN, Priority.ERROR, message, t);
