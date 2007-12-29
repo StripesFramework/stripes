@@ -42,17 +42,17 @@
   </path>
 
   <target name="init" description="Creates directories needed by the build system.">
-	<mkdir dir="${classes.dir}"/>
+  <mkdir dir="${classes.dir}"/>
     <mkdir dir="${classes.dir}/META-INF"/>
-	<mkdir dir="${dist.dir}"/>
-	<mkdir dir="${doc.dir}"/>
+    <mkdir dir="${dist.dir}"/>
+    <mkdir dir="${doc.dir}"/>
     <mkdir dir="${doc.dir}/api"/>
     <mkdir dir="${doc.dir}/taglib"/>
 
     <!-- Get the Stripes repository version -->
     <exec executable="svnversion" outputproperty="repository.version"
           failonerror="false" failifexecutionfails="false">
-        <arg value="."/>
+      <arg value="."/>
     </exec>
     <echo message="Specification Version is: ${stripes.version}"/>
     <echo message="Repository Version is: ${repository.version}"/>
@@ -103,11 +103,11 @@
           description="Builds the stripes.jar library file.">
     <jar destfile="${dist.dir}/stripes.jar" basedir="${classes.dir}">
       <manifest>
-          <attribute name="Implementation-Title" value="Stripes"/>
-          <attribute name="Specification-Version" value="${stripes.version}"/>
-          <attribute name="Implementation-Version" value="${repository.version}"/>
-          <attribute name="Implementation-URL" value="http://stripes.mc4j.org/"/>
-          <attribute name="Main-Class" value="net.sourceforge.stripes.Main"/>
+        <attribute name="Implementation-Title" value="Stripes"/>
+        <attribute name="Specification-Version" value="${stripes.version}"/>
+        <attribute name="Implementation-Version" value="${repository.version}"/>
+        <attribute name="Implementation-URL" value="http://stripes.mc4j.org/"/>
+        <attribute name="Main-Class" value="net.sourceforge.stripes.Main"/>
       </manifest>
     </jar>
   </target>
@@ -116,63 +116,65 @@
   <!-- Generate the javadoc for all the sources in the project.            -->
   <!-- =================================================================== -->
   <target name="javadoc" depends="init" description="Generates the Stripes javadoc.">
-	<javadoc
-	   sourcepath="${src.dir}"
-	   destdir="${doc.dir}/api"
-	   classpathref="build.class.path"
-	   packagenames="net.sourceforge.stripes.*"
-       stylesheetfile="${src.dir}/javadoc.css"
-       overview="${src.dir}/overview.html"
-       windowtitle="Stripes ${stripes.version} API Documentation"
-	   doctitle="&lt;h1&gt;Stripes ${stripes.version} API Documentation&lt;/h1&gt;"
-	   bottom="&#169; Copyright 2005-2006, Stripes Development Team."
-	   author="true"
-	   protected="true"
-	   use="true"
-	   version="true">
-		<link href="http://java.sun.com/j2se/1.5.0/docs/api/"/>
-		<link href="http://java.sun.com/j2ee/1.4/docs/api/"/>
-		<link href="http://static.springframework.org/spring/docs/1.2.x/api/"/>
-		<link href="http://java.sun.com/j2se/1.5.0/docs/guide/apt/mirror/"/>
-        <group>
-            <title>Core API</title>
-            <package name="net.sourceforge.stripes.action"/>
-            <package name="net.sourceforge.stripes.validation"/>
-            <package name="net.sourceforge.stripes.mock"/>
-        </group>
-        <group>
-            <title>Extension API</title>
-            <package name="net.sourceforge.stripes.ajax"/>
-            <package name="net.sourceforge.stripes.config"/>
-            <package name="net.sourceforge.stripes.exception"/>
-            <package name="net.sourceforge.stripes.format"/>
-            <package name="net.sourceforge.stripes.integration.spring"/>
-            <package name="net.sourceforge.stripes.localization"/>
-            <package name="net.sourceforge.stripes.tag"/>
-            <package name="net.sourceforge.stripes.tag.layout"/>
-        </group>
-        <group>
-            <title>Internal Implementation</title>
-            <package name="net.sourceforge.stripes.controller"/>
-            <package name="net.sourceforge.stripes.controller.multipart"/>
-            <package name="net.sourceforge.stripes.util"/>
-            <package name="net.sourceforge.stripes.util.bean"/>
-        </group>
+  <javadoc
+     sourcepath="${src.dir}"
+     destdir="${doc.dir}/api"
+     classpathref="build.class.path"
+     packagenames="net.sourceforge.stripes.*"
+     stylesheetfile="${src.dir}/javadoc.css"
+     overview="${src.dir}/overview.html"
+     windowtitle="Stripes ${stripes.version} API Documentation"
+     doctitle="&lt;h1&gt;Stripes ${stripes.version} API Documentation&lt;/h1&gt;"
+     bottom="&#169; Copyright 2005-2006, Stripes Development Team."
+     author="true"
+     protected="true"
+     use="true"
+     version="true">
+    <classpath location="${java.home}/../lib/tools.jar"/>
+    <link href="http://java.sun.com/j2se/1.5.0/docs/api/"/>
+    <link href="http://java.sun.com/j2ee/1.4/docs/api/"/>
+    <link href="http://static.springframework.org/spring/docs/1.2.x/api/"/>
+    <link href="http://java.sun.com/j2se/1.5.0/docs/guide/apt/mirror/"/>
+    <link href="http://www.slf4j.org/api/"/>
+      <group>
+        <title>Core API</title>
+        <package name="net.sourceforge.stripes.action"/>
+        <package name="net.sourceforge.stripes.validation"/>
+        <package name="net.sourceforge.stripes.mock"/>
+      </group>
+      <group>
+        <title>Extension API</title>
+        <package name="net.sourceforge.stripes.ajax"/>
+        <package name="net.sourceforge.stripes.config"/>
+        <package name="net.sourceforge.stripes.exception"/>
+        <package name="net.sourceforge.stripes.format"/>
+        <package name="net.sourceforge.stripes.integration.spring"/>
+        <package name="net.sourceforge.stripes.localization"/>
+        <package name="net.sourceforge.stripes.tag"/>
+        <package name="net.sourceforge.stripes.tag.layout"/>
+      </group>
+      <group>
+        <title>Internal Implementation</title>
+        <package name="net.sourceforge.stripes.controller"/>
+        <package name="net.sourceforge.stripes.controller.multipart"/>
+        <package name="net.sourceforge.stripes.util"/>
+        <package name="net.sourceforge.stripes.util.bean"/>
+      </group>
     </javadoc>
   </target>
 
   <target name="tlddoc" depends="init" description="Generates Tag Library Documentation.">
-      <java fork="true" jar="${lib.dir}/build/tlddoc.jar" failonerror="false">
-          <arg line="-d '${doc.dir}/taglib'"/>
-          <arg line="-doctitle 'Stripes ${stripes.version} Tag Library Documentation'"/>
-          <arg line="-windowtitle 'Stripes ${stripes.version} Tag Library Documentation'"/>
-          <arg value="${classes.dir}/META-INF/stripes.tld"/>
-      </java>
-      <copy file="${src.dir}/javadoc.css"
-            tofile="${doc.dir}/taglib/stylesheet.css"
-            overwrite="true"/>
-      <replace file="${doc.dir}/taglib/index.html"
-               token="overview-summary.html"
-               value="stripes/tld-summary.html"/>
+    <java fork="true" jar="${lib.dir}/build/tlddoc.jar" failonerror="false">
+      <arg line="-d '${doc.dir}/taglib'"/>
+      <arg line="-doctitle 'Stripes ${stripes.version} Tag Library Documentation'"/>
+      <arg line="-windowtitle 'Stripes ${stripes.version} Tag Library Documentation'"/>
+      <arg value="${classes.dir}/META-INF/stripes.tld"/>
+    </java>
+    <copy file="${src.dir}/javadoc.css"
+          tofile="${doc.dir}/taglib/stylesheet.css"
+          overwrite="true"/>
+    <replace file="${doc.dir}/taglib/index.html"
+             token="overview-summary.html"
+             value="stripes/tld-summary.html"/>
   </target>
 </project>
