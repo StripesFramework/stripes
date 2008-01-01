@@ -95,7 +95,7 @@ import net.sourceforge.stripes.validation.ValidationMetadata;
         
         if (getMaxlength() == null) {
             ValidationMetadata validation = getValidationMetadata();
-            if (validation.maxlength() != null)
+            if (validation != null && validation.maxlength() != null)
                 setMaxlength(validation.maxlength().toString());
         }
 
