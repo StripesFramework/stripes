@@ -44,7 +44,7 @@ public class LayoutDefinitionTag extends StripesTagSupport {
     /**
      * Looks up the layout context that has been setup by a LayoutRenderTag. Uses the context
      * to push any dynamic attributes supplied to the render tag in to the page context
-     * available during the body of the LayouDefinitionTag.
+     * available during the body of the LayoutDefinitionTag.
      *
      * @return EVAL_BODY_INCLUDE in all cases.
      */
@@ -94,9 +94,9 @@ public class LayoutDefinitionTag extends StripesTagSupport {
 
     /**
      * Called by nested tags to find out if they have permission to render their content, or
-     * if they have been overriden in the layout rendering tag.  Returns true if a component
-     * has not been overriden and should render as normal.  Returns false, and writes out the
-     * overriden component when the component has been overridden.
+     * if they have been overridden in the layout rendering tag.  Returns true if a component
+     * has not been overridden and should render as normal.  Returns false, and writes out the
+     * overridden component when the component has been overridden.
      *
      * @param componentName the name of the component about to render
      * @return true if the component should render itself, false otherwise
@@ -108,7 +108,7 @@ public class LayoutDefinitionTag extends StripesTagSupport {
                 getPageContext().getOut().write(this.context.getComponents().get(componentName));
             }
             catch (IOException ioe) {
-                throw new JspException("Could not output overrident layout component.", ioe);
+                throw new JspException("Could not output overridden layout component.", ioe);
             }
             return false;
         }

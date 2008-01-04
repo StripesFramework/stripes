@@ -52,7 +52,7 @@ public class LayoutRenderTag extends StripesTagSupport implements BodyTag, Dynam
     /**
      * Allows nested tags to register their contents for rendering in the layout.
      *
-     * @param name the name of the component to be overriden in the layout
+     * @param name the name of the component to be overridden in the layout
      * @param contents the output that will be used
      */
     public void addComponent(String name, String contents) {
@@ -87,7 +87,7 @@ public class LayoutRenderTag extends StripesTagSupport implements BodyTag, Dynam
     public int doAfterBody() throws JspException { return SKIP_BODY; }
 
     /**
-     * Invokes the named layout, providing it with the overriden components and provided
+     * Invokes the named layout, providing it with the overridden components and provided
      * parameters.
      * @return EVAL_PAGE in all cases.
      * @throws JspException if any exceptions are encountered processing the request

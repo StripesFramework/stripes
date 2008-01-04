@@ -22,7 +22,7 @@ import javax.servlet.jsp.tagext.BodyContent;
 
 /**
  * Defines a component in a layout. Used both to define the components in a layout definition
- * and to provide overriden component definitions during a layout rendering request.
+ * and to provide overridden component definitions during a layout rendering request.
  *
  * @author Tim Fennell
  * @since Stripes 1.1
