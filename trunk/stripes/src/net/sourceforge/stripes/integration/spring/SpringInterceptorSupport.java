@@ -23,7 +23,7 @@ import javax.servlet.ServletContext;
 /**
  * <p>Base class for developing Interceptors with dependencies on Spring managed beans. <b>Not</b>
  * to be confused with {@link SpringInterceptor} which injects Spring managed beans into
- * ActionBeans.  For example, you may wish to sublcass this class in order to write an
+ * ActionBeans.  For example, you may wish to subclass this class in order to write an
  * interceptor with access to Spring managed DAOs or security information.</p>
  *
  * <p>Since Interceptors are long-lived objects that are instantiated at application startup
@@ -40,7 +40,7 @@ public abstract class SpringInterceptorSupport implements Interceptor, Configura
      * Spring dependencies prior to being placed into service.
      *
      * @param configuration the Stripes Configuration
-     * @throws Exception if there are problems with the Spring configuraiton/wiring
+     * @throws Exception if there are problems with the Spring configuration/wiring
      */
     public void init(Configuration configuration) throws Exception {
         ServletContext ctx = configuration.getBootstrapPropertyResolver()

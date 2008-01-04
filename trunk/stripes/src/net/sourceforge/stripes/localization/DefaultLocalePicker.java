@@ -129,8 +129,8 @@ public class DefaultLocalePicker implements LocalePicker {
     }
 
     /**
-     * Uses a prefence matching algorithm to pick a Locale for the user's request.  Iterates
-     * through the user's acceptable list of Locales, mathing them against the system list. On the
+     * Uses a preference matching algorithm to pick a Locale for the user's request.  Iterates
+     * through the user's acceptable list of Locales, matching them against the system list. On the
      * way through the list records the first Locale to match on Language, and the first locale to
      * match on both Language and Country.  If a match is found for all three, Language, Country
      * and Variant, it will be returned.  If no three-way match is found the first two-way match
