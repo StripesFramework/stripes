@@ -325,7 +325,10 @@ public class DispatcherHelper {
             Class<?> temp = type;
             while ( temp != null ) {
                 for (Method method : temp.getDeclaredMethods()) {
-                    if (method.getAnnotation(ValidationMethod.class) != null) {
+                    Class<?>[] args = method.getParameterTypes();
+
+                    if ((method.getAnnotation(ValidationMethod.class) != null) &&
+                            ((args.length == 0) || (args.length == 1 && args[0].equals(ValidationErrors.class)))) {
                         validationMethods.add(method);
                     }
                 }
