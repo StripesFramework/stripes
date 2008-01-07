@@ -37,9 +37,10 @@ public class JavaScriptResolution implements Resolution {
      * @param rootObject an Object of any type supported by {@link JavaScriptBuilder}. In most cases
      *        this will either be a JavaBean, Map, Collection or Array, but may also be any one of
      *        the basic Java types including String, Date, Number etc.
+     * @param objectsToExclude Classes and/or property names to exclude from the output.
      */
-    public JavaScriptResolution(Object rootObject, Class<?>... userTypesExcluded) {
-        this.builder = new JavaScriptBuilder(rootObject, userTypesExcluded);
+    public JavaScriptResolution(Object rootObject, Object... objectsToExclude) {
+        this.builder = new JavaScriptBuilder(rootObject, objectsToExclude);
     }
 
     /**

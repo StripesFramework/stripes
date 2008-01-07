@@ -82,20 +82,29 @@ public class JavaScriptBuilder {
 
     /** Holds the (potentially empty) set of user classes that should be skipped over. */
     private Set<Class<?>> excludeClasses;
+    
+    /** Holds the (potentially empty) set of properties that should be skipped over. */
+    private Set<String> excludeProperties;
 
     /**
      * Constructs a new JavaScriptBuilder to build JS for the root object supplied.
      *
      * @param root The root object from which to being translation into JavaScript
-     * @param userClassesToExclude Zero or more classes to be excluded from translation. Any class
-     *        equal to, or extending,
+     * @param objectsToExclude Zero or more Strings and/or Classes to be excluded
+     * from translation.
      */
-    public JavaScriptBuilder(Object root, Class<?>... userClassesToExclude) {
+    public JavaScriptBuilder(Object root, Object... objectsToExclude) {
         this.rootObject = root;
         this.excludeClasses = new HashSet<Class<?>>();
+        this.excludeProperties = new HashSet<String>();
 
-        for (Class<?> type : userClassesToExclude) {
-            this.excludeClasses.add(type);
+        for (Object object : objectsToExclude) {
+            if (object instanceof Class)
+                this.excludeClasses.add((Class<?>) object);
+            else if (object instanceof String)
+                this.excludeProperties.add((String) object);
+            else
+                log.warn("Don't know to determine exclusion for objects of type ", object.getClass().getName(), ". You may only pass in instances of Class and/or String.");
         }
 
         this.excludeClasses.addAll(ignoredTypes);
@@ -129,7 +138,7 @@ public class JavaScriptBuilder {
             }
 
             String rootName = "_sj_root_" + new Random().nextInt(Integer.MAX_VALUE);
-            buildNode(rootName, this.rootObject);
+            buildNode(rootName, this.rootObject, "");
 
             writer.write("var ");
             writer.write(rootName);
@@ -285,30 +294,30 @@ public class JavaScriptBuilder {
      *        statement once a value for the object has been generated.
      * @param in The object being translated.
      */
-    void buildNode(String name, Object in) throws Exception {
+    void buildNode(String name, Object in, String propertyPrefix) throws Exception {
         int systemId = System.identityHashCode(in);
         String targetName = "_sj_" + systemId;
-
+        
         if (this.visitedIdentities.contains(systemId)) {
             this.assignments.put(name, targetName);
         }
-        else if ( isExcludedType(in.getClass()) ) {
+        else if (isExcludedType(in.getClass())) {
             // Do nothing, it's being excluded!!
         }
         else {
             this.visitedIdentities.add(systemId);
 
             if (Collection.class.isAssignableFrom(in.getClass())) {
-                buildCollectionNode(targetName, (Collection<?>) in);
+                buildCollectionNode(targetName, (Collection<?>) in, propertyPrefix);
             }
             else if (in.getClass().isArray()) {
-                buildArrayNode(targetName, in);
+                buildArrayNode(targetName, in, propertyPrefix);
             }
             else if (Map.class.isAssignableFrom(in.getClass())) {
-                buildMapNode(targetName, (Map<?, ?>) in);
+                buildMapNode(targetName, (Map<?, ?>) in, propertyPrefix);
             }
             else {
-                buildObjectNode(targetName, in);
+                buildObjectNode(targetName, in, propertyPrefix);
             }
 
             this.assignments.put(name, targetName);
@@ -328,7 +337,7 @@ public class JavaScriptBuilder {
      * @param targetName The generated name assigned to the Object being translated
      * @param in The Object who's JavaBean properties are to be translated
      */
-    void buildObjectNode(String targetName, Object in) throws Exception {
+    void buildObjectNode(String targetName, Object in, String propertyPrefix) throws Exception {
         StringBuilder out = new StringBuilder();
         out.append("{");
         PropertyDescriptor[] props = Introspector.getBeanInfo(in.getClass()).getPropertyDescriptors();
@@ -336,7 +345,9 @@ public class JavaScriptBuilder {
         for (PropertyDescriptor property : props) {
             try {
                 Method readMethod = property.getReadMethod();
-                if (readMethod != null) {
+                String fullPropertyName = (propertyPrefix != null && propertyPrefix.length() > 0 ? propertyPrefix + '.' : "") +
+                        property.getName();
+                if ((readMethod != null) && !this.excludeProperties.contains(fullPropertyName)) {
                     Object value = property.getReadMethod().invoke(in);
 
                     if (isExcludedType(property.getPropertyType()) || value == null) {
@@ -352,7 +363,7 @@ public class JavaScriptBuilder {
                         out.append( getScalarAsString(value) );
                     }
                     else {
-                        buildNode(targetName + "." + property.getName(), value);
+                        buildNode(targetName + "." + property.getName(), value, fullPropertyName);
                     }
                 }
             }
@@ -386,15 +397,18 @@ public class JavaScriptBuilder {
      * @param targetName The generated name assigned to the Map being translated
      * @param in The Map being translated
      */
-    void buildMapNode(String targetName, Map<?,?> in) throws Exception {
+    void buildMapNode(String targetName, Map<?,?> in, String propertyPrefix) throws Exception {
         StringBuilder out = new StringBuilder();
         out.append("{");
 
         for (Map.Entry<?,?> entry : in.entrySet()) {
             String propertyName = getScalarAsString(entry.getKey());
             Object value = entry.getValue();
-
-            if (isScalarType(value)) {
+            
+            if (this.excludeProperties.contains(propertyPrefix + '[' + propertyName + ']')) {
+                // Do nothing, it's being excluded!!
+            }
+            else if (isScalarType(value)) {
                 if (out.length() > 1) {
                     out.append(", ");
                 }
@@ -403,7 +417,7 @@ public class JavaScriptBuilder {
                 out.append( getScalarAsString(value) );
             }
             else {
-                buildNode(targetName + "[" + propertyName + "]", value);
+                buildNode(targetName + "[" + propertyName + "]", value, propertyPrefix + "[" + propertyName + "]");
             }
         }
 
@@ -419,7 +433,7 @@ public class JavaScriptBuilder {
      * @param targetName The generated name of the array node being translated.
      * @param in The Array being translated.
      */
-    void buildArrayNode(String targetName, Object in) throws Exception {
+    void buildArrayNode(String targetName, Object in, String propertyPrefix) throws Exception {
         StringBuilder out = new StringBuilder();
         out.append("[");
 
@@ -427,12 +441,16 @@ public class JavaScriptBuilder {
         for (int i=0; i<length; i++) {
             Object value = Array.get(in, i);
 
-            if (isScalarType(value)) {
+            if (this.excludeProperties.contains(propertyPrefix + '[' + i + ']')) {
+                // It's being excluded but we should leave a placeholder in the array
+                out.append("null");
+            }
+            else if (isScalarType(value)) {
                 out.append( getScalarAsString(value) );
             }
             else {
                 out.append("null");
-                buildNode(targetName + "[" + i + "]", value);
+                buildNode(targetName + "[" + i + "]", value, propertyPrefix + "[" + i + "]");
             }
 
             if (i != length-1) {
@@ -448,7 +466,7 @@ public class JavaScriptBuilder {
      * Builds an object node that is of type collection.  Simply converts the collection
      * to an array, and delegates to buildArrayNode().
      */
-    void buildCollectionNode(String targetName, Collection<?> in) throws Exception {
-        buildArrayNode(targetName, in.toArray());
+    void buildCollectionNode(String targetName, Collection<?> in, String propertyPrefix) throws Exception {
+        buildArrayNode(targetName, in.toArray(), propertyPrefix);
     }
 }
