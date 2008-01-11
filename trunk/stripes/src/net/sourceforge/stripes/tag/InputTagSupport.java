@@ -279,7 +279,7 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
     }
 
     /**
-     * Calls {@link #format(Object, boolean)} with {@code forPage} set to true.
+     * Calls {@link #format(Object, boolean)} with {@code forOutput} set to true.
      * 
      * @param input The object to be formatted
      * @see #format(Object, boolean)
