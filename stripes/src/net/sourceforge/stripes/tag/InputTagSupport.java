@@ -59,7 +59,7 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
     /** The error renderer to be utilized for error output of this input tag */
     protected TagErrorRenderer errorRenderer;
 
-    /** Sets the type of ouput to format, e.g. date or time. */
+    /** Sets the type of output to format, e.g. date or time. */
     public void setFormatType(String formatType) { this.formatType = formatType; }
 
     /** Returns the value set with setFormatAs() */
@@ -76,7 +76,7 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
      * Gets the value for this tag based on the current population strategy.  The value returned
      * could be a scalar value, or it could be an array or collection depending on what the
      * population strategy finds.  For example, if the user submitted multiple values for a
-     * checkbox, the default population strategy would return a String[] containg all submitted
+     * checkbox, the default population strategy would return a String[] containing all submitted
      * values.
      *
      * @return Object either a value/values for this tag or null
@@ -330,7 +330,7 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
     }
 
     /**
-     * Access for the field errors that occured on the form input this tag represents
+     * Access for the field errors that occurred on the form input this tag represents
      * @return List<ValidationError> the list of validation errors for this field
      */
     public List<ValidationError> getFieldErrors() throws StripesJspException {
@@ -443,7 +443,7 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
     public void doFinally() {
         try { getTagStack().pop(); }
         catch (Throwable t) {
-            /* Supress anything, because otherwise this might mask any causal exception. */
+            /* Suppress anything, because otherwise this might mask any causal exception. */
         }
     }
 
