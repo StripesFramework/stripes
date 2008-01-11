@@ -107,14 +107,14 @@ public class InputRadioButtonTag extends InputTagSupport implements BodyTag {
     @Override
     public int doEndInputTag() throws JspException {
         Object actualChecked = getSingleOverrideValue();
-        String formattedValue = format(this.value);
 
         // Now if the "checked" value matches this tags value, check it!
-        if (actualChecked != null && this.value != null && formattedValue.equals(format(actualChecked))) {
+        if (actualChecked != null && this.value != null
+                && format(this.value, false).equals(format(actualChecked, false))) {
             getAttributes().put("checked", "checked");
         }
 
-        getAttributes().put("value", formattedValue);
+        getAttributes().put("value", format(this.value));
 
         writeSingletonTag(getPageContext().getOut(), "input");
 
