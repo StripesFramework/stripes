@@ -190,13 +190,13 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
         // Since this is a checkbox, there could be more than one checked value, which means
         // this could be a single value type, array or collection
         if (selected != null) {
-            String stringValue = (value == null) ? "" : format(value);
+            String stringValue = (value == null) ? "" : format(value, false);
 
             if (selected.getClass().isArray()) {
                 int length = Array.getLength(selected);
                 for (int i=0; i<length; ++i) {
                     Object item = Array.get(selected, i);
-                    if ( (format(item).equals(stringValue)) ) {
+                    if ( (format(item, false).equals(stringValue)) ) {
                         return true;
                     }
                 }
@@ -204,13 +204,13 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
             else if (selected instanceof Collection) {
                 Collection<?> selectedIf = (Collection<?>) selected;
                 for (Object item : selectedIf) {
-                    if ( (format(item).equals(stringValue)) ) {
+                    if ( (format(item, false).equals(stringValue)) ) {
                         return true;
                     }
                 }
             }
             else {
-                if( format(selected).equals(stringValue) ) {
+                if( format(selected, false).equals(stringValue) ) {
                     return true;
                 }
             }
@@ -279,26 +279,42 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
     }
 
     /**
+     * Calls {@link #format(Object, boolean)} with {@code forPage} set to true.
+     * 
+     * @param input The object to be formatted
+     * @see #format(Object, boolean)
+     */
+    protected String format(Object input) {
+        return format(input, true);
+    }
+
+    /**
      * Attempts to format an object using the Stripes formatting system.  If no formatter can
      * be found, then a simple String.valueOf(input) will be returned.  If the value passed in
      * is null, then the empty string will be returned.
+     * 
+     * @param input The object to be formatted
+     * @param forOutput If true, then the object will be formatted for output to the JSP. Currently,
+     *            that means that if encryption is enabled for the ActionBean property with the same
+     *            name as this tag then the formatted value will be encrypted before it is returned.
      */
     @SuppressWarnings("unchecked")
-	protected String format(Object input) {
+    protected String format(Object input, boolean forOutput) {
         if (input == null) {
             return "";
         }
 
-        try {
-
-            // check validation for encryption flag
-            ValidationMetadata validate = getValidationMetadata();
-            if (validate != null && validate.encrypted()) {
-                input = new EncryptedValue(input);
+        if (forOutput) {
+            try {
+                // check validation for encryption flag
+                ValidationMetadata validate = getValidationMetadata();
+                if (validate != null && validate.encrypted()) {
+                    input = new EncryptedValue(input);
+                }
             }
-        }
-        catch (JspException e) {
-            throw new StripesRuntimeException(e);
+            catch (JspException e) {
+                throw new StripesRuntimeException(e);
+            }
         }
 
         FormatterFactory factory = StripesFilter.getConfiguration().getFormatterFactory();
