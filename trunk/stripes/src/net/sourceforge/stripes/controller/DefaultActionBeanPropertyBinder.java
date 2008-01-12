@@ -31,7 +31,6 @@ import javax.servlet.jsp.el.Expression;
 import javax.servlet.jsp.el.ExpressionEvaluator;
 import javax.servlet.jsp.el.VariableResolver;
 import java.lang.reflect.*;
-import java.security.GeneralSecurityException;
 import java.util.*;
 
 /**
@@ -317,23 +316,7 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
             }
         }
         else {
-            try {
-                fieldsPresent = CryptoUtil.decrypt(fieldsPresent);
-            }
-            catch (GeneralSecurityException gse) {
-                if (isWizard) {
-                    throw new StripesRuntimeException(
-                            "Stripes attmpted and failed to decrypt "
-                                    + "the non-null value in the 'fields present' field. Because this form "
-                                    + "submission is a wizard this situation cannot be accepted as it could "
-                                    + "result in a security problem. It is usually the result of either "
-                                    + "tampering with hidden field values, or session expiration.",
-                            gse);
-                }
-                else {
-                    return Collections.emptySet();
-                }
-            }
+            fieldsPresent = CryptoUtil.decrypt(fieldsPresent);
             return HtmlUtil.splitValues(fieldsPresent);
         }
     }
