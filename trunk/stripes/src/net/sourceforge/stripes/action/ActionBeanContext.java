@@ -29,6 +29,7 @@ import net.sourceforge.stripes.controller.FlashScope;
 import net.sourceforge.stripes.controller.StripesConstants;
 import net.sourceforge.stripes.controller.StripesFilter;
 import net.sourceforge.stripes.tag.ErrorsTag;
+import net.sourceforge.stripes.util.CryptoUtil;
 import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.validation.ValidationError;
 import net.sourceforge.stripes.validation.ValidationErrors;
@@ -219,11 +220,10 @@ public class ActionBeanContext {
      * @return Resolution a resolution that will forward the user to the page they came from
      * @throws IllegalStateException if the information required to construct a source page
      *         resolution cannot be found in the request.
-     *
+     * @see #getSourcePage()
      */
     public Resolution getSourcePageResolution() {
-        String sourcePage = request.getParameter(StripesConstants.URL_KEY_SOURCE_PAGE);
-
+        String sourcePage = getSourcePage();
         if (sourcePage == null) {
             return new ValidationErrorReportResolution(getValidationErrors());
         }
@@ -232,6 +232,24 @@ public class ActionBeanContext {
         }
     }
 
+    /**
+     * <p>
+     * Returns the context-relative path to the page from which the user submitted they current
+     * request.
+     * </p>
+     * 
+     * @return Resolution a resolution that will forward the user to the page they came from
+     * @throws IllegalStateException if the information required to construct a source page
+     *             resolution cannot be found in the request.
+     * @see #getSourcePageResolution()
+     */
+    public String getSourcePage() {
+        String sourcePage = request.getParameter(StripesConstants.URL_KEY_SOURCE_PAGE);
+        if (sourcePage != null) {
+            sourcePage = CryptoUtil.decrypt(sourcePage);
+        }
+        return sourcePage;
+    }
 
     /**
      * Returns a String with the name of the event for which the instance holds context, and
