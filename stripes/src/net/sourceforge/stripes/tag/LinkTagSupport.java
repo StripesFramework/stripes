@@ -15,6 +15,7 @@
 package net.sourceforge.stripes.tag;
 
 import net.sourceforge.stripes.exception.StripesJspException;
+import net.sourceforge.stripes.util.CryptoUtil;
 import net.sourceforge.stripes.util.UrlBuilder;
 import net.sourceforge.stripes.controller.StripesConstants;
 
@@ -162,7 +163,8 @@ public abstract class LinkTagSupport extends HtmlTagSupport implements Parameter
             builder.setEvent(this.event);
         }
         if (addSourcePage) {
-            builder.addParameter(StripesConstants.URL_KEY_SOURCE_PAGE, request.getServletPath());
+            builder.addParameter(StripesConstants.URL_KEY_SOURCE_PAGE,
+                    CryptoUtil.encrypt(request.getServletPath()));
         }
         builder.addParameters(this.parameters);
 

@@ -227,7 +227,7 @@ public class FormTag extends HtmlTagSupport implements BodyTag, TryCatchFinally,
                 out.write(StripesConstants.URL_KEY_SOURCE_PAGE);
                 out.write("\" value=\"");
                 HttpServletRequest request = (HttpServletRequest) getPageContext().getRequest();
-                out.write(request.getServletPath());
+                out.write(CryptoUtil.encrypt(request.getServletPath()));
                 out.write("\" />");
 
                 if (isWizard()) {

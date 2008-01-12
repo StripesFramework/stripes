@@ -17,6 +17,7 @@ package net.sourceforge.stripes.mock;
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.controller.StripesConstants;
 import net.sourceforge.stripes.controller.StripesFilter;
+import net.sourceforge.stripes.util.CryptoUtil;
 import net.sourceforge.stripes.validation.ValidationErrors;
 
 import javax.servlet.Filter;
@@ -155,6 +156,9 @@ public class MockRoundtrip {
      * value for this parameter then the value of MockRoundTrip.DEFAULT_SOURCE_PAGE will be used.
      */
     public void setSourcePage(String url) {
+        if (url != null) {
+            url = CryptoUtil.encrypt(url);
+        }
         setParameter(StripesConstants.URL_KEY_SOURCE_PAGE, url);
     }
 
