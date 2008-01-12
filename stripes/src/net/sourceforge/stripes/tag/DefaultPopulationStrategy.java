@@ -14,8 +14,6 @@
  */
 package net.sourceforge.stripes.tag;
 
-import java.security.GeneralSecurityException;
-
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.exception.StripesJspException;
@@ -100,16 +98,11 @@ public class DefaultPopulationStrategy implements PopulationStrategy {
                 ValidationMetadata validate = config.getValidationMetadataProvider()
                         .getValidationMetadata(beanClass, tag.getName());
                 if (validate != null && validate.encrypted()) {
-                    try {
-                        String[] copy = new String[value.length];
-                        for (int i = 0; i < copy.length; i++) {
-                            copy[i] = CryptoUtil.decrypt(value[i]);
-                        }
-                        value = copy;
+                    String[] copy = new String[value.length];
+                    for (int i = 0; i < copy.length; i++) {
+                        copy[i] = CryptoUtil.decrypt(value[i]);
                     }
-                    catch (GeneralSecurityException e) {
-                        throw new StripesJspException(e);
-                    }
+                    value = copy;
                 }
             }
         }

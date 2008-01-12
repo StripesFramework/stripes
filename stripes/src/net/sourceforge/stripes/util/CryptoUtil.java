@@ -25,7 +25,6 @@ import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.DESedeKeySpec;
 import javax.servlet.http.HttpServletRequest;
-import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
 
@@ -151,9 +150,7 @@ public class CryptoUtil {
      *         can be caused by session expiration as it loses the original key.
      * @deprecated use {@link #decrypt(String)} instead
      */
-    @Deprecated public static String decrypt(String input, HttpServletRequest request)
-            throws GeneralSecurityException {
-
+    @Deprecated public static String decrypt(String input, HttpServletRequest request) {
         return decrypt(input);
     }
 
@@ -166,9 +163,7 @@ public class CryptoUtil {
      * @throws GeneralSecurityException if the value cannot be decrypted for some reason. This
      *         can be caused by session expiration as it loses the original key.
      */
-    public static String decrypt(String input)
-            throws GeneralSecurityException {
-
+    public static String decrypt(String input) {
         if (input == null) return null;
 
         // First un-base64 the String
