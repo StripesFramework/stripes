@@ -93,12 +93,8 @@ public class AnnotatedClassActionResolver implements ActionResolver {
     public void init(Configuration configuration) throws Exception {
         this.configuration = configuration;
 
-        // Find all the ActionBeans and set up the cache for other components
-        Set<Class<? extends ActionBean>> beans = findClasses();
-        ActionClassCache.init(beans);
-
         // Process each ActionBean
-        for (Class<? extends ActionBean> clazz : beans) {
+        for (Class<? extends ActionBean> clazz : findClasses()) {
             addActionBean(clazz);
         }
     }
