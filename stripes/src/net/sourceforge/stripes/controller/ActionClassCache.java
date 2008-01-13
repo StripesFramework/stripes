@@ -24,6 +24,7 @@ import java.util.Set;
  *
  * @author Tim Fennell
  */
+@Deprecated
 public class ActionClassCache {
     /** The static singleton instance of this class. */
     private static ActionClassCache cache;
