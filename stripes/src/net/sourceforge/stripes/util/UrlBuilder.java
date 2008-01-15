@@ -206,7 +206,7 @@ public class UrlBuilder {
      * @param name the name of the request parameter being added
      * @param values one or more values for the parameter supplied
      */
-    public void addParameter(String name, Object... values) {
+    public UrlBuilder addParameter(String name, Object... values) {
         // If values is null or empty, then simply sub in a single empty string
         if (values == null || values.length == 0) {
             values = Literal.array("");
@@ -225,6 +225,8 @@ public class UrlBuilder {
                 url = null;
             }
         }
+        
+        return this;
     }
 
     /**
@@ -236,7 +238,7 @@ public class UrlBuilder {
      *
      * @param parameters a non-null Map as described above
      */
-    public void addParameters(Map<? extends Object,? extends Object> parameters) {
+    public UrlBuilder addParameters(Map<? extends Object,? extends Object> parameters) {
         for (Map.Entry<? extends Object,? extends Object> parameter : parameters.entrySet()) {
             String name = parameter.getKey().toString();
             Object valueOrValues = parameter.getValue();
@@ -254,6 +256,8 @@ public class UrlBuilder {
                 addParameter(name, valueOrValues);
             }
         }
+        
+        return this;
     }
 
     /**
