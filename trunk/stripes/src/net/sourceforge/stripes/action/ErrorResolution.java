@@ -28,7 +28,7 @@ public class ErrorResolution implements Resolution {
     private String errorMessage;
 
     /**
-     * Sends an error response to the client using the specified status code and clearing the buffer.
+     * Sends an error response to the client using the specified status code and clears the buffer.
      * 
      * @param errorCode the HTTP status code
      */
@@ -37,6 +37,8 @@ public class ErrorResolution implements Resolution {
     }
 
     /**
+     * Sends an error response to the client using the specified status code and message and clears the buffer.
+     * 
      * @param errorCode the HTTP status code
      * @param errorMessage a descriptive message
      */
