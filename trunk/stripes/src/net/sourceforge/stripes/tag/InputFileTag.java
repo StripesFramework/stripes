@@ -25,7 +25,7 @@ import javax.servlet.jsp.tagext.Tag;
  * necessary to correctly perform file uploads.</p>
  *
  * <p>Does not perform repopulation because default values for {@literal <input type="file/>} are
- * not allowed by the HTML specification.  One can only imagine this is because a malicous page
+ * not allowed by the HTML specification.  One can only imagine this is because a malicious page
  * author could steal a user's files by defaulting the value and using JavaScript to auto-submit
  * forms!  As a result the tag does not accept a body because it would have no use for any
  * generated content.</p>

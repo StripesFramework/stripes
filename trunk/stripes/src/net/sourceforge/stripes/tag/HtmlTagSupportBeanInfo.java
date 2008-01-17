@@ -23,11 +23,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * <p>Descirbes the properties supported by the HtmlTagSupport class which is the parent of all the
+ * <p>Describes the properties supported by the HtmlTagSupport class which is the parent of all the
  * HTML Form/Input tags in Stripes.  Exists to provide some flexibility in the naming of methods
  * and primarily to provide support for the &quot;class&quot; tag attribute in JSP containers that
  * demand a javabean compliant getter and setter method.  Since getClass() is rather special in Java
- * and cannot (and should not) be overriden, containers may not like calling setClass(String)
+ * and cannot (and should not) be overridden, containers may not like calling setClass(String)
  * without there being a corresponding getClass():String method.  So the PropertyDescriptor for
  * the &quot;class&quot; property specifies the methods getCssClass() and setCssClass.</p>
  *

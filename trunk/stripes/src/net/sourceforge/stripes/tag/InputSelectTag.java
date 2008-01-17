@@ -148,7 +148,7 @@ public class InputSelectTag extends InputTagSupport implements BodyTag {
     @Override
     public int doEndInputTag() throws JspException {
         writeCloseTag(getPageContext().getOut(), "select");
-        this.selectedValueOrValues = this.value; // reset incase the tag is reused
+        this.selectedValueOrValues = this.value; // reset in case the tag is reused
         return EVAL_PAGE;
     }
 

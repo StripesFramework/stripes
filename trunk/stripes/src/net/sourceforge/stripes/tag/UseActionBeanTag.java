@@ -45,10 +45,10 @@ import javax.servlet.jsp.JspException;
  * an event on an ActionBean would. It does not rebind values to ActionBeans that
  * were previously created for execution of the action. Validation is not done
  * during this binding, except the type conversion required for binding, and no
- * validaiton errors are produced.</p>
+ * validation errors are produced.</p>
  *
  * <p>The binding of the ActionBean to the page scope happens whether the ActionBean
- * is created or not, making for a consistent variable to always use when referncing
+ * is created or not, making for a consistent variable to always use when referencing
  * the ActionBean.</p>
  *
  * @author Greg Hinkle, Tim Fennell

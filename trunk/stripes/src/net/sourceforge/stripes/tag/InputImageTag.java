@@ -28,8 +28,8 @@ import javax.servlet.http.HttpServletRequest;
  * text of the image.  In order it will look for and use:</p>
  *
  * <ul>
- *   <li>resouce: actionPath.inputName.[src|alt]</li>
- *   <li>resouce: inputName.[src|alt]</li>
+ *   <li>resource: actionPath.inputName.[src|alt]</li>
+ *   <li>resource: inputName.[src|alt]</li>
  *   <li>tag attributes: src and alt
  * </ul>
  *
@@ -60,7 +60,7 @@ public class InputImageTag extends InputTagSupport {
 
     /**
      * Does the major work of the tag as described in the class level javadoc. Checks for
-     * localized src and alt attributes and preprends the context path to any src URL that
+     * localized src and alt attributes and prepends the context path to any src URL that
      * starts with a slash.
      *
      * @return EVAL_PAGE always

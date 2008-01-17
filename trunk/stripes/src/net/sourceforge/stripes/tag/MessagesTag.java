@@ -82,7 +82,7 @@ public class MessagesTag extends HtmlTagSupport {
     }
 
     /**
-     * Outputs the set of messages approprate for this tag.
+     * Outputs the set of messages appropriate for this tag.
      * @return EVAL_PAGE always
      */
     @Override

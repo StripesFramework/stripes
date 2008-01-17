@@ -134,7 +134,7 @@ public class DefaultPopulationStrategy implements PopulationStrategy {
     }
 
     /**
-     * Helper method that will retreive the preferred value set on the tag in the JSP. For
+     * Helper method that will retrieve the preferred value set on the tag in the JSP. For
      * most tags this is usually the body if it is present, or the value attribute.  In some
      * cases tags implement this differently, notably the radio and checkbox tags.
      *
@@ -146,7 +146,7 @@ public class DefaultPopulationStrategy implements PopulationStrategy {
     }
 
     /**
-     * Helper method that will check to see if the form containing this tag is being renered
+     * Helper method that will check to see if the form containing this tag is being rendered
      * as a result of validation errors.  This is not actually used by the default strategy,
      * but is here to help subclasses provide different behaviour for when the form is rendering
      * normally vs. in error.
