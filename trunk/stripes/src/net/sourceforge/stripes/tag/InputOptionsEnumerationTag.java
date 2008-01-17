@@ -132,8 +132,12 @@ public class InputOptionsEnumerationTag extends InputOptionsCollectionTag {
                         label = item.toString();
                     }
                 }
+                
+                Object group = null;
+                if (getGroup() != null)
+                    group = BeanUtil.getPropertyValue(getGroup(), item);
 
-                addEntry(item, label, item);
+                addEntry(item, label, item, group);
             }
         }
         catch (ExpressionException ee) {

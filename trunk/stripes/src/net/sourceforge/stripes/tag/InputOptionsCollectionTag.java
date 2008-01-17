@@ -23,6 +23,7 @@ import net.sourceforge.stripes.util.StringUtil;
 import net.sourceforge.stripes.util.CollectionUtil;
 
 import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.tagext.Tag;
 import java.util.Collection;
 import java.util.Locale;
@@ -81,6 +82,7 @@ public class InputOptionsCollectionTag extends HtmlTagSupport implements Tag {
     private String value;
     private String label;
     private String sort;
+    private String group;
 
     /**
      * A little container class that holds an entry in the collection of items being used
@@ -88,15 +90,16 @@ public class InputOptionsCollectionTag extends HtmlTagSupport implements Tag {
      * property, or a localized value).
      */
     public static class Entry {
-        public Object bean, label, value;
-        Entry(Object bean, Object label, Object value) {
+        public Object bean, label, value, group;
+        Entry(Object bean, Object label, Object value, Object group) {
             this.bean = bean;
             this.label = label;
             this.value = value;
+            this.group = group;
         }
     }
 
-    /** Internal list of entires that is assembled from the items in the collection. */
+    /** Internal list of entries that is assembled from the items in the collection. */
     private List<Entry> entries = new LinkedList<Entry>();
 
     /**
@@ -178,13 +181,24 @@ public class InputOptionsCollectionTag extends HtmlTagSupport implements Tag {
     }
 
     /**
-     * Adds an entry to the interal list of items being used to generate options.
+     * Adds an entry to the internal list of items being used to generate options.
      * @param item the object represented by the option
      * @param label the actual label for the option
      * @param value the actual value for the option
      */
     protected void addEntry(Object item, Object label, Object value) {
-        this.entries.add(new Entry(item, label, value));
+        this.entries.add(new Entry(item, label, value, null));
+    }
+
+    /**
+     * Adds an entry to the internal list of items being used to generate options.
+     * @param item the object represented by the option
+     * @param label the actual label for the option
+     * @param value the actual value for the option
+     * @param group the value to be used for optgroups
+     */
+    protected void addEntry(Object item, Object label, Object value, Object group) {
+        this.entries.add(new Entry(item, label, value, group));
     }
 
     /**
@@ -203,6 +217,7 @@ public class InputOptionsCollectionTag extends HtmlTagSupport implements Tag {
     	
         String labelProperty = getLabel();
         String valueProperty = getValue();
+        String groupProperty = getGroup();
 
 
         try {
@@ -214,6 +229,7 @@ public class InputOptionsCollectionTag extends HtmlTagSupport implements Tag {
                 // Lookup the bean properties for the label and value
                 Object label = (labelProperty == null) ? item : BeanUtil.getPropertyValue(labelProperty, item);
                 Object value = (valueProperty == null) ? item : BeanUtil.getPropertyValue(valueProperty, item);
+                Object group = (groupProperty == null) ? null : BeanUtil.getPropertyValue(groupProperty, item);
 
                 // Try to localize the label
                 String packageName = clazz.getPackage() == null ? "" : clazz.getPackage().getName();
@@ -228,7 +244,7 @@ public class InputOptionsCollectionTag extends HtmlTagSupport implements Tag {
                 }
                 if (localizedLabel != null) label = localizedLabel;
 
-                addEntry(item, label, value);
+                addEntry(item, label, value, group);
             }
         }
         catch (ExpressionException ee) {
@@ -266,11 +282,23 @@ public class InputOptionsCollectionTag extends HtmlTagSupport implements Tag {
         tag.setParent(this);
         tag.setPageContext(getPageContext());
         tag.getAttributes().putAll(getAttributes());
+        
+        Object lastGroup = null;
 
         for (Entry entry : sortedEntries) {
                 tag.setLabel(entry.label == null ? null : entry.label.toString());
                 tag.setValue(entry.value);
             try {
+                if (entry.group != null && !entry.group.equals(lastGroup))
+                {
+                    JspWriter out = getPageContext().getOut();
+                    out.write("<optgroup label=\"");
+                    out.write(String.valueOf(entry.group).replaceAll("\"", "&quot;"));
+                    out.write("\"/>");
+                    
+                    lastGroup = entry.group;
+                }
+              
                 tag.doStartTag();
                 tag.doInitBody();
                 tag.doAfterBody();
@@ -297,5 +325,20 @@ public class InputOptionsCollectionTag extends HtmlTagSupport implements Tag {
         this.label = null;
 
         return EVAL_PAGE;
+    }
+
+    /**
+     * Sets the name of the property that will be fetched on each bean in the collection in
+     * order to generate optgroups. A new optgroup will be created each time the value changes.
+     *
+     * @param label the name of the attribute
+     */
+    public void setGroup(String group) {
+        this.group = group;
+    }
+
+    /** Gets the property name set with setGroup(). */
+    public String getGroup() {
+        return group;
     }
 }
