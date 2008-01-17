@@ -53,7 +53,7 @@ public class LinkTag extends LinkTagSupport implements BodyTag {
     }
 
     /**
-     * Prepends the context to the href attibute if necessary, and then folds all the
+     * Prepends the context to the href attribute if necessary, and then folds all the
      * registered parameters into the URL.
      *
      * @return EVAL_PAGE in all cases

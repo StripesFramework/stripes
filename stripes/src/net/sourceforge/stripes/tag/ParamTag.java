@@ -28,7 +28,7 @@ import javax.servlet.jsp.JspException;
  * <p>Once the value has been established the parent tag is looked for, and the parameter is handed
  * over to it.</p>
  *
- * <p>Primariliy used by the LinkTag and UrlTag.</p>
+ * <p>Primarily used by the LinkTag and UrlTag.</p>
 
  * @author Tim Fennell
  * @since Stripes 1.4

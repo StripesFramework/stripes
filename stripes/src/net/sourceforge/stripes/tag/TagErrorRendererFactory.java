@@ -28,7 +28,7 @@ public interface TagErrorRendererFactory extends ConfigurableComponent {
     /**
      * Returns a new instance of a TagErrorRenderer that is utilized
      * by the supplied tag.
-     * @param tag The tag that needs to be error renderered
+     * @param tag The tag that needs to be error rendered
      * @return TagErrorRenderer the error renderer to render the error output
      */
     public TagErrorRenderer getTagErrorRenderer(InputTagSupport tag);

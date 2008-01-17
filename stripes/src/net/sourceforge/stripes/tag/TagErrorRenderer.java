@@ -36,7 +36,7 @@ public interface TagErrorRenderer {
 
     /**
      * Executed before the start of rendering of the input tag.
-     * The input tag attributes can be modifed here to be written
+     * The input tag attributes can be modified here to be written
      * out with other html attributes.
      */
     void doBeforeStartTag();

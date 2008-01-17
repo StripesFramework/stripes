@@ -27,7 +27,7 @@ import javax.servlet.jsp.tagext.BodyTag;
  * a scalar value.</p>
  *
  * <p>Radio buttons perform automatic (re-)population of state.  They prefer, in order, the value
- * in the HttpServletRequest, the value in the ActionBean and lastly the valuee set using
+ * in the HttpServletRequest, the value in the ActionBean and lastly the value set using
  * checked="" on the page.  If the value of the current radio button matches the checked value
  * from the preferred source then the attribute checked="checked" will be written in the HTML
  * tag.</p>

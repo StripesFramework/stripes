@@ -52,7 +52,7 @@ public class InputOptionTag extends InputTagSupport implements BodyTag {
     /** Sets the value of this option. */
     public void setValue(Object value) { this.value = value; }
 
-    /** Returns the value of the opion as set with setValue(). */
+    /** Returns the value of the option as set with setValue(). */
     public Object getValue() { return this.value; }
 
     /** Sets the label that will be used as the option body if no body is supplied. */

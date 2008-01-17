@@ -23,12 +23,12 @@ import java.io.IOException;
 /**
  * <p>Tag handler for a tag that produces an HTML label tag which is capable of looking up
  * localized field names and formatting the label when validation errors exist.  The field being
- * labelled is identified using either the {@code name} attribute (preferred) or the
+ * labeled is identified using either the {@code name} attribute (preferred) or the
  * {@code for} attribute.  If the {@code name} attribute is supplied this will always be used as
  * the lookup key (optionally pre-pended with the form's action path).  If the {@code name} field
  * is not supplied, the tag will fall back to using the value supplied for the {@code for}
  * attribute.  This is done because the {@code for} attribute is used by HTML as a reference to the
- * {@code id} of the input being labelled.  In the case where the id is equal to the field name
+ * {@code id} of the input being labeled.  In the case where the id is equal to the field name
  * it is unnecessary to specify a {@code name} attribute for the label tag.  In cases where the
  * field name (or other localized resource name) does not match an HTML ID, the {@code name}
  * attribute must be used.</p>
@@ -132,7 +132,7 @@ public class InputLabelTag extends InputTagSupport implements BodyTag {
     protected void registerWithParentForm() throws StripesJspException { }
 
     /**
-     * Wraps the parent loadErrors() to supress exceptions when the label is outside of a
+     * Wraps the parent loadErrors() to suppress exceptions when the label is outside of a
      * stripes form tag.
      */
     @Override
@@ -141,7 +141,7 @@ public class InputLabelTag extends InputTagSupport implements BodyTag {
             super.loadErrors();
         }
         catch (StripesJspException sje) {
-            // Do nothing, we're supressing this error
+            // Do nothing, we're suppressing this error
         }
     }
 }

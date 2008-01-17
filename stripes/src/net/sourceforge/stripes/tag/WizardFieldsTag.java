@@ -28,7 +28,7 @@ import java.util.Set;
  * <p>Examines the request and include hidden fields for all parameters that have do
  * not have form fields in the current form. Will include multiple values for
  * parameters that have them.  Excludes 'special' parameters like the source
- * page parameter, and the paramter that conveyed the event name.</p>
+ * page parameter, and the parameter that conveyed the event name.</p>
  *
  * <p>Very useful for implementing basic wizard flow without relying on session
  * scoping of ActionBeans, and without having to name all the parameters that
@@ -89,7 +89,7 @@ public class WizardFieldsTag extends StripesTagSupport {
         // the current form had an ActionBean attached - which indicates that the
         // last submit was to the same form/action as this form
         if (!isCurrentFormOnly() || actionBean != null) {
-            // Set up a hidde tag to do the writing for us
+            // Set up a hidden tag to do the writing for us
             InputHiddenTag hidden = new InputHiddenTag();
             hidden.setPageContext( getPageContext() );
             hidden.setParent( getParent() );

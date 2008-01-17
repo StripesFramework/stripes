@@ -267,7 +267,7 @@ public class FormTag extends HtmlTagSupport implements BodyTag, TryCatchFinally,
     public void doFinally() {
         try { getTagStack().pop(); }
         catch (Throwable t) {
-            /* Supress anything, because otherwise this might mask any causal exception. */
+            /* Suppress anything, because otherwise this might mask any causal exception. */
         }
     }
 
@@ -395,7 +395,7 @@ public class FormTag extends HtmlTagSupport implements BodyTag, TryCatchFinally,
             ActionBean bean = getActionBean();
             ValidationErrors errors = bean == null ? null : bean.getContext().getValidationErrors();
 
-            // If there are validaiton errors, select the first field in error
+            // If there are validation errors, select the first field in error
             if (errors != null && errors.hasFieldErrors()) {
                 List<ValidationError> fieldErrors = errors.get(tag.getName());
                 if (fieldErrors != null && fieldErrors.size() > 0) {

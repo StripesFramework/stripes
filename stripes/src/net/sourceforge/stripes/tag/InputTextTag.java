@@ -44,7 +44,7 @@ import net.sourceforge.stripes.validation.ValidationMetadata;
         getAttributes().put("type", "text");
     }
 
-    /** Sets the default value of the textarea (if no body is present). */
+    /** Sets the default value of the text field (if no body is present). */
     public void setValue(Object value) { this.value = value; }
 
     /** Returns the value set using setValue(). */

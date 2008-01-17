@@ -73,7 +73,7 @@ public abstract class LinkTagSupport extends HtmlTagSupport implements Parameter
 
     /**
      * Clears all existing parameters. Subclasses should be careful to call this in
-     * doEndTag() to ensure that paremeter state is cleared between pooled used of the tag.
+     * doEndTag() to ensure that parameter state is cleared between pooled used of the tag.
      */
     public void clearParameters() {
         this.parameters.clear();
@@ -87,7 +87,7 @@ public abstract class LinkTagSupport extends HtmlTagSupport implements Parameter
 
     /**
      * Sets the bean class (String FQN or Class) to generate a link for. Provides an
-     * alternative to using href for targetting ActionBeans.
+     * alternative to using href for targeting ActionBeans.
      *
      * @param beanclass the name of an ActionBean class, or Class object
      */
@@ -95,7 +95,7 @@ public abstract class LinkTagSupport extends HtmlTagSupport implements Parameter
 
     /**
      * Gets the bean class (String FQN or Class) to generate a link for. Provides an
-     * alternative to using href for targetting ActionBeans.
+     * alternative to using href for targeting ActionBeans.
      *
      * @return the name of an ActionBean class, or Class object
      */
