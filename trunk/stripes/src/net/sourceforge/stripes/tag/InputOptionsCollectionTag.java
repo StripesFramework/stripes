@@ -56,8 +56,8 @@ import java.util.LinkedList;
  * </ul>
  *
  * <p>For example for a class com.myco.Gender supplied to the options-collection tag with
- * label="key" and value="description", when rendering for an instance
- * Gender[key="M", description="Male"] the following localized properites will be looked for:
+ * label="description" and value="key", when rendering for an instance
+ * Gender[key="M", description="Male"] the following localized properties will be looked for:
  *
  * <ul>
  *   <li>Gender.Male</li>
@@ -68,7 +68,19 @@ import java.util.LinkedList;
  *
  * <p>If no localized label can be found then the value of the label property will be used.</p>
  *
- * <p>All other attributes on the tag (other than collection, value and label) are passed directly
+ * <p>Optionally, the group attribute may be used to generate &lt;optgroup&gt; tags. The value of
+ * this attribute is used to retrieve the corresponding property on each object of the collection.
+ * A new optgroup will be created each time the value changes.
+ * </p>
+ *
+ * <p>The rendered group may be localized by specifying one of the following properties:</p>
+ *
+ * <ul>
+ *   <li>{className}.{groupPropertyValue}</li>
+ *   <li>{packageName}.{className}.{groupPropertyValue}</li>
+ * </ul>
+ *
+ * <p>All other attributes on the tag (other than collection, value, label and group) are passed directly
  * through to the InputOptionTag which is used to generate the individual HTML options tags. As a
  * result the InputOptionsCollectionTag will exhibit the same re-population/selection behaviour
  * as the regular options tag.</p>
@@ -226,7 +238,7 @@ public class InputOptionsCollectionTag extends HtmlTagSupport implements Tag {
             for (Object item : this.collection) {
                 Class<? extends Object> clazz = item.getClass();
 
-                // Lookup the bean properties for the label and value
+                // Lookup the bean properties for the label, value and group
                 Object label = (labelProperty == null) ? item : BeanUtil.getPropertyValue(labelProperty, item);
                 Object value = (valueProperty == null) ? item : BeanUtil.getPropertyValue(valueProperty, item);
                 Object group = (groupProperty == null) ? null : BeanUtil.getPropertyValue(groupProperty, item);
@@ -244,6 +256,12 @@ public class InputOptionsCollectionTag extends HtmlTagSupport implements Tag {
                 }
                 if (localizedLabel != null) label = localizedLabel;
 
+                // Try to localize the group
+                if (group != null) {
+                    String localizedGroup = LocalizationUtility.getLocalizedFieldName(
+                        clazz.getSimpleName() + "." + group, packageName, null, locale);
+                    if (localizedGroup != null) group = localizedGroup;
+                }
                 addEntry(item, label, value, group);
             }
         }
@@ -331,7 +349,7 @@ public class InputOptionsCollectionTag extends HtmlTagSupport implements Tag {
      * Sets the name of the property that will be fetched on each bean in the collection in
      * order to generate optgroups. A new optgroup will be created each time the value changes.
      *
-     * @param label the name of the attribute
+     * @param group the name of the group attribute
      */
     public void setGroup(String group) {
         this.group = group;
