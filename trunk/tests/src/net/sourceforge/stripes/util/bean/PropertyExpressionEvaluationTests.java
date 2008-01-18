@@ -298,4 +298,29 @@ public class PropertyExpressionEvaluationTests {
         Assert.assertEquals(value, "bar");
     }
 
+    /** Following classes are part of an inheritance torture test! */
+    public static class Wombat { public String getName() { return "Wombat"; } }
+    public static class SubWombat extends Wombat { @Override public String getName() { return "SubWombat"; } }
+    public static class Foo<P extends Wombat> {
+        private P wombat;
+        public P getWombat() { return this.wombat; }
+        public void setWombat(P wombat) { this.wombat = wombat; }
+    }
+    public static class Owner {
+        private Foo<SubWombat> foo;
+        public Foo<SubWombat> getFoo() { return foo; }
+        public void setFoo(final Foo<SubWombat> foo) { this.foo = foo; }
+    }
+
+    @Test(groups="fast")
+    public void testGnarlyInheritanceAndGenerics() throws Exception {
+        Owner owner = new Owner();
+        Foo<SubWombat> foo = new Foo<SubWombat>();
+        owner.setFoo(foo);
+        foo.setWombat(new SubWombat());
+        String value = (String) BeanUtil.getPropertyValue("foo.wombat.name", owner);
+        Assert.assertEquals(value, "SubWombat");
+    }
+
+
 }
