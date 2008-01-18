@@ -283,4 +283,19 @@ public class PropertyExpressionEvaluationTests {
         String value = (String) BeanUtil.getPropertyValue("value", entry);
         Assert.assertEquals(value, "value");
     }
+
+    /**
+     * Fix for a problem whereby in certain circumstances the PropertyExpressionEvaluation
+     * would not fall back to looking at instance information to figure out the type info.
+     */
+    @Test(groups="fast")
+    public void testFallBackToInstanceInfo() throws Exception {
+        Map<String,TestBean> map = new HashMap<String,TestBean>();
+        map.put("foo", new TestBean());
+        map.get("foo").setStringProperty("bar");
+        Map.Entry<String,TestBean> entry = map.entrySet().iterator().next();
+        String value = (String) BeanUtil.getPropertyValue("value.stringProperty", entry);
+        Assert.assertEquals(value, "bar");
+    }
+
 }

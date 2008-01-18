@@ -10,8 +10,7 @@ import java.util.Set;
  *
  * @author Tim Fennell
  */
-public class
-        TestBean {
+public class TestBean {
     private String stringProperty;
     private int intProperty;
     private Long longProperty;

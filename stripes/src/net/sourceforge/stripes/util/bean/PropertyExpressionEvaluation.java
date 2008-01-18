@@ -181,11 +181,13 @@ public class PropertyExpressionEvaluation {
                     current.setValueType(type);
                     current.setType(NodeType.BeanProperty);
                 }
-                else {
-                    type = getTypeViaInstances(current);
-                    if (type == null) {
-                        // XXX What do we do now?
-                    }
+            }
+
+            // If we haven't gotten type information by now, try filling in with instance info
+            if (type == null) {
+                type = getTypeViaInstances(current);
+                if (type == null) {
+                    // FIXME: What do we do now?
                 }
             }
         }
