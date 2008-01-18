@@ -89,7 +89,7 @@
     <containerElement type="library" level="module">
       <attribute name="method" value="0" />
       <attribute name="URI" value="&lt;N/A&gt;" />
-      <url>jar://$MODULE_DIR$/../stripes/lib/deploy/slf4j-api.jar!/</url>
+      <url>jar://$MODULE_DIR$/../stripes/lib/deploy/commons-logging.jar!/</url>
     </containerElement>
     <containerElement type="library" level="module">
       <attribute name="method" value="0" />

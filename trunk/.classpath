@@ -6,7 +6,7 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="stripes/lib/test/commons-fileupload-1.2.jar"/>
 	<classpathentry kind="lib" path="stripes/lib/test/commons-io-1.2.jar"/>
-	<classpathentry kind="lib" path="stripes/lib/deploy/slf4j-api.jar"/>
+	<classpathentry kind="lib" path="stripes/lib/deploy/commons-logging.jar"/>
 	<classpathentry kind="lib" path="stripes/lib/deploy/cos.jar"/>
 	<classpathentry kind="lib" path="build/lib/hostedqa.jar"/>
 	<classpathentry kind="lib" path="stripes/lib/build/jsp-api.jar"/>

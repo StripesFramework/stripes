@@ -35,9 +35,27 @@
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>1.4.3</version>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>1.1.1</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.servlet</groupId>
+                    <artifactId>servlet-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>log4j</groupId>
+                    <artifactId>log4j</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>logkit</groupId>
+                    <artifactId>logkit</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>avalon-framework</groupId>
+                    <artifactId>avalon-framework</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
@@ -65,7 +83,7 @@
             <version>5.5</version>
             <scope>test</scope>
         </dependency>
-        
+
         <!-- Spring is needed to compile the Spring support in Stripes, and from then on, only if
              you are actually using Spring in your own application.
         -->
@@ -76,7 +94,7 @@
             <scope>compile</scope>
             <optional>true</optional>
         </dependency>
-        
+
         <!-- Commons fileupload and io are listed as optional dependencies for Stripes beceause
              they are needed to compile and use the commons version of the MultipartWrapper.
              However, the default implementation uses COS instead, so these jars are only
