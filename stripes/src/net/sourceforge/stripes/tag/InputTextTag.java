@@ -37,6 +37,7 @@ import net.sourceforge.stripes.validation.ValidationMetadata;
  */
  public class InputTextTag extends InputTagSupport implements BodyTag {
     private Object value;
+    private String maxlength;
 
     /** Basic constructor that sets the input tag's type attribute to "text". */
     public InputTextTag() {
@@ -52,9 +53,10 @@ import net.sourceforge.stripes.validation.ValidationMetadata;
 
 
     /** Sets the HTML attribute of the same name. */
-    public void setMaxlength(String maxlength) { set("maxlength", maxlength); }
+    public void setMaxlength(String maxlength) { this.maxlength = maxlength; }
+
     /** Gets the HTML attribute of the same name. */
-    public String getMaxlength() { return get("maxlength"); }
+    public String getMaxlength() { return maxlength; }
 
     /**
      * Sets type input tags type to "text".
@@ -96,7 +98,10 @@ import net.sourceforge.stripes.validation.ValidationMetadata;
         if (getMaxlength() == null) {
             ValidationMetadata validation = getValidationMetadata();
             if (validation != null && validation.maxlength() != null)
-                setMaxlength(validation.maxlength().toString());
+                set("maxlength", validation.maxlength().toString());
+        }
+        else {
+            set("maxlength", getMaxlength());
         }
 
         writeSingletonTag(getPageContext().getOut(), "input");
