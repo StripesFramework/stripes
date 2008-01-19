@@ -149,24 +149,24 @@ public class CommonsMultipartWrapper implements MultipartWrapper {
      */
     public FileBean getFileParameterValue(String name) {
         final FileItem item = this.files.get(name);
-        if (item == null) {
+        String filename = item.getName();
+        if (item == null || ((filename == null || filename.length() == 0) && item.getSize() == 0)) {
             return null;
         }
         else {
             // Attempt to ensure the file name is just the basename with no path included
-            String basename = item.getName();
             int index;
-            if (WINDOWS_PATH_PREFIX_PATTERN.matcher(basename).find())
-                index = basename.lastIndexOf('\\');
+            if (WINDOWS_PATH_PREFIX_PATTERN.matcher(filename).find())
+                index = filename.lastIndexOf('\\');
             else
-                index = basename.lastIndexOf('/');
-            if (index >= 0 && index + 1 < basename.length() - 1)
-                basename = basename.substring(index + 1);
+                index = filename.lastIndexOf('/');
+            if (index >= 0 && index + 1 < filename.length() - 1)
+                filename = filename.substring(index + 1);
 
             // Use an anonymous inner subclass of FileBean that overrides all the
             // methods that rely on having a File present, to use the FileItem
             // created by commons upload instead.
-            return new FileBean(null, item.getContentType(), basename, this.charset) {
+            return new FileBean(null, item.getContentType(), filename, this.charset) {
                 @Override public long getSize() { return item.getSize(); }
 
                 @Override public InputStream getInputStream() throws IOException {
