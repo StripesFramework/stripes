@@ -424,7 +424,7 @@ public class PropertyExpressionEvaluation {
                     // Now find the parent of the ptype and see if it's a ptype too!
                     Type rawtype = ptype.getRawType();
                     if (rawtype instanceof Class) {
-                        Class<?> superclass = (Class) rawtype;
+                        Class<?> superclass = (Class<?>) rawtype;
                         Type supertype = superclass.getGenericSuperclass();
                         ptype = (supertype instanceof ParameterizedType) ?  (ParameterizedType) supertype : null;
                     }
@@ -440,7 +440,7 @@ public class PropertyExpressionEvaluation {
             }
         }
 
-        Class<?> declaration = (Class) typeVar.getGenericDeclaration();
+        Class<?> declaration = (Class<?>) typeVar.getGenericDeclaration();
         Type type = null;
 
         // If the type variable doesn't come from a direct superclass of the
