@@ -8,13 +8,11 @@ import net.sourceforge.stripes.action.RedirectResolution;
 import net.sourceforge.stripes.action.Resolution;
 import net.sourceforge.stripes.mock.MockRoundtrip;
 import net.sourceforge.stripes.test.TestBean;
-import net.sourceforge.stripes.test.TestGenericBean;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.util.Calendar;
 import java.util.Date;
-import java.lang.reflect.Method;
 
 /**
  *

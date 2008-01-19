@@ -1,7 +1,5 @@
 package net.sourceforge.stripes.test;
 
-import java.lang.reflect.Method;
-
 /**
  * A JavaBean that is a generic type.
  *

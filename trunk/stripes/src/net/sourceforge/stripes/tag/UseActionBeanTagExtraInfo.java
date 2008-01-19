@@ -47,7 +47,7 @@ public class UseActionBeanTagExtraInfo extends TagExtraInfo {
             if (var == null) tag.getAttribute("id");
 
             // Make sure we have the class name, not the class
-            if (beanclass instanceof Class) beanclass = ((Class) beanclass).getName();
+            if (beanclass instanceof Class) beanclass = ((Class<?>) beanclass).getName();
 
             // Return the variable info
             return new VariableInfo[] { new VariableInfo(var, (String) beanclass, true, VariableInfo.AT_BEGIN) };
