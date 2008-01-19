@@ -1912,6 +1912,7 @@
         <display-name>useActionBean</display-name>
         <name>useActionBean</name>
         <tag-class>net.sourceforge.stripes.tag.UseActionBeanTag</tag-class>
+        <tei-class>net.sourceforge.stripes.tag.UseActionBeanTagExtraInfo</tei-class>
         <body-content>empty</body-content>
         <attribute>
             <description>
