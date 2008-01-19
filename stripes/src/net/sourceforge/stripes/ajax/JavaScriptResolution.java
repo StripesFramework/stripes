@@ -44,6 +44,30 @@ public class JavaScriptResolution implements Resolution {
     }
 
     /**
+     * Adds one or more properties to the list of types to exclude when translating
+     * to JavaScript.
+     *
+     * @param property one or more property names to exclude
+     * @return the JavaScripResolution instance to simplify method chaining
+     */
+    public JavaScriptResolution addPropertyExclusion(final String... property) {
+        this.builder.addPropertyExclusion(property);
+        return this;
+    }
+
+    /**
+     * Adds one or more classes to the list of types to exclude when translating
+     * to JavaScript.
+     *
+     * @param clazz one or more classes to exclude
+     * @return the JavaScripResolution instance to simplify method chaining
+     */
+    public JavaScriptResolution addClassExclusion(final Class<?>... clazz) {
+        this.builder.addClassExclusion(clazz);
+        return this;
+    }
+
+    /**
      * Converts the object passed in to JavaScript and streams it back to the client.
      */
     public void execute(HttpServletRequest request, HttpServletResponse response) throws Exception {

@@ -86,6 +86,9 @@ public class JavaScriptBuilder {
     /** Holds the (potentially empty) set of properties that should be skipped over. */
     private Set<String> excludeProperties;
 
+    /** Holds an optional user-supplied name for the root property. */
+    private String rootVariableName = "_sj_root_" + new Random().nextInt(Integer.MAX_VALUE);
+
     /**
      * Constructs a new JavaScriptBuilder to build JS for the root object supplied.
      *
@@ -100,14 +103,61 @@ public class JavaScriptBuilder {
 
         for (Object object : objectsToExclude) {
             if (object instanceof Class)
-                this.excludeClasses.add((Class<?>) object);
+                addClassExclusion((Class<?>) object);
             else if (object instanceof String)
-                this.excludeProperties.add((String) object);
+                addPropertyExclusion((String) object);
             else
                 log.warn("Don't know to determine exclusion for objects of type ", object.getClass().getName(), ". You may only pass in instances of Class and/or String.");
         }
 
         this.excludeClasses.addAll(ignoredTypes);
+    }
+
+    /**
+     * Adds one or more properties to the list of property to exclude when translating
+     * to JavaScript.
+     *
+     * @param property one or more property names to be excluded
+     * @return the JavaScripBuilder instance to simplify method chaining
+     */
+    public JavaScriptBuilder addPropertyExclusion(String... property) {
+        for (String prop : property) {
+            this.excludeProperties.add(prop);
+        }
+        return this;
+    }
+
+    /**
+     * Adds one or more properties to the list of properties to exclude when translating
+     * to JavaScript.
+     *
+     * @param clazz one or more classes to exclude
+     * @return the JavaScripBuilder instance to simplify method chaining
+     */
+    public JavaScriptBuilder addClassExclusion(Class<?>... clazz) {
+        for (Class<?> c : clazz) {
+            this.excludeClasses.add(c);
+        }
+        return this;
+    }
+
+    /**
+     * Sets an optional user-supplied root variable name. If set this name will be used
+     * by the building when declarind the root variable to which the JS is assigned. If
+     * not provided then a randomly generated name will be used.
+     *
+     * @param rootVariableName the name to use when declaring the root variable
+     */
+    public void setRootVariableName(final String rootVariableName) {
+        this.rootVariableName = rootVariableName;
+    }
+
+    /**
+     * Returns the name used to declare the root variable to which the built
+     * JavaScript object is assigned.
+     */
+    public String getRootVariableName() {
+        return rootVariableName;
     }
 
     /**
@@ -137,11 +187,10 @@ public class JavaScriptBuilder {
                 return;
             }
 
-            String rootName = "_sj_root_" + new Random().nextInt(Integer.MAX_VALUE);
-            buildNode(rootName, this.rootObject, "");
+            buildNode(this.rootVariableName, this.rootObject, "");
 
             writer.write("var ");
-            writer.write(rootName);
+            writer.write(rootVariableName);
             writer.write(";\n");
 
             for (Map.Entry<String,String> entry : objectValues.entrySet()) {
@@ -159,7 +208,7 @@ public class JavaScriptBuilder {
                 writer.append(";\n");
             }
 
-            writer.append(rootName).append(";\n");
+            writer.append(rootVariableName).append(";\n");
         }
         catch (Exception e) {
             throw new StripesRuntimeException("Could not build JavaScript for object. An " +
@@ -194,7 +243,7 @@ public class JavaScriptBuilder {
     public boolean isScalarType(Object in) {
         if (in == null) return true; // Though not strictly scalar, null can be treated as such
 
-        Class<? extends Object> type = in.getClass();
+        Class<?> type = in.getClass();
         return simpleTypes.contains(type)
             || Number.class.isAssignableFrom(type)
             || String.class.isAssignableFrom(type)
