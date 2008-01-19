@@ -13,7 +13,7 @@ import net.sourceforge.stripes.test.TestGenericBean;
  */
 public class GenericsBindingTestsBaseClass<JB,N,E,K,V> {
     JB bean;
-    TestGenericBean<N,E> genericBean;
+    TestGenericBean.GenericBean<N,E> genericBean;
     N number;
     List<? extends E> list;
     Map<K,V> map;
@@ -21,8 +21,8 @@ public class GenericsBindingTestsBaseClass<JB,N,E,K,V> {
     public JB getBean() { return bean; }
     public void setBean(JB bean) { this.bean = bean; }
 
-    public TestGenericBean<N,E> getGenericBean() { return genericBean; }
-    public void setGenericBean(TestGenericBean<N,E> genericBean) { this.genericBean = genericBean; }
+    public TestGenericBean.GenericBean<N,E> getGenericBean() { return genericBean; }
+    public void setGenericBean(TestGenericBean.GenericBean<N,E> genericBean) { this.genericBean = genericBean; }
 
     public N getNumber() { return number; }
     public void setNumber(N number) { this.number = number; }
