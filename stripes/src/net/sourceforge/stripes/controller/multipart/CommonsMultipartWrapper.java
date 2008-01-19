@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.regex.Pattern;
 
 /**
  * An implementation of MultipartWrapper that uses Jakarta Commons FileUpload (from apache)
@@ -151,10 +152,20 @@ public class CommonsMultipartWrapper implements MultipartWrapper {
             return null;
         }
         else {
+            // Attempt to ensure the file name is just the basename with no path included
+            String basename = item.getName();
+            int index;
+            if (Pattern.compile("(?i:^[A-Z]:\\\\)").matcher(basename).find())
+                index = basename.lastIndexOf('\\');
+            else
+                index = basename.lastIndexOf('/');
+            if (index >= 0 && index + 1 < basename.length() - 1)
+                basename = basename.substring(index + 1);
+
             // Use an anonymous inner subclass of FileBean that overrides all the
             // methods that rely on having a File present, to use the FileItem
             // created by commons upload instead.
-            return new FileBean(null, item.getContentType(), item.getName(), this.charset) {
+            return new FileBean(null, item.getContentType(), basename, this.charset) {
                 @Override public long getSize() { return item.getSize(); }
 
                 @Override public InputStream getInputStream() throws IOException {
