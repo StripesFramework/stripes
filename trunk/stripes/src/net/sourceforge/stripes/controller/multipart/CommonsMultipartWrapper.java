@@ -45,6 +45,7 @@ import java.util.regex.Pattern;
  * @since Stripes 1.4
  */
 public class CommonsMultipartWrapper implements MultipartWrapper {
+    private static final Pattern WINDOWS_PATH_PREFIX_PATTERN = Pattern.compile("(?i:^[A-Z]:\\\\)");
     private Map<String,FileItem> files = new HashMap<String,FileItem>();
     private Map<String,String[]> parameters = new HashMap<String, String[]>();
     private String charset;
@@ -155,7 +156,7 @@ public class CommonsMultipartWrapper implements MultipartWrapper {
             // Attempt to ensure the file name is just the basename with no path included
             String basename = item.getName();
             int index;
-            if (Pattern.compile("(?i:^[A-Z]:\\\\)").matcher(basename).find())
+            if (WINDOWS_PATH_PREFIX_PATTERN.matcher(basename).find())
                 index = basename.lastIndexOf('\\');
             else
                 index = basename.lastIndexOf('/');
