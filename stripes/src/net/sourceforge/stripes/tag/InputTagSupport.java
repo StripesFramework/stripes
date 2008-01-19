@@ -149,7 +149,7 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
      * @return FormTag the enclosing form tag on the JSP
      * @throws StripesJspException if an enclosing form tag cannot be found
      */
-    protected FormTag getParentFormTag() throws StripesJspException {
+    public FormTag getParentFormTag() throws StripesJspException {
         FormTag parent = getParentTag(FormTag.class);
 
         // find the first non-partial parent form tag
@@ -228,7 +228,7 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
      *
      * @return a localized field name if one can be found, or null if one cannot be found.
      */
-    protected String getLocalizedFieldName() throws StripesJspException {
+    public String getLocalizedFieldName() throws StripesJspException {
         String name = getAttributes().get("name");
         return getLocalizedFieldName(name);
     }
@@ -376,11 +376,9 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
      *
      * @return ActionBean the ActionBean bound to the form if there is one
      */
-    protected ActionBean getActionBean() throws StripesJspException {
+    public ActionBean getActionBean() throws StripesJspException {
         return getParentFormTag().getActionBean();
     }
-
-
 
     /**
      * Final implementation of the doStartTag() method that allows the base InputTagSupport class
