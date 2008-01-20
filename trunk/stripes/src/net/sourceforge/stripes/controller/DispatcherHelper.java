@@ -72,7 +72,8 @@ public class DispatcherHelper {
      * @param ctx a page context object supplied by the container
      */
     public static void setPageContext(PageContext ctx) {
-        pageContextStash.set(ctx);
+        if (ctx == null)  pageContextStash.remove();
+        else pageContextStash.set(ctx);
     }
 
     /**

@@ -42,6 +42,14 @@ public final class Log {
     }
 
     /**
+     * Forces Log to cleanup any cached resources. This is called by the StripesFilter when
+     * it is destroyed, but can be called from user code as well if necessary.
+     */
+    public static void cleanup() {
+        LogFactory.release(Thread.currentThread().getContextClassLoader());
+    }
+
+    /**
      * Private constructor which creates a new Log instance wrapping the commons Log instance
      * provided.  Only used by the static getInstance() method on this class.
      */

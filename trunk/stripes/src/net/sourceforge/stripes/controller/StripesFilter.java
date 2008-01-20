@@ -35,6 +35,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Locale;
 import java.util.Map;
+import java.beans.Introspector;
 
 /**
  * The Stripes filter is used to ensure that all requests coming to a Stripes application
@@ -285,8 +286,9 @@ public class StripesFilter implements Filter {
         }
     }
 
-    /** Does nothing. */
+    /** Calls the cleanup() method on the log to release resources held by commons logging. */
     public void destroy() {
-        // Do nothing
+        Log.cleanup();
+        Introspector.flushCaches(); // Not 100% sure this is necessary, but it doesn't  hurt
     }
 }
