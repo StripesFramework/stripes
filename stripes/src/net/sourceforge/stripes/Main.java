@@ -41,6 +41,6 @@ public class Main {
                 " on " + System.getProperty("os.arch")
         );
 
-        System.out.println("For more information on Stripes please visit http://stripes.mc4j.org");
+        System.out.println("For more information on Stripes please visit http://stripesframework.org");
    }
 }
