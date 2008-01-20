@@ -18,10 +18,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * <p>
  * Resolution for sending HTTP error messages back to the client. errorCode is the HTTP status code
  * to be sent. errorMessage is a descriptive message.
- * </p>
+ * 
+ * @author Aaron Porter
+ * @since Stripes 1.5
  */
 public class ErrorResolution implements Resolution {
     private int errorCode;
