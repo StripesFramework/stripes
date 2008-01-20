@@ -5,11 +5,8 @@
     <html>
         <head>
             <title>Bugzooky - ${title}</title>
-            <link rel="stylesheet"
-                  type="text/css"
-                  href="${pageContext.request.contextPath}/bugzooky/bugzooky.css"/>
-            <script type="text/javascript"
-                    src="${pageContext.request.contextPath}/bugzooky/bugzooky.js"></script>
+            <link rel="stylesheet" type="text/css" href="${ctx}/bugzooky/bugzooky.css"/>
+            <script type="text/javascript" src="${ctx}/bugzooky/bugzooky.js"></script>
             <stripes:layout-component name="html-head"/>
         </head>
         <body>
@@ -25,22 +22,22 @@
                 </div>
 
                 <div id="footer">
-                    <stripes:link href="/examples/bugzooky/ViewResource.action">
+                    <stripes:link beanclass="net.sourceforge.stripes.examples.bugzooky.ViewResourceActionBean">
                         View this JSP
                         <stripes:param name="resource" value="${pageContext.request.servletPath}"/>
                     </stripes:link>
 
                     | View other source files:
-                    <stripes:useActionBean binding="/examples/bugzooky/ViewResource.action" var="bean"/>
+                    <stripes:useActionBean beanclass="net.sourceforge.stripes.examples.bugzooky.ViewResourceActionBean" var="bean"/>
                     <select style="width: 350px;" onchange="document.location = this.value;">
                         <c:forEach items="${bean.availableResources}" var="file">
-                            <stripes:url value="/examples/bugzooky/ViewResource.action" var="url">
+                            <stripes:url beanclass="net.sourceforge.stripes.examples.bugzooky.ViewResourceActionBean" var="url">
                                 <stripes:param name="resource" value="${file}"/>
                             </stripes:url>
                             <option value="${url}">${file}</option>
                         </c:forEach>
                     </select>
-                    | Built on <a href="http://stripesframework.org">Stripes</a>
+                    | Built on <a href="http://www.stripesframework.org">Stripes</a>
                 </div>
             </div>
         </body>
