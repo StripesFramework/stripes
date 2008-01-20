@@ -45,7 +45,7 @@
 
                             <div class="sectionTitle">Intuitive development</div>
 
-                            <p><a href="http://stripes.mc4j.org">Stripes</a> is a relatively new framework
+                            <p><a href="http://stripesframework.org">Stripes</a> is a relatively new framework
                             for developing web applications in Java.  It uses an action-oriented model
                             that will be familiar to anyone who has previously used Struts or anything
                             similar. Stripes is designed to be extremely easy to develop with - to be

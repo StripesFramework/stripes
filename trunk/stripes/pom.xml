@@ -11,7 +11,7 @@
     <version>@stripes.version@</version>
     <packaging>jar</packaging>
     <name>Stripes</name>
-    <url>http://stripes.mc4j.org/</url>
+    <url>http://stripesframework.org/</url>
     <description>Stripes web framework jar, including tag library.</description>
     <licenses>
         <license>

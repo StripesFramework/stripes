@@ -1,5 +1,5 @@
 Stripes Read Me
-http://stripes.mc4j.org/
+http://www.stripesframework.org/
 
 Copyright 2005-2006 Tim Fennell
 
@@ -136,5 +136,5 @@ Contents
 5. Feedback
    --------
    Your feedback on Stripes (hopefully constructive) is always welcome.  Please
-   visit http://stripes.mc4j.org/ for links to browse and join mailing
+   visit http://stripesframework.org/ for links to browse and join mailing
    lists, file bugs and submit feature requests.
