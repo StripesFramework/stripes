@@ -9,7 +9,7 @@
         Stripes you might like to check out:</p>
 
         <ul>
-            <li>The Stripes Website - <a href="http://stripes.mc4j.org">http://stripes.mc4j.org</a></li>
+            <li>The Stripes Website - <a href="http://www.stripesframework.org">http://www.stripesframework.org</a></li>
             <li>The Stripes Downloads page at
                 <a href="https://sourceforge.net/project/showfiles.php?group_id=145476">SourceForge</a>
             </li>

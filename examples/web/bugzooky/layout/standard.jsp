@@ -40,7 +40,7 @@
                             <option value="${url}">${file}</option>
                         </c:forEach>
                     </select>
-                    | Built on <a href="http://stripes.mc4j.org">Stripes</a>
+                    | Built on <a href="http://stripesframework.org">Stripes</a>
                 </div>
             </div>
         </body>

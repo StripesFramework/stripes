@@ -86,7 +86,7 @@
             <manifest>
                 <attribute name="Implementation-Title" value="Stripes-Tests"/>
                 <attribute name="Specification-Version" value="${stripes.version}"/>
-                <attribute name="Implementation-URL" value="http://stripes.mc4j.org/"/>
+                <attribute name="Implementation-URL" value="http://stripesframework.org/"/>
             </manifest>
         </jar>
     </target>

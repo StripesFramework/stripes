@@ -106,7 +106,7 @@
         <attribute name="Implementation-Title" value="Stripes"/>
         <attribute name="Specification-Version" value="${stripes.version}"/>
         <attribute name="Implementation-Version" value="${repository.version}"/>
-        <attribute name="Implementation-URL" value="http://stripes.mc4j.org/"/>
+        <attribute name="Implementation-URL" value="http://stripesframework.org/"/>
         <attribute name="Main-Class" value="net.sourceforge.stripes.Main"/>
       </manifest>
     </jar>

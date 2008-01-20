@@ -39,7 +39,7 @@ public enum ValidationState {
      * errors exist should be made by consulting the system level default. Stripes' default
      * for the system level value is equivelant to NO_ERRORS, but can be configured. See the
      * Stripes
-     * <a href="http://stripes.mc4j.org/confluence/display/stripes/Configuration+Reference#ConfigurationReference-ValidationProperties">Configuration Reference</a>
+     * <a href="http://stripesframework.org/confluence/display/stripes/Configuration+Reference#ConfigurationReference-ValidationProperties">Configuration Reference</a>
      * for details.
      */
     DEFAULT
