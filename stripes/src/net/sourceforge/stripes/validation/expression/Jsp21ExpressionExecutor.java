@@ -83,7 +83,8 @@ public class Jsp21ExpressionExecutor implements ExpressionExecutor {
          * @param prop the name of the property being looked for
          * @return the value of the property or null if one can't be found
          */
-        public Object getValue(ELContext ctx, Object base, Object prop) throws {
+        @Override
+        public Object getValue(ELContext ctx, Object base, Object prop) {
             if ("this".equals(prop)) {
                 ctx.setPropertyResolved(true);
                 return this.currentValue;
@@ -104,23 +105,28 @@ public class Jsp21ExpressionExecutor implements ExpressionExecutor {
         }
 
         /** Does nothing. Always returns Object.class. */
+        @Override
         public Class<?> getType(final ELContext ctx, final Object base, final Object prop) {
             ctx.setPropertyResolved(true);
             return Object.class;
         }
 
         /** Does nothing. Always throws PropertyNotWritableException. */
+        @Override
         public void setValue(ELContext elContext, Object o, Object o1, Object o2) throws PropertyNotWritableException {
             throw new PropertyNotWritableException("Unsupported Op");
         }
 
         /** Always returns true. */
+        @Override
         public boolean isReadOnly(final ELContext elContext, final Object o, final Object o1) { return true; }
 
         /** Always returns null. */
+        @Override
         public Iterator<FeatureDescriptor> getFeatureDescriptors(final ELContext elContext, final Object o) { return null; }
 
         /** Always returns Object.class. */
+        @Override
         public Class<?> getCommonPropertyType(final ELContext elContext, final Object o) { return Object.class; }
     }
 
@@ -133,10 +139,12 @@ public class Jsp21ExpressionExecutor implements ExpressionExecutor {
      * @since Stripes 1.5
      */
     protected static class StripesELContext extends ELContext {
+        @SuppressWarnings("unused")
         private ActionBean bean;
         private StripesELResolver resolver;
         private VariableMapper vmapper;
         private static final FunctionMapper fmapper = new FunctionMapper() {
+            @Override
             public Method resolveFunction(final String s, final String s1) { return null; }
         };
 
@@ -151,10 +159,12 @@ public class Jsp21ExpressionExecutor implements ExpressionExecutor {
             this.resolver = new StripesELResolver(bean);
 
             this.vmapper = new VariableMapper() {
+                @Override
                 public ValueExpression resolveVariable(final String s) {
                     return null;
                 }
 
+                @Override
                 public ValueExpression setVariable(final String s, final ValueExpression valueExpression) {
                     return null;
                 }
@@ -165,12 +175,15 @@ public class Jsp21ExpressionExecutor implements ExpressionExecutor {
         public void setCurrentValue(final Object value) {resolver.setCurrentValue(value);}
 
         /** Returns the StripesELResovler. */
+        @Override
         public StripesELResolver getELResolver() { return this.resolver; }
 
         /** Returns a no-op implementation of FunctionMapper. */
+        @Override
         public FunctionMapper getFunctionMapper() { return fmapper; }
 
         /** Returns a no-op implementation of VariableMapper. */
+        @Override
         public VariableMapper getVariableMapper() { return vmapper; }
     }
 
