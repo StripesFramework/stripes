@@ -23,13 +23,9 @@ import net.sourceforge.stripes.exception.StripesRuntimeException;
 import net.sourceforge.stripes.util.*;
 import net.sourceforge.stripes.util.bean.*;
 import net.sourceforge.stripes.validation.*;
+import net.sourceforge.stripes.validation.expression.ExpressionValidator;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.jsp.PageContext;
-import javax.servlet.jsp.el.ELException;
-import javax.servlet.jsp.el.Expression;
-import javax.servlet.jsp.el.ExpressionEvaluator;
-import javax.servlet.jsp.el.VariableResolver;
 import java.lang.reflect.*;
 import java.util.*;
 
@@ -663,8 +659,8 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
     /**
      * Performs validation of attribute values using a JSP EL expression if one is defined in the
      * {@literal @}Validate annotation. The expression is evaluated once for each value converted.
-     * Makes use of a custom VariableResolver implementation to make properties of the ActionBean
-     * available.
+     * See {@link net.sourceforge.stripes.validation.expression.ExpressionValidator} for details
+     * on how this is implemented.
      * 
      * @param bean the ActionBean who's property is being validated
      * @param name the name of the property being validated
@@ -674,59 +670,9 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
      */
     protected void doExpressionValidation(ActionBean bean, ParameterName name, List<Object> values,
             ValidationMetadata validationInfo, ValidationErrors errors) {
-        // If a validation expression was supplied, see if we can process it!
-        Expression expr = null;
-        DelegatingVariableResolver resolver = null;
 
-        if (validationInfo.expression() != null) {
-            final PageContext context = DispatcherHelper.getPageContext();
-
-            if (context == null) {
-                log.error("Could not process expression based validation. It would seem that ",
-                        "your servlet container is being mean and will not let the dispatcher ",
-                        "servlet manufacture a PageContext object through the JSPFactory. The ",
-                        "result of this is that expression validation will be disabled. Sorry.");
-            }
-            else {
-                try {
-                    // If this turns out to be slow we could probably cache the parsed expression
-                    String expression = validationInfo.expression();
-                    ExpressionEvaluator evaluator = context.getExpressionEvaluator();
-                    expr = evaluator.parseExpression(expression, Boolean.class, null);
-                    resolver = new DelegatingVariableResolver(bean, context.getVariableResolver());
-                }
-                catch (ELException ele) {
-                    throw new StripesRuntimeException(
-                            "Could not parse the EL expression being "
-                                    + "used to validate field "
-                                    + name.getName()
-                                    + ". This is "
-                                    + "not a transient error. Please double check the following expression "
-                                    + "for errors: " + validationInfo.expression(), ele);
-                }
-            }
-        }
-
-        for (Object value : values) {
-            // And then if we have an expression to use
-            if (expr != null) {
-                try {
-                    resolver.setCurrentValue(value);
-                    Boolean result = (Boolean) expr.evaluate(resolver);
-                    if (!Boolean.TRUE.equals(result)) {
-                        ValidationError error = new ScopedLocalizableError("validation.expression",
-                                "valueFailedExpression");
-                        error.setFieldValue(String.valueOf(value));
-                        errors.add(name.getName(), error);
-                    }
-                }
-                catch (ELException ele) {
-                    log.error("Error evaluating expression for property ", name.getName(),
-                            " of class ", bean.getClass().getSimpleName(), ". Expression: ",
-                            validationInfo.expression());
-                }
-            }
-        }
+        if (validationInfo.expression() != null)
+            ExpressionValidator.evaluate(bean, name, values, validationInfo, errors);
     }
 
     /**
@@ -848,59 +794,6 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
         /** Returns true if the row had any non-empty values in it, otherwise false. */
         public boolean hasNonEmptyValues() {
             return this.hasNonEmptyValues;
-        }
-    }
-}
-
-/**
- * A JSP EL VariableResolver that first attempts to look up the value of the variable as a first
- * level property on the ActionBean, and if does not exist then delegates to the built in resolver.
- * 
- * @author Tim Fennell
- * @since Stripes 1.3
- */
-class DelegatingVariableResolver implements VariableResolver {
-    private ActionBean bean;
-    private VariableResolver delegate;
-    private Object currentValue;
-
-    /** Constructs a resolver based on the action bean and resolver supplied. */
-    DelegatingVariableResolver(ActionBean bean, VariableResolver resolver) {
-        this.bean = bean;
-        this.delegate = resolver;
-    }
-
-    /** Sets the value that the 'this' variable will point at. */
-    void setCurrentValue(Object value) {
-        this.currentValue = value;
-    }
-
-    /**
-     * First tries to fish the property off the ActionBean and if that fails delegates to the
-     * contained variable resolver.
-     * 
-     * @param property the name of the variable/property being looked for
-     * @return
-     * @throws ELException
-     */
-    public Object resolveVariable(String property) throws ELException {
-        if ("this".equals(property)) {
-            return this.currentValue;
-        }
-        else if ("actionBean".equals(property)) {
-            return this.bean;
-        }
-        else {
-            Object result = null;
-            try {
-                result = BeanUtil.getPropertyValue(property, bean);
-            }
-            catch (Exception e) { /* Do nothing, this isn't unexpected. */ }
-
-            if (result == null) {
-                result = delegate.resolveVariable(property);
-            }
-            return result;
         }
     }
 }
