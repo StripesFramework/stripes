@@ -108,17 +108,6 @@ public class LayoutRenderTag extends StripesTagSupport implements BodyTag, Dynam
                 request.setAttribute(attributeName, stack);
             }
 
-            // Check that the page named is actually there, because some containers will
-            // just quietly ignore includes of non-existent pages!
-            URL target = StripesFilter.getConfiguration().getServletContext().getResource(this.name);
-            if (target == null) {
-                throw new StripesJspException(
-                    "Attempt made to render a layout that does not exist. The layout name " +
-                    "provided was '" + this.name + "'. Please check that a JSP exists at " +
-                    "that location within your web application."
-                );
-            }
-
             stack.push(this.context);
 
             // Now wrap the JSPWriter, and include the target JSP
@@ -126,6 +115,17 @@ public class LayoutRenderTag extends StripesTagSupport implements BodyTag, Dynam
             getPageContext().include(this.name, false);
             getPageContext().popBody();
             getPageContext().getOut().write(content.getString());
+
+            // Check that the layout actually got rendered as some containers will
+            // just quietly ignore includes of non-existent pages!
+            if (!this.context.isRendered()) {
+                throw new StripesJspException(
+                    "Attempt made to render a layout that does not exist. The layout name " +
+                    "provided was '" + this.name + "'. Please check that a JSP/view exists at " +
+                    "that location within your web application."
+                );
+            }
+
 
             stack.pop();
             popPageContextAttributes(); // remove any dynattrs from page scope
