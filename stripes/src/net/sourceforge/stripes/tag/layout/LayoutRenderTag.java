@@ -14,7 +14,6 @@
  */
 package net.sourceforge.stripes.tag.layout;
 
-import net.sourceforge.stripes.controller.StripesFilter;
 import net.sourceforge.stripes.exception.StripesJspException;
 import net.sourceforge.stripes.tag.StripesTagSupport;
 
@@ -23,7 +22,6 @@ import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.BodyContent;
 import javax.servlet.jsp.tagext.BodyTag;
 import javax.servlet.jsp.tagext.DynamicAttributes;
-import java.net.URL;
 import java.util.Stack;
 
 /**
@@ -68,7 +66,7 @@ public class LayoutRenderTag extends StripesTagSupport implements BodyTag, Dynam
     @Override
     public int doStartTag() throws JspException {
         pushPageContextAttributes(this.context.getParameters());
-        return EVAL_BODY_BUFFERED;
+        return EVAL_BODY_INCLUDE;
     }
 
     /**
