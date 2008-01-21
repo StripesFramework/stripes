@@ -79,8 +79,11 @@ public class DefaultValidationMetadataProvider implements ValidationMetadataProv
      * @param clazz a class
      * @return A map of (possibly nested) property names to {@link ValidationMetadata} for the
      *         property.
+     * @throws StripesRuntimeException if conflicts are found in the validation annotations, as
+     *             determined by {@link #checkForValidationAnnotationConflicts(Class)}
      */
     protected Map<String, ValidationMetadata> loadForClass(Class<?> clazz) {
+        checkForValidationAnnotationConflicts(clazz);
         Map<String, ValidationMetadata> meta = new HashMap<String, ValidationMetadata>();
         try {
             PropertyDescriptor[] pds = Introspector.getBeanInfo(clazz).getPropertyDescriptors();
@@ -176,5 +179,118 @@ public class DefaultValidationMetadataProvider implements ValidationMetadataProv
                 .length() > 0 ? builder : "<none>");
 
         return Collections.unmodifiableMap(meta);
+    }
+
+    /**
+     * Checks the given class and all its superclasses to ensure there are no conflicts in the
+     * {@link Validate} and {@link ValidateNestedProperties} annotations. These annotations may be
+     * applied to exactly one of the getter method, setter method, or field to which they apply.
+     * They must be applied together on the same element. If any conflicts are found in the class
+     * hierarchy, a {@link StripesRuntimeException} is thrown explaining what went wrong.
+     * 
+     * @param clazz the class to check
+     * @throws StripesRuntimeException if any conflicts are found
+     */
+    protected void checkForValidationAnnotationConflicts(Class<?> clazz) {
+        try {
+            do {
+                PropertyDescriptor[] pds = Introspector.getBeanInfo(clazz).getPropertyDescriptors();
+                for (PropertyDescriptor pd : pds) {
+                    String propertyName = pd.getName();
+                    Method accessor = pd.getReadMethod();
+                    Method mutator = pd.getWriteMethod();
+                    Field field = null;
+                    try {
+                        field = clazz.getDeclaredField(propertyName);
+                    }
+                    catch (NoSuchFieldException e) {
+                    }
+
+                    boolean onAccessor = accessor != null
+                            && Modifier.isPublic(accessor.getModifiers())
+                            && accessor.getDeclaringClass().equals(clazz)
+                            && (accessor.isAnnotationPresent(Validate.class) || accessor
+                                    .isAnnotationPresent(ValidateNestedProperties.class));
+                    boolean onMutator = mutator != null
+                            && Modifier.isPublic(mutator.getModifiers())
+                            && mutator.getDeclaringClass().equals(clazz)
+                            && (mutator.isAnnotationPresent(Validate.class) || mutator
+                                    .isAnnotationPresent(ValidateNestedProperties.class));
+                    boolean onField = field != null
+                            && !Modifier.isStatic(field.getModifiers())
+                            && field.getDeclaringClass().equals(clazz)
+                            && (field.isAnnotationPresent(Validate.class) || field
+                                    .isAnnotationPresent(ValidateNestedProperties.class));
+
+                    // I don't think George Boole would like this ...
+                    int count = 0;
+                    if (onAccessor) ++count;
+                    if (onMutator) ++count;
+                    if (onField) ++count;
+
+                    // must be 0 or 1
+                    if (count > 1) {
+                        StringBuilder buf = new StringBuilder(
+                                "There are conflicting @Validate and/or @ValidateNestedProperties annotations in ")
+                                .append(clazz)
+                                .append(". The following elements are improperly annotated for the '")
+                                .append(propertyName).append("' property:\n");
+                        if (onAccessor) {
+                            boolean hasSimple = accessor.isAnnotationPresent(Validate.class);
+                            boolean hasNested = accessor
+                                    .isAnnotationPresent(ValidateNestedProperties.class);
+                            buf.append("--> Getter method ").append(accessor.getName()).append(
+                                    " is annotated with ");
+                            if (hasSimple)
+                                buf.append("@Validate");
+                            if (hasSimple && hasNested)
+                                buf.append(" and ");
+                            if (hasNested)
+                                buf.append("@ValidateNestedProperties");
+                            buf.append('\n');
+                        }
+                        if (onMutator) {
+                            boolean hasSimple = mutator.isAnnotationPresent(Validate.class);
+                            boolean hasNested = mutator
+                                    .isAnnotationPresent(ValidateNestedProperties.class);
+                            buf.append("--> Setter method ").append(mutator.getName()).append(
+                                    " is annotated with ");
+                            if (hasSimple)
+                                buf.append("@Validate");
+                            if (hasSimple && hasNested)
+                                buf.append(" and ");
+                            if (hasNested)
+                                buf.append("@ValidateNestedProperties");
+                            buf.append('\n');
+                        }
+                        if (onField) {
+                            boolean hasSimple = field.isAnnotationPresent(Validate.class);
+                            boolean hasNested = field
+                                    .isAnnotationPresent(ValidateNestedProperties.class);
+                            buf.append("--> Field ").append(field.getName()).append(
+                                    " is annotated with ");
+                            if (hasSimple)
+                                buf.append("@Validate");
+                            if (hasSimple && hasNested)
+                                buf.append(" and ");
+                            if (hasNested)
+                                buf.append("@ValidateNestedProperties");
+                            buf.append('\n');
+                        }
+                        throw new StripesRuntimeException(buf.toString());
+                    }
+                }
+            } while ((clazz = clazz.getSuperclass()) != null);
+        }
+        catch (RuntimeException e) {
+            log.error(e, "Failure checking @Validate annotations ", getClass().getName());
+            throw e;
+        }
+        catch (Exception e) {
+            log.error(e, "Failure checking @Validate annotations ", getClass().getName());
+            StripesRuntimeException sre = new StripesRuntimeException(e.getMessage(), e);
+            sre.setStackTrace(e.getStackTrace());
+            throw sre;
+        }
     }
 }
