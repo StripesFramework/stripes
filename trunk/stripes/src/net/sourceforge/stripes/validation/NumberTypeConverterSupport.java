@@ -16,6 +16,7 @@ package net.sourceforge.stripes.validation;
 
 import java.text.NumberFormat;
 import java.text.ParseException;
+import java.text.ParsePosition;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.Currency;
@@ -57,9 +58,7 @@ public class NumberTypeConverterSupport {
      * @return one or more NumberFormats to use in parsing numbers
      */
     protected NumberFormat[] getNumberFormats() {
-        return new NumberFormat[] {
-                NumberFormat.getInstance(this.locale)
-        };
+        return new NumberFormat[] { NumberFormat.getInstance(this.locale) };
     }
 
     /**
@@ -68,10 +67,12 @@ public class NumberTypeConverterSupport {
      */
     protected Number parse(String input, Collection<ValidationError> errors) {
         input = preprocess(input);
+        ParsePosition pp = new ParsePosition(0);
 
         for (NumberFormat format : this.formats) {
-            try { return format.parse(input); }
-            catch (ParseException pe) { /* Do nothing. */ }
+            pp.setIndex(0);
+            Number number = format.parse(input, pp);
+            if (number != null && input.length() == pp.getIndex()) return number;
         }
 
         // If we've gotten here we could not parse the number

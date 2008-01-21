@@ -86,4 +86,19 @@ public class NumberTypeConverterSupportTest {
         Assert.assertEquals(errors.size(), 1, "We should have gotten a parse error.");
     }
 
+    @Test(groups="fast")
+    public void testWithBogusTrailingText() {
+        Collection<ValidationError> errors = new ArrayList<ValidationError>();
+        Number number = getConverter().parse("12345six", errors);
+        Assert.assertNull(number);
+        Assert.assertEquals(errors.size(), 1, "We should have gotten a parse error.");
+    }
+
+    @Test(groups="fast")
+    public void testWithMultipleDecimalPoints() {
+        Collection<ValidationError> errors = new ArrayList<ValidationError>();
+        Number number = getConverter().parse("123.456.789", errors);
+        Assert.assertNull(number);
+        Assert.assertEquals(errors.size(), 1, "We should have gotten a parse error.");
+    }
 }

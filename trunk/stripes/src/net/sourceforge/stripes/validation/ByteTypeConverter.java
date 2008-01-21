@@ -15,6 +15,7 @@
 package net.sourceforge.stripes.validation;
 
 import java.util.Collection;
+import java.text.NumberFormat;
 
 /**
  * Basic type converter for converting strings to bytes.  Will produce one error if the String
@@ -48,5 +49,10 @@ public class ByteTypeConverter extends NumberTypeConverterSupport implements Typ
         }
 
         return retval;
+    }
+
+    /** Overridden to return integer instances instead. */
+    protected NumberFormat[] getNumberFormats() {
+        return new NumberFormat[] { NumberFormat.getIntegerInstance(this.getLocale()) };
     }
 }
