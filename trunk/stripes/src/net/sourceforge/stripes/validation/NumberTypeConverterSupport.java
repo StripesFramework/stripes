@@ -15,7 +15,6 @@
 package net.sourceforge.stripes.validation;
 
 import java.text.NumberFormat;
-import java.text.ParseException;
 import java.text.ParsePosition;
 import java.util.Collection;
 import java.util.Locale;
