@@ -52,6 +52,7 @@ public class IntegerTypeConverter extends NumberTypeConverterSupport implements 
     }
 
     /** Overridden to return integer instances instead. */
+    @Override
     protected NumberFormat[] getNumberFormats() {
         return new NumberFormat[] { NumberFormat.getIntegerInstance(this.getLocale()) };
     }
