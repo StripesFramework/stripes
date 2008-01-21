@@ -52,6 +52,7 @@ public class ShortTypeConverter extends NumberTypeConverterSupport implements Ty
     }
 
     /** Overridden to return integer instances instead. */
+    @Override
     protected NumberFormat[] getNumberFormats() {
         return new NumberFormat[] { NumberFormat.getIntegerInstance(this.getLocale()) };
     }

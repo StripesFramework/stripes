@@ -52,6 +52,7 @@ public class ByteTypeConverter extends NumberTypeConverterSupport implements Typ
     }
 
     /** Overridden to return integer instances instead. */
+    @Override
     protected NumberFormat[] getNumberFormats() {
         return new NumberFormat[] { NumberFormat.getIntegerInstance(this.getLocale()) };
     }
