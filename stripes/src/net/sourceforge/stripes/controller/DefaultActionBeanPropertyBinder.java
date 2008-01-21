@@ -155,9 +155,11 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
                         doPreConversionValidations(name, values, validationInfo, errors);
                     }
 
-                    convertedValues = convert(bean, name, values, scalarType, validationInfo,
-                            errors);
-                    allConvertedFields.put(name, convertedValues);
+                    // Only do type conversion if there aren't errors already
+                    if (errors.isEmpty()) {
+                        convertedValues = convert(bean, name, values, scalarType, validationInfo, errors);
+                        allConvertedFields.put(name, convertedValues);
+                    }
 
                     // If we have errors, save them, otherwise bind the parameter to the form
                     if (errors.size() > 0) {
