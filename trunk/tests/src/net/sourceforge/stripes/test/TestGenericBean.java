@@ -1,19 +1,13 @@
 package net.sourceforge.stripes.test;
 
 /**
- * A JavaBean that is a generic type.
+ * A JavaBean that is a generic type. Used to test some of the more gnarly aspects
+ * of binding into beans with lots of generics going on. This is exercised in
+ * {@link net.sourceforge.stripes.controller.GenericsBindingTests#testGenericBean()}.
+ *
+ * The specifics of what is being tested is described in STS-427, which is now fixed.
  *
  * @author Alan Burlison
- *
- * XXX If this class is not the top level in the inheritance hierarchy,
- * Stripes cannot bind its properties.  e.g. if instead of:
- *     public class TestGenericBean<A,B> { ... }
- * we have
- *     class Class1<A,B> { ... }
- *     class Class2<B,A> extends Class1<B,A> {}
- *     class Class3<X,Y> extends Class2<X,Y> {}
- *     public class TestGenericBean<A,B> extends Class3<A,B> {}
- * Stripes will fail to bind the properties of Class1 correctly.  See STS-427
  */
 public class TestGenericBean {
     public static class Class1<A,B> {
