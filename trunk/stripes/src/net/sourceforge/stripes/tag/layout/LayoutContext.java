@@ -28,6 +28,7 @@ import java.util.HashMap;
 public class LayoutContext {
     private Map<String,String> components = new HashMap<String,String>();
     private Map<String,Object> parameters = new HashMap<String,Object>();
+    private boolean rendered = false;
 
     /**
      * Gets the Map of overridden components.  Will return an empty Map if no components were
@@ -41,6 +42,12 @@ public class LayoutContext {
     public Map<String, Object> getParameters() {
         return parameters;
     }
+
+    /** Returns true if the layout has been rendered, false otherwise. */
+    public boolean isRendered() { return rendered; }
+
+    /** False initially, should be set to true when the layout is actually rendered. */
+    public void setRendered(final boolean rendered) { this.rendered = rendered; }
 
     /** To String implementation the parameters, and the component names. */
     @Override

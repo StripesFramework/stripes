@@ -80,6 +80,10 @@ public class LayoutDefinitionTag extends StripesTagSupport {
             getPageContext().setAttribute(entry.getKey(), entry.getValue());
         }
 
+        // Technically we're not quite done yet, but this flag is only used to
+        // indicate that an attempt was made to render
+        this.context.setRendered(true);
+
         return EVAL_BODY_INCLUDE;
     }
 
