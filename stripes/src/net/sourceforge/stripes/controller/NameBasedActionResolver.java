@@ -248,6 +248,7 @@ public class NameBasedActionResolver extends AnnotatedClassActionResolver {
             ActionBean bean = handleActionBeanNotFound(context, urlBinding);
             if (bean != null) {
                 bean.setContext(context);
+                assertGetContextWorks(bean);
                 
                 return bean;
             }
