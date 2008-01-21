@@ -49,6 +49,7 @@ public class CommonsElExpressionExecutor extends ExpressionExecutorSupport {
      *
      * @return an instance of ExpressionEvaluatorImpl if it can, null otherwise
      */
+    @Override
     protected ExpressionEvaluator getEvaluator() {
         try {
             return (ExpressionEvaluator)

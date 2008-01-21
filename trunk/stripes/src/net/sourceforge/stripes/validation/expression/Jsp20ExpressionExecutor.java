@@ -39,6 +39,7 @@ public class Jsp20ExpressionExecutor extends ExpressionExecutorSupport {
      *
      * @return an ExpressionEvaluator if possible, or null otherwise
      */
+    @Override
     protected ExpressionEvaluator getEvaluator() {
         final PageContext context = DispatcherHelper.getPageContext();
 

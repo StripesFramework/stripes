@@ -20,7 +20,6 @@ import net.sourceforge.stripes.util.HtmlUtil;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
-import javax.servlet.jsp.el.ELException;
 import javax.servlet.jsp.tagext.BodyContent;
 import javax.servlet.jsp.tagext.DynamicAttributes;
 import java.io.IOException;
@@ -217,13 +216,13 @@ public abstract class HtmlTagSupport extends StripesTagSupport implements Dynami
      * @param resultType the Class representing the desired return type from the expression
      * @throws StripesJspException when an ELException occurs trying to evaluate the expression
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "deprecation" })
 	protected <R> R evaluateExpression(String expression, Class<R> resultType) throws StripesJspException {
         try {
             return (R) this.pageContext.getExpressionEvaluator().
                 evaluate(expression, resultType, this.pageContext.getVariableResolver(), null);
         }
-        catch (ELException ele) {
+        catch (javax.servlet.jsp.el.ELException ele) {
             throw new StripesJspException
                 ("Could not evaluate EL expression  [" + expression + "] with result type [" +
                     resultType.getName() + "] in tag class of type: " + getClass().getName(), ele);
