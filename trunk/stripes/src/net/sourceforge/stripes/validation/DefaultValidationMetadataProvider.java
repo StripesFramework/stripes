@@ -22,6 +22,7 @@ import java.lang.reflect.Modifier;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
@@ -42,7 +43,7 @@ public class DefaultValidationMetadataProvider implements ValidationMetadataProv
     private Configuration configuration;
 
     /** Map class -> field -> validation meta data */
-    private final Map<Class<?>, Map<String, ValidationMetadata>> cache = new HashMap<Class<?>, Map<String, ValidationMetadata>>();
+    private final Map<Class<?>, Map<String, ValidationMetadata>> cache = new ConcurrentHashMap<Class<?>, Map<String, ValidationMetadata>>();
 
     /** Currently does nothing except store a reference to {@code configuration}. */
     public void init(Configuration configuration) throws Exception {
