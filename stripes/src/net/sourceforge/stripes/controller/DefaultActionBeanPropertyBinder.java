@@ -63,6 +63,9 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
         this.configuration = configuration;
     }
 
+    /** Returns the Configuration object that was passed to the init() method. */
+    protected Configuration getConfiguration() { return configuration; }
+
     /**
      * <p>
      * Loops through the parameters contained in the request and attempts to bind each one to the
@@ -486,8 +489,7 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
                     for (Map.Entry<ParameterName, String[]> entry : row.entrySet()) {
                         ParameterName name = entry.getKey();
                         String[] values = entry.getValue();
-                        ValidationMetadata validationInfo = validationInfos.get(name
-                                .getStrippedName());
+                        ValidationMetadata validationInfo = validationInfos.get(name.getStrippedName());
 
                         if (validationInfo != null
                                 && validationInfo.requiredOn(bean.getContext().getEventName())) {
@@ -817,30 +819,34 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
 
         return returns;
     }
-}
-
-class Row extends HashMap<ParameterName, String[]> {
-    private static final long serialVersionUID = 1L;
-
-    private boolean hasNonEmptyValues = false;
 
     /**
-     * Adds the value to the map, along the way checking to see if there are any non-null values for
-     * the row so far.
+     * An inner class that represents a "row" of form properties that all have the same index
+     * so that we can validate all those properties together. 
      */
-    @Override
-    public String[] put(ParameterName key, String[] values) {
-        if (!hasNonEmptyValues) {
-            hasNonEmptyValues = (values != null) && (values.length > 0) && (values[0] != null)
-                    && (values[0].trim().length() > 0);
+    protected static class Row extends HashMap<ParameterName, String[]> {
+        private static final long serialVersionUID = 1L;
 
+        private boolean hasNonEmptyValues = false;
+
+        /**
+         * Adds the value to the map, along the way checking to see if there are any non-null values for
+         * the row so far.
+         */
+        @Override
+        public String[] put(ParameterName key, String[] values) {
+            if (!hasNonEmptyValues) {
+                hasNonEmptyValues = (values != null) && (values.length > 0) && (values[0] != null)
+                        && (values[0].trim().length() > 0);
+
+            }
+            return super.put(key, values);
         }
-        return super.put(key, values);
-    }
 
-    /** Returns true if the row had any non-empty values in it, otherwise false. */
-    public boolean hasNonEmptyValues() {
-        return this.hasNonEmptyValues;
+        /** Returns true if the row had any non-empty values in it, otherwise false. */
+        public boolean hasNonEmptyValues() {
+            return this.hasNonEmptyValues;
+        }
     }
 }
 
@@ -887,8 +893,7 @@ class DelegatingVariableResolver implements VariableResolver {
             try {
                 result = BeanUtil.getPropertyValue(property, bean);
             }
-            catch (Exception e) {
-            }
+            catch (Exception e) { /* Do nothing, this isn't unexpected. */ }
 
             if (result == null) {
                 result = delegate.resolveVariable(property);
