@@ -73,6 +73,11 @@ public class MockServletContext implements ServletContext {
         }
     }
 
+    /** Servlet 2.3 method. Returns the context name with a leading slash. */
+    public String getContextPath() {
+        return "/" + this.contextName;
+    }
+
     /** Always returns 2. */
     public int getMajorVersion() { return 2; }
 

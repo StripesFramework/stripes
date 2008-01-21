@@ -21,6 +21,8 @@ import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.exception.StripesServletException;
 import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.validation.BooleanTypeConverter;
+import net.sourceforge.stripes.validation.expression.ExpressionValidator;
+import net.sourceforge.stripes.validation.expression.Jsp20ExpressionExecutor;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -112,20 +114,25 @@ public class DispatcherServlet extends HttpServlet {
             // Then setup the ExecutionContext that we'll use to process this request
             ctx.setActionBeanContext(context);
 
-            // It's unclear whether this usage of the JspFactory will work in all containers. It looks
-            // like it should, but still, we should be careful not to screw up regular request
-            // processing if it should fail. Why do we do this?  So we can have a container-agnostic
-            // way of getting an ExpressionEvaluator to do expression based validation
             try {
                 ActionBeanContext abc = ctx.getActionBeanContext();
-                pageContext = JspFactory.getDefaultFactory().getPageContext(this, // the servlet inst
-                                                                            abc.getRequest(), // req
-                                                                            abc.getResponse(), // res
-                                                                            null,   // error page url
-                                                                            (request.getSession(false) != null), // needsSession - don't force a session creation if one doesn't already exist
-                                                                            abc.getResponse().getBufferSize(),
-                                                                            true); // autoflush
-                DispatcherHelper.setPageContext(pageContext);
+
+                // It's unclear whether this usage of the JspFactory will work in all containers. It looks
+                // like it should, but still, we should be careful not to screw up regular request
+                // processing if it should fail. Why do we do this?  So we can have a container-agnostic
+                // way of getting an ExpressionEvaluator to do expression based validation. And we only
+                // need it if the Jsp20 executor is used, so maybe soon we can kill it?
+                if (ExpressionValidator.getExecutor() instanceof Jsp20ExpressionExecutor) {
+                    pageContext = JspFactory.getDefaultFactory().getPageContext(this, // the servlet inst
+                                                                                abc.getRequest(), // req
+                                                                                abc.getResponse(), // res
+                                                                                null,   // error page url
+                                                                                (request.getSession(false) != null), // needsSession - don't force a session creation if one doesn't already exist
+                                                                                abc.getResponse().getBufferSize(),
+                                                                                true); // autoflush
+                    DispatcherHelper.setPageContext(pageContext);
+                }
+
             }
             catch (Exception e) {
                 // Don't even log this, this failure gets reported if action beans actually
