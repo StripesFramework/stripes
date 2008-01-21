@@ -44,6 +44,7 @@ public class ValidationMetadata {
     private String expression;
     @SuppressWarnings("unchecked")
 	private Class<? extends TypeConverter> converter;
+    private String label;
 
     /**
      * Constructs a ValidationMetadata object for the specified property. Further constraints
@@ -77,6 +78,7 @@ public class ValidationMetadata {
         if (validate.converter() != TypeConverter.class) converter(validate.converter());
         if (!"".equals(validate.expression())) expression(validate.expression());
         if (validate.on().length > 0) on(validate.on());
+        if (!"".equals(validate.label())) this.label = validate.label();
     }
 
     /** Returns the name of the property this validation metadata represents. */
@@ -206,6 +208,12 @@ public class ValidationMetadata {
 
         return this;
     }
+
+    /** Set the field label. */
+    public void label(String label) { this.label = label;}
+
+    /** Get the field label. */
+    public String label() { return label; }
 
     /**
      * Overidden toString() that only outputs the constraints that are specified by

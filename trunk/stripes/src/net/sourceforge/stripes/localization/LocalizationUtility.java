@@ -17,6 +17,7 @@ package net.sourceforge.stripes.localization;
 import net.sourceforge.stripes.controller.ParameterName;
 import net.sourceforge.stripes.controller.StripesFilter;
 import net.sourceforge.stripes.util.Log;
+import net.sourceforge.stripes.validation.ValidationMetadata;
 import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.action.ActionBean;
 
@@ -81,10 +82,20 @@ public class LocalizationUtility {
             catch (MissingResourceException mre) { /* do nothing */ }
         }
 
-        // Lastly, all by itself
+        // Then all by itself
         if (localizedValue == null) {
             try { localizedValue = bundle.getString(name); }
             catch (MissingResourceException mre2) { /* do nothing */ }
+        }
+
+        // Lastly, check @Validate on the ActionBean property
+        if (localizedValue == null && beanclass != null) {
+            ValidationMetadata validate = StripesFilter.getConfiguration()
+                    .getValidationMetadataProvider()
+                    .getValidationMetadata(beanclass, name);
+            if (validate != null && validate.label() != null && !"".equals(validate.label())) {
+                localizedValue = validate.label();
+            }
         }
 
         return localizedValue;

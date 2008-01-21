@@ -20,6 +20,7 @@ import java.lang.annotation.Target;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Documented;
 
+import net.sourceforge.stripes.localization.LocalizationUtility;
 import net.sourceforge.stripes.tag.InputHiddenTag;
 
 /**
@@ -128,5 +129,14 @@ public @interface Validate {
      */
     @SuppressWarnings("unchecked")
 	Class<? extends TypeConverter> converter() default TypeConverter.class;
+
+    /**
+     * The natural language name to use for the field when reporting validation errors, generating
+     * form input labels, etc. This will only be used if a localized field name cannot be found in
+     * the resource bundle.
+     * 
+     * @see LocalizationUtility#getLocalizedFieldName(String, String, Class, java.util.Locale)
+     */
+    String label() default "";
 
 }
