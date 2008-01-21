@@ -70,7 +70,7 @@ public class RegisterActionBean extends BugzookyActionBean {
         pm.saveOrUpdate(this.user);
         getContext().setUser(this.user);
         getContext().getMessages().add(
-                new LocalizableMessage("/examples/bugzooky/Register.action.successMessage",
+                new LocalizableMessage(getClass().getName() + ".successMessage",
                                        this.user.getFirstName(),
                                        this.user.getUsername()));
 
