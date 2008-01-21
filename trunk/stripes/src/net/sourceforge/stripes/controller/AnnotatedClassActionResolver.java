@@ -282,8 +282,7 @@ public class AnnotatedClassActionResolver implements ActionResolver {
      * @return a Class<ActionBean> for the ActionBean requested
      * @throws StripesServletException if the UrlBinding does not match an ActionBean binding
      */
-    public ActionBean getActionBean(ActionBeanContext context, String path)
-            throws StripesServletException {
+    public ActionBean getActionBean(ActionBeanContext context, String path) throws StripesServletException {
         Class<? extends ActionBean> beanClass = getActionBeanType(path);
         ActionBean bean;
 
@@ -322,14 +321,33 @@ public class AnnotatedClassActionResolver implements ActionResolver {
                     }
                 }
             }
-
-            return bean;
         }
         catch (Exception e) {
             StripesServletException sse = new StripesServletException(
                 "Could not create instance of ActionBean type [" + beanClass.getName() + "].", e);
             log.error(sse);
             throw sse;
+        }
+
+        assertGetContextWorks(bean);
+        return bean;
+
+    }
+
+    /**
+     * Since many down stream parts of Stripes rely on the ActionBean properly returning the
+     * context it is given, we'll just test it up front. Called after the bean is instantiated.
+     *
+     * @param bean the ActionBean to test to see if getContext() works correctly
+     * @throws StripesServletException if getContext() returns null
+     */
+    protected void assertGetContextWorks(final ActionBean bean) throws StripesServletException {
+        if (bean.getContext() == null) {
+            throw new StripesServletException("Ahem. Stripes has just resolved and instantiated " +
+                    "the ActionBean class " + bean.getClass().getName() + " and set the ActionBeanContext " +
+                    "on it. However calling getContext() isn't returning the context back! Since " +
+                    "this is required for several parts of Stripes to function correctly you should " +
+                    "now stop and implement setContext()/getContext() correctly. Thank you.");
         }
     }
 
