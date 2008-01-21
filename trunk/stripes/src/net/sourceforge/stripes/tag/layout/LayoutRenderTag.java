@@ -66,7 +66,7 @@ public class LayoutRenderTag extends StripesTagSupport implements BodyTag, Dynam
     @Override
     public int doStartTag() throws JspException {
         pushPageContextAttributes(this.context.getParameters());
-        return EVAL_BODY_INCLUDE;
+        return EVAL_BODY_BUFFERED;
     }
 
     /**
