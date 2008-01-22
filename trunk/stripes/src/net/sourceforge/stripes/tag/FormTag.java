@@ -247,8 +247,11 @@ public class FormTag extends HtmlTagSupport implements BodyTag, TryCatchFinally,
             }
 
             // Clean up any state the container won't reset during tag pooling
+            this.actionBeanClass = null;
+            this.actionWithoutContext = null;
             this.fieldsPresent.clear();
             this.focusSet = false;
+            this.urlBuilder = null;
         }
         catch (IOException ioe) {
             throw new StripesJspException("IOException in FormTag.doEndTag().", ioe);
