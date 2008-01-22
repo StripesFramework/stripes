@@ -104,30 +104,31 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
 
             try {
                 String pname = name.getName(); // exact name of the param in the request
-
-                if (pname.equals(context.getEventName())) {
-                    String[] values = entry.getValue();
-                    if ((values != null) && (values.length > 1)) {
-                        log.warn("Attempting to bind ", values.length,
-                                " values to a property with the same name as the event (", pname,
-                                ")");
-                    }
-                    continue;
-                }
-
                 if (!StripesConstants.SPECIAL_URL_KEYS.contains(pname)
                         && !fieldErrors.containsKey(pname)) {
                     log.trace("Running binding for property with name: ", name);
 
                     // Determine the target type
                     ValidationMetadata validationInfo = validationInfos.get(name.getStrippedName());
-                    PropertyExpressionEvaluation eval = new PropertyExpressionEvaluation(
-                            PropertyExpression.getExpression(pname), bean);
+                    PropertyExpressionEvaluation eval;
+                    try {
+                        eval = new PropertyExpressionEvaluation(PropertyExpression
+                                .getExpression(pname), bean);
+                    }
+                    catch (Exception e) {
+                        if (pname.equals(context.getEventName()))
+                            continue;
+                        else
+                            throw e;
+                    }
                     Class<?> type = eval.getType();
                     Class<?> scalarType = eval.getScalarType();
 
                     // Check to see if binding into this expression is permitted
                     if (!isBindingAllowed(eval))
+                        continue;
+
+                    if (type == null && pname.equals(context.getEventName()))
                         continue;
 
                     if (type == null
