@@ -21,7 +21,9 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import net.sourceforge.stripes.config.Configuration;
@@ -79,124 +81,19 @@ public class DefaultValidationMetadataProvider implements ValidationMetadataProv
      * @param clazz a class
      * @return A map of (possibly nested) property names to {@link ValidationMetadata} for the
      *         property.
-     * @throws StripesRuntimeException if conflicts are found in the validation annotations, as
-     *             determined by {@link #checkForValidationAnnotationConflicts(Class)}
+     * @throws StripesRuntimeException if conflicts are found in the validation annotations
      */
-    protected Map<String, ValidationMetadata> loadForClass(Class<?> clazz) {
-        checkForValidationAnnotationConflicts(clazz);
+    protected Map<String, ValidationMetadata> loadForClass(Class<?> beanType) {
         Map<String, ValidationMetadata> meta = new HashMap<String, ValidationMetadata>();
+        Set<String> seen = new HashSet<String>();
         try {
-            PropertyDescriptor[] pds = Introspector.getBeanInfo(clazz).getPropertyDescriptors();
-            for (PropertyDescriptor pd : pds) {
-                String propertyName = pd.getName();
-                Validate simple = null;
-                ValidateNestedProperties nested = null;
-
-                // check getter method
-                Method method = pd.getReadMethod();
-                if (method != null && Modifier.isPublic(method.getModifiers())) {
-                    simple = method.getAnnotation(Validate.class);
-                    nested = method.getAnnotation(ValidateNestedProperties.class);
-                }
-
-                // check setter method
-                method = pd.getWriteMethod();
-                if (method != null && Modifier.isPublic(method.getModifiers())) {
-                    if (simple == null)
-                        simple = method.getAnnotation(Validate.class);
-                    if (nested == null)
-                        nested = method.getAnnotation(ValidateNestedProperties.class);
-                }
-
-                // check the field (possibly declared in a superclass) with the same
-                // name as the property for annotations
-                Field field = null;
-                for (Class<?> c = clazz; c != null && field == null; c = c.getSuperclass()) {
-                    try {
-                        field = c.getDeclaredField(propertyName);
-                    }
-                    catch (NoSuchFieldException e) {
-                    }
-                }
-                if (field != null) {
-                    if (simple == null)
-                        simple = field.getAnnotation(Validate.class);
-                    if (nested == null)
-                        nested = field.getAnnotation(ValidateNestedProperties.class);
-                }
-
-                // add to allow list if @Validate present
-                if (simple != null) {
-                    if (simple.field() != null) {
-                        meta.put(propertyName, new ValidationMetadata(propertyName, simple));
-                    }
-                    else {
-                        log.warn("Field name present in @Validate but should be omitted: ", clazz,
-                                ", property ", propertyName, ", given field name ", simple.field());
-                    }
-                }
-
-                // add all sub-properties referenced in @ValidateNestedProperties
-                if (nested != null) {
-                    Validate[] validates = nested.value();
-                    if (validates != null) {
-                        for (Validate validate : validates) {
-                            if (validate.field() != null) {
-                                String fullName = propertyName + '.' + validate.field();
-                                meta.put(fullName, new ValidationMetadata(fullName, validate));
-                            }
-                            else {
-                                log.warn("Field name missing from nested @Validate: ", clazz,
-                                        ", property ", propertyName);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        catch (RuntimeException e) {
-            log.error(e, "Failure checking @Validate annotations ", getClass().getName());
-            throw e;
-        }
-        catch (Exception e) {
-            log.error(e, "Failure checking @Validate annotations ", getClass().getName());
-            StripesRuntimeException sre = new StripesRuntimeException(e.getMessage(), e);
-            sre.setStackTrace(e.getStackTrace());
-            throw sre;
-        }
-
-        // Print out a pretty debug message showing what validations got configured
-        StringBuilder builder = new StringBuilder(128);
-        for (Map.Entry<String, ValidationMetadata> entry : meta.entrySet()) {
-            if (builder.length() > 0) {
-                builder.append(", ");
-            }
-            builder.append(entry.getKey());
-            builder.append("->");
-            builder.append(entry.getValue());
-        }
-        log.debug("Loaded validations for ActionBean ", clazz.getSimpleName(), ": ", builder
-                .length() > 0 ? builder : "<none>");
-
-        return Collections.unmodifiableMap(meta);
-    }
-
-    /**
-     * Checks the given class and all its superclasses to ensure there are no conflicts in the
-     * {@link Validate} and {@link ValidateNestedProperties} annotations. These annotations may be
-     * applied to exactly one of the getter method, setter method, or field to which they apply.
-     * They must be applied together on the same element. If any conflicts are found in the class
-     * hierarchy, a {@link StripesRuntimeException} is thrown explaining what went wrong.
-     * 
-     * @param clazz the class to check
-     * @throws StripesRuntimeException if any conflicts are found
-     */
-    protected void checkForValidationAnnotationConflicts(Class<?> clazz) {
-        try {
-            do {
+            for (Class<?> clazz = beanType; clazz != null; clazz = clazz.getSuperclass()) {
                 PropertyDescriptor[] pds = Introspector.getBeanInfo(clazz).getPropertyDescriptors();
                 for (PropertyDescriptor pd : pds) {
                     String propertyName = pd.getName();
+                    if (seen.contains(propertyName))
+                        continue;
+
                     Method accessor = pd.getReadMethod();
                     Method mutator = pd.getWriteMethod();
                     Field field = null;
@@ -234,7 +131,8 @@ public class DefaultValidationMetadataProvider implements ValidationMetadataProv
                                 "There are conflicting @Validate and/or @ValidateNestedProperties annotations in ")
                                 .append(clazz)
                                 .append(". The following elements are improperly annotated for the '")
-                                .append(propertyName).append("' property:\n");
+                                .append(propertyName)
+                                .append("' property:\n");
                         if (onAccessor) {
                             boolean hasSimple = accessor.isAnnotationPresent(Validate.class);
                             boolean hasNested = accessor
@@ -279,8 +177,60 @@ public class DefaultValidationMetadataProvider implements ValidationMetadataProv
                         }
                         throw new StripesRuntimeException(buf.toString());
                     }
+
+                    // get the @Validate and/or @ValidateNestedProperties
+                    Validate simple;
+                    ValidateNestedProperties nested;
+                    if (onAccessor) {
+                        simple = accessor.getAnnotation(Validate.class);
+                        nested = accessor.getAnnotation(ValidateNestedProperties.class);
+                        seen.add(propertyName);
+                    }
+                    else if (onMutator) {
+                        simple = mutator.getAnnotation(Validate.class);
+                        nested = mutator.getAnnotation(ValidateNestedProperties.class);
+                        seen.add(propertyName);
+                    }
+                    else if (onField) {
+                        simple = field.getAnnotation(Validate.class);
+                        nested = field.getAnnotation(ValidateNestedProperties.class);
+                        seen.add(propertyName);
+                    }
+                    else {
+                        simple = null;
+                        nested = null;
+                    }
+
+                    // add to allow list if @Validate present
+                    if (simple != null) {
+                        if (simple.field() == null || "".equals(simple.field())) {
+                            meta.put(propertyName, new ValidationMetadata(propertyName, simple));
+                        }
+                        else {
+                            log.warn("Field name present in @Validate but should be omitted: ",
+                                    clazz, ", property ", propertyName, ", given field name ",
+                                    simple.field());
+                        }
+                    }
+
+                    // add all sub-properties referenced in @ValidateNestedProperties
+                    if (nested != null) {
+                        Validate[] validates = nested.value();
+                        if (validates != null) {
+                            for (Validate validate : validates) {
+                                if (validate.field() != null && !"".equals(validate.field())) {
+                                    String fullName = propertyName + '.' + validate.field();
+                                    meta.put(fullName, new ValidationMetadata(fullName, validate));
+                                }
+                                else {
+                                    log.warn("Field name missing from nested @Validate: ", clazz,
+                                            ", property ", propertyName);
+                                }
+                            }
+                        }
+                    }
                 }
-            } while ((clazz = clazz.getSuperclass()) != null);
+            }
         }
         catch (RuntimeException e) {
             log.error(e, "Failure checking @Validate annotations ", getClass().getName());
@@ -292,5 +242,20 @@ public class DefaultValidationMetadataProvider implements ValidationMetadataProv
             sre.setStackTrace(e.getStackTrace());
             throw sre;
         }
+
+        // Print out a pretty debug message showing what validations got configured
+        StringBuilder builder = new StringBuilder(128);
+        for (Map.Entry<String, ValidationMetadata> entry : meta.entrySet()) {
+            if (builder.length() > 0) {
+                builder.append(", ");
+            }
+            builder.append(entry.getKey());
+            builder.append("->");
+            builder.append(entry.getValue());
+        }
+        log.debug("Loaded validations for ActionBean ", beanType.getSimpleName(), ": ", builder
+                .length() > 0 ? builder : "<none>");
+
+        return Collections.unmodifiableMap(meta);
     }
 }
