@@ -128,14 +128,14 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
                     if (!isBindingAllowed(eval))
                         continue;
 
-                    if (type == null && pname.equals(context.getEventName()))
-                        continue;
-
                     if (type == null
                             && (validationInfo == null || validationInfo.converter() == null)) {
-                        log.trace("Could not find type for property '", name.getName(), "' of '",
-                                bean.getClass().getSimpleName(), "' probably because it's not ",
-                                "a property of the bean.  Skipping binding.");
+                        if (!pname.equals(context.getEventName())) {
+                            log.trace("Could not find type for property '", name.getName(),
+                                    "' of '", bean.getClass().getSimpleName(),
+                                    "' probably because it's not ",
+                                    "a property of the bean.  Skipping binding.");
+                        }
                         continue;
                     }
                     String[] values = entry.getValue();
