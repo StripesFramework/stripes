@@ -16,9 +16,9 @@ package net.sourceforge.stripes.validation.expression;
 
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.controller.ParameterName;
-import net.sourceforge.stripes.validation.ValidationMetadata;
-import net.sourceforge.stripes.validation.ValidationErrors;
 import net.sourceforge.stripes.util.Log;
+import net.sourceforge.stripes.validation.ValidationErrors;
+import net.sourceforge.stripes.validation.ValidationMetadata;
 
 import java.util.List;
 
@@ -50,11 +50,11 @@ public class ExpressionValidator {
         try {
             executor = new Jsp21ExpressionExecutor();
         }
-        catch (Exception e) {
+        catch (Throwable t) {
             try {
                 executor = new CommonsElExpressionExecutor();
             }
-            catch (Exception e2) {
+            catch (Throwable t2) {
                 executor = new Jsp20ExpressionExecutor();
             }
         }
