@@ -225,6 +225,7 @@ public class ValidationMetadata {
     public String toString() {
         return "ValidationMetadata{" +
                 (required ? "required=" + required : "") +
+                (encrypted ? "encrypted=" + encrypted : "") +
                 (ignore   ? ", ignore=" + ignore : "" ) +
                 (minlength != null ? ", minlength=" + minlength : "") +
                 (maxlength != null ? ", maxlength=" + maxlength : "") +
@@ -233,6 +234,7 @@ public class ValidationMetadata {
                 (mask != null ? ", mask=" + mask : "" ) +
                 (expression != null ? ", expression='" + expression + '\'' : "") +
                 (converter != null ? ", converter=" + converter.getSimpleName() : "") +
+                (label != null ? ", label='" + label + '\'' : "") +
                 '}';
     }
 }
