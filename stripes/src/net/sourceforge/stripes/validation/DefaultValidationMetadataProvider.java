@@ -91,9 +91,6 @@ public class DefaultValidationMetadataProvider implements ValidationMetadataProv
                 PropertyDescriptor[] pds = Introspector.getBeanInfo(clazz).getPropertyDescriptors();
                 for (PropertyDescriptor pd : pds) {
                     String propertyName = pd.getName();
-                    if (seen.contains(propertyName))
-                        continue;
-
                     Method accessor = pd.getReadMethod();
                     Method mutator = pd.getWriteMethod();
                     Field field = null;
@@ -177,6 +174,10 @@ public class DefaultValidationMetadataProvider implements ValidationMetadataProv
                         }
                         throw new StripesRuntimeException(buf.toString());
                     }
+
+                    // after the conflict check, stop processing fields we've already seen
+                    if (seen.contains(propertyName))
+                        continue;
 
                     // get the @Validate and/or @ValidateNestedProperties
                     Validate simple;
