@@ -184,11 +184,26 @@ public class AnnotatedClassActionResolver implements ActionResolver {
         for (Method method : methods) {
             if ( Modifier.isPublic(method.getModifiers()) ) {
                 String eventName = getHandledEvent(method);
+
+                // look for duplicate event names within the current class
+                if (classMappings.containsKey(eventName)
+                        && clazz.equals(classMappings.get(eventName).getDeclaringClass())) {
+                    throw new StripesRuntimeException("The ActionBean " + clazz
+                            + " declares multiple event handlers for event '" + eventName + "'");
+                }
+
                 DefaultHandler defaultMapping = method.getAnnotation(DefaultHandler.class);
                 if (eventName != null) {
                     classMappings.put(eventName, method);
                 }
                 if (defaultMapping != null) {
+                    // look for multiple default handlers within the current class
+                    if (classMappings.containsKey(DEFAULT_HANDLER_KEY)
+                            && clazz.equals(classMappings.get(DEFAULT_HANDLER_KEY).getDeclaringClass())) {
+                        throw new StripesRuntimeException("The ActionBean " + clazz
+                                + " declares multiple default event handlers");
+                    }
+
                     // Makes sure we catch the default handler
                     classMappings.put(DEFAULT_HANDLER_KEY, method);
                 }
