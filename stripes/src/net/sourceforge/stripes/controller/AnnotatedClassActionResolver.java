@@ -31,7 +31,9 @@ import net.sourceforge.stripes.util.StringUtil;
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -430,21 +432,33 @@ public class AnnotatedClassActionResolver implements ActionResolver {
      * name found in the request, or null if none is found.
      *
      * @param bean the ActionBean type bound to the request
-     * @param context the ActionBeanContect for the current request
+     * @param context the ActionBeanContext for the current request
      * @return String the name of the event submitted, or null if none can be found
      */
     @SuppressWarnings("unchecked")
     protected String getEventNameFromRequestParams(Class<? extends ActionBean> bean,
                                                    ActionBeanContext context) {
 
+        List<String> eventParams = new ArrayList<String>();
         Map<String,String[]> parameterMap = context.getRequest().getParameterMap();
         for (String event : this.eventMappings.get(bean).keySet()) {
             if (parameterMap.containsKey(event) || parameterMap.containsKey(event + ".x")) {
-                return event;
+                eventParams.add(event);
             }
         }
 
-        return null;
+        if (eventParams.size() == 0) {
+            return null;
+        }
+        else if (eventParams.size() == 1) {
+            return eventParams.get(0);
+        }
+        else {
+            throw new StripesRuntimeException("Multiple event parameters " + eventParams
+                    + " are present in this request. Only one event parameter may be specified "
+                    + "per request. Otherwise, Stripes would be unable to determine which event "
+                    + "to execute.");
+        }
     }
 
     /**
