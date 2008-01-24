@@ -1,9 +1,10 @@
 package net.sourceforge.stripes.util;
 
+import java.util.Arrays;
 import java.util.regex.Pattern;
 
 /**
- * Provies utility methods for manipulating and parsing Strings.
+ * Provides utility methods for manipulating and parsing Strings.
  *
  * @author Tim Fennell
  * @since Stripes 1.4.2
@@ -30,5 +31,22 @@ public class StringUtil {
         else {
             return STANDARD_SPLIT.split(input.trim());
         }
+    }
+    
+    /**
+     * Combines a bunch of objects into a single String. Array contents get converted nicely.
+     */
+    public static String combineParts(Object... messageParts) {
+        StringBuilder builder = new StringBuilder(128);
+        for (Object part : messageParts) {
+            if (part != null && part.getClass().isArray()) {
+                builder.append( Arrays.toString(CollectionUtil.asObjectArray(part) ));
+            }
+            else {
+                builder.append(part);
+            }
+        }
+
+        return builder.toString();
     }
 }
