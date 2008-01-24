@@ -42,6 +42,11 @@ public class CosMultipartWrapper implements MultipartWrapper {
     private static Pattern EXCEPTION_PATTERN =
             Pattern.compile("Posted content length of (\\d*) exceeds limit of (\\d*)");
 
+    /** Ensure this class will not load unless COS is on the classpath. */
+    static {
+        MultipartRequest.class.getName();
+    }
+
     private MultipartRequest multipart;
     private String charset;
     /**
