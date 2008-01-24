@@ -38,9 +38,10 @@ public class DefaultMultipartWrapperFactory implements MultipartWrapperFactory {
     /** The configuration key used to lookup the implementation of MultipartWrapper. */
     public static final String WRAPPER_CLASS_NAME = "MultipartWrapper.Class";
 
-    /** The name of the MultipartWrapper class that will be used if no other is specified. */
-    public static final String DEFAULT_IMPLEMENTATION =
-            "net.sourceforge.stripes.controller.multipart.CosMultipartWrapper";
+    /** The names of the MultipartWrapper classes that will be tried if no other is specified. */
+    public static final String[] BUNDLED_IMPLEMENTATIONS = {
+            "net.sourceforge.stripes.controller.multipart.CommonsMultipartWrapper",
+            "net.sourceforge.stripes.controller.multipart.CosMultipartWrapper" };
 
     /** Key used to lookup the name of the maximum post size. */
     public static final String MAX_POST = "FileUpload.MaximumPostSize";
@@ -64,13 +65,27 @@ public class DefaultMultipartWrapperFactory implements MultipartWrapperFactory {
 	public void init(Configuration config) throws Exception {
         // Determine which class we're using
         String type = config.getBootstrapPropertyResolver().getProperty(WRAPPER_CLASS_NAME);
-        if (type == null) type = DEFAULT_IMPLEMENTATION;
-        try {
-            this.multipartClass = (Class<? extends MultipartWrapper>) Class.forName(type);
+        String[] candidates = type == null ? BUNDLED_IMPLEMENTATIONS : new String[] { type };
+        for (String className : candidates) {
+            try {
+                this.multipartClass = ((Class<? extends MultipartWrapper>) Class.forName(className));
+                break;
+            }
+            catch (Throwable t) {
+                log.debug(getClass().getSimpleName(), " not using ", className,
+                        " because it failed to load. This likely means the supporting ",
+                        "file upload library is not present on the classpath.");
+            }
         }
-        catch (ClassNotFoundException cnfe) {
-            throw new StripesRuntimeException
-                    ("Could not find configured MultipartWrapper type '" + type + "'.", cnfe);
+
+        // Log the name of the class we'll be using or a warning if none could be loaded
+        if (this.multipartClass == null) {
+            log.warn("No ", MultipartWrapper.class.getSimpleName(),
+                    " implementation could be loaded");
+        }
+        else {
+            log.info("Using ", this.multipartClass.getName(), " as ", MultipartWrapper.class
+                    .getSimpleName(), " implementation.");
         }
 
         // Figure out where the temp directory is, and store that info
@@ -128,7 +143,7 @@ public class DefaultMultipartWrapperFactory implements MultipartWrapperFactory {
         catch (FileUploadLimitExceededException fulee) { throw fulee; }
         catch (Exception e) {
             throw new StripesRuntimeException
-                    ("Could not construct a MultipartWrapper for the " + "current request.", e);
+                    ("Could not construct a MultipartWrapper for the current request.", e);
         }
     }
 }

@@ -46,6 +46,12 @@ import java.util.regex.Pattern;
  */
 public class CommonsMultipartWrapper implements MultipartWrapper {
     private static final Pattern WINDOWS_PATH_PREFIX_PATTERN = Pattern.compile("(?i:^[A-Z]:\\\\)");
+
+    /** Ensure this class will not load unless Commons FileUpload is on the classpath. */
+    static {
+        FileUploadException.class.getName();
+    }
+
     private Map<String,FileItem> files = new HashMap<String,FileItem>();
     private Map<String,String[]> parameters = new HashMap<String, String[]>();
     private String charset;
