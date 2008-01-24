@@ -16,8 +16,6 @@ package net.sourceforge.stripes.util;
 
 import org.apache.commons.logging.LogFactory;
 
-import java.util.Arrays;
-
 /**
  * <p>A <em>wafer thin</em> wrapper around Commons logging that uses var-args to make it
  * much more efficient to call the logging methods in commons logging without having to
@@ -65,7 +63,7 @@ public final class Log {
      */
     public final void fatal(Throwable throwable, Object... messageParts) {
         if (this.realLog.isFatalEnabled()) {
-            this.realLog.fatal(combineParts(messageParts), throwable);
+            this.realLog.fatal(StringUtil.combineParts(messageParts), throwable);
         }
     }
 
@@ -77,7 +75,7 @@ public final class Log {
      */
     public final void error(Throwable throwable, Object... messageParts) {
         if (this.realLog.isErrorEnabled()) {
-            this.realLog.error(combineParts(messageParts), throwable);
+            this.realLog.error(StringUtil.combineParts(messageParts), throwable);
         }
     }
 
@@ -89,7 +87,7 @@ public final class Log {
      */
     public final void warn(Throwable throwable, Object... messageParts) {
         if (this.realLog.isWarnEnabled()) {
-            this.realLog.warn(combineParts(messageParts), throwable);
+            this.realLog.warn(StringUtil.combineParts(messageParts), throwable);
         }
     }
 
@@ -101,7 +99,7 @@ public final class Log {
      */
     public final void info(Throwable throwable, Object... messageParts) {
         if (this.realLog.isInfoEnabled()) {
-            this.realLog.info(combineParts(messageParts), throwable);
+            this.realLog.info(StringUtil.combineParts(messageParts), throwable);
         }
     }
 
@@ -113,7 +111,7 @@ public final class Log {
      */
     public final void debug(Throwable throwable, Object... messageParts) {
         if (this.realLog.isDebugEnabled()) {
-            this.realLog.debug(combineParts(messageParts), throwable);
+            this.realLog.debug(StringUtil.combineParts(messageParts), throwable);
         }
     }
 
@@ -125,7 +123,7 @@ public final class Log {
      */
     public final void trace(Throwable throwable, Object... messageParts) {
         if (this.realLog.isTraceEnabled()) {
-            this.realLog.trace(combineParts(messageParts), throwable);
+            this.realLog.trace(StringUtil.combineParts(messageParts), throwable);
         }
     }
 
@@ -138,7 +136,7 @@ public final class Log {
      */
     public final void fatal(Object... messageParts) {
         if (this.realLog.isFatalEnabled()) {
-            this.realLog.fatal(combineParts(messageParts));
+            this.realLog.fatal(StringUtil.combineParts(messageParts));
         }
     }
 
@@ -149,7 +147,7 @@ public final class Log {
      */
     public final void error(Object... messageParts) {
         if (this.realLog.isErrorEnabled()) {
-            this.realLog.error(combineParts(messageParts));
+            this.realLog.error(StringUtil.combineParts(messageParts));
         }
     }
 
@@ -160,7 +158,7 @@ public final class Log {
      */
     public final void warn(Object... messageParts) {
         if (this.realLog.isWarnEnabled()) {
-            this.realLog.warn(combineParts(messageParts));
+            this.realLog.warn(StringUtil.combineParts(messageParts));
         }
     }
 
@@ -171,7 +169,7 @@ public final class Log {
      */
     public final void info(Object... messageParts) {
         if (this.realLog.isInfoEnabled()) {
-            this.realLog.info(combineParts(messageParts));
+            this.realLog.info(StringUtil.combineParts(messageParts));
         }
     }
 
@@ -182,7 +180,7 @@ public final class Log {
      */
     public final void debug(Object... messageParts) {
         if (this.realLog.isDebugEnabled()) {
-            this.realLog.debug(combineParts(messageParts));
+            this.realLog.debug(StringUtil.combineParts(messageParts));
         }
     }
 
@@ -193,26 +191,7 @@ public final class Log {
      */
     public final void trace(Object... messageParts) {
         if (this.realLog.isTraceEnabled()) {
-            this.realLog.trace(combineParts(messageParts));
+            this.realLog.trace(StringUtil.combineParts(messageParts));
         }
-    }
-
-
-    /**
-     * Combines all the message parts handed in to the logger in order to pass them in to
-     * the commons logging interface.
-     */
-    private String combineParts(Object[] messageParts) {
-        StringBuilder builder = new StringBuilder(128);
-        for (Object part : messageParts) {
-            if (part instanceof Object[]) {
-                builder.append( Arrays.toString(CollectionUtil.asObjectArray(part) ));
-            }
-            else {
-                builder.append(part);
-            }
-        }
-
-        return builder.toString();
     }
 }
