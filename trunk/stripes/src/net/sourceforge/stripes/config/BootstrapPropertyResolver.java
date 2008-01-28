@@ -14,10 +14,9 @@
  */
 package net.sourceforge.stripes.config;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.Vector;
-
 import javax.servlet.FilterConfig;
 
 import net.sourceforge.stripes.exception.StripesRuntimeException;
@@ -87,7 +86,8 @@ public class BootstrapPropertyResolver {
     }
     
     /**
-     * Attempts to find a class the user has specified in web.xml or by auto-discovery in packages listed in web.xml under Extension.Packages. Classes specified in web.xml take precedence.   
+     * Attempts to find a class the user has specified in web.xml or by auto-discovery in packages
+     * listed in web.xml under Extension.Packages. Classes specified in web.xml take precedence.
      * 
      * @param paramName the parameter to look for in web.xml
      * @param targetType the type that we're looking for
@@ -97,22 +97,22 @@ public class BootstrapPropertyResolver {
     public <T> Class<? extends T> getClassProperty(String paramName, Class<T> targetType)
     {
         Class<? extends T> clazz = null;
-        
+
         String className = getProperty(paramName);
-        
-        if (className != null)
-        {
+
+        if (className != null) {
             // web.xml takes precedence
             try {
                 clazz = (Class<? extends T>) ReflectUtil.findClass(className);
-                log.info("Class implementing/extending ", targetType.getSimpleName(), " found in web.xml: ", className);
+                log.info("Class implementing/extending ", targetType.getSimpleName(),
+                        " found in web.xml: ", className);
             }
             catch (ClassNotFoundException e) {
-                log.error("Couldn't find class specified in web.xml under param ", paramName, ": ", className);
+                log.error("Couldn't find class specified in web.xml under param ", paramName, ": ",
+                        className);
             }
         }
-        else
-        {
+        else {
             // we didn't find it in web.xml so now we check any extension packages
             ResolverUtil<T> resolver = new ResolverUtil<T>();
             String[] packages = StringUtil.standardSplit(getProperty(EXTENSION_LIST));
@@ -121,13 +121,13 @@ public class BootstrapPropertyResolver {
             if (classes.size() == 1) {
                 clazz = classes.iterator().next();
                 className = clazz.getName();
-                log.info("Class implementing/extending  ", targetType.getSimpleName(), " found via auto-discovery: ", className);
+                log.info("Class implementing/extending  ", targetType.getSimpleName(),
+                        " found via auto-discovery: ", className);
             }
             else if (classes.size() > 1) {
-                throw new StripesRuntimeException(StringUtil.combineParts("Found too many classes implementing/extending ",
-                                        targetType.getSimpleName(),
-                                        ": ",
-                                        classes));
+                throw new StripesRuntimeException(StringUtil.combineParts(
+                        "Found too many classes implementing/extending ", targetType
+                                .getSimpleName(), ": ", classes));
             }
         }
 
@@ -136,17 +136,17 @@ public class BootstrapPropertyResolver {
     
     /**
      * Attempts to find all classes the user has specified in web.xml.
-     *
+     * 
      * @param paramName the parameter to look for in web.xml
      * @return a List of classes found
      */
     @SuppressWarnings("unchecked")
     public List<Class> getClassPropertyList(String paramName)
     {
-        List<Class> classes = new Vector<Class>();
-        
+        List<Class> classes = new ArrayList<Class>();
+
         String classList = getProperty(paramName);
-        
+
         if (classList != null) {
             String[] classNames = StringUtil.standardSplit(classList);
             for (String className : classNames) {
@@ -168,14 +168,15 @@ public class BootstrapPropertyResolver {
     }
     
     /**
-     * Attempts to find classes by auto-discovery in packages listed in web.xml under Extension.Packages.   
+     * Attempts to find classes by auto-discovery in packages listed in web.xml under
+     * Extension.Packages.
      * 
      * @param targetType the type that we're looking for
      * @return a List of classes found
      */
     public <T> List<Class<? extends T>> getClassPropertyList(Class<T> targetType)
     {
-        List<Class<? extends T>> classes = new Vector<Class<? extends T>>();
+        List<Class<? extends T>> classes = new ArrayList<Class<? extends T>>();
 
         ResolverUtil<T> resolver = new ResolverUtil<T>();
         String[] packages = StringUtil.standardSplit(getProperty(EXTENSION_LIST));
@@ -186,7 +187,8 @@ public class BootstrapPropertyResolver {
     }
 
     /**
-     * Attempts to find all matching classes the user has specified in web.xml or by auto-discovery in packages listed in web.xml under Extension.Packages.   
+     * Attempts to find all matching classes the user has specified in web.xml or by auto-discovery
+     * in packages listed in web.xml under Extension.Packages.
      * 
      * @param paramName the parameter to look for in web.xml
      * @param targetType the type that we're looking for
@@ -195,12 +197,13 @@ public class BootstrapPropertyResolver {
     @SuppressWarnings("unchecked")
     public <T> List<Class<? extends T>> getClassPropertyList(String paramName, Class<T> targetType)
     {
-        List<Class<? extends T>> classes = new Vector<Class<? extends T>>();
-        
-        for (Class<?> clazz : getClassPropertyList(paramName))
+        List<Class<? extends T>> classes = new ArrayList<Class<? extends T>>();
+
+        for (Class<?> clazz : getClassPropertyList(paramName)) {
             // can't use addAll :(
             classes.add((Class<? extends T>) clazz);
-        
+        }
+
         classes.addAll(getClassPropertyList(targetType));
 
         return classes;
