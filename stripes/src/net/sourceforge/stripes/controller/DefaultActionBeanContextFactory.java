@@ -17,7 +17,7 @@ package net.sourceforge.stripes.controller;
 import net.sourceforge.stripes.action.ActionBeanContext;
 import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.exception.StripesServletException;
-import net.sourceforge.stripes.util.ReflectUtil;
+import net.sourceforge.stripes.util.Log;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -28,11 +28,13 @@ import javax.servlet.http.HttpServletResponse;
  * ActionBeanContext classes. Looks for a configuration parameters called "ActionBeanContext.Class".
  * If the property is present, the named class with be instantiated and returned from the
  * getContextInstance() method.  If no class is named, then the default class, ActionBeanContext
- * will be instanted.
+ * will be instantiated.
  *
  * @author Tim Fennell
  */
 public class DefaultActionBeanContextFactory implements ActionBeanContextFactory {
+    private static final Log log = Log.getInstance(DefaultActionBeanContextFactory.class);
+
     /** The name of the configuration property used for the context class name. */
     public static final String CONTEXT_CLASS_NAME = "ActionBeanContext.Class";
 
@@ -44,13 +46,16 @@ public class DefaultActionBeanContextFactory implements ActionBeanContextFactory
     public void init(Configuration configuration) throws Exception {
         setConfiguration(configuration);
 
-        String name = configuration.getBootstrapPropertyResolver().getProperty(CONTEXT_CLASS_NAME);
-        if (name != null) {
-            this.contextClass = (Class<? extends ActionBeanContext>) ReflectUtil.findClass(name);
+        Class<? extends ActionBeanContext> clazz = configuration.getBootstrapPropertyResolver()
+                .getClassProperty(CONTEXT_CLASS_NAME, ActionBeanContext.class);
+        if (clazz == null) {
+            clazz = ActionBeanContext.class;
         }
         else {
-            this.contextClass = ActionBeanContext.class;
+            log.info(DefaultActionBeanContextFactory.class.getSimpleName(), " will use ",
+                    ActionBeanContext.class.getSimpleName(), " subclass ", clazz.getName());
         }
+        this.contextClass = clazz;
     }
 
     /**
