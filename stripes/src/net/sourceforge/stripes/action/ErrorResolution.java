@@ -56,18 +56,22 @@ public class ErrorResolution implements Resolution {
             response.sendError(errorCode);
     }
 
+    /** Accessor for the HTTP status code. */
     public int getErrorCode() {
         return errorCode;
     }
 
+    /** Setter for the HTTP status code. */
     public void setErrorCode(int errorCode) {
         this.errorCode = errorCode;
     }
 
+    /** Accessor for the descriptive error message. */
     public String getErrorMessage() {
         return errorMessage;
     }
 
+    /** Setter for the descriptive error message. */
     public void setErrorMessage(String errorMessage) {
         this.errorMessage = errorMessage;
     }

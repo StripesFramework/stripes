@@ -689,9 +689,9 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
      * 
      * <p>
      * Only parameter values that are non-null and do not equal the empty String will be converted
-     * and returned. So an input array with one entry equalling the empty string, [""], will result
+     * and returned. So an input array with one entry equaling the empty string, [""], will result
      * in an <b>empty</b> List being returned. Similarly, if a length three array is passed in with
-     * one item equalling the empty String, a List of length two will be returned.
+     * one item equaling the empty String, a List of length two will be returned.
      * </p>
      * 
      * @param bean the ActionBean on which the property to convert exists

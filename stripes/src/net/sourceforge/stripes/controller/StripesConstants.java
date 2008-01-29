@@ -86,7 +86,7 @@ public interface StripesConstants {
 
     /**
      * The name of a request parameter that holds a Map of flash scopes keyed by the
-     * hashcode of the request that generated them.
+     * hash code of the request that generated them.
      */
     String REQ_ATTR_FLASH_SCOPE_LOCATION = "__flash_scopes";
     

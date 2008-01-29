@@ -70,7 +70,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * <p>To ensure that orphaned FlashScopes do not consume increasing amounts of HttpSession memory,
  * the StripesFilter, after each request, checks to see if any FlashScopes have recently expired.
  * A FlashScope is expired when the length of time from the end of the request that created the
- * FlashScope is greater than the timout set on the FlashScope.  The default timeout is 120 seconds
+ * FlashScope is greater than the timeout set on the FlashScope.  The default timeout is 120 seconds
  * (or two minutes), and can be varied by calling {@link #setTimeout(int)} Since the timer
  * starts when a request completes, and FlashScopes are only meant to live from the end of one
  * request to the beginning of a subsequent request this value is set quite low.</p>
@@ -111,7 +111,7 @@ public class FlashScope extends HashMap<String,Object> implements Serializable {
     public void setTimeout(int timeout) { this.timeout = timeout; }
 
     /**
-     * Returns the key used to store this flash scope in the colleciton of flash scopes.
+     * Returns the key used to store this flash scope in the collection of flash scopes.
      */
     public Integer key() {
         return key;
@@ -174,7 +174,7 @@ public class FlashScope extends HashMap<String,Object> implements Serializable {
     }
 
     /**
-     * Returns true if the flash scope has expired and should be de-referenced to allow
+     * Returns true if the flash scope has expired and should be dereferenced to allow
      * garbage collection. Returns false if the flash scope should be retained.
      *
      * @return true if the flash scope has expired, false otherwise
@@ -308,7 +308,7 @@ public class FlashScope extends HashMap<String,Object> implements Serializable {
     }
 
     /**
-     * Internal helper method to retreive (and selectively create) the container for all
+     * Internal helper method to retrieve (and selectively create) the container for all
      * the flash scopes.  Will return null if the container does not exist and <i>create</i> is
      * false.  Will also return null if the current session has been invalidated, regardless
      * of the value of <i>create</i>.

@@ -18,7 +18,7 @@ import java.io.*;
 
 /**
  * <p>Represents a file that was submitted as part of an HTTP POST request.  Provides methods for
- * examining information about the file, and the retreiving the contents of the file. When a file
+ * examining information about the file, and the retrieving the contents of the file. When a file
  * is uploaded by a user it is stored as a temporary file on the file system, which is wrapped by an
  * instance of this class. This is necessary because browsers may send file upload segments before
  * sending any other form parameters needed to identify what to do with the uploaded files!</p>

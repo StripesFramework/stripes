@@ -45,7 +45,7 @@ import java.io.StringReader;
  *        // custom output generation code
  *        response.getWriter.write(...);
  *        // or
- *        reponse.getOutputStream.write(...);
+ *        response.getOutputStream.write(...);
  *    }
  *}.setFilename("your-filename.xml");
  *</pre>

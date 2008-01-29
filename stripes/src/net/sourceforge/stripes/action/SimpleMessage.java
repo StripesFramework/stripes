@@ -149,7 +149,7 @@ public class SimpleMessage implements Message {
         return true;
     }
 
-    /** Generated hashcode method. */
+    /** Generated hash code method. */
     @Override
     public int hashCode() {
         return (message != null ? message.hashCode() : 0);

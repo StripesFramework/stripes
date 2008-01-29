@@ -74,7 +74,7 @@ public class BeforeAfterMethodInterceptor implements Interceptor {
             new ConcurrentHashMap<Class<? extends ActionBean>, FilterMethods>();
 
     /**
-     * Does the main work of the interceptor as decsribed in the class level javadoc.
+     * Does the main work of the interceptor as described in the class level javadoc.
      * Executed the before and after methods for the ActionBean as appropriate for the
      * current lifecycle stage.  Lazily examines the ActionBean to determine the set
      * of methods to execute, if it has not yet been examined.
