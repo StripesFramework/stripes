@@ -140,10 +140,9 @@ public class BootstrapPropertyResolver {
      * @param paramName the parameter to look for in web.xml
      * @return a List of classes found
      */
-    @SuppressWarnings("unchecked")
-    public List<Class> getClassPropertyList(String paramName)
+    public List<Class<?>> getClassPropertyList(String paramName)
     {
-        List<Class> classes = new ArrayList<Class>();
+        List<Class<?>> classes = new ArrayList<Class<?>>();
 
         String classList = getProperty(paramName);
 
@@ -156,10 +155,9 @@ public class BootstrapPropertyResolver {
                 }
                 catch (ClassNotFoundException e) {
                     throw new StripesRuntimeException("Could not find configured Interceptor ["
-                            + className + "]. The " + "property '" + paramName
-                            + "' contained [" + classList
-                            + "]. This value must contain fully qualified class names separated "
-                            + "by commas.");
+                            + className + "]. The " + "property '" + paramName + "' contained ["
+                            + classList + "]. This value must contain fully qualified class names "
+                            + "separated by commas.");
                 }
             }
         }
