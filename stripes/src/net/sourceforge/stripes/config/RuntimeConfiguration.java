@@ -242,10 +242,7 @@ public class RuntimeConfiguration extends DefaultConfiguration {
     @SuppressWarnings("unchecked")
 	protected <T extends ConfigurableComponent> T initializeComponent(Class<T> componentType,
                                                                       String propertyName) {
-        Class clazz = null;
-        
-        clazz = getBootstrapPropertyResolver().getClassProperty(propertyName, componentType);
-        
+        Class clazz = getBootstrapPropertyResolver().getClassProperty(propertyName, componentType);
         if (clazz != null) {
             try {
                 T component = (T) clazz.newInstance();
@@ -260,8 +257,9 @@ public class RuntimeConfiguration extends DefaultConfiguration {
 
             }
         }
-        else
+        else {
             return null;
+        }
     }
 
     /**
