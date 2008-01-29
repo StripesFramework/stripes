@@ -51,7 +51,7 @@ import java.util.Set;
  * giving the binding {@code /foo/Bar.action}.</p>
  *
  * <p>The translation of class names into URL bindings is designed to be easy to override and
- * customize.  To that end you can easiliy change how this translation is done by overriding
+ * customize.  To that end you can easily change how this translation is done by overriding
  * {@code getBasePackages()} and/or {@code getBindingSuffix()}, or completely customize the
  * behaviour by overriding {@code getUrlBinding(String)}.</p>
  *
@@ -70,7 +70,7 @@ import java.util.Set;
  * {@link #handleActionBeanNotFound(ActionBeanContext, String)} or {@link #findView(String)}. The
  * default behaviour is to map the URL being requested to three potential JSP names/paths, check
  * for the existence of a JSP at those locations and if one exists then to return an ActionBean
- * that will render the view.  For example if a user requsted '/account/ViewAccount.action' but
+ * that will render the view.  For example if a user requested '/account/ViewAccount.action' but
  * an ActionBean does not yet exist bound to that URL, the resolver will check for JSPs in the
  * following order:</p>
  *
@@ -121,7 +121,7 @@ public class NameBasedActionResolver extends AnnotatedClassActionResolver {
      * class to see if an annotated url binding is present. If not, the class name is taken
      * and translated into a URL binding using {@code getUrlBinding(String name)}.</p>
      *
-     * @param clazz a Class represenging an ActionBean
+     * @param clazz a Class representing an ActionBean
      * @return the String URL binding for the ActionBean
      */
     @Override
@@ -302,7 +302,7 @@ public class NameBasedActionResolver extends AnnotatedClassActionResolver {
      * <p>Can be overridden to look for views with a different pattern, or to provide a different
      * kind of resolution. It is strongly recommended when overriding this method to check for
      * the actual existence of views prior to manufacturing a resolution in order not to cause
-     * confusion when URLs are mis-typed.</p>
+     * confusion when URLs are mistyped.</p>
      *
      * @param urlBinding the url being accessed by the client in the current request
      * @return a Resolution if a default view can be found, or null otherwise

@@ -54,7 +54,7 @@ public class ActionBeanContext {
     private ValidationErrors validationErrors;
 
     /**
-     * Retreives the HttpServletRequest object that is associated with the current request.
+     * Retrieves the HttpServletRequest object that is associated with the current request.
      * @return HttpServletRequest the current request
      */
     public HttpServletRequest getRequest() {

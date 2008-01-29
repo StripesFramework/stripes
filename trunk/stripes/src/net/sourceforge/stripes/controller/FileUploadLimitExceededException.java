@@ -29,7 +29,7 @@ public class FileUploadLimitExceededException extends StripesServletException {
     private long posted;
 
     /**
-     * Constructs a new exception that contains the limt that was violated, and the size
+     * Constructs a new exception that contains the limit that was violated, and the size
      * of the post that violated it, both in bytes.
      *
      * @param max the current post size limit

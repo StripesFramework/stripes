@@ -75,7 +75,7 @@ public class ExecutionContext {
     }
 
     /**
-     * Retreives the ActionBeanContext associated with the current request. Available to all
+     * Retrieves the ActionBeanContext associated with the current request. Available to all
      * interceptors regardless of {@link LifecycleStage}.
      *
      * @return the current ActionBeanContext
@@ -101,7 +101,7 @@ public class ExecutionContext {
     public void setActionBean(ActionBean actionBean) { this.actionBean = actionBean; }
 
     /**
-     * Retrieves the handler Method that is targetted by the current request. Available
+     * Retrieves the handler Method that is targeted by the current request. Available
      * to interceptors only after {@link LifecycleStage#HandlerResolution} has occurred.
      *
      * @return the current ActionBean instance, or null if not yet resolved

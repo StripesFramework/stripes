@@ -37,7 +37,7 @@ public enum LifecycleStage {
     HandlerResolution,
 
     /**
-     * Third major lifecycle stage. Involves the processing of all validations specied through
+     * Third major lifecycle stage. Involves the processing of all validations specified through
      * {@literal} @Validate annotations as well as the type conversion of request parameters
      * and their binding to the ActionBean.
      */

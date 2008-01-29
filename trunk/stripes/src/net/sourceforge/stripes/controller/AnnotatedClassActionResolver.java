@@ -389,7 +389,7 @@ public class AnnotatedClassActionResolver implements ActionResolver {
      * <p>Searched for a parameter in the request whose name matches one of the named events handled
      * by the ActionBean.  For example, if the ActionBean can handle events foo and bar, this
      * method will scan the request for foo=somevalue and bar=somevalue.  If it find a request
-     * paremeter with a matching name it will return that name.  If there are multiple matching
+     * parameter with a matching name it will return that name.  If there are multiple matching
      * names, the result of this method cannot be guaranteed.</p>
      *
      * <p>If the event name cannot be determined through the parameter names, two alternative

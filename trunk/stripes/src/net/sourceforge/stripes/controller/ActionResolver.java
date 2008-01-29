@@ -27,7 +27,7 @@ import java.lang.reflect.Method;
  * responsible for identifying the individual method on the ActionBean class that should handle
  * this specific request.</p>
  *
- * <p>Throughout this class two terms are used that refer to similar but not interchangable
+ * <p>Throughout this class two terms are used that refer to similar but not interchangeable
  * concepts. {@code UrlBinding} refers to the exact URL to which a bean is bound, e.g.
  * {@code /account/Profile.action}.  {@code Path} refers to the path segment of the requested
  * URL and is generally composed of the URL binding and possibly some additional information,

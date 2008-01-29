@@ -69,7 +69,7 @@ import net.sourceforge.stripes.action.Resolution;
  * {@link net.sourceforge.stripes.config.Configuration}.  To configure interceptors you can either
  * implement your own Configuration (probably by subclassing
  * {@link net.sourceforge.stripes.config.RuntimeConfiguration}), or more likely by listing out
- * the interceptors desired in the web.xml as specified in the documenation for
+ * the interceptors desired in the web.xml as specified in the documentation for
  * {@link net.sourceforge.stripes.config.RuntimeConfiguration#initInterceptors()}.</p>
  *
  * @author Tim Fennell

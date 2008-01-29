@@ -63,7 +63,7 @@ import net.sourceforge.stripes.validation.ValidationErrorHandler;
  * case that Stripes cannot figure out a specific handler method to invoke.  This occurs most often
  * when a form is submitted by the user hitting the enter/return key, and so no form button is
  * activated.  Essentially the default handler is specifying the default operation for your form.
- * In forms that have only one handler method, that method should alsways be declared as the
+ * In forms that have only one handler method, that method should always be declared as the
  * default.  For example:</p>
  *
  * <pre>

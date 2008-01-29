@@ -22,7 +22,7 @@ import java.util.ResourceBundle;
 /**
  * A non-error message class that can localize (or at least externalize) the message String
  * in a resource bundle.  The bundle used is the Stripes error message bundle, which can be
- * conifgured but by default is called 'StripesResources.properties'.  In all other ways
+ * configured but by default is called 'StripesResources.properties'.  In all other ways
  * this class behaves like it's parent {@link SimpleMessage}.
  *
  * @author Tim Fennell 
