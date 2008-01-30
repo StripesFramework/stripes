@@ -32,6 +32,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -589,5 +590,13 @@ public class AnnotatedClassActionResolver implements ActionResolver {
         ResolverUtil<ActionBean> resolver = new ResolverUtil<ActionBean>();
         resolver.findImplementations(ActionBean.class, pkgs);
         return resolver.getClasses();
+    }
+
+    /**
+     * Get all the classes implementing {@link ActionBean} that are recognized by this
+     * {@link ActionResolver}.
+     */
+    public Collection<Class<? extends ActionBean>> getActionBeanClasses() {
+        return UrlBindingFactory.getInstance().getActionBeanClasses();
     }
 }

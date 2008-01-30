@@ -11,6 +11,8 @@ package net.sourceforge.stripes.controller;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -75,6 +77,13 @@ public class UrlBindingFactory {
     /** Don't want the constructor to be public */
     protected UrlBindingFactory() {
         // do nothing
+    }
+
+    /**
+     * Get all the classes implementing {@link ActionBean}
+     */
+    public Collection<Class<? extends ActionBean>> getActionBeanClasses() {
+        return Collections.unmodifiableSet(classCache.keySet());
     }
 
     /**
