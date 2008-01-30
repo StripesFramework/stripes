@@ -800,6 +800,13 @@
         </attribute>
         <attribute>
             <description>
+                Indicates if the application context path should be included at the beginning of
+                the generated URL.
+            </description>
+            <name>prependContext</name><required>false</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>
                 The fully qualified name of an ActionBean class, or alternatively a Class instance
                 for an ActionBean class.  An alternative to the 'href' attribute, the 'beanclass'
                 attribute will generate an href appropriate for the ActionBean identified. Note
@@ -1840,7 +1847,8 @@
             Similar to the link tag except that the behaviour closely approximates the JSTL
             c:url tag. Generates a URL containing the necessary source-page and event
             parameters. If a 'var' attribute is specified, the generated URL will be written
-            to that variable, otherwise it will be written into the page. Like c:url the constructed url is not encoded.
+            to that variable, otherwise it will be written into the page. Like c:url the
+            constructed url is not encoded.
         ]]></description>
         <display-name>url</display-name>
         <name>url</name>
@@ -1887,6 +1895,13 @@
             </description>
             <name>beanclass</name><required>false</required><rtexprvalue>true</rtexprvalue>
             <type>java.lang.Object</type>
+        </attribute>
+        <attribute>
+            <description>
+                Indicates if the application context path should be included at the beginning of
+                the generated URL.
+            </description>
+            <name>prependContext</name><required>false</required><rtexprvalue>true</rtexprvalue>
         </attribute>
     </tag>
 

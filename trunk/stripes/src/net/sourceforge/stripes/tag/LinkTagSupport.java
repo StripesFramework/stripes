@@ -38,6 +38,7 @@ public abstract class LinkTagSupport extends HtmlTagSupport implements Parameter
     private Object beanclass;
     private String url;
     private boolean addSourcePage = false;
+    private boolean prependContext = true;
 
     /**
      * Gets the URL that is supplied by the user/developer on the page. This is the basis
@@ -115,6 +116,12 @@ public abstract class LinkTagSupport extends HtmlTagSupport implements Parameter
      */
     public void setAddSourcePage(boolean addSourcePage) { this.addSourcePage = addSourcePage; }
 
+    /** Get the flag that indicates if the application context should be included in the URL. */
+    public boolean isPrependContext() { return prependContext; }
+
+    /** Set the flag that indicates if the application context should be included in the URL. */
+    public void setPrependContext(boolean prependContext) { this.prependContext = prependContext; }
+
     /**
      * Returns the base URL that should be used for building the link. This is derived from
      * the 'beanclass' attribute if it is set, else from the 'url' attribute.
@@ -170,9 +177,11 @@ public abstract class LinkTagSupport extends HtmlTagSupport implements Parameter
 
         // Prepend the context path, but only if the user didn't already
         String url = builder.toString();
-        String contextPath = request.getContextPath();
-        if (!"/".equals(contextPath) && !url.startsWith(contextPath + "/")) {
-            url = contextPath + url;
+        if (prependContext) {
+            String contextPath = request.getContextPath();
+            if (!"/".equals(contextPath) && !url.startsWith(contextPath + "/")) {
+                url = contextPath + url;
+            }
         }
 
         return response.encodeURL(url);
