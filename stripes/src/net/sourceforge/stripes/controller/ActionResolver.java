@@ -20,6 +20,7 @@ import net.sourceforge.stripes.exception.StripesServletException;
 import net.sourceforge.stripes.config.ConfigurableComponent;
 
 import java.lang.reflect.Method;
+import java.util.Collection;
 
 /**
  * <p>Resolvers are responsible for locating ActionBean instances that can handle the submitted
@@ -149,4 +150,11 @@ public interface ActionResolver extends ConfigurableComponent {
      *         not mapped to this method.
      */
     String getHandledEvent(Method handler) throws StripesServletException;
+
+    /**
+     * Get all the classes implementing {@link ActionBean} that are recognized by this
+     * {@link ActionResolver}. This method must return the full set of {@link ActionBean} classes
+     * after the call to init().
+     */
+    Collection<Class<? extends ActionBean>> getActionBeanClasses();
 }
