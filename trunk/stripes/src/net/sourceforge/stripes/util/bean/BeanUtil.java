@@ -80,7 +80,7 @@ public class BeanUtil {
     }
 
     /**
-     * Attempts to set the property to null or an equivelant value. In most cases this leads
+     * Attempts to set the property to null or an equivalent value. In most cases this leads
      * to the property being set to null, but in the case of primitives the default value is
      * used and in the case of Maps the key is removed from the Map.
      *

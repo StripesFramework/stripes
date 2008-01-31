@@ -58,7 +58,7 @@ import net.sourceforge.stripes.action.Resolution;
 public interface ValidationErrorHandler {
 
     /**
-     * Allows the ActionBean to influence what happens when validaiton errors occur during
+     * Allows the ActionBean to influence what happens when validation errors occur during
      * validation and binding.  See class level javadoc for full description of behaviour.
      *
      * @param errors the set of validation errors generated during validation and binding

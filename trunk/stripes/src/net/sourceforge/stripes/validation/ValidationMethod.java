@@ -48,7 +48,7 @@ import java.lang.annotation.Documented;
  * events except those listed.</p>
  *
  * <p>The {@code when} attribute controls whether or not the validation method is executed when
- * one or more validation errors exist. It has no affect when there are no valiation errors.
+ * one or more validation errors exist. It has no affect when there are no validation errors.
  * A value of {@link ValidationState#ALWAYS} will cause the method to be invoked even if errors
  * exist.  This is useful when you wish to perform additional validations that do not depend
  * on having a well-validated ActionBean since it allows the user to see more validation errors

@@ -17,7 +17,7 @@ package net.sourceforge.stripes.util.bean;
 /**
  * Exception used to designate that an expression was invalid and could not be parsed. The
  * exception will contain the offending expression (accessible via getExpression()) as well
- * as a String message explaining why it was not parsable.
+ * as a String message explaining why it was not parseable.
  *
  * @author Tim Fennell
  * @since Stripes 1.4

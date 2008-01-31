@@ -62,7 +62,7 @@ public class Node {
     /** Sets the next node in the expression. */
     protected void setNext(Node next) { this.next = next; }
 
-    /** Gets the prevoius node in the expression. Returns null if this is the first node. */
+    /** Gets the previous node in the expression. Returns null if this is the first node. */
     public Node getPrevious() { return previous; }
 
     /** Sets the previous node in the expression. */

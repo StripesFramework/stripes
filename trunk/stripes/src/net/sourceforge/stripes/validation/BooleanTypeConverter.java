@@ -19,8 +19,8 @@ import java.util.HashSet;
 import java.util.Locale;
 
 /**
- * Performs a fairly aggressive conversion of a String to a boolean. The String will be deemd to be
- * equivelant to true if it meets any of the following conditions:
+ * Performs a fairly aggressive conversion of a String to a boolean. The String will be deemed to be
+ * equivalent to true if it meets any of the following conditions:
  *
  * <ul>
  *   <li>Equals, ignoring case, true</li>
@@ -74,7 +74,7 @@ public class BooleanTypeConverter implements TypeConverter<Boolean> {
                 long number = Long.parseLong(input);
                 retval =  (number > 0);
             }
-            catch (NumberFormatException nfe) {/* Ingore the exception */ }
+            catch (NumberFormatException nfe) {/* Ignore the exception */ }
         }
 
         return retval;

@@ -75,7 +75,7 @@ public class SimpleError extends SimpleMessage implements ValidationError {
      * Helper method that is used to widen the replacement parameter array to make
      * room for the two standard parameters, the field name and field value.
      *
-     * @param parameter zero or more replacement parmeters
+     * @param parameter zero or more replacement parameters
      */
     static Object[] processReplacementParameters(Object... parameter) {
         if (parameter == null) {
@@ -182,7 +182,7 @@ public class SimpleError extends SimpleMessage implements ValidationError {
         return true;
     }
 
-    /** Hashcode based on the message, field name key, action path and parameters. */
+    /** Hash code based on the message, field name key, action path and parameters. */
     @Override
     public int hashCode() {
         int result = super.hashCode();
