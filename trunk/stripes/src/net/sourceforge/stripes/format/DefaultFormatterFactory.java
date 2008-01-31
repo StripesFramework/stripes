@@ -21,7 +21,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import net.sourceforge.stripes.config.Configuration;
-import net.sourceforge.stripes.tag.EncryptedValue;
 import net.sourceforge.stripes.util.Log;
 
 /**
@@ -52,7 +51,6 @@ public class DefaultFormatterFactory implements FormatterFactory {
         add(Date.class, DateFormatter.class);
         add(Number.class, NumberFormatter.class);
         add(Enum.class, EnumFormatter.class);
-        add(EncryptedValue.class, EncryptedValueFormatter.class);
     }
 
     /** Allows subclasses to access the stored configuration if needed. */

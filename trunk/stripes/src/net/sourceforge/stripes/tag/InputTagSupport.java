@@ -21,6 +21,7 @@ import net.sourceforge.stripes.exception.StripesRuntimeException;
 import net.sourceforge.stripes.format.Formatter;
 import net.sourceforge.stripes.format.FormatterFactory;
 import net.sourceforge.stripes.localization.LocalizationUtility;
+import net.sourceforge.stripes.util.CryptoUtil;
 import net.sourceforge.stripes.validation.ValidationError;
 import net.sourceforge.stripes.validation.ValidationErrors;
 import net.sourceforge.stripes.validation.BooleanTypeConverter;
@@ -304,30 +305,27 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
             return "";
         }
 
-        if (forOutput) {
+        // format the value
+        FormatterFactory factory = StripesFilter.getConfiguration().getFormatterFactory();
+        Formatter formatter = factory.getFormatter(input.getClass(),
+                                                   getPageContext().getRequest().getLocale(),
+                                                   this.formatType,
+                                                   this.formatPattern);
+        String formatted = (formatter == null) ? String.valueOf(input) : formatter.format(input);
+
+        // encrypt the formatted value if required
+        if (forOutput && formatted != null) {
             try {
-                // check validation for encryption flag
                 ValidationMetadata validate = getValidationMetadata();
-                if (validate != null && validate.encrypted()) {
-                    input = new EncryptedValue(input);
-                }
+                if (validate != null && validate.encrypted())
+                    formatted = CryptoUtil.encrypt(formatted);
             }
             catch (JspException e) {
                 throw new StripesRuntimeException(e);
             }
         }
 
-        FormatterFactory factory = StripesFilter.getConfiguration().getFormatterFactory();
-        Formatter formatter = factory.getFormatter(input.getClass(),
-                                                   getPageContext().getRequest().getLocale(),
-                                                   this.formatType,
-                                                   this.formatPattern);
-        if (formatter != null) {
-            return formatter.format(input);
-        }
-        else {
-            return String.valueOf(input);
-        }
+        return formatted;
     }
 
     /**

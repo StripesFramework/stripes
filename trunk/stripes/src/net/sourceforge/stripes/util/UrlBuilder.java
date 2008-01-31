@@ -33,7 +33,6 @@ import net.sourceforge.stripes.controller.UrlBindingParameter;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
 import net.sourceforge.stripes.format.Formatter;
 import net.sourceforge.stripes.format.FormatterFactory;
-import net.sourceforge.stripes.tag.EncryptedValue;
 import net.sourceforge.stripes.validation.ValidationMetadata;
 import net.sourceforge.stripes.validation.ValidationMetadataProvider;
 
@@ -407,12 +406,10 @@ public class UrlBuilder {
                 buffer.append(URLEncoder.encode(param.name, "UTF-8")).append('=');
                 if (param.value != null) {
                     ValidationMetadata validation = validations.get(param.name);
-                    String value;
+                    String formatted = format(param.value);
                     if (validation != null && validation.encrypted())
-                        value = format(new EncryptedValue(param.value));
-                    else
-                        value = format(param.value);
-                    buffer.append(URLEncoder.encode(value, "UTF-8"));
+                        formatted = CryptoUtil.encrypt(formatted);
+                    buffer.append(URLEncoder.encode(formatted, "UTF-8"));
                 }
             }
             return buffer.toString();
@@ -481,12 +478,10 @@ public class UrlBuilder {
 
                 if (value != null) {
                     // format (and maybe encrypt) the value as a string
+                    String formatted = format(value);
                     ValidationMetadata validation = validations.get(parameter.getName());
-                    String formatted;
                     if (validation != null && validation.encrypted())
-                        formatted = format(new EncryptedValue(value));
-                    else
-                        formatted = format(value);
+                        formatted = CryptoUtil.encrypt(formatted);
 
                     // if after formatting we still have a value then embed it in the URI
                     if (formatted != null && formatted.length() > 0) {
