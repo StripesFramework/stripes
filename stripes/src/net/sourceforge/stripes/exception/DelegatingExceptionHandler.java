@@ -19,8 +19,6 @@ import net.sourceforge.stripes.config.BootstrapPropertyResolver;
 import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.util.ResolverUtil;
-import net.sourceforge.stripes.util.StringUtil;
-import net.sourceforge.stripes.controller.AnnotatedClassActionResolver;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -29,6 +27,7 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -77,12 +76,6 @@ public class DelegatingExceptionHandler implements ExceptionHandler {
 
     /** Configuration key used to lookup the package filters used when scanning for handlers. */
     @Deprecated public static final String PACKAGE_FILTERS = "DelegatingExceptionHandler.PackageFilters";
-
-    /**
-     * Configuration key used to lookup the list of packages to scan for auto handlers.
-     * @since Stripes 1.5
-     */
-    public static final String PACKAGES = "DelegatingExceptionHandler.Packages";
 
     private Configuration configuration;
 
@@ -133,8 +126,10 @@ public class DelegatingExceptionHandler implements ExceptionHandler {
         // Fetch the AutoExceptionHandler implementations and add them to the cache
         Set<Class<? extends AutoExceptionHandler>> handlers = findClasses();
         for (Class<? extends AutoExceptionHandler> handler : handlers) {
-            log.debug("Processing class ", handler, " looking for exception handling methods.");
-            addHandler(handler);
+            if (!Modifier.isAbstract(handler.getModifiers())) {
+                log.debug("Processing class ", handler, " looking for exception handling methods.");
+                addHandler(handler);
+            }
         }
     }
 
@@ -245,31 +240,10 @@ public class DelegatingExceptionHandler implements ExceptionHandler {
                       "you should specify neither ", URL_FILTERS, " or ", PACKAGE_FILTERS,
                       ". Instead you should specify a comma separated list of package roots ",
                       "(e.g. com.myco.web) that should be scanned for implementations of ",
-                      "AutoExceptionHandler, using the configuration parameter '", PACKAGES,  "'.");
+                      "AutoExceptionHandler, using the configuration parameter '",
+                      BootstrapPropertyResolver.EXTENSION_LIST,  "'.");
         }
-
-        String packages = bootstrap.getProperty(PACKAGES);
-        if (packages == null) {
-            log.info("No configuration value was found for parameter '", PACKAGES,
-                     "' defaulting to using the value of '", AnnotatedClassActionResolver.PACKAGES,
-                     "' instead.");
-            packages = bootstrap.getProperty(AnnotatedClassActionResolver.PACKAGES);
-        }
-
-        if (packages == null) {
-            throw new StripesRuntimeException(
-                    "You must supply a value for the configuration parameter '" + PACKAGES + "', " +
-                    "or /at least/ a value for '" + AnnotatedClassActionResolver.PACKAGES +
-                    "' when using the DelegatingExceptionHandler. The  value should be a list of " +
-                    "one or more package roots (comma separated) that are to be scanned for " +
-                    "AutoExceptionHandler implementations. The packages specified and all " +
-                    "subpackages are examined for implementations of AutoExceptionHandler."
-            );
-        }
-
-        String[] pkgs = StringUtil.standardSplit(packages);
-        ResolverUtil<AutoExceptionHandler> resolver = new ResolverUtil<AutoExceptionHandler>();
-        resolver.findImplementations(AutoExceptionHandler.class, pkgs);
-        return resolver.getClasses();
+        return new HashSet<Class<? extends AutoExceptionHandler>>(
+                bootstrap.getClassPropertyList(AutoExceptionHandler.class));
     }
 }
