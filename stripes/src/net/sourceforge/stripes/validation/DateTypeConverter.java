@@ -52,17 +52,17 @@ import java.util.regex.Pattern;
  *     <li>SHORT  (e.g. 'M d yy' for Locale.US)</li>
  *     <li>MEDIUM (e.g. 'MMM d yyyy' for Locale.US)</li>
  *     <li>LONG   (e.g. 'MMMM d yyyy' for Locale.US)</li>
- *     <li>d MMM yy (note that for parsing MMM and MMMM are interchangable)</li>
- *     <li>yyyy M d (note that for parsing M and MM are interchangable)</li>
+ *     <li>d MMM yy (note that for parsing MMM and MMMM are interchangeable)</li>
+ *     <li>yyyy M d (note that for parsing M and MM are interchangeable)</li>
  *     <li>yyyy MMM d</li>
  *     <li>EEE MMM dd HH:mm:ss zzz yyyy (the format created by Date.toString())</li>
  *   </ul>
  * </p>
  *
  * <p>This default set of formats can be changed by providing a different set of format strings in
- * the Stripes resouce bundle, or by subclassing and overriding getFormatStrings().  In all cases
+ * the Stripes resource bundle, or by subclassing and overriding getFormatStrings().  In all cases
  * patterns should be specified using single spaces as separators instead of slashes, dashes
- * or other characaters.</p>
+ * or other characters.</p>
  *
  * <p>The regular expression pattern used in the pre-process method can also be changed in the
  * Stripes resource bundle, or by subclassing and overriding the getPreProcessPattern() method.</p>
@@ -108,7 +108,7 @@ public class DateTypeConverter implements TypeConverter<Date> {
      * white-space characters into a single space.</p>
      *
      * <p>This pattern can be changed by providing a different value under the
-     * <code>'stripes.dateTypeConverter.preProcessPattern'</code> key in the resouce
+     * <code>'stripes.dateTypeConverter.preProcessPattern'</code> key in the resource
      * bundle. The default value is <code>(?&lt;!GMT)[\\s,-/\\.]+</code>.</p>
      */
     public static final Pattern PRE_PROCESS_PATTERN = Pattern.compile("(?<!GMT)[\\s,-/\\.]+");
@@ -183,7 +183,7 @@ public class DateTypeConverter implements TypeConverter<Date> {
                         Class<? extends Date> targetType,
                         Collection<ValidationError> errors) {
 
-        // Step 1: pre process the input to make it more palatable
+        // Step 1: pre-process the input to make it more palatable
         String parseable = preProcessInput(input);
 
         // Step 2: try really hard to parse the input
@@ -240,8 +240,8 @@ public class DateTypeConverter implements TypeConverter<Date> {
      * if there are only two parts it adds the current year to the end by geting the
      * Locale specific year string from a Calendar instance.
      *
-     * @param input the date string after the preprocess pattern has been run against it
-     * @return either the date string as is, or with the year appened to the end
+     * @param input the date string after the pre-process pattern has been run against it
+     * @return either the date string as is, or with the year appended to the end
      */
     protected String checkAndAppendYear(String input) {
         // Count the spaces, date components = spaces + 1

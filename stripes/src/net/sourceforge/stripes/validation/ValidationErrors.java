@@ -67,7 +67,7 @@ public class ValidationErrors extends HashMap<String, List<ValidationError>> {
 
 
     /**
-     * Add multiple errors for a particular field. Does not destroy or override any exisitng errors.
+     * Add multiple errors for a particular field. Does not destroy or override any existing errors.
      * Purely a convenience method to avoid having to check and possibly instantiate the collection
      * of errors for a field if it does not already exist.
      *
@@ -82,7 +82,7 @@ public class ValidationErrors extends HashMap<String, List<ValidationError>> {
 
     /**
      * Synonym for putAll().  Add multiple errors for a particular field. Does not destroy or
-     * override any exisitng errors.
+     * override any existing errors.
      * Purely a convenience method to avoid having to check and possibly instantiate the collection
      * of errors for a field if it does not already exist.
      *

@@ -142,7 +142,7 @@ public class CollectionUtil {
     /**
      * Converts an Iterable into a List that can be navigated in ways other than simple
      * iteration. If the underlying implementation of the Iterable is a List, it is cast
-     * to List and returned. Othewise it is iterated and the items placed, in order,
+     * to List and returned. Otherwise it is iterated and the items placed, in order,
      * into a new List.
      *
      * @param in an Iterable to serve as the source for a List

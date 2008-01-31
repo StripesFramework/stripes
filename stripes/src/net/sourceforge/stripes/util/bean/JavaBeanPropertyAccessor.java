@@ -22,7 +22,7 @@ import java.lang.reflect.Method;
 
 /**
  * Implementation of {@link PropertyAccessor} for reading JavaBean properties from
- * JavaBeans.  Will attempt property acccess first using the standard PropertyDescriptor,
+ * JavaBeans.  Will attempt property access first using the standard PropertyDescriptor,
  * but if no PropertyDescriptor is present then falls back to attempting Field access for
  * public fields.
  *

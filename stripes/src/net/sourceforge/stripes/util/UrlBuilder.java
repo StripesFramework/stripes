@@ -271,7 +271,7 @@ public class UrlBuilder {
     /**
      * Sets the anchor, if any, that will be appended to the URL. E.g. if supplied with
      * 'input' then the URL will be terminated with '#input' in order to instruct
-     * the browser to navigate to the HTML anchor callled 'input' when accessing the URL.
+     * the browser to navigate to the HTML anchor called 'input' when accessing the URL.
      *
      * @param anchor the anchor with or without the leading pound sign, or null to disable
      */

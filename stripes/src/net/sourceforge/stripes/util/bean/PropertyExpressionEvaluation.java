@@ -257,7 +257,7 @@ public class PropertyExpressionEvaluation {
                 return m.getDeclaringClass().getMethod(m.getName());
             }
         }
-        catch (Exception e) { /* Supress. */ }
+        catch (Exception e) { /* Suppress. */ }
 
         return m;
     }
@@ -271,7 +271,7 @@ public class PropertyExpressionEvaluation {
      * <p>After this method executes either 1) all necessary type information will be set on the
      * node and the appropriate type object returned or 2) an exception will be thrown.</p>
      *
-     * @param end the node to instantate up to and determine the type of
+     * @param end the node to instantiate up to and determine the type of
      * @return the Type of the node if possible
      * @throws NoSuchPropertyException if the previous node is a JavaBean (i.e. non-collection)
      *         node and does not contain a property with the corresponding name
@@ -479,7 +479,7 @@ public class PropertyExpressionEvaluation {
     * from subclass to superclass, but the mapping of TypeVariables to Types has to start
     * from the place were the type variable was originally defined (superclass) and map
     * to the place where the type is bound to an actual class (subclass).  We therefore
-    * need to build up the mapings sub to super and then traverse super to sub.
+    * need to build up the mappings sub to super and then traverse super to sub.
     *
     * @param paramType parameterized type to add to the map.
     */
@@ -572,7 +572,7 @@ public class PropertyExpressionEvaluation {
     }
 
     /**
-     * <p>Fetches the value of this expression evaluated against the bean. This is equivelant
+     * <p>Fetches the value of this expression evaluated against the bean. This is equivalent
      * to calling the appropriate get() methods in sequence in order to fetch the property
      * indicated by the expression.</p>
      *
@@ -592,7 +592,7 @@ public class PropertyExpressionEvaluation {
     }
 
     /**
-     * <p>Sets the value of the expression evaluated against the bean. This is loosely equivelant
+     * <p>Sets the value of the expression evaluated against the bean. This is loosely equivalent
      * to calling the appropriate getter() on intermediate properties and then calling the
      * appropriate setter on the final sub-property.</p>
      *
@@ -659,7 +659,7 @@ public class PropertyExpressionEvaluation {
      * <p>Sets the value of this expression to "null" for the bean.  In reality this is not always
      * null, but the logical interpretation of "null" for a given type. For primitives the
      * value is set to be the default value for the primitive type as used by the JVM when
-     * initializing instance varibales.  For Map entries the key is removed from the Map instead
+     * initializing instance variables.  For Map entries the key is removed from the Map instead
      * of leaving the key present with a null value.</p>
      *
      * <p>If any intermediate properties in the expression are null this method will return

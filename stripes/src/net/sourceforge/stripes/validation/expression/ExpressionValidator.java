@@ -80,7 +80,7 @@ public class ExpressionValidator {
      * Gets the executor that will be used to run expression evaluation. If none is yet set
      * the {@link #initialize()} method will be run to set one up.
      *
-     * @return an instance of ExpressionExecutor that can be used to execut validation expressions
+     * @return an instance of ExpressionExecutor that can be used to execute validation expressions
      */
     public static ExpressionExecutor getExecutor() {
         if (executor == null) initialize();

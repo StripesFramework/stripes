@@ -230,7 +230,7 @@ public class ReflectUtil {
 
     /**
      * Fetches all methods of all access types from the supplied class and super
-     * classes. Methods that have been overridden in the inheritance hierachy are
+     * classes. Methods that have been overridden in the inheritance hierarchy are
      * only returned once, using the instance lowest down the hierarchy.
      *
      * @param clazz the class to inspect
@@ -261,7 +261,7 @@ public class ReflectUtil {
 
     /**
      * Fetches all fields of all access types from the supplied class and super
-     * classes. Fieldss that have been overridden in the inheritance hierachy are
+     * classes. Fieldss that have been overridden in the inheritance hierarchy are
      * only returned once, using the instance lowest down the hierarchy.
      *
      * @param clazz the class to inspect
@@ -327,7 +327,7 @@ public class ReflectUtil {
      * <p>Checks the method passed in and if it already meets these criteria it is returned
      * immediately. In general this leads to very little performance overhead</p>
      *
-     * <p>If the method does not meet the critieria then the class' interfaces are scanned
+     * <p>If the method does not meet the criteria then the class' interfaces are scanned
      * for a matching method. If one is not found, then the class' superclass hierarchy
      * is searched. Finally, if no matching method can be found the original method is
      * returned.</p>

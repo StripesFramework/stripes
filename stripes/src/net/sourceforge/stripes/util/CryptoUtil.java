@@ -53,7 +53,7 @@ import java.security.SecureRandom;
  * <p>Two additional measures are taken to improve security. Firstly a nonce value is prepended
  * to the input during encryption.  This is a value generated each time using a SecureRandom.
  * Doing this ensures that the same value is not encrypted the same way each time and leads to
- * increased unpredictabibilty of the encrypted values.  Secondly a "magic number" is also
+ * increased unpredictability of the encrypted values.  Secondly a "magic number" is also
  * prepended to the input (after the nonce).  The magic number is verified at decryption time
  * to ensure that the value passed in was encrypted using the same key as was used for decryption.</p>
  *
