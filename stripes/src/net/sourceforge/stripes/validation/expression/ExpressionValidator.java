@@ -32,7 +32,7 @@ import java.util.List;
  * <ul>
  *   <li>{@link Jsp21ExpressionExecutor}</li>
  *   <li>{@link CommonsElExpressionExecutor}</li>
- *   <li>{@link Jsp20ExpressionExecutor</li>
+ *   <li>{@link Jsp20ExpressionExecutor}</li>
  * </ul>
  *
  * @author Tim Fennell
