@@ -78,7 +78,7 @@ public class DefaultValidationMetadataProvider implements ValidationMetadataProv
      * {@link ValidateNestedProperties} annotation, then the nested properties named in its
      * {@link Validate} annotations will be included as well.
      * 
-     * @param clazz a class
+     * @param beanType a class
      * @return A map of (possibly nested) property names to {@link ValidationMetadata} for the
      *         property.
      * @throws StripesRuntimeException if conflicts are found in the validation annotations

@@ -208,7 +208,7 @@ public class RuntimeConfiguration extends DefaultConfiguration {
     /**
      * Splits a comma-separated list of class names and maps each {@link LifecycleStage} to the
      * interceptors in the list that intercept it. Also automatically finds Interceptors in
-     * packages listed in {@link #EXTENSION_LIST} if searchExtensionPackages is true.
+     * packages listed in {@link BootstrapPropertyResolver#EXTENSION_LIST} if searchExtensionPackages is true.
      * 
      * @return a Map of {@link LifecycleStage} to Collection of {@link Interceptor}
      */
@@ -264,7 +264,7 @@ public class RuntimeConfiguration extends DefaultConfiguration {
 
     /**
      * Calls super.init() then adds Formatters and TypeConverters found in
-     * packages listed in {@link #EXTENSION_LIST} to their respective factories.
+     * packages listed in {@link BootstrapPropertyResolver#EXTENSION_LIST} to their respective factories.
      */
     @SuppressWarnings("unchecked")
     @Override
