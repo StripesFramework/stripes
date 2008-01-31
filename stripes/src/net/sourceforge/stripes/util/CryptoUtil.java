@@ -114,7 +114,12 @@ public class CryptoUtil {
      * @return the encrypted, base64 encoded String
      */
     public static String encrypt(String input) {
-        if (input == null) return null;
+        if (input == null)
+            return null;
+
+        // encryption is disabled in debug mode
+        if (StripesFilter.getConfiguration().isDebugMode())
+            return input;
 
         try {
             // First size the output
@@ -164,7 +169,12 @@ public class CryptoUtil {
      *         can be caused by session expiration as it loses the original key.
      */
     public static String decrypt(String input) {
-        if (input == null) return null;
+        if (input == null)
+            return null;
+
+        // encryption is disabled in debug mode
+        if (StripesFilter.getConfiguration().isDebugMode())
+            return input;
 
         // First un-base64 the String
         byte[] bytes = Base64.decode(input, BASE64_OPTIONS);
