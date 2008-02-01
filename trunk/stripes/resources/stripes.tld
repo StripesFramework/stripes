@@ -2194,4 +2194,14 @@
         <function-class>net.sourceforge.stripes.tag.ElFunctions</function-class>
         <function-signature>java.lang.String name(java.lang.Enum)</function-signature>
     </function>
+
+    <function>
+        <description>
+	        Indicates if validation errors exist for the given field of the given ActionBean.
+	        This allows for use of JSTL logic tags such as c:if and c:choose.
+        </description>
+        <name>hasErrors</name>
+        <function-class>net.sourceforge.stripes.tag.ElFunctions</function-class>
+        <function-signature>boolean hasErrors(net.sourceforge.stripes.action.ActionBean, java.lang.String)</function-signature>
+    </function>
 </taglib>

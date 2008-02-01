@@ -14,6 +14,13 @@
  */
 package net.sourceforge.stripes.tag;
 
+import java.util.List;
+
+import net.sourceforge.stripes.action.ActionBean;
+import net.sourceforge.stripes.action.ActionBeanContext;
+import net.sourceforge.stripes.validation.ValidationError;
+import net.sourceforge.stripes.validation.ValidationErrors;
+
 /**
  * A collection of static functions that are included in the Stripes tag library.  In most
  * cases these are not functions that are specific to Stripes, but simply functions that
@@ -28,4 +35,22 @@ public class ElFunctions {
     public static String name(Enum<?> e) {
         return e.name();
     }
+
+    /** Indicates if validation errors exist for the given field of the given {@link ActionBean}. */
+    public static boolean hasErrors(ActionBean actionBean, String field) {
+        if (actionBean == null || field == null)
+            return false;
+
+        ActionBeanContext context = actionBean.getContext();
+        if (context == null)
+            return false;
+
+        ValidationErrors errors = context.getValidationErrors();
+        if (errors == null || errors.isEmpty())
+            return false;
+
+        List<ValidationError> fieldErrors = errors.get(field);
+        return fieldErrors != null && fieldErrors.size() > 0;
+    }
+
 }
