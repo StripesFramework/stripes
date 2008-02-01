@@ -118,7 +118,8 @@ public class CryptoUtil {
             return null;
 
         // encryption is disabled in debug mode
-        if (StripesFilter.getConfiguration().isDebugMode())
+        Configuration configuration = StripesFilter.getConfiguration();
+        if (configuration != null && configuration.isDebugMode())
             return input;
 
         try {
@@ -173,7 +174,8 @@ public class CryptoUtil {
             return null;
 
         // encryption is disabled in debug mode
-        if (StripesFilter.getConfiguration().isDebugMode())
+        Configuration configuration = StripesFilter.getConfiguration();
+        if (configuration != null && configuration.isDebugMode())
             return input;
 
         // First un-base64 the String
