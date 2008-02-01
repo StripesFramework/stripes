@@ -433,7 +433,7 @@ class MergedParameterMap implements Map<String, String[]> {
         }
         Map<String, String[]> map = getUriParameters(request);
         this.uriParamStack.push(this.uriParams);
-        this.uriParams = mergeParameters(this.uriParams, map);
+        this.uriParams = mergeParameters(new LinkedHashMap<String, String[]>(this.uriParams), map);
     }
 
     /**
