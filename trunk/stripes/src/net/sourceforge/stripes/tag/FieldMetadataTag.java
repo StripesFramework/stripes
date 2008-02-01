@@ -182,7 +182,7 @@ public class FieldMetadataTag extends HtmlTagSupport implements BodyTag {
                             .getClass();
                 }
                 catch (Exception e) {
-                    e.printStackTrace();
+                    // Just ignore it
                 }
             }
 
