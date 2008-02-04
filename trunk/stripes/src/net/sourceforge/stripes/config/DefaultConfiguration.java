@@ -17,8 +17,10 @@ package net.sourceforge.stripes.config;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.ServletContext;
 
@@ -193,6 +195,25 @@ public class DefaultConfiguration implements Configuration {
             map = initInterceptors();
             if (map != null) {
                 mergeInterceptorMaps(this.interceptors, map);
+            }
+
+            // do a quick check to see if any interceptor classes are configured more than once
+            for (Map.Entry<LifecycleStage, Collection<Interceptor>> entry : this.interceptors.entrySet()) {
+                Set<Class<? extends Interceptor>> classes = new HashSet<Class<? extends Interceptor>>();
+                Collection<Interceptor> interceptors = entry.getValue();
+                if (interceptors == null)
+                    continue;
+
+                for (Interceptor interceptor : interceptors) {
+                    Class<? extends Interceptor> clazz = interceptor.getClass();
+                    if (classes.contains(clazz)) {
+                        log.warn("Interceptor ", clazz,
+                                " is configured to run more than once for ", entry.getKey());
+                    }
+                    else {
+                        classes.add(clazz);
+                    }
+                }
             }
         }
         catch (Exception e) {
