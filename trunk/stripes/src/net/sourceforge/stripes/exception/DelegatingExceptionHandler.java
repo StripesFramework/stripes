@@ -17,8 +17,10 @@ package net.sourceforge.stripes.exception;
 import net.sourceforge.stripes.action.Resolution;
 import net.sourceforge.stripes.config.BootstrapPropertyResolver;
 import net.sourceforge.stripes.config.Configuration;
+import net.sourceforge.stripes.controller.AnnotatedClassActionResolver;
 import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.util.ResolverUtil;
+import net.sourceforge.stripes.util.StringUtil;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -26,8 +28,10 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -76,6 +80,12 @@ public class DelegatingExceptionHandler implements ExceptionHandler {
 
     /** Configuration key used to lookup the package filters used when scanning for handlers. */
     @Deprecated public static final String PACKAGE_FILTERS = "DelegatingExceptionHandler.PackageFilters";
+
+    /**
+     * Configuration key used to lookup the list of packages to scan for auto handlers.
+     * @since Stripes 1.5
+     */
+    public static final String PACKAGES = "DelegatingExceptionHandler.Packages";
 
     private Configuration configuration;
 
@@ -237,13 +247,40 @@ public class DelegatingExceptionHandler implements ExceptionHandler {
             log.error("The configuration properties '", URL_FILTERS, "' and '", PACKAGE_FILTERS,
                       "' are deprecated, and NO LONGER SUPPORTED. Please read the upgrade ",
                       "documentation for Stripes 1.5 for how to resolve this situation. In short ",
-                      "you should specify neither ", URL_FILTERS, " or ", PACKAGE_FILTERS,
+                      "you should specify neither ", URL_FILTERS, " nor ", PACKAGE_FILTERS,
                       ". Instead you should specify a comma separated list of package roots ",
                       "(e.g. com.myco.web) that should be scanned for implementations of ",
-                      "AutoExceptionHandler, using the configuration parameter '",
-                      BootstrapPropertyResolver.EXTENSION_LIST,  "'.");
+                      "AutoExceptionHandler, using the configuration parameter '", PACKAGES,
+                      "', or include the packages along with other extension packages using the ",
+                      "configuration parameter '", BootstrapPropertyResolver.PACKAGES, "'.");
         }
-        return new HashSet<Class<? extends AutoExceptionHandler>>(
-                bootstrap.getClassPropertyList(AutoExceptionHandler.class));
+
+        // Try the config param that is specific to this class
+        String[] packages = StringUtil.standardSplit(bootstrap.getProperty(PACKAGES));
+        if (packages == null || packages.length == 0) {
+            // Config param not found so try autodiscovery
+            log.info("No config parameter '", PACKAGES, "' found. Trying autodiscovery instead.");
+            List<Class<? extends AutoExceptionHandler>> classes = bootstrap
+                    .getClassPropertyList(AutoExceptionHandler.class);
+            if (!classes.isEmpty()) {
+                return new HashSet<Class<? extends AutoExceptionHandler>>(classes);
+            }
+            else {
+                // Autodiscovery found nothing so resort to looking at the ActionBean packages
+                log.info("Autodiscovery found no implementations of AutoExceptionHandler. Using ",
+                        "the value of '", AnnotatedClassActionResolver.PACKAGES, "' instead.");
+                packages = StringUtil.standardSplit(bootstrap
+                        .getProperty(AnnotatedClassActionResolver.PACKAGES));
+            }
+        }
+
+        if (packages != null && packages.length > 0) {
+            ResolverUtil<AutoExceptionHandler> resolver = new ResolverUtil<AutoExceptionHandler>();
+            resolver.findImplementations(AutoExceptionHandler.class, packages);
+            return resolver.getClasses();
+        }
+        else {
+            return Collections.emptySet();
+        }
     }
 }
