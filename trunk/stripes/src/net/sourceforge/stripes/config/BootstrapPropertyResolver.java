@@ -15,6 +15,8 @@
 package net.sourceforge.stripes.config;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import javax.servlet.FilterConfig;
@@ -118,6 +120,7 @@ public class BootstrapPropertyResolver {
             String[] packages = StringUtil.standardSplit(getProperty(PACKAGES));
             resolver.findImplementations(targetType, packages);
             Set<Class<? extends T>> classes = resolver.getClasses();
+            removeDontAutoloadClasses((Collection<Class>) classes);
             if (classes.size() == 1) {
                 clazz = classes.iterator().next();
                 className = clazz.getName();
@@ -172,16 +175,15 @@ public class BootstrapPropertyResolver {
      * @param targetType the type that we're looking for
      * @return a List of classes found
      */
+    @SuppressWarnings("unchecked")
     public <T> List<Class<? extends T>> getClassPropertyList(Class<T> targetType)
     {
-        List<Class<? extends T>> classes = new ArrayList<Class<? extends T>>();
-
         ResolverUtil<T> resolver = new ResolverUtil<T>();
         String[] packages = StringUtil.standardSplit(getProperty(PACKAGES));
         resolver.findImplementations(targetType, packages);
-        classes.addAll(resolver.getClasses());
-
-        return classes;
+        Set<Class<? extends T>> classes = resolver.getClasses();
+        removeDontAutoloadClasses((Collection<Class>) classes);
+        return new ArrayList<Class<? extends T>>(classes);
     }
 
     /**
@@ -205,5 +207,18 @@ public class BootstrapPropertyResolver {
         classes.addAll(getClassPropertyList(targetType));
 
         return classes;
+    }
+
+    /** Removes any classes from the collection that are marked with {@link DontAutoLoad}. */
+    @SuppressWarnings("unchecked")
+    protected void removeDontAutoloadClasses(Collection<Class> classes) {
+        Iterator<Class> iterator = classes.iterator();
+        while (iterator.hasNext()) {
+            Class clazz = iterator.next();
+            if (clazz.isAnnotationPresent(DontAutoLoad.class)) {
+                log.debug("Ignoring ", clazz, " because @DontAutoLoad is present.");
+                iterator.remove();
+            }
+        }
     }
 }
