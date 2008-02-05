@@ -37,6 +37,8 @@ Contents
      -> ActionBeanContext classes
      -> Interceptor classes
      -> ConfigurableComponent classes (e.g. ActionResolvers, LocalePickers)
+     -> Formatter classes
+     -> TypeConverter classes
      
    To reduce your configuration it is recommended that you move any and all such
    custom classes into a single package hierarchy and specify the root package. Once
