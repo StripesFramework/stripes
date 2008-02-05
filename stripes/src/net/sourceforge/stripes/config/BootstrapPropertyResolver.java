@@ -120,7 +120,7 @@ public class BootstrapPropertyResolver {
             String[] packages = StringUtil.standardSplit(getProperty(PACKAGES));
             resolver.findImplementations(targetType, packages);
             Set<Class<? extends T>> classes = resolver.getClasses();
-            removeDontAutoloadClasses((Collection<Class>) classes);
+            removeDontAutoloadClasses(classes);
             if (classes.size() == 1) {
                 clazz = classes.iterator().next();
                 className = clazz.getName();
@@ -175,14 +175,13 @@ public class BootstrapPropertyResolver {
      * @param targetType the type that we're looking for
      * @return a List of classes found
      */
-    @SuppressWarnings("unchecked")
     public <T> List<Class<? extends T>> getClassPropertyList(Class<T> targetType)
     {
         ResolverUtil<T> resolver = new ResolverUtil<T>();
         String[] packages = StringUtil.standardSplit(getProperty(PACKAGES));
         resolver.findImplementations(targetType, packages);
         Set<Class<? extends T>> classes = resolver.getClasses();
-        removeDontAutoloadClasses((Collection<Class>) classes);
+        removeDontAutoloadClasses(classes);
         return new ArrayList<Class<? extends T>>(classes);
     }
 
@@ -210,11 +209,10 @@ public class BootstrapPropertyResolver {
     }
 
     /** Removes any classes from the collection that are marked with {@link DontAutoLoad}. */
-    @SuppressWarnings("unchecked")
-    protected void removeDontAutoloadClasses(Collection<Class> classes) {
-        Iterator<Class> iterator = classes.iterator();
+    protected <T> void removeDontAutoloadClasses(Collection<Class<? extends T>> classes) {
+        Iterator<Class<? extends T>> iterator = classes.iterator();
         while (iterator.hasNext()) {
-            Class clazz = iterator.next();
+            Class<? extends T> clazz = iterator.next();
             if (clazz.isAnnotationPresent(DontAutoLoad.class)) {
                 log.debug("Ignoring ", clazz, " because @DontAutoLoad is present.");
                 iterator.remove();
