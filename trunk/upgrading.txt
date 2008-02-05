@@ -63,7 +63,7 @@ Contents
    -> Attribute name change in @Before and @After annotations. Previously the 
       lifecycle changes were specified using the 'value' attribute which 
       allowed the abbreviated form of '@Before(LifecycleStage.BindingAndValidation)'.
-      Due to the addition of the 'on' attribute to support selective exection this
+      Due to the addition of the 'on' attribute to support selective execution this
       is no longer desirable and the 'value' attribute has been renamed to 'stages'.
       In most cases replacing '@Before(' with '@Before(stages=' (and the same for
       @After) will be enough to  ix this problem.
@@ -78,7 +78,7 @@ Contents
 	-> SpringAwareActionResolver has been removed. Please instead use the
 	   SpringInterceptor introduced in Stripes 1.3.
 	
-    -> Stripes now performs stricting checking of various annotations. If you have
+    -> Stripes now performs stricter checking of various annotations. If you have
        multiple methods annotated with @DefaultHandler or if you have @Validate  
        annotations in multiple locations (e.g. getter and setter) for a single
        property Stripes will throw an exception instead of producing non-deterministic
