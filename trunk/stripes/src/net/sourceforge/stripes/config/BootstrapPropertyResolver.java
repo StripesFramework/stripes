@@ -47,7 +47,7 @@ public class BootstrapPropertyResolver {
     private FilterConfig filterConfig;
 
     /** The Configuration Key for looking up the comma separated list of extension packages. */
-    public static final String EXTENSION_LIST = "Extension.Packages";
+    public static final String PACKAGES = "Extension.Packages";
 
     /** Constructs a new BootstrapPropertyResolver with the given ServletConfig. */
     public BootstrapPropertyResolver(FilterConfig filterConfig) {
@@ -115,7 +115,7 @@ public class BootstrapPropertyResolver {
         else {
             // we didn't find it in web.xml so now we check any extension packages
             ResolverUtil<T> resolver = new ResolverUtil<T>();
-            String[] packages = StringUtil.standardSplit(getProperty(EXTENSION_LIST));
+            String[] packages = StringUtil.standardSplit(getProperty(PACKAGES));
             resolver.findImplementations(targetType, packages);
             Set<Class<? extends T>> classes = resolver.getClasses();
             if (classes.size() == 1) {
@@ -154,10 +154,10 @@ public class BootstrapPropertyResolver {
                     classes.add(ReflectUtil.findClass(className));
                 }
                 catch (ClassNotFoundException e) {
-                    throw new StripesRuntimeException("Could not find configured Interceptor ["
-                            + className + "]. The " + "property '" + paramName + "' contained ["
-                            + classList + "]. This value must contain fully qualified class names "
-                            + "separated by commas.");
+                    throw new StripesRuntimeException("Could not find class [" + className
+                            + "] specified by the configuration parameter [" + paramName
+                            + "]. This value must contain fully qualified class names separated "
+                            + " by commas.");
                 }
             }
         }
@@ -177,7 +177,7 @@ public class BootstrapPropertyResolver {
         List<Class<? extends T>> classes = new ArrayList<Class<? extends T>>();
 
         ResolverUtil<T> resolver = new ResolverUtil<T>();
-        String[] packages = StringUtil.standardSplit(getProperty(EXTENSION_LIST));
+        String[] packages = StringUtil.standardSplit(getProperty(PACKAGES));
         resolver.findImplementations(targetType, packages);
         classes.addAll(resolver.getClasses());
 
