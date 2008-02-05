@@ -121,7 +121,7 @@ public class BootstrapPropertyResolver {
             if (classes.size() == 1) {
                 clazz = classes.iterator().next();
                 className = clazz.getName();
-                log.info("Class implementing/extending  ", targetType.getSimpleName(),
+                log.info("Class implementing/extending ", targetType.getSimpleName(),
                         " found via auto-discovery: ", className);
             }
             else if (classes.size() > 1) {
