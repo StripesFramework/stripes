@@ -29,7 +29,7 @@ Contents
        <init-param>
            <param-name>Extension.Packages</param-name>
            <param-value>com.myco.myapp.web.stripesext</param-value>
-       <init-param>
+       </init-param>
        
    If one or more packages are specified Stripes will search these packages for classes
    that implement various interfaces and wire them up without requiring you to configure
