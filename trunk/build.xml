@@ -116,6 +116,7 @@
             </zipfileset>
             <zipfileset dir="." includes="license.txt" prefix="${zip.prefix}"/>
             <zipfileset dir="." includes="readme.txt" prefix="${zip.prefix}"/>
+            <zipfileset dir="." includes="upgrading.txt" prefix="${zip.prefix}"/>
         </zip>
 
         <!-- Make the source distribution -->
