@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module version="4" relativePaths="true" type="JAVA_MODULE">
-  <component name="ModuleRootManager" />
+<module relativePaths="true" type="JAVA_MODULE" version="4">
   <component name="NewModuleRootManager" inherit-compiler-output="false">
     <output url="file://$MODULE_DIR$/classes" />
     <exclude-output />
@@ -33,20 +32,20 @@
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/test/log4j-1.2.9.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/build/jsp-api.jar!/" />
         </CLASSES>
-        <JAVADOC />
+        <JAVADOC>
+          <root url="http://java.sun.com/j2ee/1.4/docs/api/" />
+        </JAVADOC>
         <SOURCES />
       </library>
     </orderEntry>
     <orderEntry type="module-library" exported="">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/build/jsp-api.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib/build/el-api.jar!/" />
         </CLASSES>
-        <JAVADOC>
-          <root url="http://java.sun.com/j2ee/1.4/docs/api/" />
-        </JAVADOC>
+        <JAVADOC />
         <SOURCES />
       </library>
     </orderEntry>
@@ -81,6 +80,15 @@
       <library>
         <CLASSES>
           <root url="jar://$MODULE_DIR$/lib/test/commons-fileupload-1.2.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" exported="">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/test/log4j-1.2.15.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
