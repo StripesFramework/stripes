@@ -19,6 +19,7 @@ import net.sourceforge.stripes.controller.StripesConstants;
 import net.sourceforge.stripes.controller.StripesFilter;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
 import java.io.IOException;
@@ -149,8 +150,11 @@ public class MessagesTag extends HtmlTagSupport {
         List<Message> messages = (List<Message>) request.getAttribute( getKey() );
 
         if (messages == null) {
-            messages = (List<Message>) request.getSession().getAttribute( getKey() );
-            request.getSession().removeAttribute( getKey() );
+            HttpSession session = request.getSession(false);
+            if (session != null) {
+                messages = (List<Message>) session.getAttribute(getKey());
+                session.removeAttribute(getKey());
+            }
         }
 
         return messages;
