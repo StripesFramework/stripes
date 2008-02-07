@@ -177,7 +177,8 @@ public class FormTag extends HtmlTagSupport implements BodyTag, TryCatchFinally,
                     + "action bean should handle the form submission.");
         }
         getTagStack().push(this);
-        urlBuilder = new UrlBuilder(pageContext.getRequest().getLocale(), getAction(), false);
+        urlBuilder = new UrlBuilder(pageContext.getRequest().getLocale(), getAction(), false)
+                .setEvent(null);
         return EVAL_BODY_BUFFERED;
     }
 
