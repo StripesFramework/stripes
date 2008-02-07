@@ -172,8 +172,9 @@ public class UrlBuilder {
      * 
      * @param event the event name
      */
-    public void setEvent(String event) {
+    public UrlBuilder setEvent(String event) {
         this.event = new Parameter(UrlBindingParameter.PARAMETER_NAME_EVENT, event);
+        return this;
     }
 
     /**
@@ -275,13 +276,14 @@ public class UrlBuilder {
      *
      * @param anchor the anchor with or without the leading pound sign, or null to disable
      */
-    public void setAnchor(String anchor) {
+    public UrlBuilder setAnchor(String anchor) {
         if (anchor != null && anchor.startsWith("#") && anchor.length() > 1) {
             this.anchor = anchor.substring(1);
         }
         else {
             this.anchor = anchor;
         }
+        return this;
     }
 
     /**
