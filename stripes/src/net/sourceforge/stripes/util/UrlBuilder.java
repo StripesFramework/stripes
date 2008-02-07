@@ -25,6 +25,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import net.sourceforge.stripes.action.ActionBean;
+import net.sourceforge.stripes.action.DefaultHandler;
 import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.controller.StripesFilter;
 import net.sourceforge.stripes.controller.UrlBinding;
@@ -61,6 +62,10 @@ public class UrlBuilder {
         Parameter(String name, Object value) {
             this.name = name;
             this.value = value;
+        }
+
+        public boolean isEvent() {
+            return UrlBindingParameter.PARAMETER_NAME_EVENT.equals(name);
         }
 
         @Override
@@ -168,7 +173,10 @@ public class UrlBuilder {
     }
 
     /**
-     * Set the name of the event to be executed by this URL.
+     * Set the name of the event to be executed by this URL. A default event name can be defined for
+     * an {@link ActionBean} using either {@link DefaultHandler} or by assigning a default value to
+     * the $event parameter in a clean URL. If {@code event} is null then the default event name
+     * will be ignored and no event parameter will be added to the URL.
      * 
      * @param event the event name
      */
@@ -473,7 +481,7 @@ public class UrlBuilder {
                 UrlBindingParameter parameter = (UrlBindingParameter) component;
                 Parameter assigned = map.get(parameter.getName());
                 Object value;
-                if (assigned != null && assigned.value != null)
+                if (assigned != null && (assigned.value != null || assigned.isEvent()))
                     value = assigned.value;
                 else
                     value = parameter.getDefaultValue();
@@ -495,6 +503,10 @@ public class UrlBuilder {
                         parameters.remove(assigned);
                         ok = true;
                     }
+                }
+                else if (assigned.isEvent()) {
+                    // remove event parameter even if value is null
+                    parameters.remove(assigned);
                 }
 
                 nextLiteral = null;
