@@ -402,8 +402,12 @@ public class UrlBuilder {
             boolean seenQuestionMark = buffer.indexOf("?") != -1;
             for (Parameter param : parameters) {
                 // special handling for event parameter
-                if (param == this.event)
-                    param = new Parameter((String) this.event.value, "");
+                if (param == this.event) {
+                    if (param.value == null)
+                        continue;
+                    else
+                        param = new Parameter((String) this.event.value, "");
+                }
 
                 // Figure out whether we already have params or not
                 if (!seenQuestionMark) {
@@ -504,7 +508,7 @@ public class UrlBuilder {
                         ok = true;
                     }
                 }
-                else if (assigned.isEvent()) {
+                else if (assigned != null && assigned.isEvent()) {
                     // remove event parameter even if value is null
                     parameters.remove(assigned);
                 }

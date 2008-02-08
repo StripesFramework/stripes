@@ -45,8 +45,8 @@ import java.lang.annotation.ElementType;
  * {@code @UrlBinding("/foo/{bar=abc}/{baz=123}")}. If a parameter with a default value is missing
  * from a request URL, it will still be made available as a request parameter with the default
  * value. Default values are automatically embedded when building URLs with the Stripes JSP tags.
- * The default value for $event can be automatically determined from the {@link DefaultHandler}
- * annotation or it can be explicitly set like any other parameter.
+ * The default value for $event is determined from the {@link DefaultHandler} and may not be set in
+ * the {@code @UrlBinding}.
  * </p>
  * <p>
  * Clean URLs support both prefix mapping ({@code /action/foo/{bar}}) and extension mapping ({@code /foo/{bar}.action}).

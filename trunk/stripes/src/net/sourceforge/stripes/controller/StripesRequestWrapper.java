@@ -462,8 +462,19 @@ class MergedParameterMap implements Map<String, String[]> {
                 if (name != null) {
                     String value = p.getValue();
                     if (UrlBindingParameter.PARAMETER_NAME_EVENT.equals(name)) {
-                        name = value;
-                        value = "";
+                        if (value == null) {
+                            // Don't provide the default event name. The dispatcher will handle that
+                            // automatically, and there's no way of knowing at this point if another
+                            // event name is provided by a different parameter.
+                            continue;
+                        }
+                        else {
+                            name = value;
+                            value = "";
+                        }
+                    }
+                    if (value == null) {
+                        value = p.getDefaultValue();
                     }
                     if (name != null && value != null) {
                         if (params == null) {
