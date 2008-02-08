@@ -26,7 +26,6 @@ package net.sourceforge.stripes.tag;
 public class InputButtonTag extends InputButtonSupportTag {
     /** Sets the input tag type to be button. */
     public InputButtonTag() {
-        super();
         getAttributes().put("type", "button");
     }
 }

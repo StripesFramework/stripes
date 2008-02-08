@@ -47,7 +47,6 @@ public class InputImageTag extends InputTagSupport {
 
     /** Sets the tag's type to be an image input. */
     public InputImageTag() {
-        super();
         set("type", "image");
     }
 

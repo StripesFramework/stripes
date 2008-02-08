@@ -41,7 +41,6 @@ import net.sourceforge.stripes.validation.ValidationMetadata;
 
     /** Basic constructor that sets the input tag's type attribute to "text". */
     public InputTextTag() {
-        super();
         getAttributes().put("type", "text");
     }
 
