@@ -155,12 +155,13 @@ public class CommonsMultipartWrapper implements MultipartWrapper {
      */
     public FileBean getFileParameterValue(String name) {
         final FileItem item = this.files.get(name);
-        String filename = item.getName();
-        if (item == null || ((filename == null || filename.length() == 0) && item.getSize() == 0)) {
+        if (item == null
+                || ((item.getName() == null || item.getName().length() == 0) && item.getSize() == 0)) {
             return null;
         }
         else {
             // Attempt to ensure the file name is just the basename with no path included
+            String filename = item.getName();
             int index;
             if (WINDOWS_PATH_PREFIX_PATTERN.matcher(filename).find())
                 index = filename.lastIndexOf('\\');
