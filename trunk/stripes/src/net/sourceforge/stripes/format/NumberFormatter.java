@@ -66,14 +66,29 @@ public class NumberFormatter implements Formatter<Number> {
         this.formatType = formatType;
     }
 
+    /** Gets the format type to be used to render numbers as Strings. */
+    public String getFormatType() {
+        return formatType;
+    }
+
     /** Sets the named format string or number format pattern to use to format the number. */
     public void setFormatPattern(String formatPattern) {
         this.formatPattern = formatPattern;
     }
 
+    /** Gets the named format string or number format pattern to use to format the number. */
+    public String getFormatPattern() {
+        return formatPattern;
+    }
+
     /** Sets the locale that output String should be in. */
     public void setLocale(Locale locale) {
         this.locale = locale;
+    }
+
+    /** Gets the locale that output String should be in. */
+    public Locale getLocale() {
+        return locale;
     }
 
     /** Instantiates the NumberFormat based on the information provided through setter methods. */
