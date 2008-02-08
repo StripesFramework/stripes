@@ -36,7 +36,6 @@ public class InputFileTag extends InputTagSupport implements Tag {
 
     /** Basic constructor that sets the input tag's type attribute to "file". */
     public InputFileTag() {
-        super();
         getAttributes().put("type", "file");
     }
 

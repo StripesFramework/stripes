@@ -42,7 +42,6 @@ public class InputHiddenTag extends InputTagSupport implements BodyTag {
 
     /** Basic constructor that sets the input tag's type attribute to "hidden". */
     public InputHiddenTag() {
-        super();
         getAttributes().put("type", "hidden");
     }
 

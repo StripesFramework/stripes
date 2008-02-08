@@ -40,7 +40,6 @@ public class InputPasswordTag extends InputTextTag {
      * extends, and then overrides the type of input field to "password".
      */
     public InputPasswordTag() {
-        super();
         getAttributes().put("type", "password");
     }
 

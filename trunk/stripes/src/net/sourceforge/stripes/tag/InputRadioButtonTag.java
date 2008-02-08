@@ -43,7 +43,6 @@ public class InputRadioButtonTag extends InputTagSupport implements BodyTag {
 
     /** Basic constructor that sets the input tag's type attribute to "radio". */
     public InputRadioButtonTag() {
-        super();
         getAttributes().put("type", "radio");
     }
 

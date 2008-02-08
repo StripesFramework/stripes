@@ -43,7 +43,6 @@ public class InputCheckBoxTag extends InputTagSupport implements BodyTag {
 
     /** Basic constructor that sets the input tag's type attribute to "checkbox". */
     public InputCheckBoxTag() {
-        super();
         getAttributes().put("type", "checkbox");
     }
 
