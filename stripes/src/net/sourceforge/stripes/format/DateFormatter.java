@@ -70,14 +70,29 @@ public class DateFormatter implements Formatter<Date> {
         this.formatType = formatType;
     }
 
+    /** Gets the format type to be used to render dates as Strings. */
+    public String getFormatType() {
+        return formatType;
+    }
+
     /** Sets the named format string or date pattern to use to format the date. */
     public void setFormatPattern(String formatPattern) {
         this.formatPattern = formatPattern;
     }
 
+    /** Gets the named format string or date pattern to use to format the date. */
+    public String getFormatPattern() {
+        return formatPattern;
+    }
+
     /** Sets the locale that output String should be in. */
     public void setLocale(Locale locale) {
         this.locale = locale;
+    }
+
+    /** Gets the locale that output String should be in. */
+    public Locale getLocale() {
+        return locale;
     }
 
     /**
