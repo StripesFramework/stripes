@@ -366,9 +366,9 @@ public class UrlBindingFactory {
         // handle whatever is left
         if (buf.length() > 0) {
             if (escape)
-                throw new ParseException("Expression must not end with escape character", pattern);
+                throw new ParseException(pattern, "Expression must not end with escape character");
             else if (braceLevel > 0)
-                throw new ParseException("Unterminated left brace ('{') in expression", pattern);
+                throw new ParseException(pattern, "Unterminated left brace ('{') in expression");
             else if (path == null)
                 path = buf.toString();
             else if (c == '}')
@@ -388,6 +388,7 @@ public class UrlBindingFactory {
      * @param beanClass the bean class to which the binding applies
      * @param string the parameter string
      * @return a parameter object
+     * @throws ParseException if the pattern cannot be parsed
      */
     protected static UrlBindingParameter parseUrlBindingParameter(
             Class<? extends ActionBean> beanClass, String string) {
@@ -415,6 +416,12 @@ public class UrlBindingFactory {
         }
 
         String dflt = defaultValue.length() < 1 ? null : defaultValue.toString();
+        if (dflt != null && UrlBindingParameter.PARAMETER_NAME_EVENT.equals(name.toString())) {
+            throw new ParseException(string, "In ActionBean class " + beanClass.getName()
+                    + ", the " + UrlBindingParameter.PARAMETER_NAME_EVENT
+                    + " parameter may not be assigned a default value. Its default value is"
+                    + " determined by the @DefaultHandler annotation.");
+        }
         return new UrlBindingParameter(beanClass, name.toString(), null, dflt) {
             @Override
             public String getValue() {

@@ -85,8 +85,7 @@ public class UrlBindingParameter {
     }
 
     /**
-     * Get the parameter's default value. This value will be returned by {@link #getValue()} if the
-     * parameter's actual value is null. The default value may be null.
+     * Get the parameter's default value, which may be null.
      * 
      * @return the default value
      */
@@ -120,13 +119,12 @@ public class UrlBindingParameter {
     }
 
     /**
-     * Return the parameter value that was extracted from a URI. If the value is null, then the
-     * default value will be returned.
+     * Return the parameter value that was extracted from a URI.
      * 
      * @return parameter value
      */
     public String getValue() {
-        return value == null ? defaultValue : value;
+        return value;
     }
 
     @Override
