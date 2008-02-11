@@ -219,11 +219,10 @@ public class DispatcherHelper {
         final boolean doValidate = doBind && handler.getAnnotation(DontValidate.class) == null;
         Configuration config = StripesFilter.getConfiguration();
 
-        // Run the bean's validate() method if the following conditions are met:
+        // Run the bean's methods annotated with @ValidateMethod if the following conditions are met:
         //   l. This event is not marked to bypass binding 
         //   2. This event is not marked to bypass validation (doValidate == true)
-        //   3. The bean is an instance of Validatable
-        //   4. We have no errors so far OR alwaysInvokeValidate is true
+        //   3. We have no errors so far OR alwaysInvokeValidate is true
         if (doValidate) {
 
             ctx.setLifecycleStage(LifecycleStage.CustomValidation);
@@ -232,7 +231,7 @@ public class DispatcherHelper {
             return ctx.wrap( new Interceptor() {
                 @SuppressWarnings("deprecation")
 				public Resolution intercept(ExecutionContext context) throws Exception {
-                    // Run any of the new style validation methods
+                    // Run any of the annotated validation methods
                     Method[] validations = findCustomValidationMethods(bean.getClass());
                     for (Method validation : validations) {
                         ValidationMethod ann = validation.getAnnotation(ValidationMethod.class);
