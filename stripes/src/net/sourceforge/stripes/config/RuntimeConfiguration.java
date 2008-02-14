@@ -290,7 +290,7 @@ public class RuntimeConfiguration extends DefaultConfiguration {
             }
         }
 
-        List<Class<? extends TypeConverter>> typeConverters = getBootstrapPropertyResolver().getClassPropertyList(TypeConverter.class);;
+        List<Class<? extends TypeConverter>> typeConverters = getBootstrapPropertyResolver().getClassPropertyList(TypeConverter.class);
         for (Class<? extends TypeConverter> typeConverter : typeConverters) {
             Type[] typeArguments = ReflectUtil.getActualTypeArguments(typeConverter, TypeConverter.class);
             log.trace("Found TypeConverter [", typeConverter, "] - type parameters: ", typeArguments);
