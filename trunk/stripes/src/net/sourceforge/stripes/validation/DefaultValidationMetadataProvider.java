@@ -221,6 +221,10 @@ public class DefaultValidationMetadataProvider implements ValidationMetadataProv
                             for (Validate validate : validates) {
                                 if (validate.field() != null && !"".equals(validate.field())) {
                                     String fullName = propertyName + '.' + validate.field();
+                                    if (meta.containsKey(fullName)) {
+                                        log.warn("More than one nested @Validate with same field name: "
+                                            + validate.field() + " on property " + propertyName);
+                                    }
                                     meta.put(fullName, new ValidationMetadata(fullName, validate));
                                 }
                                 else {
