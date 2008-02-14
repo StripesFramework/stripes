@@ -14,6 +14,7 @@
  */
 package net.sourceforge.stripes.config;
 
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -121,6 +122,7 @@ public class BootstrapPropertyResolver {
             resolver.findImplementations(targetType, packages);
             Set<Class<? extends T>> classes = resolver.getClasses();
             removeDontAutoloadClasses(classes);
+            removeAbstractClasses(classes);
             if (classes.size() == 1) {
                 clazz = classes.iterator().next();
                 className = clazz.getName();
@@ -182,6 +184,7 @@ public class BootstrapPropertyResolver {
         resolver.findImplementations(targetType, packages);
         Set<Class<? extends T>> classes = resolver.getClasses();
         removeDontAutoloadClasses(classes);
+        removeAbstractClasses(classes);
         return new ArrayList<Class<? extends T>>(classes);
     }
 
@@ -215,6 +218,22 @@ public class BootstrapPropertyResolver {
             Class<? extends T> clazz = iterator.next();
             if (clazz.isAnnotationPresent(DontAutoLoad.class)) {
                 log.debug("Ignoring ", clazz, " because @DontAutoLoad is present.");
+                iterator.remove();
+            }
+        }
+    }
+    
+    /** Removes any classes from the collection that are abstract or interfaces. */
+    protected <T> void removeAbstractClasses(Collection<Class<? extends T>> classes) {
+        Iterator<Class<? extends T>> iterator = classes.iterator();
+        while (iterator.hasNext()) {
+            Class<? extends T> clazz = iterator.next();
+            if (clazz.isInterface()) {
+                log.trace("Ignoring ", clazz, " because it is an interface.");
+                iterator.remove();
+            }
+            else if ((clazz.getModifiers() & Modifier.ABSTRACT) == Modifier.ABSTRACT) {
+                log.trace("Ignoring ", clazz, " because it is abstract.");
                 iterator.remove();
             }
         }
