@@ -229,7 +229,6 @@ public class DispatcherHelper {
             ctx.setInterceptors(config.getInterceptors(LifecycleStage.CustomValidation));
 
             return ctx.wrap( new Interceptor() {
-                @SuppressWarnings("deprecation")
 				public Resolution intercept(ExecutionContext context) throws Exception {
                     // Run any of the annotated validation methods
                     Method[] validations = findCustomValidationMethods(bean.getClass());
