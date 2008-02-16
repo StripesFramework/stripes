@@ -42,7 +42,6 @@ public class DefaultActionBeanContextFactory implements ActionBeanContextFactory
     private Class<? extends ActionBeanContext> contextClass;
 
     /** Stores the configuration, and looks up the ActionBeanContext class specified. */
-    @SuppressWarnings("unchecked")
     public void init(Configuration configuration) throws Exception {
         setConfiguration(configuration);
 

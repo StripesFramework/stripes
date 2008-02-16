@@ -139,7 +139,6 @@ public class DefaultTypeConverterFactory implements TypeConverterFactory {
      * @param targetClass the class of the object that needs to be converted
      * @return the first applicable type converter found or null if no match could be found
      */
-    @SuppressWarnings("unchecked")
     protected Class<? extends TypeConverter<?>> findTypeConverterClass(Class<?> targetClass) {
         if (converters.containsKey(targetClass))
             return converters.get(targetClass);

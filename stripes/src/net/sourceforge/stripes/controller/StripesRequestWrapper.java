@@ -44,7 +44,6 @@ import net.sourceforge.stripes.exception.StripesServletException;
  *
  * @author Tim Fennell
  */
-@SuppressWarnings("deprecation") // otherwise deprecated methods in super are warned!
 public class StripesRequestWrapper extends HttpServletRequestWrapper {
     /** The Multipart Request that parses out all the pieces. */
     private MultipartWrapper multipart;
@@ -136,7 +135,6 @@ public class StripesRequestWrapper extends HttpServletRequestWrapper {
      * otherwise it is just pulled out of the request in the usual manner.
      */
     @Override
-    @SuppressWarnings("unchecked")
 	public Enumeration<String> getParameterNames() {
         return Collections.enumeration(getParameterMap().keySet());
     }
@@ -172,7 +170,6 @@ public class StripesRequestWrapper extends HttpServletRequestWrapper {
      * If the request is a clean URL, then extract the parameters from the URI and merge with the
      * parameters from the query string and/or request body.
      */
-    @SuppressWarnings("unchecked")
     @Override
     public Map<String, String[]> getParameterMap() {
         if (this.parameterMap == null) {
