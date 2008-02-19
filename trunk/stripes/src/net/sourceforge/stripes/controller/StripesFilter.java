@@ -26,6 +26,7 @@ import net.sourceforge.stripes.util.ReflectUtil;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -55,6 +56,9 @@ public class StripesFilter implements Filter {
 
     /** The configuration instance for Stripes. */
     private Configuration configuration;
+
+    /** The servlet context */
+    private ServletContext servletContext;
 
     /**
      * A place to stash the Configuration object so that other classes in Stripes can access it
@@ -108,6 +112,9 @@ public class StripesFilter implements Filter {
 
         this.configuration.setBootstrapPropertyResolver(bootstrap);
         this.configuration.init();
+
+        this.servletContext = filterConfig.getServletContext();
+        this.servletContext.setAttribute(StripesFilter.class.getName(), this);
 
         Package pkg = getClass().getPackage();
         log.info("Stripes Initialization Complete. Version: ", pkg.getSpecificationVersion(),
@@ -288,6 +295,7 @@ public class StripesFilter implements Filter {
 
     /** Calls the cleanup() method on the log to release resources held by commons logging. */
     public void destroy() {
+        this.servletContext.removeAttribute(StripesFilter.class.getName());
         Log.cleanup();
         Introspector.flushCaches(); // Not 100% sure this is necessary, but it doesn't  hurt
     }
