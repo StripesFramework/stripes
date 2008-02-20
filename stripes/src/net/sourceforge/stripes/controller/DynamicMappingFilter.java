@@ -137,6 +137,12 @@ public class DynamicMappingFilter implements Filter {
             return errorCode;
         }
 
+        /** Clear error code and error message. */
+        public void clearError() {
+            this.errorCode = null;
+            this.errorMessage = null;
+        }
+
         /**
          * Send the error, if any, to the client. If {@code sendError(int, ..)} has not previously
          * been called, then do nothing.
@@ -205,20 +211,19 @@ public class DynamicMappingFilter implements Filter {
                 stripesFilter.doFilter(request, response, new FilterChain() {
                     public void doFilter(ServletRequest request, ServletResponse response)
                             throws IOException, ServletException {
-                        String uri = ((HttpServletRequest) request).getRequestURI();
-                        String contextPath = ((HttpServletRequest) request).getContextPath();
-                        if (contextPath.length() > 1)
-                            uri = uri.substring(contextPath.length());
-
                         // Look for an ActionBean that is mapped to the URI
+                        String uri = getRequestURI((HttpServletRequest) request);
                         Class<? extends ActionBean> beanType = StripesFilter.getConfiguration()
                                 .getActionResolver().getActionBeanType(uri);
 
                         // If found then call the dispatcher directly. Otherwise, send the error.
-                        if (beanType == null)
+                        if (beanType == null) {
                             finalWrapper.proceed();
-                        else
+                        }
+                        else {
+                            finalWrapper.clearError();
                             stripesDispatcher.service(request, response);
+                        }
                     }
                 });
             }
@@ -253,5 +258,22 @@ public class DynamicMappingFilter implements Filter {
             response = ((ServletResponseWrapper) response).getResponse();
         }
         return null;
+    }
+
+    /** Get the context-relative URI of the current include, forward or request. */
+    protected String getRequestURI(HttpServletRequest request) {
+        // Check for an include
+        String uri = (String) request.getAttribute("javax.servlet.include.request_uri");
+
+        // If not an include, then use the request methods
+        if (uri == null)
+            uri = request.getRequestURI();
+
+        // Trim the context path from the front
+        String contextPath = request.getContextPath();
+        if (contextPath.length() > 1)
+            uri = uri.substring(contextPath.length());
+
+        return uri;
     }
 }
