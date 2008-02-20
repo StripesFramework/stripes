@@ -243,8 +243,10 @@ public class MockRoundtrip {
         if (forward != null) {
             return forward;
         }
-        else if (redirect != null && redirect.startsWith(this.request.getContextPath())) {
-            redirect = redirect.substring( redirect.indexOf('/', 1));
+        else if (redirect != null) {
+            String contextPath = this.request.getContextPath();
+            if (contextPath.length() > 1 && redirect.startsWith(contextPath + '/'))
+                redirect = redirect.substring(contextPath.length());
         }
 
         return redirect;

@@ -250,7 +250,7 @@ public class UrlBindingFactory {
             // trim and decode the request URI
             String uri = request.getRequestURI();
             String contextPath = request.getContextPath();
-            if (contextPath != null && contextPath.length() > 0)
+            if (contextPath.length() > 1)
                 uri = uri.substring(contextPath.length());
             uri = URLDecoder.decode(uri, charset);
 
