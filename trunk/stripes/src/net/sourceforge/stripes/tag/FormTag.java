@@ -455,11 +455,8 @@ public class FormTag extends HtmlTagSupport implements BodyTag, TryCatchFinally,
         if (action.startsWith("/")) {
             HttpServletRequest request = (HttpServletRequest) getPageContext().getRequest();
             String contextPath = request.getContextPath();
-
-            if (contextPath != null && !"/".equals(contextPath)
-                    && !action.contains(contextPath + "/")) {
+            if (contextPath.length() > 1 && !action.startsWith(contextPath + '/'))
                 action = contextPath + action;
-            }
         }
         HttpServletResponse response = (HttpServletResponse) getPageContext().getResponse();
         return response.encodeURL(action);

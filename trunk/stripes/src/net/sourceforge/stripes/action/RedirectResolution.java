@@ -154,8 +154,10 @@ public class RedirectResolution extends OnwardResolution<RedirectResolution> imp
 
         // Prepend the context path if required
         String url = getUrl(request.getLocale());
-        if ( this.prependContext && !"/".equals(request.getContextPath()) ) {
-            url = request.getContextPath() + url;
+        if (prependContext) {
+            String contextPath = request.getContextPath();
+            if (contextPath.length() > 1 && !url.startsWith(contextPath + "/"))
+                url = contextPath + url;
         }
 
         url = response.encodeRedirectURL(url);

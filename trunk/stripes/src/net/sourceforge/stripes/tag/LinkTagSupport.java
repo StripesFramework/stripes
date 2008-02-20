@@ -179,9 +179,8 @@ public abstract class LinkTagSupport extends HtmlTagSupport implements Parameter
         String url = builder.toString();
         if (prependContext) {
             String contextPath = request.getContextPath();
-            if (!"/".equals(contextPath) && !url.startsWith(contextPath + "/")) {
+            if (contextPath.length() > 1 && !url.startsWith(contextPath + '/'))
                 url = contextPath + url;
-            }
         }
 
         return response.encodeURL(url);

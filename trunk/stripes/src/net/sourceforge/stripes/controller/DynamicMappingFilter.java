@@ -206,9 +206,9 @@ public class DynamicMappingFilter implements Filter {
                     public void doFilter(ServletRequest request, ServletResponse response)
                             throws IOException, ServletException {
                         String uri = ((HttpServletRequest) request).getRequestURI();
-                        String context = ((HttpServletRequest) request).getContextPath();
-                        if (context.length() > 1)
-                            uri = uri.substring(context.length());
+                        String contextPath = ((HttpServletRequest) request).getContextPath();
+                        if (contextPath.length() > 1)
+                            uri = uri.substring(contextPath.length());
 
                         // Look for an ActionBean that is mapped to the URI
                         Class<? extends ActionBean> beanType = StripesFilter.getConfiguration()
