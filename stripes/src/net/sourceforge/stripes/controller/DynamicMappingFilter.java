@@ -15,6 +15,9 @@
 package net.sourceforge.stripes.controller;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.Enumeration;
 
 import javax.servlet.Filter;
@@ -25,7 +28,6 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.servlet.ServletResponseWrapper;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
@@ -33,6 +35,7 @@ import javax.servlet.http.HttpServletResponseWrapper;
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.exception.StripesServletException;
+import net.sourceforge.stripes.util.Log;
 
 /**
  * <p>
@@ -77,6 +80,10 @@ import net.sourceforge.stripes.exception.StripesServletException;
  * {@code 404} error.
  * </p>
  * <p>
+ * This filter accepts one init-param. {@code IncludeBufferSize} (optional, default 1024) sets the
+ * number of characters to be buffered by {@link TempBufferWriter} for include requests. See
+ * {@link TempBufferWriter} for more information.
+ * <p>
  * This is the suggested mapping for this filter in {@code web.xml}.
  * </p>
  * 
@@ -104,6 +111,82 @@ import net.sourceforge.stripes.exception.StripesServletException;
  */
 public class DynamicMappingFilter implements Filter {
     /**
+     * <p>
+     * A {@link Writer} that passes characters to a {@link PrintWriter}. It buffers the first
+     * {@code N} characters written to it and automatically overflows when the number of characters
+     * written exceeds the limit. The size of the buffer defaults to 1024 characters, but it can be
+     * changed using the {@code IncludeBufferSize} filter init-param in {@code web.xml}. If
+     * {@code IncludeBufferSize} is zero or negative, then a {@link TempBufferWriter} will not be
+     * used at all. This is only a good idea if your servlet container does not write an error
+     * message to output when it can't find an included resource or if you only include resources
+     * that do not depend on this filter to be delivered, such as other servlets, JSPs, static
+     * resources, ActionBeans that are mapped with a prefix ({@code /action/*}) or suffix ({@code *.action}),
+     * etc.
+     * </p>
+     * <p>
+     * This writer is used to partially buffer the output of includes. Some (all?) servlet
+     * containers write a message to the output stream indicating if an included resource is missing
+     * because if the response has already been committed, they cannot send a 404 error. Since the
+     * filter depends on getting a 404 before it attempts to dispatch an {@code ActionBean}, that
+     * is problematic. So in using this writer, we assume that the length of the "missing resource"
+     * message will be less than the buffer size and we discard that message if we're able to map
+     * the included URL to an {@code ActionBean}. If there is no 404 then the output will be sent
+     * normally. If there is a 404 and the URL does not match an ActionBean then the "missing
+     * resource" message is sent through.
+     * </p>
+     * 
+     * @author Ben Gunter
+     * @since Stripes 1.5
+     */
+    public static class TempBufferWriter extends Writer {
+        private StringWriter buffer;
+        private PrintWriter out;
+
+        public TempBufferWriter(PrintWriter out) {
+            this.out = out;
+            this.buffer = new StringWriter(includeBufferSize);
+        }
+
+        @Override
+        public void close() throws IOException {
+            flush();
+            out.close();
+        }
+
+        @Override
+        public void flush() throws IOException {
+            overflow();
+            out.flush();
+        }
+
+        @Override
+        public void write(char[] chars, int offset, int length) throws IOException {
+            if (buffer == null) {
+                out.write(chars, offset, length);
+            }
+            else if (buffer.getBuffer().length() + length > includeBufferSize) {
+                overflow();
+                out.write(chars, offset, length);
+            }
+            else {
+                buffer.write(chars, offset, length);
+            }
+        }
+
+        /**
+         * Write the contents of the buffer to the underlying writer. After a call to
+         * {@link #overflow()}, all future writes to this writer will pass directly to the
+         * underlying writer.
+         */
+        protected void overflow() {
+            if (buffer != null) {
+                out.print(buffer.toString());
+                buffer = null;
+            }
+        }
+    }
+
+    /**
      * An {@link HttpServletResponseWrapper} that traps HTTP errors by overriding
      * {@code sendError(int, ..)}. The error code can be retrieved by calling
      * {@link #getErrorCode()}. A call to {@link #proceed()} sends the error to the client.
@@ -114,6 +197,9 @@ public class DynamicMappingFilter implements Filter {
     public static class ErrorTrappingResponseWrapper extends HttpServletResponseWrapper {
         private Integer errorCode;
         private String errorMessage;
+        private boolean include;
+        private PrintWriter printWriter;
+        private TempBufferWriter tempBufferWriter;
 
         /** Wrap the given {@code response}. */
         public ErrorTrappingResponseWrapper(HttpServletResponse response) {
@@ -132,6 +218,30 @@ public class DynamicMappingFilter implements Filter {
             this.errorMessage = null;
         }
 
+        @Override
+        public PrintWriter getWriter() throws IOException {
+            if (isInclude() && includeBufferSize > 0) {
+                if (printWriter == null) {
+                    tempBufferWriter = new TempBufferWriter(super.getWriter());
+                    printWriter = new PrintWriter(tempBufferWriter);
+                }
+                return printWriter;
+            }
+            else {
+                return super.getWriter();
+            }
+        }
+
+        /** True if the currently executing request is an include. */
+        public boolean isInclude() {
+            return include;
+        }
+
+        /** Indicate if the currently executing request is an include. */
+        public void setInclude(boolean include) {
+            this.include = include;
+        }
+
         /** Get the error code that was passed into {@code sendError(int, ..)} */
         public Integer getErrorCode() {
             return errorCode;
@@ -148,6 +258,10 @@ public class DynamicMappingFilter implements Filter {
          * been called, then do nothing.
          */
         public void proceed() throws IOException {
+            // Explicitly overflow the buffer so the output gets written
+            if (tempBufferWriter != null)
+                tempBufferWriter.overflow();
+
             if (errorCode != null) {
                 if (errorMessage == null)
                     super.sendError(errorCode);
@@ -157,12 +271,40 @@ public class DynamicMappingFilter implements Filter {
         }
     }
 
+    /**
+     * The name of the init-param that can be used to set the size of the buffer used by
+     * {@link TempBufferWriter} before it overflows.
+     */
+    private static final String INCLUDE_BUFFER_SIZE_PARAM = "IncludeBufferSize";
+
+    /** The size of the buffer used by {@link TempBufferWriter} before it overflows. */
+    private static int includeBufferSize = 1024;
+
+    /** Logger */
+    private static Log log = Log.getInstance(DynamicMappingFilter.class);
+
     private boolean initialized = false;
     private ServletContext servletContext;
     private StripesFilter stripesFilter;
     private DispatcherServlet stripesDispatcher;
 
     public void init(final FilterConfig config) throws ServletException {
+        try {
+            includeBufferSize = Integer.valueOf(config.getInitParameter(INCLUDE_BUFFER_SIZE_PARAM)
+                    .trim());
+            log.info(DynamicMappingFilter.class.getName(), " include buffer size is ",
+                    includeBufferSize);
+        }
+        catch (NullPointerException e) {
+            // ignore it
+        }
+        catch (Exception e) {
+            log.warn(e, "Could not interpret '",
+                    config.getInitParameter(INCLUDE_BUFFER_SIZE_PARAM),
+                    "' as a number for init-param '", INCLUDE_BUFFER_SIZE_PARAM,
+                    "'. Using default value of ", includeBufferSize, ".");
+        }
+
         this.servletContext = config.getServletContext();
         this.stripesDispatcher = new DispatcherServlet();
         this.stripesDispatcher.init(new ServletConfig() {
@@ -195,41 +337,34 @@ public class DynamicMappingFilter implements Filter {
             doOneTimeConfiguration();
 
         // Wrap the response in a wrapper that catches errors (but not exceptions)
-        ErrorTrappingResponseWrapper wrapper = findWrapper(response);
-        if (wrapper == null) {
-            wrapper = new ErrorTrappingResponseWrapper((HttpServletResponse) response);
-            chain.doFilter(request, wrapper);
-        }
-        else {
-            chain.doFilter(request, response);
-        }
+        final ErrorTrappingResponseWrapper wrapper = new ErrorTrappingResponseWrapper(
+                (HttpServletResponse) response);
+        wrapper.setInclude(request.getAttribute("javax.servlet.include.request_uri") != null);
+        chain.doFilter(request, wrapper);
 
         // If a SC_NOT_FOUND error occurred, then try to match an ActionBean to the URL
-        if (wrapper.getErrorCode() != null) {
-            if (wrapper.getErrorCode() == HttpServletResponse.SC_NOT_FOUND) {
-                final ErrorTrappingResponseWrapper finalWrapper = wrapper;
-                stripesFilter.doFilter(request, response, new FilterChain() {
-                    public void doFilter(ServletRequest request, ServletResponse response)
-                            throws IOException, ServletException {
-                        // Look for an ActionBean that is mapped to the URI
-                        String uri = getRequestURI((HttpServletRequest) request);
-                        Class<? extends ActionBean> beanType = StripesFilter.getConfiguration()
-                                .getActionResolver().getActionBeanType(uri);
+        Integer errorCode = wrapper.getErrorCode();
+        if (errorCode != null && errorCode == HttpServletResponse.SC_NOT_FOUND) {
+            stripesFilter.doFilter(request, response, new FilterChain() {
+                public void doFilter(ServletRequest request, ServletResponse response)
+                        throws IOException, ServletException {
+                    // Look for an ActionBean that is mapped to the URI
+                    String uri = getRequestURI((HttpServletRequest) request);
+                    Class<? extends ActionBean> beanType = StripesFilter.getConfiguration()
+                            .getActionResolver().getActionBeanType(uri);
 
-                        // If found then call the dispatcher directly. Otherwise, send the error.
-                        if (beanType == null) {
-                            finalWrapper.proceed();
-                        }
-                        else {
-                            finalWrapper.clearError();
-                            stripesDispatcher.service(request, response);
-                        }
+                    // If found then call the dispatcher directly. Otherwise, send the error.
+                    if (beanType == null) {
+                        wrapper.proceed();
                     }
-                });
-            }
-            else {
-                wrapper.proceed();
-            }
+                    else {
+                        stripesDispatcher.service(request, response);
+                    }
+                }
+            });
+        }
+        else {
+            wrapper.proceed();
         }
     }
 
@@ -245,19 +380,6 @@ public class DynamicMappingFilter implements Filter {
                     + "StripesFilter and requires that it be defined in web.xml");
         }
         initialized = true;
-    }
-
-    /**
-     * Ascends the stack of response wrappers searching for an instance of
-     * {@link ErrorTrappingResponseWrapper}.
-     */
-    protected ErrorTrappingResponseWrapper findWrapper(ServletResponse response) {
-        while (response instanceof ServletResponseWrapper) {
-            if (response instanceof ErrorTrappingResponseWrapper)
-                return (ErrorTrappingResponseWrapper) response;
-            response = ((ServletResponseWrapper) response).getResponse();
-        }
-        return null;
     }
 
     /** Get the context-relative URI of the current include, forward or request. */
