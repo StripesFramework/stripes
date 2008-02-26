@@ -14,8 +14,6 @@
  */
 package net.sourceforge.stripes.controller;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -31,7 +29,6 @@ import java.util.Map.Entry;
 import javax.servlet.http.HttpServletRequest;
 
 import net.sourceforge.stripes.action.ActionBean;
-import net.sourceforge.stripes.exception.StripesRuntimeException;
 import net.sourceforge.stripes.util.bean.ParseException;
 
 /**
@@ -145,7 +142,7 @@ public class UrlBindingFactory {
      * @return a binding prototype, or null if the request URI does not match
      */
     public UrlBinding getBindingPrototype(HttpServletRequest request) {
-        return getBindingPrototype(request.getRequestURI());
+        return getBindingPrototype(trimContextPath(request));
     }
 
     /**
@@ -241,25 +238,7 @@ public class UrlBindingFactory {
      *         binding. Otherwise, this method should return null.
      */
     public UrlBinding getBinding(HttpServletRequest request) {
-        try {
-            // get character encoding
-            String charset = request.getCharacterEncoding();
-            if (charset == null)
-                charset = "UTF-8";
-
-            // trim and decode the request URI
-            String uri = request.getRequestURI();
-            String contextPath = request.getContextPath();
-            if (contextPath.length() > 1)
-                uri = uri.substring(contextPath.length());
-            uri = URLDecoder.decode(uri, charset);
-
-            // look up the binding by the URI
-            return getBinding(uri);
-        }
-        catch (UnsupportedEncodingException e) {
-            throw new StripesRuntimeException(e);
-        }
+        return getBinding(trimContextPath(request));
     }
 
     /**
@@ -429,6 +408,21 @@ public class UrlBindingFactory {
                         "getValue() is not implemented for URL parameter prototypes");
             }
         };
+    }
+
+    /**
+     * Returns the URI of the given {@code request} with the context path trimmed from the
+     * beginning. I.e., the request URI relative to the context.
+     * 
+     * @param request a servlet request
+     * @return the context-relative request URI
+     */
+    protected String trimContextPath(HttpServletRequest request) {
+        String uri = request.getRequestURI();
+        String contextPath = request.getContextPath();
+        if (contextPath.length() > 1)
+            uri = uri.substring(contextPath.length());
+        return uri;
     }
 
     @Override
