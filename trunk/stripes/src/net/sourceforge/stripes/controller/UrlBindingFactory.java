@@ -164,7 +164,7 @@ public class UrlBindingFactory {
 
         // ignore trailing slashes in the URI
         int length = uri.length();
-        while (uri.charAt(length - 1) == '/')
+        while (length > 0 && uri.charAt(length - 1) == '/')
             --length;
 
         // check for literal suffix in prototype and ignore it if found
