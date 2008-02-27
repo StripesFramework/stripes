@@ -261,6 +261,11 @@ public class FieldMetadataTag extends HtmlTagSupport implements BodyTag {
                 throw new StripesJspException("IOException while writing output in LinkTag.", ioe);
             }
         }
+        
+        // Only keep the type attribute between uses
+        String type = getAttributes().get("type");
+        getAttributes().clear();
+        getAttributes().put("type", type);
 
         return SKIP_BODY;
     }
@@ -396,16 +401,5 @@ public class FieldMetadataTag extends HtmlTagSupport implements BodyTag {
         public String getFormId() {
             return formId;
         }
-    }
-
-    /** Release method to clean up the state of the tag to prepare it for re-use. */
-    @Override
-    public void release() {
-        // Because the type attribute is set in the constructor and
-        // the attributes are cleared we need to save the type and
-        // replace it after calling super.release().
-        String type = getAttributes().get("type");
-        super.release();
-        getAttributes().put("type", type);
     }
 }

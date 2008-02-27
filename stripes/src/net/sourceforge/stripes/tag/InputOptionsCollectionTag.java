@@ -296,14 +296,14 @@ public class InputOptionsCollectionTag extends HtmlTagSupport implements Tag {
                              new BeanComparator(getPageContext().getRequest().getLocale(), props));
         }
 
+        InputOptionTag tag = new InputOptionTag();
+        tag.setParent(this);
+        tag.setPageContext(getPageContext());
+        
         Object lastGroup = null;
 
         for (Entry entry : sortedEntries) {
-            InputOptionTag tag = new InputOptionTag();
-            
             // Set properties common to all options
-            tag.setParent(this);
-            tag.setPageContext(getPageContext());
             tag.getAttributes().putAll(getAttributes());
             
             // Set properties for this tag
