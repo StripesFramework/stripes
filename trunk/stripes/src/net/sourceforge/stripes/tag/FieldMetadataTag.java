@@ -397,4 +397,15 @@ public class FieldMetadataTag extends HtmlTagSupport implements BodyTag {
             return formId;
         }
     }
+
+    /** Release method to clean up the state of the tag to prepare it for re-use. */
+    @Override
+    public void release() {
+        // Because the type attribute is set in the constructor and
+        // the attributes are cleared we need to save the type and
+        // replace it after calling super.release().
+        String type = getAttributes().get("type");
+        super.release();
+        getAttributes().put("type", type);
+    }
 }

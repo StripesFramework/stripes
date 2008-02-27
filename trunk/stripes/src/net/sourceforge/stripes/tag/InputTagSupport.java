@@ -438,11 +438,24 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
             return result;
         }
         finally {
-            this.errorRenderer = null;
-            this.fieldErrors = null;
-            this.fieldErrorsLoaded = false;
-            this.focus = false;
+            this.release();
         }
+    }
+    
+    /** Release method to clean up the state of the tag ready for re-use. */
+    @Override
+    public void release() {
+        this.errorRenderer = null;
+        this.fieldErrors = null;
+        this.fieldErrorsLoaded = false;
+        this.focus = false;
+
+        // Because the type attribute is set in the constructor and
+        // the attributes are cleared we need to save the type and
+        // replace it after calling super.release().
+        String type = getAttributes().get("type");
+        super.release();
+        getAttributes().put("type", type);
     }
 
     /** Rethrows the passed in throwable in all cases. */
