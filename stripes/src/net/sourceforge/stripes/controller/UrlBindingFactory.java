@@ -22,8 +22,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.TreeMap;
 import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletRequest;
@@ -70,12 +69,13 @@ public class UrlBindingFactory {
     private final Map<String, UrlBinding> pathCache = new HashMap<String, UrlBinding>();
 
     /** Holds the set of paths that are cached, sorted from longest to shortest */
-    private final Set<String> pathSet = new TreeSet<String>(new Comparator<String>() {
-        public int compare(String a, String b) {
-            int cmp = b.length() - a.length();
-            return cmp == 0 ? a.compareTo(b) : cmp;
-        }
-    });
+    private final Map<String, UrlBinding> prefixCache = new TreeMap<String, UrlBinding>(
+            new Comparator<String>() {
+                public int compare(String a, String b) {
+                    int cmp = b.length() - a.length();
+                    return cmp == 0 ? a.compareTo(b) : cmp;
+                }
+            });
 
     /** Don't want the constructor to be public */
     protected UrlBindingFactory() {
@@ -117,15 +117,15 @@ public class UrlBindingFactory {
      * @return a binding prototype, or null if the URI does not match
      */
     public UrlBinding getBindingPrototype(String uri) {
-        // look up as a path first
+        // Look for an exact match to the URI first
         UrlBinding prototype = pathCache.get(uri);
         if (prototype != null)
             return prototype;
 
-        // if not found, then find longest matching path
-        for (String path : pathSet) {
-            if (uri.startsWith(path)) {
-                prototype = pathCache.get(path);
+        // Then look for a matching prefix
+        for (Entry<String, UrlBinding> entry : prefixCache.entrySet()) {
+            if (uri.startsWith(entry.getKey())) {
+                prototype = entry.getValue();
                 break;
             }
         }
@@ -262,7 +262,10 @@ public class UrlBindingFactory {
      */
     public void addBinding(Class<? extends ActionBean> beanType, UrlBinding binding) {
         pathCache.put(binding.getPath(), binding);
-        pathSet.add(binding.getPath());
+        prefixCache.put(binding.getPath() + '/', binding);
+        List<Object> components = binding.getComponents();
+        if (components != null && !components.isEmpty() && components.get(0) instanceof String)
+            prefixCache.put(binding.getPath() + components.get(0), binding);
         classCache.put(beanType, binding);
     }
 
