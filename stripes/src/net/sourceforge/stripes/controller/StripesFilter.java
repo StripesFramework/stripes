@@ -33,10 +33,14 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
+import java.beans.Introspector;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
-import java.beans.Introspector;
+import java.util.Set;
 
 /**
  * The Stripes filter is used to ensure that all requests coming to a Stripes application
@@ -67,6 +71,15 @@ public class StripesFilter implements Filter {
      * Classloader since the Configuration is not located statically.
      */
     private static final ThreadLocal<Configuration> configurationStash = new ThreadLocal<Configuration>();
+
+    /**
+     * A set of weak references to all the Configuration objects that this class has ever
+     * seen. Uses weak references to allow garbage collection to reap these objects if this
+     * is the only reference left.  Used to determine if there is only one active Configuration
+     * for the VM, and if so return it even when the Configuration isn't set in the thread local.
+     */
+    private static final Set<WeakReference<Configuration>> configurations =
+            new HashSet<WeakReference<Configuration>>(); 
 
     /**
      * Some operations should only be done if the current invocation of
@@ -112,6 +125,7 @@ public class StripesFilter implements Filter {
 
         this.configuration.setBootstrapPropertyResolver(bootstrap);
         this.configuration.init();
+        StripesFilter.configurations.add(new WeakReference<Configuration>(this.configuration));
 
         this.servletContext = filterConfig.getServletContext();
         this.servletContext.setAttribute(StripesFilter.class.getName(), this);
@@ -126,6 +140,24 @@ public class StripesFilter implements Filter {
      */
     public static Configuration getConfiguration() {
         Configuration configuration = StripesFilter.configurationStash.get();
+
+        // If the configuration wasn't available in thread local, check to see if we only
+        // know about one configuration in total, and if so use that one
+        if (configuration == null) {
+            synchronized (StripesFilter.configurations) {
+                // Remove any references from the set that have been cleared
+                Iterator<WeakReference<Configuration>> iterator = StripesFilter.configurations.iterator();
+                while (iterator.hasNext()) {
+                    WeakReference<Configuration> ref = iterator.next();
+                    if (ref.get() == null) iterator.remove();
+                }
+
+                // If there is one and only one Configuration active, take it
+                if (StripesFilter.configurations.size() == 1) {
+                    configuration = StripesFilter.configurations.iterator().next().get();
+                }
+            }
+        }
 
         if (configuration == null) {
             StripesRuntimeException sre = new StripesRuntimeException(
