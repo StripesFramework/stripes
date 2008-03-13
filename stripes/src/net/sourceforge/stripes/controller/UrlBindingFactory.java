@@ -14,6 +14,8 @@
  */
 package net.sourceforge.stripes.controller;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -28,6 +30,7 @@ import java.util.Map.Entry;
 import javax.servlet.http.HttpServletRequest;
 
 import net.sourceforge.stripes.action.ActionBean;
+import net.sourceforge.stripes.exception.StripesRuntimeException;
 import net.sourceforge.stripes.util.bean.ParseException;
 
 /**
@@ -421,10 +424,21 @@ public class UrlBindingFactory {
      * @return the context-relative request URI
      */
     protected String trimContextPath(HttpServletRequest request) {
+        // Trim context path from beginning of URI
         String uri = request.getRequestURI();
         String contextPath = request.getContextPath();
         if (contextPath.length() > 1)
             uri = uri.substring(contextPath.length());
+
+        // URL decode
+        try {
+            String encoding = request.getCharacterEncoding();
+            uri = URLDecoder.decode(uri, encoding != null ? encoding : "UTF-8");
+        }
+        catch (UnsupportedEncodingException e) {
+            throw new StripesRuntimeException(e);
+        }
+
         return uri;
     }
 
