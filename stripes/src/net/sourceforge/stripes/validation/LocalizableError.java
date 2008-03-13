@@ -88,8 +88,11 @@ public class LocalizableError extends SimpleError {
      */
     @Override
     protected String getMessageTemplate(Locale locale) {
-        String template = LocalizationUtility.getErrorMessage(locale, getBeanclass().getName() + "." + messageKey);
-
+        String template = null;
+        
+        if (getBeanclass() != null) {
+            template = LocalizationUtility.getErrorMessage(locale, getBeanclass().getName() + "." + messageKey);
+        }
         if (template == null) {
             template = LocalizationUtility.getErrorMessage(locale, getActionPath() + "." + messageKey);
         }
