@@ -33,7 +33,7 @@ import java.util.Locale;
  * of number created ({@link java.lang.Integer}, {@link java.lang.Long} etc.) is inferred from the
  * declaration of the property on the {@code ActionBean}.  For example:</p>
  *
- *<pre>@Validate(converter=OneToManyTypeConverter.class) private List<Long> numbers;</pre>
+ *<p>{@code @Validate(converter=OneToManyTypeConverter.class) private List<Long> numbers;}</p>
  *
  * <p>would result in the numbers being converted to Longs as opposed to any other numeric type.</p>
  *
@@ -56,7 +56,7 @@ import java.util.Locale;
  * <p>Strictly speaking the {@code OneToManyTypeConverter} returns a {@link java.util.Collection}
  * of converted items. It does not have any way of inferring the collection type that should be
  * used, and so by default it will always return an instance of {@link java.util.List}. This
- * behaviour can easily be override by extending this class and overriding
+ * behaviour can easily be overriden by extending this class and overriding
  * {@link #getCollectionInstance()}.</p>
  *
  * <p>Note that the converter itself does not create any {@link ValidationError}s, but that
