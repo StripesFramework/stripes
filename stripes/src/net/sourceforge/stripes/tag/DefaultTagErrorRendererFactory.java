@@ -15,7 +15,6 @@
 package net.sourceforge.stripes.tag;
 
 import net.sourceforge.stripes.config.Configuration;
-import net.sourceforge.stripes.util.ReflectUtil;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
 
 /**
@@ -53,21 +52,11 @@ public class DefaultTagErrorRendererFactory implements TagErrorRendererFactory {
 	public void init(Configuration configuration) throws Exception {
         setConfiguration(configuration);
 
-        String className = configuration.getBootstrapPropertyResolver().
-                getProperty(RENDERER_CLASS_KEY);
-        if (className == null) {
+        this.rendererClass = configuration.getBootstrapPropertyResolver().
+                getClassProperty(RENDERER_CLASS_KEY, TagErrorRenderer.class);
+        
+        if (this.rendererClass == null)
             this.rendererClass = DefaultTagErrorRenderer.class;
-        }
-        else {
-            try {
-                this.rendererClass = ReflectUtil.findClass(className);
-            }
-            catch (ClassNotFoundException cnfe) {
-                throw new StripesRuntimeException("Could not load the specified TagErrorRenderer " +
-                    "class '" + className + "'. Please check the classname for typos and make " +
-                    "sure that the class is available in the classpath of the web app.", cnfe);
-            }
-        }
     }
 
     /**
