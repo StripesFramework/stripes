@@ -64,17 +64,21 @@ public class DefaultMultipartWrapperFactory implements MultipartWrapperFactory {
     @SuppressWarnings("unchecked")
 	public void init(Configuration config) throws Exception {
         // Determine which class we're using
-        String type = config.getBootstrapPropertyResolver().getProperty(WRAPPER_CLASS_NAME);
-        String[] candidates = type == null ? BUNDLED_IMPLEMENTATIONS : new String[] { type };
-        for (String className : candidates) {
-            try {
-                this.multipartClass = ((Class<? extends MultipartWrapper>) Class.forName(className));
-                break;
-            }
-            catch (Throwable t) {
-                log.debug(getClass().getSimpleName(), " not using ", className,
-                        " because it failed to load. This likely means the supporting ",
-                        "file upload library is not present on the classpath.");
+        this.multipartClass = config.getBootstrapPropertyResolver().getClassProperty(WRAPPER_CLASS_NAME, MultipartWrapper.class);
+        
+        if (this.multipartClass == null) {
+            // It wasn't defined in web.xml so we'll try the bundled MultipartWrappers
+            for (String className : BUNDLED_IMPLEMENTATIONS) {
+                try {
+                    this.multipartClass = ((Class<? extends MultipartWrapper>) Class
+                            .forName(className));
+                    break;
+                }
+                catch (Throwable t) {
+                    log.debug(getClass().getSimpleName(), " not using ", className,
+                            " because it failed to load. This likely means the supporting ",
+                            "file upload library is not present on the classpath.");
+                }
             }
         }
 

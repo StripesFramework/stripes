@@ -21,7 +21,6 @@ import net.sourceforge.stripes.config.RuntimeConfiguration;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
 import net.sourceforge.stripes.exception.StripesServletException;
 import net.sourceforge.stripes.util.Log;
-import net.sourceforge.stripes.util.ReflectUtil;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -103,24 +102,24 @@ public class StripesFilter implements Filter {
      */
     public void init(FilterConfig filterConfig) throws ServletException {
         BootstrapPropertyResolver bootstrap = new BootstrapPropertyResolver(filterConfig);
-        String configurationClassName = bootstrap.getProperty(CONFIG_CLASS);
 
         // Set up the Configuration - if one isn't found by the bootstrapper then
         // we'll just use the DefaultConfiguration
-        if (configurationClassName != null) {
-            try {
-                Class<?> clazz = ReflectUtil.findClass(configurationClassName);
-                this.configuration = (Configuration) clazz.newInstance();
-            }
-            catch (Exception e) {
-                log.fatal(e, "Could not instantiate specified Configuration. Class name specified was ",
-                          "[", configurationClassName, "].");
-                throw new StripesServletException("Could not instantiate specified Configuration. " +
-                        "Class name specified was [" + configurationClassName + "].", e);
-            }
+        Class<? extends Configuration> clazz = bootstrap.getClassProperty(CONFIG_CLASS,
+                Configuration.class);
+
+        if (clazz == null)
+            clazz = RuntimeConfiguration.class;
+
+        try {
+            this.configuration = (Configuration) clazz.newInstance();
         }
-        else {
-            this.configuration = new RuntimeConfiguration();
+        catch (Exception e) {
+            log.fatal(e,
+                    "Could not instantiate specified Configuration. Class name specified was ",
+                    "[", clazz.getName(), "].");
+            throw new StripesServletException("Could not instantiate specified Configuration. "
+                    + "Class name specified was [" + clazz.getName() + "].", e);
         }
 
         this.configuration.setBootstrapPropertyResolver(bootstrap);

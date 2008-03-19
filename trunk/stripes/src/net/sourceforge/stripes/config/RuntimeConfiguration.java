@@ -185,11 +185,11 @@ public class RuntimeConfiguration extends DefaultConfiguration {
      */
     @Override
     protected Map<LifecycleStage, Collection<Interceptor>> initCoreInterceptors() {
-        String classList = getBootstrapPropertyResolver().getProperty(CORE_INTERCEPTOR_LIST);
-        if (classList == null)
+        List<Class<?>> coreInterceptorClasses = getBootstrapPropertyResolver().getClassPropertyList(CORE_INTERCEPTOR_LIST);
+        if (coreInterceptorClasses.size() == 0)
             return super.initCoreInterceptors();
         else
-            return initInterceptors(getBootstrapPropertyResolver().getClassPropertyList(CORE_INTERCEPTOR_LIST));
+            return initInterceptors(coreInterceptorClasses);
     }
 
     /**
