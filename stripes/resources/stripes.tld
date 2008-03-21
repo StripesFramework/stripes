@@ -460,11 +460,11 @@
             <name>onsubmit</name><required>false</required><rtexprvalue>true</rtexprvalue>
         </attribute>
         <attribute>
-            <description>
+            <description><![CDATA[
                 Indicates whether or not to actually render the HTML &lt;FORM&gt; tag and certain
                 hidden inputs, such as _sourcePage. This is useful when using AJAX to insert
                 elements into an existing &lt;FORM&gt;.
-            </description>
+            ]]></description>
             <name>partial</name><required>false</required><rtexprvalue>true</rtexprvalue>
         </attribute>
 
@@ -692,14 +692,14 @@
     &lt;stripes:label for="bug.status"/&gt;:
 &lt;/th&gt;
 &lt;td&gt;
-	&lt;c:forEach var="status" items="&lt;%=Status.values()%&gt;"&gt;
-		&lt;stripes:radio id="bug.status.${stripes:enumName(status)}"
-		               name="bug.status"
-		               value="${stripes:enumName(status)}"/&gt;
-		&lt;stripes:label for="bug.status.${stripes:enumName(status)}"&gt;
-			${stripes:enumName(status)}
-		&lt;/stripes:label&gt;
-	&lt;/c:forEach&gt;
+    &lt;c:forEach var="status" items="&lt;%=Status.values()%&gt;"&gt;
+        &lt;stripes:radio id="bug.status.${stripes:enumName(status)}"
+                       name="bug.status"
+                       value="${stripes:enumName(status)}"/&gt;
+        &lt;stripes:label for="bug.status.${stripes:enumName(status)}"&gt;
+            ${stripes:enumName(status)}
+        &lt;/stripes:label&gt;
+    &lt;/c:forEach&gt;
 &lt;/td&gt;
 </pre>
 
@@ -1121,10 +1121,10 @@
             <type>java.lang.Object</type>
         </attribute>
         <attribute>
-            <description>
+            <description><![CDATA[
                 The name of the property which will be used to generate &lt;optgroup&gt; tags.
                 Each time a new value is encountered an optgroup will be written for it.
-            </description>
+            ]]></description>
             <name>group</name><required>false</required><rtexprvalue>true</rtexprvalue>
         </attribute>
 
@@ -1222,10 +1222,10 @@
             <type>java.util.Map</type>
         </attribute>
         <attribute>
-            <description>
+            <description><![CDATA[
                 The name of the property which will be used to generate &lt;optgroup&gt; tags.
                 Each time a new value is encountered an optgroup will be written for it.
-            </description>
+            ]]></description>
             <name>group</name><required>false</required><rtexprvalue>true</rtexprvalue>
         </attribute>
         
@@ -1318,10 +1318,10 @@
             <name>sort</name><required>false</required><rtexprvalue>true</rtexprvalue>
         </attribute>
         <attribute>
-            <description>
+            <description><![CDATA[
                 The name of the property which will be used to generate &lt;optgroup&gt; tags.
                 Each time a new value is encountered an optgroup will be written for it.
-            </description>
+            ]]></description>
             <name>group</name><required>false</required><rtexprvalue>true</rtexprvalue>
         </attribute>
 
@@ -2197,8 +2197,8 @@
 
     <function>
         <description>
-	        Indicates if validation errors exist for the given field of the given ActionBean.
-	        This allows for use of JSTL logic tags such as c:if and c:choose.
+            Indicates if validation errors exist for the given field of the given ActionBean.
+            This allows for use of JSTL logic tags such as c:if and c:choose.
         </description>
         <name>hasErrors</name>
         <function-class>net.sourceforge.stripes.tag.ElFunctions</function-class>
