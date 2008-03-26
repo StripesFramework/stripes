@@ -37,8 +37,9 @@ public class CryptoUtilTest {
     public void encryptNullTest() throws Exception {
         String input = null;
         String encrypted = CryptoUtil.encrypt(input);
+        String decrypted = CryptoUtil.decrypt(encrypted);
 
-        Assert.assertNull(encrypted, "Encrypting null should give back null.");
+        Assert.assertEquals(decrypted, "", "Encrypting and then decrypting null should yield \"\"");
     }
 
     @Test(groups="fast")
