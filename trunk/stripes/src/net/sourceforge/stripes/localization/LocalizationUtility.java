@@ -57,7 +57,8 @@ public class LocalizationUtility {
                                                Class<? extends ActionBean> beanclass,
                                                Locale locale) {
 
-        String name = new ParameterName(fieldName).getStrippedName();
+        ParameterName parameterName = new ParameterName(fieldName);
+        String strippedName = parameterName.getStrippedName();
         String localizedValue = null;
         ResourceBundle bundle = null;
 
@@ -72,19 +73,19 @@ public class LocalizationUtility {
 
         // First with the bean class
         if (beanclass != null) {
-            try { localizedValue = bundle.getString(beanclass.getName() + "." + name); }
+            try { localizedValue = bundle.getString(beanclass.getName() + "." + strippedName); }
             catch (MissingResourceException mre) { /* do nothing */ }
         }
 
         // Then the action path (THIS IS DEPRECATED)
         if (localizedValue == null) {
-            try { localizedValue = bundle.getString(actionPath + "." + name); }
+            try { localizedValue = bundle.getString(actionPath + "." + strippedName); }
             catch (MissingResourceException mre) { /* do nothing */ }
         }
 
         // Then all by itself
         if (localizedValue == null) {
-            try { localizedValue = bundle.getString(name); }
+            try { localizedValue = bundle.getString(strippedName); }
             catch (MissingResourceException mre2) { /* do nothing */ }
         }
 
@@ -92,7 +93,7 @@ public class LocalizationUtility {
         if (localizedValue == null && beanclass != null) {
             ValidationMetadata validate = StripesFilter.getConfiguration()
                     .getValidationMetadataProvider()
-                    .getValidationMetadata(beanclass, name);
+                    .getValidationMetadata(beanclass, parameterName);
             if (validate != null && validate.label() != null && !"".equals(validate.label())) {
                 localizedValue = validate.label();
             }
