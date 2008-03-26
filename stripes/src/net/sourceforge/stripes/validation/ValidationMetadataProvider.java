@@ -18,6 +18,7 @@ import java.util.Map;
 
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.config.ConfigurableComponent;
+import net.sourceforge.stripes.controller.ParameterName;
 
 /**
  * Provides a globally accessible source of validation metadata for properties and nested properties
@@ -46,5 +47,5 @@ public interface ValidationMetadataProvider extends ConfigurableComponent {
      * @return A {@link ValidationMetadata} object, if there is one associated with the property. If
      *         the property is not to be validated, then null.
      */
-    ValidationMetadata getValidationMetadata(Class<?> beanType, String property);
+    ValidationMetadata getValidationMetadata(Class<?> beanType, ParameterName property);
 }

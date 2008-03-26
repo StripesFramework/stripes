@@ -16,6 +16,7 @@ package net.sourceforge.stripes.tag;
 
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.config.Configuration;
+import net.sourceforge.stripes.controller.ParameterName;
 import net.sourceforge.stripes.exception.StripesJspException;
 import net.sourceforge.stripes.util.CryptoUtil;
 import net.sourceforge.stripes.util.Log;
@@ -96,7 +97,7 @@ public class DefaultPopulationStrategy implements PopulationStrategy {
             Class<? extends ActionBean> beanClass = tag.getParentFormTag().getActionBeanClass();
             if (beanClass != null) {
                 ValidationMetadata validate = config.getValidationMetadataProvider()
-                        .getValidationMetadata(beanClass, tag.getName());
+                        .getValidationMetadata(beanClass, new ParameterName(tag.getName()));
                 if (validate != null && validate.encrypted()) {
                     String[] copy = new String[value.length];
                     for (int i = 0; i < copy.length; i++) {

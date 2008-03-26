@@ -181,9 +181,9 @@ public class BindingPolicyManager {
     /**
      * Get all the properties and nested properties of the given class for which there is a
      * corresponding {@link ValidationMetadata}, as returned by
-     * {@link ValidationMetadataProvider#getValidationMetadata(Class, String)}. The idea here is
-     * that if the bean property must be validated, then it is expected that the property may be
-     * bound to the bean.
+     * {@link ValidationMetadataProvider#getValidationMetadata(Class, ParameterName)}. The idea
+     * here is that if the bean property must be validated, then it is expected that the property
+     * may be bound to the bean.
      * 
      * @param beanClass a class
      * @return The validated properties. If no properties are annotated then null.

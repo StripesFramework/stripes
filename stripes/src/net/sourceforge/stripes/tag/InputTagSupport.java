@@ -15,6 +15,7 @@
 package net.sourceforge.stripes.tag;
 
 import net.sourceforge.stripes.action.ActionBean;
+import net.sourceforge.stripes.controller.ParameterName;
 import net.sourceforge.stripes.controller.StripesFilter;
 import net.sourceforge.stripes.exception.StripesJspException;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
@@ -272,7 +273,7 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
 
             // check validation for encryption flag
             return StripesFilter.getConfiguration().getValidationMetadataProvider()
-                    .getValidationMetadata(beanClass, name);
+                    .getValidationMetadata(beanClass, new ParameterName(name));
         }
         else {
             return null;

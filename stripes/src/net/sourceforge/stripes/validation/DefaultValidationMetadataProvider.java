@@ -27,6 +27,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import net.sourceforge.stripes.config.Configuration;
+import net.sourceforge.stripes.controller.ParameterName;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
 import net.sourceforge.stripes.util.Log;
 
@@ -67,8 +68,8 @@ public class DefaultValidationMetadataProvider implements ValidationMetadataProv
         return meta;
     }
 
-    public ValidationMetadata getValidationMetadata(Class<?> beanType, String field) {
-        return getValidationMetadata(beanType).get(field);
+    public ValidationMetadata getValidationMetadata(Class<?> beanType, ParameterName field) {
+        return getValidationMetadata(beanType).get(field.getStrippedName());
     }
 
     /**
