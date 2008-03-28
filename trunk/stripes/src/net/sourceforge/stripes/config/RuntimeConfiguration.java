@@ -277,8 +277,13 @@ public class RuntimeConfiguration extends DefaultConfiguration {
             log.trace("Found Formatter [", formatter, "] - type parameters: ", typeArguments);
             if ((typeArguments != null) && (typeArguments.length == 1)
                     && !typeArguments[0].equals(Object.class)) {
-                log.debug("Adding auto-discovered Formatter [", formatter, "] for [", typeArguments[0], "] (from type parameter)");
-                getFormatterFactory().add((Class<?>) typeArguments[0], (Class<? extends Formatter<?>>) formatter);
+                if (typeArguments[0] instanceof Class) {
+                    log.debug("Adding auto-discovered Formatter [", formatter, "] for [", typeArguments[0], "] (from type parameter)");
+                    getFormatterFactory().add((Class<?>) typeArguments[0], (Class<? extends Formatter<?>>) formatter);
+                }
+                else {
+                    log.warn("Type parameter for non-abstract Formatter [", formatter, "] is not a class.");
+                }
             }
             
             TargetTypes targetTypes = formatter.getAnnotation(TargetTypes.class);
@@ -296,8 +301,13 @@ public class RuntimeConfiguration extends DefaultConfiguration {
             log.trace("Found TypeConverter [", typeConverter, "] - type parameters: ", typeArguments);
             if ((typeArguments != null) && (typeArguments.length == 1)
                     && !typeArguments[0].equals(Object.class)) {
-                log.debug("Adding auto-discovered TypeConverter [", typeConverter, "] for [", typeArguments[0], "] (from type parameter)");
-                getTypeConverterFactory().add((Class<?>) typeArguments[0], (Class<? extends TypeConverter<?>>) typeConverter);
+                if (typeArguments[0] instanceof Class) {
+                    log.debug("Adding auto-discovered TypeConverter [", typeConverter, "] for [", typeArguments[0], "] (from type parameter)");
+                    getTypeConverterFactory().add((Class<?>) typeArguments[0], (Class<? extends TypeConverter<?>>) typeConverter);
+                }
+                else {
+                    log.warn("Type parameter for non-abstract TypeConverter [", typeConverter, "] is not a class.");
+                }
             }
             
             TargetTypes targetTypes = typeConverter.getAnnotation(TargetTypes.class);
