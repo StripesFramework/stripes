@@ -183,22 +183,19 @@ public class DispatcherHelper {
         final boolean doBind = handler == null || handler.getAnnotation(DontBind.class) == null;
         final boolean doValidate = doBind && validate && (handler == null || handler.getAnnotation(DontValidate.class) == null);
         final Configuration config = StripesFilter.getConfiguration();
-        
-        if (doBind) {
-            ctx.setLifecycleStage(LifecycleStage.BindingAndValidation);
-            ctx.setInterceptors(config.getInterceptors(LifecycleStage.BindingAndValidation));
 
-            return ctx.wrap(new Interceptor() {
-                public Resolution intercept(ExecutionContext ctx) throws Exception {
+        ctx.setLifecycleStage(LifecycleStage.BindingAndValidation);
+        ctx.setInterceptors(config.getInterceptors(LifecycleStage.BindingAndValidation));
+
+        return ctx.wrap(new Interceptor() {
+            public Resolution intercept(ExecutionContext ctx) throws Exception {
+                if (doBind) {
                     ActionBeanPropertyBinder binder = config.getActionBeanPropertyBinder();
                     binder.bind(ctx.getActionBean(), ctx.getActionBeanContext(), doValidate);
-                    return null;
                 }
-            });
-        }
-        else {
-            return null;
-        }
+                return null;
+            }
+        });
     }
 
     /**
