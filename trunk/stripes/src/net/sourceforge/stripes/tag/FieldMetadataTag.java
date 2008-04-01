@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
@@ -15,6 +16,7 @@ import javax.servlet.jsp.tagext.BodyTag;
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.controller.StripesFilter;
 import net.sourceforge.stripes.exception.StripesJspException;
+import net.sourceforge.stripes.localization.LocalizationUtility;
 import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.util.bean.PropertyExpression;
 import net.sourceforge.stripes.util.bean.PropertyExpressionEvaluation;
@@ -121,6 +123,8 @@ public class FieldMetadataTag extends HtmlTagSupport implements BodyTag {
 
         boolean first = true;
         
+        Locale locale = getPageContext().getRequest().getLocale();
+
         for (String field : fields) {
 
             PropertyExpressionEvaluation eval = null;
@@ -169,6 +173,18 @@ public class FieldMetadataTag extends HtmlTagSupport implements BodyTag {
                 if (data.maxvalue() != null)
                     fieldInfo.append(fieldInfo.length() > 0 ? "," : "").append("maxvalue:").append(
                             data.maxvalue());
+                
+                String label = data.label();
+                if (data.label() == null)
+                {
+                    label = LocalizationUtility.getLocalizedFieldName(field,
+                            form == null ? null : form.getAction(),
+                            form == null ? null : form.getActionBeanClass(),
+                            locale);
+                }
+                if (label != null)
+                    fieldInfo.append(fieldInfo.length() > 0 ? "," : "").append("label:")
+                            .append("'").append(label.replaceAll("'", "\\\\'")).append("'");
                 
                 typeConverterClass = data.converter();
             }
