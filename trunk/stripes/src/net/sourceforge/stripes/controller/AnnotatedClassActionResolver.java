@@ -33,6 +33,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -85,7 +86,16 @@ public class AnnotatedClassActionResolver implements ActionResolver {
      * representing a subclass of ActionBean to a Map of event names to Method objects.
      */
     private Map<Class<? extends ActionBean>,Map<String,Method>> eventMappings =
-        new HashMap<Class<? extends ActionBean>,Map<String,Method>>();
+        new HashMap<Class<? extends ActionBean>,Map<String,Method>>() {
+        @Override
+        public Map<String, Method> get(Object key) {
+            Map<String, Method> value = super.get(key);
+            if (value == null)
+                return Collections.emptyMap();
+            else
+                return value;
+        }
+    };
 
     /**
      * Scans the classpath of the current classloader (not including parents) to find implementations
