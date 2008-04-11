@@ -104,7 +104,7 @@ public class StripesFilter implements Filter {
         BootstrapPropertyResolver bootstrap = new BootstrapPropertyResolver(filterConfig);
 
         // Set up the Configuration - if one isn't found by the bootstrapper then
-        // we'll just use the DefaultConfiguration
+        // we'll just use the default: RuntimeConfiguration
         Class<? extends Configuration> clazz = bootstrap.getClassProperty(CONFIG_CLASS,
                 Configuration.class);
 
