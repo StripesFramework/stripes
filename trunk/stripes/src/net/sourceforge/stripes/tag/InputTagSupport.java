@@ -16,6 +16,7 @@ package net.sourceforge.stripes.tag;
 
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.controller.ParameterName;
+import net.sourceforge.stripes.controller.StripesConstants;
 import net.sourceforge.stripes.controller.StripesFilter;
 import net.sourceforge.stripes.exception.StripesJspException;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
@@ -250,11 +251,20 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
         try { form = getParentFormTag(); }
         catch (StripesJspException sje) { /* Do nothing. */}
 
-        return LocalizationUtility.getLocalizedFieldName(name,
-                                                         form == null ? null : form.getAction(),
-                                                         form == null ? null : form.getActionBeanClass(),
-                                                         locale);
+        String actionPath = null;
+        Class<? extends ActionBean> beanClass = null;
 
+        if (form != null) {
+            actionPath = form.getAction();
+            beanClass = form.getActionBeanClass();
+        }
+        else {
+            ActionBean mainBean = (ActionBean) getPageContext().getRequest().getAttribute(StripesConstants.REQ_ATTR_ACTION_BEAN);
+            if (mainBean != null) {
+                beanClass = mainBean.getClass();
+            }
+        }
+        return LocalizationUtility.getLocalizedFieldName(name, actionPath, beanClass, locale);
     }
     
     protected ValidationMetadata getValidationMetadata() throws StripesJspException {
