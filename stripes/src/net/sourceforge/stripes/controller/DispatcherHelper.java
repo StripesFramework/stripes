@@ -364,6 +364,7 @@ public class DispatcherHelper {
             // Now if we have errors and the bean wants to handle them...
             if (errors.size() > 0 && bean instanceof ValidationErrorHandler) {
                 resolution = ((ValidationErrorHandler) bean).handleValidationErrors(errors);
+                fillInValidationErrors(ctx);
             }
 
             // If there are still errors see if we need to lookup the resolution
