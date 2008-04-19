@@ -119,11 +119,35 @@ public class MockRoundtrip {
         setSourcePage(DEFAULT_SOURCE_PAGE);
     }
 
-    /** Provides access to the request when direct access is needed. */
-    public MockHttpServletRequest getRequest() { return this.request; }
+    /** Get the servlet request object to be used by this round trip */
+    public MockHttpServletRequest getRequest() {
+        return request;
+    }
 
-    /** Provides access to the response when direct access is needed. */
-    public MockHttpServletResponse getResponse() { return this.response; }
+    /** Set the servlet request object to be used by this round trip */
+    protected void setRequest(MockHttpServletRequest request) {
+        this.request = request;
+    }
+
+    /** Get the servlet response object to be used by this round trip */
+    public MockHttpServletResponse getResponse() {
+        return response;
+    }
+
+    /** Set the servlet response object to be used by this round trip */
+    protected void setResponse(MockHttpServletResponse response) {
+        this.response = response;
+    }
+
+    /** Get the ActionBean context to be used by this round trip */
+    public MockServletContext getContext() {
+        return context;
+    }
+
+    /** Set the ActionBean context to be used by this round trip */
+    protected void setContext(MockServletContext context) {
+        this.context = context;
+    }
 
     /**
      * Sets the named request parameter to the value or values provided. Any existing values are
