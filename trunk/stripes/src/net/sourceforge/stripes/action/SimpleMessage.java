@@ -111,12 +111,12 @@ public class SimpleMessage implements Message {
      *
      * @return the exact message String passed in to the constructor
      */
-    protected String getMessage() {
+    public String getMessage() {
         return this.message;
     }
 
     /** Allows subclasses to access the replacement parameters for this message. */
-    protected Object[] getReplacementParameters() {
+    public Object[] getReplacementParameters() {
         return this.replacementParameters;
     }
 

@@ -74,10 +74,27 @@ public class ScopedLocalizableError extends LocalizableError {
         this.key = key;
     }
 
+    /**
+     * Get the default scope that was passed into the constructor.
+     * 
+     * @see #ScopedLocalizableError(String, String, Object...)
+     */
+    public String getDefaultScope() {
+        return defaultScope;
+    }
 
     /**
-     * Overrides getMessageTemplate to perform a scoped search for a message template as defined
-     * in the class level javadoc.
+     * Get the key that was passed into the constructor.
+     * 
+     * @see #ScopedLocalizableError(String, String, Object...)
+     */
+    public String getKey() {
+        return key;
+    }
+
+    /**
+     * Overrides getMessageTemplate to perform a scoped search for a message template as defined in
+     * the class level javadoc.
      */
     @Override
     protected String getMessageTemplate(Locale locale) {
