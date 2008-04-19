@@ -1903,6 +1903,13 @@
             </description>
             <name>prependContext</name><required>false</required><rtexprvalue>true</rtexprvalue>
         </attribute>
+        <attribute>
+            <description>
+                Indicates if the _sourcePage parameter should be appended to the URL. Default
+                value is false.
+            </description>
+            <name>addSourcePage</name><required>false</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
     </tag>
 
     <tag>
