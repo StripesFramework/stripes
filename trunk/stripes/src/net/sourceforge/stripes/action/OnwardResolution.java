@@ -39,6 +39,7 @@ public abstract class OnwardResolution<T extends OnwardResolution<T>> implements
     private String path;
     private String event;
     private Map<String,Object> parameters = new HashMap<String,Object>();
+    private String anchor;
 
     /**
      * Default constructor that takes the supplied path and stores it for use.
@@ -79,6 +80,18 @@ public abstract class OnwardResolution<T extends OnwardResolution<T>> implements
     /** Setter for the path that the user should be sent to. */
     public void setPath(String path) {
         this.path = path;
+    }
+
+    /** Get the name of the anchor to be appended to the URL. */
+    protected String getAnchor() {
+        return anchor;
+    }
+
+    /** Set the name of the anchor to be appended to the URL. */
+    @SuppressWarnings("unchecked")
+    protected T setAnchor(String anchor) {
+        this.anchor = anchor;
+        return (T) this;
     }
 
     /**
@@ -176,6 +189,9 @@ public abstract class OnwardResolution<T extends OnwardResolution<T>> implements
         UrlBuilder builder = new UrlBuilder(locale, path, false);
         if (event != null) {
             builder.setEvent(event);
+        }
+        if (anchor != null) {
+            builder.setAnchor(anchor);
         }
         builder.addParameters(this.parameters);
         return builder.toString();

@@ -94,6 +94,18 @@ public class RedirectResolution extends OnwardResolution<RedirectResolution> imp
         super(beanType, event);
     }
 
+    /** This method is overridden to make it public. */
+    @Override
+    public String getAnchor() {
+        return super.getAnchor();
+    }
+
+    /** This method is overridden to make it public. */
+    @Override
+    public RedirectResolution setAnchor(String anchor) {
+        return super.setAnchor(anchor);
+    }
+
     /**
      * If set to true, will cause absolutely all request parameters present in the current request
      * to be appended to the redirect URL that will be sent to the browser. Since some browsers
