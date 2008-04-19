@@ -87,7 +87,11 @@ Contents
 	-> The _sourcePage parameter is no longer inserted into links (using the link and
 	   url tags) by default (it is still submitted in forms). If the _sourcePage parameter
 	   is relied on in certain places you can request Stripes insert it using the new
-	   attribute sourcePage="true".
+	   attribute addSourcePage="true".
+
+	-> The _sourcePage parameter is always encrypted to avoid revealing potentially
+	   sensitive information. The plaintext value can be easily accessed by calling
+	   the new method ActionBeanContext.getSourcePage().
 	
 	-> The way Interceptor classes are configured has changed. Two configuration 
 	   properties are supported: 'Interceptor.Classes' and 'CoreInterceptor.Classes'.
