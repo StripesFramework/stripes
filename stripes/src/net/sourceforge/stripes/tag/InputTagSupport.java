@@ -278,6 +278,7 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
                 InputTagSupport tag = getParentTag(InputTagSupport.class);
                 while (name == null && tag != null) {
                     name = tag.getName();
+                    tag = tag.getParentTag(InputTagSupport.class);
                 }
             }
 
