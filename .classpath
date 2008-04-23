@@ -17,5 +17,6 @@
 	<classpathentry kind="lib" path="stripes/lib/test/spring.jar"/>
 	<classpathentry kind="lib" path="tests/lib/testng-5.5-jdk15.jar"/>
 	<classpathentry kind="lib" path="stripes/lib/build/tlddoc.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>
 	<classpathentry kind="output" path="stripes/classes"/>
 </classpath>
