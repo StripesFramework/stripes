@@ -80,9 +80,9 @@ public class StripesRequestWrapper extends HttpServletRequestWrapper {
             throw new IllegalStateException("A request made it through to some part of Stripes " +
                 "without being wrapped in a StripesRequestWrapper. The StripesFilter is " +
                 "responsible for wrapping the request, so it is likely that either the " +
-                "StripesFilter is not deployed, or that it's mappings do not include the " +
-                "DispatcherServlet _and_ *.jsp. Stripes does not requiire that the Stripes " +
-                "wrapper is the only request wrapper, or the outermost; only that is is present.");
+                "StripesFilter is not deployed, or that its mappings do not include the " +
+                "DispatcherServlet _and_ *.jsp. Stripes does not require that the Stripes " +
+                "wrapper is the only request wrapper, or the outermost; only that it is present.");
         }
     }
 
