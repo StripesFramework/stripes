@@ -217,7 +217,9 @@ public class FormTag extends HtmlTagSupport implements BodyTag, TryCatchFinally,
             if (!isPartial()) {
                 writeOpenTag(out, "form");
             }
-            getBodyContent().writeOut( getPageContext().getOut() );
+            if (getBodyContent() != null) {
+                getBodyContent().writeOut( getPageContext().getOut() );
+            }
 
             if (!isPartial()) {
                 // Write out a hidden field with the name of the page in it....
