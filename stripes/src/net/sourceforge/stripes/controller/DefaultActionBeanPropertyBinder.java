@@ -20,14 +20,39 @@ import net.sourceforge.stripes.action.FileBean;
 import net.sourceforge.stripes.action.Wizard;
 import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
-import net.sourceforge.stripes.util.*;
-import net.sourceforge.stripes.util.bean.*;
-import net.sourceforge.stripes.validation.*;
+import net.sourceforge.stripes.util.CollectionUtil;
+import net.sourceforge.stripes.util.CryptoUtil;
+import net.sourceforge.stripes.util.HtmlUtil;
+import net.sourceforge.stripes.util.Log;
+import net.sourceforge.stripes.util.ReflectUtil;
+import net.sourceforge.stripes.util.bean.BeanUtil;
+import net.sourceforge.stripes.util.bean.ExpressionException;
+import net.sourceforge.stripes.util.bean.NoSuchPropertyException;
+import net.sourceforge.stripes.util.bean.PropertyExpression;
+import net.sourceforge.stripes.util.bean.PropertyExpressionEvaluation;
+import net.sourceforge.stripes.validation.ScopedLocalizableError;
+import net.sourceforge.stripes.validation.TypeConverter;
+import net.sourceforge.stripes.validation.TypeConverterFactory;
+import net.sourceforge.stripes.validation.ValidationError;
+import net.sourceforge.stripes.validation.ValidationErrors;
+import net.sourceforge.stripes.validation.ValidationMetadata;
 import net.sourceforge.stripes.validation.expression.ExpressionValidator;
 
 import javax.servlet.http.HttpServletRequest;
-import java.lang.reflect.*;
-import java.util.*;
+import java.lang.reflect.Array;
+import java.lang.reflect.Constructor;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 /**
  * <p>
@@ -154,7 +179,7 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
 
                     // Only do type conversion if there aren't errors already
                     if (errors.isEmpty()) {
-                        convertedValues = convert(bean, name, values, scalarType, validationInfo, errors);
+                        convertedValues = convert(bean, name, values, type, scalarType, validationInfo, errors);
                         allConvertedFields.put(name, convertedValues);
                     }
 
@@ -695,58 +720,85 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
      * </p>
      * 
      * @param bean the ActionBean on which the property to convert exists
+     * @param propertyName the name of the property being converted
      * @param values a String array of values to attempt conversion of
+     * @param declaredType the declared type of the ActionBean property
+     * @param scalarType if the declaredType is a collection, map or array then this will
+     *           be the type contained within the collection/map value/array, otherwise
+     *           the same as declaredType
+     * @param validationInfo the validation metadata for the property if defined
      * @param errors a List into which ValidationError objects will be populated for any errors
      *            discovered during conversion.
-     * @param validationInfo the validation metadata for the property if defined
      * @return List<Object> a List of objects containing only objects of the desired type. It is
      *         not guaranteed to be the same length as the values array passed in.
      */
     @SuppressWarnings("unchecked")
     protected List<Object> convert(ActionBean bean, ParameterName propertyName, String[] values,
-            Class propertyType, ValidationMetadata validationInfo, List<ValidationError> errors)
+                                   Class<?> declaredType, Class<?> scalarType,
+                                   ValidationMetadata validationInfo, List<ValidationError> errors)
             throws Exception {
 
         List<Object> returns = new ArrayList<Object>();
+        Class returnType = null;
 
-        // Dig up the type converter
-        TypeConverter converter = null;
+        // Dig up the type converter.  This gets a bit tricky because we need to handle
+        // the following cases:
+        // 1. We need to simply find a converter for the declared type of a simple property
+        // 2. We need to find a converter for the element type in a list/array/map
+        // 3. We have a domain model object that implements List/Map and has a converter itself!
+        TypeConverterFactory factory = this.configuration.getTypeConverterFactory();
+        TypeConverter<?> converter = null;
         Locale locale = bean.getContext().getRequest().getLocale();
+
+        converter = factory.getTypeConverter(declaredType, locale);
         if (validationInfo != null && validationInfo.converter() != null) {
-            converter = this.configuration.getTypeConverterFactory().getInstance(
-                    validationInfo.converter(), locale);
+            // If a specific converter was requested and it's the same type as one we'd use
+            // for the delcared type, set the return type appropriately
+            if (converter != null && validationInfo.converter().isAssignableFrom(converter.getClass())) {
+                returnType = declaredType;
+            }
+            // Otherwise assume that it's a converter for the scalar type inside a collection
+            else {
+                converter = factory.getInstance(validationInfo.converter(), locale);
+                returnType = scalarType;
+            }
         }
+        // Else, if we got a converter for the declared type (e.g. Foo implementes List<Bar>)
+        // then convert for the declared type
+        else if (converter != null) {
+            returnType = declaredType;
+        }
+        // Else look for a converter for the scalar type (Bar in List<Bar>)
         else {
-            converter = this.configuration.getTypeConverterFactory().getTypeConverter(propertyType,
-                    locale);
+            converter  = factory.getTypeConverter(scalarType, locale);
+            returnType = scalarType;
         }
 
         log.debug("Converting ", values.length, " value(s) using ", (converter != null ?
             "converter " + converter.getClass().getName()
           : "Constructor(String) if available"));
 
-        for (int i = 0; i < values.length; ++i) {
-            String value = values[i];
+        for (String value : values) {
             if (!"".equals(value)) {
                 try {
                     if (validationInfo != null && validationInfo.encrypted()) {
-                        value = CryptoUtil.decrypt(values[i]);
+                        value = CryptoUtil.decrypt(value);
                     }
 
                     Object retval = null;
                     if (converter != null) {
-                        retval = converter.convert(value, propertyType, errors);
+                        retval = converter.convert(value, returnType, errors);
                     }
                     else {
-                        Constructor constructor = propertyType.getConstructor(String.class);
+                        Constructor<?> constructor = returnType.getConstructor(String.class);
                         if (constructor != null) {
                             retval = constructor.newInstance(value);
                         }
                         else {
-                            log.debug("Could not find a way to convert the parameter ",
-                                    propertyName.getName(), " to a ", propertyType.getSimpleName(),
-                                    ". No TypeConverter could be found and the class does not ",
-                                    "have a constructor that takes a single String parameter.");
+                            log.debug("Could not find a way to convert the parameter ", propertyName.getName(),
+                                      " to a ", returnType.getSimpleName(), ". No TypeConverter could be ",
+                                      "found and the class does not ", "have a constructor that takes a ",
+                                      "single String parameter.");
                         }
                     }
 
@@ -762,7 +814,6 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
                     }
                 }
                 catch (Exception e) {
-                    // TODO: figure out what to do, if anything, with these exceptions
                     log.warn(e, "Looks like type converter ", converter, " threw an exception.");
                 }
             }
