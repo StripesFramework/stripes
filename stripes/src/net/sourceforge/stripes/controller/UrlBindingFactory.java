@@ -265,6 +265,8 @@ public class UrlBindingFactory {
      */
     public void addBinding(Class<? extends ActionBean> beanType, UrlBinding binding) {
         pathCache.put(binding.getPath(), binding);
+        if (binding.getSuffix() != null)
+			pathCache.put(binding.getPath() + binding.getSuffix(), binding);
         prefixCache.put(binding.getPath() + '/', binding);
         List<Object> components = binding.getComponents();
         if (components != null && !components.isEmpty() && components.get(0) instanceof String)
