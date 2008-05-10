@@ -87,14 +87,16 @@ public class AnnotatedClassActionResolver implements ActionResolver {
      */
     private Map<Class<? extends ActionBean>,Map<String,Method>> eventMappings =
         new HashMap<Class<? extends ActionBean>,Map<String,Method>>() {
-        @Override
-        public Map<String, Method> get(Object key) {
-            Map<String, Method> value = super.get(key);
-            if (value == null)
-                return Collections.emptyMap();
-            else
-                return value;
-        }
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public Map<String, Method> get(Object key) {
+                Map<String, Method> value = super.get(key);
+                if (value == null)
+                    return Collections.emptyMap();
+                else
+                    return value;
+            }
     };
 
     /**
