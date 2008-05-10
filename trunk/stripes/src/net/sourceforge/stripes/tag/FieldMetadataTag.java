@@ -158,6 +158,9 @@ public class FieldMetadataTag extends HtmlTagSupport implements BodyTag {
                 if (data.required())
                     fieldInfo.append(fieldInfo.length() > 0 ? "," : "").append("required:").append(
                             data.required());
+                if (data.trim())
+                    fieldInfo.append(fieldInfo.length() > 0 ? "," : "").append("trim:").append(
+                            data.trim());
                 if (data.mask() != null)
                     fieldInfo.append(fieldInfo.length() > 0 ? "," : "").append("mask:")
                             .append("/^").append(data.mask()).append("$/");
