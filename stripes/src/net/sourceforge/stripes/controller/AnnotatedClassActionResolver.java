@@ -121,6 +121,10 @@ public class AnnotatedClassActionResolver implements ActionResolver {
      * @param clazz a class that implements ActionBean
      */
     protected void addActionBean(Class<? extends ActionBean> clazz) {
+        // Ignore abstract classes
+        if (Modifier.isAbstract(clazz.getModifiers()))
+            return;
+
         String binding = getUrlBinding(clazz);
         if (binding == null)
             return;
