@@ -137,7 +137,12 @@ public class CryptoUtil {
             byte[] hash = generateHashCode(nonce, inbytes);
             int index = cipher.update(hash, 0, HASH_CODE_SIZE, output, 0);
             index = cipher.update(nonce, 0, NONCE_SIZE, output, index);
-            cipher.doFinal(inbytes, 0, inbytes.length, output, index);
+            if (inbytes.length == 0) {
+                cipher.doFinal(output, index);
+            }
+            else {
+                cipher.doFinal(inbytes, 0, inbytes.length, output, index);
+            }
 
             // Then base64 encode the bytes
             return Base64.encodeBytes(output, BASE64_OPTIONS);
