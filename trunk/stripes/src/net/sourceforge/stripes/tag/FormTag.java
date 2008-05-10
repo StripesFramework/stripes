@@ -55,6 +55,8 @@ public class FormTag extends HtmlTagSupport implements BodyTag, TryCatchFinally,
     private String focus;
     private boolean focusSet = false;
     private boolean partial = false;
+    private String enctype = null;
+    private String method = null;
 
     /** Stores the value of the action attribute before the context gets appended. */
     private String actionWithoutContext;
@@ -134,6 +136,16 @@ public class FormTag extends HtmlTagSupport implements BodyTag, TryCatchFinally,
     /** Sets the flag that indicates if this is a partial form. */
     public void setPartial(boolean partial) { this.partial = partial; }
 
+    /** Sets the form encoding. */
+    public void setEnctype(String enctype) { this.enctype = enctype; }
+    /** Gets the form encoding. */
+    public String getEnctype() { return enctype; };
+
+    /** Sets the HTTP method to use when the form is submitted. */
+    public void setMethod(String method) { this.method = method; }
+    /** Gets the HTTP method to use when the form is submitted. */
+    public String getMethod() { return method; }
+
     ////////////////////////////////////////////////////////////
     // Additional attributes specific to the form tag
     ////////////////////////////////////////////////////////////
@@ -142,12 +154,6 @@ public class FormTag extends HtmlTagSupport implements BodyTag, TryCatchFinally,
 
     public void   setAcceptcharset(String acceptCharset) { set("accept-charset", acceptCharset); }
     public String getAcceptcharset() { return get("accept-charset"); }
-
-    public void   setEnctype(String enctype) { set("enctype", enctype); }
-    public String getEnctype() { return get("enctype"); };
-
-    public void   setMethod(String method) { set("method", method); }
-    public String getMethod() { return get("method"); }
 
     public void   setName(String name) { set("name", name); }
     public String getName() { return get("name"); }
@@ -211,6 +217,8 @@ public class FormTag extends HtmlTagSupport implements BodyTag, TryCatchFinally,
                 setMethod("post");
             }
 
+            set("method", getMethod());
+            set("enctype", getEnctype());
             set("action", buildAction());
 
             JspWriter out = getPageContext().getOut();
@@ -252,8 +260,10 @@ public class FormTag extends HtmlTagSupport implements BodyTag, TryCatchFinally,
             // Clean up any state the container won't reset during tag pooling
             this.actionBeanClass = null;
             this.actionWithoutContext = null;
+            this.enctype = null;
             this.fieldsPresent.clear();
             this.focusSet = false;
+            this.method = null;
             this.urlBuilder = null;
         }
         catch (IOException ioe) {
