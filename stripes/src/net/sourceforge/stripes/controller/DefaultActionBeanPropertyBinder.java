@@ -111,7 +111,7 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
                 .getValidationMetadataProvider().getValidationMetadata(bean.getClass());
 
         // Take the ParameterMap and turn the keys into ParameterNames
-        Map<ParameterName, String[]> parameters = getParameters(context);
+        Map<ParameterName, String[]> parameters = getParameters(bean);
 
         // Run the required validation first to catch fields that weren't even submitted
         if (validate) {
@@ -298,11 +298,10 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
      */
     @SuppressWarnings("unchecked")
     protected void bindMissingValuesAsNull(ActionBean bean, ActionBeanContext context) {
-        HttpServletRequest request = context.getRequest();
-        Set<String> paramatersSubmitted = request.getParameterMap().keySet();
+        Set<String> parametersSubmitted = context.getRequest().getParameterMap().keySet();
 
         for (String name : getFieldsPresentInfo(bean)) {
-            if (!paramatersSubmitted.contains(name)) {
+            if (!parametersSubmitted.contains(name)) {
                 try {
                     BeanUtil.setPropertyToNull(name, bean);
                 }
@@ -415,12 +414,16 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
      * length of parameter name.
      */
     @SuppressWarnings("unchecked")
-    protected SortedMap<ParameterName, String[]> getParameters(ActionBeanContext context) {
-        Map<String, String[]> requestParameters = context.getRequest().getParameterMap();
+    protected SortedMap<ParameterName, String[]> getParameters(ActionBean bean) {
+        Map<String, String[]> requestParameters = bean.getContext().getRequest().getParameterMap();
+        Map<String, ValidationMetadata> validations = StripesFilter.getConfiguration()
+                .getValidationMetadataProvider().getValidationMetadata(bean.getClass());
         SortedMap<ParameterName, String[]> parameters = new TreeMap<ParameterName, String[]>();
 
         for (Map.Entry<String, String[]> entry : requestParameters.entrySet()) {
-            parameters.put(new ParameterName(entry.getKey().trim()), entry.getValue());
+            ParameterName paramName = new ParameterName(entry.getKey().trim());
+            ValidationMetadata validation = validations.get(paramName.getStrippedName());
+            parameters.put(paramName, trim(entry.getValue(), validation));
         }
 
         return parameters;
@@ -460,8 +463,9 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
 
         Map<String, ValidationMetadata> validationInfos = this.configuration
                 .getValidationMetadataProvider().getValidationMetadata(bean.getClass());
-        StripesRequestWrapper req = StripesRequestWrapper.findStripesWrapper(bean.getContext()
-                .getRequest());
+        ActionBeanContext context = bean.getContext();
+        HttpServletRequest request = context.getRequest();
+        StripesRequestWrapper stripesReq = StripesRequestWrapper.findStripesWrapper(request);
 
         if (validationInfos != null) {
             boolean wizard = bean.getClass().getAnnotation(Wizard.class) != null;
@@ -473,17 +477,15 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
 
                 // If the field is required, and we don't have index params that collapse
                 // to that property name, check that it was supplied
-                if (validationInfo.requiredOn(bean.getContext().getEventName())
+                if (validationInfo.requiredOn(context.getEventName())
                         && !indexedParams.contains(propertyName)) {
 
                     // Make the added check that if the form is a wizard, the required field is
                     // in the set of fields that were on the page
                     if (!wizard || fieldsOnPage.contains(propertyName)) {
-                        String[] values = bean.getContext().getRequest().getParameterValues(
-                                propertyName);
-                        log.debug("Checking required field: ", propertyName, ", with values: ",
-                                values);
-                        checkSingleRequiredField(propertyName, propertyName, values, req, errors);
+                        String[] values = trim(request.getParameterValues(propertyName), validationInfo);
+                        log.debug("Checking required field: ", propertyName, ", with values: ", values);
+                        checkSingleRequiredField(propertyName, propertyName, values, stripesReq, errors);
                     }
                 }
             }
@@ -516,9 +518,9 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
                         ValidationMetadata validationInfo = validationInfos.get(name.getStrippedName());
 
                         if (validationInfo != null
-                                && validationInfo.requiredOn(bean.getContext().getEventName())) {
+                                && validationInfo.requiredOn(context.getEventName())) {
                             checkSingleRequiredField(name.getName(), name.getStrippedName(),
-                                    values, req, errors);
+                                    values, stripesReq, errors);
                         }
                     }
                 }
@@ -820,6 +822,26 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
         }
 
         return returns;
+    }
+
+    /**
+     * Inspects the given {@link ValidationMetadata} object to determine if the given {@code values}
+     * should be trimmed. If so, then the trimmed values are returned. Otherwise, the values are
+     * returned unchanged. If {@code meta} is null, then the default action is taken, and the values
+     * are trimmed. Either {@code values} or {@code meta} (or both) may be null.
+     */
+    protected String[] trim(String[] values, ValidationMetadata meta) {
+        if (values != null && values.length > 0 && (meta == null || meta.trim())) {
+            String[] copy = new String[values.length];
+            for (int i = 0; i < values.length; i++) {
+                if (values[i] != null)
+                    copy[i] = values[i].trim();
+            }
+            return copy;
+        }
+        else {
+            return values;
+        }
     }
 
     /**

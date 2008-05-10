@@ -55,6 +55,14 @@ public @interface Validate {
     boolean required() default false;
 
     /**
+     * Trim white space from the beginning and end of request parameter values before attempting
+     * validation, type conversion or binding.
+     * 
+     * @see String#trim()
+     */
+    boolean trim() default true;
+
+    /**
      * <p>If required=true, restricts the set of events to which the required check is applied.
      * If required=false (or omitted) this setting has <i>no effect</i>. This setting is entirely
      * optional and if omitted then the field will simply be required for all events.</p>

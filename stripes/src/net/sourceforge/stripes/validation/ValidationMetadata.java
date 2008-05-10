@@ -35,6 +35,7 @@ public class ValidationMetadata {
     private String property;
     private boolean encrypted;
     private boolean required;
+    private boolean trim;
     private Set<String> on;
     private boolean onIsPositive;
     private boolean ignore;
@@ -69,6 +70,7 @@ public class ValidationMetadata {
         this.property = property;
         encrypted(validate.encrypted());
         required(validate.required());
+        trim(validate.trim());
         ignore(validate.ignore());
         if (validate.minlength() != -1) minlength(validate.minlength());
         if (validate.maxlength() != -1) maxlength(validate.maxlength());
@@ -103,6 +105,15 @@ public class ValidationMetadata {
 
     /** Returns true if the field in question is required. */
     public boolean required() { return this.required; }
+
+    /** Sets the trim flag of this field. True = trim, false = don't trim. */
+    public ValidationMetadata trim(boolean trim) {
+        this.trim = trim;
+        return this;
+    }
+
+    /** Returns true if the field should be trimmed before validation or type conversion. */
+    public boolean trim() { return this.trim; }
 
     /** Returns true if the field is required when processing the specified event. */
     public boolean requiredOn(String event) {
