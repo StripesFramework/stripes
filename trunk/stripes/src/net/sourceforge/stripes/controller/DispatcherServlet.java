@@ -163,11 +163,8 @@ public class DispatcherServlet extends HttpServlet {
                                 resolution = handleValidationErrors(ctx);
 
                                 if (resolution == null) {
-                                    // And finally(ish) invoking of the event handler
+                                    // And finally invoking of the event handler
                                     resolution = invokeEventHandler(ctx);
-                                    
-                                    // If the event produced errors, fill them in
-                                    DispatcherHelper.fillInValidationErrors(ctx);
                                 }
                             }
                         }
