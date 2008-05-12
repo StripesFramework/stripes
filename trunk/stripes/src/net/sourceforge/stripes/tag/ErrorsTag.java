@@ -346,9 +346,12 @@ public class ErrorsTag extends HtmlTagSupport implements BodyTag {
                 writer.write(header);
 
                 for (ValidationError fieldError : this.allErrors) {
-                    writer.write(openElement);
-                    writer.write(fieldError.getMessage(locale));
-                    writer.write(closeElement);
+                    String message = fieldError.getMessage(locale);
+                    if (message != null && message.length() > 0) {
+                        writer.write(openElement);
+                        writer.write(message);
+                        writer.write(closeElement);
+                    }
                 }
 
                 writer.write(footer);
