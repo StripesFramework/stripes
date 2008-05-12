@@ -128,7 +128,7 @@ public class DateFormatter implements Formatter<Date> {
                                                         locale);
             }
             else if (lcFormatType.equals("time")) {
-                format = DateFormat.getTimeInstance(namedPatterns.get(lcFormatString));
+                format = DateFormat.getTimeInstance(namedPatterns.get(lcFormatString), locale);
             }
             else {
                 throw new StripesRuntimeException("Invalid formatType for Date: " + formatType +
