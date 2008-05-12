@@ -192,6 +192,7 @@ public class DispatcherHelper {
                 if (doBind) {
                     ActionBeanPropertyBinder binder = config.getActionBeanPropertyBinder();
                     binder.bind(ctx.getActionBean(), ctx.getActionBeanContext(), doValidate);
+                    fillInValidationErrors(ctx);
                 }
                 return null;
             }
@@ -247,6 +248,7 @@ public class DispatcherHelper {
                         }
                     }
 
+                    fillInValidationErrors(ctx);
                     return null;
                 }
             });
@@ -449,6 +451,7 @@ public class DispatcherHelper {
                              "returned: ", returnValue);
                 }
 
+                fillInValidationErrors(ctx);
                 return null;
             }
         });
