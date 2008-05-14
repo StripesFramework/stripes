@@ -440,6 +440,7 @@ public class DispatcherHelper {
         return ctx.wrap( new Interceptor() {
             public Resolution intercept(ExecutionContext ctx) throws Exception {
                 Object returnValue = handler.invoke(bean);
+                fillInValidationErrors(ctx);
 
                 if (returnValue != null && returnValue instanceof Resolution) {
                     ctx.setResolutionFromHandler(true);
@@ -451,7 +452,6 @@ public class DispatcherHelper {
                              "returned: ", returnValue);
                 }
 
-                fillInValidationErrors(ctx);
                 return null;
             }
         });
