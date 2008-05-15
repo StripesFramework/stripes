@@ -247,9 +247,8 @@ public class NameBasedActionResolver extends AnnotatedClassActionResolver {
         catch (StripesServletException sse) {
             ActionBean bean = handleActionBeanNotFound(context, urlBinding);
             if (bean != null) {
-                bean.setContext(context);
+                setActionBeanContext(bean, context);
                 assertGetContextWorks(bean);
-                
                 return bean;
             }
             else {

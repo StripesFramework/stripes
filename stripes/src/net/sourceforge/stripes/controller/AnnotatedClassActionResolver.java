@@ -336,25 +336,16 @@ public class AnnotatedClassActionResolver implements ActionResolver {
                     bean = makeNewActionBean(beanClass, context);
                     request.getSession().setAttribute(bindingPath, bean);
                 }
-
-                bean.setContext(context);
             }
             else {
                 bean = (ActionBean) request.getAttribute(bindingPath);
                 if (bean == null) {
                     bean = makeNewActionBean(beanClass, context);
-                    bean.setContext(context);
                     request.setAttribute(bindingPath, bean);
                 }
-                else {
-                    if (bean.getContext() == null) {
-                        bean.setContext(context);
-                    }
-                    else {
-                        bean.getContext().setRequest(request);
-                    }
-                }
             }
+
+            setActionBeanContext(bean, context);
         }
         catch (Exception e) {
             StripesServletException sse = new StripesServletException(
@@ -366,6 +357,29 @@ public class AnnotatedClassActionResolver implements ActionResolver {
         assertGetContextWorks(bean);
         return bean;
 
+    }
+
+    /**
+     * Calls {@link ActionBean#setContext(ActionBeanContext)} with the given {@code context} only if
+     * necessary. Subclasses should use this method instead of setting the context directly because
+     * it can be somewhat tricky to determine when it needs to be done.
+     * 
+     * @param bean The bean whose context may need to be set.
+     * @param context The context to pass to the bean if necessary.
+     */
+    protected void setActionBeanContext(ActionBean bean, ActionBeanContext context) {
+        ActionBeanContext abcFromBean = bean.getContext();
+        if (abcFromBean == null) {
+            bean.setContext(context);
+        }
+        else {
+            StripesRequestWrapper wrapperFromBean = StripesRequestWrapper
+                    .findStripesWrapper(abcFromBean.getRequest());
+            StripesRequestWrapper wrapperFromRequest = StripesRequestWrapper
+                    .findStripesWrapper(context.getRequest());
+            if (wrapperFromBean != wrapperFromRequest)
+                bean.setContext(context);
+        }
     }
 
     /**
