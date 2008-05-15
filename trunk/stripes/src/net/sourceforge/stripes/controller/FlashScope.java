@@ -16,6 +16,7 @@ package net.sourceforge.stripes.controller;
 
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.action.ActionBeanContext;
+import net.sourceforge.stripes.exception.StripesRuntimeException;
 import net.sourceforge.stripes.util.Log;
 
 import javax.servlet.http.HttpServletRequest;
@@ -30,6 +31,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>A FlashScope is an object that can be used to store objects and make them available as
@@ -90,6 +93,7 @@ public class FlashScope extends HashMap<String,Object> implements Serializable {
     private int timeout = DEFAULT_TIMEOUT_IN_SECONDS;
     private HttpServletRequest request;
     private Integer key;
+    private Semaphore semaphore;
 
     /**
      * Protected constructor to prevent random creation of FlashScopes. Uses the request
@@ -102,6 +106,8 @@ public class FlashScope extends HashMap<String,Object> implements Serializable {
     protected FlashScope(HttpServletRequest request, Integer key) {
         this.request = request;
         this.key = key;
+        this.semaphore = new Semaphore(1);
+        this.semaphore.acquireUninterruptibly();
     }
 
     /** Returns the timeout in seconds after which the flash scope will be discarded. */
@@ -118,6 +124,22 @@ public class FlashScope extends HashMap<String,Object> implements Serializable {
     }
 
     /**
+     * Get the semaphore that is used to synchronize the calls to {@link #completeRequest()} and
+     * {@link #beginRequest(HttpServletRequest)} made by {@link StripesFilter}.
+     */
+    protected Semaphore getSemaphore() {
+        return semaphore;
+    }
+
+    /**
+     * Renamed to {@link #completeRequest()}.
+     */
+    @Deprecated
+    public void requestComplete() {
+        completeRequest();
+    }
+
+    /**
      * <p>Used by the StripesFilter to notify the flash scope that the request for which
      * it is used has been completed. The FlashScope uses this notification to start a
      * timer, and also to null out it's reference to the request so that it can be
@@ -126,7 +148,7 @@ public class FlashScope extends HashMap<String,Object> implements Serializable {
      * <p>The timer is used to determine if a flash scope has been orphaned (i.e. the subsequent
      * request was not made) after a period of time, so that it can be removed from session.</p>
      */
-    public void requestComplete() {
+    public void completeRequest() {
         // Clean up any old-age flash scopes
         Map<Integer, FlashScope> scopes = getContainer(request, false);
         if (scopes != null && !scopes.isEmpty()) {
@@ -158,6 +180,60 @@ public class FlashScope extends HashMap<String,Object> implements Serializable {
         // start timer, clear request
         this.startTime = System.currentTimeMillis();
         this.request = null;
+        this.semaphore.release();
+    }
+
+    /**
+     * <p>
+     * Called by {@link StripesFilter} to copy all the attributes from this flash scope to the given
+     * {@code request}. {@link #beginRequest(HttpServletRequest)} must never be called before
+     * {@link #completeRequest()} is called. Since the two methods are normally called by different
+     * threads, synchronization of the calls is accomplished through use of a {@link Semaphore}.
+     * </p>
+     * 
+     * @param request The request to copy the flash scope attributes to
+     */
+    public void beginRequest(HttpServletRequest request) {
+        boolean acquired = false;
+        try {
+            // Acquire the permit from the semaphore with a 1 second timeout for safety
+            acquired = getSemaphore().tryAcquire(1, TimeUnit.SECONDS);
+
+            // If no permit was acquired, then that's bad so log it as an error
+            if (!acquired) {
+                log.error("Something is amiss! A timeout occurred while trying to copy a flash "
+                        + "scope to a new request. Only StripesFilter should call "
+                        + "FlashScope.completeRequest() and FlashScope.beginRequest(), and the "
+                        + "calls must be properly synchronized. The timeout likely means that "
+                        + "completeRequest() was never called or did not complete successfully "
+                        + "on this flash scope.");
+            }
+
+            // Copy all the attributes from this scope to the request scope
+            for (Map.Entry<String, Object> entry : entrySet()) {
+                Object value = entry.getValue();
+                if (value instanceof ActionBean) {
+                    HttpServletRequest tmp = ((ActionBean) value).getContext().getRequest();
+                    if (tmp != null) {
+                        tmp = StripesRequestWrapper.findStripesWrapper(tmp);
+                        if (tmp != null) {
+                            tmp = (HttpServletRequest) ((StripesRequestWrapper) tmp).getRequest();
+                            if (tmp instanceof FlashRequest)
+                                ((FlashRequest) tmp).setDelegate(request);
+                        }
+                    }
+                }
+                request.setAttribute(entry.getKey(), value);
+            }
+        }
+        catch (InterruptedException e) {
+            throw new StripesRuntimeException(e);
+        }
+        finally {
+            // Make sure the semaphore permit gets released
+            if (acquired)
+                getSemaphore().release();
+        }
     }
 
     /**

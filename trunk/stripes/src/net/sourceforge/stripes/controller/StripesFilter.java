@@ -14,7 +14,6 @@
  */
 package net.sourceforge.stripes.controller;
 
-import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.config.BootstrapPropertyResolver;
 import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.config.RuntimeConfiguration;
@@ -38,7 +37,6 @@ import java.lang.ref.WeakReference;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -290,23 +288,10 @@ public class StripesFilter implements Filter {
      * back to request attributes.</p>
      */
     protected void flashInbound(HttpServletRequest req) {
+        // Copy the attributes from the previous flash scope to the new request
         FlashScope flash = FlashScope.getPrevious(req);
-
         if (flash != null) {
-            for (Map.Entry<String, Object> entry : flash.entrySet()) {
-                Object value = entry.getValue();
-                if (value instanceof ActionBean) {
-                    HttpServletRequest tmp = ((ActionBean) value).getContext().getRequest();
-                    if (tmp != null) {
-                        tmp = StripesRequestWrapper.findStripesWrapper(tmp);
-                        if (tmp != null) {
-                            tmp = (HttpServletRequest) ((StripesRequestWrapper) tmp).getRequest();
-                            ((FlashRequest) tmp).setDelegate(req);
-                        }
-                    }
-                }
-                req.setAttribute(entry.getKey(), value);
-            }
+            flash.beginRequest(req);
         }
     }
 
@@ -320,7 +305,7 @@ public class StripesFilter implements Filter {
         // Start the timer on the current flash scope
         FlashScope flash = FlashScope.getCurrent(req, false);
         if (flash != null) {
-            flash.requestComplete();
+            flash.completeRequest();
         }
     }
 
