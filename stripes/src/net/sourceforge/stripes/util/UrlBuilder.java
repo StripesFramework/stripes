@@ -14,8 +14,6 @@
  */
 package net.sourceforge.stripes.util;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -386,51 +384,46 @@ public class UrlBuilder {
      * Build and return the URL
      */
     protected String build() {
-        try {
+        // special handling for event parameter
+        List<Parameter> parameters = new ArrayList<Parameter>(this.parameters.size() + 1);
+        if (this.event != null) {
+            parameters.add(this.event);
+        }
+        parameters.addAll(this.parameters);
+
+        // lookup validation info for the bean class to find encrypted properties
+        Map<String, ValidationMetadata> validations = getValidationMetadata();
+
+        StringBuilder buffer = new StringBuilder(256);
+        buffer.append(getBaseURL(this.baseUrl, parameters));
+        boolean seenQuestionMark = buffer.indexOf("?") != -1;
+        for (Parameter param : parameters) {
             // special handling for event parameter
-            List<Parameter> parameters = new ArrayList<Parameter>(this.parameters.size() + 1);
-            if (this.event != null) {
-                parameters.add(this.event);
+            if (param == this.event) {
+                if (param.value == null)
+                    continue;
+                else
+                    param = new Parameter((String) this.event.value, "");
             }
-            parameters.addAll(this.parameters);
 
-            // lookup validation info for the bean class to find encrypted properties
-            Map<String, ValidationMetadata> validations = getValidationMetadata();
-
-            StringBuilder buffer = new StringBuilder(256);
-            buffer.append(getBaseURL(this.baseUrl, parameters));
-            boolean seenQuestionMark = buffer.indexOf("?") != -1;
-            for (Parameter param : parameters) {
-                // special handling for event parameter
-                if (param == this.event) {
-                    if (param.value == null)
-                        continue;
-                    else
-                        param = new Parameter((String) this.event.value, "");
-                }
-
-                // Figure out whether we already have params or not
-                if (!seenQuestionMark) {
-                    buffer.append('?');
-                    seenQuestionMark = true;
-                }
-                else {
-                    buffer.append(getParameterSeparator());
-                }
-                buffer.append(URLEncoder.encode(param.name, "UTF-8")).append('=');
-                if (param.value != null) {
-                    ValidationMetadata validation = validations.get(param.name);
-                    String formatted = format(param.value);
-                    if (validation != null && validation.encrypted())
-                        formatted = CryptoUtil.encrypt(formatted);
-                    buffer.append(URLEncoder.encode(formatted, "UTF-8"));
-                }
+            // Figure out whether we already have params or not
+            if (!seenQuestionMark) {
+                buffer.append('?');
+                seenQuestionMark = true;
             }
-            return buffer.toString();
+            else {
+                buffer.append(getParameterSeparator());
+            }
+            buffer.append(StringUtil.urlEncode(param.name)).append('=');
+            if (param.value != null) {
+                ValidationMetadata validation = validations.get(param.name);
+                String formatted = format(param.value);
+                if (validation != null && validation.encrypted())
+                    formatted = CryptoUtil.encrypt(formatted);
+                buffer.append(StringUtil.urlEncode(formatted));
+            }
         }
-        catch (UnsupportedEncodingException uee) {
-            throw new StripesRuntimeException("Unsupported encoding?  UTF-8?  That's unpossible.");
-        }
+        return buffer.toString();
     }
 
     /**
