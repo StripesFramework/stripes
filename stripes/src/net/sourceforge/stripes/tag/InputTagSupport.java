@@ -171,7 +171,9 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
         if (parent == null) {
             throw new StripesJspException
                 ("InputTag of type [" + getClass().getName() + "] must be enclosed inside a " +
-                    "stripes form tag.");
+                 "stripes form tag. If, for some reason, you do not wish to render a complete " +
+                 "form you may surround stripes input tags with <s:form partial=\"true\" ...> " +
+                 "which will provide support to the input tags but not render the <form> tag.");
         }
 
         return parent;
