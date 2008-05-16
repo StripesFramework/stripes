@@ -19,7 +19,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.net.URL;
-import java.net.URLDecoder;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
@@ -215,31 +214,26 @@ public class ResolverUtil<T> {
         }
 
         while (urls.hasMoreElements()) {
-            try {
-                String urlPath = urls.nextElement().getFile();
-                urlPath = URLDecoder.decode(urlPath, "UTF-8");
+            String urlPath = urls.nextElement().getFile();
+            urlPath = StringUtil.urlDecode(urlPath);
 
-                // If it's a file in a directory, trim the stupid file: spec
-                if ( urlPath.startsWith("file:") ) {
-                    urlPath = urlPath.substring(5);
-                }
-
-                // Else it's in a JAR, grab the path to the jar
-                if (urlPath.indexOf('!') > 0) {
-                    urlPath = urlPath.substring(0, urlPath.indexOf('!'));
-                }
-
-                log.info("Scanning for classes in [", urlPath, "] matching criteria: ", test);
-                File file = new File(urlPath);
-                if ( file.isDirectory() ) {
-                    loadImplementationsInDirectory(test, packageName, file);
-                }
-                else {
-                    loadImplementationsInJar(test, packageName, file);
-                }
+            // If it's a file in a directory, trim the stupid file: spec
+            if ( urlPath.startsWith("file:") ) {
+                urlPath = urlPath.substring(5);
             }
-            catch (IOException ioe) {
-                log.warn("could not read entries", ioe);
+
+            // Else it's in a JAR, grab the path to the jar
+            if (urlPath.indexOf('!') > 0) {
+                urlPath = urlPath.substring(0, urlPath.indexOf('!'));
+            }
+
+            log.info("Scanning for classes in [", urlPath, "] matching criteria: ", test);
+            File file = new File(urlPath);
+            if ( file.isDirectory() ) {
+                loadImplementationsInDirectory(test, packageName, file);
+            }
+            else {
+                loadImplementationsInJar(test, packageName, file);
             }
         }
         

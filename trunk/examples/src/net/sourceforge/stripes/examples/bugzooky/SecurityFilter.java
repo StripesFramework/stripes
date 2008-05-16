@@ -8,8 +8,10 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import net.sourceforge.stripes.util.StringUtil;
+
 import java.io.IOException;
-import java.net.URLEncoder;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -48,7 +50,7 @@ public class SecurityFilter implements Filter {
         }
         else {
             // Redirect the user to the login page, noting where they were coming from
-            String targetUrl = URLEncoder.encode(request.getServletPath(), "UTF-8");
+            String targetUrl = StringUtil.urlEncode(request.getServletPath());
 
             response.sendRedirect(
                     request.getContextPath() + "/bugzooky/Login.jsp?targetUrl=" + targetUrl);

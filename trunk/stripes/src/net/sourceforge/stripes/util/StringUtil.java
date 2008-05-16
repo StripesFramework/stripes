@@ -1,7 +1,12 @@
 package net.sourceforge.stripes.util;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.regex.Pattern;
+
+import net.sourceforge.stripes.exception.StripesRuntimeException;
 
 /**
  * Provides utility methods for manipulating and parsing Strings.
@@ -48,5 +53,35 @@ public class StringUtil {
         }
 
         return builder.toString();
+    }
+
+    /**
+     * URL-encodes {@code value} using the UTF-8 charset. Using this method eliminates the need for
+     * a try/catch since UTF-8 is guaranteed to exist.
+     * 
+     * @see URLEncoder#encode(String, String)
+     */
+    public static String urlEncode(String value) {
+        try {
+            return URLEncoder.encode(value, "UTF-8");
+        }
+        catch (UnsupportedEncodingException e) {
+            throw new StripesRuntimeException("Unsupported encoding?  UTF-8?  That's unpossible.");
+        }
+    }
+
+    /**
+     * URL-decodes {@code value} using the UTF-8 charset. Using this method eliminates the need for
+     * a try/catch since UTF-8 is guaranteed to exist.
+     * 
+     * @see URLDecoder#decode(String, String)
+     */
+    public static String urlDecode(String value) {
+        try {
+            return URLDecoder.decode(value, "UTF-8");
+        }
+        catch (UnsupportedEncodingException e) {
+            throw new StripesRuntimeException("Unsupported encoding?  UTF-8?  That's unpossible.");
+        }
     }
 }
