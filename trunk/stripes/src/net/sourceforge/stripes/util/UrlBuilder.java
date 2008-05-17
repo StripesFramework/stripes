@@ -496,7 +496,7 @@ public class UrlBuilder {
                             buf.append(nextLiteral);
                         }
 
-                        buf.append(formatted);
+                        buf.append(StringUtil.urlEncode(formatted));
                         parameters.remove(assigned);
                         ok = true;
                     }
