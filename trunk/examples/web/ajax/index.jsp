@@ -18,9 +18,9 @@
            * @param container the name of the HTML container to insert the result into
            */
           function invoke(form, event, container) {
-              var params = Form.serialize(form);
-              if (event != null) params = event + '&' + params;
-              new Ajax.Updater(container, form.action, {method:'post', postBody:params});
+              if (!form.onsubmit) { form.onsubmit = function() { return false } };
+              var params = Form.serialize(form, {submit:event});
+              new Ajax.Updater(container, form.action, {method:'post', parameters:params});
           }
       </script>
   </head>
@@ -42,9 +42,9 @@
             </tr>
             <tr>
                 <td colspan="2">
-                    <stripes:button name="add" value="Add"
+                    <stripes:submit name="add" value="Add"
                         onclick="invoke(this.form, this.name, 'result');"/>
-                    <stripes:button name="divide" value="Divide"
+                    <stripes:submit name="divide" value="Divide"
                         onclick="invoke(this.form, this.name, 'result');"/>
                 </td>
             </tr>
