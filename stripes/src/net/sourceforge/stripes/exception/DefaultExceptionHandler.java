@@ -91,6 +91,10 @@ public class DefaultExceptionHandler implements ExceptionHandler {
                 ((Resolution) resolution).execute(req, res);
             }
         }
+
+        Method getHandlerMethod() {
+            return handlerMethod;
+        }
     }
 
     /**
@@ -181,6 +185,12 @@ public class DefaultExceptionHandler implements ExceptionHandler {
             // And if we made it this far, add it!
             Class<? extends Throwable> type = parameters[0];
             HandlerProxy proxy = new HandlerProxy(handler, method);
+            HandlerProxy previous = handlers.get(type);
+            if (previous != null) {
+                log.warn("More than one exception handler for exception type ", type, " in ",
+                    handler.getClass().getSimpleName(), ". '", method.getName(),
+                    "()' will be used instead of '", previous.getHandlerMethod().getName(), "()'.");
+            }
             handlers.put(type, proxy);
 
             log.debug("Added exception handler '", handler.getClass().getSimpleName(), ".",
