@@ -32,6 +32,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -417,27 +418,42 @@ public class AnnotatedClassActionResolver implements ActionResolver {
 
 
     /**
-     * <p>Searched for a parameter in the request whose name matches one of the named events handled
-     * by the ActionBean.  For example, if the ActionBean can handle events foo and bar, this
-     * method will scan the request for foo=somevalue and bar=somevalue.  If it find a request
-     * parameter with a matching name it will return that name.  If there are multiple matching
-     * names, the result of this method cannot be guaranteed.</p>
-     *
-     * <p>If the event name cannot be determined through the parameter names, two alternative
-     * strategies are employed. First if there is extra path information beyond the URL binding
-     * of the ActionBean, it is checked to see if it matches an event name.  If that doesn't work,
-     * the value of a 'special' request parameter ({@link StripesConstants#URL_KEY_EVENT_NAME})
-     * is checked to see if contains a single value matching an event name.</p>
-     *
+     * <p>
+     * Try various means to determine which event is to be executed on the current ActionBean. If a
+     * 'special' request attribute ({@link StripesConstants#REQ_ATTR_EVENT_NAME}) is present in
+     * the request, then return its value. This attribute is used to handle internal forwards, when
+     * request parameters are merged and cannot reliably determine the desired event name.
+     * </p>
+     * 
+     * <p>
+     * If that doesn't work, the value of a 'special' request parameter ({@link StripesConstants#URL_KEY_EVENT_NAME})
+     * is checked to see if contains a single value matching an event name.
+     * </p>
+     * 
+     * <p>
+     * Failing that, search for a parameter in the request whose name matches one of the named
+     * events handled by the ActionBean. For example, if the ActionBean can handle events foo and
+     * bar, this method will scan the request for foo=somevalue and bar=somevalue. If it finds a
+     * request parameter with a matching name it will return that name. If there are multiple
+     * matching names, the result of this method cannot be guaranteed and a
+     * {@link StripesRuntimeException} will be thrown.
+     * </p>
+     * 
+     * <p>
+     * Finally, if the event name cannot be determined through the parameter names and there is
+     * extra path information beyond the URL binding of the ActionBean, it is checked to see if it
+     * matches an event name.
+     * </p>
+     * 
      * @param bean the ActionBean type bound to the request
      * @param context the ActionBeanContect for the current request
      * @return String the name of the event submitted, or null if none can be found
      */
     public String getEventName(Class<? extends ActionBean> bean, ActionBeanContext context) {
         String event = getEventNameFromRequestAttribute(bean, context);
+        if (event == null) event = getEventNameFromEventNameParam(bean, context);
         if (event == null) event = getEventNameFromRequestParams(bean, context);
         if (event == null) event = getEventNameFromPath(bean, context);
-        if (event == null) event = getEventNameFromEventNameParam(bean, context);
         return event;
     }
 
@@ -529,12 +545,31 @@ public class AnnotatedClassActionResolver implements ActionResolver {
      */
     protected String getEventNameFromEventNameParam(Class<? extends ActionBean> bean,
                                                     ActionBeanContext context) {
-        String[] name = context.getRequest().getParameterValues(StripesConstants.URL_KEY_EVENT_NAME);
-        if (name != null && name.length == 1 && this.eventMappings.get(bean).containsKey(name[0])) {
-            return name[0];
+        String[] values = context.getRequest().getParameterValues(StripesConstants.URL_KEY_EVENT_NAME);
+        String event = null;
+        if (values != null && values.length == 1 && this.eventMappings.get(bean).containsKey(values[0])) {
+            event = values[0];
         }
 
-        return null;
+        // Warn of non-backward-compatible behavior
+        if (event != null) {
+            try {
+                String otherName = getEventNameFromRequestParams(bean, context);
+                if (otherName != null && !otherName.equals(event)) {
+                    String[] otherValue = context.getRequest().getParameterValues(otherName);
+                    log.warn("The event name was specified by two request parameters: ",
+                            StripesConstants.URL_KEY_EVENT_NAME, "=", event, " and ", otherName,
+                            "=", Arrays.toString(otherValue), ". ", "As of Stripes 1.5, ",
+                            StripesConstants.URL_KEY_EVENT_NAME,
+                            " overrides all other request parameters.");
+                }
+            }
+            catch (StripesRuntimeException e) {
+                // Ignore this. It means there were too many event params, which is OK in this case.
+            }
+        }
+
+        return event;
     }
 
     /**
