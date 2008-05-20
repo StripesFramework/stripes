@@ -14,18 +14,34 @@
  */
 package net.sourceforge.stripes.exception;
 
-import net.sourceforge.stripes.action.Resolution;
-import net.sourceforge.stripes.config.Configuration;
-import net.sourceforge.stripes.util.Log;
+import java.beans.BeanInfo;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.net.URL;
+import java.text.DecimalFormat;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.HashMap;
-import java.util.Map;
+
+import net.sourceforge.stripes.action.ActionBean;
+import net.sourceforge.stripes.action.ActionBeanContext;
+import net.sourceforge.stripes.action.FileBean;
+import net.sourceforge.stripes.action.RedirectResolution;
+import net.sourceforge.stripes.action.Resolution;
+import net.sourceforge.stripes.config.Configuration;
+import net.sourceforge.stripes.controller.DispatcherHelper;
+import net.sourceforge.stripes.controller.ExecutionContext;
+import net.sourceforge.stripes.controller.FileUploadLimitExceededException;
+import net.sourceforge.stripes.controller.StripesConstants;
+import net.sourceforge.stripes.controller.StripesRequestWrapper;
+import net.sourceforge.stripes.util.Log;
+import net.sourceforge.stripes.validation.LocalizableError;
 
 /**
  * <p>Default ExceptionHandler implementation that makes it easy for users to extend and
@@ -123,6 +139,12 @@ public class DefaultExceptionHandler implements ExceptionHandler {
             if (proxy != null) {
                 proxy.handle(actual, request, response);
             }
+            else if (throwable instanceof FileUploadLimitExceededException) {
+                Resolution resolution = handle((FileUploadLimitExceededException) throwable,
+                        request, response);
+                if (resolution != null)
+                    resolution.execute(request, response);
+            }
             else {
                 // If there's no sensible proxy, rethrow the original throwable,
                 // NOT the unwrapped one since they may add extra information
@@ -135,6 +157,157 @@ public class DefaultExceptionHandler implements ExceptionHandler {
         catch (Throwable t) {
             throw new StripesServletException("Unhandled exception in exception handler.", t);
         }
+    }
+
+    /**
+     * <p>
+     * {@link FileUploadLimitExceededException} is notoriously difficult to handle for several
+     * reasons:
+     * <ul>
+     * <li>The exception is thrown during construction of the {@link StripesRequestWrapper}. Many
+     * Stripes components rely on the presence of this wrapper, yet it cannot be created normally.</li>
+     * <li>It happens before the request lifecycle has begun. There is no {@link ExecutionContext},
+     * {@link ActionBeanContext}, or {@link ActionBean} associated with the request yet.</li>
+     * <li>None of the request parameters in the POST body can be read without risking denial of
+     * service. That includes the {@code _sourcePage} parameter that indicates the page from which
+     * the request was submitted.</li>
+     * </ul>
+     * </p>
+     * <p>
+     * This exception handler makes an attempt to handle the exception as gracefully as possible. It
+     * relies on the HTTP Referer header to determine where the request was submitted from. It uses
+     * introspection to guess the field name of the {@link FileBean} field that exceeded the POST
+     * limit. It instantiates an {@link ActionBean} and {@link ActionBeanContext} and adds a
+     * validation error to report the field name, maximum POST size, and actual POST size. Finally,
+     * it forwards to the referer.
+     * </p>
+     * <p>
+     * While this is a best effort, it won't be ideal for all situations. Developers can extend this
+     * class and override this method, delegating to the superclass when necessary. If this method
+     * is unable to handle the exception properly for any reason, it returns null.
+     * </p>
+     * 
+     * @param exception The exception that needs to be handled
+     * @param request The servlet request
+     * @param response The servlet response
+     * @return Usually, a {@link Resolution} to forward to the page from which this request was
+     *         submitted. If, for some reason, that can't be accomplished then it returns null.
+     * @throws ServletException
+     */
+    protected Resolution handle(FileUploadLimitExceededException exception,
+            HttpServletRequest request, HttpServletResponse response) throws ServletException {
+        // Get the path to which we will forward to display the message
+        final String path = getFileUploadExceededExceptionPath(request);
+        if (path == null)
+            return null;
+
+        // Create the ActionBean and ActionBeanContext
+        final ActionBeanContext context;
+        final ActionBean actionBean;
+        try {
+            context = configuration.getActionBeanContextFactory().getContextInstance(request,
+                    response);
+            actionBean = configuration.getActionResolver().getActionBean(context);
+            request.setAttribute(StripesConstants.REQ_ATTR_ACTION_BEAN, actionBean);
+        }
+        catch (ServletException e) {
+            log.error(e);
+            return null;
+        }
+
+        // Try to guess the field name by finding exactly one FileBean field
+        String fieldName = null;
+        try {
+            BeanInfo beanInfo = Introspector.getBeanInfo(actionBean.getClass());
+            for (PropertyDescriptor pd : beanInfo.getPropertyDescriptors()) {
+                if (FileBean.class.isAssignableFrom(pd.getPropertyType())) {
+                    if (fieldName == null) {
+                        // First FileBean field found so set the field name
+                        fieldName = pd.getName();
+                    }
+                    else {
+                        // There's more than one FileBean field so don't use a field name
+                        fieldName = null;
+                        break;
+                    }
+                }
+            }
+        }
+        catch (Exception e) {
+            // Not a big deal if we can't determine the field name
+        }
+
+        // Add validation error with parameters for max post size and actual posted size (KB)
+        DecimalFormat format = new DecimalFormat("0.00");
+        double max = (double) exception.getMaximum() / 1024;
+        double posted = (double) exception.getPosted() / 1024;
+        LocalizableError error = new LocalizableError("validation.file.postBodyTooBig", format
+                .format(max), format.format(posted));
+        if (fieldName == null)
+            context.getValidationErrors().addGlobalError(error);
+        else
+            context.getValidationErrors().add(fieldName, error);
+
+        // Create an ExecutionContext so that the validation errors can be filled in
+        ExecutionContext exectx = new ExecutionContext();
+        exectx.setActionBean(actionBean);
+        exectx.setActionBeanContext(context);
+        DispatcherHelper.fillInValidationErrors(exectx);
+
+        // Redirect back to referer
+        return new RedirectResolution(path) {
+            @Override
+            public void execute(HttpServletRequest request, HttpServletResponse response)
+                    throws ServletException, IOException {
+                // Create a new request wrapper, avoiding the pitfalls of multipart
+                StripesRequestWrapper wrapper = new StripesRequestWrapper(request) {
+                    @Override
+                    protected void constructMultipartWrapper(HttpServletRequest request)
+                            throws StripesServletException {
+                        setLocale(configuration.getLocalePicker().pickLocale(request));
+                    }
+                };
+
+                // Pass wrapper to superclass
+                super.execute(wrapper, response);
+            }
+        }.flash(actionBean);
+    }
+
+    /**
+     * Get the path to which the {@link Resolution} returned by
+     * {@link #handle(FileUploadLimitExceededException, HttpServletRequest, HttpServletResponse)}
+     * should forward to report the error. The default implementation attempts to determine this
+     * from the HTTP Referer header. If it is unable to do so, it returns null. Subclasses may
+     * override this method to return whatever they wish. The return value must be relative to the
+     * application context root.
+     * 
+     * @param request The request that generated the exception
+     * @return The context-relative path from which the request was submitted
+     */
+    protected String getFileUploadExceededExceptionPath(HttpServletRequest request) {
+        // Get the referer URL so we can bounce back to it
+        URL referer = null;
+        try {
+            referer = new URL(request.getHeader("referer"));
+        }
+        catch (Exception e) {
+            // Header not found? Invalid? Can't do anything with it :(
+            return null;
+        }
+
+        // Convert the referer path to a context-relative path
+        String path = referer.getFile();
+        String contextPath = request.getContextPath();
+        if (contextPath.length() > 0) {
+            // We can't handle it if the POST came from outside our app
+            if (!path.startsWith(contextPath + "/"))
+                return null;
+
+            path = path.replace(contextPath, "");
+        }
+
+        return path;
     }
 
     /** Stores the configuration and examines the handler for usable delegate methods. */
