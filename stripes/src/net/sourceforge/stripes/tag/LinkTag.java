@@ -65,7 +65,7 @@ public class LinkTag extends LinkTagSupport implements BodyTag {
             set("href", buildUrl());
             writeOpenTag(getPageContext().getOut(), "a");
             String body = getBodyContentAsString();
-            if (body == null) {
+            if (body == null || body.trim().length() == 0) {
                 body = get("href");
             }
             if (body != null) {
