@@ -92,6 +92,7 @@ public class DelegatingExceptionHandler extends DefaultExceptionHandler {
      * @throws Exception thrown if any of the discovered handler types cannot be safely
      *         instantiated
      */
+    @Override
     public void init(Configuration configuration) throws Exception {
         super.init(configuration);
 
