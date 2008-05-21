@@ -182,24 +182,32 @@ public class DefaultExceptionHandler implements ExceptionHandler {
      * it forwards to the referer.
      * </p>
      * <p>
-     * While this is a best effort, it won't be ideal for all situations. Developers can extend this
-     * class and override this method, delegating to the superclass when necessary. If this method
-     * is unable to handle the exception properly for any reason, it returns null.
+     * While this is a best effort, it won't be ideal for all situations. If this method is unable
+     * to handle the exception properly for any reason, it rethrows the exception. Subclasses can
+     * call this method in a {@code try} block, providing additional processing in the {@code catch}
+     * block.
      * </p>
+     * <p>
+     * A simple way to provide a single, global error page for this type of exception is to override
+     * {@link #getFileUploadExceededExceptionPath(HttpServletRequest)} to return the path to your
+     * global error page.
+     * <p>
      * 
      * @param exception The exception that needs to be handled
      * @param request The servlet request
      * @param response The servlet response
-     * @return Usually, a {@link Resolution} to forward to the page from which this request was
-     *         submitted. If, for some reason, that can't be accomplished then it returns null.
-     * @throws ServletException
+     * @return A {@link Resolution} to forward to the path returned by
+     *         {@link #getFileUploadExceededExceptionPath(HttpServletRequest)}
+     * @throws FileUploadLimitExceededException If
+     *             {@link #getFileUploadExceededExceptionPath(HttpServletRequest)} returns null or
+     *             this method is unable for any other reason to forward to the error page
      */
     protected Resolution handle(FileUploadLimitExceededException exception,
-            HttpServletRequest request, HttpServletResponse response) throws ServletException {
+            HttpServletRequest request, HttpServletResponse response) throws FileUploadLimitExceededException {
         // Get the path to which we will forward to display the message
         final String path = getFileUploadExceededExceptionPath(request);
         if (path == null)
-            return null;
+            throw exception;
 
         // Create the ActionBean and ActionBeanContext
         final ActionBeanContext context;
@@ -212,7 +220,7 @@ public class DefaultExceptionHandler implements ExceptionHandler {
         }
         catch (ServletException e) {
             log.error(e);
-            return null;
+            throw exception;
         }
 
         // Try to guess the field name by finding exactly one FileBean field
