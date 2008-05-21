@@ -308,7 +308,7 @@ public class DefaultExceptionHandler implements ExceptionHandler {
         // Convert the referer path to a context-relative path
         String path = referer.getFile();
         String contextPath = request.getContextPath();
-        if (contextPath.length() > 0) {
+        if (contextPath.length() > 1) {
             // We can't handle it if the POST came from outside our app
             if (!path.startsWith(contextPath + "/"))
                 return null;
