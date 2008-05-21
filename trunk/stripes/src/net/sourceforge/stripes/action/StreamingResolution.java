@@ -136,7 +136,7 @@ public class StreamingResolution implements Resolution {
      * Once the InputStream or Reader signaled the end of the stream, close() is called on it.
      *
      * @param request the HttpServletRequest being processed
-     * @param response the paired HttpServletReponse
+     * @param response the paired HttpServletResponse
      * @throws IOException if there is a problem accessing one of the streams or reader/writer
      *         objects used.
      */
@@ -146,7 +146,10 @@ public class StreamingResolution implements Resolution {
 
         // If a filename was specified, set the appropriate header
         if (this.filename != null) {
-            response.setHeader("Content-disposition", "attachment; filename=" + this.filename);
+            // Value of filename should be RFC 2047 encoded here (see RFC 2616) but few browsers
+            // support that, so just escape the quote for now
+            String escaped = this.filename.replace("\"", "\\\"");
+            response.setHeader("Content-Disposition", "attachment; filename=\"" + escaped + "\"");
         }
 
         stream(response);
