@@ -32,7 +32,7 @@ import javax.servlet.http.HttpServletResponse;
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.action.ActionBeanContext;
 import net.sourceforge.stripes.action.FileBean;
-import net.sourceforge.stripes.action.RedirectResolution;
+import net.sourceforge.stripes.action.ForwardResolution;
 import net.sourceforge.stripes.action.Resolution;
 import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.controller.DispatcherHelper;
@@ -203,20 +203,31 @@ public class DefaultExceptionHandler implements ExceptionHandler {
      *             this method is unable for any other reason to forward to the error page
      */
     protected Resolution handle(FileUploadLimitExceededException exception,
-            HttpServletRequest request, HttpServletResponse response) throws FileUploadLimitExceededException {
+            HttpServletRequest request, HttpServletResponse response)
+            throws FileUploadLimitExceededException {
         // Get the path to which we will forward to display the message
         final String path = getFileUploadExceededExceptionPath(request);
         if (path == null)
             throw exception;
 
-        // Create the ActionBean and ActionBeanContext
+        final StripesRequestWrapper wrapper;
         final ActionBeanContext context;
         final ActionBean actionBean;
         try {
-            context = configuration.getActionBeanContextFactory().getContextInstance(request,
+            // Create a new request wrapper, avoiding the pitfalls of multipart
+            wrapper = new StripesRequestWrapper(request) {
+                @Override
+                protected void constructMultipartWrapper(HttpServletRequest request)
+                        throws StripesServletException {
+                    setLocale(configuration.getLocalePicker().pickLocale(request));
+                }
+            };
+
+            // Create the ActionBean and ActionBeanContext
+            context = configuration.getActionBeanContextFactory().getContextInstance(wrapper,
                     response);
             actionBean = configuration.getActionResolver().getActionBean(context);
-            request.setAttribute(StripesConstants.REQ_ATTR_ACTION_BEAN, actionBean);
+            wrapper.setAttribute(StripesConstants.REQ_ATTR_ACTION_BEAN, actionBean);
         }
         catch (ServletException e) {
             log.error(e);
@@ -262,24 +273,14 @@ public class DefaultExceptionHandler implements ExceptionHandler {
         exectx.setActionBeanContext(context);
         DispatcherHelper.fillInValidationErrors(exectx);
 
-        // Redirect back to referer
-        return new RedirectResolution(path) {
+        // Forward back to referer, using the wrapped request
+        return new ForwardResolution(path) {
             @Override
             public void execute(HttpServletRequest request, HttpServletResponse response)
                     throws ServletException, IOException {
-                // Create a new request wrapper, avoiding the pitfalls of multipart
-                StripesRequestWrapper wrapper = new StripesRequestWrapper(request) {
-                    @Override
-                    protected void constructMultipartWrapper(HttpServletRequest request)
-                            throws StripesServletException {
-                        setLocale(configuration.getLocalePicker().pickLocale(request));
-                    }
-                };
-
-                // Pass wrapper to superclass
                 super.execute(wrapper, response);
             }
-        }.flash(actionBean);
+        };
     }
 
     /**
