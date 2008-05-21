@@ -171,7 +171,7 @@ public class StripesRequestWrapper extends HttpServletRequestWrapper {
      * parameters from the query string and/or request body.
      */
     @Override
-    public Map<String, String[]> getParameterMap() {
+    public MergedParameterMap getParameterMap() {
         if (this.parameterMap == null) {
             if (isMultipart())
                 this.parameterMap = new MergedParameterMap(this, this.multipart);
@@ -187,7 +187,7 @@ public class StripesRequestWrapper extends HttpServletRequestWrapper {
      * previous URI parameters.
      */
     public void pushUriParameters(HttpServletRequestWrapper request) {
-        this.parameterMap.pushUriParameters(request);
+        getParameterMap().pushUriParameters(request);
     }
 
     /**
@@ -195,7 +195,7 @@ public class StripesRequestWrapper extends HttpServletRequestWrapper {
      * {@link #pushUriParameters(HttpServletRequestWrapper)}.
      */
     public void popUriParameters() {
-        this.parameterMap.popUriParameters();
+        getParameterMap().popUriParameters();
     }
 
     /**
@@ -438,7 +438,7 @@ class MergedParameterMap implements Map<String, String[]> {
      * {@link #pushUriParameters(HttpServletRequestWrapper)}.
      */
     public void popUriParameters() {
-        if (this.uriParamStack.isEmpty()) {
+        if (this.uriParamStack == null || this.uriParamStack.isEmpty()) {
             this.uriParams = null;
         }
         else {
