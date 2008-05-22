@@ -148,9 +148,7 @@ public class DefaultTypeConverterFactory implements TypeConverterFactory {
             return classCache.get(targetClass);
         else if (targetClass.isEnum()) {
             Class<? extends TypeConverter<?>> converterClass = findTypeConverterClass(Enumeration.class);
-            if (converterClass == null)
-                return null;
-            else
+            if (converterClass != null)
                 return cacheTypeConverterClass(targetClass, converterClass);
         }
         else {
