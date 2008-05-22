@@ -17,6 +17,7 @@ package net.sourceforge.stripes.validation;
 import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.util.Log;
 
+import java.util.Enumeration;
 import java.util.Map;
 import java.util.Date;
 import java.util.Locale;
@@ -69,6 +70,7 @@ public class DefaultTypeConverterFactory implements TypeConverterFactory {
         converters.put(Date.class,    DateTypeConverter.class);
         converters.put(BigInteger.class, BigIntegerTypeConverter.class);
         converters.put(BigDecimal.class, BigDecimalTypeConverter.class);
+        converters.put(Enumeration.class, EnumeratedTypeConverter.class);
 
         // Now some less useful, but still helpful converters
         converters.put(String.class, StringTypeConverter.class);
@@ -144,8 +146,13 @@ public class DefaultTypeConverterFactory implements TypeConverterFactory {
             return converters.get(targetClass);
         else if (classCache.containsKey(targetClass))
             return classCache.get(targetClass);
-        else if (targetClass.isEnum())
-            return cacheTypeConverterClass(targetClass, EnumeratedTypeConverter.class);
+        else if (targetClass.isEnum()) {
+            Class<? extends TypeConverter<?>> converterClass = findTypeConverterClass(Enumeration.class);
+            if (converterClass == null)
+                return null;
+            else
+                return cacheTypeConverterClass(targetClass, converterClass);
+        }
         else {
             for (Annotation annotation : targetClass.getAnnotations()) {
                 Class<? extends Annotation> annotationType = annotation.annotationType();
