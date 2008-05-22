@@ -396,7 +396,7 @@
             <description>
                 The URL to which this form will post. Expected to be a web-app relative path - the
                 tag will prepend the context path to any action that begins with a slash and does
-                not already contain the context path. Should match a URL to which an ActionBean
+                not already begin with the context path. Should match a URL to which an ActionBean
                 has been bound.  Required unless 'beanclass' is provided.
             </description>
             <name>action</name><required>false</required><rtexprvalue>true</rtexprvalue>
