@@ -112,6 +112,34 @@ Contents
    -> ActionClassCache has been removed. If you require a list of all ActionBeans
       configured use ActionResolver.getActionBeanClasses() instead.
 
+   -> All parameter values are now trimmed before validation, type conversion and
+      binding. If your app has any fields that allow whitespace as valid input or need
+      to retain leading and trailing whitespace during binding, you must use
+      @Validate(trim=false) on the field to override this behavior.
+
+   -> The special parameter _eventName now overrides all request parameters that would
+      otherwise indicate the event name. E.g., given an ActionBean with events foo, bar
+      and blah and request parameters foo=foo, bar=bar and _eventName=blah, the event to
+      be executed will be blah because _eventName overrides the other two parameters.
+      Previous versions gave _eventName a lower precedence than other parameters.
+
+   -> If multiple request parameters match event names, Stripes will throw an exception
+      reporting the conflict. In such a case, it cannot be determined which event should
+      execute. However, if the _eventName parameter is present, as noted in the previous
+      bullet, it overrides all others, even in case of such a conflict. The behavior of
+      previous versions of Stripes was indeterminate.
+
+   -> When flashing an ActionBean and redirecting to that same ActionBean, as in:
+
+         return new RedirectResolution(getClass(), "event").flash(this);
+
+      the ActionBean receives a newly created ActionBeanContext on the ensuing request.
+      (In cases where the flashed bean is not the target of the redirect, the bean
+      retains its old ActionBeanContext.) One side-effect of this is that
+      ValidationErrors no longer carry over to the next request. It is recommended
+      that you use Messages instead of ValidationErrors when flashing and redirecting
+      to the same ActionBean.
+
    In addition to the above changes there have also been changes to several core classes.
    In most cases these changes will be invisible to application developers, but where you
    have implemented your own ConfigurableComponents from scratch (as opposed to extending
