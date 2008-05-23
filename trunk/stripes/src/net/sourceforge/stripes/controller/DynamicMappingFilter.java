@@ -74,7 +74,8 @@ import net.sourceforge.stripes.util.Log;
  * </p>
  * <p>
  * One benefit of this approach is that static resources can be delivered from the same namespace to
- * which an {@link ActionBean} is mapped. For example, if your {@code UserActionBean} is mapped to
+ * which an {@link ActionBean} is mapped using clean URLs. (Form more information on clean URLs, see
+ * {@link UrlBinding}.) For example, if your {@code UserActionBean} is mapped to
  * {@code @UrlBinding("/user/{id}/{$event}")} and you have a static file at {@code /user/icon.gif},
  * then your icon will be delivered correctly because the initial request will not have returned a
  * {@code 404} error.
@@ -108,6 +109,7 @@ import net.sourceforge.stripes.util.Log;
  * 
  * @author Ben Gunter
  * @since Stripes 1.5
+ * @see UrlBinding
  */
 public class DynamicMappingFilter implements Filter {
     /**
