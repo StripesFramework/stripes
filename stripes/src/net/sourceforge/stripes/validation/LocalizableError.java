@@ -14,6 +14,7 @@
  */
 package net.sourceforge.stripes.validation;
 
+import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.localization.LocalizationUtility;
 
 import java.util.Locale;
@@ -88,10 +89,17 @@ public class LocalizableError extends SimpleError {
      */
     @Override
     protected String getMessageTemplate(Locale locale) {
-        String template = LocalizationUtility.getErrorMessage(locale, getBeanclass().getName() + "." + messageKey);
+        String template = null;
 
+        Class<? extends ActionBean> beanclass = getBeanclass();
+        if (beanclass != null) {
+            template = LocalizationUtility.getErrorMessage(locale, beanclass.getName() + "." + messageKey);
+        }
         if (template == null) {
-            template = LocalizationUtility.getErrorMessage(locale, getActionPath() + "." + messageKey);
+            String actionPath = getActionPath();
+            if (actionPath != null) {
+                template = LocalizationUtility.getErrorMessage(locale, actionPath + "." + messageKey);
+            }
         }
         if (template == null) {
             template = LocalizationUtility.getErrorMessage(locale, messageKey);
