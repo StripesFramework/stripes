@@ -1718,7 +1718,7 @@
               <li>A value on the ActionBean if an ActionBean instance is present</li>
               <li>The contents of the body of the tag</li>
               <li>The value attribute of the tag</li>
-            </ol>
+            </ul>
         ]]></description>
         <display-name>text</display-name>
         <name>text</name>
