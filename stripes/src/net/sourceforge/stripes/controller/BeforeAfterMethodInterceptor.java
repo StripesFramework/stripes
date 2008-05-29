@@ -59,12 +59,14 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author Jeppe Cramon
  * @since Stripes 1.3
  */
-@Intercepts({LifecycleStage.ActionBeanResolution,
+@Intercepts({LifecycleStage.RequestInit,
+             LifecycleStage.ActionBeanResolution,
              LifecycleStage.HandlerResolution,
              LifecycleStage.BindingAndValidation,
              LifecycleStage.CustomValidation,
              LifecycleStage.EventHandling,
-             LifecycleStage.ResolutionExecution})
+             LifecycleStage.ResolutionExecution,
+             LifecycleStage.RequestComplete})
 public class BeforeAfterMethodInterceptor implements Interceptor {
 	/** Log used throughout the intercetor */
 	private static final Log log = Log.getInstance(BeforeAfterMethodInterceptor.class);
