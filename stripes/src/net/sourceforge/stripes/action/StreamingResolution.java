@@ -43,9 +43,9 @@ import java.io.StringReader;
  *return new StreamingResolution("text/xml") {
  *    public void stream(HttpServletResponse response) throws Exception {
  *        // custom output generation code
- *        response.getWriter.write(...);
+ *        response.getWriter().write(...);
  *        // or
- *        response.getOutputStream.write(...);
+ *        response.getOutputStream().write(...);
  *    }
  *}.setFilename("your-filename.xml");
  *</pre>
