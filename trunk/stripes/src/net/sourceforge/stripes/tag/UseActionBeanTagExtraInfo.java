@@ -42,6 +42,8 @@ public class UseActionBeanTagExtraInfo extends TagExtraInfo {
         // We can only provide the type of 'var' if beanclass was used because
         // if binding was used we need runtime information!
         Object beanclass = tag.getAttribute("beanclass");
+
+        // Turns out beanclass="${...}" does NOT return TagData.REQUEST_TIME_VALUE; only beanclass="<%= ... %>".
         if (beanclass != null && !beanclass.equals(TagData.REQUEST_TIME_VALUE)) {
             String var = tag.getAttributeString("var");
             if (var == null) var = tag.getAttributeString("id");
@@ -51,7 +53,10 @@ public class UseActionBeanTagExtraInfo extends TagExtraInfo {
 
             // Return the variable info
             if (beanclass instanceof String) {
-                return new VariableInfo[] { new VariableInfo(var, (String) beanclass, true, VariableInfo.AT_BEGIN) };
+                String string = (String) beanclass;
+                if (!string.startsWith("${")) {
+                    return new VariableInfo[] { new VariableInfo(var, string, true, VariableInfo.AT_BEGIN) };
+                }
             }
         }
         return NO_INFO;
