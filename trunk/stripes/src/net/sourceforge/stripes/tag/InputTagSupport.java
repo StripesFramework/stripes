@@ -24,23 +24,23 @@ import net.sourceforge.stripes.format.Formatter;
 import net.sourceforge.stripes.format.FormatterFactory;
 import net.sourceforge.stripes.localization.LocalizationUtility;
 import net.sourceforge.stripes.util.CryptoUtil;
+import net.sourceforge.stripes.validation.BooleanTypeConverter;
 import net.sourceforge.stripes.validation.ValidationError;
 import net.sourceforge.stripes.validation.ValidationErrors;
-import net.sourceforge.stripes.validation.BooleanTypeConverter;
 import net.sourceforge.stripes.validation.ValidationMetadata;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.tagext.TryCatchFinally;
+import java.io.IOException;
+import java.lang.reflect.Array;
+import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Locale;
 import java.util.Random;
 import java.util.Stack;
-import java.lang.reflect.Method;
-import java.lang.reflect.Array;
-import java.io.IOException;
 
 /**
  * Parent class for all input tags in stripes.  Provides support methods for retrieving all the
@@ -456,11 +456,6 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
             this.fieldErrors = null;
             this.fieldErrorsLoaded = false;
             this.focus = false;
-
-            // Only keep the type attribute between uses
-            String type = getAttributes().get("type");
-            getAttributes().clear();
-            getAttributes().put("type", type);
         }
     }
     
