@@ -28,6 +28,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.MalformedURLException;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -46,9 +47,11 @@ import java.util.Set;
  * {@code getBasePackages()} method.  By default this method returns the set
  * [web, www, stripes, action].  These packages (and their parents) are removed from the
  * class name. E.g. {@code com.myco.web.foo.BarActionBean} would become {@code foo.BarActionBean}.
- * Continuing on, we would trim this further to {@code foo.Bar} and then translate it to
- * {@code /foo/Bar}.  Lastly the suffix returned by {@code getBindingSuffix()} is appended
- * giving the binding {@code /foo/Bar.action}.</p>
+ * Continuing on, the list of Action Bean suffixes, specified by the {@code getActionBeanSuffixes()}
+ * method, are trimmed from the end of the Action Bean class name.  With the defaults,
+ * [Bean, Action], we would trim {@code foo.BarActionBean} further to {@code foo.Bar}, and then
+ * translate it to {@code /foo/Bar}.  Lastly the suffix returned by {@code getBindingSuffix()}
+ * is appended, giving the binding {@code /foo/Bar.action}.</p>
  *
  * <p>The translation of class names into URL bindings is designed to be easy to override and
  * customize.  To that end you can easily change how this translation is done by overriding
@@ -96,10 +99,16 @@ public class NameBasedActionResolver extends AnnotatedClassActionResolver {
      * of class names when translating them to URL bindings.
      */
     public static final Set<String> BASE_PACKAGES =
-            Collections.unmodifiableSet(Literal.set("web", "www", "stripes", "action"));
+        Collections.unmodifiableSet(Literal.set("web", "www", "stripes", "action"));
 
     /** Default suffix (.action) to add to URL bindings.*/
     public static final String DEFAULT_BINDING_SUFFIX = ".action";
+
+    /**
+     * Default list of suffixes (Bean, Action) to remove to the end of the Action Bean class name.
+     */
+    public static final List<String> DEFAULT_ACTION_BEAN_SUFFIXES =
+        Collections.unmodifiableList(Literal.list("Bean", "Action"));
 
     /** Log instance used to log information from this class. */
     private static final Log log = Log.getInstance(NameBasedActionResolver.class);
@@ -163,12 +172,11 @@ public class NameBasedActionResolver extends AnnotatedClassActionResolver {
             }
         }
 
-        // If it ends in Action or Bean (or ActionBean) take that off
-        if (name.endsWith("Bean")) {
-            name = name.substring(0, name.length() - 4);
-        }
-        if (name.endsWith("Action")) {
-            name = name.substring(0, name.length() - 6);
+        // If it ends in any of the Action Bean suffixes, remove them
+        for (String suffix : getActionBeanSuffixes()) {
+            if (name.endsWith(suffix)) {
+                name = name.substring(0, name.length() - suffix.length());
+            }
         }
 
         // Replace periods with slashes and make sure it starts with one
@@ -199,6 +207,14 @@ public class NameBasedActionResolver extends AnnotatedClassActionResolver {
      */
     protected String getBindingSuffix() {
         return DEFAULT_BINDING_SUFFIX;
+    }
+
+    /**
+     * Returns a list of suffixes to be removed from the end of the Action Bean class name, if present.
+     * The defaults are ["Bean", "Action"].
+     */
+    protected List<String> getActionBeanSuffixes() {
+        return DEFAULT_ACTION_BEAN_SUFFIXES;
     }
 
     /**
