@@ -48,8 +48,7 @@ public class DefaultTagErrorRendererFactory implements TagErrorRendererFactory {
      * class is used.  If the configured class cannot be found an exception will be
      * thrown and the factory is deemed invalid.
      */
-    @SuppressWarnings("unchecked")
-	public void init(Configuration configuration) throws Exception {
+    public void init(Configuration configuration) throws Exception {
         setConfiguration(configuration);
 
         this.rendererClass = configuration.getBootstrapPropertyResolver().
