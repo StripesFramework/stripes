@@ -61,6 +61,7 @@ public class InputPasswordTag extends InputTextTag {
                 getAttributes().put("value", format(getValue()));
             }
 
+            set("maxlength", getEffectiveMaxlength());
             writeSingletonTag(getPageContext().getOut(), "input");
 
             // Restore the original state before we mucked with it
