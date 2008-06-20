@@ -17,6 +17,9 @@ package net.sourceforge.stripes.tag;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.BodyTag;
 
+import net.sourceforge.stripes.action.ActionBean;
+import net.sourceforge.stripes.exception.StripesJspException;
+import net.sourceforge.stripes.validation.Validate;
 import net.sourceforge.stripes.validation.ValidationMetadata;
 
 /**
@@ -58,6 +61,26 @@ import net.sourceforge.stripes.validation.ValidationMetadata;
     public String getMaxlength() { return maxlength; }
 
     /**
+     * Gets the maxlength value that is in effect for this tag, as determined by checking
+     * {@link #getMaxlength()} and then the {@code maxlength} element of the {@link Validate}
+     * annotation on the associated {@link ActionBean} property.
+     * 
+     * @throws StripesJspException if thrown by {@link #getValidationMetadata()}
+     */
+    protected String getEffectiveMaxlength() throws StripesJspException {
+        if (getMaxlength() == null) {
+            ValidationMetadata validation = getValidationMetadata();
+            if (validation != null && validation.maxlength() != null)
+                return validation.maxlength().toString();
+            else
+                return null;
+        }
+        else {
+            return getMaxlength();
+        }
+    }
+
+    /**
      * Sets type input tags type to "text".
      * @return EVAL_BODY_BUFFERED in all cases.
      */
@@ -93,16 +116,8 @@ import net.sourceforge.stripes.validation.ValidationMetadata;
         if (value != null) {
             getAttributes().put("value", format(value));
         }
-        
-        if (getMaxlength() == null) {
-            ValidationMetadata validation = getValidationMetadata();
-            if (validation != null && validation.maxlength() != null)
-                set("maxlength", validation.maxlength().toString());
-        }
-        else {
-            set("maxlength", getMaxlength());
-        }
 
+        set("maxlength", getEffectiveMaxlength());
         writeSingletonTag(getPageContext().getOut(), "input");
 
         // Restore the original state before we mucked with it
