@@ -4,8 +4,6 @@
 	<classpathentry kind="src" output="stripes/classes" path="stripes/src"/>
 	<classpathentry kind="src" output="tests/classes" path="tests/src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="stripes/lib/test/commons-fileupload-1.2.jar"/>
-	<classpathentry kind="lib" path="stripes/lib/test/commons-io-1.2.jar"/>
 	<classpathentry kind="lib" path="stripes/lib/deploy/commons-logging.jar"/>
 	<classpathentry kind="lib" path="stripes/lib/deploy/cos.jar"/>
 	<classpathentry kind="lib" path="stripes/lib/build/el-api.jar"/>
@@ -18,5 +16,7 @@
 	<classpathentry kind="lib" path="tests/lib/testng-5.5-jdk15.jar"/>
 	<classpathentry kind="lib" path="stripes/lib/build/tlddoc.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>
+	<classpathentry kind="lib" path="stripes/lib/test/commons-fileupload-1.2.1.jar"/>
+	<classpathentry kind="lib" path="stripes/lib/test/commons-io-1.4.jar"/>
 	<classpathentry kind="output" path="stripes/classes"/>
 </classpath>
