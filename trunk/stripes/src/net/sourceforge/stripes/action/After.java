@@ -27,7 +27,9 @@ import java.lang.annotation.Target;
  * <p>Specifies that the annotated method should be run <i>after</i> the specified
  * {@link LifecycleStage}(s). More than one LifecycleStage can be specified, in which case the
  * method will be run after each stage completes. If no LifecycleStage is specified then the
- * default is to execute the method after {@link LifecycleStage#EventHandling}.</p>
+ * default is to execute the method after {@link LifecycleStage#EventHandling}.
+ * {@link LifecycleStage#RequestInit} <b>cannot</b> be specified because there is no ActionBean
+ * to run a method on before the ActionBean has been resolved!</p>
  *
  * <p>The method may have any name, any access specifier (public, private etc.) and must take
  * no arguments. Methods may return values; if the value is a
