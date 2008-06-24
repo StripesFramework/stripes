@@ -525,7 +525,8 @@ public class AnnotatedClassActionResolver implements ActionResolver {
 
         if (binding != null && path.length() != binding.length()) {
             String extra = path.substring(binding.length() + 1);
-            String event = extra.substring(0, Math.max(extra.indexOf("/"), extra.length()));
+            int index = extra.indexOf("/");
+            String event = extra.substring(0, (index != -1) ? index : extra.length());
             if (mappings.containsKey(event)) {
                 return event;
             }
