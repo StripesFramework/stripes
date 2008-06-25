@@ -1,5 +1,6 @@
 package net.sourceforge.stripes.controller;
 
+import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import net.sourceforge.stripes.action.UrlBinding;
@@ -74,4 +75,13 @@ public class NameBasedActionResolverTest {
                                     getAnnotation(UrlBinding.class).value());
     }
 
+    @Test(groups="fast")
+    public void testGetFindViewAttempts() {
+        String urlBinding = "/account/ViewAccount.action";
+        List<String> viewAttempts = this.resolver.getFindViewAttempts(urlBinding);
+        Assert.assertEquals(viewAttempts.size(), 3);
+        Assert.assertEquals(viewAttempts.get(0), "/account/ViewAccount.jsp");
+        Assert.assertEquals(viewAttempts.get(1), "/account/viewAccount.jsp");
+        Assert.assertEquals(viewAttempts.get(2), "/account/view_account.jsp");
+    }
 }

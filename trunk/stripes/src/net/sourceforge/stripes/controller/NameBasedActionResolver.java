@@ -27,6 +27,7 @@ import javax.servlet.ServletContext;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.MalformedURLException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -70,12 +71,12 @@ import java.util.Set;
  * URL that is not bound to an ActionBean the resolver will attempt to map the request to a view
  * and return a 'dummy' ActionBean that will take the user to the view.  The exact behaviour is
  * modifiable by overriding one or more of
- * {@link #handleActionBeanNotFound(ActionBeanContext, String)} or {@link #findView(String)}. The
- * default behaviour is to map the URL being requested to three potential JSP names/paths, check
- * for the existence of a JSP at those locations and if one exists then to return an ActionBean
- * that will render the view.  For example if a user requested '/account/ViewAccount.action' but
- * an ActionBean does not yet exist bound to that URL, the resolver will check for JSPs in the
- * following order:</p>
+ * {@link #handleActionBeanNotFound(ActionBeanContext, String)}, {@link #findView(String)} or
+ * {@link #getFindViewAttempts(String)}. The default behaviour is to map the URL being requested
+ * to three potential JSP names/paths, check for the existence of a JSP at those locations and if
+ * one exists then to return an ActionBean that will render the view.  For example if a user
+ * requested '/account/ViewAccount.action' but an ActionBean does not yet exist bound to that URL,
+ * the resolver will check for JSPs in the following order:</p>
  *
  * <ul>
  *   <li>/account/ViewAccount.jsp</li>
@@ -212,6 +213,8 @@ public class NameBasedActionResolver extends AnnotatedClassActionResolver {
     /**
      * Returns a list of suffixes to be removed from the end of the Action Bean class name, if present.
      * The defaults are ["Bean", "Action"].
+     *
+     * @since Stripes 1.5
      */
     protected List<String> getActionBeanSuffixes() {
         return DEFAULT_ACTION_BEAN_SUFFIXES;
@@ -299,10 +302,45 @@ public class NameBasedActionResolver extends AnnotatedClassActionResolver {
 
     /**
      * <p>Attempts to locate a default view for the urlBinding provided and return a
-     * ForwardResolution that will take the user to the view.  Looks for views by
-     * converting the incoming urlBinding with the following rules.  For example if the
-     * urlBinding is '/account/ViewAccount.action' the following views will be looked for
-     * in order:</p>
+     * ForwardResolution that will take the user to the view.  Looks for views by using the
+     * list of attempts returned by {@link #getFindViewAttempts(String)}.
+     *
+     * <p>For each view name derived a check is performed using
+     * {@link ServletContext#getResource(String)} to see if there is a file located at that URL.
+     * Only if a file actually exists will a Resolution be returned.</p>
+     *
+     * <p>Can be overridden to provide a different kind of resolution.  It is strongly recommended
+     * when overriding this method to check for the actual existence of views prior to manufacturing
+     * a resolution in order not to cause confusion when URLs are mistyped.</p>
+     *
+     * @param urlBinding the url being accessed by the client in the current request
+     * @return a Resolution if a default view can be found, or null otherwise
+     * @since Stripes 1.3
+     */
+    protected Resolution findView(String urlBinding) {
+        List<String> attempts = getFindViewAttempts(urlBinding);
+
+        ServletContext ctx = StripesFilter.getConfiguration()
+                .getBootstrapPropertyResolver().getFilterConfig().getServletContext();
+
+        for (String jsp : attempts) {
+            try {
+                // This will try /account/ViewAccount.jsp
+                if (ctx.getResource(jsp) != null) {
+                    return new ForwardResolution(jsp);
+                }
+            }
+            catch (MalformedURLException mue) {
+            }
+        }
+        return null;
+    }
+
+    /**
+     * <p>Returns the list of attempts to locate a default view for the urlBinding provided.
+     * Generates attempts for views by converting the incoming urlBinding with the following rules.
+     * For example if the urlBinding is '/account/ViewAccount.action' the following views will be
+     * returned in order:</p>
      *
      * <ul>
      *   <li>/account/ViewAccount.jsp</li>
@@ -310,65 +348,41 @@ public class NameBasedActionResolver extends AnnotatedClassActionResolver {
      *   <li>/account/view_account.jsp</li>
      * </ul>
      *
-     * <p>For each view name derived a check is performed using
-     * {@link ServletContext#getResource(String)} to see if there is a file located at that URL.
-     * Only if a file actually exists will a Resolution be returned.</p>
-     *
-     * <p>Can be overridden to look for views with a different pattern, or to provide a different
-     * kind of resolution. It is strongly recommended when overriding this method to check for
-     * the actual existence of views prior to manufacturing a resolution in order not to cause
-     * confusion when URLs are mistyped.</p>
+     * <p>Can be overridden to look for views with a different pattern.</p>
      *
      * @param urlBinding the url being accessed by the client in the current request
-     * @return a Resolution if a default view can be found, or null otherwise
-     * @since Stripes 1.3
+     * @since Stripes 1.5
      */
-    protected Resolution findView(String urlBinding) {
+    protected List<String> getFindViewAttempts(String urlBinding) {
+        List<String> attempts = new ArrayList<String>(3);
+
         int lastPeriod = urlBinding.lastIndexOf('.');
         String path = urlBinding.substring(0, urlBinding.lastIndexOf("/") + 1);
         String name = (lastPeriod >= path.length()) ? urlBinding.substring(path.length(), lastPeriod)
                                                     : urlBinding.substring(path.length());
 
-        ServletContext ctx = StripesFilter.getConfiguration()
-                .getBootstrapPropertyResolver().getFilterConfig().getServletContext();
+        // This will try /account/ViewAccount.jsp
+        attempts.add(path + name + ".jsp");
 
-        try {
-            // This will try /account/ViewAccount.jsp
-            String jsp = path + name + ".jsp";
-            if (ctx.getResource(jsp) != null) {
-                return new ForwardResolution(jsp);
+        // This will try /account/viewAccount.jsp
+        name = Character.toLowerCase(name.charAt(0)) + name.substring(1);
+        attempts.add(path + name + ".jsp");
+
+        // And finally this will try /account/view_account.jsp
+        StringBuilder builder = new StringBuilder();
+        for (int i=0; i<name.length(); ++i) {
+            char ch = name.charAt(i);
+            if (Character.isUpperCase(ch)) {
+                builder.append("_");
+                builder.append(Character.toLowerCase(ch));
             }
-
-            // This will try /account/viewAccount.jsp
-            name = Character.toLowerCase(name.charAt(0)) + name.substring(1);
-            jsp = path + name + ".jsp";
-            if (ctx.getResource(jsp) != null) {
-                return new ForwardResolution(jsp);
+            else {
+                builder.append(ch);
             }
-
-            // And finally this will try /account/view_account.jsp
-            StringBuilder builder = new StringBuilder();
-            for (int i=0; i<name.length(); ++i) {
-                char ch = name.charAt(i);
-                if (Character.isUpperCase(ch)) {
-                    builder.append("_");
-                    builder.append(Character.toLowerCase(ch));
-                }
-                else {
-                    builder.append(ch);
-                }
-            }
-
-            jsp = path + builder.toString() + ".jsp";
-            if (ctx.getResource(jsp) != null) {
-                return new ForwardResolution(jsp);
-            }
-
-            return null;
         }
-        catch (MalformedURLException mue) {
-            return null;
-        }
+        attempts.add(path + builder.toString() + ".jsp");
+
+        return attempts;
     }
 }
 
