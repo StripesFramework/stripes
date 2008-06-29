@@ -32,7 +32,7 @@ import net.sourceforge.stripes.action.Resolution;
  *
  *<pre>
  *{@literal @}Intercepts(LifecycleStage.BindingAndValidation)
- *public NoisyInterceptor implements Interceptor {
+ *public class NoisyInterceptor implements Interceptor {
  *    public Resolution intercept(ExecutionContext context) {
  *        System.out.println("Before validation and binding!");
  *        Resolution r = context.proceed();
