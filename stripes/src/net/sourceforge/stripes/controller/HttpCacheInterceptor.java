@@ -90,7 +90,7 @@ public class HttpCacheInterceptor implements Interceptor {
                 else {
                     logger.debug("Disabling client-side caching for response");
                     response.setDateHeader("Expires", 0);
-                    response.setHeader("Cache-control", "no-cache");
+                    response.setHeader("Cache-control", "no-store, no-cache, must-revalidate");
                     response.setHeader("Pragma", "no-cache");
                 }
             }
