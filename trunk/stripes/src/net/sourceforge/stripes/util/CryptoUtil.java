@@ -46,7 +46,7 @@ import net.sourceforge.stripes.exception.StripesRuntimeException;
  *
  * <p>Finally a key can be specified by calling {@link #setSecretKey(javax.crypto.SecretKey)} and
  * providing your own {@link SecretKey} instance. This method allows the specification of any
- * key from any source.  In addition they provided key can be for any algorithm supported by
+ * key from any source.  In addition the provided key can be for any algorithm supported by
  * the JVM in which it is constructed.  CryptoUtil will then use the algorithm returned by
  * {@link javax.crypto.SecretKey#getAlgorithm()}.  If using this method, the key should be set
  * before any requests are made, e.g. in a {@link javax.servlet.ServletContextListener}.</p>
