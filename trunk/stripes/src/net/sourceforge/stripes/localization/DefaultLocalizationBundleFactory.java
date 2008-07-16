@@ -34,6 +34,12 @@ public class DefaultLocalizationBundleFactory implements LocalizationBundleFacto
     /** The name of the default resource bundle for Stripes. */
     public static final String BUNDLE_NAME = "StripesResources";
 
+    /** The configuration parameter for changing the default error message resource bundle. */
+    public static final String ERROR_MESSAGE_BUNDLE = "LocalizationBundleFactory.ErrorMessageBundle";
+
+    /** The configuration parameter for changing the default field name resource bundle. */
+    public static final String FIELD_NAME_BUNDLE = "LocalizationBundleFactory.FieldNameBundle";
+
     /** Holds the configuration passed in at initialization time. */
     private Configuration configuration;
     private String errorBundleName;
@@ -48,13 +54,13 @@ public class DefaultLocalizationBundleFactory implements LocalizationBundleFacto
         setConfiguration(configuration);
 
         this.errorBundleName = configuration.getBootstrapPropertyResolver().
-                getProperty("LocalizationBundleFactory.ErrorMessageBundle");
+                getProperty(ERROR_MESSAGE_BUNDLE);
         if (this.errorBundleName == null) {
             this.errorBundleName = BUNDLE_NAME;
         }
 
         this.fieldBundleName = configuration.getBootstrapPropertyResolver().
-                getProperty("LocalizationBundleFactory.FieldNameBundle");
+                getProperty(FIELD_NAME_BUNDLE);
         if (this.fieldBundleName == null) {
             this.fieldBundleName = BUNDLE_NAME;
         }
