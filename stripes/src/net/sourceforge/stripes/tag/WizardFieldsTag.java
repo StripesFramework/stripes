@@ -20,6 +20,7 @@ import net.sourceforge.stripes.exception.StripesJspException;
 import net.sourceforge.stripes.util.CollectionUtil;
 
 import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.tagext.TryCatchFinally;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -36,7 +37,7 @@ import java.util.Set;
  *
  * @author Tim Fennell
  */
-public class WizardFieldsTag extends StripesTagSupport {
+public class WizardFieldsTag extends StripesTagSupport implements TryCatchFinally {
     private boolean currentFormOnly = false;
 
     /**
@@ -51,6 +52,7 @@ public class WizardFieldsTag extends StripesTagSupport {
     /** Skips over the body because there shouldn't be one. */
     @Override
     public int doStartTag() throws JspException {
+        getTagStack().push(this);
         return SKIP_BODY;
     }
 
@@ -124,5 +126,19 @@ public class WizardFieldsTag extends StripesTagSupport {
         }
 
         return EVAL_PAGE;
+    }
+
+    /** Rethrows the passed in throwable in all cases. */
+    public void doCatch(Throwable throwable) throws Throwable { throw throwable; }
+
+    /**
+     * Used to ensure that the input tag is always removed from the tag stack so that there is
+     * never any confusion about tag-parent hierarchies.
+     */
+    public void doFinally() {
+        try { getTagStack().pop(); }
+        catch (Throwable t) {
+            /* Suppress anything, because otherwise this might mask any causal exception. */
+        }
     }
 }
