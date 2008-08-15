@@ -29,6 +29,7 @@ import net.sourceforge.stripes.validation.ValidationError;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.tagext.BodyTag;
@@ -342,8 +343,15 @@ public class FormTag extends HtmlTagSupport implements BodyTag, TryCatchFinally,
      * @return ActionBean the ActionBean bound to the form if there is one
      */
     protected ActionBean getActionBean() {
-        return (ActionBean) getPageContext().getRequest().getAttribute(this.actionWithoutContext);
-    }
+		HttpServletRequest request = (HttpServletRequest) getPageContext().getRequest();
+		ActionBean bean = (ActionBean) request.getAttribute(this.actionWithoutContext);
+		if (bean == null) {
+			HttpSession session = request.getSession(false);
+			if (session != null)
+				bean = (ActionBean) session.getAttribute(this.actionWithoutContext);
+		}
+		return bean;
+	}
 
     /**
      * Returns true if the ActionBean this form posts to represents a Wizard action bean and
