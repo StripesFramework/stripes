@@ -20,6 +20,7 @@ Contents
       directory of the distribution
    -> If you are using commons-fileupload download the latest version from the
       apache website http://commons.apache.org/downloads/download_fileupload.cgi
+   -> Address backward compatibilities listed in section 3 as necessary
 
 2. Suggested Steps
    --------------
