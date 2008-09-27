@@ -117,7 +117,7 @@ public class ValidationMetadata {
 
     /** Returns true if the field is required when processing the specified event. */
     public boolean requiredOn(String event) {
-        return this.required && (
+        return this.required && !this.ignore && (
                 (this.on == null) ||
                 (this.onIsPositive && this.on.contains(event)) ||
                 (!this.onIsPositive && !this.on.contains(event))
