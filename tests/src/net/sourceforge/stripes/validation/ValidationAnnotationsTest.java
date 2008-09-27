@@ -39,4 +39,22 @@ public class ValidationAnnotationsTest implements ActionBean {
         ActionBean actionBean = trip.getActionBean(getClass());
         Assert.assertEquals(0, actionBean.getContext().getValidationErrors().size());
     }
+
+    @Validate(required=true, on="validatePublicField")
+    public String publicField;
+
+    public Resolution validatePublicField() { return null; }
+
+    /**
+     * Tests that a validation annotation works on a public field.
+     *
+     * @see http://www.stripesframework.org/jira/browse/STS-604
+     */
+    @Test(groups="fast")
+    public void testValidatePublicField() throws Exception {
+        MockRoundtrip trip = new MockRoundtrip(StripesTestFixture.getServletContext(), getClass());
+        trip.execute("validatePublicField");
+        ActionBean actionBean = trip.getActionBean(getClass());
+        Assert.assertEquals(1, actionBean.getContext().getValidationErrors().size());
+    }
 }
