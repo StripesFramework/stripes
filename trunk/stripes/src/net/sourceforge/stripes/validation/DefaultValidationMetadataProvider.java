@@ -19,9 +19,12 @@ import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -89,7 +92,15 @@ public class DefaultValidationMetadataProvider implements ValidationMetadataProv
         Set<String> seen = new HashSet<String>();
         try {
             for (Class<?> clazz = beanType; clazz != null; clazz = clazz.getSuperclass()) {
-                PropertyDescriptor[] pds = Introspector.getBeanInfo(clazz).getPropertyDescriptors();
+                List<PropertyDescriptor> pds = new ArrayList<PropertyDescriptor>(
+                    Arrays.asList(Introspector.getBeanInfo(clazz).getPropertyDescriptors()));
+
+                // Also look at public fields
+                Field[] publicFields = clazz.getFields();
+                for (Field field : publicFields) {
+                    pds.add(new PropertyDescriptor(field.getName(), null, null));
+                }
+
                 for (PropertyDescriptor pd : pds) {
                     String propertyName = pd.getName();
                     Method accessor = pd.getReadMethod();
