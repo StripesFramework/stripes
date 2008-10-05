@@ -755,15 +755,15 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
         converter = factory.getTypeConverter(declaredType, locale);
         if (validationInfo != null && validationInfo.converter() != null) {
             // If a specific converter was requested and it's the same type as one we'd use
-            // for the delcared type, set the return type appropriately
+            // for the declared type, set the return type appropriately
             if (converter != null && validationInfo.converter().isAssignableFrom(converter.getClass())) {
                 returnType = declaredType;
             }
             // Otherwise assume that it's a converter for the scalar type inside a collection
             else {
-                converter = factory.getInstance(validationInfo.converter(), locale);
                 returnType = scalarType;
             }
+            converter = factory.getInstance(validationInfo.converter(), locale);
         }
         // Else, if we got a converter for the declared type (e.g. Foo implementes List<Bar>)
         // then convert for the declared type
