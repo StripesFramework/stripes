@@ -164,11 +164,11 @@ public class RedirectResolution extends OnwardResolution<RedirectResolution> imp
             addParameter(StripesConstants.URL_KEY_FLASH_SCOPE_ID, flash.key());
         }
 
-        // Prepend the context path if required
+        // Prepend the context path if requested
         String url = getUrl(request.getLocale());
         if (prependContext) {
             String contextPath = request.getContextPath();
-            if (contextPath.length() > 1 && !url.startsWith(contextPath + "/"))
+            if (contextPath.length() > 1)
                 url = contextPath + url;
         }
 
