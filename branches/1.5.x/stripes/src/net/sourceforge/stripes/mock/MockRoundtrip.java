@@ -14,14 +14,19 @@
  */
 package net.sourceforge.stripes.mock;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
+
+import javax.servlet.Filter;
+
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.controller.StripesConstants;
 import net.sourceforge.stripes.controller.StripesFilter;
 import net.sourceforge.stripes.util.CryptoUtil;
 import net.sourceforge.stripes.validation.ValidationErrors;
-
-import javax.servlet.Filter;
-import java.util.List;
 
 /**
  * <p>Mock object that attempts to make it easier to use the other Mock objects in this package
@@ -111,12 +116,57 @@ public class MockRoundtrip {
      * @param session an instance of MockHttpSession to use for the request
      */
     public MockRoundtrip(MockServletContext context, String actionBeanUrl, MockHttpSession session) {
+        // Look for a query string and parse out the parameters if one is present
+        String path = actionBeanUrl;
+        SortedMap<String, List<String>> parameters = null;
+        int qmark = actionBeanUrl.indexOf("?");
+        if (qmark > 0) {
+            path = actionBeanUrl.substring(0, qmark);
+            if (qmark < actionBeanUrl.length()) {
+                String query = actionBeanUrl.substring(qmark + 1);
+                if (query != null && query.length() > 0) {
+                    parameters = new TreeMap<String, List<String>>();
+                    for (String kv : query.split("&")) {
+                        String[] parts = kv.split("=");
+                        String key, value;
+                        if (parts.length == 1) {
+                            key = parts[0];
+                            value = null;
+                        }
+                        else if (parts.length == 2) {
+                            key = parts[0];
+                            value = parts[1];
+                        }
+                        else {
+                            key = value = null;
+                        }
+
+                        if (key != null) {
+                            List<String> values = parameters.get(key);
+                            if (values == null)
+                                values = new ArrayList<String>();
+                            values.add(value);
+                            parameters.put(key, values);
+                        }
+                    }
+                }
+            }
+        }
+
         this.context = context;
-        this.request = new MockHttpServletRequest("/" + context.getServletContextName(),
-                                                  actionBeanUrl);
+        this.request = new MockHttpServletRequest("/" + context.getServletContextName(), path);
         this.request.setSession(session);
         this.response = new MockHttpServletResponse();
         setSourcePage(DEFAULT_SOURCE_PAGE);
+
+        // Add any parameters that were embedded in the given URL
+        if (parameters != null) {
+            for (Map.Entry<String, List<String>> entry : parameters.entrySet()) {
+                for (String value : entry.getValue()) {
+                    addParameter(entry.getKey(), value);
+                }
+            }
+        }
     }
 
     /** Get the servlet request object to be used by this round trip */
