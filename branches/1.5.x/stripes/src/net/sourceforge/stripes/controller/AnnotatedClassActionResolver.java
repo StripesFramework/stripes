@@ -289,20 +289,16 @@ public class AnnotatedClassActionResolver implements ActionResolver {
      * @return the servlet-context relative path that is being requested
      */
     protected String getRequestedPath(HttpServletRequest request) {
-        String servletPath = null, pathInfo = null;
-
         // Check to see if the request is processing an include, and pull the path
         // information from the appropriate source.
         if (request.getAttribute(StripesConstants.REQ_ATTR_INCLUDE_PATH) != null) {
-            servletPath = (String) request.getAttribute(StripesConstants.REQ_ATTR_INCLUDE_PATH);
-            pathInfo    = (String) request.getAttribute(StripesConstants.REQ_ATTR_INCLUDE_PATH_INFO);
+            String servletPath = (String) request.getAttribute(StripesConstants.REQ_ATTR_INCLUDE_PATH);
+            String pathInfo    = (String) request.getAttribute(StripesConstants.REQ_ATTR_INCLUDE_PATH_INFO);
+            return (servletPath == null ? "" : servletPath) + (pathInfo == null ? "" : pathInfo);
         }
         else {
-            servletPath = request.getServletPath();
-            pathInfo    = request.getPathInfo();
+            return request.getRequestURI();
         }
-
-        return (servletPath == null ? "" : servletPath) + (pathInfo == null ? "" : pathInfo);
     }
 
     /**
