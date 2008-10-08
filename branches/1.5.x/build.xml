@@ -152,13 +152,13 @@
 		<copy file="${stripes.dir}/pom.xml" todir="dist/" filtering="true"/>
 		<copy file="${stripes.dir}/dist/stripes.jar" tofile="dist/stripes-${stripes.version}.jar"/>
 		<jar destfile="dist/stripes-${stripes.version}-sources.jar">
-			<zipfileset dir="stripes/src" prefix="."/>
-			<zipfileset dir="stripes/resources" prefix="."/>
+			<zipfileset dir="stripes/src" />
+			<zipfileset dir="stripes/resources" />
 		</jar>
 		<jar destfile="dist/${mvn.bundle.file}">
-			<zipfileset file="dist/pom.xml" prefix="."/>
-			<zipfileset file="dist/stripes-${stripes.version}-sources.jar" prefix="."/>
-			<zipfileset dir="dist" includes="stripes-${stripes.version}.jar" prefix="."/>
+			<zipfileset file="dist/pom.xml" />
+			<zipfileset file="dist/stripes-${stripes.version}-sources.jar" />
+			<zipfileset dir="dist" includes="stripes-${stripes.version}.jar" />
 		</jar>
 		
 		<delete file="dist/stripes-${stripes.version}-sources.jar" quiet="true"/>
