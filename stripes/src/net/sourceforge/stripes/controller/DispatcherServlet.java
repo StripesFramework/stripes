@@ -30,7 +30,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.JspFactory;
 import javax.servlet.jsp.PageContext;
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Stack;
 
@@ -60,13 +59,6 @@ public class DispatcherServlet extends HttpServlet {
     /** Log used throughout the class. */
     private static final Log log = Log.getInstance(DispatcherServlet.class);
 
-    /** Implemented as a simple call to doPost(request, response). */
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-        throws ServletException, IOException {
-        doPost(request, response);
-    }
-
     /**
      * <p>Invokes the following instance level methods in order to coordinate the processing
      * of requests:</p>
@@ -88,7 +80,7 @@ public class DispatcherServlet extends HttpServlet {
      * @throws ServletException thrown when the system fails to process the request in any way
      */
     @Override
-    protected void doPost(final HttpServletRequest request, final HttpServletResponse response)
+    protected void service(final HttpServletRequest request, final HttpServletResponse response)
         throws ServletException {
 
         // It sucks that we have to do this here (in the request cycle), but there doesn't
