@@ -35,6 +35,9 @@ import java.io.IOException;
  * <i>forwarding</i> to it. This behaviour can be turned off be calling
  * {@literal autoInclude(false)}.</p>
  *
+ * <p>You can optionally set an HTTP status code with {@link #setStatus(int)}, in which case a call
+ * to {@code response.setStatus(status)} will be made when executing the resolution.</p>
+ *
  * @see RedirectResolution
  * @author Tim Fennell
  */
@@ -42,6 +45,7 @@ public class ForwardResolution extends OnwardResolution<ForwardResolution> imple
     private boolean autoInclude = true;
     private static final Log log = Log.getInstance(ForwardResolution.class);
     private String event;
+    private Integer status;
 
     /**
      * Simple constructor that takes in the path to forward the user to.
@@ -86,6 +90,20 @@ public class ForwardResolution extends OnwardResolution<ForwardResolution> imple
         this.autoInclude = auto;
     }
 
+    /** Get the HTTP status, or <code>null</code> if none was explicitly set. */
+    public Integer getStatus() {
+        return status;
+    }
+
+    /**
+     * Explicitly sets an HTTP status code, in which case a call to {@code response.setStatus(status)}
+     * will be made when executing the resolution.
+     */
+    public ForwardResolution setStatus(int status) {
+        this.status = status;
+        return this;
+    }
+
     /**
      * Attempts to forward the user to the specified path.
      * @throws ServletException thrown when the Servlet container encounters an error
@@ -94,6 +112,9 @@ public class ForwardResolution extends OnwardResolution<ForwardResolution> imple
     public void execute(HttpServletRequest request, HttpServletResponse response)
         throws ServletException, IOException {
 
+        if (status != null) {
+            response.setStatus(status);
+        }
         String path = getUrl(request.getLocale());
 
         // Set event name as a request attribute
