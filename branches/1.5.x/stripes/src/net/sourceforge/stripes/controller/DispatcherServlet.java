@@ -19,6 +19,7 @@ import net.sourceforge.stripes.action.ActionBeanContext;
 import net.sourceforge.stripes.action.Resolution;
 import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.exception.StripesServletException;
+import net.sourceforge.stripes.util.HttpUtil;
 import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.validation.BooleanTypeConverter;
 import net.sourceforge.stripes.validation.expression.ExpressionValidator;
@@ -90,7 +91,7 @@ public class DispatcherServlet extends HttpServlet {
         ///////////////////////////////////////////////////////////////////////
         // Here beings the real processing of the request!
         ///////////////////////////////////////////////////////////////////////
-        log.trace("Dispatching request to URL: ", request.getRequestURI());
+        log.trace("Dispatching request to URL: ", HttpUtil.getRequestedPath(request));
 
         PageContext pageContext = null;
         final ExecutionContext ctx = new ExecutionContext();

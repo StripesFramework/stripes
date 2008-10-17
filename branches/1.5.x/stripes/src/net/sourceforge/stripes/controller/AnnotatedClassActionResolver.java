@@ -24,6 +24,7 @@ import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.exception.ActionBeanNotFoundException;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
 import net.sourceforge.stripes.exception.StripesServletException;
+import net.sourceforge.stripes.util.HttpUtil;
 import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.util.ResolverUtil;
 import net.sourceforge.stripes.util.StringUtil;
@@ -275,7 +276,7 @@ public class AnnotatedClassActionResolver implements ActionResolver {
     public ActionBean getActionBean(ActionBeanContext context) throws StripesServletException {
         HttpServletRequest request = context.getRequest();
         UrlBinding binding = UrlBindingFactory.getInstance().getBindingPrototype(request);
-        String path = binding == null ? getRequestedPath(request) : binding.getPath();
+        String path = binding == null ? HttpUtil.getRequestedPath(request) : binding.getPath();
         ActionBean bean = getActionBean(context, path);
         request.setAttribute(RESOLVED_ACTION, getUrlBindingFromPath(path));
         return bean;
@@ -287,7 +288,9 @@ public class AnnotatedClassActionResolver implements ActionResolver {
      *
      * @param request the current HttpServletRequest
      * @return the servlet-context relative path that is being requested
+     * @deprecated Use {@link HttpUtil#getRequestedPath(HttpServletRequest)} instead.
      */
+    @Deprecated
     protected String getRequestedPath(HttpServletRequest request) {
         String servletPath = null, pathInfo = null;
 
@@ -520,7 +523,7 @@ public class AnnotatedClassActionResolver implements ActionResolver {
     protected String getEventNameFromPath(Class<? extends ActionBean> bean,
                                           ActionBeanContext context) {
         Map<String,Method> mappings = this.eventMappings.get(bean);
-        String path = getRequestedPath(context.getRequest());
+        String path = HttpUtil.getRequestedPath(context.getRequest());
         String binding = getUrlBindingFromPath(path);
 
         if (binding != null && path.length() != binding.length()) {
