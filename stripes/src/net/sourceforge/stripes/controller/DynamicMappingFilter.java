@@ -35,6 +35,7 @@ import javax.servlet.http.HttpServletResponseWrapper;
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.exception.StripesServletException;
+import net.sourceforge.stripes.util.HttpUtil;
 import net.sourceforge.stripes.util.Log;
 
 /**
@@ -341,7 +342,7 @@ public class DynamicMappingFilter implements Filter {
         // Wrap the response in a wrapper that catches errors (but not exceptions)
         final ErrorTrappingResponseWrapper wrapper = new ErrorTrappingResponseWrapper(
                 (HttpServletResponse) response);
-        wrapper.setInclude(request.getAttribute("javax.servlet.include.request_uri") != null);
+        wrapper.setInclude(request.getAttribute(StripesConstants.REQ_ATTR_INCLUDE_PATH) != null);
         chain.doFilter(request, wrapper);
 
         // If a SC_NOT_FOUND error occurred, then try to match an ActionBean to the URL
@@ -351,7 +352,7 @@ public class DynamicMappingFilter implements Filter {
                 public void doFilter(ServletRequest request, ServletResponse response)
                         throws IOException, ServletException {
                     // Look for an ActionBean that is mapped to the URI
-                    String uri = getRequestURI((HttpServletRequest) request);
+                    String uri = HttpUtil.getRequestedPath((HttpServletRequest) request);
                     Class<? extends ActionBean> beanType = StripesFilter.getConfiguration()
                             .getActionResolver().getActionBeanType(uri);
 
@@ -384,7 +385,12 @@ public class DynamicMappingFilter implements Filter {
         initialized = true;
     }
 
-    /** Get the context-relative URI of the current include, forward or request. */
+    /**
+     * Get the context-relative URI of the current include, forward or request.
+     * 
+     * @deprecated Use {@link HttpUtil#getRequestedPath(HttpServletRequest)} instead.
+     */
+    @Deprecated
     protected String getRequestURI(HttpServletRequest request) {
         // Check for an include
         String uri = (String) request.getAttribute("javax.servlet.include.request_uri");

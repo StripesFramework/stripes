@@ -19,6 +19,7 @@ import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.config.RuntimeConfiguration;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
 import net.sourceforge.stripes.exception.StripesServletException;
+import net.sourceforge.stripes.util.HttpUtil;
 import net.sourceforge.stripes.util.Log;
 
 import javax.servlet.Filter;
@@ -203,7 +204,7 @@ public class StripesFilter implements Filter {
         // Wrap pretty much everything in a try/catch so that we can funnel even the most
         // bizarre or unexpected exceptions into the exception handler
         try {
-            log.trace("Intercepting request to URL: ", httpRequest.getRequestURI());
+            log.trace("Intercepting request to URL: ", HttpUtil.getRequestedPath(httpRequest));
 
             if (initial) {
                 // Pop the configuration into thread local
