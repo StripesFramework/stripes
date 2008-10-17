@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
+import net.sourceforge.stripes.util.HttpUtil;
 import net.sourceforge.stripes.util.bean.ParseException;
 
 /**
@@ -111,7 +112,7 @@ public class UrlBindingFactory {
     }
 
     /**
-     * Examines a URI (as might be returned by {@link HttpServletRequest#getRequestURI()}) and
+     * Examines a URI (as returned by {@link HttpUtil#getRequestedPath(HttpServletRequest)}) and
      * returns the associated binding prototype, if any. No attempt is made to extract parameter
      * values from the URI. This is intended as a fast means to get static information associated
      * with a given request URI.
@@ -145,11 +146,11 @@ public class UrlBindingFactory {
      * @return a binding prototype, or null if the request URI does not match
      */
     public UrlBinding getBindingPrototype(HttpServletRequest request) {
-        return getBindingPrototype(trimContextPath(request));
+        return getBindingPrototype(HttpUtil.getRequestedPath(request));
     }
 
     /**
-     * Examines a URI (as might be returned by {@link HttpServletRequest#getRequestURI()}) and
+     * Examines a URI (as returned by {@link HttpUtil#getRequestedPath(HttpServletRequest)}) and
      * returns the associated binding, if any. Parameters will be extracted from the URI, and the
      * {@link UrlBindingParameter} objects returned by {@link UrlBinding#getParameters()} will
      * contain the values that are present in the URI.
@@ -241,7 +242,7 @@ public class UrlBindingFactory {
      *         binding. Otherwise, this method should return null.
      */
     public UrlBinding getBinding(HttpServletRequest request) {
-        return getBinding(trimContextPath(request));
+        return getBinding(HttpUtil.getRequestedPath(request));
     }
 
     /**
@@ -424,7 +425,9 @@ public class UrlBindingFactory {
      * 
      * @param request a servlet request
      * @return the context-relative request URI
+     * @deprecated Use {@link HttpUtil#getRequestedPath(HttpServletRequest)} instead.
      */
+    @Deprecated
     protected String trimContextPath(HttpServletRequest request) {
         // Trim context path from beginning of URI
         String uri = request.getRequestURI();
