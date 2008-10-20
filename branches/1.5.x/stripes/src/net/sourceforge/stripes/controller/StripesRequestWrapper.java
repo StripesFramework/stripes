@@ -450,7 +450,7 @@ class MergedParameterMap implements Map<String, String[]> {
      * Extract any parameters embedded in the URI of the given {@code request} and return them in a
      * {@link Map}. If no parameters are present in the URI, then return null.
      */
-    public static Map<String, String[]> getUriParameters(HttpServletRequest request) {
+    public Map<String, String[]> getUriParameters(HttpServletRequest request) {
         Map<String, String[]> params = null;
         UrlBinding binding = UrlBindingFactory.getInstance().getBinding(request);
         if (binding != null && binding.getParameters().size() > 0) {
@@ -497,7 +497,7 @@ class MergedParameterMap implements Map<String, String[]> {
     }
 
     /** Merge the values from {@code source} into {@code target}. */
-    public static Map<String, String[]> mergeParameters(Map<String, String[]> target,
+    public Map<String, String[]> mergeParameters(Map<String, String[]> target,
             Map<String, String[]> source) {
         // target must not be null and we must not modify source
         if (target == null)
@@ -530,7 +530,7 @@ class MergedParameterMap implements Map<String, String[]> {
      * @param uriParams parameters extracted from the URI
      * @return the merged parameter values
      */
-    public static String[] mergeParameters(String[] requestParams, String[] uriParams) {
+    public String[] mergeParameters(String[] requestParams, String[] uriParams) {
         if (requestParams == null || requestParams.length == 0) {
             if (uriParams == null || uriParams.length == 0)
                 return null;
