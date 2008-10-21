@@ -399,7 +399,7 @@ public class JavaScriptBuilder {
                 if ((readMethod != null) && !this.excludeProperties.contains(fullPropertyName)) {
                     Object value = property.getReadMethod().invoke(in);
 
-                    if (isExcludedType(property.getPropertyType()) || value == null) {
+                    if (isExcludedType(property.getPropertyType())) {
                         continue;
                     }
 
