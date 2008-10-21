@@ -104,6 +104,12 @@ public class StripesRequestWrapper extends HttpServletRequestWrapper {
         if (isPost && contentType != null && contentType.startsWith("multipart/form-data")) {
             constructMultipartWrapper(request);
         }
+
+        // Create a parameter map that merges the URI parameters with the others
+        if (isMultipart())
+            this.parameterMap = new MergedParameterMap(this, this.multipart);
+        else
+            this.parameterMap = new MergedParameterMap(this);
     }
 
     /**
@@ -148,7 +154,23 @@ public class StripesRequestWrapper extends HttpServletRequestWrapper {
      */
     @Override
     public String[] getParameterValues(String name) {
-        return getParameterMap().get(name);
+        /*
+         * When determining whether to provide a URI parameter's default value, the merged parameter
+         * map needs to know if the parameter is otherwise defined in the request. It calls this
+         * method to do that, so if the parameter map is not defined (which it won't be during its
+         * construction), we delegate to the multipart wrapper or superclass.
+         */
+
+        MergedParameterMap map = getParameterMap();
+        if (map == null) {
+            if (isMultipart())
+                return this.multipart.getParameterValues(name);
+            else
+                return super.getParameterValues(name);
+        }
+        else {
+            return map.get(name);
+        }
     }
 
     /**
@@ -172,13 +194,6 @@ public class StripesRequestWrapper extends HttpServletRequestWrapper {
      */
     @Override
     public MergedParameterMap getParameterMap() {
-        if (this.parameterMap == null) {
-            if (isMultipart())
-                this.parameterMap = new MergedParameterMap(this, this.multipart);
-            else
-                this.parameterMap = new MergedParameterMap(this);
-        }
-
         return this.parameterMap;
     }
 
@@ -262,10 +277,10 @@ public class StripesRequestWrapper extends HttpServletRequestWrapper {
  * @author Ben Gunter
  */
 class MergedParameterMap implements Map<String, String[]> {
-    protected class Entry implements Map.Entry<String, String[]> {
+    class Entry implements Map.Entry<String, String[]> {
         private String key;
 
-        protected Entry(String key) {
+        Entry(String key) {
             this.key = key;
         }
 
@@ -302,7 +317,7 @@ class MergedParameterMap implements Map<String, String[]> {
     private Map<String, String[]> uriParams;
     private Stack<Map<String, String[]>> uriParamStack;
 
-    protected MergedParameterMap(StripesRequestWrapper request) {
+    MergedParameterMap(HttpServletRequestWrapper request) {
         this.request = request;
         this.uriParams = getUriParameters(request);
         if (this.uriParams == null) {
@@ -310,7 +325,7 @@ class MergedParameterMap implements Map<String, String[]> {
         }
     }
 
-    protected MergedParameterMap(StripesRequestWrapper request, MultipartWrapper multipart) {
+    MergedParameterMap(HttpServletRequestWrapper request, MultipartWrapper multipart) {
         this.request = request;
 
         // extract URI parameters
@@ -416,7 +431,7 @@ class MergedParameterMap implements Map<String, String[]> {
 
     /** Get the parameter map from the request that is wrapped by the {@link StripesRequestWrapper}. */
     @SuppressWarnings("unchecked")
-    protected Map<String, String[]> getParameterMap() {
+    Map<String, String[]> getParameterMap() {
         return request == null ? Collections.emptyMap() : request.getRequest().getParameterMap();
     }
 
@@ -424,7 +439,7 @@ class MergedParameterMap implements Map<String, String[]> {
      * Extract new URI parameters from the URI of the given {@code request} and merge them with the
      * previous URI parameters.
      */
-    public void pushUriParameters(HttpServletRequestWrapper request) {
+    void pushUriParameters(HttpServletRequestWrapper request) {
         if (this.uriParamStack == null) {
             this.uriParamStack = new Stack<Map<String, String[]>>();
         }
@@ -437,7 +452,7 @@ class MergedParameterMap implements Map<String, String[]> {
      * Restore the URI parameters to the state they were in before the previous call to
      * {@link #pushUriParameters(HttpServletRequestWrapper)}.
      */
-    public void popUriParameters() {
+    void popUriParameters() {
         if (this.uriParamStack == null || this.uriParamStack.isEmpty()) {
             this.uriParams = null;
         }
@@ -450,7 +465,7 @@ class MergedParameterMap implements Map<String, String[]> {
      * Extract any parameters embedded in the URI of the given {@code request} and return them in a
      * {@link Map}. If no parameters are present in the URI, then return null.
      */
-    public static Map<String, String[]> getUriParameters(HttpServletRequest request) {
+    Map<String, String[]> getUriParameters(HttpServletRequest request) {
         Map<String, String[]> params = null;
         UrlBinding binding = UrlBindingFactory.getInstance().getBinding(request);
         if (binding != null && binding.getParameters().size() > 0) {
@@ -470,7 +485,7 @@ class MergedParameterMap implements Map<String, String[]> {
                             value = "";
                         }
                     }
-                    if (value == null) {
+                    if (value == null && request.getParameterValues(name) == null) {
                         value = p.getDefaultValue();
                     }
                     if (name != null && value != null) {
@@ -497,8 +512,7 @@ class MergedParameterMap implements Map<String, String[]> {
     }
 
     /** Merge the values from {@code source} into {@code target}. */
-    public static Map<String, String[]> mergeParameters(Map<String, String[]> target,
-            Map<String, String[]> source) {
+    Map<String, String[]> mergeParameters(Map<String, String[]> target, Map<String, String[]> source) {
         // target must not be null and we must not modify source
         if (target == null)
             target = new LinkedHashMap<String, String[]>();
@@ -530,7 +544,7 @@ class MergedParameterMap implements Map<String, String[]> {
      * @param uriParams parameters extracted from the URI
      * @return the merged parameter values
      */
-    public static String[] mergeParameters(String[] requestParams, String[] uriParams) {
+    String[] mergeParameters(String[] requestParams, String[] uriParams) {
         if (requestParams == null || requestParams.length == 0) {
             if (uriParams == null || uriParams.length == 0)
                 return null;
