@@ -817,6 +817,14 @@
             <type>java.lang.Object</type>
         </attribute>
         <attribute>
+            <description>
+            	The (optional) anchor that is appended at the end of the generated URL.
+            	If the URL specified by the value attribute already contains the anchor then
+            	the anchor specified by this attribute takes precedence.
+            </description>
+            <name>anchor</name><required>false</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
             <description>The character set used to encode the referenced page. (HTML Pass-through)</description>
             <name>charset</name><required>false</required><rtexprvalue>true</rtexprvalue>
         </attribute>
@@ -1895,6 +1903,14 @@
             </description>
             <name>beanclass</name><required>false</required><rtexprvalue>true</rtexprvalue>
             <type>java.lang.Object</type>
+        </attribute>
+        <attribute>
+            <description>
+            	The (optional) anchor that is appended at the end of the generated URL.
+            	If the URL specified by the value attribute already contains the anchor then
+            	the anchor specified by this attribute takes precedence.
+            </description>
+            <name>anchor</name><required>false</required><rtexprvalue>true</rtexprvalue>
         </attribute>
         <attribute>
             <description>

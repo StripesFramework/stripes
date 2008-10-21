@@ -37,6 +37,7 @@ public abstract class LinkTagSupport extends HtmlTagSupport implements Parameter
     private String event;
     private Object beanclass;
     private String url;
+    private String anchor;
     private boolean addSourcePage = false;
     private boolean prependContext = true;
 
@@ -103,6 +104,26 @@ public abstract class LinkTagSupport extends HtmlTagSupport implements Parameter
     public Object getBeanclass() { return beanclass; }
 
     /**
+     * Gets the anchor element that is appended at the end of the URL.
+     * 
+     * @return the anchor element
+     */
+    public String getAnchor() {
+        return anchor;
+    }
+
+    /**
+     * Sets the anchor element that is appended at the end of the URL. If the provided URL (set
+     * using <code>setUrl</code> method) already contains the anchor, then the anchor specified by
+     * this attribute takes precedence.
+     * 
+     * @param anchor the name of the anchor to set
+     */
+    public void setAnchor(String anchor) {
+        this.anchor = anchor;
+    }
+
+	/**
      * Get the flag that indicates if the _sourcePage parameter should be
      * appended to the URL.
      * 
@@ -172,6 +193,9 @@ public abstract class LinkTagSupport extends HtmlTagSupport implements Parameter
         if (addSourcePage) {
             builder.addParameter(StripesConstants.URL_KEY_SOURCE_PAGE,
                     CryptoUtil.encrypt(request.getServletPath()));
+        }
+        if (this.anchor != null) {
+            builder.setAnchor(anchor);
         }
         builder.addParameters(this.parameters);
 
