@@ -184,6 +184,10 @@ public class CryptoUtil {
 
         // First un-base64 the String
         byte[] bytes = Base64.decode(input, BASE64_OPTIONS);
+        if (bytes == null || bytes.length < 1) {
+            log.warn("Input is not Base64 encoded: ", input);
+            return null;
+        }
 
         // Then fetch a cipher and decrypt the bytes
         Cipher cipher = getCipher(Cipher.DECRYPT_MODE);
