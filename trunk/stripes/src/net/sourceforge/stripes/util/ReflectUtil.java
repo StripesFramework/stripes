@@ -444,18 +444,16 @@ public class ReflectUtil {
     public static Type[] getActualTypeArguments(Class<?> clazz, Class<?> targetType) {
         Set<Class<?>> classes = new HashSet<Class<?>>();
         classes.add(clazz);
-        
+
         if (targetType.isInterface())
             classes.addAll(getImplementedInterfaces(clazz));
-        else {
-            Class<?> superClass = clazz.getSuperclass();
-            while (superClass != null) {
-                classes.add(superClass);
-                superClass = superClass.getSuperclass();
-            }
+
+        Class<?> superClass = clazz.getSuperclass();
+        while (superClass != null) {
+            classes.add(superClass);
+            superClass = superClass.getSuperclass();
         }
-        
-            
+
         for (Class<?> search : classes) {
             for (Type type : (targetType.isInterface() ? search.getGenericInterfaces()
                     : new Type[] { search.getGenericSuperclass() })) {
