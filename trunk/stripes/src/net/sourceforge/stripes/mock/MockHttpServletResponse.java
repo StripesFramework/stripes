@@ -19,6 +19,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.ServletOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ListIterator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.HashMap;
@@ -50,7 +51,16 @@ public class MockHttpServletResponse implements HttpServletResponse {
     private String redirectUrl;
 
     /** Adds a cookie to the set of cookies in the response. */
-    public void addCookie(Cookie cookie) { this.cookies.add(cookie); }
+    public void addCookie(Cookie cookie) {
+        // Remove existing cookies with the same name as the new one
+        ListIterator<Cookie> iterator = cookies.listIterator();
+        while (iterator.hasNext()) {
+            if (iterator.next().getName().equals(cookie.getName()))
+                iterator.remove();
+        }
+
+        this.cookies.add(cookie);
+    }
 
     /** Gets the set of cookies stored in the response. */
     public Cookie[] getCookies() { return this.cookies.toArray(new Cookie[this.cookies.size()]); }
