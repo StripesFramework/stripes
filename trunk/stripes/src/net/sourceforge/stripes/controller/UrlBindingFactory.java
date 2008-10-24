@@ -24,14 +24,18 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletRequest;
 
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
+import net.sourceforge.stripes.exception.UrlBindingConflictException;
 import net.sourceforge.stripes.util.HttpUtil;
+import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.util.bean.ParseException;
 
 /**
@@ -54,6 +58,8 @@ import net.sourceforge.stripes.util.bean.ParseException;
  * @see UrlBindingParameter
  */
 public class UrlBindingFactory {
+    private static final Log log = Log.getInstance(UrlBindingFactory.class);
+
     /** Singleton instance */
     private static final UrlBindingFactory instance = new UrlBindingFactory();
 
@@ -72,8 +78,11 @@ public class UrlBindingFactory {
     /** Maps simple paths to {@link UrlBinding}s */
     private final Map<String, UrlBinding> pathCache = new HashMap<String, UrlBinding>();
 
+    /** Keeps a list of all the paths that could not be cached due to conflicts between URL bindings */
+    private final Map<String, List<String>> pathConflicts = new HashMap<String, List<String>>();
+
     /** Holds the set of paths that are cached, sorted from longest to shortest */
-    private final Map<String, UrlBinding> prefixCache = new TreeMap<String, UrlBinding>(
+    private final Map<String, Set<UrlBinding>> prefixCache = new TreeMap<String, Set<UrlBinding>>(
             new Comparator<String>() {
                 public int compare(String a, String b) {
                     int cmp = b.length() - a.length();
@@ -125,13 +134,75 @@ public class UrlBindingFactory {
         UrlBinding prototype = pathCache.get(uri);
         if (prototype != null)
             return prototype;
+        else if (pathConflicts.containsKey(uri))
+            throw new UrlBindingConflictException(uri, pathConflicts.get(uri));
 
-        // Then look for a matching prefix
-        for (Entry<String, UrlBinding> entry : prefixCache.entrySet()) {
+        // Get all the bindings whose prefix matches the URI
+        Set<UrlBinding> candidates = null;
+        for (Entry<String, Set<UrlBinding>> entry : prefixCache.entrySet()) {
             if (uri.startsWith(entry.getKey())) {
-                prototype = entry.getValue();
+                candidates = entry.getValue();
                 break;
             }
+        }
+
+        // If none matched or exactly one matched then return now
+        if (candidates == null) {
+            log.debug("No URL binding matches ", uri);
+            return null;
+        }
+        else if (candidates.size() == 1) {
+            log.debug("Matched ", uri, " to ", candidates);
+            return candidates.iterator().next();
+        }
+
+        // Now find the one that matches deepest into the URI with the fewest components
+        int maxIndex = 0, minComponents = Integer.MAX_VALUE;
+        List<String> conflicts = null;
+        for (UrlBinding binding : candidates) {
+            int idx = binding.getPath().length();
+            List<Object> components = binding.getComponents();
+            int componentCount = components.size();
+
+            for (Object component : components) {
+                if (!(component instanceof String))
+                    continue;
+
+                int at = uri.indexOf((String) component, idx);
+                if (at >= 0) {
+                    idx = at + ((String) component).length();
+                }
+                else {
+                    break;
+                }
+            }
+
+            if (idx == maxIndex) {
+                if (componentCount < minComponents) {
+                    conflicts = null;
+                    minComponents = componentCount;
+                    prototype = binding;
+                }
+                else if (componentCount == minComponents) {
+                    if (conflicts == null) {
+                        conflicts = new ArrayList<String>(candidates.size());
+                        conflicts.add(prototype.toString());
+                    }
+                    conflicts.add(binding.toString());
+                    prototype = null;
+                }
+            }
+            else if (idx > maxIndex) {
+                conflicts = null;
+                minComponents = componentCount;
+                prototype = binding;
+                maxIndex = idx;
+            }
+        }
+
+        log.debug("Matched @", maxIndex, " ", uri, " to ", prototype);
+        if (prototype == null) {
+            throw new UrlBindingConflictException(uri, conflicts);
         }
 
         return prototype;
@@ -265,14 +336,55 @@ public class UrlBindingFactory {
      * @param binding the URL binding
      */
     public void addBinding(Class<? extends ActionBean> beanType, UrlBinding binding) {
-        pathCache.put(binding.getPath(), binding);
+        cachePath(binding.getPath(), binding);
         if (binding.getSuffix() != null)
-			pathCache.put(binding.getPath() + binding.getSuffix(), binding);
-        prefixCache.put(binding.getPath() + '/', binding);
+            cachePath(binding.getPath() + binding.getSuffix(), binding);
+        if (!binding.toString().equals(binding.getPath()))
+            cachePath(binding.toString(), binding);
+
+        Set<UrlBinding> bindings = prefixCache.get(binding.getPath() + '/');
+        if (bindings == null) {
+            bindings = new TreeSet<UrlBinding>(new Comparator<UrlBinding>() {
+                public int compare(UrlBinding o1, UrlBinding o2) {
+                    int cmp = o1.getComponents().size() - o2.getComponents().size();
+                    if (cmp == 0)
+                        cmp = o1.toString().compareTo(o2.toString());
+                    return cmp;
+                }
+            });
+        }
+        bindings.add(binding);
+
+        prefixCache.put(binding.getPath() + '/', bindings);
         List<Object> components = binding.getComponents();
         if (components != null && !components.isEmpty() && components.get(0) instanceof String)
-            prefixCache.put(binding.getPath() + components.get(0), binding);
+            prefixCache.put(binding.getPath() + components.get(0), bindings);
+
         classCache.put(beanType, binding);
+    }
+
+    /**
+     * Map a path directly to a binding. If the path matches more than one binding, then a warning
+     * will be logged indicating such a condition, and the path will not be cached for any binding.
+     * 
+     * @param path The path to cache
+     * @param binding The binding to which the path should map
+     */
+    protected void cachePath(String path, UrlBinding binding) {
+        if (pathCache.containsKey(path)) {
+            UrlBinding conflict = pathCache.put(path, null);
+            List<String> list = pathConflicts.get(path);
+            if (list == null) {
+                list = new ArrayList<String>();
+                list.add(conflict.toString());
+                pathConflicts.put(path, list);
+            }
+            log.warn("The path ", path, " for binding ", binding, " conflicts with ", list);
+            list.add(binding.toString());
+        }
+        else {
+            pathCache.put(path, binding);
+        }
     }
 
     /**

@@ -172,7 +172,7 @@ public class AnnotatedClassActionResolver implements ActionResolver {
      */
     public String getUrlBindingFromPath(String path) {
         UrlBinding mapping = UrlBindingFactory.getInstance().getBindingPrototype(path);
-        return mapping == null ? null : mapping.getPath();
+        return mapping == null ? null : mapping.toString();
     }
 
     /**
@@ -186,7 +186,7 @@ public class AnnotatedClassActionResolver implements ActionResolver {
      */
     public String getUrlBinding(Class<? extends ActionBean> clazz) {
         UrlBinding mapping = UrlBindingFactory.getInstance().getBindingPrototype(clazz);
-        return mapping == null ? null : mapping.getPath();
+        return mapping == null ? null : mapping.toString();
     }
 
     /**
@@ -275,8 +275,7 @@ public class AnnotatedClassActionResolver implements ActionResolver {
      */
     public ActionBean getActionBean(ActionBeanContext context) throws StripesServletException {
         HttpServletRequest request = context.getRequest();
-        UrlBinding binding = UrlBindingFactory.getInstance().getBindingPrototype(request);
-        String path = binding == null ? HttpUtil.getRequestedPath(request) : binding.getPath();
+        String path = HttpUtil.getRequestedPath(request);
         ActionBean bean = getActionBean(context, path);
         request.setAttribute(RESOLVED_ACTION, getUrlBindingFromPath(path));
         return bean;
@@ -524,7 +523,8 @@ public class AnnotatedClassActionResolver implements ActionResolver {
                                           ActionBeanContext context) {
         Map<String,Method> mappings = this.eventMappings.get(bean);
         String path = HttpUtil.getRequestedPath(context.getRequest());
-        String binding = getUrlBindingFromPath(path);
+        UrlBinding prototype = UrlBindingFactory.getInstance().getBindingPrototype(path);
+        String binding = prototype == null ? null : prototype.getPath();
 
         if (binding != null && path.length() != binding.length()) {
             String extra = path.substring(binding.length() + 1);

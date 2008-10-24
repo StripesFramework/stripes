@@ -30,6 +30,7 @@ import net.sourceforge.stripes.controller.UrlBinding;
 import net.sourceforge.stripes.controller.UrlBindingFactory;
 import net.sourceforge.stripes.controller.UrlBindingParameter;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
+import net.sourceforge.stripes.exception.UrlBindingConflictException;
 import net.sourceforge.stripes.format.Formatter;
 import net.sourceforge.stripes.format.FormatterFactory;
 import net.sourceforge.stripes.validation.ValidationMetadata;
@@ -448,6 +449,11 @@ public class UrlBuilder {
             return baseUrl;
         }
 
+        // if we have a parameterized binding then we need to trim it down to the path
+        if (baseUrl.equals(binding.toString())) {
+            baseUrl = binding.getPath();
+        }
+
         // if any extra path info is present then do not add URI parameters
         if (binding.getPath().length() < baseUrl.length()) {
             return baseUrl;
@@ -520,6 +526,20 @@ public class UrlBuilder {
             buf.append(binding.getSuffix());
         }
 
-        return buf.toString();
+        // Test the URL to make sure it won't throw an exception when Stripes tries to dispatch it
+        String url = buf.toString();
+        try {
+            StripesFilter.getConfiguration().getActionResolver().getActionBeanType(url);
+        }
+        catch (UrlBindingConflictException e) {
+            if (binding != null) {
+                UrlBindingConflictException tmp = new UrlBindingConflictException(binding
+                        .getBeanType(), e.getPath(), e.getMatches());
+                tmp.setStackTrace(e.getStackTrace());
+                e = tmp;
+            }
+            throw e;
+        }
+        return url;
     }
 }
