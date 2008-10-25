@@ -200,7 +200,7 @@ public class UrlBindingFactory {
             }
         }
 
-        log.debug("Matched @", maxIndex, " ", uri, " to ", prototype);
+        log.debug("Matched @", maxIndex, " ", uri, " to ", prototype == null ? conflicts : prototype);
         if (prototype == null) {
             throw new UrlBindingConflictException(uri, conflicts);
         }
