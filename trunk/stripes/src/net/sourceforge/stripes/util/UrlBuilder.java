@@ -367,8 +367,14 @@ public class UrlBuilder {
         Map<String, ValidationMetadata> validations = null;
         Configuration configuration = StripesFilter.getConfiguration();
         if (configuration != null) {
-            Class<? extends ActionBean> beanType = configuration.getActionResolver()
-                    .getActionBeanType(this.baseUrl);
+            Class<? extends ActionBean> beanType = null;
+            try {
+                beanType = configuration.getActionResolver().getActionBeanType(this.baseUrl);
+            }
+            catch (UrlBindingConflictException e) {
+                // This can be safely ignored
+            }
+
             if (beanType != null) {
                 validations = configuration.getValidationMetadataProvider().getValidationMetadata(
                         beanType);
@@ -444,7 +450,14 @@ public class UrlBuilder {
      * @see #UrlBuilder(Locale, String, boolean)
      */
     protected String getBaseURL(String baseUrl, Collection<Parameter> parameters) {
-        UrlBinding binding = UrlBindingFactory.getInstance().getBindingPrototype(baseUrl);
+        UrlBinding binding = null;
+        try {
+            binding = UrlBindingFactory.getInstance().getBindingPrototype(baseUrl);
+        }
+        catch (UrlBindingConflictException e) {
+            // This can be safely ignored
+        }
+
         if (binding == null || binding.getParameters().size() == 0) {
             return baseUrl;
         }

@@ -35,6 +35,7 @@ import javax.servlet.http.HttpServletRequestWrapper;
 import net.sourceforge.stripes.action.FileBean;
 import net.sourceforge.stripes.controller.multipart.MultipartWrapper;
 import net.sourceforge.stripes.exception.StripesServletException;
+import net.sourceforge.stripes.exception.UrlBindingConflictException;
 
 /**
  * HttpServletRequestWrapper that is used to make the file upload functionality transparent.
@@ -466,8 +467,15 @@ class MergedParameterMap implements Map<String, String[]> {
      * {@link Map}. If no parameters are present in the URI, then return null.
      */
     Map<String, String[]> getUriParameters(HttpServletRequest request) {
+        UrlBinding binding = null;
+        try {
+            binding = UrlBindingFactory.getInstance().getBinding(request);
+        }
+        catch (UrlBindingConflictException e) {
+            // This can be safely ignored
+        }
+
         Map<String, String[]> params = null;
-        UrlBinding binding = UrlBindingFactory.getInstance().getBinding(request);
         if (binding != null && binding.getParameters().size() > 0) {
             for (UrlBindingParameter p : binding.getParameters()) {
                 String name = p.getName();
