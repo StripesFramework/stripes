@@ -258,13 +258,11 @@ public class FormTag extends HtmlTagSupport implements BodyTag, TryCatchFinally,
                           "', but did not find a field with matching name to set focus on.");
             }
 
-            // Clean up any state the container won't reset during tag pooling
+            // Clean up any state that we've modified during tag processing, so that the container
+            // can use tag pooling
             this.actionBeanClass = null;
-            this.actionWithoutContext = null;
-            this.enctype = null;
             this.fieldsPresent.clear();
             this.focusSet = false;
-            this.method = null;
             this.urlBuilder = null;
         }
         catch (IOException ioe) {
