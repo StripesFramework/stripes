@@ -90,7 +90,6 @@ public class LayoutComponentTag extends StripesTagSupport implements BodyTag {
         }
 
         // Clean up in case the tag gets pooled
-        this.bodyContent = null;
         this.definitionTag = null;
         this.renderTag = null;
 

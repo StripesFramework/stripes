@@ -71,8 +71,6 @@ public class InputOptionsMapTag extends InputOptionsCollectionTag
     public int doEndTag() throws JspException {
     	int result = super.doEndTag();
     	
-    	this.map = null;
-    	
     	return result;
     }
 }
