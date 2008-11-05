@@ -364,7 +364,6 @@ public class ErrorsTag extends HtmlTagSupport implements BodyTag {
             // Reset the instance state in case the container decides to pool the tag
             this.display = false;
             this.nestedErrorTagPresent = false;
-            this.field = null;
             this.allErrors = null;
             this.errorIterator = null;
             this.currentError = null;

@@ -341,9 +341,6 @@ public class InputOptionsCollectionTag extends HtmlTagSupport implements Tag {
 
         // Clean up any temporary state
         this.entries.clear();
-        this.collection = null;
-        this.value = null;
-        this.label = null;
 
         return EVAL_PAGE;
     }
