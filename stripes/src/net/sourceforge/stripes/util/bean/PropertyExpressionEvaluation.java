@@ -14,6 +14,7 @@
  */
 package net.sourceforge.stripes.util.bean;
 
+import net.sourceforge.stripes.util.ObjectFactory;
 import net.sourceforge.stripes.util.ReflectUtil;
 
 import java.beans.PropertyDescriptor;
@@ -645,7 +646,7 @@ public class PropertyExpressionEvaluation {
                 return ReflectUtil.getInterfaceInstance(clazz);
             }
             else {
-                return clazz.newInstance();
+                return ObjectFactory.getInstance().newInstance(clazz);
             }
         }
         catch (Exception e) {
