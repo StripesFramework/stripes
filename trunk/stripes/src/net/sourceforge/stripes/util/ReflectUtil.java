@@ -135,7 +135,7 @@ public class ReflectUtil {
                     "might get implemented.");
         }
         else {
-            return ObjectFactory.getInstance().<T>newInstance(impl);
+            return ObjectFactory.getInstance().<T>newInstance((Class<T>) impl);
         }
     }
 
