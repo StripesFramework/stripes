@@ -2,7 +2,7 @@ package net.sourceforge.stripes.format;
 
 import java.util.Locale;
 
-import net.sourceforge.stripes.config.DefaultConfiguration;
+import net.sourceforge.stripes.StripesTestFixture;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -11,7 +11,7 @@ public class DefaultFormatterFactoryTest {
     @Test(groups = "fast")
     public void testFormatterSuperclass() throws Exception {
         DefaultFormatterFactory factory = new DefaultFormatterFactory();
-        factory.init(new DefaultConfiguration());
+        factory.init(StripesTestFixture.getDefaultConfiguration());
 
         Locale locale = Locale.getDefault();
         Formatter<?> formatter;
@@ -47,7 +47,7 @@ public class DefaultFormatterFactoryTest {
     @Test(groups = "fast")
     public void testFormatterInterface() throws Exception {
         DefaultFormatterFactory factory = new DefaultFormatterFactory();
-        factory.init(new DefaultConfiguration());
+        factory.init(StripesTestFixture.getDefaultConfiguration());
 
         Locale locale = Locale.getDefault();
         Formatter<?> formatter;
@@ -95,7 +95,7 @@ public class DefaultFormatterFactoryTest {
     @Test(groups = "fast")
     public void testNullFormatterIsNeverBestMatch() throws Exception {
         DefaultFormatterFactory factory = new DefaultFormatterFactory();
-        factory.init(new DefaultConfiguration());
+        factory.init(StripesTestFixture.getDefaultConfiguration());
 
         Locale locale = Locale.getDefault();
         Formatter<?> formatter;
@@ -113,7 +113,7 @@ public class DefaultFormatterFactoryTest {
     @Test(groups = "fast")
     public void testFormatterSuperclassImplementsInterface() throws Exception {
         DefaultFormatterFactory factory = new DefaultFormatterFactory();
-        factory.init(new DefaultConfiguration());
+        factory.init(StripesTestFixture.getDefaultConfiguration());
 
         Locale locale = Locale.getDefault();
         Formatter<?> formatter;
@@ -135,7 +135,7 @@ public class DefaultFormatterFactoryTest {
          * both X and I then the formatter returned for Y and Z is the I formatter
          */
         factory = new DefaultFormatterFactory();
-        factory.init(new DefaultConfiguration());
+        factory.init(StripesTestFixture.getDefaultConfiguration());
 
         factory.add(SuperclassImplementsX.class, XFormatter.class); // mapping for base class
         factory.add(Y.class, YFormatter.class); // mapping for interface in the middle
@@ -150,7 +150,7 @@ public class DefaultFormatterFactoryTest {
 
     public void testFormatterForInterfaceSuperclass() throws Exception {
         DefaultFormatterFactory factory = new DefaultFormatterFactory();
-        factory.init(new DefaultConfiguration());
+        factory.init(StripesTestFixture.getDefaultConfiguration());
 
         Locale locale = Locale.getDefault();
         Formatter<?> formatter;

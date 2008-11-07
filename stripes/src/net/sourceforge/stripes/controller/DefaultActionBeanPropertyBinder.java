@@ -380,7 +380,8 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
                 collection = (Collection) ReflectUtil.getInterfaceInstance(targetType);
             }
             else {
-                collection = (Collection) targetType.newInstance();
+                collection = getConfiguration().getObjectFactory().newInstance(
+                        (Class<? extends Collection>) targetType);
             }
 
             collection.addAll(valueOrValues);

@@ -14,6 +14,7 @@
  */
 package net.sourceforge.stripes.util;
 
+import net.sourceforge.stripes.controller.StripesFilter;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
 
 import java.util.Map;
@@ -135,7 +136,7 @@ public class ReflectUtil {
                     "might get implemented.");
         }
         else {
-            return ObjectFactory.getInstance().<T>newInstance((Class<T>) impl);
+            return StripesFilter.getConfiguration().getObjectFactory().newInstance((Class<T>) impl);
         }
     }
 

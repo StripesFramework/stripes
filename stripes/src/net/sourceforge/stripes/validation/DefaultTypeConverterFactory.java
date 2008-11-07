@@ -190,7 +190,7 @@ public class DefaultTypeConverterFactory implements TypeConverterFactory {
      */
     @SuppressWarnings("unchecked")
     public TypeConverter getInstance(Class<? extends TypeConverter> clazz, Locale locale) throws Exception {
-        TypeConverter converter = clazz.newInstance();
+        TypeConverter converter = getConfiguration().getObjectFactory().newInstance(clazz);
         converter.setLocale(locale);
         return converter;
     }
