@@ -231,7 +231,7 @@ public class DefaultFormatterFactory implements FormatterFactory {
             String formatType, String formatPattern, Locale locale)
             throws Exception {
 
-        Formatter<?> formatter = clazz.newInstance();
+        Formatter<?> formatter = getConfiguration().getObjectFactory().newInstance(clazz);
         formatter.setFormatType(formatType);
         formatter.setFormatPattern(formatPattern);
         formatter.setLocale(locale);

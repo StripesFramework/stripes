@@ -2,7 +2,7 @@ package net.sourceforge.stripes.validation;
 
 import java.util.Locale;
 
-import net.sourceforge.stripes.config.DefaultConfiguration;
+import net.sourceforge.stripes.StripesTestFixture;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -13,7 +13,7 @@ public class DefaultTypeConverterFactoryTest {
 	@Test(groups="fast")
     public void testCharTypeConverter() throws Exception{
     	DefaultTypeConverterFactory factory = new DefaultTypeConverterFactory();
-    	factory.init(new DefaultConfiguration());
+    	factory.init(StripesTestFixture.getDefaultConfiguration());
     	
     	TypeConverter typeConverter = factory.getTypeConverter(Character.class, Locale.getDefault());
         Assert.assertEquals(CharacterTypeConverter.class, typeConverter.getClass());

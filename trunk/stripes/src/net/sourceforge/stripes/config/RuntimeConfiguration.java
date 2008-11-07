@@ -25,6 +25,7 @@ import net.sourceforge.stripes.controller.ActionBeanPropertyBinder;
 import net.sourceforge.stripes.controller.ActionResolver;
 import net.sourceforge.stripes.controller.Interceptor;
 import net.sourceforge.stripes.controller.LifecycleStage;
+import net.sourceforge.stripes.controller.ObjectFactory;
 import net.sourceforge.stripes.controller.multipart.MultipartWrapperFactory;
 import net.sourceforge.stripes.exception.ExceptionHandler;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
@@ -61,6 +62,9 @@ public class RuntimeConfiguration extends DefaultConfiguration {
 
     /** The Configuration Key for enabling debug mode. */
     public static final String DEBUG_MODE = "Stripes.DebugMode";
+
+    /** The Configuration Key for looking up the name of the ObjectFactory class */
+    public static final String OBJECT_FACTORY = "ObjectFactory.Class";
 
     /** The Configuration Key for looking up the name of the ActionResolver class. */
     public static final String ACTION_RESOLVER = "ActionResolver.Class";
@@ -113,6 +117,11 @@ public class RuntimeConfiguration extends DefaultConfiguration {
         catch (Exception e) {
             return null;
         }
+    }
+
+    /** Looks for a class name in config and uses that to create the component. */
+    @Override protected ObjectFactory initObjectFactory() {
+        return initializeComponent(ObjectFactory.class, OBJECT_FACTORY);
     }
 
     /** Looks for a class name in config and uses that to create the component. */
@@ -219,7 +228,8 @@ public class RuntimeConfiguration extends DefaultConfiguration {
 
         for (Object type : classes) {
             try {
-                Interceptor interceptor = (Interceptor) ((Class) type).newInstance();
+                Interceptor interceptor = getObjectFactory().newInstance(
+                        (Class<? extends Interceptor>) type);
                 addInterceptor(map, interceptor);
             }
             catch (Exception e) {
@@ -245,7 +255,16 @@ public class RuntimeConfiguration extends DefaultConfiguration {
         Class clazz = getBootstrapPropertyResolver().getClassProperty(propertyName, componentType);
         if (clazz != null) {
             try {
-                T component = (T) clazz.newInstance();
+                T component;
+
+                ObjectFactory objectFactory = getObjectFactory();
+                if (objectFactory != null) {
+                    component = objectFactory.newInstance((Class<T>) clazz);
+                }
+                else {
+                    component = (T) clazz.newInstance();
+                }
+
                 component.init(this);
                 return component;
             }
