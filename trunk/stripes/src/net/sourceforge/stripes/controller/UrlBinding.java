@@ -120,11 +120,7 @@ public class UrlBinding {
                 buf.append(component);
             }
             else if (component instanceof UrlBindingParameter) {
-                UrlBindingParameter parameter = (UrlBindingParameter) component;
-                buf.append('{').append(parameter.getName());
-                if (parameter.getDefaultValue() != null)
-                    buf.append('=').append(parameter.getDefaultValue());
-                buf.append('}');
+                buf.append('{').append(component).append('}');
             }
         }
         return buf.toString();
