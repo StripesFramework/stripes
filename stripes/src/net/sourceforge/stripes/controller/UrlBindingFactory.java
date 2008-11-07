@@ -132,10 +132,13 @@ public class UrlBindingFactory {
     public UrlBinding getBindingPrototype(String uri) {
         // Look for an exact match to the URI first
         UrlBinding prototype = pathCache.get(uri);
-        if (prototype != null)
+        if (prototype != null) {
+            log.debug("Matched ", uri, " to ", prototype);
             return prototype;
-        else if (pathConflicts.containsKey(uri))
+        }
+        else if (pathConflicts.containsKey(uri)) {
             throw new UrlBindingConflictException(uri, pathConflicts.get(uri));
+        }
 
         // Get all the bindings whose prefix matches the URI
         Set<UrlBinding> candidates = null;
