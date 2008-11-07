@@ -114,13 +114,13 @@ public class UrlBinding {
 
     @Override
     public String toString() {
-        StringBuilder buf = new StringBuilder(getPath());
+        StringBuilder buf = new StringBuilder(64).append(getPath());
         for (Object component : getComponents()) {
-            if (component instanceof String) {
-                buf.append(component);
-            }
-            else if (component instanceof UrlBindingParameter) {
+            if (component instanceof UrlBindingParameter) {
                 buf.append('{').append(component).append('}');
+            }
+            else {
+                buf.append(component);
             }
         }
         return buf.toString();
