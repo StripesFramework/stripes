@@ -642,9 +642,6 @@ public class PropertyExpressionEvaluation {
             else if (clazz.isEnum()) {
                 return clazz.getEnumConstants()[0];
             }
-            else if (clazz.isInterface() ) {
-                return ReflectUtil.getInterfaceInstance(clazz);
-            }
             else {
                 return StripesFilter.getConfiguration().getObjectFactory().newInstance(clazz);
             }

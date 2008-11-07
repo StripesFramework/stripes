@@ -24,7 +24,6 @@ import net.sourceforge.stripes.util.CollectionUtil;
 import net.sourceforge.stripes.util.CryptoUtil;
 import net.sourceforge.stripes.util.HtmlUtil;
 import net.sourceforge.stripes.util.Log;
-import net.sourceforge.stripes.util.ReflectUtil;
 import net.sourceforge.stripes.util.bean.BeanUtil;
 import net.sourceforge.stripes.util.bean.ExpressionException;
 import net.sourceforge.stripes.util.bean.NoSuchPropertyException;
@@ -375,15 +374,8 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
         }
         else if (Collection.class.isAssignableFrom(targetType)
                 && !Collection.class.isAssignableFrom(valueType)) {
-            Collection collection = null;
-            if (targetType.isInterface()) {
-                collection = (Collection) ReflectUtil.getInterfaceInstance(targetType);
-            }
-            else {
-                collection = getConfiguration().getObjectFactory().newInstance(
-                        (Class<? extends Collection>) targetType);
-            }
-
+            Collection collection = getConfiguration().getObjectFactory().newInstance(
+                    (Class<? extends Collection>) targetType);
             collection.addAll(valueOrValues);
             propertyEvaluation.setValue(collection);
         }
