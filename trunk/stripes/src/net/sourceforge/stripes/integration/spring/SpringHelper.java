@@ -249,7 +249,7 @@ public class SpringHelper {
      *            is not possible to find a unique matching bean in the spring context given
      *            the constraints supplied.
      */
-    protected static Object findSpringBean(ApplicationContext ctx,
+    public static Object findSpringBean(ApplicationContext ctx,
                                            String name,
                                            Class<?> type,
                                            boolean allowFindByType) {
