@@ -14,6 +14,8 @@
  */
 package net.sourceforge.stripes.controller;
 
+import java.lang.reflect.Constructor;
+
 import net.sourceforge.stripes.config.ConfigurableComponent;
 
 /**
@@ -34,10 +36,61 @@ import net.sourceforge.stripes.config.ConfigurableComponent;
  */
 public interface ObjectFactory extends ConfigurableComponent {
     /**
+     * <p>
+     * A wrapper for a {@link Constructor}. This interface provides a builder-style API for
+     * instantiating classes by invoking a specific constructor. Typical usage might look like:
+     * </p>
+     * <code>
+     * configuration.getObjectFactory().constructor(targetType, String.class).newInstance("FOO");
+     * </code>
+     */
+    public static interface ConstructorWrapper<T> {
+        /** Get the {@link Constructor} object wrapped by this instance. */
+        public Constructor<T> getConstructor();
+
+        /** Invoke the constructor with the specified arguments and return the new object. */
+        public T newInstance(Object... args);
+    }
+
+    /**
      * Create a new instance of {@code clazz} and return it.
      * 
      * @param clazz The class to instantiate.
      * @return A new instances of the class.
      */
     <T> T newInstance(Class<T> clazz);
+
+    /**
+     * Create a new instances of {@code T} by invoking the given constructor.
+     * 
+     * @return A new object instantiated by invoking the constructor.
+     */
+    <T> T newInstance(Constructor<T> constructor, Object... args);
+
+    /**
+     * Create a new instance of {@code clazz} by calling a specific constructor.
+     * 
+     * @param clazz The class to instantiate.
+     * @param constructorArgTypes The type arguments of the constructor to be invoked. (See
+     *            {@link Class#getConstructor(Class...)}.)
+     * @param constructorArgs The arguments to pass to the constructor. (See
+     *            {@link Constructor#newInstance(Object...)}.)
+     * @return A new instance of the class.
+     */
+    <T> T newInstance(Class<T> clazz, Class<?>[] constructorArgTypes, Object[] constructorArgs);
+
+    /**
+     * <p>
+     * Provides a builder-style interface for instantiating objects by calling specific
+     * constructors. Typical usage might look like:
+     * </p>
+     * <code>
+     * configuration.getObjectFactory().constructor(targetType, String.class).newInstance("FOO");
+     * </code>
+     * 
+     * @param clazz The class whose constructor is to be looked up.
+     * @param parameterTypes The types of the parameters to the constructor.
+     * @return A {@link ConstructorWrapper} that allows for invoking the constructor.
+     */
+    <T> ConstructorWrapper<T> constructor(Class<T> clazz, Class<?>... parameterTypes);
 }
