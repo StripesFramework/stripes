@@ -39,7 +39,6 @@ import net.sourceforge.stripes.validation.expression.ExpressionValidator;
 
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Array;
-import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -785,11 +784,11 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
                         retval = converter.convert(value, returnType, errors);
                     }
                     else {
-                        Constructor<?> constructor = returnType.getConstructor(String.class);
-                        if (constructor != null) {
-                            retval = constructor.newInstance(value);
+                        try {
+                            retval = getConfiguration().getObjectFactory()
+                                    .constructor(returnType, String.class).newInstance(value);
                         }
-                        else {
+                        catch (StripesRuntimeException e) {
                             log.debug("Could not find a way to convert the parameter ", propertyName.getName(),
                                       " to a ", returnType.getSimpleName(), ". No TypeConverter could be ",
                                       "found and the class does not ", "have a constructor that takes a ",
