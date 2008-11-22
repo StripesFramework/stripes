@@ -130,6 +130,7 @@
                 <include name="stripes/lib/**"/>
                 <include name="stripes/resources/**"/>
                 <include name="stripes/build.xml"/>
+                <include name="stripes/pom.xml"/>
 
                 <include name="examples/src/**"/>
                 <include name="examples/web/**"/>
