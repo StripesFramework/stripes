@@ -346,7 +346,7 @@ public class UrlBindingFactory {
 
         // Wire some paths directly to the ActionBean (path, path + /, path + suffix, etc.)
         cachePath(binding.getPath(), binding);
-        if (!"/".equals(binding.getPath()))
+        if (!binding.getPath().equals(pathPlusSlash))
             cachePath(pathPlusSlash, binding);
         if (binding.getSuffix() != null)
             cachePath(binding.getPath() + binding.getSuffix(), binding);
