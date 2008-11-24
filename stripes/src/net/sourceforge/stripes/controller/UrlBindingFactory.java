@@ -339,30 +339,34 @@ public class UrlBindingFactory {
      * @param binding the URL binding
      */
     public void addBinding(Class<? extends ActionBean> beanType, UrlBinding binding) {
+        // The binding path with trailing slash, used several times below
+        String pathPlusSlash = binding.getPath();
+        if (!pathPlusSlash.endsWith("/"))
+            pathPlusSlash = pathPlusSlash + '/';
+
+        // Wire some paths directly to the ActionBean (path, path + /, path + suffix, etc.)
         cachePath(binding.getPath(), binding);
+        if (!"/".equals(binding.getPath()))
+            cachePath(pathPlusSlash, binding);
         if (binding.getSuffix() != null)
             cachePath(binding.getPath() + binding.getSuffix(), binding);
         if (!binding.toString().equals(binding.getPath()))
             cachePath(binding.toString(), binding);
 
-        Set<UrlBinding> bindings = prefixCache.get(binding.getPath() + '/');
-        if (bindings == null) {
-            bindings = new TreeSet<UrlBinding>(new Comparator<UrlBinding>() {
-                public int compare(UrlBinding o1, UrlBinding o2) {
-                    int cmp = o1.getComponents().size() - o2.getComponents().size();
-                    if (cmp == 0)
-                        cmp = o1.toString().compareTo(o2.toString());
-                    return cmp;
-                }
-            });
-        }
-        bindings.add(binding);
-
-        prefixCache.put(binding.getPath() + '/', bindings);
+        // Pick out the first component if it is a literal
+        String leadingLiteral = null;
         List<Object> components = binding.getComponents();
         if (components != null && !components.isEmpty() && components.get(0) instanceof String)
-            prefixCache.put(binding.getPath() + components.get(0), bindings);
+            leadingLiteral = (String) components.get(0);
 
+        // Map some prefixes to the binding
+        String pathPlusLiteral = binding.getPath() + leadingLiteral;
+        if (leadingLiteral != null)
+            cachePrefix(pathPlusLiteral, binding);
+        if (!pathPlusSlash.equals(pathPlusLiteral))
+            cachePrefix(pathPlusSlash, binding);
+
+        // Map the ActionBean to its binding
         classCache.put(beanType, binding);
     }
 
@@ -382,12 +386,43 @@ public class UrlBindingFactory {
                 list.add(conflict.toString());
                 pathConflicts.put(path, list);
             }
-            log.warn("The path ", path, " for binding ", binding, " conflicts with ", list);
+            log.warn("The path ", path, " for ", binding.getBeanType().getName(), " @ ", binding,
+                    " conflicts with ", list);
             list.add(binding.toString());
         }
         else {
+            log.debug("Wiring path ", path, " to ", binding.getBeanType().getName(), " @ ", binding);
             pathCache.put(path, binding);
         }
+    }
+
+    /**
+     * Add a binding to the set of bindings associated with a prefix.
+     * 
+     * @param prefix The prefix to cache
+     * @param binding The binding to map to the prefix
+     */
+    protected void cachePrefix(String prefix, UrlBinding binding) {
+        log.debug("Wiring prefix ", prefix, "* to ", binding.getBeanType().getName(), " @ ", binding);
+
+        // Look up existing set of bindings to which the prefix maps
+        Set<UrlBinding> bindings = prefixCache.get(prefix);
+
+        // If necessary, create and store a new set of bindings
+        if (bindings == null) {
+            bindings = new TreeSet<UrlBinding>(new Comparator<UrlBinding>() {
+                public int compare(UrlBinding o1, UrlBinding o2) {
+                    int cmp = o1.getComponents().size() - o2.getComponents().size();
+                    if (cmp == 0)
+                        cmp = o1.toString().compareTo(o2.toString());
+                    return cmp;
+                }
+            });
+            prefixCache.put(prefix, bindings);
+        }
+
+        // Add the binding to the set
+        bindings.add(binding);
     }
 
     /**
