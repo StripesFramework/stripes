@@ -340,6 +340,24 @@ public class UrlBindingFactory {
      * @param binding the URL binding
      */
     public void addBinding(Class<? extends ActionBean> beanType, UrlBinding binding) {
+        /*
+         * Search for a class that has already been added with the same name as the class being
+         * added now. If one is found then remove its information first and then proceed with adding
+         * it. I know this is not technically correct because two classes from two different class
+         * loaders can have the same name, but this feature is valuable for extensions that reload
+         * classes and I consider it highly unlikely to be a problem in practice.
+         */
+        Class<? extends ActionBean> existing = null;
+        for (Class<? extends ActionBean> c : classCache.keySet()) {
+            if (c.getName().equals(beanType.getName())) {
+                existing = c;
+                break;
+            }
+        }
+        if (existing != null)
+            removeBinding(existing);
+
+        // And now we can safely add the class
         for (String path : getCachedPaths(binding)) {
             cachePath(path, binding);
         }
