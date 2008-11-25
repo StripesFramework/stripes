@@ -116,7 +116,6 @@ public class AnnotatedClassActionResolver implements ActionResolver {
         }
     }
 
-
     /**
      * Adds an ActionBean class to the set that this resolver can resolve. Identifies
      * the URL binding and the events managed by the class and stores them in Maps
@@ -158,6 +157,20 @@ public class AnnotatedClassActionResolver implements ActionResolver {
                         binding, isDefault ? "" : "?" + event);
             }
         }
+    }
+
+    /**
+     * Removes an ActionBean class from the set that this resolver can resolve. The URL binding
+     * and the events managed by the class are removed from the cache.
+     *
+     * @param clazz a class that implements ActionBean
+     */
+    protected void removeActionBean(Class<? extends ActionBean> clazz) {
+        String binding = getUrlBinding(clazz);
+        if (binding != null) {
+            UrlBindingFactory.getInstance().removeBinding(clazz);
+        }
+        eventMappings.remove(clazz);
     }
 
     /**
