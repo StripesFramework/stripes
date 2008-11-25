@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -339,35 +340,112 @@ public class UrlBindingFactory {
      * @param binding the URL binding
      */
     public void addBinding(Class<? extends ActionBean> beanType, UrlBinding binding) {
-        // The binding path with trailing slash, used several times below
-        String pathPlusSlash = binding.getPath();
-        if (!pathPlusSlash.endsWith("/"))
-            pathPlusSlash = pathPlusSlash + '/';
+        for (String path : getCachedPaths(binding)) {
+            cachePath(path, binding);
+        }
+        for (String prefix : getCachedPrefixes(binding)) {
+            cachePrefix(prefix, binding);
+        }
+        classCache.put(beanType, binding);
+    }
+
+    /**
+     * Removes an {@link ActionBean}'s URL binding.
+     * 
+     * @param beanType the {@link ActionBean} class
+     */
+    public synchronized void removeBinding(Class<? extends ActionBean> beanType) {
+        UrlBinding binding = classCache.get(beanType);
+        if (binding == null)
+            return;
+
+        Set<UrlBinding> resolvedConflicts = null;
+        for (String path : getCachedPaths(binding)) {
+            log.debug("Clearing cached path ", path, " for ", binding);
+            pathCache.remove(path);
+
+            List<String> conflicts = pathConflicts.get(path);
+            if (conflicts != null) {
+                log.debug("Removing ", binding, " from conflicts list ", conflicts);
+                conflicts.remove(binding.toString());
+
+                if (conflicts.size() == 1) {
+                    if (resolvedConflicts == null) {
+                        resolvedConflicts = new LinkedHashSet<UrlBinding>();
+                    }
+
+                    resolvedConflicts.add(pathCache.get(conflicts.get(0)));
+                    conflicts.clear();
+                }
+
+                if (conflicts.isEmpty())
+                    pathConflicts.remove(path);
+            }
+        }
+
+        for (String prefix : getCachedPrefixes(binding)) {
+            Set<UrlBinding> bindings = prefixCache.get(prefix);
+            if (bindings != null) {
+                log.debug("Clearing cached prefix ", prefix, " for ", binding);
+                bindings.remove(binding);
+                if (bindings.isEmpty())
+                    prefixCache.remove(prefix);
+            }
+        }
+
+        classCache.remove(beanType);
+
+        if (resolvedConflicts != null) {
+            log.debug("Resolved conflicts with ", resolvedConflicts);
+
+            for (UrlBinding conflict : resolvedConflicts) {
+                removeBinding(conflict.getBeanType());
+                addBinding(conflict.getBeanType(), conflict);
+            }
+        }
+    }
+
+    /**
+     * Get a list of the request paths that will be wired directly to an ActionBean. In some cases,
+     * a single path might be valid for more than one ActionBean. In such a case, a warning will be
+     * logged at startup and an exception will be thrown if the conflicting path is requested.
+     */
+    protected Set<String> getCachedPaths(UrlBinding binding) {
+        Set<String> paths = new TreeSet<String>();
 
         // Wire some paths directly to the ActionBean (path, path + /, path + suffix, etc.)
-        cachePath(binding.getPath(), binding);
-        if (!binding.getPath().equals(pathPlusSlash))
-            cachePath(pathPlusSlash, binding);
+        paths.add(binding.getPath());
+        paths.add(binding.toString());
+        if (!binding.getPath().endsWith("/"))
+            paths.add(binding.getPath() + '/');
         if (binding.getSuffix() != null)
-            cachePath(binding.getPath() + binding.getSuffix(), binding);
-        if (!binding.toString().equals(binding.getPath()))
-            cachePath(binding.toString(), binding);
+            paths.add(binding.getPath() + binding.getSuffix());
 
-        // Pick out the first component if it is a literal
-        String leadingLiteral = null;
+        return paths;
+    }
+
+    /**
+     * Get a list of the request path prefixes that <em>could</em> map to an ActionBean. A single
+     * prefix may map to multiple ActionBeans. In such a case, we attempt to determine the best
+     * match based on the literal strings and parameters defined in the ActionBeans' URL bindings.
+     * If no single ActionBean is determined to be a best match, then an exception is thrown to
+     * report the conflict.
+     */
+    protected Set<String> getCachedPrefixes(UrlBinding binding) {
+        Set<String> prefixes = new TreeSet<String>();
+
+        // Add binding as a candidate for some prefixes (path + /, path + leading literal, etc.)
+        if (binding.getPath().endsWith("/"))
+            prefixes.add(binding.getPath());
+        else
+            prefixes.add(binding.getPath() + '/');
+
         List<Object> components = binding.getComponents();
-        if (components != null && !components.isEmpty() && components.get(0) instanceof String)
-            leadingLiteral = (String) components.get(0);
+        if (components != null && !components.isEmpty() && components.get(0) instanceof String) {
+            prefixes.add(binding.getPath() + components.get(0));
+        }
 
-        // Map some prefixes to the binding
-        String pathPlusLiteral = binding.getPath() + leadingLiteral;
-        if (leadingLiteral != null)
-            cachePrefix(pathPlusLiteral, binding);
-        if (!pathPlusSlash.equals(pathPlusLiteral))
-            cachePrefix(pathPlusSlash, binding);
-
-        // Map the ActionBean to its binding
-        classCache.put(beanType, binding);
+        return prefixes;
     }
 
     /**
