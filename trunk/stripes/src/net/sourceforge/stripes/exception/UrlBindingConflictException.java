@@ -59,6 +59,7 @@ public class UrlBindingConflictException extends StripesRuntimeException {
      * potentially matches all the URL bindings in the {@code matches} collection.
      * 
      * @param message An informative message about what went wrong
+     * @param targetClass The class for which a URL could not be generated.
      * @param path The offending path
      * @param matches A collection of all the potentially matching URL bindings
      */
@@ -74,7 +75,7 @@ public class UrlBindingConflictException extends StripesRuntimeException {
      * New exception indicating that the {@code path} does not map to a single ActionBean because it
      * potentially matches all the URL bindings in the {@code matches} collection.
      * 
-     * @param message An informative message about what went wrong
+     * @param targetClass The class for which a URL could not be generated.
      * @param path The offending path
      * @param matches A collection of all the potentially matching URL bindings
      */
@@ -99,7 +100,6 @@ public class UrlBindingConflictException extends StripesRuntimeException {
      * New exception indicating that the {@code path} does not map to a single ActionBean because it
      * potentially matches all the URL bindings in the {@code matches} collection.
      * 
-     * @param message An informative message about what went wrong
      * @param path The offending path
      * @param matches A collection of all the potentially matching URL bindings
      */
