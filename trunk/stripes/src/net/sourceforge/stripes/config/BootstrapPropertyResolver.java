@@ -15,6 +15,7 @@
 package net.sourceforge.stripes.config;
 
 import java.lang.reflect.Modifier;
+import java.security.AccessControlException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -75,14 +76,34 @@ public class BootstrapPropertyResolver {
      * @return String the value of the configuration item or null
      */
     public String getProperty(String key) {
-        String value = this.filterConfig.getInitParameter(key);
+        String value = null;
 
-        if (value == null) {
-            value = this.filterConfig.getServletContext().getInitParameter(key);
+        try {
+            value = this.filterConfig.getInitParameter(key);
+        }
+        catch (AccessControlException e) {
+            log.debug("Security manager prevented " + getClass().getName()
+                    + " from reading filter init-param" + key);
         }
 
         if (value == null) {
-            value = System.getProperty(key);
+            try {
+                value = this.filterConfig.getServletContext().getInitParameter(key);
+            }
+            catch (AccessControlException e) {
+                log.debug("Security manager prevented " + getClass().getName()
+                        + " from reading servlet context init-param" + key);
+            }
+        }
+
+        if (value == null) {
+            try {
+                value = System.getProperty(key);
+            }
+            catch (AccessControlException e) {
+                log.debug("Security manager prevented " + getClass().getName()
+                        + " from reading system property " + key);
+            }
         }
 
         return value;
