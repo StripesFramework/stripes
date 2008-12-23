@@ -15,6 +15,7 @@
 package net.sourceforge.stripes.action;
 
 import net.sourceforge.stripes.exception.StripesRuntimeException;
+import net.sourceforge.stripes.util.Log;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -53,6 +54,7 @@ import java.io.StringReader;
  * @author Tim Fennell
  */
 public class StreamingResolution implements Resolution {
+    private static final Log log = Log.getInstance(StreamingResolution.class);
     private InputStream inputStream;
     private Reader reader;
     private String filename;
@@ -156,34 +158,61 @@ public class StreamingResolution implements Resolution {
     }
 
     /**
-     * Responsible for the actual streaming of data through the response. If subclassed,
-     * this method should be overridden to stream back data other than data supplied by
-     * an InputStream or Reader supplied to a constructor.
-     *
-     * @param response the HttpServletResponse from which either the output stream or writer
-     *        can be obtained
-     * @throws IOException if any problems arise when streaming data
+     * <p>
+     * Does the actual streaming of data through the response. If subclassed, this method should be
+     * overridden to stream back data other than data supplied by an InputStream or a Reader
+     * supplied to a constructor.
+     * </p>
+     * 
+     * <p>
+     * If an InputStream or Reader was supplied to a constructor, this implementation uses a
+     * moderately sized buffer to stream data from it to the response to make the operation
+     * reasonably efficient, and closes the InputStream or the Reader. If an IOException occurs when
+     * closing it, that exception will be logged as a warning, and <em>not</em> thrown to avoid
+     * masking a possibly previously thrown exception.
+     * </p>
+     * 
+     * @param response the HttpServletResponse from which either the output stream or writer can be
+     *            obtained
+     * @throws Exception if any problems arise when streaming data
      */
     protected void stream(HttpServletResponse response) throws Exception {
         int length = 0;
         if (this.reader != null) {
             char[] buffer = new char[512];
-            PrintWriter out = response.getWriter();
+            try {
+                PrintWriter out = response.getWriter();
 
-            while ( (length = this.reader.read(buffer)) != -1 ) {
-                out.write(buffer, 0, length);
+                while ( (length = this.reader.read(buffer)) != -1 ) {
+                    out.write(buffer, 0, length);
+                }
             }
-            this.reader.close();
+            finally {
+                try {
+                    this.reader.close();
+                }
+                catch (Exception e) {
+                    log.warn("Error closing reader", e);
+                }
+            }
         }
         else if (this.inputStream != null) {
             byte[] buffer = new byte[512];
-            ServletOutputStream out = response.getOutputStream();
+            try {
+                ServletOutputStream out = response.getOutputStream();
 
-            while ( (length = this.inputStream.read(buffer)) != -1) {
-                out.write(buffer, 0, length);
+                while ( (length = this.inputStream.read(buffer)) != -1) {
+                    out.write(buffer, 0, length);
+                }
             }
-
-            this.inputStream.close();
+            finally {
+                try {
+                    this.inputStream.close();
+                }
+                catch (Exception e) {
+                    log.warn("Error closing input stream", e);
+                }
+            }
         }
         else {
             throw new StripesRuntimeException("A StreamingResolution was constructed without " +
