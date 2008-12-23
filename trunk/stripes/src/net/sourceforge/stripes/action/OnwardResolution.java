@@ -36,8 +36,11 @@ import net.sourceforge.stripes.util.UrlBuilder;
  * @author Tim Fennell
  */
 public abstract class OnwardResolution<T extends OnwardResolution<T>> implements Resolution {
+    /** Initial value for fields to indicate they were not changed when null has special meaning */
+    private static final String VALUE_NOT_SET = "VALUE_NOT_SET";
+
     private String path;
-    private String event;
+    private String event = VALUE_NOT_SET;
     private Map<String,Object> parameters = new HashMap<String,Object>();
     private String anchor;
 
@@ -187,8 +190,8 @@ public abstract class OnwardResolution<T extends OnwardResolution<T>> implements
      */
     public String getUrl(Locale locale) {
         UrlBuilder builder = new UrlBuilder(locale, path, false);
-        if (event != null) {
-            builder.setEvent(event);
+        if (event != VALUE_NOT_SET) {
+            builder.setEvent(event == null || event.length() < 1 ? null : event);
         }
         if (anchor != null) {
             builder.setAnchor(anchor);
