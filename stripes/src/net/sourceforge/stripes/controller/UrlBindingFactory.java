@@ -522,21 +522,35 @@ public class UrlBindingFactory {
     }
 
     /**
-     * Parse a binding pattern and create a {@link UrlBinding} object.
+     * Look for a binding pattern for the given {@link ActionBean} class, specified by the
+     * {@link net.sourceforge.stripes.action.UrlBinding} annotation. If the annotation is found,
+     * create and return a {@link UrlBinding} object for the class. Otherwise, return null.
      * 
-     * @param beanType the {@link ActionBean} type whose binding is to be parsed
-     * @return a {@link UrlBinding}
-     * @throws ParseException if the pattern cannot be parsed
+     * @param beanType The {@link ActionBean} type whose binding is to be parsed
+     * @return A {@link UrlBinding} if one is specified, or null if not.
+     * @throws ParseException If the pattern cannot be parsed
      */
-    protected static UrlBinding parseUrlBinding(Class<? extends ActionBean> beanType) {
+    public static UrlBinding parseUrlBinding(Class<? extends ActionBean> beanType) {
         // check that class is annotated
         net.sourceforge.stripes.action.UrlBinding annotation = beanType
                 .getAnnotation(net.sourceforge.stripes.action.UrlBinding.class);
         if (annotation == null)
             return null;
+        else
+            return parseUrlBinding(beanType, annotation.value());
+    }
 
+    /**
+     * Parse the binding pattern and create a {@link UrlBinding} object for the {@link ActionBean}
+     * class. If pattern is null or zero-length, then return null.
+     * 
+     * @param beanType The {@link ActionBean} type to be mapped to the pattern.
+     * @param pattern The URL binding pattern to parse.
+     * @return A {@link UrlBinding} or null if the pattern is null or zero-length
+     * @throws ParseException If the pattern cannot be parsed
+     */
+    public static UrlBinding parseUrlBinding(Class<? extends ActionBean> beanType, String pattern) {
         // check that value is not null or empty
-        String pattern = annotation.value();
         if (pattern == null || pattern.length() < 1)
             return null;
 
@@ -624,7 +638,7 @@ public class UrlBindingFactory {
      * @return a parameter object
      * @throws ParseException if the pattern cannot be parsed
      */
-    protected static UrlBindingParameter parseUrlBindingParameter(
+    public static UrlBindingParameter parseUrlBindingParameter(
             Class<? extends ActionBean> beanClass, String string) {
         char[] chars = string.toCharArray();
         char c = 0;
