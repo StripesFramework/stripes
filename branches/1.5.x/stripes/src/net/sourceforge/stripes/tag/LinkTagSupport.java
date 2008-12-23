@@ -33,8 +33,11 @@ import java.util.HashMap;
  * @since Stripes 1.4
  */
 public abstract class LinkTagSupport extends HtmlTagSupport implements ParameterizableTag {
+    /** Initial value for fields to indicate they were not set by a tag attribute. */
+    private static final String VALUE_NOT_SET = "VALUE_NOT_SET";
+
     private Map<String,Object> parameters = new HashMap<String,Object>();
-    private String event;
+    private String event = VALUE_NOT_SET;
     private Object beanclass;
     private String url;
     private String anchor;
@@ -187,8 +190,8 @@ public abstract class LinkTagSupport extends HtmlTagSupport implements Parameter
         // the HtmlTagSupport will HtmlEncode the ampersands for us
         String base = getPreferredBaseUrl();
         UrlBuilder builder = new UrlBuilder(pageContext.getRequest().getLocale(), base, false);
-        if (this.event != null) {
-            builder.setEvent(this.event);
+        if (this.event != VALUE_NOT_SET) {
+            builder.setEvent(this.event == null || this.event.length() < 1 ? null : this.event);
         }
         if (addSourcePage) {
             builder.addParameter(StripesConstants.URL_KEY_SOURCE_PAGE,
