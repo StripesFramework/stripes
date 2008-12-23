@@ -116,7 +116,6 @@ public class AnnotatedClassActionResolver implements ActionResolver {
         }
     }
 
-
     /**
      * Adds an ActionBean class to the set that this resolver can resolve. Identifies
      * the URL binding and the events managed by the class and stores them in Maps
@@ -161,6 +160,20 @@ public class AnnotatedClassActionResolver implements ActionResolver {
     }
 
     /**
+     * Removes an ActionBean class from the set that this resolver can resolve. The URL binding
+     * and the events managed by the class are removed from the cache.
+     *
+     * @param clazz a class that implements ActionBean
+     */
+    protected void removeActionBean(Class<? extends ActionBean> clazz) {
+        String binding = getUrlBinding(clazz);
+        if (binding != null) {
+            UrlBindingFactory.getInstance().removeBinding(clazz);
+        }
+        eventMappings.remove(clazz);
+    }
+
+    /**
      * Returns the URL binding that is a substring of the path provided. For example, if there
      * is an ActionBean bound to {@code /user/Profile.action} the path
      * {@code /user/Profile.action/view} would return {@code /user/Profile.action}.
@@ -172,7 +185,7 @@ public class AnnotatedClassActionResolver implements ActionResolver {
      */
     public String getUrlBindingFromPath(String path) {
         UrlBinding mapping = UrlBindingFactory.getInstance().getBindingPrototype(path);
-        return mapping == null ? null : mapping.getPath();
+        return mapping == null ? null : mapping.toString();
     }
 
     /**
@@ -186,7 +199,7 @@ public class AnnotatedClassActionResolver implements ActionResolver {
      */
     public String getUrlBinding(Class<? extends ActionBean> clazz) {
         UrlBinding mapping = UrlBindingFactory.getInstance().getBindingPrototype(clazz);
-        return mapping == null ? null : mapping.getPath();
+        return mapping == null ? null : mapping.toString();
     }
 
     /**
@@ -275,8 +288,7 @@ public class AnnotatedClassActionResolver implements ActionResolver {
      */
     public ActionBean getActionBean(ActionBeanContext context) throws StripesServletException {
         HttpServletRequest request = context.getRequest();
-        UrlBinding binding = UrlBindingFactory.getInstance().getBindingPrototype(request);
-        String path = binding == null ? HttpUtil.getRequestedPath(request) : binding.getPath();
+        String path = HttpUtil.getRequestedPath(request);
         ActionBean bean = getActionBean(context, path);
         request.setAttribute(RESOLVED_ACTION, getUrlBindingFromPath(path));
         return bean;
@@ -524,7 +536,8 @@ public class AnnotatedClassActionResolver implements ActionResolver {
                                           ActionBeanContext context) {
         Map<String,Method> mappings = this.eventMappings.get(bean);
         String path = HttpUtil.getRequestedPath(context.getRequest());
-        String binding = getUrlBindingFromPath(path);
+        UrlBinding prototype = UrlBindingFactory.getInstance().getBindingPrototype(path);
+        String binding = prototype == null ? null : prototype.getPath();
 
         if (binding != null && path.length() != binding.length()) {
             String extra = path.substring(binding.length() + 1);

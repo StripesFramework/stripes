@@ -22,16 +22,21 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletRequest;
 
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
+import net.sourceforge.stripes.exception.UrlBindingConflictException;
 import net.sourceforge.stripes.util.HttpUtil;
+import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.util.bean.ParseException;
 
 /**
@@ -54,6 +59,8 @@ import net.sourceforge.stripes.util.bean.ParseException;
  * @see UrlBindingParameter
  */
 public class UrlBindingFactory {
+    private static final Log log = Log.getInstance(UrlBindingFactory.class);
+
     /** Singleton instance */
     private static final UrlBindingFactory instance = new UrlBindingFactory();
 
@@ -72,8 +79,11 @@ public class UrlBindingFactory {
     /** Maps simple paths to {@link UrlBinding}s */
     private final Map<String, UrlBinding> pathCache = new HashMap<String, UrlBinding>();
 
+    /** Keeps a list of all the paths that could not be cached due to conflicts between URL bindings */
+    private final Map<String, List<String>> pathConflicts = new HashMap<String, List<String>>();
+
     /** Holds the set of paths that are cached, sorted from longest to shortest */
-    private final Map<String, UrlBinding> prefixCache = new TreeMap<String, UrlBinding>(
+    private final Map<String, Set<UrlBinding>> prefixCache = new TreeMap<String, Set<UrlBinding>>(
             new Comparator<String>() {
                 public int compare(String a, String b) {
                     int cmp = b.length() - a.length();
@@ -123,15 +133,80 @@ public class UrlBindingFactory {
     public UrlBinding getBindingPrototype(String uri) {
         // Look for an exact match to the URI first
         UrlBinding prototype = pathCache.get(uri);
-        if (prototype != null)
+        if (prototype != null) {
+            log.debug("Matched ", uri, " to ", prototype);
             return prototype;
+        }
+        else if (pathConflicts.containsKey(uri)) {
+            throw new UrlBindingConflictException(uri, pathConflicts.get(uri));
+        }
 
-        // Then look for a matching prefix
-        for (Entry<String, UrlBinding> entry : prefixCache.entrySet()) {
+        // Get all the bindings whose prefix matches the URI
+        Set<UrlBinding> candidates = null;
+        for (Entry<String, Set<UrlBinding>> entry : prefixCache.entrySet()) {
             if (uri.startsWith(entry.getKey())) {
-                prototype = entry.getValue();
+                candidates = entry.getValue();
                 break;
             }
+        }
+
+        // If none matched or exactly one matched then return now
+        if (candidates == null) {
+            log.debug("No URL binding matches ", uri);
+            return null;
+        }
+        else if (candidates.size() == 1) {
+            log.debug("Matched ", uri, " to ", candidates);
+            return candidates.iterator().next();
+        }
+
+        // Now find the one that matches deepest into the URI with the fewest components
+        int maxIndex = 0, minComponents = Integer.MAX_VALUE;
+        List<String> conflicts = null;
+        for (UrlBinding binding : candidates) {
+            int idx = binding.getPath().length();
+            List<Object> components = binding.getComponents();
+            int componentCount = components.size();
+
+            for (Object component : components) {
+                if (!(component instanceof String))
+                    continue;
+
+                int at = uri.indexOf((String) component, idx);
+                if (at >= 0) {
+                    idx = at + ((String) component).length();
+                }
+                else {
+                    break;
+                }
+            }
+
+            if (idx == maxIndex) {
+                if (componentCount < minComponents) {
+                    conflicts = null;
+                    minComponents = componentCount;
+                    prototype = binding;
+                }
+                else if (componentCount == minComponents) {
+                    if (conflicts == null) {
+                        conflicts = new ArrayList<String>(candidates.size());
+                        conflicts.add(prototype.toString());
+                    }
+                    conflicts.add(binding.toString());
+                    prototype = null;
+                }
+            }
+            else if (idx > maxIndex) {
+                conflicts = null;
+                minComponents = componentCount;
+                prototype = binding;
+                maxIndex = idx;
+            }
+        }
+
+        log.debug("Matched @", maxIndex, " ", uri, " to ", prototype == null ? conflicts : prototype);
+        if (prototype == null) {
+            throw new UrlBindingConflictException(uri, conflicts);
         }
 
         return prototype;
@@ -265,14 +340,185 @@ public class UrlBindingFactory {
      * @param binding the URL binding
      */
     public void addBinding(Class<? extends ActionBean> beanType, UrlBinding binding) {
-        pathCache.put(binding.getPath(), binding);
-        if (binding.getSuffix() != null)
-			pathCache.put(binding.getPath() + binding.getSuffix(), binding);
-        prefixCache.put(binding.getPath() + '/', binding);
-        List<Object> components = binding.getComponents();
-        if (components != null && !components.isEmpty() && components.get(0) instanceof String)
-            prefixCache.put(binding.getPath() + components.get(0), binding);
+        /*
+         * Search for a class that has already been added with the same name as the class being
+         * added now. If one is found then remove its information first and then proceed with adding
+         * it. I know this is not technically correct because two classes from two different class
+         * loaders can have the same name, but this feature is valuable for extensions that reload
+         * classes and I consider it highly unlikely to be a problem in practice.
+         */
+        Class<? extends ActionBean> existing = null;
+        for (Class<? extends ActionBean> c : classCache.keySet()) {
+            if (c.getName().equals(beanType.getName())) {
+                existing = c;
+                break;
+            }
+        }
+        if (existing != null)
+            removeBinding(existing);
+
+        // And now we can safely add the class
+        for (String path : getCachedPaths(binding)) {
+            cachePath(path, binding);
+        }
+        for (String prefix : getCachedPrefixes(binding)) {
+            cachePrefix(prefix, binding);
+        }
         classCache.put(beanType, binding);
+    }
+
+    /**
+     * Removes an {@link ActionBean}'s URL binding.
+     * 
+     * @param beanType the {@link ActionBean} class
+     */
+    public synchronized void removeBinding(Class<? extends ActionBean> beanType) {
+        UrlBinding binding = classCache.get(beanType);
+        if (binding == null)
+            return;
+
+        Set<UrlBinding> resolvedConflicts = null;
+        for (String path : getCachedPaths(binding)) {
+            log.debug("Clearing cached path ", path, " for ", binding);
+            pathCache.remove(path);
+
+            List<String> conflicts = pathConflicts.get(path);
+            if (conflicts != null) {
+                log.debug("Removing ", binding, " from conflicts list ", conflicts);
+                conflicts.remove(binding.toString());
+
+                if (conflicts.size() == 1) {
+                    if (resolvedConflicts == null) {
+                        resolvedConflicts = new LinkedHashSet<UrlBinding>();
+                    }
+
+                    resolvedConflicts.add(pathCache.get(conflicts.get(0)));
+                    conflicts.clear();
+                }
+
+                if (conflicts.isEmpty())
+                    pathConflicts.remove(path);
+            }
+        }
+
+        for (String prefix : getCachedPrefixes(binding)) {
+            Set<UrlBinding> bindings = prefixCache.get(prefix);
+            if (bindings != null) {
+                log.debug("Clearing cached prefix ", prefix, " for ", binding);
+                bindings.remove(binding);
+                if (bindings.isEmpty())
+                    prefixCache.remove(prefix);
+            }
+        }
+
+        classCache.remove(beanType);
+
+        if (resolvedConflicts != null) {
+            log.debug("Resolved conflicts with ", resolvedConflicts);
+
+            for (UrlBinding conflict : resolvedConflicts) {
+                removeBinding(conflict.getBeanType());
+                addBinding(conflict.getBeanType(), conflict);
+            }
+        }
+    }
+
+    /**
+     * Get a list of the request paths that will be wired directly to an ActionBean. In some cases,
+     * a single path might be valid for more than one ActionBean. In such a case, a warning will be
+     * logged at startup and an exception will be thrown if the conflicting path is requested.
+     */
+    protected Set<String> getCachedPaths(UrlBinding binding) {
+        Set<String> paths = new TreeSet<String>();
+
+        // Wire some paths directly to the ActionBean (path, path + /, path + suffix, etc.)
+        paths.add(binding.getPath());
+        paths.add(binding.toString());
+        if (!binding.getPath().endsWith("/"))
+            paths.add(binding.getPath() + '/');
+        if (binding.getSuffix() != null)
+            paths.add(binding.getPath() + binding.getSuffix());
+
+        return paths;
+    }
+
+    /**
+     * Get a list of the request path prefixes that <em>could</em> map to an ActionBean. A single
+     * prefix may map to multiple ActionBeans. In such a case, we attempt to determine the best
+     * match based on the literal strings and parameters defined in the ActionBeans' URL bindings.
+     * If no single ActionBean is determined to be a best match, then an exception is thrown to
+     * report the conflict.
+     */
+    protected Set<String> getCachedPrefixes(UrlBinding binding) {
+        Set<String> prefixes = new TreeSet<String>();
+
+        // Add binding as a candidate for some prefixes (path + /, path + leading literal, etc.)
+        if (binding.getPath().endsWith("/"))
+            prefixes.add(binding.getPath());
+        else
+            prefixes.add(binding.getPath() + '/');
+
+        List<Object> components = binding.getComponents();
+        if (components != null && !components.isEmpty() && components.get(0) instanceof String) {
+            prefixes.add(binding.getPath() + components.get(0));
+        }
+
+        return prefixes;
+    }
+
+    /**
+     * Map a path directly to a binding. If the path matches more than one binding, then a warning
+     * will be logged indicating such a condition, and the path will not be cached for any binding.
+     * 
+     * @param path The path to cache
+     * @param binding The binding to which the path should map
+     */
+    protected void cachePath(String path, UrlBinding binding) {
+        if (pathCache.containsKey(path)) {
+            UrlBinding conflict = pathCache.put(path, null);
+            List<String> list = pathConflicts.get(path);
+            if (list == null) {
+                list = new ArrayList<String>();
+                list.add(conflict.toString());
+                pathConflicts.put(path, list);
+            }
+            log.warn("The path ", path, " for ", binding.getBeanType().getName(), " @ ", binding,
+                    " conflicts with ", list);
+            list.add(binding.toString());
+        }
+        else {
+            log.debug("Wiring path ", path, " to ", binding.getBeanType().getName(), " @ ", binding);
+            pathCache.put(path, binding);
+        }
+    }
+
+    /**
+     * Add a binding to the set of bindings associated with a prefix.
+     * 
+     * @param prefix The prefix to cache
+     * @param binding The binding to map to the prefix
+     */
+    protected void cachePrefix(String prefix, UrlBinding binding) {
+        log.debug("Wiring prefix ", prefix, "* to ", binding.getBeanType().getName(), " @ ", binding);
+
+        // Look up existing set of bindings to which the prefix maps
+        Set<UrlBinding> bindings = prefixCache.get(prefix);
+
+        // If necessary, create and store a new set of bindings
+        if (bindings == null) {
+            bindings = new TreeSet<UrlBinding>(new Comparator<UrlBinding>() {
+                public int compare(UrlBinding o1, UrlBinding o2) {
+                    int cmp = o1.getComponents().size() - o2.getComponents().size();
+                    if (cmp == 0)
+                        cmp = o1.toString().compareTo(o2.toString());
+                    return cmp;
+                }
+            });
+            prefixCache.put(prefix, bindings);
+        }
+
+        // Add the binding to the set
+        bindings.add(binding);
     }
 
     /**
