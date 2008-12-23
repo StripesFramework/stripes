@@ -361,26 +361,28 @@ public class NameBasedActionResolver extends AnnotatedClassActionResolver {
         String name = (lastPeriod >= path.length()) ? urlBinding.substring(path.length(), lastPeriod)
                                                     : urlBinding.substring(path.length());
 
-        // This will try /account/ViewAccount.jsp
-        attempts.add(path + name + ".jsp");
+        if (name.length() > 0) {
+            // This will try /account/ViewAccount.jsp
+            attempts.add(path + name + ".jsp");
 
-        // This will try /account/viewAccount.jsp
-        name = Character.toLowerCase(name.charAt(0)) + name.substring(1);
-        attempts.add(path + name + ".jsp");
+            // This will try /account/viewAccount.jsp
+            name = Character.toLowerCase(name.charAt(0)) + name.substring(1);
+            attempts.add(path + name + ".jsp");
 
-        // And finally this will try /account/view_account.jsp
-        StringBuilder builder = new StringBuilder();
-        for (int i=0; i<name.length(); ++i) {
-            char ch = name.charAt(i);
-            if (Character.isUpperCase(ch)) {
-                builder.append("_");
-                builder.append(Character.toLowerCase(ch));
+            // And finally this will try /account/view_account.jsp
+            StringBuilder builder = new StringBuilder();
+            for (int i = 0; i < name.length(); ++i) {
+                char ch = name.charAt(i);
+                if (Character.isUpperCase(ch)) {
+                    builder.append("_");
+                    builder.append(Character.toLowerCase(ch));
+                }
+                else {
+                    builder.append(ch);
+                }
             }
-            else {
-                builder.append(ch);
-            }
+            attempts.add(path + builder.toString() + ".jsp");
         }
-        attempts.add(path + builder.toString() + ".jsp");
 
         return attempts;
     }
