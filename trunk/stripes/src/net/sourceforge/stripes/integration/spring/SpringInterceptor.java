@@ -14,6 +14,7 @@
  */
 package net.sourceforge.stripes.integration.spring;
 
+import net.sourceforge.stripes.config.DontAutoLoad;
 import net.sourceforge.stripes.controller.Interceptor;
 import net.sourceforge.stripes.controller.ExecutionContext;
 import net.sourceforge.stripes.controller.Intercepts;
@@ -47,8 +48,10 @@ import net.sourceforge.stripes.util.Log;
  * @see SpringBean
  * @author Tim Fennell
  * @since Stripes 1.3
+ * @deprecated As of Stripes 1.6, replaced by {@link SpringInjectionFactory}.
  */
 @Intercepts(LifecycleStage.ActionBeanResolution)
+@DontAutoLoad
 public class SpringInterceptor implements Interceptor {
     private static final Log log = Log.getInstance(SpringInterceptor.class);
 
