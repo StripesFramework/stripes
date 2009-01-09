@@ -16,6 +16,8 @@ package net.sourceforge.stripes.validation;
 
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -41,7 +43,7 @@ import net.sourceforge.stripes.util.Log;
  * this implementation looks first at the property's read method (getter), then its write method
  * (setter), and finally at the field itself.
  * 
- * @author Ben Gunter
+ * @author Ben Gunter, Freddy Daoud
  * @since Stripes 1.5
  */
 public class DefaultValidationMetadataProvider implements ValidationMetadataProvider {
@@ -65,6 +67,7 @@ public class DefaultValidationMetadataProvider implements ValidationMetadataProv
         Map<String, ValidationMetadata> meta = cache.get(beanType);
         if (meta == null) {
             meta = loadForClass(beanType);
+            logDebugMessageForConfiguredValidations(beanType, meta);
             cache.put(beanType, meta);
         }
 
@@ -89,6 +92,72 @@ public class DefaultValidationMetadataProvider implements ValidationMetadataProv
      */
     protected Map<String, ValidationMetadata> loadForClass(Class<?> beanType) {
         Map<String, ValidationMetadata> meta = new HashMap<String, ValidationMetadata>();
+
+        @SuppressWarnings("unchecked")
+        Map<String, AnnotationInfo> annotationInfoMap =
+            getAnnotationInfoMap(beanType, Validate.class, ValidateNestedProperties.class);
+
+        for (String propertyName : annotationInfoMap.keySet()) {
+            AnnotationInfo annotationInfo = annotationInfoMap.get(propertyName);
+
+            // get the @Validate and/or @ValidateNestedProperties
+            Validate simple = annotationInfo.getAnnotation(Validate.class);
+            ValidateNestedProperties nested = annotationInfo.getAnnotation(ValidateNestedProperties.class);
+            Class<?> clazz = annotationInfo.getTargetClass();
+
+            // add to allow list if @Validate present
+            if (simple != null) {
+                if (simple.field() == null || "".equals(simple.field())) {
+                    meta.put(propertyName, new ValidationMetadata(propertyName, simple));
+                }
+                else {
+                    log.warn("Field name present in @Validate but should be omitted: ",
+                        clazz, ", property ", propertyName, ", given field name ",
+                        simple.field());
+                }
+            }
+
+            // add all sub-properties referenced in @ValidateNestedProperties
+            if (nested != null) {
+                Validate[] validates = nested.value();
+                if (validates != null) {
+                    for (Validate validate : validates) {
+                        if (validate.field() != null && !"".equals(validate.field())) {
+                            String fullName = propertyName + '.' + validate.field();
+                            if (meta.containsKey(fullName)) {
+                                log.warn("More than one nested @Validate with same field name: "
+                                    + validate.field() + " on property " + propertyName);
+                            }
+                            meta.put(fullName, new ValidationMetadata(fullName, validate));
+                        }
+                        else {
+                            log.warn("Field name missing from nested @Validate: ", clazz,
+                                ", property ", propertyName);
+                        }
+                    }
+                }
+            }
+        }
+
+        return Collections.unmodifiableMap(meta);
+    }
+
+    /**
+     * Looks at a class's properties, searching for the specified annotations on the properties
+     * (field, getter method, or setter method). An exception is thrown if annotations are found
+     * in more than one of those three places.
+     *
+     * @param beanType the class on which to look for annotations.
+     * @param annotationClasses the classes of the annotations for which to look for.
+     * @return a map of property names to AnnotationInfo objects, which contain the class on which
+     * the annotations were found (if any), and the annotation objects that correspond to the
+     * annotation classes.
+     */
+    protected Map<String, AnnotationInfo> getAnnotationInfoMap(Class<?> beanType,
+        Class<? extends Annotation>... annotationClasses)
+    {
+        Map<String, AnnotationInfo> annotationInfoMap = new HashMap<String, AnnotationInfo>();
+
         Set<String> seen = new HashSet<String>();
         try {
             for (Class<?> clazz = beanType; clazz != null; clazz = clazz.getSuperclass()) {
@@ -112,139 +181,22 @@ public class DefaultValidationMetadataProvider implements ValidationMetadataProv
                     catch (NoSuchFieldException e) {
                     }
 
-                    boolean onAccessor = accessor != null
-                            && Modifier.isPublic(accessor.getModifiers())
-                            && accessor.getDeclaringClass().equals(clazz)
-                            && (accessor.isAnnotationPresent(Validate.class) || accessor
-                                    .isAnnotationPresent(ValidateNestedProperties.class));
-                    boolean onMutator = mutator != null
-                            && Modifier.isPublic(mutator.getModifiers())
-                            && mutator.getDeclaringClass().equals(clazz)
-                            && (mutator.isAnnotationPresent(Validate.class) || mutator
-                                    .isAnnotationPresent(ValidateNestedProperties.class));
-                    boolean onField = field != null
-                            && !Modifier.isStatic(field.getModifiers())
-                            && field.getDeclaringClass().equals(clazz)
-                            && (field.isAnnotationPresent(Validate.class) || field
-                                    .isAnnotationPresent(ValidateNestedProperties.class));
-
-                    // I don't think George Boole would like this ...
-                    int count = 0;
-                    if (onAccessor) ++count;
-                    if (onMutator) ++count;
-                    if (onField) ++count;
-
-                    // must be 0 or 1
-                    if (count > 1) {
-                        StringBuilder buf = new StringBuilder(
-                                "There are conflicting @Validate and/or @ValidateNestedProperties annotations in ")
-                                .append(clazz)
-                                .append(". The following elements are improperly annotated for the '")
-                                .append(propertyName)
-                                .append("' property:\n");
-                        if (onAccessor) {
-                            boolean hasSimple = accessor.isAnnotationPresent(Validate.class);
-                            boolean hasNested = accessor
-                                    .isAnnotationPresent(ValidateNestedProperties.class);
-                            buf.append("--> Getter method ").append(accessor.getName()).append(
-                                    " is annotated with ");
-                            if (hasSimple)
-                                buf.append("@Validate");
-                            if (hasSimple && hasNested)
-                                buf.append(" and ");
-                            if (hasNested)
-                                buf.append("@ValidateNestedProperties");
-                            buf.append('\n');
-                        }
-                        if (onMutator) {
-                            boolean hasSimple = mutator.isAnnotationPresent(Validate.class);
-                            boolean hasNested = mutator
-                                    .isAnnotationPresent(ValidateNestedProperties.class);
-                            buf.append("--> Setter method ").append(mutator.getName()).append(
-                                    " is annotated with ");
-                            if (hasSimple)
-                                buf.append("@Validate");
-                            if (hasSimple && hasNested)
-                                buf.append(" and ");
-                            if (hasNested)
-                                buf.append("@ValidateNestedProperties");
-                            buf.append('\n');
-                        }
-                        if (onField) {
-                            boolean hasSimple = field.isAnnotationPresent(Validate.class);
-                            boolean hasNested = field
-                                    .isAnnotationPresent(ValidateNestedProperties.class);
-                            buf.append("--> Field ").append(field.getName()).append(
-                                    " is annotated with ");
-                            if (hasSimple)
-                                buf.append("@Validate");
-                            if (hasSimple && hasNested)
-                                buf.append(" and ");
-                            if (hasNested)
-                                buf.append("@ValidateNestedProperties");
-                            buf.append('\n');
-                        }
-                        throw new StripesRuntimeException(buf.toString());
-                    }
+                    // this method throws an exception if there are conflicts
+                    AnnotationInfo annotationInfo = getAnnotationInfo(clazz, propertyName,
+                        new PropertyWrapper[] {
+                            new PropertyWrapper(accessor),
+                            new PropertyWrapper(mutator),
+                            new PropertyWrapper(field),
+                        },
+                        annotationClasses);
 
                     // after the conflict check, stop processing fields we've already seen
                     if (seen.contains(propertyName))
                         continue;
 
-                    // get the @Validate and/or @ValidateNestedProperties
-                    Validate simple;
-                    ValidateNestedProperties nested;
-                    if (onAccessor) {
-                        simple = accessor.getAnnotation(Validate.class);
-                        nested = accessor.getAnnotation(ValidateNestedProperties.class);
+                    if (annotationInfo.atLeastOneAnnotationFound()) {
+                        annotationInfoMap.put(propertyName, annotationInfo);
                         seen.add(propertyName);
-                    }
-                    else if (onMutator) {
-                        simple = mutator.getAnnotation(Validate.class);
-                        nested = mutator.getAnnotation(ValidateNestedProperties.class);
-                        seen.add(propertyName);
-                    }
-                    else if (onField) {
-                        simple = field.getAnnotation(Validate.class);
-                        nested = field.getAnnotation(ValidateNestedProperties.class);
-                        seen.add(propertyName);
-                    }
-                    else {
-                        simple = null;
-                        nested = null;
-                    }
-
-                    // add to allow list if @Validate present
-                    if (simple != null) {
-                        if (simple.field() == null || "".equals(simple.field())) {
-                            meta.put(propertyName, new ValidationMetadata(propertyName, simple));
-                        }
-                        else {
-                            log.warn("Field name present in @Validate but should be omitted: ",
-                                    clazz, ", property ", propertyName, ", given field name ",
-                                    simple.field());
-                        }
-                    }
-
-                    // add all sub-properties referenced in @ValidateNestedProperties
-                    if (nested != null) {
-                        Validate[] validates = nested.value();
-                        if (validates != null) {
-                            for (Validate validate : validates) {
-                                if (validate.field() != null && !"".equals(validate.field())) {
-                                    String fullName = propertyName + '.' + validate.field();
-                                    if (meta.containsKey(fullName)) {
-                                        log.warn("More than one nested @Validate with same field name: "
-                                            + validate.field() + " on property " + propertyName);
-                                    }
-                                    meta.put(fullName, new ValidationMetadata(fullName, validate));
-                                }
-                                else {
-                                    log.warn("Field name missing from nested @Validate: ", clazz,
-                                            ", property ", propertyName);
-                                }
-                            }
-                        }
                     }
                 }
             }
@@ -259,8 +211,102 @@ public class DefaultValidationMetadataProvider implements ValidationMetadataProv
             sre.setStackTrace(e.getStackTrace());
             throw sre;
         }
+        return annotationInfoMap;
+    }
 
-        // Print out a pretty debug message showing what validations got configured
+    /**
+     * Looks at a class's properties, searching for the specified annotations on the given property
+     * objects. An exception is thrown if annotations are found in more than one of the specified
+     * property accessors (normally field, getter method, and setter method).
+     *
+     * @param clazz the class on which to look for annotations.
+     * @param propertyName the name of the property.
+     * @param propertyWrappers the property accessors.
+     * @param annotationClasses the classes of the annotations for which to look for.
+     * @return an AnnotationInfo object, which contains the class on which the annotations were found
+     * (if any), and the annotation objects that correspond to the annotation classes.
+     */
+    protected AnnotationInfo getAnnotationInfo(Class<?> clazz, String propertyName,
+        PropertyWrapper[] propertyWrappers, Class<? extends Annotation>... annotationClasses)
+    {
+        AnnotationInfo annotationInfo = new AnnotationInfo(clazz);
+
+        Map<PropertyWrapper, Map<Class<? extends Annotation>, Annotation>> map =
+            new HashMap<PropertyWrapper, Map<Class<? extends Annotation>, Annotation>>();
+
+        for (PropertyWrapper property : propertyWrappers) {
+            Map<Class<? extends Annotation>, Annotation> annotationMap =
+                new HashMap<Class<? extends Annotation>, Annotation>();
+
+            for (Class<? extends Annotation> annotationClass : annotationClasses)  {
+                Annotation annotation = findAnnotation(clazz, property, annotationClass);
+                if (annotation != null) {
+                    annotationMap.put(annotationClass, annotation);
+                }
+            }
+            if (!annotationMap.isEmpty()) {
+                map.put(property, annotationMap);
+            }
+        }
+
+        // must be 0 or 1
+        if (map.size() > 1) {
+            StringBuilder buf = new StringBuilder(
+                "There are conflicting @Validate and/or @ValidateNestedProperties annotations in ")
+                .append(clazz)
+                .append(". The following elements are improperly annotated for the '")
+                .append(propertyName)
+                .append("' property:\n");
+
+            for (PropertyWrapper property : map.keySet()) {
+                Map<Class<? extends Annotation>, Annotation> annotationMap = map.get(property);
+
+                buf.append("--> ").append(property.getType()).append(' ')
+                   .append(property.getName()).append(" is annotated with ");
+
+                for (Class<?> cls : annotationMap.keySet()) {
+                    buf.append('@').append(cls.getSimpleName()).append(' ');
+                }
+                buf.append('\n');
+            }
+            throw new StripesRuntimeException(buf.toString());
+        }
+        if (!map.isEmpty()) {
+            annotationInfo.setAnnotationMap(map.entrySet().iterator().next().getValue());
+        }
+        return annotationInfo;
+    }
+
+    /**
+     * Returns an annotation (or <code>null</code> if none is found) for the given property
+     * accessor of a class. The property object must not be <code>null</code>, must be declared on
+     * the class, must be public if it is a method, and must not be static if it is a field, for it
+     * to be considered eligible to having the annotation.
+     *
+     * @param clazz the class on which to look for the annotation.
+     * @param property the property accessor.
+     * @param annotationClass the class of the annotation to look for.
+     * @return the annotation object, or <code>null</code> if no annotation was found.
+     */
+    protected Annotation findAnnotation(Class<?> clazz, PropertyWrapper property,
+        Class<? extends Annotation> annotationClass)
+    {
+        AccessibleObject accessible = property.getAccessibleObject(); 
+        if (accessible != null
+            && property.getDeclaringClass().equals(clazz)
+            && ( (accessible.getClass().equals(Method.class) && Modifier.isPublic(property.getModifiers()))
+              || (accessible.getClass().equals(Field.class) && !Modifier.isStatic(property.getModifiers()))
+            ))
+        {
+            return accessible.getAnnotation(annotationClass);
+        }
+        return null;
+    }
+
+    /**
+     * Prints out a pretty debug message showing what validations got configured.
+     */
+    protected void logDebugMessageForConfiguredValidations(Class<?> beanType, Map<String, ValidationMetadata> meta) {
         StringBuilder builder = new StringBuilder(128);
         for (Map.Entry<String, ValidationMetadata> entry : meta.entrySet()) {
             if (builder.length() > 0) {
@@ -270,9 +316,77 @@ public class DefaultValidationMetadataProvider implements ValidationMetadataProv
             builder.append("->");
             builder.append(entry.getValue());
         }
-        log.debug("Loaded validations for ActionBean ", beanType.getSimpleName(), ": ", builder
-                .length() > 0 ? builder : "<none>");
+        log.debug("Loaded validations for ActionBean ", beanType.getSimpleName(), ": ",
+            builder.length() > 0 ? builder : "<none>");
+    }
 
-        return Collections.unmodifiableMap(meta);
+    /**
+     * Contains the class on which the annotations were found (if any), and the annotation objects
+     * that correspond to the annotation classes.
+     */
+    protected class AnnotationInfo {
+        private Class<?> targetClass;
+        private Map<Class<? extends Annotation>, Annotation> annotationMap;
+
+        public AnnotationInfo(Class<?> targetClass) {
+            this.targetClass = targetClass;
+        }
+
+        public Class<?> getTargetClass() {
+            return targetClass;
+        }
+
+        public void setAnnotationMap(Map<Class<? extends Annotation>, Annotation> annotationMap) {
+            this.annotationMap = annotationMap;
+        }
+
+        @SuppressWarnings("unchecked")
+        public <T extends Annotation> T getAnnotation(Class<T> annotationClass) {
+            return (T) annotationMap.get(annotationClass);
+        }
+
+        public boolean atLeastOneAnnotationFound() {
+            return !(annotationMap == null || annotationMap.isEmpty());
+        }
+    }
+
+    /**
+     * For some reason, methods common to both the Field and Method classes are not in their parent
+     * class, AccessibleObject, so this class works around that limitation.
+     */
+    protected class PropertyWrapper {
+        private Field field;
+        private Method method;
+        private String type;
+
+        public PropertyWrapper(Field field) {
+            this.field = field;
+            this.type = "Field";
+        }
+
+        public PropertyWrapper(Method method) {
+            this.method = method;
+            this.type = "Method";
+        }
+
+        public AccessibleObject getAccessibleObject() {
+            return field != null ? field : method;
+        }
+
+        public String getName() {
+            return field != null ? field.getName() : method.getName();
+        }
+
+        public Class<?> getDeclaringClass() {
+            return field != null ? field.getDeclaringClass() : method.getDeclaringClass();
+        }
+
+        public int getModifiers() {
+            return field != null ? field.getModifiers() : method.getModifiers();
+        }
+
+        public String getType() {
+            return type;
+        }
     }
 }
