@@ -15,6 +15,7 @@
 package net.sourceforge.stripes.tag.layout;
 
 import net.sourceforge.stripes.tag.StripesTagSupport;
+import net.sourceforge.stripes.util.Log;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.BodyTag;
@@ -28,6 +29,7 @@ import javax.servlet.jsp.tagext.BodyContent;
  * @since Stripes 1.1
  */
 public class LayoutComponentTag extends StripesTagSupport implements BodyTag {
+    private static final Log log = Log.getInstance(LayoutComponentTag.class);
     private String name;
     private BodyContent bodyContent;
     private LayoutDefinitionTag definitionTag;
@@ -37,7 +39,23 @@ public class LayoutComponentTag extends StripesTagSupport implements BodyTag {
     public String getName() { return name; }
 
     /** Sets the name of the component. */
-    public void setName(String name) { this.name = name; }
+    public void setName(String name) {
+        if (name != null && name.length() > 0) {
+            int length = name.length();
+            boolean validJava = Character.isJavaIdentifierStart(name.charAt(0));
+            int index = 1;
+            while (validJava && index < length) {
+                validJava = Character.isJavaIdentifierPart(name.charAt(index));
+                index++;
+            }
+            if (!validJava) {
+                log.warn("The layout-component name '", name, "' is not a valid Java identifier. ",
+                    "While this may work, it can cause bugs that are difficult to track down. Please ",
+                    "consider using valid Java identifiers for component names (no hyphens, no spaces, etc.)");
+            }
+        }
+        this.name = name;
+    }
 
     /** Save the body content output by the tag. */
     public void setBodyContent(BodyContent bodyContent) {
