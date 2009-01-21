@@ -94,6 +94,12 @@ public class LayoutRenderTag extends StripesTagSupport implements BodyTag, Dynam
     @SuppressWarnings("unchecked")
 	public int doEndTag() throws JspException {
         try {
+            if (!name.startsWith("/")) {
+                throw new StripesJspException("The name= attribute of the layout-render tag must be " +
+                    "an absolute path, starting with a forward slash (/). Please modify the " +
+                    "layout-render tag with the name '" + name + "' accordingly.");
+            }
+
             HttpServletRequest request = (HttpServletRequest) getPageContext().getRequest();
 
             // Put the components into the request, for the definition tag to use.. using a stack
