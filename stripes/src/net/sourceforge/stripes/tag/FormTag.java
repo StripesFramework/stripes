@@ -22,6 +22,7 @@ import net.sourceforge.stripes.controller.ActionResolver;
 import net.sourceforge.stripes.exception.StripesJspException;
 import net.sourceforge.stripes.util.CryptoUtil;
 import net.sourceforge.stripes.util.HtmlUtil;
+import net.sourceforge.stripes.util.HttpUtil;
 import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.util.UrlBuilder;
 import net.sourceforge.stripes.validation.ValidationErrors;
@@ -239,7 +240,7 @@ public class FormTag extends HtmlTagSupport implements BodyTag, TryCatchFinally,
                 out.write(StripesConstants.URL_KEY_SOURCE_PAGE);
                 out.write("\" value=\"");
                 HttpServletRequest request = (HttpServletRequest) getPageContext().getRequest();
-                out.write(CryptoUtil.encrypt(request.getServletPath()));
+                out.write(CryptoUtil.encrypt(HttpUtil.getRequestedServletPath(request)));
                 out.write("\" />");
 
                 if (isWizard()) {
