@@ -61,6 +61,21 @@ public class HttpUtil {
             return servletPath + pathInfo;
     }
 
+    /**
+     * Get the servlet path of the current request. The value returned by this method may differ
+     * from {@link HttpServletRequest#getServletPath()}. If the given request is an include, then
+     * the servlet path of the included resource is returned.
+     */
+    public static String getRequestedServletPath(HttpServletRequest request) {
+        // Check to see if the request is processing an include, and pull the path
+        // information from the appropriate source.
+        String path = (String) request.getAttribute(StripesConstants.REQ_ATTR_INCLUDE_PATH);
+        if (path == null) {
+            path = request.getServletPath();
+        }
+        return path == null ? "" : path;
+    }
+
     /** No instances */
     private HttpUtil() {
     }
