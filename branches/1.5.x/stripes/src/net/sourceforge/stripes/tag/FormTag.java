@@ -389,9 +389,14 @@ public class FormTag extends HtmlTagSupport implements BodyTag, TryCatchFinally,
         WizardFieldsTag tag = new WizardFieldsTag();
         tag.setPageContext(getPageContext());
         tag.setParent(this);
-        tag.doStartTag();
-        tag.doEndTag();
-        tag.release();
+        try {
+            tag.doStartTag();
+            tag.doEndTag();
+        }
+        finally {
+            tag.doFinally();
+            tag.release();
+        }
     }
 
     /**
