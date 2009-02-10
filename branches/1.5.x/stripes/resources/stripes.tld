@@ -586,7 +586,7 @@
         <attribute><description>@name@</description><name>name</name><required>true</required><rtexprvalue>true</rtexprvalue></attribute>
         <attribute>
             <description>A symbolic value that will get submitted to the server when the image button is clicked. (HTML Pass-through)</description>
-            <name>value</name><required>false</required><rtexprvalue>true</rtexprvalue><type>java.lang.Object</type>
+            <name>value</name><required>false</required><rtexprvalue>true</rtexprvalue><type>java.lang.String</type>
         </attribute>
         <!-- End: Standard Form Input   attributes -->
         <attribute>
@@ -1981,7 +1981,7 @@
                 Determines whether validation is run on this ActionBean. False by default.
             </description>
             <name>validate</name><required>false</required><rtexprvalue>true</rtexprvalue>
-            <type>java.lang.Boolean</type>
+            <type>boolean</type>
         </attribute>
         <attribute>
             <description>
@@ -1991,7 +1991,7 @@
                 is not instantiated by the tag.
             </description>
             <name>alwaysExecuteEvent</name><required>false</required><rtexprvalue>true</rtexprvalue>
-            <type>java.lang.Boolean</type>
+            <type>boolean</type>
         </attribute>
         <attribute>
             <description>
@@ -1999,7 +1999,7 @@
                 interceptor returns one. False by default.
             </description>
             <name>executeResolution</name><required>false</required><rtexprvalue>true</rtexprvalue>
-            <type>java.lang.Boolean</type>
+            <type>boolean</type>
         </attribute>
         <attribute>
             <description>
