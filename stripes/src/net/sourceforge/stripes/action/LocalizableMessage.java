@@ -94,4 +94,8 @@ public class LocalizableMessage extends SimpleMessage {
         result = 29 * result + (messageKey != null ? messageKey.hashCode() : 0);
         return result;
     }
+
+    public String getMessageKey() {
+        return messageKey;
+    }
 }
