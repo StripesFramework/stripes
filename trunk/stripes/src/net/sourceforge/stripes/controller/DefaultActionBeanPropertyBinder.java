@@ -773,12 +773,12 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
           : "Constructor(String) if available"));
 
         for (String value : values) {
+            if (validationInfo != null && validationInfo.encrypted()) {
+                value = CryptoUtil.decrypt(value);
+            }
+
             if (!"".equals(value)) {
                 try {
-                    if (validationInfo != null && validationInfo.encrypted()) {
-                        value = CryptoUtil.decrypt(value);
-                    }
-
                     Object retval = null;
                     if (converter != null) {
                         retval = converter.convert(value, returnType, errors);
