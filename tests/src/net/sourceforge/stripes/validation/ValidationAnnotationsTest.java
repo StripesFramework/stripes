@@ -8,6 +8,7 @@ import net.sourceforge.stripes.controller.StripesFilter;
 import net.sourceforge.stripes.extensions.MyIntegerTypeConverter;
 import net.sourceforge.stripes.extensions.MyStringTypeConverter;
 import net.sourceforge.stripes.mock.MockRoundtrip;
+import net.sourceforge.stripes.util.CryptoUtil;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -105,5 +106,24 @@ public class ValidationAnnotationsTest implements ActionBean {
         ValidationAnnotationsTest actionBean = trip.getActionBean(getClass());
         Assert.assertEquals(actionBean.shouldBeUpperCased, "TEST");
         Assert.assertEquals(actionBean.shouldNotBeUpperCased, "test");
+    }
+
+    @Validate(encrypted=true)
+    public String encryptedParam;
+
+    public Resolution validateEncrypted() { return null; }
+
+    /**
+     * Tests that an empty string encrypted value is bound as null.
+     *
+     * @see http://www.stripesframework.org/jira/browse/STS-521
+     */
+    @Test(groups="fast")
+    public void testValidateEncryptedEmptyString() throws Exception {
+        MockRoundtrip trip = new MockRoundtrip(StripesTestFixture.getServletContext(), getClass());
+        trip.addParameter("encryptedParam", CryptoUtil.encrypt(""));
+        trip.execute("validateEncrypted");
+        ValidationAnnotationsTest actionBean = trip.getActionBean(getClass());
+        Assert.assertNull(actionBean.encryptedParam);
     }
 }
