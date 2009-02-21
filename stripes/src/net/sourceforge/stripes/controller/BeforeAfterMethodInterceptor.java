@@ -148,7 +148,7 @@ public class BeforeAfterMethodInterceptor implements Interceptor {
         Class<? extends ActionBean> beanClass = bean.getClass();
         Object retval = null;
 
-        log.debug("Calling @Before method '", m.getName(), "' at LifecycleStage '",
+        log.debug("Calling @", when.getSimpleName(), " method '", m.getName(), "' at LifecycleStage '",
                   stage, "' on ActionBean '", beanClass.getSimpleName(), "'");
         try {
             retval = m.invoke(bean);
