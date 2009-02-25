@@ -50,6 +50,11 @@ public class ObjectFactoryTests extends StripesTestFixture {
         }
     }
 
+    public static class MyRunnable implements Runnable {
+        public void run() {
+        }
+    }
+
     private static final Log log = Log.getInstance(ObjectFactoryTests.class);
 
     public void instantiateClasses(ObjectFactory factory, Class<?>... classes) {
@@ -65,6 +70,7 @@ public class ObjectFactoryTests extends StripesTestFixture {
         for (Class<?> clazz : classes) {
             log.debug("Instantiating ", clazz);
             Object o = factory.newInstance(clazz);
+            log.debug("Implementation class is ", o.getClass().getName());
             Assert.assertNotNull(o);
             Assert.assertTrue(clazz.isAssignableFrom(o.getClass()));
         }
@@ -110,6 +116,13 @@ public class ObjectFactoryTests extends StripesTestFixture {
         catch (StripesRuntimeException e) {
             throw e.getCause();
         }
+    }
+
+    @Test(groups = "fast")
+    public void customInterfaceImpl() {
+        DefaultObjectFactory factory = new DefaultObjectFactory();
+        factory.addImplementingClass(Runnable.class, MyRunnable.class);
+        instantiateInterfaces(factory, Runnable.class);
     }
 
     /** Attempt to instantiate a class that does not have a no-arg constructor. */
