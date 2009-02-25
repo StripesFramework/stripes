@@ -80,9 +80,8 @@ public class DefaultObjectFactory implements ObjectFactory {
      * the interface and will, by default, be instantiated when an instance of the interface is
      * needed.
      */
-    protected static final Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<Class<?>, Class<?>>();
-
-    static {
+    protected final Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<Class<?>, Class<?>>();
+    {
         interfaceImplementations.put(Collection.class, ArrayList.class);
         interfaceImplementations.put(List.class,       ArrayList.class);
         interfaceImplementations.put(Set.class,        HashSet.class);
@@ -165,6 +164,21 @@ public class DefaultObjectFactory implements ObjectFactory {
      */
     public Class<?> getImplementingClass(Class<?> iface) {
         return interfaceImplementations.get(iface);
+    }
+
+    /**
+     * Register a class as the default implementation of an interface. The implementation class will
+     * be returned from future calls to {@link #getImplementingClass(Class)} when the argument is
+     * {@code iface}.
+     * 
+     * @param iface The interface class
+     * @param impl The implementation class
+     */
+    public <T> void addImplementingClass(Class<T> iface, Class<? extends T> impl) {
+        if (!iface.isInterface())
+            throw new IllegalArgumentException("Class " + iface.getName() + " is not an interface");
+        else
+            interfaceImplementations.put(iface, impl);
     }
 
     /**
