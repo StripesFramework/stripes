@@ -7,7 +7,6 @@
 	<classpathentry kind="lib" path="stripes/lib/deploy/commons-logging.jar"/>
 	<classpathentry kind="lib" path="stripes/lib/deploy/cos.jar"/>
 	<classpathentry kind="lib" path="stripes/lib/build/el-api.jar"/>
-	<classpathentry kind="lib" path="build/lib/hostedqa.jar"/>
 	<classpathentry kind="lib" path="stripes/lib/build/jsp-api.jar"/>
 	<classpathentry kind="lib" path="stripes/lib/test/log4j-1.2.15.jar"/>
 	<classpathentry kind="lib" path="stripes/lib/build/mail.jar"/>
