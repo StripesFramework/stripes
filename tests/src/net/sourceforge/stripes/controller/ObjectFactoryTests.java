@@ -52,11 +52,6 @@ public class ObjectFactoryTests extends StripesTestFixture {
 
     private static final Log log = Log.getInstance(ObjectFactoryTests.class);
 
-    public static void main(String[] args) {
-        ObjectFactoryTests tests = new ObjectFactoryTests();
-        tests.postProcess();
-    }
-
     public void instantiateClasses(ObjectFactory factory, Class<?>... classes) {
         for (Class<?> clazz : classes) {
             log.debug("Instantiating ", clazz);
