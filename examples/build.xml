@@ -95,21 +95,6 @@
         </javadoc>
     </target>
 
-    <target name="apt" depends="compile"
-            description="Builds an XML file showing the structure of the examples web application.">
-        <pathconvert property="cp" refid="build.class.path"/>
-        <path id="srcfiles">
-            <fileset dir="${src.dir}" includes="**/*.java"/>
-        </path>
-        <pathconvert property="srcfiles" refid="srcfiles" pathsep=" "/>
-        <exec executable="apt">
-            <arg line="-classpath ${cp} -nocompile"/>
-            <arg line="-factory net.sourceforge.stripes.tools.SiteStructureTool"/>
-            <arg line="-Astripes.output.file=sitemap.xml"/>
-            <arg line="${srcfiles}"/>
-        </exec>
-    </target>
-
   <!-- =================================================================== -->
   <!-- Tasks to deploy the application in Tomcat.                          -->
   <!-- =================================================================== -->
