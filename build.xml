@@ -52,22 +52,6 @@
     </target>
 
     <!-- =================================================================== -->
-    <!-- Path and target that is used to build Stripes in the hosted QA env. -->
-    <!-- =================================================================== -->
-	<path id="hostedqa.classpath">
-	    <fileset dir="build/lib">
-	        <include name="**/*.jar"/>
-	    </fileset>
-	</path>
-	
-	<target name="hostedqa" depends="build">
-	    <taskdef resource="hostedqatasks" classpathref="hostedqa.classpath"/>
-	    <upload file="examples/dist/stripes-examples.war" account="stripes" email="${hostedqa.email}" password="${hostedqa.password}" resourceId="19"/>
-	    <playsuite suiteId="17" clientConfigs="19" appConfigs="18,19" account="stripes" email="${hostedqa.email}" password="${hostedqa.password}"/>
-	</target>
-
-
-    <!-- =================================================================== -->
     <!-- Runs the clean target of both Stripes and the Examples project.     -->
     <!-- =================================================================== -->
     <target name="clean" description="Cleans all build products for all three sub-projects.">
