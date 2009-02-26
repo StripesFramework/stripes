@@ -25,7 +25,6 @@ import java.util.SortedSet;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import net.sourceforge.stripes.StripesTestFixture;
-import net.sourceforge.stripes.config.TargetTypes;
 import net.sourceforge.stripes.controller.ObjectFactory.ConstructorWrapper;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
 import net.sourceforge.stripes.util.Log;
@@ -182,12 +181,10 @@ public class ObjectFactoryTests extends StripesTestFixture {
     @Test(groups = "fast")
     public void classPostProcessor() {
         final String prefix = "Stripey!";
-        @TargetTypes(String.class)
-        class MyObjectPostProcessor implements ObjectPostProcessor {
-            @SuppressWarnings("unchecked")
-            public <T> T postProcess(T object) {
+        class MyObjectPostProcessor implements ObjectPostProcessor<String> {
+            public String postProcess(String object) {
                 log.debug("Altering '", object, "'");
-                return (T) (prefix + object);
+                return (prefix + object);
             }
         }
 
@@ -218,12 +215,10 @@ public class ObjectFactoryTests extends StripesTestFixture {
     @Test(groups = "fast")
     public void interfacePostProcessor() {
         final String prefix = "Stripey!";
-        @TargetTypes(CharSequence.class)
-        class MyObjectPostProcessor implements ObjectPostProcessor {
-            @SuppressWarnings("unchecked")
-            public <T> T postProcess(T object) {
+        class MyObjectPostProcessor implements ObjectPostProcessor<CharSequence> {
+            public CharSequence postProcess(CharSequence object) {
                 log.debug("Altering '", object, "'");
-                return (T) (prefix + object);
+                return (prefix + object);
             }
         }
 
@@ -259,14 +254,11 @@ public class ObjectFactoryTests extends StripesTestFixture {
     @Test(groups = "fast")
     public void multipleSequentialPostProcessors() {
         final AtomicInteger counter = new AtomicInteger(0);
-        @TargetTypes(StringBuilder.class)
-        class MyObjectPostProcessor implements ObjectPostProcessor {
-            @SuppressWarnings("unchecked")
-            public <T> T postProcess(T object) {
+        class MyObjectPostProcessor implements ObjectPostProcessor<StringBuilder> {
+            public StringBuilder postProcess(StringBuilder object) {
                 log.debug("Altering '", object, "'");
-                return (T) ((StringBuilder) object).append("Touched by ").append(
-                        this.toString().replaceAll(".*@", "")).append(" (counter=").append(
-                        counter.addAndGet(1)).append(") ... ");
+                return object.append("Touched by ").append(this.toString().replaceAll(".*@", ""))
+                        .append(" (counter=").append(counter.addAndGet(1)).append(") ... ");
             }
         }
 

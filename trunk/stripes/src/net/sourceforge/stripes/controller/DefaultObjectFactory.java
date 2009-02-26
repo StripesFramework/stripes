@@ -16,7 +16,9 @@ package net.sourceforge.stripes.controller;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -34,6 +36,7 @@ import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.config.TargetTypes;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
 import net.sourceforge.stripes.util.Log;
+import net.sourceforge.stripes.util.ReflectUtil;
 import net.sourceforge.stripes.util.TypeHandlerCache;
 
 /**
@@ -45,6 +48,7 @@ import net.sourceforge.stripes.util.TypeHandlerCache;
  * @author Ben Gunter
  * @since Stripes 1.5.1
  */
+@SuppressWarnings("unchecked")
 public class DefaultObjectFactory implements ObjectFactory {
     /**
      * An implementation of {@link ConstructorWrapper} that calls back to
@@ -124,15 +128,29 @@ public class DefaultObjectFactory implements ObjectFactory {
             postProcessors = new TypeHandlerCache<List<ObjectPostProcessor>>();
         }
 
+        // Determine target types from type arguments
+        List<Class<?>> targetTypes = new ArrayList<Class<?>>();
+        Type[] typeArguments = ReflectUtil.getActualTypeArguments(postProcessor.getClass(),
+                ObjectPostProcessor.class);
+        if ((typeArguments != null) && (typeArguments.length == 1)
+                && !typeArguments[0].equals(Object.class)) {
+            if (typeArguments[0] instanceof Class) {
+                targetTypes.add((Class<?>) typeArguments[0]);
+            }
+            else {
+                log.warn("Type parameter for non-abstract post-processor [", postProcessor
+                        .getClass().getName(), "] is not a class.");
+            }
+        }
+
         // Determine target types from annotation; if no annotation then process everything
         TargetTypes annotation = postProcessor.getClass().getAnnotation(TargetTypes.class);
-        Class<?>[] targetTypes;
-        if (annotation == null) {
-            targetTypes = new Class<?>[] { Object.class };
-        }
-        else {
-            targetTypes = annotation.value();
-        }
+        if (annotation != null)
+            targetTypes.addAll(Arrays.asList(annotation.value()));
+
+        // Default to Object
+        if (targetTypes.isEmpty())
+            targetTypes.add(Object.class);
 
         // Register post-processor for each target type
         for (Class<?> targetType : targetTypes) {
@@ -177,7 +195,6 @@ public class DefaultObjectFactory implements ObjectFactory {
      * @throws InstantiationException if no implementation type has been configured
      * @throws IllegalAccessException if thrown by the JVM during class instantiation
      */
-    @SuppressWarnings("unchecked")
     public <T> T newInterfaceInstance(Class<T> interfaceType) throws InstantiationException,
             IllegalAccessException {
         Class impl = getImplementingClass(interfaceType);
@@ -308,7 +325,7 @@ public class DefaultObjectFactory implements ObjectFactory {
             List<ObjectPostProcessor> list = postProcessors.getHandler(object.getClass());
             if (list != null) {
                 for (ObjectPostProcessor postProcessor : list) {
-                    object = postProcessor.postProcess(object);
+                    object = (T) postProcessor.postProcess(object);
                 }
             }
         }
