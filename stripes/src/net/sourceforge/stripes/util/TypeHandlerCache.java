@@ -16,16 +16,34 @@ package net.sourceforge.stripes.util;
 
 import java.lang.annotation.Annotation;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import net.sourceforge.stripes.controller.ObjectPostProcessor;
+import net.sourceforge.stripes.format.Formatter;
 import net.sourceforge.stripes.validation.TypeConverter;
-import net.sourceforge.stripes.validation.TypeConverterFactory;
 
 /**
- * Provides an efficient way to map "handler" classes to other classes, while taking into
- * consideration the target type's implemented interfaces and superclasses. For example,
- * {@link TypeConverterFactory} uses this class to map an implementation of {@link TypeConverter} to
- * classes.
+ * <p>
+ * Provides an efficient way to map "handlers" to classes. There are two types of mappings: direct
+ * and indirect. A direct mapping is one that is explicitly created by a call to
+ * {@link #add(Class, Object)}. An indirect mapping is one that is discovered by examining a target
+ * type's implemented interfaces and superclasses. If {@code searchHierarchy} is set to false, then
+ * only direct mappings will be considered and the class hierarchy will not be searched.
+ * </p>
+ * <p>
+ * For example, let's assume a direct mapping is created for type {@code A} to handler {@code H}. A
+ * request for a handler for type {@code A} returns {@code H} due to the direct mapping. If {@code
+ * searchHierarchy} is true and a handler is requested later for type {@code B}, which implements
+ * {@code A}, then an indirect mapping will be created that maps the handler {@code H} to type
+ * {@code B}. (If {@code A} were a superclass of {@code B}, it would behave likewise.) However, if
+ * {@code searchHierarchy} is false then a request for a handler for type {@code B} would return
+ * {@link #getDefaultHandler()}.
+ * </p>
+ * <p>
+ * This class is used within Stripes to map {@link Formatter}s, {@link TypeConverter}s and
+ * {@link ObjectPostProcessor}s to specific classes and interfaces.
+ * </p>
  * 
  * @author Ben Gunter
  */
@@ -33,97 +51,219 @@ public class TypeHandlerCache<T> {
     private static final Log log = Log.getInstance(TypeHandlerCache.class);
 
     /** A direct map of target types to handlers. */
-    private Map<Class<?>, Class<? extends T>> handlers = new ConcurrentHashMap<Class<?>, Class<? extends T>>();
+    private Map<Class<?>, T> handlers = new ConcurrentHashMap<Class<?>, T>();
 
     /**
      * Cache of indirect type handler results, determined by examining a target type's implemented
      * interfaces and superclasses.
      */
-    private Map<Class<?>, Class<? extends T>> indirectCache = new ConcurrentHashMap<Class<?>, Class<? extends T>>();
+    private Map<Class<?>, T> indirectCache = new ConcurrentHashMap<Class<?>, T>();
 
     /**
-     * Gets the (rather confusing) Map of handler classes. The Map uses the target class as the key
-     * in the Map, and the Class object representing the handler as the value.
-     * 
-     * @return the Map of classes to their handlers
+     * Cache of classes that have been searched, yet no handler (besides the default one) could be
+     * found for them.
      */
-    public Map<Class<?>, Class<? extends T>> getHandlers() {
+    private Set<Class<?>> negativeCache = new ConcurrentHashSet<Class<?>>();
+
+    private T defaultHandler;
+    private boolean searchHierarchy = true;
+
+    /** Get the default handler to return if no handler is found for a requested target type. */
+    public T getDefaultHandler() {
+        return defaultHandler;
+    }
+
+    /** Set the default handler to return if no handler is found for a requested target type. */
+    public void setDefaultHandler(T defaultHandler) {
+        this.defaultHandler = defaultHandler;
+    }
+
+    /**
+     * Indicates if the class hierarchy will be searched to find the best available handler in case
+     * a direct mapping is not available for a given target type.
+     */
+    public boolean isSearchHierarchy() {
+        return searchHierarchy;
+    }
+
+    /**
+     * Set the flag that enables or disables searching of the class hierarchy to find the best
+     * available handler in case a direct mapping is not available for a given target type.
+     * 
+     * @param searchHierarchy True to enable hierarchy search; false to disable it.
+     */
+    public void setSearchHierarchy(boolean searchHierarchy) {
+        this.searchHierarchy = searchHierarchy;
+    }
+
+    /**
+     * Gets the (rather confusing) map of handlers. The map uses the target type as the key in the
+     * map, and the handler as the value.
+     * 
+     * @return the map of classes to their handlers
+     */
+    public Map<Class<?>, T> getHandlers() {
         return handlers;
     }
 
     /**
      * Adds a handler to the set of registered handlers, overriding an existing handler if one was
-     * already registered for the target type. Calls {@link #clearIndirectCache()} because a new
-     * direct mapping can affect the indirect search results.
+     * already registered for the target type. Calls {@link #clearCache()} because a new direct
+     * mapping can affect the indirect search results.
      * 
-     * @param targetType the type for which the handler will handle conversions
-     * @param handlerClass the implementation class that will handle the conversions
+     * @param targetType The type for which a handler is requested.
+     * @param handler The handler for the target type.
      */
-    public void add(Class<?> targetType, Class<? extends T> handlerClass) {
-        handlers.put(targetType, handlerClass);
-        clearIndirectCache();
+    public void add(Class<?> targetType, T handler) {
+        handlers.put(targetType, handler);
+        clearCache();
     }
 
     /**
-     * Gets the applicable type handler for the class passed in.
+     * Check to see if the there is a handler for the specified target type.
      * 
-     * @param forType The target type
-     * @return The handler class associated with the target type, or null if none is found.
+     * @param targetType The type for which a handler is requested.
+     * @return An appropriate handler, if one is found. Otherwise, whatever is returned from a call
+     *         to {@link #getDefaultHandler()}.
      */
-    public Class<? extends T> getHandlerClass(Class<?> forType) {
-        Class<? extends T> handlerClass = findHandlerClass(forType);
-        if (handlerClass != null) {
-            return handlerClass;
+    public T getHandler(Class<?> targetType) {
+        T handler = findHandler(targetType);
+
+        if (handler == null) {
+            handler = getDefaultHandler();
+            log.trace("Couldn't find a handler for ", targetType, ". Using default handler ",
+                    getDefaultHandler(), " instead.");
         }
-        else {
-            log.trace("Couldn't find a type handler for ", forType);
+
+        return handler;
+    }
+
+    /**
+     * Search for a handler class that best matches the requested class, first checking the
+     * specified class, then all the interfaces it implements, then all its superclasses and the
+     * interfaces they implement, and finally all the superclasses of the interfaces implemented by
+     * {@code targetClass}.
+     * 
+     * @param targetType The type for which a handler is requested.
+     * @return the best applicable handler
+     */
+    protected T findHandler(Class<?> targetType) {
+        T handler = findInSuperclasses(targetType);
+
+        if (handler == null && isSearchHierarchy()) {
+            handler = findInInterfaces(targetType, targetType.getInterfaces());
+        }
+
+        return handler;
+    }
+
+    /**
+     * Called first by {@link #findHandler(Class)}. Search for a handler class that best matches the
+     * requested class, first checking the specified class, second all the interfaces it implements,
+     * third annotations. If no match is found, repeat the process for each superclass.
+     * 
+     * @param targetType The type for which a handler is requested.
+     * @return the first applicable handler found or null if no match could be found
+     */
+    protected T findInSuperclasses(Class<?> targetType) {
+        // Check for a known handler for the class
+        T handler;
+        if ((handler = handlers.get(targetType)) != null) {
+            return handler;
+        }
+        else if ((handler = indirectCache.get(targetType)) != null) {
+            return handler;
+        }
+        else if (negativeCache.contains(targetType)) {
             return null;
         }
-    }
-
-    /**
-     * Search for a type handler class that best matches the requested class.
-     * 
-     * @param targetType The target type
-     * @return The first applicable type handler found or null if no match could be found
-     */
-    protected Class<? extends T> findHandlerClass(Class<?> targetType) {
-        if (handlers.containsKey(targetType))
-            return handlers.get(targetType);
-        else if (indirectCache.containsKey(targetType))
-            return indirectCache.get(targetType);
         else if (targetType.isEnum()) {
-            Class<? extends T> handlerClass = findHandlerClass(Enum.class);
-            if (handlerClass != null)
-                return cacheHandlerClass(targetType, handlerClass);
+            handler = findInSuperclasses(Enum.class);
+            if (handler != null)
+                return cacheHandler(targetType, handler);
         }
-        else {
-            for (Annotation annotation : targetType.getAnnotations()) {
-                Class<? extends Annotation> annotationType = annotation.annotationType();
-                if (handlers.containsKey(annotationType))
-                    return cacheHandlerClass(targetType, handlers.get(annotationType));
+        else if (!isSearchHierarchy()) {
+            return cacheHandler(targetType, null);
+        }
+
+        // Check directly implemented interfaces
+        for (Class<?> iface : targetType.getInterfaces()) {
+            if ((handler = handlers.get(iface)) != null)
+                return cacheHandler(targetType, handler);
+            else if ((handler = indirectCache.get(iface)) != null)
+                return cacheHandler(targetType, handler);
+        }
+
+        // Check for annotations
+        for (Annotation annotation : targetType.getAnnotations()) {
+            Class<? extends Annotation> annotationType = annotation.annotationType();
+            if (handlers.containsKey(annotationType))
+                return cacheHandler(targetType, handlers.get(annotationType));
+        }
+
+        // Check superclasses
+        Class<?> parent = targetType.getSuperclass();
+        if (parent != null) {
+            if ((handler = findInSuperclasses(parent)) != null) {
+                return cacheHandler(targetType, handler);
             }
         }
 
+        // Nothing found, so return null
         return null;
     }
 
     /**
-     * Add handler class {@code handlerClass} for converting objects of type {@code clazz}.
+     * Called second by {@link #findHandler(Class)}, after {@link #findInSuperclasses(Class)} .
+     * Search for a handler that best matches the requested class by checking the superclasses of
+     * every interface implemented by {@code targetClass}.
      * 
-     * @param clazz The type of object being converted
-     * @param handlerClass The class of the handler
+     * @param targetType The type for which a handler is requested.
+     * @param ifaces An array of interfaces to search
+     * @return The first applicable handler found or null if no match could be found
+     */
+    protected T findInInterfaces(Class<?> targetType, Class<?>... ifaces) {
+        T handler = null;
+        for (Class<?> iface : ifaces) {
+            if ((handler = handlers.get(iface)) != null) {
+                return cacheHandler(targetType, handler);
+            }
+            else if ((handler = indirectCache.get(iface)) != null) {
+                return cacheHandler(targetType, handler);
+            }
+            else if ((handler = findInInterfaces(targetType, iface.getInterfaces())) != null) {
+                return cacheHandler(targetType, handler);
+            }
+        }
+
+        // Nothing found, so return null
+        return null;
+    }
+
+    /**
+     * Cache an indirect handler mapping for the given target type.
+     * 
+     * @param targetType The type for which a handler is requested.
+     * @param handler The handler
      * @return The {@code targetType} parameter
      */
-    protected Class<? extends T> cacheHandlerClass(Class<?> clazz, Class<? extends T> handlerClass) {
-        log.debug("Caching type handler for ", clazz, " => ", handlerClass);
-        indirectCache.put(clazz, handlerClass);
-        return handlerClass;
+    protected T cacheHandler(Class<?> targetType, T handler) {
+        if (handler == null) {
+            log.debug("Caching no handler for ", targetType);
+            negativeCache.add(targetType);
+        }
+        else {
+            log.debug("Caching handler for ", targetType, " => ", handler);
+            indirectCache.put(targetType, handler);
+        }
+
+        return handler;
     }
 
     /** Clear the indirect cache. This is called by {@link #add(Class, Class)}. */
-    public void clearIndirectCache() {
-        log.debug("Clearing indirect type handler cache");
+    public void clearCache() {
+        log.debug("Clearing indirect cache and negative cache");
         indirectCache.clear();
+        negativeCache.clear();
     }
 }
