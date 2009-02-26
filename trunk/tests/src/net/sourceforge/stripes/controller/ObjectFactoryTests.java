@@ -15,14 +15,17 @@
 package net.sourceforge.stripes.controller;
 
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.SortedSet;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import net.sourceforge.stripes.StripesTestFixture;
+import net.sourceforge.stripes.config.TargetTypes;
 import net.sourceforge.stripes.controller.ObjectFactory.ConstructorWrapper;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
 import net.sourceforge.stripes.util.Log;
@@ -62,7 +65,7 @@ public class ObjectFactoryTests extends StripesTestFixture {
             log.debug("Instantiating ", clazz);
             Object o = factory.newInstance(clazz);
             Assert.assertNotNull(o);
-            Assert.assertSame(clazz, o.getClass());
+            Assert.assertSame(o.getClass(), clazz);
         }
     }
 
@@ -102,8 +105,8 @@ public class ObjectFactoryTests extends StripesTestFixture {
         int a = 37, b = 91;
         Adder adder = constructor.newInstance(a, b);
         Assert.assertNotNull(adder);
-        Assert.assertSame(Adder.class, adder.getClass());
-        Assert.assertEquals(a + b, adder.sum());
+        Assert.assertSame(adder.getClass(), Adder.class);
+        Assert.assertEquals(adder.sum(), a + b);
     }
 
     /** Attempt to instantiate an interface that does not have a known implementing class. */
@@ -121,8 +124,11 @@ public class ObjectFactoryTests extends StripesTestFixture {
     @Test(groups = "fast")
     public void customInterfaceImpl() {
         DefaultObjectFactory factory = new DefaultObjectFactory();
+        factory.addImplementingClass(CharSequence.class, String.class);
+        factory.addImplementingClass(List.class, LinkedList.class);
         factory.addImplementingClass(Runnable.class, MyRunnable.class);
-        instantiateInterfaces(factory, Runnable.class);
+        instantiateInterfaces(factory, CharSequence.class, List.class, Runnable.class);
+        Assert.assertSame(factory.newInstance(List.class).getClass(), LinkedList.class);
     }
 
     /** Attempt to instantiate a class that does not have a no-arg constructor. */
@@ -139,7 +145,7 @@ public class ObjectFactoryTests extends StripesTestFixture {
 
     /** Alter an instance via {@link DefaultObjectFactory#postProcess(Object)}. */
     @Test(groups = "fast")
-    public void postProcess() {
+    public void postProcessMethod() {
         final String prefix = "Stripey!";
         DefaultObjectFactory factory = new DefaultObjectFactory() {
             @SuppressWarnings("unchecked")
@@ -155,20 +161,122 @@ public class ObjectFactoryTests extends StripesTestFixture {
         final String expect = "TEST";
         String string;
 
-        log.debug("Testing post-process skips StringBuilder");
+        log.debug("Testing post-process method skips StringBuilder");
         string = factory.constructor(StringBuilder.class, String.class).newInstance(expect)
                 .toString();
         log.debug("Got " + string);
-        Assert.assertEquals(expect, string);
+        Assert.assertEquals(string, expect);
 
-        log.debug("Testing post-process via no-arg constructor");
+        log.debug("Testing post-process method via no-arg constructor");
         string = factory.newInstance(String.class);
         log.debug("Got " + string);
-        Assert.assertEquals(prefix, string);
+        Assert.assertEquals(string, prefix);
 
-        log.debug("Testing post-process via constructor with args");
+        log.debug("Testing post-process method via constructor with args");
         string = factory.constructor(String.class, String.class).newInstance(expect);
         log.debug("Got " + string);
-        Assert.assertEquals(prefix + expect, string);
+        Assert.assertEquals(string, prefix + expect);
+    }
+
+    /** Alter an instance via {@link DefaultObjectFactory#postProcess(Object)}. */
+    @Test(groups = "fast")
+    public void classPostProcessor() {
+        final String prefix = "Stripey!";
+        @TargetTypes(String.class)
+        class MyObjectPostProcessor implements ObjectPostProcessor {
+            @SuppressWarnings("unchecked")
+            public <T> T postProcess(T object) {
+                log.debug("Altering '", object, "'");
+                return (T) (prefix + object);
+            }
+        }
+
+        DefaultObjectFactory factory = new DefaultObjectFactory();
+        factory.addPostProcessor(new MyObjectPostProcessor());
+
+        final String expect = "TEST";
+        String string;
+
+        log.debug("Testing post-processor impl skips StringBuilder");
+        string = factory.constructor(StringBuilder.class, String.class).newInstance(expect)
+                .toString();
+        log.debug("Got " + string);
+        Assert.assertEquals(string, expect);
+
+        log.debug("Testing post-processor impl via no-arg constructor");
+        string = factory.newInstance(String.class);
+        log.debug("Got " + string);
+        Assert.assertEquals(string, prefix);
+
+        log.debug("Testing post-processor impl via constructor with args");
+        string = factory.constructor(String.class, String.class).newInstance(expect);
+        log.debug("Got " + string);
+        Assert.assertEquals(string, prefix + expect);
+    }
+
+    /** Alter an instance via {@link DefaultObjectFactory#postProcess(Object)}. */
+    @Test(groups = "fast")
+    public void interfacePostProcessor() {
+        final String prefix = "Stripey!";
+        @TargetTypes(CharSequence.class)
+        class MyObjectPostProcessor implements ObjectPostProcessor {
+            @SuppressWarnings("unchecked")
+            public <T> T postProcess(T object) {
+                log.debug("Altering '", object, "'");
+                return (T) (prefix + object);
+            }
+        }
+
+        DefaultObjectFactory factory = new DefaultObjectFactory();
+        factory.addImplementingClass(Runnable.class, MyRunnable.class);
+        factory.addPostProcessor(new MyObjectPostProcessor());
+
+        final String expect = "TEST";
+        String string;
+
+        log.debug("Testing post-processor impl handles StringBuilder");
+        string = String.valueOf(factory.constructor(StringBuilder.class, String.class).newInstance(
+                expect));
+        log.debug("Got " + string);
+        Assert.assertEquals(string, prefix + expect);
+
+        log.debug("Testing post-processor impl via no-arg constructor");
+        string = factory.newInstance(String.class);
+        log.debug("Got " + string);
+        Assert.assertEquals(string, prefix);
+
+        log.debug("Testing post-processor impl via constructor with args");
+        string = factory.constructor(String.class, String.class).newInstance(expect);
+        log.debug("Got " + string);
+        Assert.assertEquals(string, prefix + expect);
+
+        log.debug("Testing post-processor does not handle Runnable");
+        string = factory.newInstance(Runnable.class).getClass().getName();
+        log.debug("Got " + string);
+        Assert.assertEquals(string, MyRunnable.class.getName());
+    }
+
+    @Test(groups = "fast")
+    public void multipleSequentialPostProcessors() {
+        final AtomicInteger counter = new AtomicInteger(0);
+        @TargetTypes(StringBuilder.class)
+        class MyObjectPostProcessor implements ObjectPostProcessor {
+            @SuppressWarnings("unchecked")
+            public <T> T postProcess(T object) {
+                log.debug("Altering '", object, "'");
+                return (T) ((StringBuilder) object).append("Touched by ").append(
+                        this.toString().replaceAll(".*@", "")).append(" (counter=").append(
+                        counter.addAndGet(1)).append(") ... ");
+            }
+        }
+
+        DefaultObjectFactory factory = new DefaultObjectFactory();
+        for (int i = 0; i < 5; i++) {
+            factory.addPostProcessor(new MyObjectPostProcessor());
+        }
+        log.debug("Testing multiple post-processors");
+        StringBuilder buf = factory.newInstance(StringBuilder.class);
+        log.debug("Got ", buf);
+        Assert.assertEquals(counter.intValue(), 5);
     }
 }
