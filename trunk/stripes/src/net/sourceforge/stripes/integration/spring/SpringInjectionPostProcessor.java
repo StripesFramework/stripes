@@ -42,8 +42,8 @@ public class SpringInjectionPostProcessor implements ObjectPostProcessor<Object>
         if (configuration == null) {
             final String name = getClass().getSimpleName();
             throw new IllegalStateException("The object factory passed to " + name
-                    + " has no configuration. The configuration is required by "
-                    + getClass().getSimpleName() + " to get the servlet context.");
+                    + " has no configuration. The configuration is required by " + name
+                    + " to get the servlet context.");
         }
 
         ServletContext servletContext = configuration.getServletContext();
