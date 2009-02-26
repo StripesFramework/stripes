@@ -1,9 +1,17 @@
 package net.sourceforge.stripes.integration.spring;
 
+import javax.servlet.ServletContext;
+
+import net.sourceforge.stripes.StripesTestFixture;
+import net.sourceforge.stripes.config.Configuration;
+import net.sourceforge.stripes.controller.DefaultObjectFactory;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
 import net.sourceforge.stripes.test.TestActionBean;
 import net.sourceforge.stripes.test.TestBean;
+
 import org.springframework.context.support.StaticApplicationContext;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.support.StaticWebApplicationContext;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -19,7 +27,7 @@ public class SpringHelperTests {
 
     @BeforeClass(alwaysRun=true)
     protected void setupSpringContext() {
-        ctx = new StaticApplicationContext();
+        ctx = new StaticWebApplicationContext();
         ctx.registerSingleton("test/TestBean", TestBean.class);
         ctx.registerSingleton("testActionBean", TestActionBean.class);
         ctx.registerPrototype("test/testActionBean", TestActionBean.class);
@@ -272,5 +280,25 @@ public class SpringHelperTests {
         Assert.assertNotNull(target.testActionBean);
         Assert.assertNotNull(target.number3);
         Assert.assertNotNull(target.number4);
+    }
+
+    // /////////////////////////////////////////////////////////////////////////
+    public static class PostProcessorTarget {
+        private TestBean bean;
+        @SpringBean("test/TestBean")
+        public void setBean(TestBean bean) { this.bean = bean; }
+        public TestBean getBean() { return bean; }
+    }
+
+    @Test(groups = "fast", dependsOnMethods = "testExplicitSetterInjection")
+    public void testInjectionViaObjectPostProcessor() throws Exception {
+        Configuration configuration = StripesTestFixture.getDefaultConfiguration();
+        ServletContext sc = configuration.getServletContext();
+        sc.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, this.ctx);
+        DefaultObjectFactory factory = new DefaultObjectFactory();
+        factory.init(configuration);
+        factory.addPostProcessor(new SpringInjectionPostProcessor());
+        PostProcessorTarget target = factory.newInstance(PostProcessorTarget.class);
+        Assert.assertNotNull(target.getBean());
     }
 }

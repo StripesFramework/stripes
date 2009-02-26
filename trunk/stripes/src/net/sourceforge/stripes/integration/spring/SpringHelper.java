@@ -90,6 +90,13 @@ public class SpringHelper {
      */
     public static void injectBeans(Object bean, ServletContext ctx) {
         ApplicationContext ac = WebApplicationContextUtils.getWebApplicationContext(ctx);
+
+        if (ac == null) {
+            final String name = ctx.getServletContextName();
+            throw new IllegalStateException(
+                    "No Spring application context was found in servlet context \"" + name + "\"");
+        }
+
         injectBeans(bean, ac);
     }
 
