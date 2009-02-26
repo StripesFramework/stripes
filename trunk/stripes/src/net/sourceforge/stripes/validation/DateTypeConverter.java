@@ -111,7 +111,7 @@ public class DateTypeConverter implements TypeConverter<Date> {
      * <code>'stripes.dateTypeConverter.preProcessPattern'</code> key in the resource
      * bundle. The default value is <code>(?&lt;!GMT)[\\s,-/\\.]+</code>.</p>
      */
-    public static final Pattern PRE_PROCESS_PATTERN = Pattern.compile("(?<!GMT)[\\s,-/\\.]+");
+    public static final Pattern PRE_PROCESS_PATTERN = Pattern.compile("(?<!GMT)[\\s,/\\.-]+");
 
     /** The default set of date patterns used to parse dates with SimpleDateFormat. */
     public static final String[] formatStrings = new String[] {
