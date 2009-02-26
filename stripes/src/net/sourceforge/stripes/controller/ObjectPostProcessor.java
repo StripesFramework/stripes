@@ -21,7 +21,7 @@ package net.sourceforge.stripes.controller;
  * 
  * @author Ben Gunter
  */
-public interface ObjectPostProcessor {
+public interface ObjectPostProcessor<T> {
     /**
      * Do whatever post-processing is necessary on the object and return it. It is not absolutely
      * required that this method return exactly the same object that was passed to it, but it is
@@ -30,5 +30,5 @@ public interface ObjectPostProcessor {
      * @param object The object to be processed.
      * @return The object that was passed in.
      */
-    <T> T postProcess(T object);
+    T postProcess(T object);
 }
