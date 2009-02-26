@@ -1,11 +1,15 @@
 package net.sourceforge.stripes;
 
-import net.sourceforge.stripes.mock.MockServletContext;
-import net.sourceforge.stripes.controller.StripesFilter;
-import net.sourceforge.stripes.controller.DispatcherServlet;
-
+import java.util.Collections;
 import java.util.Map;
-import java.util.HashMap;
+
+import net.sourceforge.stripes.config.BootstrapPropertyResolver;
+import net.sourceforge.stripes.config.Configuration;
+import net.sourceforge.stripes.config.DefaultConfiguration;
+import net.sourceforge.stripes.controller.DispatcherServlet;
+import net.sourceforge.stripes.controller.StripesFilter;
+import net.sourceforge.stripes.mock.MockFilterConfig;
+import net.sourceforge.stripes.mock.MockServletContext;
 
 /**
  * Test fixture that sets up a MockServletContext in a way that it can then be
@@ -15,6 +19,7 @@ import java.util.HashMap;
  */
 public class StripesTestFixture {
     private static MockServletContext context;
+    private static Configuration configuration;
 
     /**
      * Gets a reference to the test MockServletContext. If the context is not already
@@ -25,16 +30,32 @@ public class StripesTestFixture {
     public static synchronized MockServletContext getServletContext() {
         if (context == null) {
             context = new MockServletContext("test");
-
-            // Add the Stripes Filter
-            Map<String,String> filterParams = new HashMap<String,String>();
-            filterParams.put("ActionResolver.Packages", "net.sourceforge.stripes");
-            context.addFilter(StripesFilter.class, "StripesFilter", filterParams);
+            context.addFilter(StripesFilter.class, "StripesFilter", getDefaultFilterParams());
 
             // Add the Stripes Dispatcher
             context.setServlet(DispatcherServlet.class, "StripesDispatcher", null);
         }
 
         return context;
+    }
+
+    /** Gets a reference to the default configuration, which can be used for simple testing. */
+    public static synchronized Configuration getDefaultConfiguration() {
+        if (configuration == null) {
+            Configuration configuration = new DefaultConfiguration();
+            MockFilterConfig filterConfig = new MockFilterConfig();
+            filterConfig.addAllInitParameters(getDefaultFilterParams());
+            filterConfig.setServletContext(getServletContext());
+            configuration.setBootstrapPropertyResolver(new BootstrapPropertyResolver(filterConfig));
+            configuration.init();
+            StripesTestFixture.configuration = configuration;
+        }
+
+        return configuration;
+    }
+
+    /** Gets a map containing the default initialization parameters for StripesFilter */
+    public static Map<String, String> getDefaultFilterParams() {
+        return Collections.singletonMap("ActionResolver.Packages", "net.sourceforge.stripes");
     }
 }

@@ -65,7 +65,8 @@ public class DefaultTagErrorRendererFactory implements TagErrorRendererFactory {
      */
     public TagErrorRenderer getTagErrorRenderer(InputTagSupport tag) {
         try {
-            TagErrorRenderer renderer = this.rendererClass.newInstance();
+            TagErrorRenderer renderer = getConfiguration().getObjectFactory().newInstance(
+                    this.rendererClass);
             renderer.init(tag);
             return renderer;
         }
