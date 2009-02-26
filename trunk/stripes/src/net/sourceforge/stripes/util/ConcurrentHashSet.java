@@ -14,7 +14,6 @@
  */
 package net.sourceforge.stripes.util;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
@@ -133,10 +132,10 @@ public class ConcurrentHashSet<T> implements Set<T> {
     }
 
     public Object[] toArray() {
-        return new ArrayList<T>(map.keySet()).toArray();
+        return map.keySet().toArray();
     }
 
     public <E> E[] toArray(E[] a) {
-        return new ArrayList<T>(map.keySet()).toArray(a);
+        return map.keySet().toArray(a);
     }
 }
