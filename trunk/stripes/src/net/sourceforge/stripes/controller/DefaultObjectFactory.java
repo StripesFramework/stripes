@@ -109,7 +109,7 @@ public class DefaultObjectFactory implements ObjectFactory {
     }
 
     /** Get the {@link Configuration} that was passed into {@link #init(Configuration)}. */
-    protected Configuration getConfiguration() {
+    public Configuration getConfiguration() {
         return configuration;
     }
 
@@ -163,6 +163,8 @@ public class DefaultObjectFactory implements ObjectFactory {
                     " for ", targetType);
             list.add(postProcessor);
         }
+
+        postProcessor.setObjectFactory(this);
     }
 
     /**
