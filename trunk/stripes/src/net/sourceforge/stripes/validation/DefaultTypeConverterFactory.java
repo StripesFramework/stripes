@@ -35,7 +35,7 @@ public class DefaultTypeConverterFactory implements TypeConverterFactory {
     private static final Log log = Log.getInstance(DefaultTypeConverterFactory.class);
 
     /** Caches {@link TypeConverter} to {@link Class} mappings. */
-    private TypeHandlerCache<TypeConverter<?>> cache = new TypeHandlerCache<TypeConverter<?>>();
+    private TypeHandlerCache<Class<? extends TypeConverter<?>>> cache;
 
     /** Stores a reference to the Configuration passed in at initialization time. */
     private Configuration configuration;
@@ -45,6 +45,8 @@ public class DefaultTypeConverterFactory implements TypeConverterFactory {
      */
     public void init(final Configuration configuration) {
         this.configuration = configuration;
+        this.cache = new TypeHandlerCache<Class<? extends TypeConverter<?>>>();
+        this.cache.setSearchHierarchy(false);
 
         cache.add(Boolean.class,    BooleanTypeConverter.class);
         cache.add(Boolean.TYPE,     BooleanTypeConverter.class);
@@ -96,7 +98,6 @@ public class DefaultTypeConverterFactory implements TypeConverterFactory {
      */
     public void add(Class<?> targetType, Class<? extends TypeConverter<?>> converterClass) {
         cache.add(targetType, converterClass);
-        cache.clearIndirectCache();
     }
     
     /**
@@ -112,7 +113,7 @@ public class DefaultTypeConverterFactory implements TypeConverterFactory {
      */
     @SuppressWarnings("unchecked")
     public TypeConverter getTypeConverter(Class forType, Locale locale) throws Exception {
-        Class<? extends TypeConverter<?>> converterClass = cache.getHandlerClass(forType);
+        Class<? extends TypeConverter<?>> converterClass = cache.getHandler(forType);
         if (converterClass != null) {
             try {
                 return getInstance(converterClass, locale);
