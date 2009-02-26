@@ -90,6 +90,13 @@ public class SpringHelper {
      */
     public static void injectBeans(Object bean, ServletContext ctx) {
         ApplicationContext ac = WebApplicationContextUtils.getWebApplicationContext(ctx);
+
+        if (ac == null) {
+            final String name = ctx.getServletContextName();
+            throw new IllegalStateException(
+                    "No Spring application context was found in servlet context \"" + name + "\"");
+        }
+
         injectBeans(bean, ac);
     }
 
@@ -249,7 +256,7 @@ public class SpringHelper {
      *            is not possible to find a unique matching bean in the spring context given
      *            the constraints supplied.
      */
-    protected static Object findSpringBean(ApplicationContext ctx,
+    public static Object findSpringBean(ApplicationContext ctx,
                                            String name,
                                            Class<?> type,
                                            boolean allowFindByType) {

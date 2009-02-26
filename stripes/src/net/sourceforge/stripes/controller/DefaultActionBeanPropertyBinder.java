@@ -24,7 +24,6 @@ import net.sourceforge.stripes.util.CollectionUtil;
 import net.sourceforge.stripes.util.CryptoUtil;
 import net.sourceforge.stripes.util.HtmlUtil;
 import net.sourceforge.stripes.util.Log;
-import net.sourceforge.stripes.util.ReflectUtil;
 import net.sourceforge.stripes.util.bean.BeanUtil;
 import net.sourceforge.stripes.util.bean.ExpressionException;
 import net.sourceforge.stripes.util.bean.NoSuchPropertyException;
@@ -40,7 +39,6 @@ import net.sourceforge.stripes.validation.expression.ExpressionValidator;
 
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Array;
-import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -375,14 +373,8 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
         }
         else if (Collection.class.isAssignableFrom(targetType)
                 && !Collection.class.isAssignableFrom(valueType)) {
-            Collection collection = null;
-            if (targetType.isInterface()) {
-                collection = (Collection) ReflectUtil.getInterfaceInstance(targetType);
-            }
-            else {
-                collection = (Collection) targetType.newInstance();
-            }
-
+            Collection collection = getConfiguration().getObjectFactory().newInstance(
+                    (Class<? extends Collection>) targetType);
             collection.addAll(valueOrValues);
             propertyEvaluation.setValue(collection);
         }
@@ -792,11 +784,11 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
                         retval = converter.convert(value, returnType, errors);
                     }
                     else {
-                        Constructor<?> constructor = returnType.getConstructor(String.class);
-                        if (constructor != null) {
-                            retval = constructor.newInstance(value);
+                        try {
+                            retval = getConfiguration().getObjectFactory()
+                                    .constructor(returnType, String.class).newInstance(value);
                         }
-                        else {
+                        catch (StripesRuntimeException e) {
                             log.debug("Could not find a way to convert the parameter ", propertyName.getName(),
                                       " to a ", returnType.getSimpleName(), ". No TypeConverter could be ",
                                       "found and the class does not ", "have a constructor that takes a ",

@@ -30,11 +30,13 @@ import net.sourceforge.stripes.controller.ActionResolver;
 import net.sourceforge.stripes.controller.BeforeAfterMethodInterceptor;
 import net.sourceforge.stripes.controller.DefaultActionBeanContextFactory;
 import net.sourceforge.stripes.controller.DefaultActionBeanPropertyBinder;
+import net.sourceforge.stripes.controller.DefaultObjectFactory;
 import net.sourceforge.stripes.controller.HttpCacheInterceptor;
 import net.sourceforge.stripes.controller.Interceptor;
 import net.sourceforge.stripes.controller.Intercepts;
 import net.sourceforge.stripes.controller.LifecycleStage;
 import net.sourceforge.stripes.controller.NameBasedActionResolver;
+import net.sourceforge.stripes.controller.ObjectFactory;
 import net.sourceforge.stripes.controller.multipart.DefaultMultipartWrapperFactory;
 import net.sourceforge.stripes.controller.multipart.MultipartWrapperFactory;
 import net.sourceforge.stripes.exception.DefaultExceptionHandler;
@@ -82,6 +84,7 @@ public class DefaultConfiguration implements Configuration {
 
     private boolean debugMode;
     private BootstrapPropertyResolver resolver;
+    private ObjectFactory objectFactory;
     private ActionResolver actionResolver;
     private ActionBeanPropertyBinder actionBeanPropertyBinder;
     private ActionBeanContextFactory actionBeanContextFactory;
@@ -113,6 +116,12 @@ public class DefaultConfiguration implements Configuration {
             }
             else {
                 this.debugMode = false;
+            }
+
+            this.objectFactory = initObjectFactory();
+            if (this.objectFactory == null) {
+                this.objectFactory = new DefaultObjectFactory();
+                this.objectFactory.init(this);
             }
 
             this.actionResolver = initActionResolver();
@@ -251,6 +260,19 @@ public class DefaultConfiguration implements Configuration {
 	protected Boolean initDebugMode() {
 		return null;
 	}
+
+    /**
+     * Returns an instance of {@link ObjectFactory} that is used throughout Stripes to instantiate
+     * classes.
+     * 
+     * @return an instance of {@link ObjectFactory}.
+     */
+    public ObjectFactory getObjectFactory() {
+        return this.objectFactory;
+    }
+
+    /** Allows subclasses to initialize a non-default {@link ObjectFactory}. */
+    protected ObjectFactory initObjectFactory() { return null; }
 
     /**
      * Returns an instance of {@link NameBasedActionResolver} unless a subclass has

@@ -335,7 +335,7 @@ public class DefaultExceptionHandler implements ExceptionHandler {
      * @throws Exception if the handler class cannot be instantiated
      */
     protected void addHandler(Class<?> handlerClass) throws Exception {
-        addHandler(handlerClass.newInstance());
+        addHandler(getConfiguration().getObjectFactory().newInstance(handlerClass));
     }
 
     /**

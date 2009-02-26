@@ -14,6 +14,7 @@
  */
 package net.sourceforge.stripes.util.bean;
 
+import net.sourceforge.stripes.controller.StripesFilter;
 import net.sourceforge.stripes.util.ReflectUtil;
 
 import java.beans.PropertyDescriptor;
@@ -641,11 +642,8 @@ public class PropertyExpressionEvaluation {
             else if (clazz.isEnum()) {
                 return clazz.getEnumConstants()[0];
             }
-            else if (clazz.isInterface() ) {
-                return ReflectUtil.getInterfaceInstance(clazz);
-            }
             else {
-                return clazz.newInstance();
+                return StripesFilter.getConfiguration().getObjectFactory().newInstance(clazz);
             }
         }
         catch (Exception e) {

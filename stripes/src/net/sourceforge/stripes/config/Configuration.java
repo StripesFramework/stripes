@@ -17,6 +17,7 @@ package net.sourceforge.stripes.config;
 import net.sourceforge.stripes.controller.ActionBeanPropertyBinder;
 import net.sourceforge.stripes.controller.ActionResolver;
 import net.sourceforge.stripes.controller.ActionBeanContextFactory;
+import net.sourceforge.stripes.controller.ObjectFactory;
 import net.sourceforge.stripes.localization.LocalizationBundleFactory;
 import net.sourceforge.stripes.localization.LocalePicker;
 import net.sourceforge.stripes.validation.TypeConverterFactory;
@@ -84,6 +85,14 @@ public interface Configuration {
 
     /** Returns true if the Stripes application is running in debug mode. */
     boolean isDebugMode();
+
+    /**
+     * Returns an instance of {@link ObjectFactory} that is used throughout Stripes to instantiate
+     * classes.
+     * 
+     * @return an instance of {@link ObjectFactory}.
+     */
+    ObjectFactory getObjectFactory();
 
     /**
      * Returns an instance of ActionResolver that will be used by Stripes to lookup and resolve
