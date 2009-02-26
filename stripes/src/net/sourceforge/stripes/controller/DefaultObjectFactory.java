@@ -1,4 +1,4 @@
-/* Copyright 2008 Ben Gunter
+/* Copyright 2008-2009 Ben Gunter
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,10 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import net.sourceforge.stripes.config.Configuration;
+import net.sourceforge.stripes.config.TargetTypes;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
+import net.sourceforge.stripes.util.Log;
+import net.sourceforge.stripes.util.TypeHandlerCache;
 
 /**
  * <p>
@@ -75,6 +78,8 @@ public class DefaultObjectFactory implements ObjectFactory {
         }
     }
 
+    private static final Log log = Log.getInstance(DefaultObjectFactory.class);
+
     /**
      * Holds a map of commonly used interface types (mostly collections) to a class that implements
      * the interface and will, by default, be instantiated when an instance of the interface is
@@ -92,6 +97,7 @@ public class DefaultObjectFactory implements ObjectFactory {
     }
 
     private Configuration configuration;
+    private TypeHandlerCache<List<ObjectPostProcessor>> postProcessors;
 
     /** Does nothing. */
     public void init(Configuration configuration) throws Exception {
@@ -101,6 +107,44 @@ public class DefaultObjectFactory implements ObjectFactory {
     /** Get the {@link Configuration} that was passed into {@link #init(Configuration)}. */
     protected Configuration getConfiguration() {
         return configuration;
+    }
+
+    /**
+     * Register a post-processor that will be allowed to manipulate instances of {@code targetType}
+     * after they are created and before they are returned. The types to which the post-processor
+     * will apply are determined by the value of the {@link TargetTypes} annotation on the class. If
+     * there is no such annotation, then the post-processor will process all instances created by
+     * the object factory.
+     * 
+     * @param postProcessor The post-processor to use.
+     */
+    public synchronized void addPostProcessor(ObjectPostProcessor postProcessor) {
+        // The cache will be null by default to indicate that there are no post-processors
+        if (postProcessors == null) {
+            postProcessors = new TypeHandlerCache<List<ObjectPostProcessor>>();
+        }
+
+        // Determine target types from annotation; if no annotation then process everything
+        TargetTypes annotation = postProcessor.getClass().getAnnotation(TargetTypes.class);
+        Class<?>[] targetTypes;
+        if (annotation == null) {
+            targetTypes = new Class<?>[] { Object.class };
+        }
+        else {
+            targetTypes = annotation.value();
+        }
+
+        // Register post-processor for each target type
+        for (Class<?> targetType : targetTypes) {
+            List<ObjectPostProcessor> list = postProcessors.getHandler(targetType);
+            if (list == null) {
+                list = new ArrayList<ObjectPostProcessor>();
+                postProcessors.add(targetType, list);
+            }
+            log.debug("Adding post-processor of type ", postProcessor.getClass().getName(),
+                    " for ", targetType);
+            list.add(postProcessor);
+        }
     }
 
     /**
@@ -151,7 +195,7 @@ public class DefaultObjectFactory implements ObjectFactory {
                     "might get implemented.");
         }
         else {
-            return StripesFilter.getConfiguration().getObjectFactory().newInstance((Class<T>) impl);
+            return newInstance((Class<T>) impl);
         }
     }
 
@@ -260,6 +304,15 @@ public class DefaultObjectFactory implements ObjectFactory {
      * @return The given object, unchanged.
      */
     protected <T> T postProcess(T object) {
+        if (postProcessors != null) {
+            List<ObjectPostProcessor> list = postProcessors.getHandler(object.getClass());
+            if (list != null) {
+                for (ObjectPostProcessor postProcessor : list) {
+                    object = postProcessor.postProcess(object);
+                }
+            }
+        }
+
         return object;
     }
 }
