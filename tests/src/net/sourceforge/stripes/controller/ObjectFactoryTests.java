@@ -182,6 +182,8 @@ public class ObjectFactoryTests extends StripesTestFixture {
     public void classPostProcessor() {
         final String prefix = "Stripey!";
         class MyObjectPostProcessor implements ObjectPostProcessor<String> {
+            public void setObjectFactory(DefaultObjectFactory factory) {}
+
             public String postProcess(String object) {
                 log.debug("Altering '", object, "'");
                 return (prefix + object);
@@ -216,6 +218,8 @@ public class ObjectFactoryTests extends StripesTestFixture {
     public void interfacePostProcessor() {
         final String prefix = "Stripey!";
         class MyObjectPostProcessor implements ObjectPostProcessor<CharSequence> {
+            public void setObjectFactory(DefaultObjectFactory factory) {}
+
             public CharSequence postProcess(CharSequence object) {
                 log.debug("Altering '", object, "'");
                 return (prefix + object);
@@ -255,6 +259,8 @@ public class ObjectFactoryTests extends StripesTestFixture {
     public void multipleSequentialPostProcessors() {
         final AtomicInteger counter = new AtomicInteger(0);
         class MyObjectPostProcessor implements ObjectPostProcessor<StringBuilder> {
+            public void setObjectFactory(DefaultObjectFactory factory) {}
+
             public StringBuilder postProcess(StringBuilder object) {
                 log.debug("Altering '", object, "'");
                 return object.append("Touched by ").append(this.toString().replaceAll(".*@", ""))
