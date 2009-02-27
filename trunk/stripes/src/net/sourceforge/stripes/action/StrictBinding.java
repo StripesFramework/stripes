@@ -20,15 +20,22 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import net.sourceforge.stripes.validation.Validate;
+import net.sourceforge.stripes.validation.ValidateNestedProperties;
+
 /**
  * <p>
- * When applied to an {@link ActionBean}, this annotation indicates that binding access controls
- * are in effect. Property binding can be enabled or disabled on a case-by-case basis through the
- * use of the {@link #allow()} and {@link #deny()} elements.
+ * When applied to an {@link ActionBean}, this annotation turns on binding access controls. The
+ * default policy is to deny binding to all properties. To enable binding on any given property, the
+ * preferred method is to apply a {@link Validate} annotation to the property. (For nested
+ * properties, use {@link ValidateNestedProperties}.) Even if validation is not necessary for the
+ * property in question, a naked {@link Validate} annotation may still be used to enable binding.
+ * Alternatively, binding can be enabled or disabled through the use of the {@link #allow()} and
+ * {@link #deny()} elements of this annotation.
  * </p>
  * <p>
- * Property may be named explicitly or by using globs. A single star (*) matches any property of an
- * element. Two stars (**) indicate any property of an element, including properties of that
+ * Properties may be named explicitly or by using globs. A single star (*) matches any property of
+ * an element. Two stars (**) indicate any property of an element, including properties of that
  * property and so on. For security reasons, partial matches are not allowed so globs like
  * user.pass* will never match anything. Some examples:
  * <ul>
