@@ -31,8 +31,11 @@ import javax.servlet.ServletContext;
  * only once when the interceptor is first created and initialized.</p>
  *
  * @author Tim Fennell
- * @since Stripes 1.4 
+ * @since Stripes 1.4
+ * @deprecated As of Stripes 1.5.1, replaced by {@link SpringInjectionPostProcessor} which already
+ *             injects Spring dependencies into Interceptors.
  */
+@Deprecated
 public abstract class SpringInterceptorSupport implements Interceptor, ConfigurableComponent {
 
     /**
