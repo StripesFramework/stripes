@@ -48,8 +48,9 @@ import net.sourceforge.stripes.util.Log;
  * @see SpringBean
  * @author Tim Fennell
  * @since Stripes 1.3
- * @deprecated As of Stripes 1.6, replaced by {@link SpringInjectionFactory}.
+ * @deprecated As of Stripes 1.5.1, replaced by {@link SpringInjectionPostProcessor}.
  */
+@Deprecated
 @Intercepts(LifecycleStage.ActionBeanResolution)
 @DontAutoLoad
 public class SpringInterceptor implements Interceptor {
