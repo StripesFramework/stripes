@@ -32,9 +32,10 @@ import javax.servlet.ServletContext;
  *
  * @author Tim Fennell
  * @since Stripes 1.4
- * @deprecated As of Stripes 1.6, replaced by {@link SpringInjectionFactory} which already injects
- * Spring dependencies into Interceptors.
+ * @deprecated As of Stripes 1.5.1, replaced by {@link SpringInjectionPostProcessor} which already
+ *             injects Spring dependencies into Interceptors.
  */
+@Deprecated
 public abstract class SpringInterceptorSupport implements Interceptor, ConfigurableComponent {
 
     /**
