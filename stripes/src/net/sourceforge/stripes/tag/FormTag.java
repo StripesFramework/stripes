@@ -81,24 +81,25 @@ public class FormTag extends HtmlTagSupport implements BodyTag, TryCatchFinally,
      * @param action the action path, relative to the root of the web application
      */
     public void setAction(String action) {
-        // Use the action resolver to figure out what the appropriate URL binding if for
-        // this path and use that if there is one, otherwise just use the action passed in
-        String binding = StripesFilter.getConfiguration().getActionResolver().getUrlBindingFromPath(action);
-        if (binding != null) {
-            this.actionWithoutContext = binding;
-        }
-        else {
-            this.actionWithoutContext = action;
-        }
+        this.actionWithoutContext = action;
     }
 
     public String getAction() { return this.actionWithoutContext; }
+
+    /** Get the URL binding for the form's {@link ActionBean} from the {@link ActionResolver}. */
+	protected String getActionBeanUrlBinding() {
+        ActionResolver resolver = StripesFilter.getConfiguration().getActionResolver();
+        if (actionBeanClass == null)
+            return resolver.getUrlBindingFromPath(actionWithoutContext);
+        else
+            return resolver.getUrlBinding(actionBeanClass);
+    }
 
     /** Lazily looks up and returns the type of action bean the form will submit to. */
     protected Class<? extends ActionBean> getActionBeanClass() {
         if (this.actionBeanClass == null) {
             ActionResolver resolver = StripesFilter.getConfiguration().getActionResolver();
-            this.actionBeanClass = resolver.getActionBeanType(this.actionWithoutContext);
+            this.actionBeanClass = resolver.getActionBeanType(getActionBeanUrlBinding());
         }
 
         return this.actionBeanClass;
@@ -342,12 +343,13 @@ public class FormTag extends HtmlTagSupport implements BodyTag, TryCatchFinally,
      * @return ActionBean the ActionBean bound to the form if there is one
      */
     protected ActionBean getActionBean() {
+		String binding = getActionBeanUrlBinding();
 		HttpServletRequest request = (HttpServletRequest) getPageContext().getRequest();
-		ActionBean bean = (ActionBean) request.getAttribute(this.actionWithoutContext);
+		ActionBean bean = (ActionBean) request.getAttribute(binding);
 		if (bean == null) {
 			HttpSession session = request.getSession(false);
 			if (session != null)
-				bean = (ActionBean) session.getAttribute(this.actionWithoutContext);
+				bean = (ActionBean) session.getAttribute(binding);
 		}
 		return bean;
 	}
@@ -361,8 +363,7 @@ public class FormTag extends HtmlTagSupport implements BodyTag, TryCatchFinally,
         ActionBean bean = getActionBean();
         Class<? extends ActionBean> clazz = null;
         if (bean == null) {
-            clazz = StripesFilter.getConfiguration().getActionResolver()
-                            .getActionBeanType(this.actionWithoutContext);
+            clazz = getActionBeanClass();
 
             if (clazz == null) {
                 log.error("Could not locate an ActionBean that was bound to the URL [",
