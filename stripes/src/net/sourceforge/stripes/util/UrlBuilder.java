@@ -25,9 +25,10 @@ import java.util.Map;
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.action.DefaultHandler;
 import net.sourceforge.stripes.config.Configuration;
+import net.sourceforge.stripes.controller.ActionResolver;
+import net.sourceforge.stripes.controller.AnnotatedClassActionResolver;
 import net.sourceforge.stripes.controller.StripesFilter;
 import net.sourceforge.stripes.controller.UrlBinding;
-import net.sourceforge.stripes.controller.UrlBindingFactory;
 import net.sourceforge.stripes.controller.UrlBindingParameter;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
 import net.sourceforge.stripes.exception.UrlBindingConflictException;
@@ -450,9 +451,14 @@ public class UrlBuilder {
      * @see #UrlBuilder(Locale, String, boolean)
      */
     protected String getBaseURL(String baseUrl, Collection<Parameter> parameters) {
+        ActionResolver resolver = StripesFilter.getConfiguration().getActionResolver();
+        if (!(resolver instanceof AnnotatedClassActionResolver))
+            return baseUrl;
+
         UrlBinding binding = null;
         try {
-            binding = UrlBindingFactory.getInstance().getBindingPrototype(baseUrl);
+            binding = ((AnnotatedClassActionResolver) resolver).getUrlBindingFactory()
+                    .getBindingPrototype(baseUrl);
         }
         catch (UrlBindingConflictException e) {
             // This can be safely ignored

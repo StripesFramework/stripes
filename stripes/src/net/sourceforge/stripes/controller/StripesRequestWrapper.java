@@ -467,9 +467,14 @@ class MergedParameterMap implements Map<String, String[]> {
      * {@link Map}. If no parameters are present in the URI, then return null.
      */
     Map<String, String[]> getUriParameters(HttpServletRequest request) {
+        ActionResolver resolver = StripesFilter.getConfiguration().getActionResolver();
+        if (!(resolver instanceof AnnotatedClassActionResolver))
+            return null;
+
         UrlBinding binding = null;
         try {
-            binding = UrlBindingFactory.getInstance().getBinding(request);
+            binding = ((AnnotatedClassActionResolver) resolver).getUrlBindingFactory()
+                    .getBinding(request);
         }
         catch (UrlBindingConflictException e) {
             // This can be safely ignored
