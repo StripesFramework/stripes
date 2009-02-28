@@ -87,12 +87,17 @@ public class FormTag extends HtmlTagSupport implements BodyTag, TryCatchFinally,
     public String getAction() { return this.actionWithoutContext; }
 
     /** Get the URL binding for the form's {@link ActionBean} from the {@link ActionResolver}. */
-	protected String getActionBeanUrlBinding() {
+    protected String getActionBeanUrlBinding() {
         ActionResolver resolver = StripesFilter.getConfiguration().getActionResolver();
-        if (actionBeanClass == null)
-            return resolver.getUrlBindingFromPath(actionWithoutContext);
-        else
+        if (actionBeanClass == null) {
+            String binding = resolver.getUrlBindingFromPath(actionWithoutContext);
+            if (binding == null)
+                binding = actionWithoutContext;
+            return binding;
+        }
+        else {
             return resolver.getUrlBinding(actionBeanClass);
+        }
     }
 
     /** Lazily looks up and returns the type of action bean the form will submit to. */
