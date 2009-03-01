@@ -144,46 +144,56 @@ public class UrlBindingFactory {
         }
 
         // Now find the one that matches deepest into the URI with the fewest components
-        int maxIndex = 0, minComponents = Integer.MAX_VALUE;
+        int maxIndex = 0, minComponentCount = Integer.MAX_VALUE, maxComponentMatch = 0;
         List<String> conflicts = null;
         for (UrlBinding binding : candidates) {
             int idx = binding.getPath().length();
             List<Object> components = binding.getComponents();
-            int componentCount = components.size();
+            int componentCount = components.size(), componentMatch = 0;
 
             for (Object component : components) {
                 if (!(component instanceof String))
                     continue;
 
-                int at = uri.indexOf((String) component, idx);
+                String string = (String) component;
+                int at = uri.indexOf(string, idx);
                 if (at >= 0) {
-                    idx = at + ((String) component).length();
+                    idx = at + string.length();
+                    ++componentMatch;
+                }
+                else if (binding.getSuffix() != null) {
+                    // Prefer suffix matches
+                    string = binding.getSuffix();
+                    at = uri.indexOf(string, idx);
+                    if (at >= 0) {
+                        idx = at + string.length();
+                        ++componentMatch;
+                    }
+                    break;
                 }
                 else {
                     break;
                 }
             }
 
-            if (idx == maxIndex) {
-                if (componentCount < minComponents) {
-                    conflicts = null;
-                    minComponents = componentCount;
-                    prototype = binding;
-                }
-                else if (componentCount == minComponents) {
-                    if (conflicts == null) {
-                        conflicts = new ArrayList<String>(candidates.size());
-                        conflicts.add(prototype.toString());
-                    }
-                    conflicts.add(binding.toString());
-                    prototype = null;
-                }
-            }
-            else if (idx > maxIndex) {
-                conflicts = null;
-                minComponents = componentCount;
+            boolean betterMatch = idx > maxIndex
+                    || (idx == maxIndex && (componentCount < minComponentCount || componentMatch > maxComponentMatch));
+
+            if (betterMatch) {
+                if (conflicts != null)
+                    conflicts.clear();
                 prototype = binding;
                 maxIndex = idx;
+                minComponentCount = componentCount;
+                maxComponentMatch = componentMatch;
+            }
+            else if (idx == maxIndex && componentCount == minComponentCount) {
+                if (conflicts == null) {
+                    conflicts = new ArrayList<String>(candidates.size());
+                    conflicts.add(prototype.toString());
+                }
+                conflicts.add(binding.toString());
+                prototype = null;
             }
         }
 
