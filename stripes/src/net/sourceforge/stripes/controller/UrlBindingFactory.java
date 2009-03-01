@@ -458,16 +458,40 @@ public class UrlBindingFactory {
      */
     protected void cachePath(String path, UrlBinding binding) {
         if (pathCache.containsKey(path)) {
+            // Put a null value in the map to indicate a conflict
             UrlBinding conflict = pathCache.put(path, null);
+
+            // Construct a list of conflicting bindings
             List<String> list = pathConflicts.get(path);
             if (list == null) {
                 list = new ArrayList<String>();
                 list.add(conflict.toString());
                 pathConflicts.put(path, list);
             }
-            log.warn("The path ", path, " for ", binding.getBeanType().getName(), " @ ", binding,
-                    " conflicts with ", list);
             list.add(binding.toString());
+
+            // If either the existing binding or the new binding (but not both) declares no
+            // parameters, then it is a static binding and should take precedence over dynamic ones.
+            UrlBinding statik = null;
+            if (conflict != null) {
+                if (conflict.getParameters().isEmpty() && !binding.getParameters().isEmpty()) {
+                    statik = conflict;
+                }
+                else if (!conflict.getParameters().isEmpty() && binding.getParameters().isEmpty()) {
+                    statik = binding;
+                }
+            }
+
+            // Replace the path cache entry if necessary and log a warning
+            if (statik == null) {
+                log.warn("The path ", path, " for ", binding.getBeanType().getName(), " @ ",
+                        binding, " conflicts with ", list);
+            }
+            else {
+                log.debug("For path ", path, ", static binding ", statik,
+                        " supersedes conflicting bindings ", list);
+                pathCache.put(path, statik);
+            }
         }
         else {
             log.debug("Wiring path ", path, " to ", binding.getBeanType().getName(), " @ ", binding);
