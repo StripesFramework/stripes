@@ -670,6 +670,12 @@ public class UrlBindingFactory {
             escape = false;
         }
 
+        // Parameter name must not be empty
+        if (name.length() < 1) {
+            throw new ParseException(string, "Empty parameter name in URL binding for "
+                    + beanClass.getName());
+        }
+
         String dflt = defaultValue.length() < 1 ? null : defaultValue.toString();
         if (dflt != null && UrlBindingParameter.PARAMETER_NAME_EVENT.equals(name.toString())) {
             throw new ParseException(string, "In ActionBean class " + beanClass.getName()
