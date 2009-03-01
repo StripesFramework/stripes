@@ -21,6 +21,7 @@ import net.sourceforge.stripes.action.HandlesEvent;
 import net.sourceforge.stripes.action.SessionScope;
 import net.sourceforge.stripes.config.BootstrapPropertyResolver;
 import net.sourceforge.stripes.config.Configuration;
+import net.sourceforge.stripes.config.DontAutoLoad;
 import net.sourceforge.stripes.exception.ActionBeanNotFoundException;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
 import net.sourceforge.stripes.exception.StripesServletException;
@@ -133,7 +134,7 @@ public class AnnotatedClassActionResolver implements ActionResolver {
      */
     protected void addActionBean(Class<? extends ActionBean> clazz) {
         // Ignore abstract classes
-        if (Modifier.isAbstract(clazz.getModifiers()))
+        if (Modifier.isAbstract(clazz.getModifiers()) || clazz.isAnnotationPresent(DontAutoLoad.class))
             return;
 
         String binding = getUrlBinding(clazz);
