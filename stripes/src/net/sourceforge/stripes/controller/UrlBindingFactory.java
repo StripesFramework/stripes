@@ -569,8 +569,7 @@ public class UrlBindingFactory {
         // parse the pattern
         String path = null;
         List<Object> components = new ArrayList<Object>();
-        int braceLevel = 0;
-        boolean escape = false;
+        boolean brace = false, escape = false;
         char[] chars = pattern.toCharArray();
         StringBuilder buf = new StringBuilder(pattern.length());
         char c = 0;
@@ -579,8 +578,8 @@ public class UrlBindingFactory {
             if (!escape) {
                 switch (c) {
                 case '{':
-                    ++braceLevel;
-                    if (braceLevel == 1) {
+                    if (!brace) {
+                        brace = true;
                         if (path == null) {
                             // extract trailing non-alphanum chars as a literal to trim the path
                             int end = buf.length() - 1;
@@ -603,10 +602,8 @@ public class UrlBindingFactory {
                     }
                     break;
                 case '}':
-                    if (braceLevel > 0) {
-                        --braceLevel;
-                    }
-                    if (braceLevel == 0) {
+                    if (brace) {
+                        brace = false;
                         components.add(parseUrlBindingParameter(beanType, buf.toString()));
                         buf.setLength(0);
                         continue;
@@ -614,6 +611,12 @@ public class UrlBindingFactory {
                     break;
                 case '\\':
                     escape = true;
+
+                    // Preserve escape characters for parameter name parser
+                    if (brace) {
+                        buf.append(c);
+                    }
+
                     continue;
                 }
             }
@@ -626,7 +629,7 @@ public class UrlBindingFactory {
         // Were we led to expect more characters?
         if (escape)
             throw new ParseException(pattern, "Expression must not end with escape character");
-        else if (braceLevel > 0)
+        else if (brace)
             throw new ParseException(pattern, "Unterminated left brace ('{') in expression");
 
         // handle whatever is left
