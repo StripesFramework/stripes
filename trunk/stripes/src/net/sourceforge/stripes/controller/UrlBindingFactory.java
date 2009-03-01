@@ -557,9 +557,14 @@ public class UrlBindingFactory {
      * @throws ParseException If the pattern cannot be parsed
      */
     public static UrlBinding parseUrlBinding(Class<? extends ActionBean> beanType, String pattern) {
-        // check that value is not null or empty
-        if (pattern == null || pattern.length() < 1)
+        // check that value is not null
+        if (pattern == null)
             return null;
+
+        // make sure it starts with /
+        if (pattern == null || pattern.length() < 1 || !pattern.startsWith("/")) {
+            throw new ParseException(pattern, "A URL binding must begin with /");
+        }
 
         // parse the pattern
         String path = null;
@@ -618,13 +623,15 @@ public class UrlBindingFactory {
             escape = false;
         }
 
+        // Were we led to expect more characters?
+        if (escape)
+            throw new ParseException(pattern, "Expression must not end with escape character");
+        else if (braceLevel > 0)
+            throw new ParseException(pattern, "Unterminated left brace ('{') in expression");
+
         // handle whatever is left
         if (buf.length() > 0) {
-            if (escape)
-                throw new ParseException(pattern, "Expression must not end with escape character");
-            else if (braceLevel > 0)
-                throw new ParseException(pattern, "Unterminated left brace ('{') in expression");
-            else if (path == null)
+            if (path == null)
                 path = buf.toString();
             else if (c == '}')
                 components.add(parseUrlBindingParameter(beanType, buf.toString()));
