@@ -144,46 +144,56 @@ public class UrlBindingFactory {
         }
 
         // Now find the one that matches deepest into the URI with the fewest components
-        int maxIndex = 0, minComponents = Integer.MAX_VALUE;
+        int maxIndex = 0, minComponentCount = Integer.MAX_VALUE, maxComponentMatch = 0;
         List<String> conflicts = null;
         for (UrlBinding binding : candidates) {
             int idx = binding.getPath().length();
             List<Object> components = binding.getComponents();
-            int componentCount = components.size();
+            int componentCount = components.size(), componentMatch = 0;
 
             for (Object component : components) {
                 if (!(component instanceof String))
                     continue;
 
-                int at = uri.indexOf((String) component, idx);
+                String string = (String) component;
+                int at = uri.indexOf(string, idx);
                 if (at >= 0) {
-                    idx = at + ((String) component).length();
+                    idx = at + string.length();
+                    ++componentMatch;
+                }
+                else if (binding.getSuffix() != null) {
+                    // Prefer suffix matches
+                    string = binding.getSuffix();
+                    at = uri.indexOf(string, idx);
+                    if (at >= 0) {
+                        idx = at + string.length();
+                        ++componentMatch;
+                    }
+                    break;
                 }
                 else {
                     break;
                 }
             }
 
-            if (idx == maxIndex) {
-                if (componentCount < minComponents) {
-                    conflicts = null;
-                    minComponents = componentCount;
-                    prototype = binding;
-                }
-                else if (componentCount == minComponents) {
-                    if (conflicts == null) {
-                        conflicts = new ArrayList<String>(candidates.size());
-                        conflicts.add(prototype.toString());
-                    }
-                    conflicts.add(binding.toString());
-                    prototype = null;
-                }
-            }
-            else if (idx > maxIndex) {
-                conflicts = null;
-                minComponents = componentCount;
+            boolean betterMatch = idx > maxIndex
+                    || (idx == maxIndex && (componentCount < minComponentCount || componentMatch > maxComponentMatch));
+
+            if (betterMatch) {
+                if (conflicts != null)
+                    conflicts.clear();
                 prototype = binding;
                 maxIndex = idx;
+                minComponentCount = componentCount;
+                maxComponentMatch = componentMatch;
+            }
+            else if (idx == maxIndex && componentCount == minComponentCount) {
+                if (conflicts == null) {
+                    conflicts = new ArrayList<String>(candidates.size());
+                    conflicts.add(prototype.toString());
+                }
+                conflicts.add(binding.toString());
+                prototype = null;
             }
         }
 
@@ -458,16 +468,40 @@ public class UrlBindingFactory {
      */
     protected void cachePath(String path, UrlBinding binding) {
         if (pathCache.containsKey(path)) {
+            // Put a null value in the map to indicate a conflict
             UrlBinding conflict = pathCache.put(path, null);
+
+            // Construct a list of conflicting bindings
             List<String> list = pathConflicts.get(path);
             if (list == null) {
                 list = new ArrayList<String>();
                 list.add(conflict.toString());
                 pathConflicts.put(path, list);
             }
-            log.warn("The path ", path, " for ", binding.getBeanType().getName(), " @ ", binding,
-                    " conflicts with ", list);
             list.add(binding.toString());
+
+            // If either the existing binding or the new binding (but not both) declares no
+            // parameters, then it is a static binding and should take precedence over dynamic ones.
+            UrlBinding statik = null;
+            if (conflict != null) {
+                if (conflict.getParameters().isEmpty() && !binding.getParameters().isEmpty()) {
+                    statik = conflict;
+                }
+                else if (!conflict.getParameters().isEmpty() && binding.getParameters().isEmpty()) {
+                    statik = binding;
+                }
+            }
+
+            // Replace the path cache entry if necessary and log a warning
+            if (statik == null) {
+                log.warn("The path ", path, " for ", binding.getBeanType().getName(), " @ ",
+                        binding, " conflicts with ", list);
+            }
+            else {
+                log.debug("For path ", path, ", static binding ", statik,
+                        " supersedes conflicting bindings ", list);
+                pathCache.put(path, statik);
+            }
         }
         else {
             log.debug("Wiring path ", path, " to ", binding.getBeanType().getName(), " @ ", binding);
@@ -533,15 +567,19 @@ public class UrlBindingFactory {
      * @throws ParseException If the pattern cannot be parsed
      */
     public static UrlBinding parseUrlBinding(Class<? extends ActionBean> beanType, String pattern) {
-        // check that value is not null or empty
-        if (pattern == null || pattern.length() < 1)
+        // check that value is not null
+        if (pattern == null)
             return null;
+
+        // make sure it starts with /
+        if (pattern == null || pattern.length() < 1 || !pattern.startsWith("/")) {
+            throw new ParseException(pattern, "A URL binding must begin with /");
+        }
 
         // parse the pattern
         String path = null;
         List<Object> components = new ArrayList<Object>();
-        int braceLevel = 0;
-        boolean escape = false;
+        boolean brace = false, escape = false;
         char[] chars = pattern.toCharArray();
         StringBuilder buf = new StringBuilder(pattern.length());
         char c = 0;
@@ -550,8 +588,8 @@ public class UrlBindingFactory {
             if (!escape) {
                 switch (c) {
                 case '{':
-                    ++braceLevel;
-                    if (braceLevel == 1) {
+                    if (!brace) {
+                        brace = true;
                         if (path == null) {
                             // extract trailing non-alphanum chars as a literal to trim the path
                             int end = buf.length() - 1;
@@ -574,10 +612,8 @@ public class UrlBindingFactory {
                     }
                     break;
                 case '}':
-                    if (braceLevel > 0) {
-                        --braceLevel;
-                    }
-                    if (braceLevel == 0) {
+                    if (brace) {
+                        brace = false;
                         components.add(parseUrlBindingParameter(beanType, buf.toString()));
                         buf.setLength(0);
                         continue;
@@ -585,6 +621,12 @@ public class UrlBindingFactory {
                     break;
                 case '\\':
                     escape = true;
+
+                    // Preserve escape characters for parameter name parser
+                    if (brace) {
+                        buf.append(c);
+                    }
+
                     continue;
                 }
             }
@@ -594,13 +636,15 @@ public class UrlBindingFactory {
             escape = false;
         }
 
+        // Were we led to expect more characters?
+        if (escape)
+            throw new ParseException(pattern, "Expression must not end with escape character");
+        else if (brace)
+            throw new ParseException(pattern, "Unterminated left brace ('{') in expression");
+
         // handle whatever is left
         if (buf.length() > 0) {
-            if (escape)
-                throw new ParseException(pattern, "Expression must not end with escape character");
-            else if (braceLevel > 0)
-                throw new ParseException(pattern, "Unterminated left brace ('{') in expression");
-            else if (path == null)
+            if (path == null)
                 path = buf.toString();
             else if (c == '}')
                 components.add(parseUrlBindingParameter(beanType, buf.toString()));
@@ -644,6 +688,12 @@ public class UrlBindingFactory {
 
             current.append(c);
             escape = false;
+        }
+
+        // Parameter name must not be empty
+        if (name.length() < 1) {
+            throw new ParseException(string, "Empty parameter name in URL binding for "
+                    + beanClass.getName());
         }
 
         String dflt = defaultValue.length() < 1 ? null : defaultValue.toString();
