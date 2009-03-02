@@ -151,3 +151,18 @@ Contents
       -> ActionResolver (and implementations thereof)
       -> BootstrapPropertyResolver
       -> UrlBuilder
+
+   -> The default PopulationStrategy is now BeanFirstPopulationStrategy instead of
+      DefaultPopulationStrategy. This may cause backward compatibility issues if
+      you were relying on the behavior of DefaultPopulationStrategy. You can revert
+      back to this behavior by configuring the population strategy in web.xml:
+      
+      <init-param>
+        <param-name>PopulationStrategy.Class</param-name>
+        <param-value>net.sourceforge.stripes.tag.DefaultPopulationStrategy</param-value>
+      </init-param>
+      
+      On the other hand, if you had the above configuration present in web.xml but with
+      BeanFirstPopulationStrategy, it is no longer required since it has become the
+      default. Leaving it there would be redundant, but would cause no harm.
+
