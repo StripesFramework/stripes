@@ -48,7 +48,7 @@ import net.sourceforge.stripes.localization.DefaultLocalePicker;
 import net.sourceforge.stripes.localization.DefaultLocalizationBundleFactory;
 import net.sourceforge.stripes.localization.LocalePicker;
 import net.sourceforge.stripes.localization.LocalizationBundleFactory;
-import net.sourceforge.stripes.tag.DefaultPopulationStrategy;
+import net.sourceforge.stripes.tag.BeanFirstPopulationStrategy;
 import net.sourceforge.stripes.tag.DefaultTagErrorRendererFactory;
 import net.sourceforge.stripes.tag.PopulationStrategy;
 import net.sourceforge.stripes.tag.TagErrorRendererFactory;
@@ -174,7 +174,7 @@ public class DefaultConfiguration implements Configuration {
 
             this.populationStrategy = initPopulationStrategy();
             if (this.populationStrategy == null) {
-                this.populationStrategy = new DefaultPopulationStrategy();
+                this.populationStrategy = new BeanFirstPopulationStrategy();
                 this.populationStrategy.init(this);
             }
 
@@ -366,7 +366,8 @@ public class DefaultConfiguration implements Configuration {
     /**
      * Returns an instance of a PopulationsStrategy.  Unless a subclass has picked another
      * implementation, will return an instance of
-     * {@link net.sourceforge.stripes.tag.DefaultPopulationStrategy}.
+     * {@link net.sourceforge.stripes.tag.BeanFirstPopulationStrategy}.
+     * @since Stripes 1.6
      */
     public PopulationStrategy getPopulationStrategy() { return this.populationStrategy; }
 
