@@ -56,18 +56,6 @@ import java.util.Set;
  */
 public class AnnotatedClassActionResolver implements ActionResolver {
     /**
-     * Configuration key used to lookup a comma-separated list of patterns that are used to
-     * restrict the set of URLs in the classpath that are searched for ActionBean classes.
-     */
-    @Deprecated private static final String URL_FILTERS = "ActionResolver.UrlFilters";
-
-    /**
-     * Configuration key used to lookup a comma-separated list of patterns that are used to
-     * restrict the packages that will be scanned for ActionBean classes.
-     */
-    @Deprecated private static final String PACKAGE_FILTERS = "ActionResolver.PackageFilters";
-
-    /**
      * Configuration key used to lookup a comma-separated list of package names. The
      * packages (and their sub-packages) will be scanned for implementations of
      * ActionBean.
@@ -301,32 +289,6 @@ public class AnnotatedClassActionResolver implements ActionResolver {
         ActionBean bean = getActionBean(context, path);
         request.setAttribute(RESOLVED_ACTION, getUrlBindingFromPath(path));
         return bean;
-    }
-
-    /**
-     * Simple helper method that extracts the servlet path and any extra path info
-     * and puts them back together handling nulls correctly.
-     *
-     * @param request the current HttpServletRequest
-     * @return the servlet-context relative path that is being requested
-     * @deprecated Use {@link HttpUtil#getRequestedPath(HttpServletRequest)} instead.
-     */
-    @Deprecated
-    protected String getRequestedPath(HttpServletRequest request) {
-        String servletPath = null, pathInfo = null;
-
-        // Check to see if the request is processing an include, and pull the path
-        // information from the appropriate source.
-        if (request.getAttribute(StripesConstants.REQ_ATTR_INCLUDE_PATH) != null) {
-            servletPath = (String) request.getAttribute(StripesConstants.REQ_ATTR_INCLUDE_PATH);
-            pathInfo    = (String) request.getAttribute(StripesConstants.REQ_ATTR_INCLUDE_PATH_INFO);
-        }
-        else {
-            servletPath = request.getServletPath();
-            pathInfo    = request.getPathInfo();
-        }
-
-        return (servletPath == null ? "" : servletPath) + (pathInfo == null ? "" : pathInfo);
     }
 
     /**
@@ -656,15 +618,6 @@ public class AnnotatedClassActionResolver implements ActionResolver {
      */
     protected Set<Class<? extends ActionBean>> findClasses() {
         BootstrapPropertyResolver bootstrap = getConfiguration().getBootstrapPropertyResolver();
-        if (bootstrap.getProperty(URL_FILTERS) != null || bootstrap.getProperty(PACKAGE_FILTERS) != null) {
-            log.error("The configuration properties '", URL_FILTERS, "' and '", PACKAGE_FILTERS,
-                      "' are deprecated, and NO LONGER SUPPORTED. Please read the upgrade ",
-                      "documentation for Stripes 1.5 for how to resolve this situation. In short ",
-                      "you should specify neither ", URL_FILTERS, " or ", PACKAGE_FILTERS,
-                      ". Instead you should specify a comma separated list of package roots ",
-                      "(e.g. com.myco.web) that should be scanned for implementations of ",
-                      "ActionBean, using the configuration parameter '", PACKAGES,  "'.");
-        }
 
         String packages = bootstrap.getProperty(PACKAGES);
         if (packages == null) {

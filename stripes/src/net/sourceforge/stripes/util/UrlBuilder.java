@@ -88,23 +88,6 @@ public class UrlBuilder {
      * character usually used to separate parameters will be escaped using the XML entity
      * for ampersand.
      *
-     * @param url the path part of the URL
-     * @param isForPage true if the URL is to be embedded in a page (e.g. in an anchor of img
-     *        tag), false if for some other purpose.
-     * @deprecated As of Stripes 1.5, this constructor has been replaced by
-     *             {@link #UrlBuilder(Locale, String, boolean)}.
-     */
-    @Deprecated
-    public UrlBuilder(String url, boolean isForPage) {
-        this(Locale.getDefault(), url, isForPage);
-    }
-
-    /**
-     * Constructs a UrlBuilder with the path to a resource. Parameters can be added
-     * later using addParameter().  If the link is to be used in a page then the ampersand
-     * character usually used to separate parameters will be escaped using the XML entity
-     * for ampersand.
-     *
      * @param locale the locale to use when formatting parameters with a {@link Formatter}
      * @param url the path part of the URL
      * @param isForPage true if the URL is to be embedded in a page (e.g. in an anchor of img

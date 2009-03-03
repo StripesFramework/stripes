@@ -14,8 +14,6 @@
  */
 package net.sourceforge.stripes.util;
 
-import net.sourceforge.stripes.controller.ObjectFactory;
-import net.sourceforge.stripes.controller.StripesFilter;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
 
 import java.util.Map;
@@ -97,53 +95,6 @@ public class ReflectUtil {
      */
     private static final Set<String> INHERITED_ANNOTATION_METHODS =
             Literal.set("toString", "equals", "hashCode", "annotationType");
-
-    /**
-     * Looks up the default implementing type for the supplied interface. This is done
-     * based on a static map of known common interface types and implementing classes.
-     *
-     * @param iface an interface for which an implementing class is needed
-     * @return a Class object representing the implementing type, or null if one is
-     *         not found
-     * @deprecated Use {@link ObjectFactory#newInstance(Class)} instead.
-     */
-    @Deprecated
-    public static Class<?> getImplementingClass(Class<?> iface) {
-        return interfaceImplementations.get(iface);
-    }
-
-    /**
-     * Attempts to determine an implementing class for the interface provided and instantiate
-     * it using a default constructor.
-     *
-     * @param interfaceType an interface (or abstract class) to make an instance of
-     * @return an instance of the interface type supplied
-     * @throws InstantiationException if no implementation type has been configured
-     * @throws IllegalAccessException if thrown by the JVM during class instantiation
-     * @deprecated Use {@link ObjectFactory#newInstance(Class)} instead.
-     */
-    @Deprecated
-    @SuppressWarnings("unchecked")
-	public static <T> T getInterfaceInstance(Class<T> interfaceType)
-            throws InstantiationException, IllegalAccessException {
-        Class impl = getImplementingClass(interfaceType);
-        if (impl == null) {
-            throw new InstantiationException(
-                    "Stripes needed to instantiate a property who's declared type as an " +
-                    "interface (which obviously cannot be instantiated. The interface is not " +
-                    "one that Stripes is aware of, so no implementing class was known. The " +
-                    "interface type was: '" + interfaceType.getName() + "'. To fix this " +
-                    "you'll need to do one of three things. 1) Change the getter/setter methods " +
-                    "to use a concrete type so that Stripes can instantiate it. 2) in the bean's " +
-                    "setContext() method pre-instantiate the property so Stripes doesn't have to. " +
-                    "3) Bug the Stripes author ;)  If the interface is a JDK type it can easily be " +
-                    "fixed. If not, if enough people ask, a generic way to handle the problem " +
-                    "might get implemented.");
-        }
-        else {
-            return StripesFilter.getConfiguration().getObjectFactory().newInstance((Class<T>) impl);
-        }
-    }
 
     /**
      * Utility method used to load a class.  Any time that Stripes needs to load of find a
