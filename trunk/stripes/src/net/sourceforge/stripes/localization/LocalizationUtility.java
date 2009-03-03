@@ -77,12 +77,6 @@ public class LocalizationUtility {
             catch (MissingResourceException mre) { /* do nothing */ }
         }
 
-        // Then the action path (THIS IS DEPRECATED)
-        if (localizedValue == null) {
-            try { localizedValue = bundle.getString(actionPath + "." + strippedName); }
-            catch (MissingResourceException mre) { /* do nothing */ }
-        }
-
         // Then all by itself
         if (localizedValue == null) {
             try { localizedValue = bundle.getString(strippedName); }

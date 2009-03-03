@@ -384,26 +384,4 @@ public class DynamicMappingFilter implements Filter {
         }
         initialized = true;
     }
-
-    /**
-     * Get the context-relative URI of the current include, forward or request.
-     * 
-     * @deprecated Use {@link HttpUtil#getRequestedPath(HttpServletRequest)} instead.
-     */
-    @Deprecated
-    protected String getRequestURI(HttpServletRequest request) {
-        // Check for an include
-        String uri = (String) request.getAttribute("javax.servlet.include.request_uri");
-
-        // If not an include, then use the request methods
-        if (uri == null)
-            uri = request.getRequestURI();
-
-        // Trim the context path from the front
-        String contextPath = request.getContextPath();
-        if (contextPath.length() > 1)
-            uri = uri.substring(contextPath.length());
-
-        return uri;
-    }
 }

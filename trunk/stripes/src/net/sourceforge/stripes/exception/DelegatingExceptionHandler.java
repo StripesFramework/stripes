@@ -70,12 +70,6 @@ public class DelegatingExceptionHandler extends DefaultExceptionHandler {
     /** Log instance for use within in this class. */
     private static final Log log = Log.getInstance(DelegatingExceptionHandler.class);
 
-    /** Configuration key used to lookup the URL filters used when scanning for handlers. */
-    @Deprecated public static final String URL_FILTERS = "DelegatingExceptionHandler.UrlFilters";
-
-    /** Configuration key used to lookup the package filters used when scanning for handlers. */
-    @Deprecated public static final String PACKAGE_FILTERS = "DelegatingExceptionHandler.PackageFilters";
-
     /**
      * Configuration key used to lookup the list of packages to scan for auto handlers.
      * @since Stripes 1.5
@@ -114,17 +108,6 @@ public class DelegatingExceptionHandler extends DefaultExceptionHandler {
      */
     protected Set<Class<? extends AutoExceptionHandler>> findClasses() {
         BootstrapPropertyResolver bootstrap = getConfiguration().getBootstrapPropertyResolver();
-        if (bootstrap.getProperty(URL_FILTERS) != null || bootstrap.getProperty(PACKAGE_FILTERS) != null) {
-            log.error("The configuration properties '", URL_FILTERS, "' and '", PACKAGE_FILTERS,
-                      "' are deprecated, and NO LONGER SUPPORTED. Please read the upgrade ",
-                      "documentation for Stripes 1.5 for how to resolve this situation. In short ",
-                      "you should specify neither ", URL_FILTERS, " nor ", PACKAGE_FILTERS,
-                      ". Instead you should specify a comma separated list of package roots ",
-                      "(e.g. com.myco.web) that should be scanned for implementations of ",
-                      "AutoExceptionHandler, using the configuration parameter '", PACKAGES,
-                      "', or include the packages along with other extension packages using the ",
-                      "configuration parameter '", BootstrapPropertyResolver.PACKAGES, "'.");
-        }
 
         // Try the config param that is specific to this class
         String[] packages = StringUtil.standardSplit(bootstrap.getProperty(PACKAGES));

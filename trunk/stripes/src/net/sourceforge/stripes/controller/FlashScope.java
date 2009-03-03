@@ -132,14 +132,6 @@ public class FlashScope extends HashMap<String,Object> implements Serializable {
     }
 
     /**
-     * Renamed to {@link #completeRequest()}.
-     */
-    @Deprecated
-    public void requestComplete() {
-        completeRequest();
-    }
-
-    /**
      * <p>Used by the StripesFilter to notify the flash scope that the request for which
      * it is used has been completed. The FlashScope uses this notification to start a
      * timer, and also to null out it's reference to the request so that it can be

@@ -33,14 +33,10 @@ import java.util.MissingResourceException;
  * <ul>
  *   <li>com.myco.KittenDetailActionBean.age.outOfRange</li>
  *   <li>com.myco.KittenDetailActionBean.age.errorMessage</li>
- *   <li>/cats/KittenDetail.action.age.outOfRange (deprecated)</li>
- *   <li>/cats/KittenDetail.action.age.errorMessage (deprecated)</li>
  *   <li>age.outOfRange</li>
  *   <li>age.errorMessage</li>
  *   <li>com.myco.KittenDetailActionBean.outOfRange</li>
  *   <li>com.myco.KittenDetailActionBean.errorMessage</li>
- *   <li>/cats/KittenDetail.action.outOfRange (deprecated)</li>
- *   <li>/cats/KittenDetail.action.errorMessage (deprecated)</li>
  *   <li>converter.integer.outOfRange</li>
  * </ul>
  *

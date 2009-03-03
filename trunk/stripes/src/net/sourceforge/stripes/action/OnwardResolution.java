@@ -171,18 +171,6 @@ public abstract class OnwardResolution<T extends OnwardResolution<T>> implements
     }
 
     /**
-	 * Constructs the URL for the resolution by taking the path and appending
-	 * any parameters supplied.
-	 * 
-	 * @deprecated As of Stripes 1.5, this method has been replaced by
-	 *             {@link #getUrl(Locale)}.
-	 */
-    @Deprecated
-    public String getUrl() {
-    	return getUrl(Locale.getDefault());
-    }
-
-    /**
      * Constructs the URL for the resolution by taking the path and appending any parameters
      * supplied.
      * 
