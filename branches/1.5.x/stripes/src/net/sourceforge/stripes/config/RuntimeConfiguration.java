@@ -15,7 +15,6 @@
 package net.sourceforge.stripes.config;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -24,11 +23,8 @@ import java.util.Map;
 import net.sourceforge.stripes.controller.ActionBeanContextFactory;
 import net.sourceforge.stripes.controller.ActionBeanPropertyBinder;
 import net.sourceforge.stripes.controller.ActionResolver;
-import net.sourceforge.stripes.controller.DefaultObjectFactory;
 import net.sourceforge.stripes.controller.Interceptor;
 import net.sourceforge.stripes.controller.LifecycleStage;
-import net.sourceforge.stripes.controller.ObjectFactory;
-import net.sourceforge.stripes.controller.ObjectPostProcessor;
 import net.sourceforge.stripes.controller.multipart.MultipartWrapperFactory;
 import net.sourceforge.stripes.exception.ExceptionHandler;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
@@ -65,9 +61,6 @@ public class RuntimeConfiguration extends DefaultConfiguration {
 
     /** The Configuration Key for enabling debug mode. */
     public static final String DEBUG_MODE = "Stripes.DebugMode";
-
-    /** The Configuration Key for looking up the name of the ObjectFactory class */
-    public static final String OBJECT_FACTORY = "ObjectFactory.Class";
 
     /** The Configuration Key for looking up the name of the ActionResolver class. */
     public static final String ACTION_RESOLVER = "ActionResolver.Class";
@@ -120,11 +113,6 @@ public class RuntimeConfiguration extends DefaultConfiguration {
         catch (Exception e) {
             return null;
         }
-    }
-
-    /** Looks for a class name in config and uses that to create the component. */
-    @Override protected ObjectFactory initObjectFactory() {
-        return initializeComponent(ObjectFactory.class, OBJECT_FACTORY);
     }
 
     /** Looks for a class name in config and uses that to create the component. */
@@ -231,8 +219,7 @@ public class RuntimeConfiguration extends DefaultConfiguration {
 
         for (Object type : classes) {
             try {
-                Interceptor interceptor = getObjectFactory().newInstance(
-                        (Class<? extends Interceptor>) type);
+                Interceptor interceptor = (Interceptor) ((Class) type).newInstance();
                 addInterceptor(map, interceptor);
             }
             catch (Exception e) {
@@ -258,16 +245,7 @@ public class RuntimeConfiguration extends DefaultConfiguration {
         Class clazz = getBootstrapPropertyResolver().getClassProperty(propertyName, componentType);
         if (clazz != null) {
             try {
-                T component;
-
-                ObjectFactory objectFactory = getObjectFactory();
-                if (objectFactory != null) {
-                    component = objectFactory.newInstance((Class<T>) clazz);
-                }
-                else {
-                    component = (T) clazz.newInstance();
-                }
-
+                T component = (T) clazz.newInstance();
                 component.init(this);
                 return component;
             }
@@ -338,20 +316,6 @@ public class RuntimeConfiguration extends DefaultConfiguration {
                     log.debug("Adding auto-discovered TypeConverter [", typeConverter, "] for [", targetType, "] (from TargetTypes annotation)");
                     getTypeConverterFactory().add(targetType, (Class<? extends TypeConverter<?>>) typeConverter);
                 }
-            }
-        }
-
-        ObjectFactory factory = getObjectFactory();
-        if (factory instanceof DefaultObjectFactory) {
-            List<Class<? extends ObjectPostProcessor>> classes = getBootstrapPropertyResolver()
-                    .getClassPropertyList(ObjectPostProcessor.class);
-            List<ObjectPostProcessor> instances = new ArrayList<ObjectPostProcessor>();
-            for (Class<? extends ObjectPostProcessor> clazz : classes) {
-                log.debug("Instantiating object post-processor ", clazz);
-                instances.add(factory.newInstance(clazz));
-            }
-            for (ObjectPostProcessor pp : instances) {
-                ((DefaultObjectFactory) factory).addPostProcessor(pp);
             }
         }
     }

@@ -14,13 +14,14 @@
  */
 package net.sourceforge.stripes.format;
 
+import java.lang.annotation.Annotation;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.util.Log;
-import net.sourceforge.stripes.util.TypeHandlerCache;
 
 /**
  * Implementation of {@link FormatterFactory} that contains a set of built-in formatters. Additional
@@ -34,8 +35,11 @@ import net.sourceforge.stripes.util.TypeHandlerCache;
 public class DefaultFormatterFactory implements FormatterFactory {
     private static final Log log = Log.getInstance(DefaultFormatterFactory.class);
 
-    /** Cache target type to Formatter class mappings. */
-    private TypeHandlerCache<Class<? extends Formatter<?>>> cache;
+    /** A rather generic-heavy Map that maps target type to Formatter. */
+    private Map<Class<?>, Class<? extends Formatter<?>>> formatters = new ConcurrentHashMap<Class<?>, Class<? extends Formatter<?>>>();
+
+    /** Cache of indirect formatter results. */
+    private Map<Class<?>, Class<? extends Formatter<?>>> classCache = new ConcurrentHashMap<Class<?>, Class<? extends Formatter<?>>>();
 
     /** Stores a reference to the Configuration passed in at initialization time. */
     private Configuration configuration;
@@ -43,8 +47,6 @@ public class DefaultFormatterFactory implements FormatterFactory {
     /** Stores a reference to the configuration and configures the default formatters. */
     public void init(Configuration configuration) throws Exception {
         this.configuration = configuration;
-        this.cache = new TypeHandlerCache<Class<? extends Formatter<?>>>();
-        this.cache.setDefaultHandler(ObjectFormatter.class);
 
         add(Date.class, DateFormatter.class);
         add(Number.class, NumberFormatter.class);
@@ -63,7 +65,7 @@ public class DefaultFormatterFactory implements FormatterFactory {
      * @return the Map of Formatter classes
      */
     protected Map<Class<?>,Class<? extends Formatter<?>>> getFormatters() {
-        return cache.getHandlers();
+        return this.formatters;
     }
 
     /**
@@ -74,7 +76,14 @@ public class DefaultFormatterFactory implements FormatterFactory {
      * @param formatterClass the implementation class that will handle the formatting
      */
     public void add(Class<?> targetType, Class<? extends Formatter<?>> formatterClass) {
-        cache.add(targetType, formatterClass);
+        this.formatters.put(targetType, formatterClass);
+        clearCache();
+    }
+
+    /** Clear the class and instance caches. This is called by {@link #add(Class, Class)}. */
+    protected void clearCache() {
+        log.debug("Clearing formatter cache");
+        classCache.clear();
     }
 
     /**
@@ -88,7 +97,7 @@ public class DefaultFormatterFactory implements FormatterFactory {
      * @return Formatter an instance of a Formatter, or null
      */
     public Formatter<?> getFormatter(Class<?> clazz, Locale locale, String formatType, String formatPattern) {
-        Class<? extends Formatter<?>> formatterClass = cache.getHandler(clazz);
+        Class<? extends Formatter<?>> formatterClass = findFormatterClass(clazz);
         if (formatterClass != null) {
             try {
                 return getInstance(formatterClass, formatType, formatPattern, locale);
@@ -105,6 +114,113 @@ public class DefaultFormatterFactory implements FormatterFactory {
     }
 
     /**
+     * Search for a formatter class that best matches the requested class, first checking the
+     * specified class, then all the interfaces it implements, then all its superclasses and the
+     * interfaces they implement, and finally all the superclasses of the interfaces implemented by
+     * {@code targetClass}.
+     * 
+     * @param targetClass the class of the object that needs to be formatted
+     * @return the best applicable formatter
+     */
+    protected Class<? extends Formatter<?>> findFormatterClass(Class<?> targetClass) {
+        Class<? extends Formatter<?>> formatterClass = findInSuperclasses(targetClass);
+        if (formatterClass != null)
+            return formatterClass;
+
+        formatterClass = findInInterfaces(targetClass, targetClass.getInterfaces());
+        if (formatterClass != null)
+            return formatterClass;
+
+        return cacheFormatterClass(targetClass, ObjectFormatter.class);
+    }
+
+    /**
+     * Called first by {@link #findFormatterClass(Class)}. Search for a formatter class that best
+     * matches the requested class, first checking the specified class, second all the interfaces it
+     * implements, third annotations. If no match is found, repeat the process for each superclass.
+     * 
+     * @param targetClass the class of the object that needs to be formatted
+     * @return the first applicable formatter found or null if no match could be found
+     */
+    protected Class<? extends Formatter<?>> findInSuperclasses(Class<?> targetClass) {
+        // Check for a known formatter for the class
+        Class<? extends Formatter<?>> formatterClass;
+        if ((formatterClass = formatters.get(targetClass)) != null)
+            return formatterClass;
+        else if ((formatterClass = classCache.get(targetClass)) != null)
+            return formatterClass;
+
+        // Check directly implemented interfaces
+        for (Class<?> iface : targetClass.getInterfaces()) {
+            if ((formatterClass = formatters.get(iface)) != null)
+                return cacheFormatterClass(targetClass, formatterClass);
+            else if ((formatterClass = classCache.get(iface)) != null)
+                return cacheFormatterClass(targetClass, formatterClass);
+        }
+
+        // Check for annotations
+        for (Annotation annotation : targetClass.getAnnotations()) {
+            Class<? extends Annotation> annotationType = annotation.annotationType();
+            if (formatters.containsKey(annotationType))
+                return cacheFormatterClass(targetClass, formatters.get(annotationType));
+        }
+        
+        // Check superclasses
+        Class<?> parent = targetClass.getSuperclass();
+        if (parent != null) {
+            if ((formatterClass = findInSuperclasses(parent)) != null) {
+                return cacheFormatterClass(targetClass, formatterClass);
+            }
+        }
+
+        // Nothing found, so return null
+        return null;
+    }
+
+    /**
+     * Called second by {@link #findFormatterClass(Class)}, after
+     * {@link #findInSuperclasses(Class)}. Search for a formatter class that best matches the
+     * requested class by checking the superclasses of every interface implemented by
+     * {@code targetClass}.
+     * 
+     * @param targetClass the class of the object that needs to be formatted
+     * @param ifaces an array of interfaces to search
+     * @return the first applicable formatter found or null if no match could be found
+     */
+    protected Class<? extends Formatter<?>> findInInterfaces(Class<?> targetClass,
+            Class<?>... ifaces) {
+        Class<? extends Formatter<?>> formatterClass = null;
+        for (Class<?> iface : ifaces) {
+            if ((formatterClass = formatters.get(iface)) != null) {
+                return cacheFormatterClass(targetClass, formatterClass);
+            }
+            else if ((formatterClass = classCache.get(iface)) != null) {
+                return cacheFormatterClass(targetClass, formatterClass);
+            }
+            else if ((formatterClass = findInInterfaces(targetClass, iface.getInterfaces())) != null) {
+                return cacheFormatterClass(targetClass, formatterClass);
+            }
+        }
+
+        // Nothing found, so return null
+        return null;
+    }
+
+    /**
+     * Add formatter class {@code formatterClass} for formatting objects of type {@code clazz}.
+     * 
+     * @param clazz the type of object being formatted
+     * @param formatterClass the class of the formatter
+     * @return the {@code targetType} parameter
+     */
+    protected Class<? extends Formatter<?>> cacheFormatterClass(Class<?> clazz,
+            Class<? extends Formatter<?>> formatterClass) {
+        log.debug("Caching Formatter for ", clazz, " => ", formatterClass);
+        classCache.put(clazz, formatterClass);
+        return formatterClass;
+    }
+
+    /**
      * Gets an instance of the Formatter class specified.
      *
      * @param clazz the Formatter type that is desired
@@ -115,7 +231,7 @@ public class DefaultFormatterFactory implements FormatterFactory {
             String formatType, String formatPattern, Locale locale)
             throws Exception {
 
-        Formatter<?> formatter = getConfiguration().getObjectFactory().newInstance(clazz);
+        Formatter<?> formatter = clazz.newInstance();
         formatter.setFormatType(formatType);
         formatter.setFormatPattern(formatPattern);
         formatter.setLocale(locale);

@@ -80,7 +80,7 @@ public class FieldMetadataTag extends HtmlTagSupport implements BodyTag {
             beanClass = StripesFilter.getConfiguration().getActionResolver().getActionBeanType(action);
 
             try {
-                bean = StripesFilter.getConfiguration().getObjectFactory().newInstance(beanClass);
+                bean = beanClass.newInstance();
             }
             catch (Exception e) {
                 log.error(e);

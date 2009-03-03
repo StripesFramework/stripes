@@ -14,15 +14,16 @@
  */
 package net.sourceforge.stripes.validation;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.util.Date;
-import java.util.Locale;
-import java.util.Map;
-
 import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.util.Log;
-import net.sourceforge.stripes.util.TypeHandlerCache;
+
+import java.util.Map;
+import java.util.Date;
+import java.util.Locale;
+import java.util.concurrent.ConcurrentHashMap;
+import java.lang.annotation.Annotation;
+import java.math.BigInteger;
+import java.math.BigDecimal;
 
 /**
  * Default TypeConverterFactory implementation that simply creates an instance level map of all the
@@ -34,8 +35,13 @@ import net.sourceforge.stripes.util.TypeHandlerCache;
 public class DefaultTypeConverterFactory implements TypeConverterFactory {
     private static final Log log = Log.getInstance(DefaultTypeConverterFactory.class);
 
-    /** Caches {@link TypeConverter} to {@link Class} mappings. */
-    private TypeHandlerCache<Class<? extends TypeConverter<?>>> cache;
+    /** A rather generic-heavy Map that maps target type to TypeConverter. */
+    private Map<Class<?>, Class<? extends TypeConverter<?>>> converters =
+        new ConcurrentHashMap<Class<?>, Class<? extends TypeConverter<?>>>();
+
+    /** Cache of indirect type converter results. */
+    private Map<Class<?>, Class<? extends TypeConverter<?>>> classCache =
+            new ConcurrentHashMap<Class<?>, Class<? extends TypeConverter<?>>>();
 
     /** Stores a reference to the Configuration passed in at initialization time. */
     private Configuration configuration;
@@ -45,33 +51,31 @@ public class DefaultTypeConverterFactory implements TypeConverterFactory {
      */
     public void init(final Configuration configuration) {
         this.configuration = configuration;
-        this.cache = new TypeHandlerCache<Class<? extends TypeConverter<?>>>();
-        this.cache.setSearchHierarchy(false);
 
-        cache.add(Boolean.class,    BooleanTypeConverter.class);
-        cache.add(Boolean.TYPE,     BooleanTypeConverter.class);
-        cache.add(Byte.class,       ByteTypeConverter.class);
-        cache.add(Byte.TYPE,        ByteTypeConverter.class);
-        cache.add(Short.class,      ShortTypeConverter.class);
-        cache.add(Short.TYPE,       ShortTypeConverter.class);
-        cache.add(Integer.class,    IntegerTypeConverter.class);
-        cache.add(Integer.TYPE,     IntegerTypeConverter.class);
-        cache.add(Long.class,       LongTypeConverter.class);
-        cache.add(Long.TYPE,        LongTypeConverter.class);
-        cache.add(Float.class,      FloatTypeConverter.class);
-        cache.add(Float.TYPE,       FloatTypeConverter.class);
-        cache.add(Double.class,     DoubleTypeConverter.class);
-        cache.add(Double.TYPE,      DoubleTypeConverter.class);
-        cache.add(Date.class,       DateTypeConverter.class);
-        cache.add(BigInteger.class, BigIntegerTypeConverter.class);
-        cache.add(BigDecimal.class, BigDecimalTypeConverter.class);
-        cache.add(Enum.class,       EnumeratedTypeConverter.class);
+        converters.put(Boolean.class, BooleanTypeConverter.class);
+        converters.put(Boolean.TYPE,  BooleanTypeConverter.class);
+        converters.put(Byte.class,    ByteTypeConverter.class);
+        converters.put(Byte.TYPE,     ByteTypeConverter.class);
+        converters.put(Short.class,   ShortTypeConverter.class);
+        converters.put(Short.TYPE,    ShortTypeConverter.class);
+        converters.put(Integer.class, IntegerTypeConverter.class);
+        converters.put(Integer.TYPE,  IntegerTypeConverter.class);
+        converters.put(Long.class,    LongTypeConverter.class);
+        converters.put(Long.TYPE,     LongTypeConverter.class);
+        converters.put(Float.class,   FloatTypeConverter.class);
+        converters.put(Float.TYPE,    FloatTypeConverter.class);
+        converters.put(Double.class,  DoubleTypeConverter.class);
+        converters.put(Double.TYPE,   DoubleTypeConverter.class);
+        converters.put(Date.class,    DateTypeConverter.class);
+        converters.put(BigInteger.class, BigIntegerTypeConverter.class);
+        converters.put(BigDecimal.class, BigDecimalTypeConverter.class);
+        converters.put(Enum.class, EnumeratedTypeConverter.class);
 
         // Now some less useful, but still helpful converters
-        cache.add(String.class,     StringTypeConverter.class);
-        cache.add(Object.class,     ObjectTypeConverter.class);
-        cache.add(Character.class,  CharacterTypeConverter.class);
-        cache.add(Character.TYPE,   CharacterTypeConverter.class);
+        converters.put(String.class, StringTypeConverter.class);
+        converters.put(Object.class, ObjectTypeConverter.class);
+        converters.put(Character.class, CharacterTypeConverter.class);
+        converters.put(Character.TYPE, CharacterTypeConverter.class); 
     }
 
     /** Provides subclasses with access to the configuration provided at initialization. */
@@ -86,7 +90,7 @@ public class DefaultTypeConverterFactory implements TypeConverterFactory {
      * @return the Map of TypeConverter classes
      */
     protected Map<Class<?>,Class<? extends TypeConverter<?>>> getTypeConverters() {
-        return this.cache.getHandlers();
+        return this.converters;
     }
 
     /**
@@ -97,7 +101,8 @@ public class DefaultTypeConverterFactory implements TypeConverterFactory {
      * @param converterClass the implementation class that will handle the conversions
      */
     public void add(Class<?> targetType, Class<? extends TypeConverter<?>> converterClass) {
-        cache.add(targetType, converterClass);
+        this.converters.put(targetType, converterClass);
+        clearCache();
     }
     
     /**
@@ -112,8 +117,8 @@ public class DefaultTypeConverterFactory implements TypeConverterFactory {
      * @throws Exception if the TypeConverter cannot be instantiated
      */
     @SuppressWarnings("unchecked")
-    public TypeConverter getTypeConverter(Class forType, Locale locale) throws Exception {
-        Class<? extends TypeConverter<?>> converterClass = cache.getHandler(forType);
+	public TypeConverter getTypeConverter(Class forType, Locale locale) throws Exception {
+        Class<? extends TypeConverter<?>> converterClass = findTypeConverterClass(forType);
         if (converterClass != null) {
             try {
                 return getInstance(converterClass, locale);
@@ -128,6 +133,53 @@ public class DefaultTypeConverterFactory implements TypeConverterFactory {
             return null;
         }
     }
+    
+    /**
+     * Search for a type converter class that best matches the requested class.
+     * 
+     * @param targetClass the class of the object that needs to be converted
+     * @return the first applicable type converter found or null if no match could be found
+     */
+    protected Class<? extends TypeConverter<?>> findTypeConverterClass(Class<?> targetClass) {
+        if (converters.containsKey(targetClass))
+            return converters.get(targetClass);
+        else if (classCache.containsKey(targetClass))
+            return classCache.get(targetClass);
+        else if (targetClass.isEnum()) {
+            Class<? extends TypeConverter<?>> converterClass = findTypeConverterClass(Enum.class);
+            if (converterClass != null)
+                return cacheTypeConverterClass(targetClass, converterClass);
+        }
+        else {
+            for (Annotation annotation : targetClass.getAnnotations()) {
+                Class<? extends Annotation> annotationType = annotation.annotationType();
+                if (converters.containsKey(annotationType))
+                    return cacheTypeConverterClass(targetClass, converters.get(annotationType));
+            }
+        }
+            
+        return null;
+    }
+
+    /**
+     * Add converter class {@code converterClass} for converting objects of type {@code clazz}.
+     * 
+     * @param clazz the type of object being converted
+     * @param converterClass the class of the converter
+     * @return the {@code targetType} parameter
+     */
+    protected Class<? extends TypeConverter<?>> cacheTypeConverterClass(Class<?> clazz,
+            Class<? extends TypeConverter<?>> converterClass) {
+        log.debug("Caching type converter for ", clazz, " => ", converterClass);
+        classCache.put(clazz, converterClass);
+        return converterClass;
+    }
+
+    /** Clear the instance cache. This is called by {@link #add(Class, Class)}. */
+    protected void clearCache() {
+        log.debug("Clearing type converter cache");
+        classCache.clear();
+    }
 
     /**
      * Gets an instance of the TypeConverter class specified.
@@ -138,7 +190,7 @@ public class DefaultTypeConverterFactory implements TypeConverterFactory {
      */
     @SuppressWarnings("unchecked")
     public TypeConverter getInstance(Class<? extends TypeConverter> clazz, Locale locale) throws Exception {
-        TypeConverter converter = getConfiguration().getObjectFactory().newInstance(clazz);
+        TypeConverter converter = clazz.newInstance();
         converter.setLocale(locale);
         return converter;
     }

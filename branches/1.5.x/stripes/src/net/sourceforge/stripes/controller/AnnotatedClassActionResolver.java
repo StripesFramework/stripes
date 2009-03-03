@@ -429,7 +429,7 @@ public class AnnotatedClassActionResolver implements ActionResolver {
     protected ActionBean makeNewActionBean(Class<? extends ActionBean> type, ActionBeanContext context)
         throws Exception {
 
-        return getConfiguration().getObjectFactory().newInstance(type);
+        return type.newInstance();
     }
 
 

@@ -49,15 +49,9 @@ public class DefaultMultipartWrapperFactory implements MultipartWrapperFactory {
     private static final Log log = Log.getInstance(DefaultMultipartWrapperFactory.class);
 
     // Instance level fields
-    private Configuration configuration;
     private Class<? extends MultipartWrapper> multipartClass;
     private long maxPostSizeInBytes = 1024 * 1024 * 10; // Defaults to 10MB
     private File temporaryDirectory;
-
-    /** Get the configuration object that was passed into {@link #init(Configuration)}. */
-    protected Configuration getConfiguration() {
-        return configuration;
-    }
 
     /**
      * Invoked directly after instantiation to allow the configured component to perform one time
@@ -69,8 +63,6 @@ public class DefaultMultipartWrapperFactory implements MultipartWrapperFactory {
      */
     @SuppressWarnings("unchecked")
 	public void init(Configuration config) throws Exception {
-        this.configuration = config;
-
         // Determine which class we're using
         this.multipartClass = config.getBootstrapPropertyResolver().getClassProperty(WRAPPER_CLASS_NAME, MultipartWrapper.class);
         
@@ -147,8 +139,7 @@ public class DefaultMultipartWrapperFactory implements MultipartWrapperFactory {
      */
     public MultipartWrapper wrap(HttpServletRequest request) throws IOException, FileUploadLimitExceededException {
         try {
-            MultipartWrapper wrapper = getConfiguration().getObjectFactory().newInstance(
-                    this.multipartClass);
+            MultipartWrapper wrapper = this.multipartClass.newInstance();
             wrapper.build(request, this.temporaryDirectory, this.maxPostSizeInBytes);
             return wrapper;
         }
