@@ -970,6 +970,13 @@
             <p>If the option has a body then the String value of that body will be used to generate
             the body of the generated HTML option.  If the body is empty or not present then the
             label attribute will be written into the body of the tag.</p>
+
+            <p>If the label attribute's value is used, it will be HTML-encoded before being written
+            out. However, the tag body, if present, will <em>not</em> be HTML-encoded. This allows
+            the explicit use of HTML character entities within the tag, which would be impossible
+            otherwise. If you choose to set the tag body and you want the output to be HTML-encoded,
+            you must use something like the escapeXml attribute of the &lt;c:out&gt; tag to
+            HTML-encode the value before passing it to &lt;stripes:option&gt;.</p>
         ]]></description>
         <display-name>option</display-name>
         <name>option</name>
