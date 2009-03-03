@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
@@ -14,6 +15,7 @@ import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.tagext.BodyTag;
 
 import net.sourceforge.stripes.action.ActionBean;
+import net.sourceforge.stripes.ajax.JavaScriptBuilder;
 import net.sourceforge.stripes.controller.StripesFilter;
 import net.sourceforge.stripes.exception.StripesJspException;
 import net.sourceforge.stripes.localization.LocalizationUtility;
@@ -143,11 +145,11 @@ public class FieldMetadataTag extends HtmlTagSupport implements BodyTag {
             StringBuilder fieldInfo = new StringBuilder();
 
             if (fieldType.isPrimitive() || Number.class.isAssignableFrom(fieldType)
-                    || Date.class.isAssignableFrom(fieldType) || includeType)
-                fieldInfo.append("type:")
-                        .append("'")
-                        .append(fqn ? fieldType.getName() : fieldType.getSimpleName())
-                        .append("'");
+                    || Date.class.isAssignableFrom(fieldType) || includeType) {
+                fieldInfo.append("type:").append(
+                        JavaScriptBuilder.quote(fqn ? fieldType.getName() : fieldType
+                                .getSimpleName()));
+            }
             
             Class<?> typeConverterClass = null;
             
@@ -158,6 +160,16 @@ public class FieldMetadataTag extends HtmlTagSupport implements BodyTag {
                 if (data.required())
                     fieldInfo.append(fieldInfo.length() > 0 ? "," : "").append("required:").append(
                             data.required());
+                if (data.on() != null) {
+                    fieldInfo.append(fieldInfo.length() > 0 ? "," : "").append("on:[");
+                    Iterator<String> it = data.on().iterator();
+                    while (it.hasNext()) {
+                        fieldInfo.append(JavaScriptBuilder.quote(it.next()));
+                        if (it.hasNext())
+                            fieldInfo.append(",");
+                    }
+                    fieldInfo.append("]");
+                }
                 if (data.trim())
                     fieldInfo.append(fieldInfo.length() > 0 ? "," : "").append("trim:").append(
                             data.trim());
@@ -186,8 +198,8 @@ public class FieldMetadataTag extends HtmlTagSupport implements BodyTag {
                             locale);
                 }
                 if (label != null)
-                    fieldInfo.append(fieldInfo.length() > 0 ? "," : "").append("label:")
-                            .append("'").append(label.replaceAll("'", "\\\\'")).append("'");
+                    fieldInfo.append(fieldInfo.length() > 0 ? "," : "").append("label:").append(
+                            JavaScriptBuilder.quote(label));
                 
                 typeConverterClass = data.converter();
             }
@@ -206,11 +218,10 @@ public class FieldMetadataTag extends HtmlTagSupport implements BodyTag {
             }
 
             if (typeConverterClass != null) {
-                fieldInfo.append(fieldInfo.length() > 0 ? "," : "")
-                        .append("typeConverter:")
-                        .append("'")
-                        .append(fqn ? typeConverterClass.getName() : typeConverterClass.getSimpleName())
-                        .append("'");
+                fieldInfo.append(fieldInfo.length() > 0 ? "," : "").append("typeConverter:")
+                        .append(
+                                JavaScriptBuilder.quote(fqn ? typeConverterClass.getName()
+                                        : typeConverterClass.getSimpleName()));
             }
 
 
@@ -220,7 +231,7 @@ public class FieldMetadataTag extends HtmlTagSupport implements BodyTag {
                 else
                     sb.append(",\r\n\t\t");
 
-                sb.append("'").append(field).append("':{");
+                sb.append(JavaScriptBuilder.quote(field)).append(":{");
 
                 sb.append(fieldInfo);
 
@@ -407,9 +418,11 @@ public class FieldMetadataTag extends HtmlTagSupport implements BodyTag {
         private Var(String fieldMetadata) {
             this.fieldMetadata = fieldMetadata;
             FormTag form = getForm();
-            if (form.getId() == null)
-                form.setId("stripes-" + new Random().nextInt());
-            this.formId = form.getId();
+            if (form != null) {
+                if (form.getId() == null)
+                    form.setId("stripes-" + new Random().nextInt());
+                this.formId = form.getId();
+            }
         }
 
         @Override

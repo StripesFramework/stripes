@@ -220,6 +220,9 @@ public class ValidationMetadata {
         return this;
     }
 
+    /** Returns the set of events for which the field in question is required. May return null. */
+    public Set<String> on() { return this.on; }
+
     /** Set the field label. */
     public void label(String label) { this.label = label;}
 
