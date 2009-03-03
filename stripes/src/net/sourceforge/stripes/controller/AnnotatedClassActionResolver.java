@@ -84,9 +84,6 @@ public class AnnotatedClassActionResolver implements ActionResolver {
     /** Handle to the configuration. */
     private Configuration configuration;
 
-    /** Parses {@link UrlBinding} values and maps request URLs to {@link ActionBean}s. */
-    private UrlBindingFactory urlBindingFactory = new UrlBindingFactory();
-
     /**
      * Map used to resolve the methods handling events within form beans. Maps the class
      * representing a subclass of ActionBean to a Map of event names to Method objects.
@@ -120,11 +117,6 @@ public class AnnotatedClassActionResolver implements ActionResolver {
         }
     }
 
-    /** Get the {@link UrlBindingFactory} that is being used by this action resolver. */
-    public UrlBindingFactory getUrlBindingFactory() {
-        return urlBindingFactory;
-    }
-
     /**
      * Adds an ActionBean class to the set that this resolver can resolve. Identifies
      * the URL binding and the events managed by the class and stores them in Maps
@@ -142,9 +134,9 @@ public class AnnotatedClassActionResolver implements ActionResolver {
             return;
 
         // make sure mapping exists in cache
-        UrlBinding proto = getUrlBindingFactory().getBindingPrototype(clazz);
+        UrlBinding proto = UrlBindingFactory.getInstance().getBindingPrototype(clazz);
         if (proto == null) {
-            getUrlBindingFactory().addBinding(clazz, new UrlBinding(clazz, binding));
+            UrlBindingFactory.getInstance().addBinding(clazz, new UrlBinding(clazz, binding));
         }
 
         // Only process the class if it's properly annotated
@@ -177,7 +169,7 @@ public class AnnotatedClassActionResolver implements ActionResolver {
     protected void removeActionBean(Class<? extends ActionBean> clazz) {
         String binding = getUrlBinding(clazz);
         if (binding != null) {
-            getUrlBindingFactory().removeBinding(clazz);
+            UrlBindingFactory.getInstance().removeBinding(clazz);
         }
         eventMappings.remove(clazz);
     }
@@ -193,7 +185,7 @@ public class AnnotatedClassActionResolver implements ActionResolver {
      *         supplied cannot be mapped to an ActionBean.
      */
     public String getUrlBindingFromPath(String path) {
-        UrlBinding mapping = getUrlBindingFactory().getBindingPrototype(path);
+        UrlBinding mapping = UrlBindingFactory.getInstance().getBindingPrototype(path);
         return mapping == null ? null : mapping.toString();
     }
 
@@ -207,7 +199,7 @@ public class AnnotatedClassActionResolver implements ActionResolver {
      * @return the UrlBinding or null if none can be determined
      */
     public String getUrlBinding(Class<? extends ActionBean> clazz) {
-        UrlBinding mapping = getUrlBindingFactory().getBindingPrototype(clazz);
+        UrlBinding mapping = UrlBindingFactory.getInstance().getBindingPrototype(clazz);
         return mapping == null ? null : mapping.toString();
     }
 
@@ -283,7 +275,7 @@ public class AnnotatedClassActionResolver implements ActionResolver {
      *         is made using the path specified or null if no ActionBean matches.
      */
     public Class<? extends ActionBean> getActionBeanType(String path) {
-        UrlBinding binding = getUrlBindingFactory().getBindingPrototype(path);
+        UrlBinding binding = UrlBindingFactory.getInstance().getBindingPrototype(path);
         return binding == null ? null : binding.getBeanType();
     }
 
@@ -346,7 +338,8 @@ public class AnnotatedClassActionResolver implements ActionResolver {
         ActionBean bean;
 
         if (beanClass == null) {
-            throw new ActionBeanNotFoundException(path, getUrlBindingFactory().getPathMap());
+            throw new ActionBeanNotFoundException(
+                    path, UrlBindingFactory.getInstance().getPathMap());
         }
 
         String bindingPath = getUrlBinding(beanClass);
@@ -544,7 +537,7 @@ public class AnnotatedClassActionResolver implements ActionResolver {
                                           ActionBeanContext context) {
         Map<String,Method> mappings = this.eventMappings.get(bean);
         String path = HttpUtil.getRequestedPath(context.getRequest());
-        UrlBinding prototype = getUrlBindingFactory().getBindingPrototype(path);
+        UrlBinding prototype = UrlBindingFactory.getInstance().getBindingPrototype(path);
         String binding = prototype == null ? null : prototype.getPath();
 
         if (binding != null && path.length() != binding.length()) {
@@ -687,6 +680,6 @@ public class AnnotatedClassActionResolver implements ActionResolver {
      * {@link ActionResolver}.
      */
     public Collection<Class<? extends ActionBean>> getActionBeanClasses() {
-        return getUrlBindingFactory().getActionBeanClasses();
+        return UrlBindingFactory.getInstance().getActionBeanClasses();
     }
 }
