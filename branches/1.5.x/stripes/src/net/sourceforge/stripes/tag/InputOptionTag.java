@@ -108,7 +108,7 @@ public class InputOptionTag extends InputTagSupport implements BodyTag {
         // Decide if the label will come from the body of the option, of the label attr
         String actualLabel = getBodyContentAsString();
         if (actualLabel == null) {
-            actualLabel = this.label;
+            actualLabel = HtmlUtil.encode(this.label);
         }
 
         // If no explicit value attribute set, use the tag label as the value
@@ -130,7 +130,7 @@ public class InputOptionTag extends InputTagSupport implements BodyTag {
         try {
             writeOpenTag(getPageContext().getOut(), "option");
             if (actualLabel != null) {
-                getPageContext().getOut().write(HtmlUtil.encode(actualLabel));
+                getPageContext().getOut().write(actualLabel);
             }
             writeCloseTag(getPageContext().getOut(), "option");
 
