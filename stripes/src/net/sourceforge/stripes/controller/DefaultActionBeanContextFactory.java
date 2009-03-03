@@ -64,8 +64,7 @@ public class DefaultActionBeanContextFactory implements ActionBeanContextFactory
     public ActionBeanContext getContextInstance(HttpServletRequest request,
                                                 HttpServletResponse response) throws ServletException {
         try {
-            ActionBeanContext context = getConfiguration().getObjectFactory().newInstance(
-                    this.contextClass);
+            ActionBeanContext context = this.contextClass.newInstance();
             context.setRequest(request);
             context.setResponse(response);
             return context;

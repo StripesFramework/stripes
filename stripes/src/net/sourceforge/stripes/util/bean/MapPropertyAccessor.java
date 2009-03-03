@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Locale;
 import java.util.Collection;
 import java.util.ArrayList;
+import java.lang.reflect.Constructor;
 
 /**
  * Implementation of {@link PropertyAccessor} for interacting with Maps. Uses information
@@ -92,8 +93,10 @@ public class MapPropertyAccessor implements PropertyAccessor<Map<?,?>> {
                 }
                 // Otherwise look for a String constructor
                 else {
-                    return StripesFilter.getConfiguration().getObjectFactory()
-                            .constructor(declaredType, String.class).newInstance(stringKey);
+                    Constructor c = declaredType.getConstructor(String.class);
+                    if (c != null) {
+                        return c.newInstance(stringKey);
+                    }
                 }
             }
             catch (Exception e) {

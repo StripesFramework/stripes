@@ -14,8 +14,6 @@
  */
 package net.sourceforge.stripes.util;
 
-import net.sourceforge.stripes.controller.ObjectFactory;
-import net.sourceforge.stripes.controller.StripesFilter;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
 
 import java.util.Map;
@@ -105,9 +103,7 @@ public class ReflectUtil {
      * @param iface an interface for which an implementing class is needed
      * @return a Class object representing the implementing type, or null if one is
      *         not found
-     * @deprecated Use {@link ObjectFactory#newInstance(Class)} instead.
      */
-    @Deprecated
     public static Class<?> getImplementingClass(Class<?> iface) {
         return interfaceImplementations.get(iface);
     }
@@ -120,9 +116,7 @@ public class ReflectUtil {
      * @return an instance of the interface type supplied
      * @throws InstantiationException if no implementation type has been configured
      * @throws IllegalAccessException if thrown by the JVM during class instantiation
-     * @deprecated Use {@link ObjectFactory#newInstance(Class)} instead.
      */
-    @Deprecated
     @SuppressWarnings("unchecked")
 	public static <T> T getInterfaceInstance(Class<T> interfaceType)
             throws InstantiationException, IllegalAccessException {
@@ -141,7 +135,7 @@ public class ReflectUtil {
                     "might get implemented.");
         }
         else {
-            return StripesFilter.getConfiguration().getObjectFactory().newInstance((Class<T>) impl);
+            return (T) impl.newInstance();
         }
     }
 
