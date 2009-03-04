@@ -24,6 +24,12 @@ package net.sourceforge.stripes.controller;
  */
 public enum LifecycleStage {
     /**
+     * Executed before any processing occurs on the request. No Stripes processing is
+     * associated with this stage. It is simply provided as a hook for interceptors.
+     */
+    RequestInit,
+
+    /**
      * First major lifecycle stage.  Involves the location of the ActionBean class that
      * is bound to the URL being requested, and usually also the creation of a new instance
      * of that class.
@@ -61,12 +67,6 @@ public enum LifecycleStage {
      * processing by returning a Resolution. 
      */
     ResolutionExecution,
-    
-    /**
-     * Executed before any processing occurs on the request. No Stripes processing is
-     * associated with this stage. It is simply provided as a hook for interceptors.
-     */
-    RequestInit,
     
     /**
      * Final lifecycle stage. Executes in the finally block of the request so it will
