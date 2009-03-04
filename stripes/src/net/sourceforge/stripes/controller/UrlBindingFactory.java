@@ -491,7 +491,7 @@ public class UrlBindingFactory {
 
             // Replace the path cache entry if necessary and log a warning
             if (statik == null) {
-                log.warn("The path ", path, " for ", binding.getBeanType().getName(), " @ ",
+                log.debug("The path ", path, " for ", binding.getBeanType().getName(), " @ ",
                         binding, " conflicts with ", list);
             }
             else {
