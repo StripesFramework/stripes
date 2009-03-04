@@ -37,6 +37,12 @@ import java.lang.reflect.Method;
  */
 public class ExecutionContext {
     private static final Log log = Log.getInstance(ExecutionContext.class);
+    private static final ThreadLocal<ExecutionContext> currentContext = new ThreadLocal<ExecutionContext>();
+
+    /** Get the execution context for the current thread. */
+    public static final ExecutionContext currentContext() {
+        return currentContext.get();
+    }
 
     private Collection<Interceptor> interceptors;
     private Iterator<Interceptor> iterator;
@@ -71,7 +77,19 @@ public class ExecutionContext {
     public Resolution wrap(Interceptor target) throws Exception {
         this.target = target;
         this.iterator = null;
-        return proceed();
+
+        // Before executing RequestInit, set this as the current execution context
+        if (lifecycleStage == LifecycleStage.RequestInit)
+            currentContext.set(this);
+
+        try {
+            return proceed();
+        }
+        finally {
+            // Make sure the current execution context gets cleared after RequestComplete
+            if (LifecycleStage.RequestComplete == getLifecycleStage())
+                currentContext.set(null);
+        }
     }
 
     /**
