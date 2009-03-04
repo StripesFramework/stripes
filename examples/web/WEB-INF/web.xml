@@ -31,8 +31,8 @@
 
         <!-- Optional init parameter for the Stripes Filter. -->
         <init-param>
-            <param-name>ActionBeanContext.Class</param-name>
-            <param-value>net.sourceforge.stripes.examples.bugzooky.BugzookyActionBeanContext</param-value>
+            <param-name>Extension.Packages</param-name>
+            <param-value>net.sourceforge.stripes.examples.bugzooky.ext</param-value>
         </init-param>
 
         <init-param>

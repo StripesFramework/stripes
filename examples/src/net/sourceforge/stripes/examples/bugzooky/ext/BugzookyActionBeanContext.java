@@ -1,4 +1,4 @@
-package net.sourceforge.stripes.examples.bugzooky;
+package net.sourceforge.stripes.examples.bugzooky.ext;
 
 import net.sourceforge.stripes.action.ActionBeanContext;
 import net.sourceforge.stripes.examples.bugzooky.biz.Person;
