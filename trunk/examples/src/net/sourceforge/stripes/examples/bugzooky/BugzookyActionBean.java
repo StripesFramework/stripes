@@ -7,6 +7,7 @@ import net.sourceforge.stripes.examples.bugzooky.biz.BugManager;
 import net.sourceforge.stripes.examples.bugzooky.biz.ComponentManager;
 import net.sourceforge.stripes.examples.bugzooky.biz.PersonManager;
 import net.sourceforge.stripes.examples.bugzooky.biz.Status;
+import net.sourceforge.stripes.examples.bugzooky.ext.BugzookyActionBeanContext;
 
 import java.util.Date;
 
