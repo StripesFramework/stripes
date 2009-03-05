@@ -91,6 +91,8 @@ public class UrlBindingFactoryTests {
     public static class FooActionBean6 extends BaseActionBean {}
     @DontAutoLoad @net.sourceforge.stripes.action.UrlBinding("/foo/{a}/{b}/{c}/{d}.action")
     public static class FooActionBean7 extends BaseActionBean {}
+    @DontAutoLoad @net.sourceforge.stripes.action.UrlBinding("/foo/goo/{a}")
+    public static class FooActionBean8 extends BaseActionBean {}
 
     @DontAutoLoad @net.sourceforge.stripes.action.UrlBinding("/suffix/{a}/{b}.action")
     public static class SuffixActionBean1 extends BaseActionBean {}
@@ -107,8 +109,8 @@ public class UrlBindingFactoryTests {
                 ConflictActionBean2.class, ConflictActionBean3.class, ConflictActionBean4.class,
                 FooActionBean.class, FooActionBean1.class, FooActionBean2.class,
                 FooActionBean3.class, FooActionBean4.class, FooActionBean5.class,
-                FooActionBean6.class, FooActionBean7.class, SuffixActionBean1.class,
-                SuffixActionBean2.class };
+                FooActionBean6.class, FooActionBean7.class, FooActionBean8.class,
+                SuffixActionBean1.class, SuffixActionBean2.class };
 
         UrlBindingFactory factory = new UrlBindingFactory();
         for (Class<? extends ActionBean> clazz : classes) {
@@ -241,5 +243,18 @@ public class UrlBindingFactoryTests {
         checkBinding("/suffix/1/2/3/.action", SuffixActionBean2.class);
         checkBinding("/suffix/1/2/3/4.action", SuffixActionBean2.class);
         checkBinding("/suffix/1/2/3/4/.action", SuffixActionBean2.class);
+
+        // Prefix overrides everything else
+        checkBinding("/foo/goo", FooActionBean8.class);
+        checkBinding("/foo/goo/", FooActionBean8.class);
+        checkBinding("/foo/goo/1", FooActionBean8.class);
+        checkBinding("/foo/goo/1/", FooActionBean8.class);
+        checkBinding("/foo/goo/1/2", FooActionBean8.class);
+    }
+    
+    public static void main(String[] args) {
+        UrlBindingFactoryTests tests = new UrlBindingFactoryTests();
+        tests.setupClass();
+        tests.testUrlBindings();
     }
 }
