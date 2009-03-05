@@ -42,7 +42,7 @@ public abstract class LinkTagSupport extends HtmlTagSupport implements Parameter
     private String url;
     private String anchor;
     private boolean addSourcePage = false;
-    private boolean prependContext = true;
+    private Boolean prependContext;
 
     /**
      * Gets the URL that is supplied by the user/developer on the page. This is the basis
@@ -141,10 +141,10 @@ public abstract class LinkTagSupport extends HtmlTagSupport implements Parameter
     public void setAddSourcePage(boolean addSourcePage) { this.addSourcePage = addSourcePage; }
 
     /** Get the flag that indicates if the application context should be included in the URL. */
-    public boolean isPrependContext() { return prependContext; }
+    public Boolean isPrependContext() { return prependContext; }
 
     /** Set the flag that indicates if the application context should be included in the URL. */
-    public void setPrependContext(boolean prependContext) { this.prependContext = prependContext; }
+    public void setPrependContext(Boolean prependContext) { this.prependContext = prependContext; }
 
     /**
      * Returns the base URL that should be used for building the link. This is derived from
@@ -204,11 +204,13 @@ public abstract class LinkTagSupport extends HtmlTagSupport implements Parameter
 
         // Prepend the context path, but only if the user didn't already
         String url = builder.toString();
-        if (prependContext) {
-            String contextPath = request.getContextPath();
-            if (contextPath.length() > 1 && !url.startsWith(contextPath + '/'))
-                url = contextPath + url;
-        }
+        String contextPath = request.getContextPath();
+        boolean prepend = prependContext != null && prependContext
+                || prependContext == null && beanclass != null
+                || prependContext == null && contextPath.length() > 1 && !url.startsWith(contextPath);
+
+        if (prepend && contextPath.length() > 1)
+            url = contextPath + url;
 
         return response.encodeURL(url);
     }
