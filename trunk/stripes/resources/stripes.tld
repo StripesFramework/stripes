@@ -804,6 +804,7 @@
                 the generated URL.
             </description>
             <name>prependContext</name><required>false</required><rtexprvalue>true</rtexprvalue>
+            <type>java.lang.Boolean</type>
         </attribute>
         <attribute>
             <description>
@@ -1925,6 +1926,7 @@
                 the generated URL.
             </description>
             <name>prependContext</name><required>false</required><rtexprvalue>true</rtexprvalue>
+            <type>java.lang.Boolean</type>
         </attribute>
         <attribute>
             <description>
