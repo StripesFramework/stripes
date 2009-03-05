@@ -66,7 +66,7 @@ public class TypeHandlerCache<T> {
     private Set<Class<?>> negativeCache = new ConcurrentHashSet<Class<?>>();
 
     private T defaultHandler;
-    private boolean searchHierarchy = true;
+    private boolean searchHierarchy = true, searchAnnotations = true;
 
     /** Get the default handler to return if no handler is found for a requested target type. */
     public T getDefaultHandler() {
@@ -80,7 +80,7 @@ public class TypeHandlerCache<T> {
 
     /**
      * Indicates if the class hierarchy will be searched to find the best available handler in case
-     * a direct mapping is not available for a given target type.
+     * a direct mapping is not available for a given target type. Defaults to true.
      */
     public boolean isSearchHierarchy() {
         return searchHierarchy;
@@ -94,6 +94,21 @@ public class TypeHandlerCache<T> {
      */
     public void setSearchHierarchy(boolean searchHierarchy) {
         this.searchHierarchy = searchHierarchy;
+    }
+
+    /**
+     * Indicates if the target type's annotations will be examined to find a handler registered for
+     * the annotation class. Defaults to true.
+     */
+    public boolean isSearchAnnotations() {
+        return searchAnnotations;
+    }
+
+    /**
+     * Set the flag that enables or disables searching for handlers for a target type's annotations.
+     */
+    public void setSearchAnnotations(boolean searchAnnotations) {
+        this.searchAnnotations = searchAnnotations;
     }
 
     /**
@@ -150,8 +165,11 @@ public class TypeHandlerCache<T> {
     protected T findHandler(Class<?> targetType) {
         T handler = findInSuperclasses(targetType);
 
-        if (handler == null && isSearchHierarchy()) {
-            handler = findInInterfaces(targetType, targetType.getInterfaces());
+        if (handler == null) {
+            if (isSearchHierarchy())
+                handler = findInInterfaces(targetType, targetType.getInterfaces());
+            else
+                handler = cacheHandler(targetType, null);
         }
 
         return handler;
@@ -182,30 +200,33 @@ public class TypeHandlerCache<T> {
             if (handler != null)
                 return cacheHandler(targetType, handler);
         }
-        else if (!isSearchHierarchy()) {
-            return cacheHandler(targetType, null);
-        }
 
         // Check directly implemented interfaces
-        for (Class<?> iface : targetType.getInterfaces()) {
-            if ((handler = handlers.get(iface)) != null)
-                return cacheHandler(targetType, handler);
-            else if ((handler = indirectCache.get(iface)) != null)
-                return cacheHandler(targetType, handler);
+        if (isSearchHierarchy()) {
+            for (Class<?> iface : targetType.getInterfaces()) {
+                if ((handler = handlers.get(iface)) != null)
+                    return cacheHandler(targetType, handler);
+                else if ((handler = indirectCache.get(iface)) != null)
+                    return cacheHandler(targetType, handler);
+            }
         }
 
         // Check for annotations
-        for (Annotation annotation : targetType.getAnnotations()) {
-            Class<? extends Annotation> annotationType = annotation.annotationType();
-            if (handlers.containsKey(annotationType))
-                return cacheHandler(targetType, handlers.get(annotationType));
+        if (isSearchAnnotations()) {
+            for (Annotation annotation : targetType.getAnnotations()) {
+                Class<? extends Annotation> annotationType = annotation.annotationType();
+                if (handlers.containsKey(annotationType))
+                    return cacheHandler(targetType, handlers.get(annotationType));
+            }
         }
 
         // Check superclasses
-        Class<?> parent = targetType.getSuperclass();
-        if (parent != null) {
-            if ((handler = findInSuperclasses(parent)) != null) {
-                return cacheHandler(targetType, handler);
+        if (isSearchHierarchy()) {
+            Class<?> parent = targetType.getSuperclass();
+            if (parent != null) {
+                if ((handler = findInSuperclasses(parent)) != null) {
+                    return cacheHandler(targetType, handler);
+                }
             }
         }
 
