@@ -28,9 +28,9 @@ import net.sourceforge.stripes.util.HttpUtil;
 import net.sourceforge.stripes.util.Log;
 
 /**
- * After the {@link LifecycleStage#ActionBeanResolution}, this interceptor checks the resolved
- * {@link ActionBean} class for a {@link RequiresLogin} annotation. If one is present, then the user
- * is redirected to the login page.
+ * After the {@link LifecycleStage#ActionBeanResolution} stage, this interceptor checks the resolved
+ * {@link ActionBean} class for a {@link Public} annotation. If none is present, then the client is
+ * redirected to the login page.
  * 
  * @author Ben Gunter
  */
