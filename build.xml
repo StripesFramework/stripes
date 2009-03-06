@@ -46,6 +46,7 @@
         </copy>
         <copy todir="${examples.dir}/web/WEB-INF/lib">
             <fileset dir="${stripes.dir}/lib/deploy" includes="*.jar"/>
+            <fileset dir="${stripes.dir}/lib/build" includes="mail.jar"/>
         </copy>
         <ant dir="${examples.dir}" target="war"/>
         <ant dir="${test.dir}"     target="jar"/>
