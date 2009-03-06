@@ -1,15 +1,5 @@
 package net.sourceforge.stripes.examples.bugzooky;
 
-import net.sourceforge.stripes.action.Resolution;
-import net.sourceforge.stripes.util.HtmlUtil;
-import net.sourceforge.stripes.validation.SimpleError;
-import net.sourceforge.stripes.validation.Validate;
-import net.sourceforge.stripes.validation.ValidationErrors;
-import net.sourceforge.stripes.validation.ValidationMethod;
-
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -19,12 +9,26 @@ import java.util.Iterator;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import net.sourceforge.stripes.action.Resolution;
+import net.sourceforge.stripes.action.UrlBinding;
+import net.sourceforge.stripes.util.HtmlUtil;
+import net.sourceforge.stripes.validation.SimpleError;
+import net.sourceforge.stripes.validation.Validate;
+import net.sourceforge.stripes.validation.ValidationErrors;
+import net.sourceforge.stripes.validation.ValidationMethod;
+
 /**
- * ActionBean that is used to display source files from the bugzooky web application
- * to the user.
- *
+ * ActionBean that is used to display source files from the bugzooky web application to the user.
+ * This ActionBean demonstrates the use of clean URLs by embedding the "resource" parameter in the
+ * binding.
+ * 
  * @author Tim Fennell
  */
+@UrlBinding("/bugzooky/view{resource}")
 public class ViewResourceActionBean extends BugzookyActionBean {
     @Validate(required=true)
     private String resource;

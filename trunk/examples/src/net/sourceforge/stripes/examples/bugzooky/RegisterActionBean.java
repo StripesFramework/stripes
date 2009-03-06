@@ -1,6 +1,7 @@
 package net.sourceforge.stripes.examples.bugzooky;
 
 import net.sourceforge.stripes.action.DefaultHandler;
+import net.sourceforge.stripes.action.DontBind;
 import net.sourceforge.stripes.action.ForwardResolution;
 import net.sourceforge.stripes.action.LocalizableMessage;
 import net.sourceforge.stripes.action.RedirectResolution;
@@ -8,6 +9,7 @@ import net.sourceforge.stripes.action.Resolution;
 import net.sourceforge.stripes.action.Wizard;
 import net.sourceforge.stripes.examples.bugzooky.biz.Person;
 import net.sourceforge.stripes.examples.bugzooky.biz.PersonManager;
+import net.sourceforge.stripes.examples.bugzooky.ext.Public;
 import net.sourceforge.stripes.validation.LocalizableError;
 import net.sourceforge.stripes.validation.Validate;
 import net.sourceforge.stripes.validation.ValidateNestedProperties;
@@ -19,7 +21,8 @@ import net.sourceforge.stripes.validation.ValidationMethod;
  *
  * @author Tim Fennell
  */
-@Wizard
+@Public
+@Wizard(startEvents = "start")
 public class RegisterActionBean extends BugzookyActionBean {
     @ValidateNestedProperties({
         @Validate(field="username", required=true, minlength=5, maxlength=20),
@@ -57,6 +60,12 @@ public class RegisterActionBean extends BugzookyActionBean {
         }
     }
 
+    @DontBind
+    @DefaultHandler
+    public Resolution start() {
+        return new ForwardResolution("/bugzooky/Register.jsp");
+    }
+
     public Resolution gotoStep2() throws Exception {
         return new ForwardResolution("/bugzooky/Register2.jsp");
     }
@@ -64,7 +73,6 @@ public class RegisterActionBean extends BugzookyActionBean {
     /**
      * Registers a new user, logs them in, and redirects them to the bug list page.
      */
-    @DefaultHandler
     public Resolution register() {
         PersonManager pm = new PersonManager();
         pm.saveOrUpdate(this.user);
@@ -74,6 +82,6 @@ public class RegisterActionBean extends BugzookyActionBean {
                                        this.user.getFirstName(),
                                        this.user.getUsername()));
 
-        return new RedirectResolution("/bugzooky/BugList.jsp");
+        return new RedirectResolution(BugListActionBean.class);
     }
 }

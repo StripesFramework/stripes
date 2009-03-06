@@ -47,53 +47,25 @@
         <dispatcher>REQUEST</dispatcher>
     </filter-mapping>
 
-    <filter-mapping>
-        <filter-name>StripesFilter</filter-name>
-        <servlet-name>StripesDispatcher</servlet-name>
-        <dispatcher>REQUEST</dispatcher>
-    </filter-mapping>
-
     <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-    <!--         Configuration of Bugzooky security filter.                  -->
+    <!--         Configuration of Stripes Dynamic Mapping Filter.            -->
     <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
     <filter>
-        <description>Provides login security for Bugzooky</description>
-        <filter-name>BugzookySecurityFilter</filter-name>
-        <filter-class>net.sourceforge.stripes.examples.bugzooky.SecurityFilter</filter-class>
+        <description>
+            Dynamically maps URLs to ActionBeans without requiring you to
+            map prefixes or extensions explicitly in the deployment descriptor.
+            Note that this filter always should be the last filter defined.
+        </description>
+        <filter-name>DMF</filter-name>
+        <filter-class>net.sourceforge.stripes.controller.DynamicMappingFilter</filter-class>
     </filter>
 
     <filter-mapping>
-        <filter-name>BugzookySecurityFilter</filter-name>
-        <url-pattern>/bugzooky/*</url-pattern>
+        <filter-name>DMF</filter-name>
+        <url-pattern>/*</url-pattern>
         <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+        <dispatcher>ERROR</dispatcher>
     </filter-mapping>
-    <filter-mapping>
-        <filter-name>BugzookySecurityFilter</filter-name>
-        <url-pattern>/examples/bugzooky/*</url-pattern>
-        <dispatcher>REQUEST</dispatcher>
-    </filter-mapping>
-
-    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-    <!--         Configuration of the Stripes dispatcher Servlet.            -->
-    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-    <servlet>
-        <servlet-name>StripesDispatcher</servlet-name>
-        <servlet-class>net.sourceforge.stripes.controller.DispatcherServlet</servlet-class>
-        <load-on-startup>1</load-on-startup>
-    </servlet>
-
-    <servlet-mapping>
-        <servlet-name>StripesDispatcher</servlet-name>
-        <url-pattern>/dispatcher</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>StripesDispatcher</servlet-name>
-        <url-pattern>/action/*</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>StripesDispatcher</servlet-name>
-        <url-pattern>*.action</url-pattern>
-    </servlet-mapping>
 </web-app>

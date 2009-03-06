@@ -1,6 +1,10 @@
 package net.sourceforge.stripes.examples.bugzooky;
 
+import java.util.List;
+
 import net.sourceforge.stripes.action.DefaultHandler;
+import net.sourceforge.stripes.action.DontBind;
+import net.sourceforge.stripes.action.ForwardResolution;
 import net.sourceforge.stripes.action.HandlesEvent;
 import net.sourceforge.stripes.action.RedirectResolution;
 import net.sourceforge.stripes.action.Resolution;
@@ -9,8 +13,6 @@ import net.sourceforge.stripes.examples.bugzooky.biz.PersonManager;
 import net.sourceforge.stripes.validation.EmailTypeConverter;
 import net.sourceforge.stripes.validation.Validate;
 import net.sourceforge.stripes.validation.ValidateNestedProperties;
-
-import java.util.List;
 
 /**
  * Manages the administration of People, from the Administer Bugzooky page. Receives a List
@@ -34,33 +36,35 @@ public class AdministerPeopleActionBean extends BugzookyActionBean {
     public int[] getDeleteIds() { return deleteIds; }
     public void setDeleteIds(int[] deleteIds) { this.deleteIds = deleteIds; }
 
-    public List<Person> getPeople() { return people; }
-    public void setPeople(List<Person> people) { this.people = people; }
+    /**
+     * If no list of people is set and we're not handling the "save" event then populate the list of
+     * people and return it.
+     */
+    public List<Person> getPeople() {
+        if (people == null && !"Save".equals(getContext().getEventName())) {
+            people = new PersonManager().getAllPeople();
+        }
 
-    @HandlesEvent("Save") @DefaultHandler
+        return people;
+    }
+
+    public void setPeople(List<Person> people) {
+        this.people = people;
+    }
+
+    @DefaultHandler
+    @DontBind
+    public Resolution view() {
+        return new ForwardResolution("/bugzooky/AdministerBugzooky.jsp");
+    }
+
+    @HandlesEvent("Save")
     public Resolution saveChanges() {
         PersonManager pm = new PersonManager();
 
-        // Apply any changes to existing people (and create new ones)
+        // Save any changes to existing people (and create new ones)
         for (Person person : people) {
-            Person realPerson;
-            if (person.getId() == null) {
-                realPerson = new Person();
-            }
-            else {
-                realPerson = pm.getPerson(person.getId());
-            }
-
-            realPerson.setEmail(person.getEmail());
-            realPerson.setFirstName(person.getFirstName());
-            realPerson.setLastName(person.getLastName());
-            realPerson.setUsername(person.getUsername());
-
-            if (person.getPassword() != null) {
-                realPerson.setPassword(person.getPassword());
-            }
-            
-            pm.saveOrUpdate(realPerson);
+            pm.saveOrUpdate(person);
         }
 
         // Then, if the user checked anyone off to be deleted, delete them
@@ -70,6 +74,6 @@ public class AdministerPeopleActionBean extends BugzookyActionBean {
             }
         }
 
-        return new RedirectResolution("/bugzooky/AdministerBugzooky.jsp");
+        return new RedirectResolution(getClass());
     }
 }

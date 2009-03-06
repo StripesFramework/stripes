@@ -22,19 +22,16 @@
                 </div>
 
                 <div id="footer">
-                    <stripes:link beanclass="net.sourceforge.stripes.examples.bugzooky.ViewResourceActionBean">
+                    <stripes:url var="view" beanclass="net.sourceforge.stripes.examples.bugzooky.ViewResourceActionBean" />
+                    <stripes:link href="${view}${pageContext.request.servletPath}">
                         View this JSP
-                        <stripes:param name="resource" value="${pageContext.request.servletPath}"/>
                     </stripes:link>
 
                     | View other source files:
                     <stripes:useActionBean beanclass="net.sourceforge.stripes.examples.bugzooky.ViewResourceActionBean" var="bean"/>
                     <select style="width: 350px;" onchange="document.location = this.value;">
                         <c:forEach items="${bean.availableResources}" var="file">
-                            <stripes:url beanclass="net.sourceforge.stripes.examples.bugzooky.ViewResourceActionBean" var="url">
-                                <stripes:param name="resource" value="${file}"/>
-                            </stripes:url>
-                            <option value="${url}">${file}</option>
+                            <option value="${view}${file}">${file}</option>
                         </c:forEach>
                     </select>
                     | Built on <a href="http://www.stripesframework.org">Stripes</a>

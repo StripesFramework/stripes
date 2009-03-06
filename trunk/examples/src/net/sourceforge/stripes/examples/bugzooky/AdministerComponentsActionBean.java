@@ -1,14 +1,16 @@
 package net.sourceforge.stripes.examples.bugzooky;
 
+import java.util.List;
+
 import net.sourceforge.stripes.action.DefaultHandler;
+import net.sourceforge.stripes.action.DontBind;
+import net.sourceforge.stripes.action.ForwardResolution;
 import net.sourceforge.stripes.action.RedirectResolution;
 import net.sourceforge.stripes.action.Resolution;
 import net.sourceforge.stripes.examples.bugzooky.biz.Component;
 import net.sourceforge.stripes.examples.bugzooky.biz.ComponentManager;
 import net.sourceforge.stripes.validation.Validate;
 import net.sourceforge.stripes.validation.ValidateNestedProperties;
-
-import java.util.List;
 
 /**
  * Manages the administration of Components, from the Administer Bugzooky page. Receives a List
@@ -28,25 +30,34 @@ public class AdministerComponentsActionBean extends BugzookyActionBean {
     public int[] getDeleteIds() { return deleteIds; }
     public void setDeleteIds(int[] deleteIds) { this.deleteIds = deleteIds; }
 
-    public List<Component> getComponents() { return components; }
-    public void setComponents(List<Component> components) { this.components = components; }
+    /**
+     * If no list of components is set and we're not handling the "save" event then populate the
+     * list of components and return it.
+     */
+    public List<Component> getComponents() {
+        if (components == null && !"save".equals(getContext().getEventName())) {
+            components = new ComponentManager().getAllComponents();
+        }
+
+        return components;
+    }
+
+    public void setComponents(List<Component> components) {
+        this.components = components;
+    }
 
     @DefaultHandler
+    @DontBind
+    public Resolution view() {
+        return new ForwardResolution("/bugzooky/AdministerBugzooky.jsp");
+    }
+
     public Resolution save() {
         ComponentManager cm = new ComponentManager();
 
-        // Apply any changes to existing people (and create new ones)
+        // Save any changes to existing components (and create new ones)
         for (Component component : components) {
-            Component realComponent;
-            if (component.getId() == null) {
-                realComponent = new Component();
-            }
-            else {
-                realComponent = cm.getComponent(component.getId());
-            }
-
-            realComponent.setName(component.getName());
-            cm.saveOrUpdate(realComponent);
+            cm.saveOrUpdate(component);
         }
 
         // Then, if the user checked anyone off to be deleted, delete them
@@ -56,6 +67,6 @@ public class AdministerComponentsActionBean extends BugzookyActionBean {
             }
         }
 
-        return new RedirectResolution("/bugzooky/AdministerBugzooky.jsp");
+        return new RedirectResolution(getClass());
     }
 }

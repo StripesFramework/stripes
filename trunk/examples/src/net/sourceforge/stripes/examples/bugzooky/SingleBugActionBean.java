@@ -1,5 +1,9 @@
 package net.sourceforge.stripes.examples.bugzooky;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Date;
+
 import net.sourceforge.stripes.action.DefaultHandler;
 import net.sourceforge.stripes.action.DontValidate;
 import net.sourceforge.stripes.action.FileBean;
@@ -12,9 +16,6 @@ import net.sourceforge.stripes.examples.bugzooky.biz.BugManager;
 import net.sourceforge.stripes.validation.PercentageTypeConverter;
 import net.sourceforge.stripes.validation.Validate;
 import net.sourceforge.stripes.validation.ValidateNestedProperties;
-
-import java.io.IOException;
-import java.io.InputStream;
 
 /**
  * ActionBean that provides method for editing a single bug in detail. Includes an
@@ -41,19 +42,17 @@ public class SingleBugActionBean extends BugzookyActionBean {
     public void setNewAttachment(FileBean newAttachment) { this.newAttachment = newAttachment; }
 
     /** Loads a bug on to the form ready for editing. */
+    @DefaultHandler
     @DontValidate
-    public Resolution preEdit() {
-        BugManager bm = new BugManager();
-        this.bug = bm.getBug( this.bug.getId() );
+    public Resolution view() {
         return new ForwardResolution("/bugzooky/AddEditBug.jsp");
     }
 
     /** Saves (or updates) a bug, and then returns the user to the bug list. */
-    @DefaultHandler
     public Resolution save() throws IOException {
         BugManager bm = new BugManager();
 
-        Bug newBug = populateBug(this.bug);
+        Bug bug = getBug();
         if (this.newAttachment != null) {
             Attachment attachment = new Attachment();
             attachment.setName(this.newAttachment.getFileName());
@@ -64,17 +63,21 @@ public class SingleBugActionBean extends BugzookyActionBean {
             InputStream in = this.newAttachment.getInputStream();
             in.read(data);
             attachment.setData(data);
-            newBug.addAttachment(attachment);
+            bug.addAttachment(attachment);
         }
 
-        bm.saveOrUpdate(newBug);
+        // Set the open date for new bugs
+        if (bug.getOpenDate() == null)
+            bug.setOpenDate(new Date());
 
-        return new RedirectResolution("/bugzooky/BugList.jsp");
+        bm.saveOrUpdate(bug);
+
+        return new RedirectResolution(BugListActionBean.class);
     }
 
     /** Saves or updates a bug, and then returns to the edit page to add another just like it. */
     public Resolution saveAndAgain() throws IOException {
         save();
-        return new RedirectResolution("/bugzooky/AddEditBug.jsp");
+        return new RedirectResolution(getClass()).addParameter("bug", getBug());
     }
 }
