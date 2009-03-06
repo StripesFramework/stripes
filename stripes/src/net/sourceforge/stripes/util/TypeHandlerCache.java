@@ -281,7 +281,7 @@ public class TypeHandlerCache<T> {
         return handler;
     }
 
-    /** Clear the indirect cache. This is called by {@link #add(Class, Class)}. */
+    /** Clear the indirect cache. This is called by {@link #add(Class, Object)}. */
     public void clearCache() {
         log.debug("Clearing indirect cache and negative cache");
         indirectCache.clear();
