@@ -1,9 +1,13 @@
 package net.sourceforge.stripes.examples.bugzooky;
 
+import net.sourceforge.stripes.action.DefaultHandler;
+import net.sourceforge.stripes.action.DontValidate;
+import net.sourceforge.stripes.action.ForwardResolution;
 import net.sourceforge.stripes.action.RedirectResolution;
 import net.sourceforge.stripes.action.Resolution;
 import net.sourceforge.stripes.examples.bugzooky.biz.Person;
 import net.sourceforge.stripes.examples.bugzooky.biz.PersonManager;
+import net.sourceforge.stripes.examples.bugzooky.ext.Public;
 import net.sourceforge.stripes.validation.LocalizableError;
 import net.sourceforge.stripes.validation.Validate;
 import net.sourceforge.stripes.validation.ValidationError;
@@ -15,6 +19,7 @@ import net.sourceforge.stripes.validation.ValidationError;
  *
  * @author Tim Fennell
  */
+@Public
 public class LoginActionBean extends BugzookyActionBean {
     @Validate(required=true)
     private String username;
@@ -41,7 +46,13 @@ public class LoginActionBean extends BugzookyActionBean {
 
     /** The URL the user was trying to access (null if the login page was accessed directly). */
     public void setTargetUrl(String targetUrl) { this.targetUrl = targetUrl; }
-    
+
+    @DefaultHandler
+    @DontValidate
+    public Resolution view() {
+        return new ForwardResolution("/bugzooky/Login.jsp");
+    }
+
     public Resolution login() {
         PersonManager pm = new PersonManager();
         Person person = pm.getPerson(this.username);
@@ -62,7 +73,7 @@ public class LoginActionBean extends BugzookyActionBean {
                 return new RedirectResolution(this.targetUrl);
             }
             else {
-                return new RedirectResolution("/bugzooky/BugList.jsp");
+                return new RedirectResolution(BugListActionBean.class);
             }
         }
     }
