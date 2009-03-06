@@ -63,6 +63,14 @@ public class FormTag extends HtmlTagSupport implements BodyTag, TryCatchFinally,
     /** Stores the value of the action attribute before the context gets appended. */
     private String actionWithoutContext;
 
+    /** Stores the value of the beanclass attribute. */
+    private Object beanclass;
+
+    /**
+     * The {@link ActionBean} class to which the form will submit, as determined by the
+     * {@link ActionResolver}. This may be null if the action attribute is set but its value does
+     * not resolve to an {@link ActionBean}.
+     */
     private Class<? extends ActionBean> actionBeanClass;
 
     /** Builds the action attribute with parameters */
@@ -119,6 +127,8 @@ public class FormTag extends HtmlTagSupport implements BodyTag, TryCatchFinally,
      *         because of a mis-spelled class name, or a class that's not an ActionBean
      */
     public void setBeanclass(Object beanclass) throws StripesJspException {
+        this.beanclass = beanclass;
+
         String url = getActionBeanUrl(beanclass);
         if (url == null) {
             throw new StripesJspException("Could not determine action from 'beanclass' supplied. " +
@@ -485,8 +495,13 @@ public class FormTag extends HtmlTagSupport implements BodyTag, TryCatchFinally,
         if (action.startsWith("/")) {
             HttpServletRequest request = (HttpServletRequest) getPageContext().getRequest();
             String contextPath = request.getContextPath();
-            if (contextPath.length() > 1 && !action.startsWith(contextPath + '/'))
+
+            // *Always* prepend the context path if "beanclass" was used
+            // Otherwise, *only* prepend it if it is not already present
+            if (contextPath.length() > 1
+                    && (beanclass != null || !action.startsWith(contextPath + '/'))) {
                 action = contextPath + action;
+            }
         }
         HttpServletResponse response = (HttpServletResponse) getPageContext().getResponse();
         return response.encodeURL(action);
