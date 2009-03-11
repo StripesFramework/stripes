@@ -38,6 +38,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -371,6 +372,7 @@ public class DispatcherHelper {
 
             // If there are still errors see if we need to lookup the resolution
             if (errors.size() > 0 && resolution == null) {
+                logValidationErrors(context);
                 resolution = context.getSourcePageResolution();
             }
         }
@@ -500,5 +502,23 @@ public class DispatcherHelper {
                      "has been executed can no longer alter what Resolution is executed for ",
                      "what are hopefully obvious reasons!");
         }
+    }
+
+    /** Log validation errors at DEBUG to help during development. */
+    public static final void logValidationErrors(ActionBeanContext context) {
+        Locale locale = context.getRequest().getLocale();
+        StringBuilder buf = new StringBuilder("The following validation errors need to be fixed:");
+        for (List<ValidationError> list : context.getValidationErrors().values()) {
+            for (ValidationError error : list) {
+                String fieldName = error.getFieldName();
+                if (ValidationErrors.GLOBAL_ERROR.equals(fieldName))
+                    fieldName = "GLOBAL";
+
+                buf.append("\n    -> [").append(fieldName).append("] ").append(
+                        error.getMessage(locale));
+            }
+        }
+
+        log.debug(buf);
     }
 }
