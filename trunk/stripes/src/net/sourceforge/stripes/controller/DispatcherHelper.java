@@ -40,6 +40,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.MissingResourceException;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.WeakHashMap;
@@ -508,14 +509,22 @@ public class DispatcherHelper {
     public static final void logValidationErrors(ActionBeanContext context) {
         Locale locale = context.getRequest().getLocale();
         StringBuilder buf = new StringBuilder("The following validation errors need to be fixed:");
+
         for (List<ValidationError> list : context.getValidationErrors().values()) {
             for (ValidationError error : list) {
                 String fieldName = error.getFieldName();
                 if (ValidationErrors.GLOBAL_ERROR.equals(fieldName))
                     fieldName = "GLOBAL";
 
-                buf.append("\n    -> [").append(fieldName).append("] ").append(
-                        error.getMessage(locale));
+                String message;
+                try {
+                    message = error.getMessage(locale);
+                }
+                catch (MissingResourceException e) {
+                    message = "(missing resource)";
+                }
+
+                buf.append("\n    -> [").append(fieldName).append("] ").append(message);
             }
         }
 
