@@ -507,7 +507,6 @@ public class DispatcherHelper {
 
     /** Log validation errors at DEBUG to help during development. */
     public static final void logValidationErrors(ActionBeanContext context) {
-        Locale locale = context.getRequest().getLocale();
         StringBuilder buf = new StringBuilder("The following validation errors need to be fixed:");
 
         for (List<ValidationError> list : context.getValidationErrors().values()) {
@@ -518,7 +517,7 @@ public class DispatcherHelper {
 
                 String message;
                 try {
-                    message = error.getMessage(locale);
+                    message = error.getMessage(Locale.getDefault());
                 }
                 catch (MissingResourceException e) {
                     message = "(missing resource)";
