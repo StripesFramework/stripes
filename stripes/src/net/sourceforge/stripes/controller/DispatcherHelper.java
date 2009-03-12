@@ -38,7 +38,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.MissingResourceException;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.WeakHashMap;
@@ -371,6 +373,7 @@ public class DispatcherHelper {
 
             // If there are still errors see if we need to lookup the resolution
             if (errors.size() > 0 && resolution == null) {
+                logValidationErrors(context);
                 resolution = context.getSourcePageResolution();
             }
         }
@@ -500,5 +503,30 @@ public class DispatcherHelper {
                      "has been executed can no longer alter what Resolution is executed for ",
                      "what are hopefully obvious reasons!");
         }
+    }
+
+    /** Log validation errors at DEBUG to help during development. */
+    public static final void logValidationErrors(ActionBeanContext context) {
+        StringBuilder buf = new StringBuilder("The following validation errors need to be fixed:");
+
+        for (List<ValidationError> list : context.getValidationErrors().values()) {
+            for (ValidationError error : list) {
+                String fieldName = error.getFieldName();
+                if (ValidationErrors.GLOBAL_ERROR.equals(fieldName))
+                    fieldName = "GLOBAL";
+
+                String message;
+                try {
+                    message = error.getMessage(Locale.getDefault());
+                }
+                catch (MissingResourceException e) {
+                    message = "(missing resource)";
+                }
+
+                buf.append("\n    -> [").append(fieldName).append("] ").append(message);
+            }
+        }
+
+        log.debug(buf);
     }
 }

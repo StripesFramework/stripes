@@ -29,8 +29,9 @@
 
     <property name="src.dir"         value="${basedir}/src"/>
     <property name="lib.dir"         value="${basedir}/lib"/>
-    <property name="stripes.lib.dir" value="${basedir}/../stripes/lib"/>
-    <property name="stripes.classes" value="${basedir}/../stripes/dist/stripes.jar"/>
+    <property name="stripes"         value="${basedir}/../stripes"/>
+    <property name="stripes.lib.dir" value="${stripes}/lib"/>
+    <property name="stripes.classes" value="${stripes}/dist/stripes.jar"/>
     <property name="classes.dir"     value="${basedir}/classes"/>
     <property name="dist.dir"        value="${basedir}/dist"/>
     <property name="test.out.dir"    value="${basedir}/test-output"/>
@@ -73,6 +74,9 @@
         <copy todir="${classes.dir}">
             <fileset dir="${src.dir}">
                 <include name="**/*.properties"/>
+            </fileset>
+            <fileset dir="${stripes}/resources">
+                <include name="StripesResources.properties"/>
             </fileset>
         </copy>
     </target>
