@@ -112,6 +112,8 @@ public class DispatcherHelper {
                 if (context != bean.getContext()) {
                     ActionBeanContext other = bean.getContext();
                     other.setEventName(context.getEventName());
+                    other.setRequest(context.getRequest());
+                    other.setResponse(context.getResponse());
 
                     context = other;
                     ctx.setActionBeanContext(context);
