@@ -108,6 +108,15 @@ public class DispatcherHelper {
                 ActionBean bean = StripesFilter.getConfiguration().getActionResolver().getActionBean(context);
                 ctx.setActionBean(bean);
 
+                // Prefer the context from the resolved bean if it differs from the ExecutionContext
+                if (context != bean.getContext()) {
+                    ActionBeanContext other = bean.getContext();
+                    other.setEventName(context.getEventName());
+
+                    context = other;
+                    ctx.setActionBeanContext(context);
+                }
+
                 // Then register it in the Request as THE ActionBean for this request
                 HttpServletRequest request = context.getRequest();
                 request.setAttribute(StripesConstants.REQ_ATTR_ACTION_BEAN, bean);
