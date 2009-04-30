@@ -71,7 +71,7 @@ public class HttpCacheInterceptor implements Interceptor {
     public Resolution intercept(ExecutionContext ctx) throws Exception {
         final ActionBean actionBean = ctx.getActionBean();
         final Method handler = ctx.getHandler();
-        if (ctx.isResolutionFromHandler() && (actionBean != null) && (handler != null)) {
+        if (actionBean != null && handler != null) {
             final Class<? extends ActionBean> beanClass = actionBean.getClass();
             // if caching is disabled, then set the appropriate response headers
             logger.debug("Looking for ", HttpCache.class.getSimpleName(), " on ", beanClass
