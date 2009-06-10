@@ -106,7 +106,16 @@ public class DefaultMultipartWrapperFactory implements MultipartWrapperFactory {
             this.temporaryDirectory = tempDir;
         }
         else {
-            this.temporaryDirectory = new File(System.getProperty("java.io.tmpdir")).getAbsoluteFile();
+            String tmpDir = System.getProperty("java.io.tmpdir");
+            
+            if (tmpDir != null) {
+                this.temporaryDirectory = new File(tmpDir).getAbsoluteFile();
+            }
+            else {
+                log.warn("The tmpdir system property was null! File uploads will probably fail. ",
+                         "This is normal if you are running on Google App Engine as it doesn't allow ",
+                         "file system access.");
+            }
         }
 
         // See if a maximum post size was configured
