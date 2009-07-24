@@ -28,7 +28,6 @@ import net.sourceforge.stripes.controller.DefaultObjectFactory;
 import net.sourceforge.stripes.controller.Interceptor;
 import net.sourceforge.stripes.controller.LifecycleStage;
 import net.sourceforge.stripes.controller.ObjectFactory;
-import net.sourceforge.stripes.controller.ObjectPostProcessor;
 import net.sourceforge.stripes.controller.multipart.MultipartWrapperFactory;
 import net.sourceforge.stripes.exception.ExceptionHandler;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
@@ -338,20 +337,6 @@ public class RuntimeConfiguration extends DefaultConfiguration {
                     log.debug("Adding auto-discovered TypeConverter [", typeConverter, "] for [", targetType, "] (from TargetTypes annotation)");
                     getTypeConverterFactory().add(targetType, (Class<? extends TypeConverter<?>>) typeConverter);
                 }
-            }
-        }
-
-        ObjectFactory factory = getObjectFactory();
-        if (factory instanceof DefaultObjectFactory) {
-            List<Class<? extends ObjectPostProcessor>> classes = getBootstrapPropertyResolver()
-                    .getClassPropertyList(ObjectPostProcessor.class);
-            List<ObjectPostProcessor> instances = new ArrayList<ObjectPostProcessor>();
-            for (Class<? extends ObjectPostProcessor> clazz : classes) {
-                log.debug("Instantiating object post-processor ", clazz);
-                instances.add(factory.newInstance(clazz));
-            }
-            for (ObjectPostProcessor pp : instances) {
-                ((DefaultObjectFactory) factory).addPostProcessor(pp);
             }
         }
     }

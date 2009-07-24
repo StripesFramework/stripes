@@ -14,11 +14,13 @@
  */
 package net.sourceforge.stripes.config;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -37,6 +39,7 @@ import net.sourceforge.stripes.controller.Intercepts;
 import net.sourceforge.stripes.controller.LifecycleStage;
 import net.sourceforge.stripes.controller.NameBasedActionResolver;
 import net.sourceforge.stripes.controller.ObjectFactory;
+import net.sourceforge.stripes.controller.ObjectPostProcessor;
 import net.sourceforge.stripes.controller.multipart.DefaultMultipartWrapperFactory;
 import net.sourceforge.stripes.controller.multipart.MultipartWrapperFactory;
 import net.sourceforge.stripes.exception.DefaultExceptionHandler;
@@ -122,6 +125,19 @@ public class DefaultConfiguration implements Configuration {
             if (this.objectFactory == null) {
                 this.objectFactory = new DefaultObjectFactory();
                 this.objectFactory.init(this);
+
+                if (this.objectFactory instanceof DefaultObjectFactory) {
+                    List<Class<? extends ObjectPostProcessor>> classes = getBootstrapPropertyResolver()
+                            .getClassPropertyList(ObjectPostProcessor.class);
+                    List<ObjectPostProcessor> instances = new ArrayList<ObjectPostProcessor>();
+                    for (Class<? extends ObjectPostProcessor> clazz : classes) {
+                        log.debug("Instantiating object post-processor ", clazz);
+                        instances.add(this.objectFactory.newInstance(clazz));
+                    }
+                    for (ObjectPostProcessor pp : instances) {
+                        ((DefaultObjectFactory) this.objectFactory).addPostProcessor(pp);
+                    }
+                }
             }
 
             this.actionResolver = initActionResolver();
