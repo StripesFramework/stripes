@@ -125,18 +125,17 @@ public class DefaultConfiguration implements Configuration {
             if (this.objectFactory == null) {
                 this.objectFactory = new DefaultObjectFactory();
                 this.objectFactory.init(this);
-
-                if (this.objectFactory instanceof DefaultObjectFactory) {
-                    List<Class<? extends ObjectPostProcessor>> classes = getBootstrapPropertyResolver()
-                            .getClassPropertyList(ObjectPostProcessor.class);
-                    List<ObjectPostProcessor> instances = new ArrayList<ObjectPostProcessor>();
-                    for (Class<? extends ObjectPostProcessor> clazz : classes) {
-                        log.debug("Instantiating object post-processor ", clazz);
-                        instances.add(this.objectFactory.newInstance(clazz));
-                    }
-                    for (ObjectPostProcessor pp : instances) {
-                        ((DefaultObjectFactory) this.objectFactory).addPostProcessor(pp);
-                    }
+            }
+            if (this.objectFactory instanceof DefaultObjectFactory) {
+                List<Class<? extends ObjectPostProcessor>> classes = getBootstrapPropertyResolver()
+                        .getClassPropertyList(ObjectPostProcessor.class);
+                List<ObjectPostProcessor> instances = new ArrayList<ObjectPostProcessor>();
+                for (Class<? extends ObjectPostProcessor> clazz : classes) {
+                    log.debug("Instantiating object post-processor ", clazz);
+                    instances.add(this.objectFactory.newInstance(clazz));
+                }
+                for (ObjectPostProcessor pp : instances) {
+                    ((DefaultObjectFactory) this.objectFactory).addPostProcessor(pp);
                 }
             }
 
