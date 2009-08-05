@@ -104,7 +104,7 @@ public abstract class OnwardResolution<T extends OnwardResolution<T>> implements
     @Override
     public String toString() {
         return getClass().getSimpleName() + "{" +
-            "path='" + path + "'" +
+            "path='" + getPath() + "'" +
             "}";
     }
 
@@ -177,7 +177,7 @@ public abstract class OnwardResolution<T extends OnwardResolution<T>> implements
      * @param locale the locale to be used by {@link Formatter}s when formatting parameters
      */
     public String getUrl(Locale locale) {
-        UrlBuilder builder = new UrlBuilder(locale, path, false);
+        UrlBuilder builder = new UrlBuilder(locale, getPath(), false);
         if (event != VALUE_NOT_SET) {
             builder.setEvent(event == null || event.length() < 1 ? null : event);
         }
