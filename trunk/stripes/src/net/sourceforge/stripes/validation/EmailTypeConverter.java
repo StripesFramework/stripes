@@ -61,7 +61,7 @@ public class EmailTypeConverter implements TypeConverter<String> {
         String result = null;
 
         try {
-            InternetAddress address = new InternetAddress(input);
+            InternetAddress address = new InternetAddress(input, true);
             result = address.getAddress();
             if (!result.contains("@")) {
                 result = null;
