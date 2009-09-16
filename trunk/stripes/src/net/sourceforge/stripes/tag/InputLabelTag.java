@@ -19,6 +19,7 @@ import net.sourceforge.stripes.exception.StripesJspException;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.BodyTag;
 import java.io.IOException;
+import net.sourceforge.stripes.localization.LocalizationUtility;
 
 /**
  * <p>Tag handler for a tag that produces an HTML label tag which is capable of looking up
@@ -106,7 +107,12 @@ public class InputLabelTag extends InputTagSupport implements BodyTag {
             }
 
             if (label == null) {
-                label = "Label could not find localized field name and had no body.";
+                if (fieldName != null) {
+                    label = LocalizationUtility.makePseudoFriendlyName(fieldName);
+                }
+                else {
+                    label = "Label could not find localized field name and had no body nor name attribute.";
+                }
             }
 
             // Write out the tag
