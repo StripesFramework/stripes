@@ -29,6 +29,10 @@ import org.apache.commons.logging.LogFactory;
 public final class Log {
     private org.apache.commons.logging.Log realLog;
 
+    public org.apache.commons.logging.Log getRealLog() {
+        return realLog;
+    }
+
     /**
      * Get a Log instance to perform logging within the Class specified.  Returns an instance
      * of this class which wraps an instance of the commons logging Log class.
