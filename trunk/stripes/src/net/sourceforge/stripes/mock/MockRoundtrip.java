@@ -221,6 +221,7 @@ public class MockRoundtrip {
             String[] combined = new String[oldValues.length + value.length];
             System.arraycopy(oldValues, 0, combined, 0, oldValues.length);
             System.arraycopy(value, 0, combined, oldValues.length, value.length);
+            setParameter(name, combined);
         }
     }
 
