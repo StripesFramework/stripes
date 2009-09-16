@@ -144,14 +144,16 @@ public class AnnotatedClassActionResolver implements ActionResolver {
             // Put the event->method mapping for the class into the set of mappings
             this.eventMappings.put(clazz, classMappings);
 
-            // Print out the event mappings nicely
-            for (Map.Entry<String, Method> entry : classMappings.entrySet()) {
-                String event = entry.getKey();
-                Method handler = entry.getValue();
-                boolean isDefault = DEFAULT_HANDLER_KEY.equals(event);
+            if (log.getRealLog().isDebugEnabled()) {
+                // Print out the event mappings nicely
+                for (Map.Entry<String, Method> entry : classMappings.entrySet()) {
+                    String event = entry.getKey();
+                    Method handler = entry.getValue();
+                    boolean isDefault = DEFAULT_HANDLER_KEY.equals(event);
 
-                log.debug("Bound: ", clazz.getSimpleName(), ".", handler.getName(), "() ==> ",
-                        binding, isDefault ? "" : "?" + event);
+                    log.debug("Bound: ", clazz.getSimpleName(), ".", handler.getName(), "() ==> ",
+                            binding, isDefault ? "" : "?" + event);
+                }
             }
         }
     }
