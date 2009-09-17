@@ -257,7 +257,7 @@ public class ActionBeanContext {
      */
     @Override
     public String toString() {
-        return "ActionBeanContext{" +
+        return getClass().getName() + "{" +
             "eventName='" + eventName + "'" +
             ", validationErrors=" + validationErrors +
             "}";
