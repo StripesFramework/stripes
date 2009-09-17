@@ -64,6 +64,7 @@ public class JavaScriptBuilder {
         simpleTypes.add(Float.TYPE);
         simpleTypes.add(Double.TYPE);
         simpleTypes.add(Boolean.TYPE);
+        simpleTypes.add(Character.TYPE);
 
         ignoredTypes.add(Class.class);
     }
@@ -248,6 +249,7 @@ public class JavaScriptBuilder {
             || Number.class.isAssignableFrom(type)
             || String.class.isAssignableFrom(type)
             || Boolean.class.isAssignableFrom(type)
+            || Character.class.isAssignableFrom(type)
             || Date.class.isAssignableFrom(type);
     }
 
@@ -262,6 +264,9 @@ public class JavaScriptBuilder {
 
         if (String.class.isAssignableFrom(type)) {
             return quote((String) in);
+        }
+        else if (Character.class.isAssignableFrom(type)) {
+            return quote(((Character) in).toString());
         }
         else if(Date.class.isAssignableFrom(type)) {
             return "new Date(" + ((Date) in).getTime() + ")";
