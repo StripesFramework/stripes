@@ -1,12 +1,16 @@
 package net.sourceforge.stripes.controller;
 
-import net.sourceforge.stripes.action.UrlBinding;
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
+import net.sourceforge.stripes.StripesTestFixture;
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.action.ActionBeanContext;
-import net.sourceforge.stripes.action.Resolution;
 import net.sourceforge.stripes.action.DefaultHandler;
+import net.sourceforge.stripes.action.ForwardResolution;
 import net.sourceforge.stripes.action.HandlesEvent;
-import net.sourceforge.stripes.StripesTestFixture;
+import net.sourceforge.stripes.action.Resolution;
+import net.sourceforge.stripes.action.UrlBinding;
 import net.sourceforge.stripes.mock.MockRoundtrip;
 import org.testng.annotations.Test;
 import org.testng.Assert;
@@ -36,6 +40,10 @@ public class BasicResolverTests implements ActionBean {
     @HandlesEvent("two")
     public Resolution two() {
         this.number = 2;
+        return null;
+    }
+
+    public Resolution process() {
         return null;
     }
 
@@ -87,5 +95,19 @@ public class BasicResolverTests implements ActionBean {
         BasicResolverTests bean = trip.getActionBean( getClass() );
         Assert.assertEquals(bean.getNumber(), 2);
         Assert.assertEquals(bean.getContext().getEventName(), "two");
+    }
+
+    @Test(groups="fast")
+    public void testOverrideHandlerMethodReturnsSubtype() throws SecurityException, NoSuchMethodException {
+        NameBasedActionResolver resolver = new NameBasedActionResolver();
+        Map<String, Method> classMappings = new HashMap<String, Method>();
+        resolver.processMethods(ExtendedBaseAction.class, classMappings);        
+    }
+    
+    public static class ExtendedBaseAction extends BasicResolverTests {
+        @Override
+        public ForwardResolution process() {
+            return null;
+        }
     }
 }
