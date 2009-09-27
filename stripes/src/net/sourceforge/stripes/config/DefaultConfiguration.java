@@ -111,6 +111,7 @@ public class DefaultConfiguration implements Configuration {
      * Creates and stores instances of the objects of the type that the Configuration is
      * responsible for providing, except where subclasses have already provided instances.
      */
+    @SuppressWarnings("unchecked")
     public void init() {
         try {
         	Boolean debugMode = initDebugMode();

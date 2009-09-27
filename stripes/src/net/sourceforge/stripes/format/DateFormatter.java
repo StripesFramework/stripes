@@ -153,7 +153,7 @@ public class DateFormatter implements Formatter<Date> {
      * should override init() and then set the date format object.
      */
     public void setDateFormat(DateFormat dateFormat) {
-        this.format = format;
+        this.format = dateFormat;
     }
 
     /** Formats a Date as a String using the rules supplied when the formatter was built. */
