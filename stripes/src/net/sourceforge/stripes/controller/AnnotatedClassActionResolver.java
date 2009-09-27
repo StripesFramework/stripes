@@ -215,7 +215,7 @@ public class AnnotatedClassActionResolver implements ActionResolver {
 
         Method[] methods = clazz.getDeclaredMethods();
         for (Method method : methods) {
-            if ( Modifier.isPublic(method.getModifiers()) ) {
+            if ( Modifier.isPublic(method.getModifiers()) && !method.isBridge() ) {
                 String eventName = getHandledEvent(method);
 
                 // look for duplicate event names within the current class
