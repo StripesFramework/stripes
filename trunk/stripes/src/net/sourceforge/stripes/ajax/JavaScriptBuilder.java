@@ -103,7 +103,7 @@ public class JavaScriptBuilder {
         this.excludeProperties = new HashSet<String>();
 
         for (Object object : objectsToExclude) {
-            if (object instanceof Class)
+            if (object instanceof Class<?>)
                 addClassExclusion((Class<?>) object);
             else if (object instanceof String)
                 addPropertyExclusion((String) object);

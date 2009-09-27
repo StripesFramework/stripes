@@ -111,7 +111,7 @@ public class PropertyExpressionEvaluation {
         for (NodeEvaluation current = this.root; current != null; current = current.getNext()) {
             // Firstly if the current type is a wildcard type of a type variable try and
             // figure out what the real value to use is
-            while (type instanceof WildcardType || type instanceof TypeVariable) {
+            while (type instanceof WildcardType || type instanceof TypeVariable<?>) {
                 if (type instanceof WildcardType) {
                     type = getWildcardTypeBound((WildcardType) type);
                 }
@@ -128,7 +128,7 @@ public class PropertyExpressionEvaluation {
                 current.setType(NodeType.ArrayEntry);
                 continue;
             }
-            else if (type instanceof Class && ((Class<?>) type).isArray()) {
+            else if (type instanceof Class<?> && ((Class<?>) type).isArray()) {
                 type = ((Class<?>) type).getComponentType();
                 current.setValueType(type);
                 current.setKeyType(Integer.class);
@@ -141,7 +141,7 @@ public class PropertyExpressionEvaluation {
                 ParameterizedType ptype = (ParameterizedType) type;
                 Type rawType = convertToClass(type, current);
 
-                if (rawType instanceof Class) {
+                if (rawType instanceof Class<?>) {
                     Class<?> rawClass = (Class<?>) rawType;
                     if (List.class.isAssignableFrom(rawClass)) {
                         type = ptype.getActualTypeArguments()[0];
@@ -172,7 +172,7 @@ public class PropertyExpressionEvaluation {
 
             // Else if it's just a regular class we can try looking for a property on it. If
             // no property exists, just bail out and return null immediately
-            if (type instanceof Class) {
+            if (type instanceof Class<?>) {
                 Class<?> clazz = (Class<?>) type;
                 String property = current.getNode().getStringValue();
                 type = getBeanPropertyType(clazz, property);
@@ -369,17 +369,17 @@ public class PropertyExpressionEvaluation {
             type = ((ParameterizedType) type).getRawType();
         }
 
-        while (type instanceof WildcardType || type instanceof TypeVariable) {
+        while (type instanceof WildcardType || type instanceof TypeVariable<?>) {
             if (type instanceof WildcardType) {
                 type = getWildcardTypeBound((WildcardType) type);
             }
-            else if (type instanceof TypeVariable) {
+            else if (type instanceof TypeVariable<?>) {
                 type = getTypeVariableValue(evaluation, (TypeVariable<?>) type);
             }
         }
 
         // And now that we should have a single type, try and get a Class
-        if (type instanceof Class) {
+        if (type instanceof Class<?>) {
             return (Class<?>) type;
         }
         else {
@@ -411,7 +411,7 @@ public class PropertyExpressionEvaluation {
             Type type = n.getValueType();
 
             // Bean class found?  Stop searching.
-            if (type instanceof Class) {
+            if (type instanceof Class<?>) {
                 lastBean = (Class<?>) n.getValueType();
                 break;
             }
@@ -424,7 +424,7 @@ public class PropertyExpressionEvaluation {
 
                     // Now find the parent of the ptype and see if it's a ptype too!
                     Type rawtype = ptype.getRawType();
-                    if (rawtype instanceof Class) {
+                    if (rawtype instanceof Class<?>) {
                         Class<?> superclass = (Class<?>) rawtype;
                         Type supertype = superclass.getGenericSuperclass();
                         ptype = (supertype instanceof ParameterizedType) ?  (ParameterizedType) supertype : null;
@@ -451,8 +451,8 @@ public class PropertyExpressionEvaluation {
                 // Map the type variable to a type.
                 if ((type = typemap1.get(i).get(typeVar)) != null) {
                     // Reached a real class?  Done.
-                    if (type instanceof Class) { return type; }
-                    else if (type instanceof TypeVariable) {
+                    if (type instanceof Class<?>) { return type; }
+                    else if (type instanceof TypeVariable<?>) {
                         typeVar = (TypeVariable<?>) type;
                     }
                 }
@@ -465,8 +465,8 @@ public class PropertyExpressionEvaluation {
             // Map the type variable to a type.
             if ((type = typemap2.get(i).get(typeVar)) != null) {
                 // Reached a real class?  Done.
-                if (type instanceof Class) { return type; }
-                else if (type instanceof TypeVariable) {
+                if (type instanceof Class<?>) { return type; }
+                else if (type instanceof TypeVariable<?>) {
                     typeVar = (TypeVariable<?>) type;
                 }
             }
@@ -486,7 +486,7 @@ public class PropertyExpressionEvaluation {
     */
     private void addTypeMappings(List<HashMap<TypeVariable<?>, Type>> typemap, ParameterizedType paramType) {
         Type rawType = paramType.getRawType();
-        if (rawType instanceof Class) {
+        if (rawType instanceof Class<?>) {
             Class<?> rawClass = (Class<?>) rawType;
             TypeVariable<?>[] vars = rawClass.getTypeParameters();
             Type[] args = paramType.getActualTypeArguments();
