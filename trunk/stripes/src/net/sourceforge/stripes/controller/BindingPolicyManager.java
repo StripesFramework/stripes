@@ -130,7 +130,7 @@ public class BindingPolicyManager {
     public boolean isBindingAllowed(PropertyExpressionEvaluation eval) {
         // Ensure no-one is trying to bind into the ActionBeanContext!!
         Type firstNodeType = eval.getRootNode().getValueType();
-        if (firstNodeType instanceof Class
+        if (firstNodeType instanceof Class<?>
                 && ActionBeanContext.class.isAssignableFrom((Class<?>) firstNodeType)) {
             return false;
         }
