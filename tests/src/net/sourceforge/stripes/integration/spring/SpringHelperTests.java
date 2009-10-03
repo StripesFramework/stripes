@@ -37,6 +37,7 @@ public class SpringHelperTests {
 
     private static class ExplicitPublicSetterTarget {
         private TestBean bean;
+        @SuppressWarnings("unused")
         @SpringBean("test/TestBean")
         public void setBean(TestBean bean) { this.bean = bean; }
         public TestBean getBean() { return bean; }
@@ -84,6 +85,7 @@ public class SpringHelperTests {
 
     private static class ExplicitNonStandardSetterTarget {
         private TestBean bean;
+        @SuppressWarnings("unused")
         @SpringBean("test/TestBean")
         protected void injectHere(TestBean bean) { this.bean = bean; }
         TestBean getBean() { return bean; }
@@ -100,6 +102,7 @@ public class SpringHelperTests {
 
     private static class ImplicitNonStandardSetterTarget {
         private TestActionBean bean;
+        @SuppressWarnings("unused")
         @SpringBean protected void testActionBean(TestActionBean bean) { this.bean = bean; }
         TestActionBean getBean() { return bean; }
     }
@@ -115,6 +118,7 @@ public class SpringHelperTests {
 
     private static class ImplicitStandardSetterTarget {
         private TestActionBean bean;
+        @SuppressWarnings("unused")
         @SpringBean protected void setTestActionBean(TestActionBean bean) { this.bean = bean; }
         TestActionBean getBean() { return bean; }
     }
@@ -178,6 +182,7 @@ public class SpringHelperTests {
         @SpringBean("test/testActionBean")
         private void setNumber3(TestActionBean value) { this.number3 = value; }
 
+        @SuppressWarnings("unused")
         @SpringBean("testActionBean")
         public void whee(TestActionBean value) { this.number4 = value; }
     }
@@ -195,6 +200,7 @@ public class SpringHelperTests {
     ///////////////////////////////////////////////////////////////////////////
 
     private static class AmbiguousByTypeTarget {
+        @SuppressWarnings("unused")
         @SpringBean TestActionBean someBeanOrOther;
     }
 
@@ -207,6 +213,7 @@ public class SpringHelperTests {
     ///////////////////////////////////////////////////////////////////////////
 
     private static class ExplicitMisNamedTarget {
+        @SuppressWarnings("unused")
         @SpringBean("nonExistentBean") TestActionBean someBeanOrOther;
     }
 
@@ -219,6 +226,7 @@ public class SpringHelperTests {
     ///////////////////////////////////////////////////////////////////////////
 
     private static class ImplicitMisNamedTarget {
+        @SuppressWarnings("unused")
         @SpringBean TestActionBean tstActionBea;
     }
 
@@ -231,6 +239,7 @@ public class SpringHelperTests {
     ///////////////////////////////////////////////////////////////////////////
 
     private static class NoBeanOfTypeTarget {
+        @SuppressWarnings("unused")
         @SpringBean SpringHelperTests noBeansOfType;
     }
 
@@ -243,7 +252,9 @@ public class SpringHelperTests {
     ///////////////////////////////////////////////////////////////////////////
 
     private static class InvalidSetterSignatureTarget {
+        @SuppressWarnings("unused")
         TestActionBean testActionBean;
+        @SuppressWarnings("unused")
         @SpringBean
         public void setTestActionBean(TestActionBean bean, TestActionBean other) {
             this.testActionBean = bean;
@@ -268,6 +279,7 @@ public class SpringHelperTests {
         @SpringBean("test/testActionBean")
         private void setNumber3(TestActionBean value) { this.number3 = value; }
 
+        @SuppressWarnings("unused")
         @SpringBean("testActionBean")
         public void whee(TestActionBean value) { this.number4 = value; }
     }
