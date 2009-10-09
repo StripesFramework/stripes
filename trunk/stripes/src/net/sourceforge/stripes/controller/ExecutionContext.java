@@ -50,7 +50,6 @@ public class ExecutionContext {
     private ActionBeanContext actionBeanContext;
     private ActionBean actionBean;
     private Method handler;
-    private Object handlerReturnValue;
     private Resolution resolution;
     private LifecycleStage lifecycleStage;
     private boolean resolutionFromHandler = false;
@@ -129,19 +128,6 @@ public class ExecutionContext {
 
     /** Sets the handler method that will be invoked to process the current request. */
     public void setHandler(Method handler) { this.handler = handler; }
-
-    /**
-     * Retrieves the value that was returned by the handler method. Available
-     * to interceptors only after {@link LifecycleStage#EventHandling} has occurred.
-     *
-     * @return the value that was returned by the handler method (could be null)
-     */
-    public Object getHandlerReturnValue() { return handlerReturnValue; }
-
-    /** Sets the value that was returned by the handler method. */
-    public void setHandlerReturnValue(Object handlerReturnValue) {
-        this.handlerReturnValue = handlerReturnValue;
-    }
 
     /**
      * Gets the Resolution that will be executed at the end of the execution. This value
