@@ -455,14 +455,13 @@ public class DispatcherHelper {
             public Resolution intercept(ExecutionContext ctx) throws Exception {
                 Object returnValue = handler.invoke(bean);
                 fillInValidationErrors(ctx);
-                ctx.setHandlerReturnValue(returnValue);
 
                 if (returnValue != null && returnValue instanceof Resolution) {
                     ctx.setResolutionFromHandler(true);
                     return (Resolution) returnValue;
                 }
                 else if (returnValue != null) {
-                    log.debug("Expected handler method ", handler.getName(), " on class ",
+                    log.warn("Expected handler method ", handler.getName(), " on class ",
                              bean.getClass().getSimpleName(), " to return a Resolution. Instead it ",
                              "returned: ", returnValue);
                 }
