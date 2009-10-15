@@ -54,8 +54,22 @@ public class MapPropertyAccessor implements PropertyAccessor<Map<?,?>> {
      * @param value the value to be stored in the map under the specified key
      */
     @SuppressWarnings("unchecked")
-	public void setValue(NodeEvaluation evaluation, Map map, Object value) {
-        map.put(getKey(evaluation), value);
+    public void setValue(NodeEvaluation evaluation, Map map, Object value) {
+        Object key = getKey(evaluation);
+        if (key != null && !evaluation.getKeyType().isAssignableFrom(key.getClass())) {
+            String exprString = evaluation.getExpressionEvaluation().getExpression().getSource();
+            String nodeString = evaluation.getNode().getStringValue();
+            String declTypeName = evaluation.getKeyType().getName();
+            String evalTypeName = key.getClass().getName();
+            log.warn("Unable to bind ", exprString, " because the string \"", nodeString,
+                    "\" evaluates to a ", evalTypeName,
+                    ", which is not assignable to the map's key type of ", declTypeName,
+                    ". This likely means type conversion failed and there is no constructor ",
+                    declTypeName, "(String).");
+        }
+        else {
+            map.put(key, value);
+        }
     }
 
     /**

@@ -1,6 +1,7 @@
 package net.sourceforge.stripes.controller;
 
 import org.testng.Assert;
+import org.testng.annotations.Test;
 import net.sourceforge.stripes.mock.MockRoundtrip;
 import net.sourceforge.stripes.mock.MockServletContext;
 import net.sourceforge.stripes.StripesTestFixture;
@@ -19,7 +20,7 @@ public class InvalidDateKeyBreaksInvariant_STS_651 {
         return new MockRoundtrip(context, MapBindingTests.class);
     }
 
-    //@Test
+    @Test
     public void bindInvalidDateKeysInMapBreaksMapInvariant() throws Exception {
         MockRoundtrip trip = getRoundtrip();
         trip.addParameter("mapDateDate['notadate']", "01/01/2000");
