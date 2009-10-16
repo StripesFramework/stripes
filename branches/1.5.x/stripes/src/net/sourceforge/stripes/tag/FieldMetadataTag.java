@@ -180,7 +180,9 @@ public class FieldMetadataTag extends HtmlTagSupport implements BodyTag {
                             data.trim());
                 if (data.mask() != null)
                     fieldInfo.append(fieldInfo.length() > 0 ? "," : "").append("mask:")
-                            .append("/^").append(data.mask()).append("$/");
+                            .append("new RegExp(")
+                            .append(JavaScriptBuilder.quote("^" + data.mask().toString() + "$"))
+                            .append(")");
                 if (data.minlength() != null)
                     fieldInfo.append(fieldInfo.length() > 0 ? "," : "").append("minlength:")
                             .append(data.minlength());
