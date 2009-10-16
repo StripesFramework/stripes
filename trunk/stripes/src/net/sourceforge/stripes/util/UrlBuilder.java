@@ -287,7 +287,7 @@ public class UrlBuilder {
             url = build();
         }
         if (this.anchor != null && this.anchor.length() > 0) {
-            return url + "#" + this.anchor;
+            return url + "#" + StringUtil.uriFragmentEncode(this.anchor);
         }
         else {
             return url;
