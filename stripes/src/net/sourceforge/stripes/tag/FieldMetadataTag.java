@@ -16,6 +16,7 @@ import javax.servlet.jsp.tagext.BodyTag;
 
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.ajax.JavaScriptBuilder;
+import net.sourceforge.stripes.controller.ParameterName;
 import net.sourceforge.stripes.controller.StripesFilter;
 import net.sourceforge.stripes.exception.StripesJspException;
 import net.sourceforge.stripes.localization.LocalizationUtility;
@@ -114,8 +115,11 @@ public class FieldMetadataTag extends HtmlTagSupport implements BodyTag {
 
         Set<String> fields = new HashSet<String>();
         
-        if (form != null)
-            fields.addAll(form.getRegisteredFields());
+        if (form != null) {
+            for (String field : form.getRegisteredFields()) {
+                fields.add(new ParameterName(field).getStrippedName());
+            }
+        }
 
         if ((this.fields != null) && (this.fields.trim().length() > 0))
             fields.addAll(Arrays.asList(this.fields.split(",")));
