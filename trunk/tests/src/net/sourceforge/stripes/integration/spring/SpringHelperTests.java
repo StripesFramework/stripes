@@ -313,4 +313,42 @@ public class SpringHelperTests {
         PostProcessorTarget target = factory.newInstance(PostProcessorTarget.class);
         Assert.assertNotNull(target.getBean());
     }
+
+    ///////////////////////////////////////////////////////////////////////////
+
+    public static class HiddenPrivateFieldTarget1 {
+        @SpringBean private TestBean a;
+        @SpringBean TestBean b;
+        @SpringBean protected TestBean c;
+        @SpringBean public TestBean d;
+        public TestBean getA1() { return a; }
+        public TestBean getB1() { return b; }
+        public TestBean getC1() { return c; }
+        public TestBean getD1() { return d; }
+    }
+
+    public static class HiddenPrivateFieldTarget2 extends HiddenPrivateFieldTarget1 {
+        @SpringBean private TestBean a;
+        @SpringBean TestBean b;
+        @SpringBean protected TestBean c;
+        @SpringBean public TestBean d;
+        public TestBean getA2() { return a; }
+        public TestBean getB2() { return b; }
+        public TestBean getC2() { return c; }
+        public TestBean getD2() { return d; }
+    }
+
+    @Test(groups = "fast")
+    public void testHiddenFields() {
+        HiddenPrivateFieldTarget2 target = new HiddenPrivateFieldTarget2();
+        SpringHelper.injectBeans(target, ctx);
+        Assert.assertNotNull(target.getA1());
+        Assert.assertNotNull(target.getA2());
+        Assert.assertNotNull(target.getB1());
+        Assert.assertNotNull(target.getB2());
+        Assert.assertNotNull(target.getC1());
+        Assert.assertNotNull(target.getC2());
+        Assert.assertNotNull(target.getD1());
+        Assert.assertNotNull(target.getD2());
+    }
 }

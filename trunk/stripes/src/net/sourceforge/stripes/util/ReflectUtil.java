@@ -217,26 +217,22 @@ public class ReflectUtil {
     }
 
     /**
-     * Fetches all fields of all access types from the supplied class and super
-     * classes. Fieldss that have been overridden in the inheritance hierarchy are
-     * only returned once, using the instance lowest down the hierarchy.
-     *
+     * Fetches all fields of all access types from the supplied class and super classes.
+     * 
      * @param clazz the class to inspect
      * @return a collection of fields
      */
     public static Collection<Field> getFields(Class<?> clazz) {
-        Map<String,Field> fields = new HashMap<String, Field>();
+        List<Field> fields = new ArrayList<Field>();
         while (clazz != null) {
             for (Field field : clazz.getDeclaredFields()) {
-                if ( !fields.containsKey(field.getName()) ) {
-                    fields.put(field.getName(), field);
-                }
+                fields.add(field);
             }
 
             clazz = clazz.getSuperclass();
         }
 
-        return fields.values();
+        return fields;
     }
 
     /**
