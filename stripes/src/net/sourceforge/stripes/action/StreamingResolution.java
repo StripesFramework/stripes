@@ -25,6 +25,8 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringReader;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * <p>Resolution for streaming data back to the client (in place of forwarding the user to
@@ -54,12 +56,17 @@ import java.io.StringReader;
  * @author Tim Fennell
  */
 public class StreamingResolution implements Resolution {
+    /** Date format string for RFC 822 dates. */
+    private static final String RFC_822_DATE_FORMAT = "EEE, d MMM yyyy HH:mm:ss Z";
     private static final Log log = Log.getInstance(StreamingResolution.class);
     private InputStream inputStream;
     private Reader reader;
     private String filename;
     private String contentType;
     private String characterEncoding;
+    private long lastModified = -1;
+    private long length = -1;
+    private boolean attachment;
 
     /**
      * Constructor only to be used when subclassing the StreamingResolution (usually using
@@ -118,6 +125,7 @@ public class StreamingResolution implements Resolution {
      */
     public StreamingResolution setFilename(String filename) {
         this.filename = filename;
+        setAttachment(filename != null);
         return this;
     }
 
@@ -133,6 +141,47 @@ public class StreamingResolution implements Resolution {
     }
 
     /**
+     * Sets the modification-date timestamp. If this property is set, the browser may be able to
+     * apply it to the downloaded file. If this property is unset, the modification-date parameter
+     * will be omitted.
+     * 
+     * @param lastModified The date-time (as a long) that the file was last modified. Optional.
+     * @return StreamingResolution so that this method call can be chained to the constructor and
+     *         returned.
+     */
+    public StreamingResolution setLastModified(long lastModified) {
+        this.lastModified = lastModified;
+        return this;
+    }
+
+    /**
+     * Sets the file length. If this property is set, the file size will be reported in the HTTP
+     * header. This may help with file download progress indicators. If this property is unset, the
+     * size parameter will be omitted.
+     * 
+     * @param length The length of the file in bytes.
+     * @return StreamingResolution so that this method call can be chained to the constructor and
+     *         returned.
+     */
+    public StreamingResolution setLength(long length) {
+        this.length = length;
+        return this;
+    }
+
+    /**
+     * Indicates whether to use content-disposition attachment headers or not. (Defaults to true).
+     * 
+     * @param attachment Whether the content should be treated as an attachment, or a direct
+     *            download.
+     * @return StreamingResolution so that this method call can be chained to the constructor and
+     *         returned.
+     */
+    public StreamingResolution setAttachment(boolean attachment) {
+        this.attachment = attachment;
+        return this;
+    }
+
+    /**
      * Streams data from the InputStream or Reader to the response's OutputStream or PrinterWriter,
      * using a moderately sized buffer to ensure that the operation is reasonable efficient.
      * Once the InputStream or Reader signaled the end of the stream, close() is called on it.
@@ -142,19 +191,54 @@ public class StreamingResolution implements Resolution {
      * @throws IOException if there is a problem accessing one of the streams or reader/writer
      *         objects used.
      */
-    final public void execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        response.setContentType(this.contentType);
-        if (this.characterEncoding != null) response.setCharacterEncoding(characterEncoding);
+    final public void execute(HttpServletRequest request, HttpServletResponse response)
+            throws Exception {
+        applyHeaders(response);
+        stream(response);
+    }
 
-        // If a filename was specified, set the appropriate header
-        if (this.filename != null) {
+    /**
+     * Sets the response headers, based on what is known about the file or stream being handled.
+     * 
+     * @param response the current HttpServletResponse
+     */
+    protected void applyHeaders(HttpServletResponse response) {
+        response.setContentType(this.contentType);
+        if (this.characterEncoding != null) {
+            response.setCharacterEncoding(characterEncoding);
+        }
+
+        // Set Content-Length header
+        if (length >= 0) {
+            // Odd that ServletResponse.setContentLength is limited to int.
+            // requires downcast from long to int e.g.
+            // response.setContentLength((int)length);
+            // Workaround to allow large files:
+            response.addHeader("Content-Length", Long.toString(length));
+        }
+
+        // Set Last-Modified header
+        if (lastModified >= 0) {
+            response.setDateHeader("Last-Modified", lastModified);
+        }
+
+        // For Content-Disposition spec, see http://www.ietf.org/rfc/rfc2183.txt
+        if (attachment || filename != null) {
             // Value of filename should be RFC 2047 encoded here (see RFC 2616) but few browsers
             // support that, so just escape the quote for now
             String escaped = this.filename.replace("\"", "\\\"");
-            response.setHeader("Content-Disposition", "attachment; filename=\"" + escaped + "\"");
+            StringBuilder header = new StringBuilder(attachment ? "attachment" : "inline").append(
+                    ";filename=\"").append(escaped).append("\"");
+            if (lastModified >= 0) {
+                SimpleDateFormat format = new SimpleDateFormat(RFC_822_DATE_FORMAT);
+                String value = format.format(new Date(lastModified));
+                header.append(";modification-date=\"").append(value).append("\"");
+            }
+            if (length >= 0) {
+                header.append(";size=").append(length);
+            }
+            response.setHeader("Content-Disposition", header.toString());
         }
-
-        stream(response);
     }
 
     /**
