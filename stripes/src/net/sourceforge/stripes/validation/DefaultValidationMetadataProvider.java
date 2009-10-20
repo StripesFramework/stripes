@@ -112,6 +112,10 @@ public class DefaultValidationMetadataProvider implements ValidationMetadataProv
                     catch (NoSuchFieldException e) {
                     }
 
+                    // Work around a bug in JDK6 and earlier. See STS-664 for more information.
+                    if (accessor != null && accessor.isBridge())
+                        accessor = accessor.getDeclaringClass().getMethod(accessor.getName());
+
                     boolean onAccessor = accessor != null
                             && Modifier.isPublic(accessor.getModifiers())
                             && accessor.getDeclaringClass().equals(clazz)
