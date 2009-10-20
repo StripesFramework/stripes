@@ -251,10 +251,50 @@ public class UrlBindingFactoryTests {
         checkBinding("/foo/goo/1/", FooActionBean8.class);
         checkBinding("/foo/goo/1/2", FooActionBean8.class);
     }
-    
-    public static void main(String[] args) {
-        UrlBindingFactoryTests tests = new UrlBindingFactoryTests();
-        tests.setupClass();
-        tests.testUrlBindings();
+
+    @Test(groups = "fast")
+    public void testConflictDetectionIndependentOfClassLoadingOrder() {
+        UrlBindingFactory factory;
+        UrlBinding prototype;
+
+        // This order works
+        factory = new UrlBindingFactory();
+        factory.addBinding(FooActionBean.class, UrlBindingFactory.parseUrlBinding(FooActionBean.class));
+        factory.addBinding(FooActionBean2.class, UrlBindingFactory.parseUrlBinding(FooActionBean2.class));
+        factory.addBinding(FooActionBean3.class, UrlBindingFactory.parseUrlBinding(FooActionBean3.class));
+        factory.addBinding(FooActionBean4.class, UrlBindingFactory.parseUrlBinding(FooActionBean4.class));
+        factory.addBinding(FooActionBean5.class, UrlBindingFactory.parseUrlBinding(FooActionBean5.class));
+        factory.addBinding(FooActionBean6.class, UrlBindingFactory.parseUrlBinding(FooActionBean6.class));
+        factory.addBinding(FooActionBean7.class, UrlBindingFactory.parseUrlBinding(FooActionBean7.class));
+        factory.addBinding(FooActionBean8.class, UrlBindingFactory.parseUrlBinding(FooActionBean8.class));
+        prototype = factory.getBindingPrototype("/foo");
+        Assert.assertNotNull(prototype);
+        Assert.assertSame(prototype.getBeanType(), FooActionBean.class);
+
+        // This order was failing
+        factory = new UrlBindingFactory();
+        factory.addBinding(FooActionBean8.class, UrlBindingFactory.parseUrlBinding(FooActionBean8.class));
+        factory.addBinding(FooActionBean7.class, UrlBindingFactory.parseUrlBinding(FooActionBean7.class));
+        factory.addBinding(FooActionBean6.class, UrlBindingFactory.parseUrlBinding(FooActionBean6.class));
+        factory.addBinding(FooActionBean5.class, UrlBindingFactory.parseUrlBinding(FooActionBean5.class));
+        factory.addBinding(FooActionBean4.class, UrlBindingFactory.parseUrlBinding(FooActionBean4.class));
+        factory.addBinding(FooActionBean3.class, UrlBindingFactory.parseUrlBinding(FooActionBean3.class));
+        factory.addBinding(FooActionBean2.class, UrlBindingFactory.parseUrlBinding(FooActionBean2.class));
+        factory.addBinding(FooActionBean.class, UrlBindingFactory.parseUrlBinding(FooActionBean.class));
+        factory.getBindingPrototype("/foo");
+        Assert.assertNotNull(prototype);
+        Assert.assertSame(prototype.getBeanType(), FooActionBean.class);
+
+        // And this should still fail, regardless of order
+        factory = new UrlBindingFactory();
+        factory.addBinding(FooActionBean.class, UrlBindingFactory.parseUrlBinding(FooActionBean.class));
+        factory.addBinding(FooActionBean2.class, UrlBindingFactory.parseUrlBinding(FooActionBean.class));
+        try {
+            factory.getBindingPrototype("/foo");
+            Assert.assertTrue(false, "A URL binding conflict was expected but it didn't happen!");
+        }
+        catch (UrlBindingConflictException e) {
+            log.debug("Got expected URL binding conflict");
+        }
     }
 }

@@ -113,6 +113,21 @@ public class UrlBinding {
     }
 
     @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof UrlBinding))
+            return false;
+
+        UrlBinding that = (UrlBinding) obj;
+        return this.getBeanType() == that.getBeanType()
+                && this.getComponents().equals(that.getComponents());
+    }
+
+    @Override
+    public int hashCode() {
+        return getPath() == null ? 0 : getPath().hashCode();
+    }
+
+    @Override
     public String toString() {
         StringBuilder buf = new StringBuilder(64).append(getPath());
         for (Object component : getComponents()) {

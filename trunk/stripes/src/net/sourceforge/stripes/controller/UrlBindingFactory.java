@@ -65,7 +65,7 @@ public class UrlBindingFactory {
     private final Map<String, UrlBinding> pathCache = new HashMap<String, UrlBinding>();
 
     /** Keeps a list of all the paths that could not be cached due to conflicts between URL bindings */
-    private final Map<String, List<String>> pathConflicts = new HashMap<String, List<String>>();
+    private final Map<String, List<UrlBinding>> pathConflicts = new HashMap<String, List<UrlBinding>>();
 
     /** Holds the set of paths that are cached, sorted from longest to shortest */
     private final Map<String, Set<UrlBinding>> prefixCache = new TreeMap<String, Set<UrlBinding>>(
@@ -118,7 +118,10 @@ public class UrlBindingFactory {
             return prototype;
         }
         else if (pathConflicts.containsKey(uri)) {
-            throw new UrlBindingConflictException(uri, pathConflicts.get(uri));
+            List<String> strings = new ArrayList<String>();
+            for (UrlBinding conflict : pathConflicts.get(uri))
+                strings.add(conflict.toString());
+            throw new UrlBindingConflictException(uri, strings);
         }
 
         // Get all the bindings whose prefix matches the URI
@@ -372,10 +375,10 @@ public class UrlBindingFactory {
             log.debug("Clearing cached path ", path, " for ", binding);
             pathCache.remove(path);
 
-            List<String> conflicts = pathConflicts.get(path);
+            List<UrlBinding> conflicts = pathConflicts.get(path);
             if (conflicts != null) {
                 log.debug("Removing ", binding, " from conflicts list ", conflicts);
-                conflicts.remove(binding.toString());
+                conflicts.remove(binding);
 
                 if (conflicts.size() == 1) {
                     if (resolvedConflicts == null) {
@@ -469,34 +472,39 @@ public class UrlBindingFactory {
             UrlBinding conflict = pathCache.put(path, null);
 
             // Construct a list of conflicting bindings
-            List<String> list = pathConflicts.get(path);
-            if (list == null) {
-                list = new ArrayList<String>();
-                list.add(conflict.toString());
-                pathConflicts.put(path, list);
+            List<UrlBinding> conflicts = pathConflicts.get(path);
+            if (conflicts == null) {
+                conflicts = new ArrayList<UrlBinding>();
+                conflicts.add(conflict);
+                pathConflicts.put(path, conflicts);
             }
-            list.add(binding.toString());
+            conflicts.add(binding);
 
-            // If either the existing binding or the new binding (but not both) declares no
-            // parameters, then it is a static binding and should take precedence over dynamic ones.
+            // If there is exactly one binding for this path that declares no parameters, then it is
+            // a static binding and should take precedence over dynamic ones.
             UrlBinding statik = null;
-            if (conflict != null) {
-                if (conflict.getParameters().isEmpty() && !binding.getParameters().isEmpty()) {
-                    statik = conflict;
-                }
-                else if (!conflict.getParameters().isEmpty() && binding.getParameters().isEmpty()) {
-                    statik = binding;
+            if (conflicts.size() > 1) {
+                for (UrlBinding ub : conflicts) {
+                    if (ub.getParameters().isEmpty()) {
+                        if (statik == null) {
+                            statik = ub;
+                        }
+                        else {
+                            statik = null;
+                            break;
+                        }
+                    }
                 }
             }
 
             // Replace the path cache entry if necessary and log a warning
             if (statik == null) {
                 log.debug("The path ", path, " for ", binding.getBeanType().getName(), " @ ",
-                        binding, " conflicts with ", list);
+                        binding, " conflicts with ", conflicts);
             }
             else {
                 log.debug("For path ", path, ", static binding ", statik,
-                        " supersedes conflicting bindings ", list);
+                        " supersedes conflicting bindings ", conflicts);
                 pathCache.put(path, statik);
             }
         }

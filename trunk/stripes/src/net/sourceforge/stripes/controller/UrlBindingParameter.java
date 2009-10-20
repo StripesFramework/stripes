@@ -131,8 +131,9 @@ public class UrlBindingParameter {
     public boolean equals(Object o) {
         if (!(o instanceof UrlBindingParameter))
             return false;
+
         UrlBindingParameter that = (UrlBindingParameter) o;
-        return this.value == that.value || ((this.value != null) && this.value.equals(that.value));
+        return this.value == null ? that.value == null : this.value.equals(that.value);
     }
 
     @Override
