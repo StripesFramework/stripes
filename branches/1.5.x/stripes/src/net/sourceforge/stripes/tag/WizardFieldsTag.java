@@ -14,15 +14,17 @@
  */
 package net.sourceforge.stripes.tag;
 
+import static net.sourceforge.stripes.controller.StripesConstants.URL_KEY_FIELDS_PRESENT;
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.controller.StripesConstants;
 import net.sourceforge.stripes.exception.StripesJspException;
-import net.sourceforge.stripes.util.CollectionUtil;
+import net.sourceforge.stripes.util.CryptoUtil;
+import net.sourceforge.stripes.util.HtmlUtil;
 
+import javax.servlet.ServletRequest;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.TryCatchFinally;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -72,8 +74,9 @@ public class WizardFieldsTag extends StripesTagSupport implements TryCatchFinall
         excludes.add( StripesConstants.URL_KEY_EVENT_NAME );
 
         // Use the submitted action bean to eliminate any event related parameters
-        ActionBean submittedActionBean = (ActionBean)
-                getPageContext().getRequest().getAttribute(StripesConstants.REQ_ATTR_ACTION_BEAN);
+        ServletRequest request = getPageContext().getRequest();
+        ActionBean submittedActionBean = (ActionBean) request
+                .getAttribute(StripesConstants.REQ_ATTR_ACTION_BEAN);
 
         if (submittedActionBean != null) {
             String eventName = submittedActionBean.getContext().getEventName();
@@ -96,13 +99,18 @@ public class WizardFieldsTag extends StripesTagSupport implements TryCatchFinall
             hidden.setPageContext( getPageContext() );
             hidden.setParent( getParent() );
 
-            // Loop through the request parameters and output the values
-            Map<String,String[]> params = getPageContext().getRequest().getParameterMap();
-            for (Map.Entry<String,String[]> entry : params.entrySet()) {
-                String name = entry.getKey();
-                String[] values = entry.getValue();
+            // Combine actual parameter names with input names from the form, which might not be
+            // represented by a real request parameter
+            Set<String> paramNames = new HashSet<String>();
+            paramNames.addAll(request.getParameterMap().keySet());
+            String fieldsPresent = request.getParameter(URL_KEY_FIELDS_PRESENT);
+            if (fieldsPresent != null) {
+                paramNames.addAll(HtmlUtil.splitValues(CryptoUtil.decrypt(fieldsPresent)));
+            }
 
-                if ( !excludes.contains(name) && !CollectionUtil.empty(values)  ) {
+            // Loop through the request parameters and output the values
+            for (String name : paramNames) {
+                if (!excludes.contains(name)) {
                     hidden.setName(name);
                     try {
                         hidden.doStartTag();
