@@ -1,5 +1,7 @@
 package net.sourceforge.stripes.validation;
 
+import java.util.Locale;
+
 import net.sourceforge.stripes.StripesTestFixture;
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.action.ActionBeanContext;
@@ -96,16 +98,25 @@ public class ValidationAnnotationsTest implements ActionBean {
      *
      * @see http://www.stripesframework.org/jira/browse/STS-610
      */
+    @SuppressWarnings("unchecked")
     @Test(groups="extensions")
     public void testValidateTypeConverterDoesNotExtendStock() throws Exception {
-        MockRoundtrip trip = new MockRoundtrip(StripesTestFixture.getServletContext(), getClass());
-        StripesFilter.getConfiguration().getTypeConverterFactory().add(String.class, MyStringTypeConverter.class);
-        trip.addParameter("shouldBeUpperCased", "test");
-        trip.addParameter("shouldNotBeUpperCased", "test");
-        trip.execute("validateTypeConverters");
-        ValidationAnnotationsTest actionBean = trip.getActionBean(getClass());
-        Assert.assertEquals(actionBean.shouldBeUpperCased, "TEST");
-        Assert.assertEquals(actionBean.shouldNotBeUpperCased, "test");
+        TypeConverterFactory factory = StripesFilter.getConfiguration().getTypeConverterFactory();
+        Class<? extends TypeConverter> oldtc = factory.getTypeConverter(//
+                String.class, Locale.getDefault()).getClass();
+        try {
+            MockRoundtrip trip = new MockRoundtrip(StripesTestFixture.getServletContext(), getClass());
+            factory.add(String.class, MyStringTypeConverter.class);
+            trip.addParameter("shouldBeUpperCased", "test");
+            trip.addParameter("shouldNotBeUpperCased", "test");
+            trip.execute("validateTypeConverters");
+            ValidationAnnotationsTest actionBean = trip.getActionBean(getClass());
+            Assert.assertEquals(actionBean.shouldBeUpperCased, "TEST");
+            Assert.assertEquals(actionBean.shouldNotBeUpperCased, "test");
+        }
+        finally {
+            factory.add(String.class, (Class<? extends TypeConverter<?>>) oldtc);
+        }
     }
 
     @Validate(encrypted=true)
