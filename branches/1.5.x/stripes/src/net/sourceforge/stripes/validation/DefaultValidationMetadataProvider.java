@@ -14,7 +14,6 @@
  */
 package net.sourceforge.stripes.validation;
 
-import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -33,6 +32,7 @@ import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.controller.ParameterName;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
 import net.sourceforge.stripes.util.Log;
+import net.sourceforge.stripes.util.ReflectUtil;
 
 /**
  * An implementation of {@link ValidationMetadataProvider} that scans classes and their superclasses
@@ -93,7 +93,7 @@ public class DefaultValidationMetadataProvider implements ValidationMetadataProv
         try {
             for (Class<?> clazz = beanType; clazz != null; clazz = clazz.getSuperclass()) {
                 List<PropertyDescriptor> pds = new ArrayList<PropertyDescriptor>(
-                    Arrays.asList(Introspector.getBeanInfo(clazz).getPropertyDescriptors()));
+                        Arrays.asList(ReflectUtil.getPropertyDescriptors(beanType)));
 
                 // Also look at public fields
                 Field[] publicFields = clazz.getFields();
@@ -111,10 +111,6 @@ public class DefaultValidationMetadataProvider implements ValidationMetadataProv
                     }
                     catch (NoSuchFieldException e) {
                     }
-
-                    // Work around a bug in JDK6 and earlier. See STS-664 for more information.
-                    if (accessor != null && accessor.isBridge())
-                        accessor = accessor.getDeclaringClass().getMethod(accessor.getName());
 
                     boolean onAccessor = accessor != null
                             && Modifier.isPublic(accessor.getModifiers())
