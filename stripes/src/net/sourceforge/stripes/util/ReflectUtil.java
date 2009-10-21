@@ -575,8 +575,8 @@ public class ReflectUtil {
                 setter = candidates.get(0);
             }
             else if (candidates.isEmpty()) {
-                setter = null;
                 log.error("Something has gone awry! I have a bridge to nowhere: ", setter);
+                setter = null;
             }
             else {
                 // Clear the setter and try to find a best guess
