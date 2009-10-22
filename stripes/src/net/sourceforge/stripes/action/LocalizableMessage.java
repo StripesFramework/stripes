@@ -33,10 +33,8 @@ public class LocalizableMessage extends SimpleMessage {
     private String messageKey;
 
     /**
-     * Creates a new LocalizableError with the message key provided, and optionally zero or more
-     * replacement parameters to use in the message.  It should be noted that the replacement
-     * parameters provided here can be referenced in the error message <b>starting with number
-     * 2</b>.
+     * Creates a new LocalizableMessage with the message key provided, and optionally zero or more
+     * replacement parameters to use in the message.
      *
      * @param messageKey a key to lookup a message in the resource bundle
      * @param parameter one or more replacement parameters to insert into the message
@@ -47,7 +45,7 @@ public class LocalizableMessage extends SimpleMessage {
     }
 
     /**
-     * Method responsible for using the information supplied to the error object to find a
+     * Method responsible for using the information supplied to the message object to find a
      * message template. In this class this is done simply by looking up the resource
      * corresponding to the messageKey supplied in the constructor.
      */
