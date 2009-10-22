@@ -497,20 +497,26 @@ public class ReflectUtil {
             }
 
             @Override
-            public synchronized void setReadMethod(Method readMethod) throws IntrospectionException {
+            public synchronized void setReadMethod(Method readMethod) {
                 this.readMethod = readMethod;
             }
 
             @Override
-            public synchronized void setWriteMethod(Method writeMethod) throws IntrospectionException {
+            public synchronized void setWriteMethod(Method writeMethod) {
                 this.writeMethod = writeMethod;
             }
         }
 
         // Not cached yet. Look it up the normal way.
         try {
+            // Make a copy of the array to avoid poking stuff into Introspector's cache!
             PropertyDescriptor[] pds = Introspector.getBeanInfo(clazz).getPropertyDescriptors();
+            pds = Arrays.asList(pds).toArray(new PropertyDescriptor[pds.length]);
+
+            // Make a new local cache entry
             Map<String, PropertyDescriptor> map = new LinkedHashMap<String, PropertyDescriptor>();
+
+            // Check each descriptor for bridge methods and handle accordingly
             for (int i = 0; i < pds.length; i++) {
                 PropertyDescriptor pd = pds[i];
                 if ((pd.getReadMethod() != null && pd.getReadMethod().isBridge())
@@ -523,7 +529,7 @@ public class ReflectUtil {
                 map.put(pd.getName(), pd);
             }
 
-            // Put cache entry
+            // Put local cache entry
             propertyDescriptors.put(clazz, map);
 
             return pds;

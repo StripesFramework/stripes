@@ -42,6 +42,7 @@ public class ValidationWithGenericsTest {
                 @Validate(field = "password", required = true)
         })
         public User getModel() { return super.getModel(); }
+        @Override
         public void setModel(User user) { super.setModel(user); }
         public Resolution login() { return null; }
     }
@@ -129,5 +130,9 @@ public class ValidationWithGenericsTest {
         Assert.assertNotNull(bean.getModel());
         Assert.assertEquals(bean.getModel().getUsername(), "Scooby");
         Assert.assertEquals(bean.getModel().getPassword(), "Shaggy");
+    }
+    
+    public static void main(String[] args) throws Exception {
+        new ValidationWithGenericsTest().testActionBeanWithTypeParameter();
     }
 }
