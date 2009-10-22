@@ -478,7 +478,7 @@ public class ReflectUtil {
                 super(pd.getName(), pd.getReadMethod(), pd.getWriteMethod());
                 readMethod = resolveBridgedReadMethod(pd);
                 writeMethod = resolveBridgedWriteMethod(pd);
-                propertyType = resolvePropertyType(pd);
+                propertyType = resolvePropertyType(this);
             }
 
             @Override
@@ -494,6 +494,16 @@ public class ReflectUtil {
             @Override
             public synchronized Method getWriteMethod() {
                 return writeMethod;
+            }
+
+            @Override
+            public synchronized void setReadMethod(Method readMethod) throws IntrospectionException {
+                this.readMethod = readMethod;
+            }
+
+            @Override
+            public synchronized void setWriteMethod(Method writeMethod) throws IntrospectionException {
+                this.writeMethod = writeMethod;
             }
         }
 
