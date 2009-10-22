@@ -16,6 +16,8 @@ package net.sourceforge.stripes.util;
 
 import net.sourceforge.stripes.exception.StripesRuntimeException;
 
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Collection;
@@ -50,6 +52,8 @@ import java.beans.IntrospectionException;
  * @author Tim Fennell
  */
 public class ReflectUtil {
+    private static final Log log = Log.getInstance(ReflectUtil.class);
+
     /** A cache of property descriptors by class and property name */
     private static Map<Class<?>, Map<String, PropertyDescriptor>> propertyDescriptors =
             new ConcurrentHashMap<Class<?>, Map<String, PropertyDescriptor>>();
@@ -246,26 +250,9 @@ public class ReflectUtil {
      * @return the PropertyDescriptor or null if none is found with a matching name
      */
     public static PropertyDescriptor getPropertyDescriptor(Class<?> clazz, String property) {
-        Map<String,PropertyDescriptor> pds = propertyDescriptors.get(clazz);
-        if (pds == null) {
-            try {
-                BeanInfo info = Introspector.getBeanInfo(clazz);
-                PropertyDescriptor[] descriptors = info.getPropertyDescriptors();
-                pds = new HashMap<String, PropertyDescriptor>();
-
-                for (PropertyDescriptor descriptor : descriptors) {
-                    pds.put(descriptor.getName(), descriptor);
-                }
-
-                propertyDescriptors.put(clazz, pds);
-            }
-            catch (IntrospectionException ie) {
-                throw new StripesRuntimeException("Could not examine class '" + clazz.getName() +
-                        "' using Introspector.getBeanInfo() to determine property information.", ie);
-            }
-        }
-
-        return pds.get(property);
+        if (!propertyDescriptors.containsKey(clazz))
+            getPropertyDescriptors(clazz);
+        return propertyDescriptors.get(clazz).get(property);
     }
 
     /**
@@ -419,5 +406,224 @@ public class ReflectUtil {
         }
 
         return null;
+    }
+
+    /**
+     * Get the {@link PropertyDescriptor}s for a bean class. This is normally easy enough to do
+     * except that Java versions 6 and earlier have a bug that can return bridge methods for
+     * property getters and/or setters. That can mess up validation and binding and possibly other
+     * areas. This method accounts for that bug and attempts to work around it, ensuring the
+     * property descriptors contain the true getter and setter methods.
+     * 
+     * @param clazz The bean class to introspect
+     * @return The property descriptors for the bean class, as returned by
+     *         {@link BeanInfo#getPropertyDescriptors()}.
+     */
+    public static PropertyDescriptor[] getPropertyDescriptors(Class<?> clazz) {
+        // Look in the cache first
+        if (propertyDescriptors.containsKey(clazz)) {
+            Collection<PropertyDescriptor> pds = propertyDescriptors.get(clazz).values();
+            return pds.toArray(new PropertyDescriptor[pds.size()]);
+        }
+
+        // A subclass that is aware of bridge methods
+        class BridgedPropertyDescriptor extends PropertyDescriptor {
+            private Method readMethod, writeMethod;
+            private Class<?> propertyType;
+
+            public BridgedPropertyDescriptor(PropertyDescriptor pd) throws IntrospectionException {
+                super(pd.getName(), pd.getReadMethod(), pd.getWriteMethod());
+                readMethod = resolveBridgedReadMethod(pd);
+                writeMethod = resolveBridgedWriteMethod(pd);
+                propertyType = resolvePropertyType(this);
+            }
+
+            @Override
+            public synchronized Class<?> getPropertyType() {
+                return propertyType;
+            }
+
+            @Override
+            public synchronized Method getReadMethod() {
+                return readMethod;
+            }
+
+            @Override
+            public synchronized Method getWriteMethod() {
+                return writeMethod;
+            }
+
+            @Override
+            public synchronized void setReadMethod(Method readMethod) {
+                this.readMethod = readMethod;
+            }
+
+            @Override
+            public synchronized void setWriteMethod(Method writeMethod) {
+                this.writeMethod = writeMethod;
+            }
+        }
+
+        // Not cached yet. Look it up the normal way.
+        try {
+            // Make a copy of the array to avoid poking stuff into Introspector's cache!
+            PropertyDescriptor[] pds = Introspector.getBeanInfo(clazz).getPropertyDescriptors();
+            pds = Arrays.asList(pds).toArray(new PropertyDescriptor[pds.length]);
+
+            // Make a new local cache entry
+            Map<String, PropertyDescriptor> map = new LinkedHashMap<String, PropertyDescriptor>();
+
+            // Check each descriptor for bridge methods and handle accordingly
+            for (int i = 0; i < pds.length; i++) {
+                PropertyDescriptor pd = pds[i];
+                if ((pd.getReadMethod() != null && pd.getReadMethod().isBridge())
+                        || (pd.getWriteMethod() != null && pd.getWriteMethod().isBridge())) {
+                    log.debug("Working around JVM bug involving PropertyDescriptors ",
+                            "and bridge methods for ", clazz);
+                    pd = new BridgedPropertyDescriptor(pd);
+                    pds[i] = pd;
+                }
+                map.put(pd.getName(), pd);
+            }
+
+            // Put local cache entry
+            propertyDescriptors.put(clazz, map);
+
+            return pds;
+        }
+        catch (IntrospectionException ie) {
+            throw new StripesRuntimeException("Could not examine class '" + clazz.getName()
+                    + "' using Introspector.getBeanInfo() to determine property information.", ie);
+        }
+    }
+
+    /**
+     * Locate and return the bridged read method for a bean property.
+     * 
+     * @param pd The bean property descriptor
+     * @return The bridged method or the property descriptor's read method, if it is not a bridge
+     *         method.
+     */
+    public static Method resolveBridgedReadMethod(PropertyDescriptor pd) {
+        Method getter = pd.getReadMethod();
+
+        if (getter != null && getter.isBridge()) {
+            try {
+                getter = getter.getDeclaringClass().getMethod(getter.getName());
+            }
+            catch (SecurityException e) {
+                // Ignore exception and keep whatever was in the property descriptor
+            }
+            catch (NoSuchMethodException e) {
+                // Ignore exception and keep whatever was in the property descriptor
+            }
+        }
+
+        return getter;
+    }
+
+    /**
+     * Locate and return the bridged write method for a bean property.
+     * 
+     * @param pd The bean property descriptor
+     * @return The bridged method or the property descriptor's write method, if it is not a bridge
+     *         method.
+     */
+    public static Method resolveBridgedWriteMethod(PropertyDescriptor pd) {
+        Method setter = pd.getWriteMethod();
+
+        if (setter != null && setter.isBridge()) {
+            // Make a list of methods with the same name that take a single parameter
+            List<Method> candidates = new ArrayList<Method>();
+            Method[] methods = setter.getDeclaringClass().getMethods();
+            for (Method method : methods) {
+                if (!method.isBridge() && method.getName().equals(setter.getName())
+                        && method.getParameterTypes().length == 1
+                        && pd.getPropertyType().isAssignableFrom(method.getParameterTypes()[0])) {
+                    candidates.add(method);
+                }
+            }
+
+            if (candidates.size() == 1) {
+                setter = candidates.get(0);
+            }
+            else if (candidates.isEmpty()) {
+                log.error("Something has gone awry! I have a bridge to nowhere: ", setter);
+            }
+            else {
+                // Create a set of all type arguments for all classes declaring the matching methods
+                Set<Type> typeArgs = new HashSet<Type>();
+                for (Method method : candidates) {
+                    Class<?> declarer = method.getDeclaringClass();
+
+                    // Add type arguments for interfaces
+                    for (Class<?> iface : getImplementedInterfaces(declarer)) {
+                        Type[] types = getActualTypeArguments(declarer, iface);
+                        if (types != null)
+                            typeArgs.addAll(Arrays.asList(types));
+                    }
+
+                    // Add type arguments for superclasses
+                    for (Class<?> c = declarer.getSuperclass(); c != null; c = c.getSuperclass()) {
+                        Type[] types = getActualTypeArguments(declarer, c);
+                        if (types != null)
+                            typeArgs.addAll(Arrays.asList(types));
+                    }
+                }
+
+                // Now cycle through, collecting only those methods whose return type is a type arg
+                List<Method> primeCandidates = new ArrayList<Method>(candidates);
+                Iterator<Method> iterator = primeCandidates.iterator();
+                while (iterator.hasNext()) {
+                    if (!typeArgs.contains(iterator.next().getParameterTypes()[0]))
+                        iterator.remove();
+                }
+
+                // If we are left with exactly one match, then go with it
+                if (primeCandidates.size() == 1) {
+                    setter = primeCandidates.get(0);
+                }
+                else {
+                    log.warn("Unable to locate a bridged setter for ", pd.getName(),
+                            " due to a JVM bug and an overloaded method with ",
+                            "the same name as the property setter. This could be a problem. ",
+                            "The offending overloaded methods are: ", candidates);
+                }
+            }
+        }
+
+        return setter;
+    }
+
+    /**
+     * Under normal circumstances, a property's getter will return exactly the same type as its
+     * setter accepts as a parameter. However, because we have to hack around the JVM bug dealing
+     * with bridge methods this might not always be the case. This method resolves the actual type
+     * of the property. In the case where the two types (return type and parameter type) are not
+     * identical, the property type is whichever of the two is lower in the class hierarchy.
+     * 
+     * @param pd The property descriptor
+     * @return The type of the property
+     */
+    public static Class<?> resolvePropertyType(PropertyDescriptor pd) {
+        Method readMethod = pd.getReadMethod();
+        Method writeMethod = pd.getWriteMethod();
+        Class<?> returnType = readMethod == null ? null : readMethod.getReturnType();
+        Class<?> paramType = writeMethod == null ? null : writeMethod.getParameterTypes()[0];
+
+        // For a read-only property, use the getter's return type
+        if (readMethod != null && writeMethod == null)
+            return returnType;
+
+        // For a write-only property, use the setter's parameter type
+        if (writeMethod != null && readMethod == null)
+            return paramType;
+
+        // If the two types are identical (generally the case), then this is easy
+        if (returnType == paramType)
+            return returnType;
+
+        // Otherwise, take the type that is *lower* in the class hierarchy
+        return returnType.isAssignableFrom(paramType) ? paramType : returnType;
     }
 }

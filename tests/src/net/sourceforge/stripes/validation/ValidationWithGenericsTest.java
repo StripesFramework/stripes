@@ -23,6 +23,9 @@ public class ValidationWithGenericsTest {
         public void setPassword(String password) { this.password = password; }
     }
 
+    public static class AdminUser extends User {}
+    public static class SuperUser extends AdminUser {}
+
     public static class BaseActionBean<T> implements ActionBean {
         private ActionBeanContext context;
         private T model;
@@ -32,7 +35,19 @@ public class ValidationWithGenericsTest {
         public void setContext(ActionBeanContext context) { this.context = context; }
     }
 
-    public static class TestActionBean extends BaseActionBean<User> {
+    public static class OverrideGetterAndSetterActionBean extends BaseActionBean<User> {
+        @Override
+        @ValidateNestedProperties( {
+                @Validate(field = "username", required = true),
+                @Validate(field = "password", required = true)
+        })
+        public User getModel() { return super.getModel(); }
+        @Override
+        public void setModel(User user) { super.setModel(user); }
+        public Resolution login() { return null; }
+    }
+
+    public static class OverrideGetterActionBean extends BaseActionBean<User> {
         @Override
         @ValidateNestedProperties( {
                 @Validate(field = "username", required = true),
@@ -40,6 +55,42 @@ public class ValidationWithGenericsTest {
         })
         public User getModel() { return super.getModel(); }
         public Resolution login() { return null; }
+    }
+
+    public static class OverrideSetterActionBean extends BaseActionBean<User> {
+        @Override
+        @ValidateNestedProperties( {
+                @Validate(field = "username", required = true),
+                @Validate(field = "password", required = true)
+        })
+        public void setModel(User user) { super.setModel(user); }
+        public Resolution login() { return null; }
+    }
+
+    public static class OverloadSetterActionBean extends BaseActionBean<User> {
+        @Override
+        @ValidateNestedProperties( {
+                @Validate(field = "username", required = true),
+                @Validate(field = "password", required = true)
+        })
+        public void setModel(User user) { super.setModel(user); }
+        public void setModel(AdminUser user) {}
+        public void setModel(SuperUser user) {}
+        public void setModel(String string) {}
+        public void setModel(Integer integer) {}
+        public Resolution login() { return null; }
+    }
+
+    public static class ExtendOverloadSetterActionBean extends OverloadSetterActionBean {
+    }
+
+    public static class ExtendOverloadSetterAgainActionBean extends ExtendOverloadSetterActionBean {
+        @Override
+        @ValidateNestedProperties( {
+                @Validate(field = "username", required = true),
+                @Validate(field = "password", required = true)
+        })
+        public void setModel(User user) { super.setModel(user); }
     }
 
     /**
@@ -50,15 +101,22 @@ public class ValidationWithGenericsTest {
      */
     @Test(groups = "fast")
     public void testActionBeanWithTypeParameter() throws Exception {
+        runValidationTests(OverrideGetterAndSetterActionBean.class);
+        runValidationTests(OverrideGetterActionBean.class);
+        runValidationTests(OverrideSetterActionBean.class);
+        runValidationTests(OverloadSetterActionBean.class);
+        runValidationTests(ExtendOverloadSetterActionBean.class);
+        runValidationTests(ExtendOverloadSetterAgainActionBean.class);
+    }
+
+    protected void runValidationTests(Class<? extends BaseActionBean<User>> type) throws Exception {
         // Trigger the validation errors
-        MockRoundtrip trip = new MockRoundtrip(StripesTestFixture.getServletContext(),
-                TestActionBean.class);
+        MockRoundtrip trip = new MockRoundtrip(StripesTestFixture.getServletContext(), type);
         trip.execute("login");
         ValidationErrors errors = trip.getValidationErrors();
         Assert.assertNotNull(errors, "Expected validation errors but got none");
         Assert.assertFalse(errors.isEmpty(), "Expected validation errors but got none");
-        Assert.assertEquals(errors.size(), 2, "Expected two validation errors but got "
-                + errors.size());
+        Assert.assertEquals(errors.size(), 2, "Expected two validation errors but got " + errors.size());
 
         // Now add the required parameters and make sure the validation errors don't happen
         trip.addParameter("model.username", "Scooby");
@@ -67,9 +125,14 @@ public class ValidationWithGenericsTest {
         errors = trip.getValidationErrors();
         Assert.assertTrue(errors == null || errors.isEmpty(), "Got unexpected validation errors");
 
-        TestActionBean bean = trip.getActionBean(TestActionBean.class);
+        BaseActionBean<User> bean = trip.getActionBean(type);
         Assert.assertNotNull(bean);
+        Assert.assertNotNull(bean.getModel());
         Assert.assertEquals(bean.getModel().getUsername(), "Scooby");
         Assert.assertEquals(bean.getModel().getPassword(), "Shaggy");
+    }
+    
+    public static void main(String[] args) throws Exception {
+        new ValidationWithGenericsTest().testActionBeanWithTypeParameter();
     }
 }
