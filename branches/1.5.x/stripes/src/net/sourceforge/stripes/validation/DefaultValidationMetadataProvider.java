@@ -93,7 +93,7 @@ public class DefaultValidationMetadataProvider implements ValidationMetadataProv
         try {
             for (Class<?> clazz = beanType; clazz != null; clazz = clazz.getSuperclass()) {
                 List<PropertyDescriptor> pds = new ArrayList<PropertyDescriptor>(
-                        Arrays.asList(ReflectUtil.getPropertyDescriptors(beanType)));
+                        Arrays.asList(ReflectUtil.getPropertyDescriptors(clazz)));
 
                 // Also look at public fields
                 Field[] publicFields = clazz.getFields();
