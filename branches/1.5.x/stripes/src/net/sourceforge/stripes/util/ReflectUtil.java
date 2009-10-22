@@ -592,12 +592,8 @@ public class ReflectUtil {
             }
             else if (candidates.isEmpty()) {
                 log.error("Something has gone awry! I have a bridge to nowhere: ", setter);
-                setter = null;
             }
             else {
-                // Clear the setter and try to find a best guess
-                setter = null;
-
                 // Create a set of all type arguments for all classes declaring the matching methods
                 Set<Type> typeArgs = new HashSet<Type>();
                 for (Method method : candidates) {
@@ -627,11 +623,10 @@ public class ReflectUtil {
                 }
 
                 // If we are left with exactly one match, then go with it
-                if (primeCandidates.size() == 1)
+                if (primeCandidates.size() == 1) {
                     setter = primeCandidates.get(0);
-
-                // FAIL
-                if (setter == null) {
+                }
+                else {
                     log.warn("Unable to locate a bridged setter for ", pd.getName(),
                             " due to a JVM bug and an overloaded method with ",
                             "the same name as the property setter. This could be a problem. ",
