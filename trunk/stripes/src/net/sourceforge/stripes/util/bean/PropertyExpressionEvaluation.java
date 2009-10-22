@@ -207,10 +207,10 @@ public class PropertyExpressionEvaluation {
         PropertyDescriptor pd = ReflectUtil.getPropertyDescriptor(beanClass, property);
         if (pd != null) {
             if (pd.getReadMethod() != null) {
-                return untangleBridgeMethod(pd.getReadMethod()).getGenericReturnType();
+                return pd.getReadMethod().getGenericReturnType();
             }
             else {
-                return untangleBridgeMethod(pd.getWriteMethod()).getGenericParameterTypes()[0];
+                return pd.getWriteMethod().getGenericParameterTypes()[0];
             }
         }
         else {
@@ -237,7 +237,10 @@ public class PropertyExpressionEvaluation {
      *
      * @param m a Method instance, potentially a bridge method
      * @return a non-bridge method instance if one is locatable, otherwise the method passed in
+     * @deprecated This method is no longer used. Bridge methods are handled transparently by
+     *             {@link ReflectUtil#getPropertyDescriptors(Class)}.
      */
+    @Deprecated
     protected Method untangleBridgeMethod(Method m) {
         if (!m.isBridge()) return m;
 

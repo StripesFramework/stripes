@@ -14,8 +14,7 @@
  */
 package net.sourceforge.stripes.exception;
 
-import java.beans.BeanInfo;
-import java.beans.Introspector;
+
 import java.beans.PropertyDescriptor;
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -41,6 +40,7 @@ import net.sourceforge.stripes.controller.FileUploadLimitExceededException;
 import net.sourceforge.stripes.controller.StripesConstants;
 import net.sourceforge.stripes.controller.StripesRequestWrapper;
 import net.sourceforge.stripes.util.Log;
+import net.sourceforge.stripes.util.ReflectUtil;
 import net.sourceforge.stripes.validation.LocalizableError;
 
 /**
@@ -239,8 +239,8 @@ public class DefaultExceptionHandler implements ExceptionHandler {
         // Try to guess the field name by finding exactly one FileBean field
         String fieldName = null;
         try {
-            BeanInfo beanInfo = Introspector.getBeanInfo(actionBean.getClass());
-            for (PropertyDescriptor pd : beanInfo.getPropertyDescriptors()) {
+            PropertyDescriptor[] pds = ReflectUtil.getPropertyDescriptors(actionBean.getClass());
+            for (PropertyDescriptor pd : pds) {
                 if (FileBean.class.isAssignableFrom(pd.getPropertyType())) {
                     if (fieldName == null) {
                         // First FileBean field found so set the field name

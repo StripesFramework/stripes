@@ -16,8 +16,8 @@ package net.sourceforge.stripes.ajax;
 
 import net.sourceforge.stripes.exception.StripesRuntimeException;
 import net.sourceforge.stripes.util.Log;
+import net.sourceforge.stripes.util.ReflectUtil;
 
-import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -394,7 +394,7 @@ public class JavaScriptBuilder {
     void buildObjectNode(String targetName, Object in, String propertyPrefix) throws Exception {
         StringBuilder out = new StringBuilder();
         out.append("{");
-        PropertyDescriptor[] props = Introspector.getBeanInfo(in.getClass()).getPropertyDescriptors();
+        PropertyDescriptor[] props = ReflectUtil.getPropertyDescriptors(in.getClass());
 
         for (PropertyDescriptor property : props) {
             try {
