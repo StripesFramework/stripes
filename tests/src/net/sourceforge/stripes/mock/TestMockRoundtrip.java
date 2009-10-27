@@ -224,4 +224,19 @@ public class TestMockRoundtrip implements ActionBean {
     	request.addHeader("User-Agent", "Netscape/6.0");
     	Assert.assertEquals(request.getHeader("User-Agent"), "Netscape/6.0", MockHttpServletRequest.class + ".addHeader/getHeader do not properly");
     }
+
+    @Test(groups="fast")
+    public void testAddParameter() throws Exception {
+        // Setup the servlet engine
+        MockServletContext ctx = StripesTestFixture.getServletContext();
+        MockRoundtrip trip = new MockRoundtrip(ctx, TestMockRoundtrip.class);
+        trip.addParameter("param", "a");
+        trip.addParameter("param", "b");
+        trip.execute();
+        
+        TestMockRoundtrip bean = trip.getActionBean(TestMockRoundtrip.class);
+        String[] params = bean.getContext().getRequest().getParameterValues("param");
+        Assert.assertEquals(2, params.length);
+        Assert.assertEquals(new String[] {"a", "b"}, params);
+    }
 }
