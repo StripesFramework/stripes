@@ -49,10 +49,11 @@ public interface Formatter<T> {
     /**
      * Formats the supplied value as a String.  If the value cannot be formatted because it is
      * an inappropriate type, or because faulty pattern information was supplied, should fail
-     * loudly by throwing a RuntimeException or subclass thereof.
+     * loudly by throwing a RuntimeException or subclass thereof. Therefore this method should
+     * never return {@code null}.
 
      * @param input an object of a type that the formatter knows how to format
-     * @return a String version of the input, formatted for the chosen locale
+     * @return a non-null, String version of the input, formatted for the chosen locale
      */
     String format(T input);
 }
