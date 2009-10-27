@@ -315,5 +315,6 @@ public class StripesFilter implements Filter {
         this.servletContext.removeAttribute(StripesFilter.class.getName());
         Log.cleanup();
         Introspector.flushCaches(); // Not 100% sure this is necessary, but it doesn't  hurt
+        StripesFilter.configurations.clear();
     }
 }
