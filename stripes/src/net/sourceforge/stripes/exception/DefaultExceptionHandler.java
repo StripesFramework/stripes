@@ -155,7 +155,9 @@ public class DefaultExceptionHandler implements ExceptionHandler {
         catch (ServletException se) { throw se; }
         catch (IOException ioe) { throw ioe; }
         catch (Throwable t) {
-            throw new StripesServletException("Unhandled exception in exception handler.", t);
+            String message = "Unhandled exception in exception handler.";
+            log.error(t, message);
+            throw new StripesServletException(message, t);
         }
     }
 
