@@ -14,16 +14,25 @@
  */
 package net.sourceforge.stripes.util;
 
+import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.annotation.Annotation;
+import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Enumeration;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
+import java.util.regex.Pattern;
 
 /**
  * <p>ResolverUtil is used to locate classes that are available in the/a class path and meet
@@ -60,6 +69,13 @@ import java.util.jar.JarInputStream;
 public class ResolverUtil<T> {
     /** An instance of Log to use for logging in this class. */
     private static final Log log = Log.getInstance(ResolverUtil.class);
+
+    /** The magic header that indicates a JAR (ZIP) file. */
+    private static final byte[] JAR_MAGIC = { 'P', 'K', 3, 4 };
+
+    /** Regular expression that matches a Java identifier. */
+    private static final Pattern JAVA_IDENTIFIER_PATTERN = Pattern
+            .compile("\\p{javaJavaIdentifierStart}\\p{javaJavaIdentifierPart}*");
 
     /**
      * A simple interface that specifies how to test classes to determine if they
@@ -201,109 +217,276 @@ public class ResolverUtil<T> {
      *        classes, e.g. {@code net.sourceforge.stripes}
      */
     public ResolverUtil<T> find(Test test, String packageName) {
-        packageName = packageName.replace('.', '/');
-        ClassLoader loader = getClassLoader();
-        Enumeration<URL> urls;
+        String path = getPackagePath(packageName);
 
         try {
-            urls = loader.getResources(packageName);
-        }
-        catch (IOException ioe) {
-            log.warn("Could not read package: " + packageName, ioe);
-            return this;
-        }
-
-        while (urls.hasMoreElements()) {
-            String urlPath = urls.nextElement().getFile();
-            urlPath = StringUtil.urlDecode(urlPath);
-
-            // If it's a file in a directory, trim the stupid file: spec
-            if ( urlPath.startsWith("file:") ) {
-                urlPath = urlPath.substring(5);
-            }
-
-            // Else it's in a JAR, grab the path to the jar
-            if (urlPath.indexOf('!') > 0) {
-                urlPath = urlPath.substring(0, urlPath.indexOf('!'));
-            }
-
-            log.info("Scanning for classes in [", urlPath, "] matching criteria: ", test);
-            File file = new File(urlPath);
-            if ( file.isDirectory() ) {
-                loadImplementationsInDirectory(test, packageName, file);
-            }
-            else {
-                loadImplementationsInJar(test, packageName, file);
-            }
-        }
-        
-        return this;
-    }
-
-
-    /**
-     * Finds matches in a physical directory on a filesystem.  Examines all
-     * files within a directory - if the File object is not a directory, and ends with <i>.class</i>
-     * the file is loaded and tested to see if it is acceptable according to the Test.  Operates
-     * recursively to find classes within a folder structure matching the package structure.
-     *
-     * @param test a Test used to filter the classes that are discovered
-     * @param parent the package name up to this directory in the package hierarchy.  E.g. if
-     *        /classes is in the classpath and we wish to examine files in /classes/org/apache then
-     *        the values of <i>parent</i> would be <i>org/apache</i>
-     * @param location a File object representing a directory
-     */
-    private void loadImplementationsInDirectory(Test test, String parent, File location) {
-        File[] files = location.listFiles();
-        StringBuilder builder = null;
-
-		// File.listFiles() can return null when an IO error occurs!
-		if (files == null) {
-			log.warn("Could not list directory " + location.getAbsolutePath() +
-			         " when looking for classes matching: " + test);
-			return;
-		}
-
-        for (File file : files) {
-            builder = new StringBuilder(100);
-            builder.append(parent).append("/").append(file.getName());
-            String packageOrClass = ( parent == null ? file.getName() : builder.toString() );
-
-            if (file.isDirectory()) {
-                loadImplementationsInDirectory(test, packageOrClass, file);
-            }
-            else if (file.getName().endsWith(".class")) {
-                addIfMatching(test, packageOrClass);
-            }
-        }
-    }
-
-    /**
-     * Finds matching classes within a jar files that contains a folder structure
-     * matching the package structure.  If the File is not a JarFile or does not exist a warning
-     * will be logged, but no error will be raised.
-     *
-     * @param test a Test used to filter the classes that are discovered
-     * @param parent the parent package under which classes must be in order to be considered
-     * @param jarfile the jar file to be examined for classes
-     */
-    private void loadImplementationsInJar(Test test, String parent, File jarfile) {
-
-        try {
-            JarEntry entry;
-            JarInputStream jarStream = new JarInputStream(new FileInputStream(jarfile));
-
-            while ( (entry = jarStream.getNextJarEntry() ) != null) {
-                String name = entry.getName();
-                if (!entry.isDirectory() && name.startsWith(parent) && name.endsWith(".class")) {
-                    addIfMatching(test, name);
+            List<URL> urls = Collections.list(getClassLoader().getResources(path));
+            for (URL url : urls) {
+                List<String> children = listClassResources(url, path);
+                for (String child : children) {
+                    addIfMatching(test, child);
                 }
             }
         }
         catch (IOException ioe) {
-            log.error("Could not search jar file '", jarfile, "' for classes matching criteria: ",
-                      test, "due to an IOException: ", ioe.getMessage());
+            log.warn("Could not read package: ", packageName, " -- ", ioe);
         }
+
+        return this;
+    }
+
+    /**
+     * Recursively list all resources under the given URL that appear to define a Java class.
+     * Matching resources will have a name that ends in ".class" and have a relative path such that
+     * each segment of the path is a valid Java identifier. The resource paths returned will be
+     * relative to the URL and begin with the specified path.
+     * 
+     * @param url The URL of the parent resource to search.
+     * @param path The path with which each matching resource path must begin, relative to the URL.
+     * @return A list of matching resources. The list may be empty.
+     * @throws IOException
+     */
+    protected List<String> listClassResources(URL url, String path) throws IOException {
+        log.debug("Listing classes in ", url);
+
+        InputStream is = null;
+        try {
+            List<String> resources = new ArrayList<String>();
+
+            // First, try to find the URL of a JAR file containing the requested resource. If a JAR
+            // file is found, then we'll list child resources by reading the JAR.
+            URL jarUrl = findJarForResource(url, path);
+            if (jarUrl != null) {
+                is = jarUrl.openStream();
+                resources = listClassResources(new JarInputStream(is), path);
+            }
+            else {
+                List<String> children = new ArrayList<String>();
+                try {
+                    if (isJar(url)) {
+                        // Some versions of JBoss VFS might give a JAR stream even if the resource
+                        // referenced by the URL isn't actually a JAR
+                        is = url.openStream();
+                        JarInputStream jarInput = new JarInputStream(is);
+                        for (JarEntry entry; (entry = jarInput.getNextJarEntry()) != null;) {
+                            log.trace("Jar entry: " + entry.getName());
+                            if (isRelevantResource(entry.getName())) {
+                                children.add(entry.getName());
+                            }
+                        }
+                    }
+                    else {
+                        // Some servlet containers allow reading from "directory" resources like a
+                        // text file, listing the child resources one per line.
+                        is = url.openStream();
+                        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+                        for (String line; (line = reader.readLine()) != null;) {
+                            log.trace("Reader entry: " + line);
+                            if (isRelevantResource(line)) {
+                                children.add(line);
+                            }
+                        }
+                    }
+                }
+                catch (FileNotFoundException e) {
+                    /*
+                     * For file URLs the openStream() call might fail, depending on the servlet
+                     * container, because directories can't be opened for reading. If that happens,
+                     * then list the directory directly instead.
+                     */
+                    if ("file".equals(url.getProtocol())) {
+                        File file = new File(url.getFile());
+                        log.trace("Listing directory ", file.getAbsolutePath());
+                        if (file.isDirectory()) {
+                            children = Arrays.asList(file.list(new FilenameFilter() {
+                                public boolean accept(File dir, String name) {
+                                    return isRelevantResource(name);
+                                }
+                            }));
+                        }
+                    }
+                    else {
+                        // No idea where the exception came from so rethrow it
+                        throw e;
+                    }
+                }
+
+                // The URL prefix to use when recursively listing child resources
+                String prefix = url.toExternalForm();
+                if (!prefix.endsWith("/"))
+                    prefix = prefix + "/";
+
+                // Iterate over each immediate child, adding classes and recursing into directories
+                for (String child : children) {
+                    String resourcePath = path + "/" + child;
+                    if (child.endsWith(".class")) {
+                        log.trace("Found class file: ", resourcePath);
+                        resources.add(resourcePath);
+                    }
+                    else {
+                        URL childUrl = new URL(prefix + child);
+                        resources.addAll(listClassResources(childUrl, resourcePath));
+                    }
+                }
+            }
+
+            return resources;
+        }
+        finally {
+            try {
+                is.close();
+            }
+            catch (Exception e) {
+            }
+        }
+    }
+
+    /**
+     * List the names of the entries in the given {@link JarInputStream} that begin with the
+     * specified {@code path}. Entries will match with or without a leading slash.
+     * 
+     * @param jar The JAR input stream
+     * @param path The leading path to match
+     * @return The names of all the matching entries
+     * @throws IOException
+     */
+    protected List<String> listClassResources(JarInputStream jar, String path) throws IOException {
+        // Include the leading and trailing slash when matching names
+        if (!path.startsWith("/"))
+            path = "/" + path;
+        if (!path.endsWith("/"))
+            path = path + "/";
+
+        // Iterate over the entries and collect those that begin with the requested path
+        List<String> resources = new ArrayList<String>();
+        for (JarEntry entry; (entry = jar.getNextJarEntry()) != null;) {
+            if (!entry.isDirectory()) {
+                // Add leading slash if it's missing
+                String name = entry.getName();
+                if (!name.startsWith("/"))
+                    name = "/" + name;
+
+                // Check file name
+                if (name.endsWith(".class") && name.startsWith(path)) {
+                    log.trace("Found class file: ", name);
+                    resources.add(name.substring(1)); // Trim leading slash
+                }
+            }
+        }
+        return resources;
+    }
+
+    /**
+     * Attempts to deconstruct the given URL to find a JAR file containing the resource referenced
+     * by the URL. That is, assuming the URL references a JAR entry, this method will return a URL
+     * that references the JAR file containing the entry. If the JAR cannot be located, then this
+     * method returns null.
+     * 
+     * @param url The URL of the JAR entry.
+     * @param path The path by which the URL was requested from the class loader.
+     * @return The URL of the JAR file, if one is found. Null if not.
+     * @throws MalformedURLException
+     */
+    protected URL findJarForResource(URL url, String path) throws MalformedURLException {
+        log.trace("Find JAR URL: ", url);
+
+        // If the file part of the URL is itself a URL, then that URL probably points to the JAR
+        try {
+            for (;;) {
+                url = new URL(url.getFile());
+                log.trace("Inner URL: ", url);
+            }
+        }
+        catch (MalformedURLException e) {
+            // This will happen at some point and serves a break in the loop
+        }
+
+        // Look for the .jar extension and chop off everything after that
+        StringBuilder jarUrl = new StringBuilder(url.toExternalForm());
+        int index = jarUrl.lastIndexOf(".jar");
+        if (index >= 0) {
+            jarUrl.setLength(index + 4);
+            log.trace("Extracted JAR URL: ", jarUrl);
+        }
+        else {
+            return null;
+        }
+
+        // Try to open and test it
+        try {
+            URL testUrl = new URL(jarUrl.toString());
+            if (isJar(testUrl))
+                return testUrl;
+        }
+        catch (MalformedURLException e) {
+            log.warn("Invalid JAR URL: ", jarUrl);
+        }
+
+        return null;
+    }
+
+    /**
+     * Converts a Java package name to a path that can be looked up with a call to
+     * {@link ClassLoader#getResources(String)}.
+     * 
+     * @param packageName The Java package name to convert to a path
+     */
+    protected String getPackagePath(String packageName) {
+        return packageName == null ? null : packageName.replace('.', '/');
+    }
+
+    /**
+     * Returns true if the name of a resource (file or directory) is one that matters in the search
+     * for classes. Relevant resources would be class files themselves (file names that end with
+     * ".class") and directories that might be a Java package name segment (java identifiers).
+     * 
+     * @param resourceName The resource name, without path information
+     */
+    protected boolean isRelevantResource(String resourceName) {
+        return resourceName != null
+                && (resourceName.endsWith(".class") || JAVA_IDENTIFIER_PATTERN
+                        .matcher(resourceName).matches());
+    }
+
+    /**
+     * Returns true if the resource located at the given URL is a JAR file.
+     * 
+     * @param url The URL of the resource to test.
+     */
+    protected boolean isJar(URL url) {
+        return isJar(url, new byte[JAR_MAGIC.length]);
+    }
+
+    /**
+     * Returns true if the resource located at the given URL is a JAR file.
+     * 
+     * @param url The URL of the resource to test.
+     * @param buffer A buffer into which the first few bytes of the resource are read. The buffer
+     *            must be at least the size of {@link #JAR_MAGIC}. (The same buffer may be reused
+     *            for multiple calls as an optimization.)
+     */
+    protected boolean isJar(URL url, byte[] buffer) {
+        InputStream is = null;
+        try {
+            is = url.openStream();
+            is.read(buffer, 0, JAR_MAGIC.length);
+            if (Arrays.equals(buffer, JAR_MAGIC)) {
+                log.debug("Found JAR: ", url);
+                return true;
+            }
+        }
+        catch (Exception e) {
+            // Failure to read the stream means this is not a JAR
+        }
+        finally {
+            try {
+                is.close();
+            }
+            catch (Exception e) {
+            }
+        }
+
+        return false;
     }
 
     /**
