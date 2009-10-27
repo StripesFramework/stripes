@@ -86,7 +86,7 @@ public class InputSelectTag extends InputTagSupport implements BodyTag {
      * select tag.  This will either be the value returned by the PopulationStrategy, or the value
      * supplied by the container to setValue().
      *
-     * @return an Object, Object[] or Collection<Object> of values that are selected
+     * @return an Object, Object[] or {@code Collection<Object>} of values that are selected
      */
     public Object getSelectedValueOrValues() {
         return this.selectedValueOrValues;
