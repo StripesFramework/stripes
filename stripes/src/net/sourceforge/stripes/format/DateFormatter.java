@@ -140,6 +140,22 @@ public class DateFormatter implements Formatter<Date> {
         }
     }
 
+    /**
+     * Gets the date format that will format the date. Subclasses that wish to alter the date format
+     * should override init(), call super.init(), and then obtain the date format object.
+     */
+    public DateFormat getDateFormat() {
+        return this.format;
+    }
+
+    /**
+     * Sets the date format that will format the date. Subclasses that wish to set the date format
+     * should override init() and then set the date format object.
+     */
+    public void setDateFormat(DateFormat dateFormat) {
+        this.format = format;
+    }
+
     /** Formats a Date as a String using the rules supplied when the formatter was built. */
     public String format(Date input) {
         return this.format.format(input);
