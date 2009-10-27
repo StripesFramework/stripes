@@ -70,7 +70,7 @@ public class UseActionBeanTagExtraInfo extends TagExtraInfo {
         Collection<ValidationMessage> errors = new ArrayList<ValidationMessage>();
 
         Object beanclass = tag.getAttribute("beanclass");
-        String binding   = tag.getAttributeString("binding");
+        Object binding   = tag.getAttribute("binding");
         if (!(beanclass != null ^ binding != null)) {
             errors.add(new ValidationMessage(tag.getId(), "Exactly one of 'beanclass' or 'binding' must be supplied."));
         }
