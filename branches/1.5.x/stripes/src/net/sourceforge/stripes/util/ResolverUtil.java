@@ -17,6 +17,7 @@ package net.sourceforge.stripes.util;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -246,10 +247,14 @@ public class ResolverUtil<T> {
      * @throws IOException
      */
     protected List<String> listClassResources(URL url, String path) throws IOException {
+        log.debug("Listing classes in ", url);
+
         InputStream is = null;
         try {
             List<String> resources = new ArrayList<String>();
 
+            // First, try to find the URL of a JAR file containing the requested resource. If a JAR
+            // file is found, then we'll list child resources by reading the JAR.
             URL jarUrl = findJarForResource(url, path);
             if (jarUrl != null) {
                 is = jarUrl.openStream();
@@ -259,7 +264,7 @@ public class ResolverUtil<T> {
                 List<String> children = new ArrayList<String>();
                 try {
                     if (isJar(url)) {
-                        // Some versions of JBoss VFS give a JAR stream even though the resource
+                        // Some versions of JBoss VFS might give a JAR stream even if the resource
                         // referenced by the URL isn't actually a JAR
                         is = url.openStream();
                         JarInputStream jarInput = new JarInputStream(is);
@@ -271,7 +276,8 @@ public class ResolverUtil<T> {
                         }
                     }
                     else {
-                        // Read listing, one per line
+                        // Some servlet containers allow reading from "directory" resources like a
+                        // text file, listing the child resources one per line.
                         is = url.openStream();
                         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
                         for (String line; (line = reader.readLine()) != null;) {
@@ -283,10 +289,26 @@ public class ResolverUtil<T> {
                     }
                 }
                 catch (FileNotFoundException e) {
-                    // For file URLs the openStream() call will fail because you can't open a
-                    // directory for reading. List the directory directly instead.
-                    if ("file".equals(url.getProtocol()))
-                        children = Arrays.asList(new File(url.getFile()).list());
+                    /*
+                     * For file URLs the openStream() call might fail, depending on the servlet
+                     * container, because directories can't be opened for reading. If that happens,
+                     * then list the directory directly instead.
+                     */
+                    if ("file".equals(url.getProtocol())) {
+                        File file = new File(url.getFile());
+                        log.trace("Listing directory ", file.getAbsolutePath());
+                        if (file.isDirectory()) {
+                            children = Arrays.asList(file.list(new FilenameFilter() {
+                                public boolean accept(File dir, String name) {
+                                    return isRelevantResource(name);
+                                }
+                            }));
+                        }
+                    }
+                    else {
+                        // No idea where the exception came from so rethrow it
+                        throw e;
+                    }
                 }
 
                 // The URL prefix to use when recursively listing child resources
@@ -346,7 +368,7 @@ public class ResolverUtil<T> {
 
                 // Check file name
                 if (name.endsWith(".class") && name.startsWith(path)) {
-                    log.debug("Found class file: ", name);
+                    log.trace("Found class file: ", name);
                     resources.add(name.substring(1)); // Trim leading slash
                 }
             }
@@ -366,7 +388,7 @@ public class ResolverUtil<T> {
      * @throws MalformedURLException
      */
     protected URL findJarForResource(URL url, String path) throws MalformedURLException {
-        log.trace("Find JAR file: ", url);
+        log.trace("Find JAR URL: ", url);
 
         // If the file part of the URL is itself a URL, then that URL probably points to the JAR
         try {
@@ -376,6 +398,7 @@ public class ResolverUtil<T> {
             }
         }
         catch (MalformedURLException e) {
+            // This will happen at some point and serves a break in the loop
         }
 
         // Look for the .jar extension and chop off everything after that
@@ -383,7 +406,7 @@ public class ResolverUtil<T> {
         int index = jarUrl.lastIndexOf(".jar");
         if (index >= 0) {
             jarUrl.setLength(index + 4);
-            log.debug("Extracted JAR URL: ", jarUrl);
+            log.trace("Extracted JAR URL: ", jarUrl);
         }
         else {
             return null;
@@ -396,7 +419,7 @@ public class ResolverUtil<T> {
                 return testUrl;
         }
         catch (MalformedURLException e) {
-            log.error("Invalid JAR URL: ", jarUrl);
+            log.warn("Invalid JAR URL: ", jarUrl);
         }
 
         return null;
@@ -448,11 +471,12 @@ public class ResolverUtil<T> {
             is = url.openStream();
             is.read(buffer, 0, JAR_MAGIC.length);
             if (Arrays.equals(buffer, JAR_MAGIC)) {
-                log.trace("Found JAR: ", url);
+                log.debug("Found JAR: ", url);
                 return true;
             }
         }
         catch (Exception e) {
+            // Failure to read the stream means this is not a JAR
         }
         finally {
             try {
