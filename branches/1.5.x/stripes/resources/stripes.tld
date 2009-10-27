@@ -1615,7 +1615,7 @@
         <attribute><description>@size@</description><name>size</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
         <attribute>
             <description>
-                Determines what options within the select are rendered by default. May be a String,
+                Determines what options within the select are rendered selected by default. May be a String,
                 Object, Array or Collection.  In the first two cases, any option with a matching
                 value will be rendered as selected. In the second two cases any option with a value
                 matching one of potentially many values will be rendered as selected.
