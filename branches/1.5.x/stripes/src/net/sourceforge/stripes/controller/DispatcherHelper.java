@@ -119,6 +119,17 @@ public class DispatcherHelper {
                     ctx.setActionBeanContext(context);
                 }
 
+                // Prefer the context from the resolved bean if it differs from the ExecutionContext
+                if (context != bean.getContext()) {
+                    ActionBeanContext other = bean.getContext();
+                    other.setEventName(context.getEventName());
+                    other.setRequest(context.getRequest());
+                    other.setResponse(context.getResponse());
+
+                    context = other;
+                    ctx.setActionBeanContext(context);
+                }
+
                 // Then register it in the Request as THE ActionBean for this request
                 HttpServletRequest request = context.getRequest();
                 request.setAttribute(StripesConstants.REQ_ATTR_ACTION_BEAN, bean);
