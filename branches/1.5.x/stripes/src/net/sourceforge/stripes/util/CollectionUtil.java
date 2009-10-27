@@ -149,7 +149,7 @@ public class CollectionUtil {
      * @return either the Iterable itself if it is a List, or a new List with the same elements
      */
     public static <T> List<T> asList(Iterable<T> in) {
-        if (in instanceof List) return (List<T>) in;
+        if (in instanceof List<?>) return (List<T>) in;
         else {
             LinkedList<T> list = new LinkedList<T>();
             for (T item : in) {

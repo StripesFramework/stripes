@@ -221,7 +221,7 @@ public class UrlBuilder {
 
         for (Object v : values) {
             // Special case: recurse for nested collections and arrays!
-            if (v instanceof Collection) {
+            if (v instanceof Collection<?>) {
                 addParameter(name, ((Collection<?>) v).toArray());
             }
             else if (v != null && v.getClass().isArray()) {
@@ -256,7 +256,7 @@ public class UrlBuilder {
             else if (valueOrValues.getClass().isArray()) {
                 addParameter(name, CollectionUtil.asObjectArray(valueOrValues));
             }
-            else if (valueOrValues instanceof Collection) {
+            else if (valueOrValues instanceof Collection<?>) {
                 addParameter(name, (Collection<?>) valueOrValues);
             }
             else {
