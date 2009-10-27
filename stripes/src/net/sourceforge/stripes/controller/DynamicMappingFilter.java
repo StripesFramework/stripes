@@ -14,6 +14,7 @@
  */
 package net.sourceforge.stripes.controller;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -343,11 +344,20 @@ public class DynamicMappingFilter implements Filter {
         final ErrorTrappingResponseWrapper wrapper = new ErrorTrappingResponseWrapper(
                 (HttpServletResponse) response);
         wrapper.setInclude(request.getAttribute(StripesConstants.REQ_ATTR_INCLUDE_PATH) != null);
-        chain.doFilter(request, wrapper);
 
-        // If a SC_NOT_FOUND error occurred, then try to match an ActionBean to the URL
+        // Catch FileNotFoundException, which some containers (e.g. GlassFish) throw instead of setting SC_NOT_FOUND
+        boolean fileNotFoundExceptionThrown = false;
+
+        try {
+          chain.doFilter(request, wrapper);
+        }
+        catch (FileNotFoundException exc) {
+          fileNotFoundExceptionThrown = true;
+        }
+
+        // If a FileNotFoundException or SC_NOT_FOUND error occurred, then try to match an ActionBean to the URL
         Integer errorCode = wrapper.getErrorCode();
-        if (errorCode != null && errorCode == HttpServletResponse.SC_NOT_FOUND) {
+        if ((errorCode != null && errorCode == HttpServletResponse.SC_NOT_FOUND) || fileNotFoundExceptionThrown) {
             stripesFilter.doFilter(request, response, new FilterChain() {
                 public void doFilter(ServletRequest request, ServletResponse response)
                         throws IOException, ServletException {
