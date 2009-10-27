@@ -27,7 +27,7 @@ import javax.servlet.jsp.JspException;
  * <ul>
  *   <li>formName.buttonName from the localized resource bundle</li>
  *   <li>buttonName from the localized resource bundle</li>
- *   <li>the body of the tag</li>
+ *   <li>the trimmed body of the tag</li>
  *   <li>the value attribute of the tag</li>
  * </ul>
  *
@@ -79,7 +79,7 @@ public class InputButtonSupportTag extends InputTagSupport implements BodyTag {
             getAttributes().put("value", localizedValue);
         }
         else if (body != null) {
-            getAttributes().put("value", body);
+            getAttributes().put("value", body.trim());
         }
         else if (this.value != null) {
             getAttributes().put("value", this.value);
