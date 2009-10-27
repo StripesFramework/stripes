@@ -237,26 +237,31 @@ public class BeforeAfterMethodInterceptorTests {
             return null;
         }
 
+        @SuppressWarnings("unused")
         @Before(stages=LifecycleStage.ActionBeanResolution)
         public void beforeActionBeanResolutionWillNeverBeCalled() {
             hasCalledBeforeActionBeanResolutionWillNeverBeCalled++;
         }
 
+        @SuppressWarnings("unused")
         @Before
         public void beforeDefaultStage() {
             hasCalledBeforeDefaultStage++;
         }
 
+        @SuppressWarnings("unused")
         @Before(stages=LifecycleStage.HandlerResolution)
         public void beforeSpecificStage() {
             hasCalledBeforeSpecificStage++;
         }
 
+        @SuppressWarnings("unused")
         @Before(stages={LifecycleStage.BindingAndValidation, LifecycleStage.CustomValidation})
         public void beforeTwoStages() {
             hasCalledBeforeTwoStages++;
         }
 
+        @SuppressWarnings("unused")
         @Before
         public String beforeWithReturn() {
             hasCalledBeforeWithReturn++;
@@ -264,12 +269,14 @@ public class BeforeAfterMethodInterceptorTests {
         }
 
         /** Parameters are not allowed. */
+        @SuppressWarnings("unused")
         @Before
         public void beforeWithParameter(String var) {
             hasCalledBeforeWithParameter++;
         }
 
         /** Parameters are not allowed. */
+        @SuppressWarnings("unused")
         @Before
         public String beforeWithReturnAndParameter(String var) {
             hasCalledBeforeWithReturnAndParameter++;
@@ -277,32 +284,38 @@ public class BeforeAfterMethodInterceptorTests {
         }
 
         /** Should work just like a public method. */
+        @SuppressWarnings("unused")
         @Before
         protected void protectedBeforeMethod() {
             hasCalledProtectedBeforeMethod++;
         }
 
         /** Not annotated to be called by anyone */
+        @SuppressWarnings("unused")
         public void dummyMethod() {
             hasCalledDummyMethod++;
         }
 
+        @SuppressWarnings("unused")
         @After
         public void afterDefaultStage() {
             hasCalledAfterDefaultStage++;
         }
 
+        @SuppressWarnings("unused")
         @After(stages=LifecycleStage.ActionBeanResolution)
         public void afterSpecificStage() {
             hasCalledAfterSpecificStage++;
         }
 
+        @SuppressWarnings("unused")
         @After(stages={LifecycleStage.HandlerResolution, LifecycleStage.CustomValidation})
         public void afterTwoStages() {
             hasCalledAfterTwoStages++;
         }
 
         /** Returns are ok, and will just be ignored if not Resolutions. */
+        @SuppressWarnings("unused")
         @After
         public String afterWithReturn() {
             hasCalledAfterWithReturn++;
@@ -310,12 +323,14 @@ public class BeforeAfterMethodInterceptorTests {
         }
 
         /** Not invoked because parameters are not kosher. */
+        @SuppressWarnings("unused")
         @After
         public void afterWithParameter(String var) {
             hasCalledAfterWithParameter++;
         }
 
         /** Not invoked because parameters are not kosher. */
+        @SuppressWarnings("unused")
         @After
         public String afterWithReturnAndParameter(String var) {
             hasCalledAfterWithReturnAndParameter++;
@@ -323,6 +338,7 @@ public class BeforeAfterMethodInterceptorTests {
         }
 
         /** Should work just like a public method. */
+        @SuppressWarnings("unused")
         @After
         protected void protectedAfterMethod() {
             hasCalledProtectedAfterMethod++;
@@ -330,6 +346,7 @@ public class BeforeAfterMethodInterceptorTests {
 
 
         /** Not invoked because parameters are not kosher. */
+        @SuppressWarnings("unused")
         @Before @After
         public String beforeAfterWithParameter(String var) {
             hasCalledBeforeAfterWithParameter++;
@@ -337,6 +354,7 @@ public class BeforeAfterMethodInterceptorTests {
         }
 
         /** Invoked only at those stages listed. */
+        @SuppressWarnings("unused")
         @Before(stages=LifecycleStage.BindingAndValidation)
         @After(stages=LifecycleStage.CustomValidation)
         public void beforeAfterSpecificStage() {
@@ -344,12 +362,14 @@ public class BeforeAfterMethodInterceptorTests {
         }
 
         /** Invoked only at default EventHandling stage. */
+        @SuppressWarnings("unused")
         @Before @After
         public void beforeAfterDefaultStage() {
             hasCalledBeforeAfterDefaultStage++;
         }
 
         /** Invoked only at default EventHandling stage. */
+        @SuppressWarnings("unused")
         @Before(on="edit") @After(on="save")
         public void beforeAfterOnSingleEvent() {
             hasCalledBeforeAfterOnSingleEvent++;
@@ -367,6 +387,7 @@ public class BeforeAfterMethodInterceptorTests {
         public int getHasCalledBeforeTwoStages() { return hasCalledBeforeTwoStages; }
         public int getHasCalledBeforeAfterSpecificStage() { return hasCalledBeforeAfterSpecificStage; }
         public int getHasCalledBeforeAfterWithParameter() { return hasCalledBeforeAfterWithParameter; }
+        @SuppressWarnings("unused")
         public int getHasCalledBeforeActionBeanResolutionWillNeverBeCalled() { return hasCalledBeforeActionBeanResolutionWillNeverBeCalled; }
         public int getHasCalledBeforeWithReturn() { return hasCalledBeforeWithReturn; }
         public int getHasCalledBeforeWithParameter() { return hasCalledBeforeWithParameter; }
