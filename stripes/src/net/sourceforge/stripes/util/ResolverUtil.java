@@ -409,19 +409,35 @@ public class ResolverUtil<T> {
             log.trace("Extracted JAR URL: ", jarUrl);
         }
         else {
+            log.trace("Not a JAR: ", jarUrl);
             return null;
         }
 
         // Try to open and test it
         try {
             URL testUrl = new URL(jarUrl.toString());
-            if (isJar(testUrl))
+            if (isJar(testUrl)) {
                 return testUrl;
+            }
+            else {
+                // WebLogic fix: check if the URL's file exists in the filesystem.
+                log.trace("Not a JAR: ", jarUrl);
+                jarUrl.replace(0, jarUrl.length(), testUrl.getFile());
+                File file = new File(jarUrl.toString());
+                if (file.exists()) {
+                    log.trace("Trying real file: ", file.getAbsolutePath());
+                    testUrl = file.toURI().toURL();
+                    if (isJar(testUrl)) {
+                        return testUrl;
+                    }
+                }
+            }
         }
         catch (MalformedURLException e) {
             log.warn("Invalid JAR URL: ", jarUrl);
         }
 
+        log.trace("Not a JAR: ", jarUrl);
         return null;
     }
 
