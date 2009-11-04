@@ -424,6 +424,12 @@ public class ResolverUtil<T> {
                 log.trace("Not a JAR: ", jarUrl);
                 jarUrl.replace(0, jarUrl.length(), testUrl.getFile());
                 File file = new File(jarUrl.toString());
+
+                // File name might be URL-encoded
+                if (!file.exists()) {
+                    file = new File(StringUtil.urlDecode(jarUrl.toString()));
+                }
+
                 if (file.exists()) {
                     log.trace("Trying real file: ", file.getAbsolutePath());
                     testUrl = file.toURI().toURL();
