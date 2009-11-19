@@ -363,7 +363,7 @@ public class DynamicMappingFilter implements Filter {
                         throws IOException, ServletException {
                     // Look for an ActionBean that is mapped to the URI
                     String uri = HttpUtil.getRequestedPath((HttpServletRequest) request);
-                    Class<? extends ActionBean> beanType = StripesFilter.getConfiguration()
+                    Class<? extends ActionBean> beanType = stripesFilter.getInstanceConfiguration()
                             .getActionResolver().getActionBeanType(uri);
 
                     // If found then call the dispatcher directly. Otherwise, send the error.
