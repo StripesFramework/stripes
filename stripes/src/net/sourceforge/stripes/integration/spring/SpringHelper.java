@@ -285,7 +285,7 @@ public class SpringHelper {
                 "beans of matching type.");
         }
         else {
-            log.warn("Found unique SpringBean with type [" + type.getName() + "]. Matching on ",
+            log.debug("Found unique SpringBean with type [" + type.getName() + "]. Matching on ",
                      "type is a little risky so watch out!");
             return ctx.getBean(beanNames[0], type);
         }
