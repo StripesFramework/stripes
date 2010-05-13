@@ -14,12 +14,15 @@
  */
 package net.sourceforge.stripes.tag.layout;
 
+import java.io.IOException;
+import java.util.regex.Pattern;
+
+import javax.servlet.ServletException;
+import javax.servlet.jsp.JspException;
+
+import net.sourceforge.stripes.exception.StripesJspException;
 import net.sourceforge.stripes.tag.StripesTagSupport;
 import net.sourceforge.stripes.util.Log;
-
-import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.tagext.BodyTag;
-import javax.servlet.jsp.tagext.BodyContent;
 
 /**
  * Defines a component in a layout. Used both to define the components in a layout definition
@@ -28,91 +31,152 @@ import javax.servlet.jsp.tagext.BodyContent;
  * @author Tim Fennell
  * @since Stripes 1.1
  */
-public class LayoutComponentTag extends StripesTagSupport implements BodyTag {
+public class LayoutComponentTag extends StripesTagSupport {
     private static final Log log = Log.getInstance(LayoutComponentTag.class);
+
+    /** Regular expression that matches valid Java identifiers. */
+    private static final Pattern javaIdentifierPattern = Pattern
+            .compile("\\p{javaJavaIdentifierStart}\\p{javaJavaIdentifierPart}*");
+
     private String name;
-    private BodyContent bodyContent;
-    private LayoutDefinitionTag definitionTag;
-    private LayoutRenderTag renderTag;
+    private LayoutContext context;
 
     /** Gets the name of the component. */
     public String getName() { return name; }
 
     /** Sets the name of the component. */
-    public void setName(String name) {
-        if (name != null && name.length() > 0) {
-            int length = name.length();
-            boolean validJava = Character.isJavaIdentifierStart(name.charAt(0));
-            int index = 1;
-            while (validJava && index < length) {
-                validJava = Character.isJavaIdentifierPart(name.charAt(index));
-                index++;
-            }
-            if (!validJava) {
-                log.warn("The layout-component name '", name, "' is not a valid Java identifier. ",
-                    "While this may work, it can cause bugs that are difficult to track down. Please ",
-                    "consider using valid Java identifiers for component names (no hyphens, no spaces, etc.)");
-            }
-        }
-        this.name = name;
-    }
+    public void setName(String name) { this.name = name; }
 
-    /** Save the body content output by the tag. */
-    public void setBodyContent(BodyContent bodyContent) {
-        this.bodyContent = bodyContent;
+    /** Get the current layout context. */
+    public LayoutContext getContext() {
+        if (context == null) {
+            context = LayoutContext.find(getPageContext(), getLayoutName());
+        }
+
+        return context;
     }
 
     /**
-     * Behaviour varies depending on whether the tag is nested inside a LayoutRenderTag or a
-     * LayoutDefinitionTag.  In the first case it will always render it's output to a buffer so that
-     * it can be provided to the render tag.  In the second case, checks to see if the component
-     * has been overridden.  If so, does nothing, else writes its content to the output stream.
-     *
-     * @return EVAL_BODY_BUFFERED, EVAL_BODY_INCLUDE or SKIP_BODY as described above.
+     * True if this tag is the component to be rendered on this pass from
+     * {@link LayoutDefinitionTag}.
+     */
+    public boolean isCurrentComponent() {
+        LayoutContext context = getContext();
+        if (context == null) {
+            return false;
+        }
+        else {
+            String name = context.getCurrentComponentName();
+            return name != null && name.equals(getName());
+        }
+    }
+
+    /**
+     * Get the name of the layout that is being rendered; that is, the path to the JSP containing
+     * the {@link LayoutDefinitionTag}. This value is also used to find the current layout context
+     * in the page context.
+     */
+    public String getLayoutName() {
+        LayoutRenderTag render;
+        LayoutDefinitionTag definition;
+
+        if ((render = getParentTag(LayoutRenderTag.class)) != null)
+            return render.getName();
+        else if ((definition = getParentTag(LayoutDefinitionTag.class)) != null)
+            return definition.getLayoutName();
+        else
+            return null;
+    }
+
+    /**
+     * <p>
+     * If this tag is nested within a {@link LayoutDefinitionTag}, then evaluate the corresponding
+     * {@link LayoutComponentTag} nested within the {@link LayoutRenderTag} that invoked the parent
+     * {@link LayoutDefinitionTag}. If, after evaluating the corresponding tag, the component has
+     * not been rendered then evaluate this tag's body by returning {@code EVAL_BODY_INCLUDE}.
+     * </p>
+     * <p>
+     * If this tag is nested within a {@link LayoutRenderTag} and this tag is the current component,
+     * as indicated by {@link LayoutContext#getCurrentComponentName()}, then evaluate this tag's
+     * body by returning {@code EVAL_BODY_INCLUDE}.
+     * </p>
+     * <p>
+     * In all other cases, skip this tag's body by returning SKIP_BODY.
+     * </p>
+     * 
+     * @return {@code EVAL_BODY_INCLUDE} or {@code SKIP_BODY}, as described above.
      */
     @Override
     public int doStartTag() throws JspException {
-        this.definitionTag = getParentTag(LayoutDefinitionTag.class);
-        this.renderTag = getParentTag(LayoutRenderTag.class);
+        LayoutRenderTag renderTag;
 
-        if (this.renderTag != null) {
-            return EVAL_BODY_BUFFERED;
+        if ((renderTag = getParentTag(LayoutRenderTag.class)) != null) {
+            if (!renderTag.isRecursing()) {
+                if (!javaIdentifierPattern.matcher(getName()).matches()) {
+                    log.warn("The layout-component name '", getName(), "' is not a valid Java identifier. ",
+                            "While this may work, it can cause bugs that are difficult to track down. Please ",
+                            "consider using valid Java identifiers for component names (no hyphens, no spaces, etc.)");
+                }
+
+                renderTag.addComponent(getName(), new LayoutComponentRenderer(this));
+            }
+
+            return isCurrentComponent() ? EVAL_BODY_INCLUDE : SKIP_BODY;
         }
-        else if (this.definitionTag.permissionToRender(this.name)) {
-            return EVAL_BODY_INCLUDE;
+        else if (getParentTag(LayoutDefinitionTag.class) != null) {
+            // Include the page that had the render tag on it to execute the component tags again.
+            // Only the component(s) with a name matching the current component name in the context
+            // will actually produce output.
+            try {
+                getContext().setCurrentComponentName(getName());
+                getPageContext().include(getContext().getRenderPage());
+            }
+            catch (ServletException e) {
+                throw new StripesJspException(e);
+            }
+            catch (IOException e) {
+                throw new StripesJspException(e);
+            }
+
+            // The current component name should be cleared after the component tag in the render
+            // tag has rendered. If it is not cleared then the component did not render so we need
+            // to output the default contents from the layout definition.
+            if (getContext().getCurrentComponentName() != null) {
+                getContext().setCurrentComponentName(null);
+                return EVAL_BODY_INCLUDE;
+            }
+            else {
+                return SKIP_BODY;
+            }
         }
         else {
             return SKIP_BODY;
         }
     }
 
-    /** Does nothing. */
-    public void doInitBody() throws JspException { /* Do Nothing */ }
-
     /**
-     * Does nothing.
-     * @return SKIP_BODY in all cases.
-     */
-    public int doAfterBody() throws JspException { return SKIP_BODY; }
-
-    /**
-     * If the tag is nested in a LayoutRenderTag, provides the tag with the generated contents.
-     * Otherwise, does nothing.
-     *
-     * @return EVAL_PAGE in all cases.
+     * If this tag is the component that needs to be rendered, as indicated by
+     * {@link LayoutContext#getCurrentComponentName()}, then set the current component name back to
+     * null to indicate that the component has rendered.
+     * 
+     * @return SKIP_PAGE if this component is the current component, otherwise EVAL_PAGE.
      */
     @Override
     public int doEndTag() throws JspException {
-        if (this.renderTag != null && this.bodyContent != null) {
-            this.renderTag.addComponent(this.name, this.bodyContent.getString());
+        try {
+            // Set current component name back to null as a signal to the component tag within the
+            // definition tag that the component did, indeed, render and it should not output the
+            // default contents.
+            if (isCurrentComponent()) {
+                getContext().setCurrentComponentName(null);
+                return SKIP_PAGE;
+            }
+            else {
+                return EVAL_PAGE;
+            }
         }
-
-        // Clean up in case the tag gets pooled
-        this.bodyContent = null;
-        this.definitionTag = null;
-        this.renderTag = null;
-
-
-        return EVAL_PAGE;
+        finally {
+            this.context = null;
+        }
     }
 }
