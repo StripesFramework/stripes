@@ -156,7 +156,7 @@ public class FormTag extends HtmlTagSupport implements BodyTag, TryCatchFinally,
     /** Sets the form encoding. */
     public void setEnctype(String enctype) { this.enctype = enctype; }
     /** Gets the form encoding. */
-    public String getEnctype() { return enctype; };
+    public String getEnctype() { return enctype; }
 
     /** Sets the HTTP method to use when the form is submitted. */
     public void setMethod(String method) { this.method = method; }

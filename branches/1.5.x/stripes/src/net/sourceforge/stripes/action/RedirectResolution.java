@@ -43,7 +43,7 @@ import java.util.HashSet;
  * @see ForwardResolution
  * @author Tim Fennell
  */
-public class RedirectResolution extends OnwardResolution<RedirectResolution> implements Resolution {
+public class RedirectResolution extends OnwardResolution<RedirectResolution> {
     private static final Log log = Log.getInstance(RedirectResolution.class);
     private boolean prependContext = true;
     private boolean includeRequestParameters;

@@ -15,7 +15,6 @@
 package net.sourceforge.stripes.tag;
 
 import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.tagext.Tag;
 
 /**
  * <p>Tag that generates HTML form fields of type {@literal <input type="file" ... />}.  The only
@@ -32,7 +31,7 @@ import javax.servlet.jsp.tagext.Tag;
  *
  * @author Tim Fennell
  */
-public class InputFileTag extends InputTagSupport implements Tag {
+public class InputFileTag extends InputTagSupport {
 
     /** Basic constructor that sets the input tag's type attribute to "file". */
     public InputFileTag() {
