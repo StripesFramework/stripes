@@ -143,7 +143,7 @@ public abstract class StripesTagSupport implements Tag {
         // If we can't find it by the normal way, try our own tag stack!
         Stack<StripesTagSupport> stack = getTagStack();
         ListIterator<StripesTagSupport> iterator = stack.listIterator(stack.size());
-        while (iterator.hasPrevious() && iterator.previous() != this);
+        while (iterator.hasPrevious() && iterator.previous() != this) continue;
         while (iterator.hasPrevious()) {
             StripesTagSupport tag = iterator.previous();
             if (tagType.isAssignableFrom(tag.getClass())) {

@@ -3,7 +3,6 @@ package net.sourceforge.stripes.extensions;
 import java.util.Collection;
 
 import net.sourceforge.stripes.validation.IntegerTypeConverter;
-import net.sourceforge.stripes.validation.TypeConverter;
 import net.sourceforge.stripes.validation.ValidationError;
 
 /**
@@ -12,7 +11,7 @@ import net.sourceforge.stripes.validation.ValidationError;
  *
  * @author Freddy Daoud
  */
-public class MyIntegerTypeConverter extends IntegerTypeConverter implements TypeConverter<Integer> {
+public class MyIntegerTypeConverter extends IntegerTypeConverter {
     @Override
     public Integer convert(String input, Class<? extends Integer> targetType,
         Collection<ValidationError> errors)

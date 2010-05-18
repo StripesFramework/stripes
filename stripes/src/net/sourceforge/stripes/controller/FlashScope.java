@@ -22,7 +22,6 @@ import net.sourceforge.stripes.util.Log;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.io.Serializable;
 import java.lang.reflect.Proxy;
 import java.util.Collection;
 import java.util.Collections;
@@ -81,7 +80,7 @@ import java.util.concurrent.TimeUnit;
  * @author Tim Fennell
  * @since Stripes 1.2
  */
-public class FlashScope extends HashMap<String,Object> implements Serializable {
+public class FlashScope extends HashMap<String,Object> {
 	private static final long serialVersionUID = 1L;
 
     /** The default timeout for a flash scope. */
