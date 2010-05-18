@@ -367,11 +367,14 @@ public class DynamicMappingFilter implements Filter {
 
     public void destroy() {
         try {
-            stripesDispatcher.destroy();
+            if (stripesDispatcher != null)
+                stripesDispatcher.destroy();
         }
         finally {
+            stripesDispatcher = null;
+
             try {
-                if (stripesFilterIsInternal)
+                if (stripesFilterIsInternal && stripesFilter != null)
                     stripesFilter.destroy();
             }
             finally {
