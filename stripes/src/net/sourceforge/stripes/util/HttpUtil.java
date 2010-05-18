@@ -54,11 +54,11 @@ public class HttpUtil {
         }
 
         if (servletPath == null)
-            return pathInfo == null ? "" : pathInfo;
+            return pathInfo == null ? "" : StringUtil.urlDecode(pathInfo);
         else if (pathInfo == null)
-            return servletPath;
+            return StringUtil.urlDecode(servletPath);
         else
-            return servletPath + pathInfo;
+            return StringUtil.urlDecode(servletPath + pathInfo);
     }
 
     /**
