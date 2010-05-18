@@ -1,5 +1,9 @@
 package net.sourceforge.stripes.controller;
 
+import static java.lang.String.format;
+
+import java.util.List;
+
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.action.ActionBeanContext;
 import net.sourceforge.stripes.config.DontAutoLoad;
@@ -98,6 +102,13 @@ public class UrlBindingFactoryTests {
     public static class SuffixActionBean1 extends BaseActionBean {}
     @DontAutoLoad @net.sourceforge.stripes.action.UrlBinding("/suffix/{a}/{b}/{c}/{d}.action")
     public static class SuffixActionBean2 extends BaseActionBean {}
+
+    @DontAutoLoad @net.sourceforge.stripes.action.UrlBinding("/sts731/{a}/")
+    public static class STS731ActionBean1 extends BaseActionBean {}
+    @DontAutoLoad @net.sourceforge.stripes.action.UrlBinding("/sts731/{a}/foo/")
+    public static class STS731ActionBean2 extends BaseActionBean {}
+    @DontAutoLoad @net.sourceforge.stripes.action.UrlBinding("/sts731/{a}/bar/")
+    public static class STS731ActionBean3 extends BaseActionBean {}
     
     private static final Log log = Log.getInstance(UrlBindingFactoryTests.class);
     private static UrlBindingFactory urlBindingFactory;
@@ -110,7 +121,9 @@ public class UrlBindingFactoryTests {
                 FooActionBean.class, FooActionBean1.class, FooActionBean2.class,
                 FooActionBean3.class, FooActionBean4.class, FooActionBean5.class,
                 FooActionBean6.class, FooActionBean7.class, FooActionBean8.class,
-                SuffixActionBean1.class, SuffixActionBean2.class };
+                SuffixActionBean1.class, SuffixActionBean2.class,
+                STS731ActionBean1.class, STS731ActionBean2.class, STS731ActionBean3.class
+        };
 
         UrlBindingFactory factory = new UrlBindingFactory();
         for (Class<? extends ActionBean> clazz : classes) {
@@ -121,11 +134,12 @@ public class UrlBindingFactoryTests {
         urlBindingFactory = factory;
     }
 
-    private void checkBinding(String uri, Class<? extends ActionBean> expected) {
+    private List<UrlBindingParameter> checkBinding(String uri, Class<? extends ActionBean> expected) {
         log.debug("Checking that ", uri, " maps to ", expected);
         UrlBinding binding = urlBindingFactory.getBinding(uri);
-        Assert.assertNotNull(binding);
+        Assert.assertNotNull(binding, "The uri \"" + uri + "\" matched nothing");
         Assert.assertSame(binding.getBeanType(), expected);
+        return binding.getParameters();
     }
 
     @Test(groups = "fast")
@@ -250,6 +264,17 @@ public class UrlBindingFactoryTests {
         checkBinding("/foo/goo/1", FooActionBean8.class);
         checkBinding("/foo/goo/1/", FooActionBean8.class);
         checkBinding("/foo/goo/1/2", FooActionBean8.class);
+
+        // Suffixes, as reported in STS-731
+        for (String value : new String[] { "really-long", "long", "XX", "X" }) {
+            List<UrlBindingParameter> param;
+            param = checkBinding(format("/sts731/%s/", value), STS731ActionBean1.class);
+            Assert.assertEquals(param.get(0).getValue(), value);
+            param = checkBinding(format("/sts731/%s/foo/", value), STS731ActionBean2.class);
+            Assert.assertEquals(param.get(0).getValue(), value);
+            param = checkBinding(format("/sts731/%s/bar/", value), STS731ActionBean3.class);
+            Assert.assertEquals(param.get(0).getValue(), value);
+        }
     }
 
     @Test(groups = "fast")
