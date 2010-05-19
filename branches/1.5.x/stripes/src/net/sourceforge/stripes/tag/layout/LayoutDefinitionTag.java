@@ -15,6 +15,7 @@
 package net.sourceforge.stripes.tag.layout;
 
 import net.sourceforge.stripes.controller.StripesConstants;
+import net.sourceforge.stripes.exception.StripesJspException;
 import net.sourceforge.stripes.tag.StripesTagSupport;
 import net.sourceforge.stripes.util.Log;
 
@@ -52,10 +53,21 @@ public class LayoutDefinitionTag extends StripesTagSupport {
         return layoutName;
     }
 
-    /** Get the current layout context. */
-    public LayoutContext getLayoutContext() {
+    /**
+     * Get the current layout context.
+     * 
+     * @throws StripesJspException If there is no {@link LayoutContext} for this layout in the
+     *             current {@link PageContext}.
+     */
+    public LayoutContext getLayoutContext() throws StripesJspException {
         if (context == null) {
             context = LayoutContext.find(getPageContext(), getLayoutName());
+            if (context == null) {
+                throw new StripesJspException("The JSP page " + getLayoutName()
+                        + " contains a layout-definition tag and was invoked directly. "
+                        + "A layout-definition can only be invoked by a page that contains "
+                        + "a layout-render tag.");
+            }
         }
 
         return context;
