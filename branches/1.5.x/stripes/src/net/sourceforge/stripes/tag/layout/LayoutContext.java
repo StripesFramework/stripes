@@ -14,7 +14,6 @@
  */
 package net.sourceforge.stripes.tag.layout;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -67,14 +66,6 @@ public class LayoutContext {
         PageContext pageContext = renderTag.getPageContext();
         LinkedList<LayoutContext> stack = getStack(pageContext, true);
         if (stack.isEmpty()) {
-            // Clear the output buffer before beginning a layout render
-            try {
-                pageContext.getOut().clearBuffer();
-            }
-            catch (IOException e) {
-                log.warn("Failed to clear output buffer before rendering a layout");
-            }
-
             // Create a new layout writer and push a new body
             context.out = new LayoutWriter(pageContext.getOut());
             pageContext.pushBody(context.out);

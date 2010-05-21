@@ -40,7 +40,7 @@ public class LayoutComponentTag extends LayoutTag {
 
     private String name;
     private LayoutContext context;
-    private Boolean silent;
+    private boolean silent;
 
     /** Gets the name of the component. */
     public String getName() { return name; }
@@ -102,12 +102,12 @@ public class LayoutComponentTag extends LayoutTag {
     public int doStartTag() throws JspException {
         try {
             LayoutContext context = getContext();
+            silent = context.getOut().isSilent();
 
             if (isChildOfRender()) {
                 if (context.isComponentRenderPhase()) {
                     if (isCurrentComponent()) {
                         log.debug("Render ", getName(), " in ", context.getRenderPage());
-                        silent = context.getOut().isSilent();
                         context.getOut().setSilent(false, pageContext);
                         return EVAL_BODY_INCLUDE;
                     }
@@ -144,7 +144,10 @@ public class LayoutComponentTag extends LayoutTag {
                             String renderPage = renderer.getRenderPage();
                             log.debug("Execute component ", getName(), " in ", context
                                     .getDefinitionPage(), " with include of ", renderPage);
+                            boolean silent = context.getOut().isSilent();
+                            context.getOut().setSilent(true, pageContext);
                             pageContext.include(renderPage, false);
+                            context.getOut().setSilent(silent, pageContext);
                         }
                     }
                     context.setComponentRenderPhase(false);
@@ -156,7 +159,6 @@ public class LayoutComponentTag extends LayoutTag {
                         log.debug("Component was not present in ", context.getRenderPage(),
                                 " so using default content from ", context.getDefinitionPage());
 
-                        silent = context.getOut().isSilent();
                         context.getOut().setSilent(false, pageContext);
                         context.setComponent(null);
                         return EVAL_BODY_INCLUDE;
@@ -167,6 +169,7 @@ public class LayoutComponentTag extends LayoutTag {
                 }
             }
 
+            context.getOut().setSilent(true, pageContext);
             return SKIP_BODY;
         }
         catch (ServletException e) {
@@ -194,14 +197,14 @@ public class LayoutComponentTag extends LayoutTag {
             if (isCurrentComponent())
                 context.setComponent(null);
 
-            if (silent != null)
-                context.getOut().setSilent(silent, pageContext);
+            // Restore output's silent flag
+            context.getOut().setSilent(silent, pageContext);
 
             return EVAL_PAGE;
         }
         finally {
             this.context = null;
-            this.silent = null;
+            this.silent = false;
         }
     }
 }
