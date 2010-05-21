@@ -14,6 +14,7 @@
  */
 package net.sourceforge.stripes.tag.layout;
 
+import java.io.IOException;
 import java.util.LinkedList;
 
 import javax.servlet.jsp.JspException;
@@ -99,6 +100,7 @@ public class LayoutRenderTag extends LayoutTag implements DynamicAttributes {
     @Override
     public int doStartTag() throws JspException {
         LayoutContext context = getContext();
+        silent = context.getOut().isSilent();
 
         if (isNewContext()) {
             log.debug("Start layout init in ", context.getRenderPage());
@@ -113,9 +115,8 @@ public class LayoutRenderTag extends LayoutTag implements DynamicAttributes {
             pushPageContextAttributes(context.getParameters());
         }
 
-        // Save output's current silent flag to be restored later
-        silent = context.getOut().isSilent();
-        context.getOut().setSilent(false, pageContext);
+        // Render tags never output their contents directly
+        context.getOut().setSilent(true, pageContext);
 
         log.debug("Start component render phase for ", context.getComponent(), " in ", context
                 .getRenderPage());
@@ -138,17 +139,26 @@ public class LayoutRenderTag extends LayoutTag implements DynamicAttributes {
         try {
             LayoutContext context = getContext();
             if (isNewContext()) {
+                // Substitution of the layout writer for the regular JSP writer does not work for
+                // the initial render tag. Its body evaluation still uses the original JSP writer
+                // for output. Clear the output buffer before executing the definition page.
+                if (isOuterTag()) {
+                    try {
+                        context.getOut().clear();
+                    }
+                    catch (IOException e) {
+                        log.debug("Could not clear output buffer: ", e.getMessage());
+                    }
+                }
+
                 log.debug("End layout init in ", context.getRenderPage());
 
                 try {
                     log.debug("Start layout exec in ", context.getDefinitionPage());
-                    boolean outer = isOuterTag();
                     boolean silent = context.getOut().isSilent();
-                    if (!outer)
-                        context.getOut().setSilent(true, pageContext);
+                    context.getOut().setSilent(true, pageContext);
                     pageContext.include(this.name, false);
-                    if (!outer)
-                        context.getOut().setSilent(silent, pageContext);
+                    context.getOut().setSilent(silent, pageContext);
                     log.debug("End layout exec in ", context.getDefinitionPage());
                 }
                 catch (Exception e) {

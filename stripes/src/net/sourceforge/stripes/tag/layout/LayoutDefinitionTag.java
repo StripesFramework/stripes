@@ -66,6 +66,7 @@ public class LayoutDefinitionTag extends LayoutTag {
     public int doStartTag() throws JspException {
         LayoutContext context = getContext(); // Initialize context
         renderPhase = context.isComponentRenderPhase(); // Initialize phase flag
+        silent = context.getOut().isSilent();
 
         if (!renderPhase) {
             // Put any additional parameters into page context for the definition to use
@@ -81,8 +82,7 @@ public class LayoutDefinitionTag extends LayoutTag {
             context.setRendered(true);
         }
 
-        // Save output's current silent flag to be restored later
-        silent = context.getOut().isSilent();
+        // Enable output only if this is the definition execution, not a component render
         context.getOut().setSilent(renderPhase, pageContext);
 
         return EVAL_BODY_INCLUDE;
