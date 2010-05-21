@@ -104,14 +104,6 @@ public class LayoutRenderTag extends LayoutTag implements DynamicAttributes {
 
         if (isNewContext()) {
             log.debug("Start layout init in ", context.getRenderPage());
-
-            // Ensure absolute path for layout name
-            if (!getName().startsWith("/")) {
-                throw new StripesJspException("The name= attribute of the layout-render tag must be " +
-                    "an absolute path, starting with a forward slash (/). Please modify the " +
-                    "layout-render tag with the name '" + getName() + "' accordingly.");
-            }
-
             pushPageContextAttributes(context.getParameters());
         }
 
