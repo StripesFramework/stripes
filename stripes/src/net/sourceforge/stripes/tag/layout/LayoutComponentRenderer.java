@@ -1,17 +1,28 @@
-/**
- * Created by Ben Gunter on May 12, 2010 at 2:01:33 PM.
+/* Copyright 2010 Ben Gunter
  *
- * Copyright 2010 Comsquared Systems. All rights reserved.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package net.sourceforge.stripes.tag.layout;
 
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.LinkedList;
 
 import javax.servlet.ServletException;
 import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.tagext.BodyContent;
 
+import net.sourceforge.stripes.exception.StripesJspException;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
 
 /**
@@ -26,7 +37,7 @@ import net.sourceforge.stripes.exception.StripesRuntimeException;
  */
 public class LayoutComponentRenderer {
     private LinkedList<PageContext> pageContext;
-    private String componentName, layoutName;
+    private String componentName;
 
     /**
      * Create a new instance to render the specified component tag to a string. The tag itself is
@@ -34,9 +45,9 @@ public class LayoutComponentRenderer {
      * as layout name and component name.
      * 
      * @param tag The layout component to render.
+     * @throws StripesJspException If the tag cannot find a layout context.
      */
-    public LayoutComponentRenderer(LayoutComponentTag tag) {
-        this.layoutName = tag.getLayoutName();
+    public LayoutComponentRenderer(LayoutComponentTag tag) throws StripesJspException {
         this.componentName = tag.getName();
     }
 
@@ -70,27 +81,45 @@ public class LayoutComponentRenderer {
 
     @Override
     public String toString() {
-        PageContext pageContext = getPageContext();
-        LayoutContext context = LayoutContext.find(pageContext, layoutName);
-
         // Save the current component name so it can be restored when we're done
-        String restore = context.getCurrentComponentName();
-        context.setCurrentComponentName(componentName);
+        PageContext pageContext = getPageContext();
+        if (pageContext == null)
+            return componentName + " (page context is missing)";
 
-        try {
-            BodyContent body = pageContext.pushBody();
-            pageContext.include(context.getRenderPage());
-            pageContext.popBody();
-            return body.getString();
+        // FIXME decorator pattern is broken
+        if (1 == Integer.valueOf("1"))
+            return componentName + " (fix me!)";
+
+        Iterator<LayoutContext> iterator = LayoutContext.getStack(pageContext, true)
+                .descendingIterator();
+        while (iterator.hasNext()) {
+            LayoutContext context = iterator.next();
+            boolean flag = context.isComponentRenderPhase();
+            String name = context.getComponent();
+            context.setComponentRenderPhase(true);
+            context.setComponent(componentName);
+
+            try {
+                if (context.getComponents().containsKey(componentName)) {
+                    BodyContent body = pageContext.pushBody();
+                    pageContext.include(context.getRenderPage(), false);
+                    pageContext.popBody();
+                    if (context.getComponent() == null)
+                        return body.getString();
+                }
+            }
+            catch (ServletException e) {
+                throw new StripesRuntimeException(e);
+            }
+            catch (IOException e) {
+                throw new StripesRuntimeException(e);
+            }
+            finally {
+                context.setComponentRenderPhase(flag);
+                context.setComponent(name);
+            }
         }
-        catch (ServletException e) {
-            throw new StripesRuntimeException(e);
-        }
-        catch (IOException e) {
-            throw new StripesRuntimeException(e);
-        }
-        finally {
-            context.setCurrentComponentName(restore);
-        }
+
+        return componentName + " (render failed)";
     }
 }

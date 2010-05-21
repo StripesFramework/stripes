@@ -14,82 +14,125 @@
  */
 package net.sourceforge.stripes.tag.layout;
 
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
-import java.util.HashMap;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.jsp.PageContext;
+
+import net.sourceforge.stripes.util.Log;
 
 /**
  * Used to move contextual information about a layout rendering between a LayoutRenderTag and
  * a LayoutDefinitionTag. Holds the set of overridden components and any parameters provided
  * to the render tag.
  *
- * @author Tim Fennell
+ * @author Tim Fennell, Ben Gunter
  * @since Stripes 1.1
  */
 public class LayoutContext {
-    /**
-     * Prefix used to construct the request attribute name used to pass context from the
-     * LayoutRenderTag to the LayoutDefinitionTag.
-     */
-    public static final String PREFIX = "stripes.layout.";
+    private static final Log log = Log.getInstance(LayoutContext.class);
+
+    /** The attribute name by which the stack of layout contexts can be found in the request. */
+    public static final String REQ_ATTR_NAME = "stripes.layout.ContextStack";
 
     /**
-     * Look up the stack of layout contexts associated with the named layout in a JSP page context.
-     * If {@code create} is true and no stack is found then one will be created and placed in the
-     * page context.
+     * Look up the stack of layout contexts a JSP page context. If {@code create} is true and no
+     * stack is found then one will be created and placed in the page context.
      * 
      * @param pageContext The JSP page context to search for the layout context stack.
-     * @param layoutName The name of the layout with which the contexts are associated.
      * @param create If true and no stack is found, then create and save a new stack.
      */
     @SuppressWarnings("unchecked")
-    public static LinkedList<LayoutContext> findStack(PageContext pageContext, String layoutName,
-            boolean create) {
-        String key = PREFIX + layoutName;
+    public static LinkedList<LayoutContext> getStack(PageContext pageContext, boolean create) {
         ServletRequest request = pageContext.getRequest();
-        LinkedList<LayoutContext> stack = (LinkedList<LayoutContext>) request.getAttribute(key);
+        LinkedList<LayoutContext> stack = (LinkedList<LayoutContext>) request
+                .getAttribute(REQ_ATTR_NAME);
         if (create && stack == null) {
             stack = new LinkedList<LayoutContext>();
-            request.setAttribute(key, stack);
+            request.setAttribute(REQ_ATTR_NAME, stack);
         }
         return stack;
     }
 
     /**
-     * Look up the current layout context associated with the named layout in a JSP page context.
-     * 
-     * @param pageContext The JSP page context to search for the layout context stack.
-     * @param layoutName The name of the layout with which the contexts are associated.
+     * Create a new layout context for the given render tag and push it onto the stack of layout
+     * contexts in a JSP page context.
      */
-    public static LayoutContext find(PageContext pageContext, String layoutName) {
-        LinkedList<LayoutContext> stack = findStack(pageContext, layoutName, true);
-        return !stack.isEmpty() ? stack.getLast() : null;
+    public static LayoutContext push(LayoutRenderTag renderTag) {
+        LayoutContext context = new LayoutContext(renderTag);
+        log.debug("Push context ", context.getRenderPage(), " -> ", context.getDefinitionPage());
+        PageContext pageContext = renderTag.getPageContext();
+        LinkedList<LayoutContext> stack = getStack(pageContext, true);
+        if (stack.isEmpty()) {
+            // Clear the output buffer before beginning a layout render
+            try {
+                pageContext.getOut().clearBuffer();
+            }
+            catch (IOException e) {
+                log.warn("Failed to clear output buffer before rendering a layout");
+            }
+
+            // Create a new layout writer and push a new body
+            context.out = new LayoutWriter(pageContext.getOut());
+            pageContext.pushBody(context.out);
+        }
+        else {
+            context.out = stack.getLast().out;
+        }
+        stack.add(context);
+        return context;
     }
 
     /**
-     * Remove the current layout context from the stack of layout contexts associated with the named
-     * layout.
+     * Look up the current layout context in a JSP page context.
      * 
      * @param pageContext The JSP page context to search for the layout context stack.
-     * @param layoutName The name of the layout with which the contexts are associated.
+     */
+    public static LayoutContext lookup(PageContext pageContext) {
+        LinkedList<LayoutContext> stack = getStack(pageContext, false);
+        return stack == null || stack.isEmpty() ? null : stack.getLast();
+    }
+
+    /**
+     * Remove the current layout context from the stack of layout contexts.
+     * 
+     * @param pageContext The JSP page context to search for the layout context stack.
      * @return The layout context that was popped off the stack, or null if the stack was not found
      *         or was empty.
      */
-    public static LayoutContext pop(PageContext pageContext, String layoutName) {
-        LinkedList<LayoutContext> stack = findStack(pageContext, layoutName, false);
-        return stack != null && !stack.isEmpty() ? stack.removeLast() : null;
+    public static LayoutContext pop(PageContext pageContext) {
+        LinkedList<LayoutContext> stack = getStack(pageContext, false);
+        LayoutContext context = stack == null || stack.isEmpty() ? null : stack.removeLast();
+        log.debug("Pop context ", context.getRenderPage(), " -> ", context.getDefinitionPage());
+        return context;
     }
 
+    private LayoutRenderTag renderTag;
+    private LayoutWriter out;
     private Map<String,LayoutComponentRenderer> components = new HashMap<String,LayoutComponentRenderer>();
     private Map<String,Object> parameters = new HashMap<String,Object>();
-    private String renderPage, currentComponentName;
-    private boolean rendered = false;
+    private String renderPage, component;
+    private boolean componentRenderPhase, rendered;
 
     /**
-     * Gets the Map of overridden components.  Will return an empty Map if no components were
+     * A new context may be created only by a {@link LayoutRenderTag}. The tag provides all the
+     * information necessary to initialize the context.
+     * 
+     * @param tag The tag that is beginning a new layout render process.
+     */
+    public LayoutContext(LayoutRenderTag renderTag) {
+        this.renderTag = renderTag;
+        this.renderPage = renderTag.getCurrentPagePath();
+    }
+
+    /** Get the render tag that created this context. */
+    public LayoutRenderTag getRenderTag() { return renderTag; }
+
+    /**
+     * Gets the Map of overridden components. Will return an empty Map if no components were
      * overridden.
      */
     public Map<String,LayoutComponentRenderer> getComponents() { return components; }
@@ -106,14 +149,23 @@ public class LayoutContext {
     /** Get the path to the page that contains the {@link LayoutRenderTag} that created this context. */
     public String getRenderPage() { return renderPage; }
 
-    /** Set the path to the page that contains the {@link LayoutRenderTag} that created this context. */
-    public void setRenderPage(String layoutRenderer) { this.renderPage = layoutRenderer; }
+    /** Get the path to the page that contains the {@link LayoutDefinitionTag} referenced by the render tag. */
+    public String getDefinitionPage() { return getRenderTag().getName(); }
 
-    /** Get the name of the component to be rendered on this pass from {@link LayoutDefinitionTag}. */
-    public String getCurrentComponentName() { return currentComponentName; }
+    /** True if the intention of the current page execution is solely to render a component. */
+    public boolean isComponentRenderPhase() { return componentRenderPhase; }
 
-    /** Set the name of the component to be rendered on this pass from {@link LayoutDefinitionTag}. */
-    public void setCurrentComponentName(String currentComponentName) { this.currentComponentName = currentComponentName; }
+    /** Set the flag that indicates that the coming execution phase is solely to render a component. */ 
+    public void setComponentRenderPhase(boolean b) { this.componentRenderPhase = b; } 
+
+    /** Get the name of the component to be rendered during the current phase of execution. */
+    public String getComponent() { return component; }
+
+    /** Set the name of the component to be rendered during the current phase of execution. */
+    public void setComponent(String component) { this.component = component; }
+
+    /** Get the layout writer to which the layout is rendered. */
+    public LayoutWriter getOut() { return out; }
 
     /** To String implementation the parameters, and the component names. */
     @Override
