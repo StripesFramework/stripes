@@ -68,18 +68,16 @@ public class LayoutDefinitionTag extends LayoutTag {
         renderPhase = context.isComponentRenderPhase(); // Initialize phase flag
         silent = context.getOut().isSilent();
 
-        if (!renderPhase) {
-            // Put any additional parameters into page context for the definition to use
-            for (Map.Entry<String, Object> entry : context.getParameters().entrySet()) {
-                pageContext.getRequest().setAttribute(entry.getKey(), entry.getValue());
-            }
-            for (Entry<String, LayoutComponentRenderer> entry : context.getComponents().entrySet()) {
-                entry.getValue().pushPageContext(pageContext);
-                pageContext.getRequest().setAttribute(entry.getKey(), entry.getValue());
-            }
+        // Flag this definition has rendered, even though it's not really done yet.
+        context.setRendered(true);
 
-            // Flag this definition has rendered, even though it's not really done yet.
-            context.setRendered(true);
+        // Put any additional parameters into page context for the definition to use
+        for (Map.Entry<String, Object> entry : context.getParameters().entrySet()) {
+            pageContext.setAttribute(entry.getKey(), entry.getValue());
+        }
+        for (Entry<String, LayoutComponentRenderer> entry : context.getComponents().entrySet()) {
+            entry.getValue().pushPageContext(pageContext);
+            pageContext.setAttribute(entry.getKey(), entry.getValue());
         }
 
         // Enable output only if this is the definition execution, not a component render
