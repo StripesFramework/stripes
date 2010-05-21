@@ -58,17 +58,19 @@ public class LayoutWriter extends Writer {
      * before silent mode is enabled to ensure all buffered data are written.
      */
     public void setSilent(boolean silent, PageContext context) {
-        try {
-            if (context != null)
-                context.getOut().flush();
-        }
-        catch (IOException e) {
-            // This seems to happen once at the beginning and once at the end. Don't know why.
-            log.debug("Failed to flush buffer: ", e.getMessage());
-        }
-        finally {
-            this.silent = silent;
-            log.trace("Output is " + (silent ? "DISABLED" : "ENABLED"));
+        if (silent != this.silent) {
+            try {
+                if (context != null)
+                    context.getOut().flush();
+            }
+            catch (IOException e) {
+                // This seems to happen once at the beginning and once at the end. Don't know why.
+                log.debug("Failed to flush buffer: ", e.getMessage());
+            }
+            finally {
+                this.silent = silent;
+                log.trace("Output is " + (silent ? "DISABLED" : "ENABLED"));
+            }
         }
     }
 
@@ -80,6 +82,15 @@ public class LayoutWriter extends Writer {
     @Override
     public void flush() throws IOException {
         out.flush();
+    }
+
+    /**
+     * Calls {@link JspWriter#clear()} on the wrapped JSP writer.
+     * 
+     * @throws IOException
+     */
+    public void clear() throws IOException {
+        out.clear();
     }
 
     @Override
