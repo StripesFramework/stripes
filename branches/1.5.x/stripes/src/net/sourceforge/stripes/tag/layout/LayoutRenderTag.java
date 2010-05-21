@@ -14,27 +14,38 @@
  */
 package net.sourceforge.stripes.tag.layout;
 
-import javax.servlet.http.HttpServletRequest;
+import java.util.LinkedList;
+
 import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.tagext.DynamicAttributes;
 
 import net.sourceforge.stripes.exception.StripesJspException;
-import net.sourceforge.stripes.tag.StripesTagSupport;
-import net.sourceforge.stripes.util.HttpUtil;
+import net.sourceforge.stripes.util.Log;
 
 /**
  * Renders a named layout, optionally overriding one or more components in the layout. Any
  * attributes provided to the class other than 'name' will be placed into page context during
  * the evaluation of the layout, making them available to other tags, and in EL.
  *
- * @author Tim Fennell
+ * @author Tim Fennell, Ben Gunter
  * @since Stripes 1.1
  */
-public class LayoutRenderTag extends StripesTagSupport implements DynamicAttributes {
+public class LayoutRenderTag extends LayoutTag implements DynamicAttributes {
+    private static final Log log = Log.getInstance(LayoutRenderTag.class);
+
     private String name;
-    private Boolean recursing;
     private LayoutContext context;
+    private Boolean newContext;
+    private boolean silent;
+
+    /**
+     * True if this is the "outer" tag. That is, the render tag that kicks off the whole layout
+     * rendering process.
+     */
+    public boolean isOuterTag() {
+        LinkedList<LayoutContext> stack = LayoutContext.getStack(pageContext, false);
+        return stack != null && stack.size() < 2;
+    }
 
     /** Gets the name of the layout to be used. */
     public String getName() { return name; }
@@ -42,46 +53,36 @@ public class LayoutRenderTag extends StripesTagSupport implements DynamicAttribu
     /** Sets the name of the layout to be used. */
     public void setName(String name) { this.name = name; }
 
-    /**
-     * The layout tags work in a quirky way: layout-render includes the page referenced in its
-     * {@code name} attribute, which again includes the page containing the layout-render tag once
-     * for each layout-component tag it encounters. This flag is false if this is the initial
-     * invocation of the render tag and true if this invocation is coming from the layout-definition
-     * tag as a request to render a component.
-     */
-    public boolean isRecursing() {
-        if (recursing == null) {
-            recursing = getContext().getCurrentComponentName() != null;
-        }
-
-        return recursing;
-    }
-
     /** Look up an existing layout context or create a new one if none is found. */
     public LayoutContext getContext() {
         if (context == null) {
-            if (getName() != null)
-                context = LayoutContext.find(getPageContext(), getName());
-            if (context == null)
-                context = new LayoutContext();
+            LayoutContext context = LayoutContext.lookup(pageContext);
+            boolean contextNew = false;
+
+            if (context == null || !context.isComponentRenderPhase()) {
+                context = LayoutContext.push(this);
+                contextNew = true;
+            }
+
+            this.context = context;
+            this.newContext = contextNew;
         }
 
         return context;
     }
 
+    /** True if the context returned by {@link #getContext()} was newly created by this tag. */
+    public boolean isNewContext() {
+        // Force initialization of the context if necessary
+        if (newContext == null)
+            getContext();
+
+        return newContext;
+    }
+
     /** Used by the JSP container to provide the tag with dynamic attributes. */
     public void setDynamicAttribute(String uri, String localName, Object value) throws JspException {
         getContext().getParameters().put(localName, value);
-    }
-
-    /**
-     * Allows nested tags to register themselves for rendering in the layout.
-     * 
-     * @param name the name of the component to be overridden in the layout
-     * @param renderer the object that will render the component to a string
-     */
-    public void addComponent(String name, LayoutComponentRenderer renderer) {
-        getContext().getComponents().put(name, renderer);
     }
 
     /**
@@ -97,7 +98,11 @@ public class LayoutRenderTag extends StripesTagSupport implements DynamicAttribu
      */
     @Override
     public int doStartTag() throws JspException {
-        if (!isRecursing()) {
+        LayoutContext context = getContext();
+
+        if (isNewContext()) {
+            log.debug("Start layout init in ", context.getRenderPage());
+
             // Ensure absolute path for layout name
             if (!getName().startsWith("/")) {
                 throw new StripesJspException("The name= attribute of the layout-render tag must be " +
@@ -105,8 +110,15 @@ public class LayoutRenderTag extends StripesTagSupport implements DynamicAttribu
                     "layout-render tag with the name '" + getName() + "' accordingly.");
             }
 
-            pushPageContextAttributes(getContext().getParameters());
+            pushPageContextAttributes(context.getParameters());
         }
+
+        // Save output's current silent flag to be restored later
+        silent = context.getOut().isSilent();
+        context.getOut().setSilent(false, pageContext);
+
+        log.debug("Start component render phase for ", context.getComponent(), " in ", context
+                .getRenderPage());
 
         return EVAL_BODY_INCLUDE;
     }
@@ -124,17 +136,20 @@ public class LayoutRenderTag extends StripesTagSupport implements DynamicAttribu
     @Override
 	public int doEndTag() throws JspException {
         try {
-            if (!isRecursing()) {
-                // Put the components into the request, for the definition tag to use.. using a stack
-                // to allow for the same layout to be nested inside itself :o
-                PageContext pageContext = getPageContext();
-                LayoutContext.findStack(pageContext, getName(), true).add(getContext());
+            LayoutContext context = getContext();
+            if (isNewContext()) {
+                log.debug("End layout init in ", context.getRenderPage());
 
-                // Now include the target JSP
-                HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
-                getContext().setRenderPage(HttpUtil.getRequestedServletPath(request));
                 try {
+                    log.debug("Start layout exec in ", context.getDefinitionPage());
+                    boolean outer = isOuterTag();
+                    boolean silent = context.getOut().isSilent();
+                    if (!outer)
+                        context.getOut().setSilent(true, pageContext);
                     pageContext.include(this.name, false);
+                    if (!outer)
+                        context.getOut().setSilent(silent, pageContext);
+                    log.debug("End layout exec in ", context.getDefinitionPage());
                 }
                 catch (Exception e) {
                     throw new StripesJspException(
@@ -145,7 +160,7 @@ public class LayoutRenderTag extends StripesTagSupport implements DynamicAttribu
 
                 // Check that the layout actually got rendered as some containers will
                 // just quietly ignore includes of non-existent pages!
-                if (!getContext().isRendered()) {
+                if (!context.isRendered()) {
                     throw new StripesJspException(
                             "Attempt made to render a layout that does not exist. The layout name " +
                             "provided was '" + this.name + "'. Please check that a JSP/view exists at " +
@@ -153,13 +168,20 @@ public class LayoutRenderTag extends StripesTagSupport implements DynamicAttribu
                         );
                 }
 
-                LayoutContext.pop(pageContext, getName());
+                LayoutContext.pop(pageContext);
                 popPageContextAttributes(); // remove any dynattrs from page scope
             }
+
+            // Restore output's silent flag
+            context.getOut().setSilent(silent, pageContext);
+
+            log.debug("End component render phase for ", context.getComponent(), " in ", context
+                    .getRenderPage());
         }
         finally {
-            this.recursing = null;
             this.context = null;
+            this.newContext = null;
+            this.silent = false;
         }
 
         return EVAL_PAGE;

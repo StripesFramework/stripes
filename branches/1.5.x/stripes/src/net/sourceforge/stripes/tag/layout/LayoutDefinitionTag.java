@@ -14,44 +14,25 @@
  */
 package net.sourceforge.stripes.tag.layout;
 
-import net.sourceforge.stripes.controller.StripesConstants;
-import net.sourceforge.stripes.exception.StripesJspException;
-import net.sourceforge.stripes.tag.StripesTagSupport;
-import net.sourceforge.stripes.util.Log;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.PageContext;
 
-import java.io.IOException;
-import java.util.Map;
-import java.util.Map.Entry;
+import net.sourceforge.stripes.exception.StripesJspException;
 
 /**
  * On the surface, allows a developer to define a layout using a custom tag - but is actually
  * the tag responsible for generating the output of the layout.  A layout can have zero or more
  * nested components, as well as regular text and other custom tags nested within it.
  *
- * @author Tim Fennell
+ * @author Tim Fennell, Ben Gunter
  * @since Stripes 1.1
  */
-public class LayoutDefinitionTag extends StripesTagSupport {
-    private static final Log log = Log.getInstance(LayoutDefinitionTag.class);
-
-    private String layoutName;
+public class LayoutDefinitionTag extends LayoutTag {
     private LayoutContext context;
-
-    /**
-     * Assuming that the layout definition page is always included, the following line gets the name
-     * of the page the tag is sitting on, as per Servlet 2.4 spec, page 65.
-     */
-    public String getLayoutName() {
-        if (layoutName == null) {
-            layoutName = (String) getPageContext().getRequest().getAttribute(
-                    StripesConstants.REQ_ATTR_INCLUDE_PATH);
-        }
-
-        return layoutName;
-    }
+    private boolean renderPhase, silent;
 
     /**
      * Get the current layout context.
@@ -59,11 +40,12 @@ public class LayoutDefinitionTag extends StripesTagSupport {
      * @throws StripesJspException If there is no {@link LayoutContext} for this layout in the
      *             current {@link PageContext}.
      */
-    public LayoutContext getLayoutContext() throws StripesJspException {
+    public LayoutContext getContext() throws StripesJspException {
         if (context == null) {
-            context = LayoutContext.find(getPageContext(), getLayoutName());
+            context = LayoutContext.lookup(pageContext);
+
             if (context == null) {
-                throw new StripesJspException("The JSP page " + getLayoutName()
+                throw new StripesJspException("The JSP page " + getCurrentPagePath()
                         + " contains a layout-definition tag and was invoked directly. "
                         + "A layout-definition can only be invoked by a page that contains "
                         + "a layout-render tag.");
@@ -82,25 +64,26 @@ public class LayoutDefinitionTag extends StripesTagSupport {
      */
     @Override
     public int doStartTag() throws JspException {
-        // Try to clear the buffer to make sure we don't output anything outside the layout-def tag.
-        PageContext pageContext = getPageContext();
-        try {
-            pageContext.getOut().clearBuffer();
-        }
-        catch (IOException ioe) {
-            // Not a whole lot we can do if we cannot clear the buffer :/
-            log.warn("Could not clear buffer before rendering a layout.", ioe);
+        LayoutContext context = getContext(); // Initialize context
+        renderPhase = context.isComponentRenderPhase(); // Initialize phase flag
+
+        if (!renderPhase) {
+            // Put any additional parameters into page context for the definition to use
+            for (Map.Entry<String, Object> entry : context.getParameters().entrySet()) {
+                pageContext.getRequest().setAttribute(entry.getKey(), entry.getValue());
+            }
+            for (Entry<String, LayoutComponentRenderer> entry : context.getComponents().entrySet()) {
+                entry.getValue().pushPageContext(pageContext);
+                pageContext.getRequest().setAttribute(entry.getKey(), entry.getValue());
+            }
+
+            // Flag this definition has rendered, even though it's not really done yet.
+            context.setRendered(true);
         }
 
-        // Put any additional parameters into page context for the definition to use
-        LayoutContext context = getLayoutContext();
-        for (Map.Entry<String, Object> entry : context.getParameters().entrySet()) {
-            pageContext.setAttribute(entry.getKey(), entry.getValue());
-        }
-        for (Entry<String, LayoutComponentRenderer> entry : context.getComponents().entrySet()) {
-            entry.getValue().pushPageContext(pageContext);
-            pageContext.setAttribute(entry.getKey(), entry.getValue());
-        }
+        // Save output's current silent flag to be restored later
+        silent = context.getOut().isSilent();
+        context.getOut().setSilent(renderPhase, pageContext);
 
         return EVAL_BODY_INCLUDE;
     }
@@ -112,18 +95,23 @@ public class LayoutDefinitionTag extends StripesTagSupport {
     @Override
     public int doEndTag() throws JspException {
         try {
-            getLayoutContext().setRendered(true);
+            LayoutContext context = getContext();
+            if (!renderPhase) {
+                // Pop our page context off the renderer's page context stack
+                for (LayoutComponentRenderer renderer : context.getComponents().values()) {
+                    renderer.popPageContext();
+                }
+            }
+
+            // Restore output's silent flag
+            context.getOut().setSilent(silent, pageContext);
+
             return SKIP_PAGE;
         }
         finally {
-            // Pop our page context off the renderer's page context stack
-            for (LayoutComponentRenderer renderer : context.getComponents().values()) {
-                renderer.popPageContext();
-            }
-
-            // Set fields back to null
-            this.layoutName = null;
             this.context = null;
+            this.renderPhase = false;
+            this.silent = false;
         }
     }
 }
