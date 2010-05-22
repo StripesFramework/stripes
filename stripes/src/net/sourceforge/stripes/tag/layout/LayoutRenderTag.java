@@ -107,11 +107,13 @@ public class LayoutRenderTag extends LayoutTag implements DynamicAttributes {
             pushPageContextAttributes(context.getParameters());
         }
 
+        if (context.isComponentRenderPhase()) {
+            log.debug("Start component render phase for ", context.getComponent(), " in ", context
+                    .getRenderPage());
+        }
+
         // Render tags never output their contents directly
         context.getOut().setSilent(true, pageContext);
-
-        log.debug("Start component render phase for ", context.getComponent(), " in ", context
-                .getRenderPage());
 
         return EVAL_BODY_INCLUDE;
     }
@@ -174,11 +176,13 @@ public class LayoutRenderTag extends LayoutTag implements DynamicAttributes {
                 popPageContextAttributes(); // remove any dynattrs from page scope
             }
 
+            if (context.isComponentRenderPhase()) {
+                log.debug("End component render phase for ", context.getComponent(), " in ",
+                        context.getRenderPage());
+            }
+
             // Restore output's silent flag
             context.getOut().setSilent(silent, pageContext);
-
-            log.debug("End component render phase for ", context.getComponent(), " in ", context
-                    .getRenderPage());
         }
         finally {
             this.context = null;
