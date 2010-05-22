@@ -14,16 +14,15 @@
  */
 package net.sourceforge.stripes.tag.layout;
 
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import javax.servlet.ServletException;
 import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.tagext.BodyContent;
 
+import net.sourceforge.stripes.controller.StripesConstants;
 import net.sourceforge.stripes.exception.StripesJspException;
-import net.sourceforge.stripes.exception.StripesRuntimeException;
+import net.sourceforge.stripes.util.Log;
 
 /**
  * An object that can be stuffed into a scope (page, request, application, etc.) and render a layout
@@ -36,6 +35,8 @@ import net.sourceforge.stripes.exception.StripesRuntimeException;
  * @since Stripes 1.5.4
  */
 public class LayoutComponentRenderer {
+    private static final Log log = Log.getInstance(LayoutComponentRenderer.class);
+
     private LinkedList<PageContext> pageContext;
     private String componentName;
 
@@ -65,61 +66,76 @@ public class LayoutComponentRenderer {
 
     /** Pop the last page context off the stack and return it. */
     public PageContext popPageContext() {
-        if (pageContext == null || pageContext.isEmpty())
-            return null;
-        else
-            return pageContext.removeLast();
+        return pageContext == null || pageContext.isEmpty() ? null : pageContext.removeLast();
     }
 
     /** Get the last page context that was pushed onto the stack. */
     public PageContext getPageContext() {
-        if (pageContext == null || pageContext.isEmpty())
-            return null;
-        else
-            return pageContext.getLast();
+        return pageContext == null || pageContext.isEmpty() ? null : pageContext.getLast();
     }
 
     @Override
     public String toString() {
-        // Save the current component name so it can be restored when we're done
-        PageContext pageContext = getPageContext();
-        if (pageContext == null)
-            return componentName + " (page context is missing)";
+        final PageContext pageContext = getPageContext();
+        if (pageContext == null) {
+            log.error("Failed to render component \"", componentName, "\" without a page context!");
+            return "[Failed to render component \"" + componentName + "\" without a page context!]";
+        }
 
-        // FIXME decorator pattern is broken
-        if (1 == Integer.valueOf("1"))
-            return componentName + " (fix me!)";
+        // Get the current page so we can be sure not to invoke it again (see below)
+        final String currentPage = (String) pageContext.getRequest().getAttribute(
+                StripesConstants.REQ_ATTR_INCLUDE_PATH);
 
-        Iterator<LayoutContext> iterator = LayoutContext.getStack(pageContext, true)
-                .descendingIterator();
-        while (iterator.hasNext()) {
-            LayoutContext context = iterator.next();
-            boolean flag = context.isComponentRenderPhase();
-            String name = context.getComponent();
+        // Grab some values from the current context so they can be restored when we're done
+        final LayoutContext context = LayoutContext.lookup(pageContext);
+        final boolean phaseFlag = context.isComponentRenderPhase();
+        final String component = context.getComponent();
+
+        // Descend the layout context stack, trying each context where the component is registered
+        log.debug("Stringify component \"", componentName, "\" in ", currentPage);
+        LinkedList<LayoutContext> stack = LayoutContext.getStack(pageContext, true);
+        for (Iterator<LayoutContext> iter = stack.descendingIterator(); iter.hasNext();) {
+            // Skip contexts where the desired component is not registered or which would invoke the
+            // current page again.
+            final LayoutContext source = iter.next();
+            if (!source.getComponents().containsKey(componentName)
+                    || source.getRenderPage().equals(currentPage)) {
+                log.trace("Not stringifying \"", componentName, "\" in context ", source
+                        .getRenderPage(), " -> ", source.getDefinitionPage());
+                continue;
+            }
+
+            // Turn on the render phase flag and set the component to render
             context.setComponentRenderPhase(true);
             context.setComponent(componentName);
 
             try {
-                if (context.getComponents().containsKey(componentName)) {
-                    BodyContent body = pageContext.pushBody();
-                    pageContext.include(context.getRenderPage(), false);
-                    pageContext.popBody();
-                    if (context.getComponent() == null)
-                        return body.getString();
-                }
+                log.debug("Start stringify \"", componentName, "\" in ", context.getRenderPage(),
+                        " -> ", context.getDefinitionPage(), " from ", source.getRenderPage(),
+                        " -> ", source.getDefinitionPage());
+                BodyContent body = pageContext.pushBody();
+                pageContext.include(source.getRenderPage(), false);
+                pageContext.popBody();
+                log.debug("End stringify \"", componentName, "\" in ", context.getRenderPage(),
+                        " -> ", context.getDefinitionPage(), " from ", source.getRenderPage(),
+                        " -> ", source.getDefinitionPage());
+                if (context.getComponent() == null)
+                    return body.getString();
             }
-            catch (ServletException e) {
-                throw new StripesRuntimeException(e);
-            }
-            catch (IOException e) {
-                throw new StripesRuntimeException(e);
+            catch (Exception e) {
+                log.error(e, "Unhandled exception trying to render component \"", componentName,
+                        "\" to a string in context ", source.getRenderPage(), " -> ", source
+                                .getDefinitionPage());
+                return "[Failed to render \"" + componentName + "\". See log for details.]";
             }
             finally {
-                context.setComponentRenderPhase(flag);
-                context.setComponent(name);
+                context.setComponentRenderPhase(phaseFlag);
+                context.setComponent(component);
             }
         }
 
-        return componentName + " (render failed)";
+        log.debug("Component \"", componentName, "\" evaluated to empty string in context ",
+                context.getRenderPage(), " -> ", context.getDefinitionPage());
+        return "";
     }
 }
