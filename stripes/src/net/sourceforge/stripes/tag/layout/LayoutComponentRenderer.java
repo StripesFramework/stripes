@@ -20,15 +20,23 @@ import java.util.LinkedList;
 import javax.servlet.jsp.PageContext;
 
 import net.sourceforge.stripes.controller.StripesConstants;
-import net.sourceforge.stripes.exception.StripesJspException;
 import net.sourceforge.stripes.util.Log;
 
 /**
+ * <p>
  * An object that can be stuffed into a scope (page, request, application, etc.) and render a layout
  * component to a string. This allows for use of EL expressions to output a component (as described
  * in the book <em>Stripes ... and web development is fun again</em>) without requiring that all
  * components be evaluated and buffered just in case a string representation is needed. The
  * evaluation happens only when necessary, saving cycles and memory.
+ * </p>
+ * <p>
+ * When {@link #toString()} is called, the component renderer will evaluate the body of any
+ * {@link LayoutComponentTag} found in the stack of {@link LayoutContext}s maintained in the JSP
+ * {@link PageContext} having the same name as that passed to the constructor. The page context must
+ * be provided with a call to {@link #pushPageContext(PageContext)} for the renderer to work
+ * correctly.
+ * </p>
  * 
  * @author Ben Gunter
  * @since Stripes 1.5.4
@@ -40,15 +48,12 @@ public class LayoutComponentRenderer {
     private String componentName;
 
     /**
-     * Create a new instance to render the specified component tag to a string. The tag itself is
-     * only used to get other information that is necessary to turn a component into a string, such
-     * as layout name and component name.
+     * Create a new instance to render the named component to a string.
      * 
-     * @param tag The layout component to render.
-     * @throws StripesJspException If the tag cannot find a layout context.
+     * @param componentName The name of the component to render.
      */
-    public LayoutComponentRenderer(LayoutComponentTag tag) throws StripesJspException {
-        this.componentName = tag.getName();
+    public LayoutComponentRenderer(String componentName) {
+        this.componentName = componentName;
     }
 
     /**

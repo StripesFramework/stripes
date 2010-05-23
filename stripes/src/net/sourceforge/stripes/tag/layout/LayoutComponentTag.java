@@ -125,7 +125,7 @@ public class LayoutComponentTag extends LayoutTag {
                     }
 
                     log.debug("Register component ", getName(), " with ", context.getRenderPage());
-                    context.getComponents().put(getName(), new LayoutComponentRenderer(this));
+                    context.getComponents().put(getName(), new LayoutComponentRenderer(getName()));
                 }
             }
             else if (isChildOfDefinition()) {
