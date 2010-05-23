@@ -18,7 +18,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import javax.servlet.jsp.PageContext;
-import javax.servlet.jsp.tagext.BodyContent;
 
 import net.sourceforge.stripes.controller.StripesConstants;
 import net.sourceforge.stripes.exception.StripesJspException;
@@ -90,6 +89,7 @@ public class LayoutComponentRenderer {
         final LayoutContext context = LayoutContext.lookup(pageContext);
         final boolean phaseFlag = context.isComponentRenderPhase();
         final String component = context.getComponent();
+        final boolean silent = context.getOut().isSilent();
 
         // Descend the layout context stack, trying each context where the component is registered
         log.debug("Stringify component \"", componentName, "\" in ", currentPage);
@@ -113,14 +113,12 @@ public class LayoutComponentRenderer {
                 log.debug("Start stringify \"", componentName, "\" in ", context.getRenderPage(),
                         " -> ", context.getDefinitionPage(), " from ", source.getRenderPage(),
                         " -> ", source.getDefinitionPage());
-                BodyContent body = pageContext.pushBody();
+                context.getOut().openBuffer(pageContext);
+                context.getOut().setSilent(true, pageContext);
                 pageContext.include(source.getRenderPage(), false);
-                pageContext.popBody();
                 log.debug("End stringify \"", componentName, "\" in ", context.getRenderPage(),
                         " -> ", context.getDefinitionPage(), " from ", source.getRenderPage(),
                         " -> ", source.getDefinitionPage());
-                if (context.getComponent() == null)
-                    return body.getString();
             }
             catch (Exception e) {
                 log.error(e, "Unhandled exception trying to render component \"", componentName,
@@ -129,8 +127,18 @@ public class LayoutComponentRenderer {
                 return "[Failed to render \"" + componentName + "\". See log for details.]";
             }
             finally {
+                // Determine if the component rendered before resetting the context properties
+                boolean rendered = context.getComponent() == null;
+
+                // Reset the context properties
                 context.setComponentRenderPhase(phaseFlag);
                 context.setComponent(component);
+                context.getOut().setSilent(silent, pageContext);
+
+                // Pop the buffer contents and return them if the component did render
+                String value = context.getOut().closeBuffer(pageContext);
+                if (rendered)
+                    return value;
             }
         }
 
