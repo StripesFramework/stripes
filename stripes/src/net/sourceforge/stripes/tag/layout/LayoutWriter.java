@@ -15,11 +15,14 @@
 package net.sourceforge.stripes.tag.layout;
 
 import java.io.IOException;
+import java.io.StringWriter;
 import java.io.Writer;
+import java.util.LinkedList;
 
 import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.PageContext;
 
+import net.sourceforge.stripes.exception.StripesRuntimeException;
 import net.sourceforge.stripes.util.Log;
 
 /**
@@ -35,7 +38,7 @@ import net.sourceforge.stripes.util.Log;
 public class LayoutWriter extends Writer {
     private static final Log log = Log.getInstance(LayoutWriter.class);
 
-    private JspWriter out;
+    private LinkedList<Writer> writers = new LinkedList<Writer>();
     private boolean silent;
 
     /**
@@ -45,7 +48,12 @@ public class LayoutWriter extends Writer {
      */
     public LayoutWriter(JspWriter out) {
         log.debug("Create layout writer wrapped around ", out);
-        this.out = out;
+        this.writers.add(out);
+    }
+
+    /** Get the writer to which output is currently being written. */
+    protected Writer getOut() {
+        return writers.isEmpty() ? null : writers.getLast();
     }
 
     /** If true, then discard all output. If false, then resume sending output to the JSP writer. */
@@ -57,31 +65,59 @@ public class LayoutWriter extends Writer {
      * Enable or disable silent mode. The output buffer for the given page context will be flushed
      * before silent mode is enabled to ensure all buffered data are written.
      */
-    public void setSilent(boolean silent, PageContext context) {
+    public void setSilent(boolean silent, PageContext pageContext) {
         if (silent != this.silent) {
-            try {
-                if (context != null)
-                    context.getOut().flush();
-            }
-            catch (IOException e) {
-                // This seems to happen once at the beginning and once at the end. Don't know why.
-                log.debug("Failed to flush buffer: ", e.getMessage());
-            }
-            finally {
-                this.silent = silent;
-                log.trace("Output is " + (silent ? "DISABLED" : "ENABLED"));
-            }
+            tryFlush(pageContext);
+            this.silent = silent;
+            log.trace("Output is " + (silent ? "DISABLED" : "ENABLED"));
+        }
+    }
+
+    /**
+     * Flush the page context's output buffer and redirect output into a buffer. The buffer can be
+     * closed and its contents retrieved by calling {@link #closeBuffer(PageContext)}.
+     */
+    public void openBuffer(PageContext pageContext) {
+        tryFlush(pageContext);
+        writers.add(new StringWriter(1024));
+    }
+
+    /**
+     * Flush the page context's output buffer and resume sending output to the writer that was
+     * receiving output prior to calling {@link #openBuffer(PageContext)}.
+     * 
+     * @return The buffer's contents.
+     */
+    public String closeBuffer(PageContext pageContext) {
+        if (getOut() instanceof StringWriter) {
+            return ((StringWriter) writers.removeLast()).toString();
+        }
+        else {
+            throw new StripesRuntimeException(
+                    "Attempt to close a buffer without having first called openBuffer(..)!");
+        }
+    }
+
+    /** Try to flush the page context's output buffer. If an exception is thrown, just log it. */
+    protected void tryFlush(PageContext pageContext) {
+        try {
+            if (pageContext != null)
+                pageContext.getOut().flush();
+        }
+        catch (IOException e) {
+            // This seems to happen once at the beginning and once at the end. Don't know why.
+            log.debug("Failed to flush buffer: ", e.getMessage());
         }
     }
 
     @Override
     public void close() throws IOException {
-        out.close();
+        getOut().close();
     }
 
     @Override
     public void flush() throws IOException {
-        out.flush();
+        getOut().flush();
     }
 
     /**
@@ -90,12 +126,22 @@ public class LayoutWriter extends Writer {
      * @throws IOException
      */
     public void clear() throws IOException {
-        out.clear();
+        Writer out = getOut();
+        if (out instanceof JspWriter) {
+            ((JspWriter) out).clear();
+        }
+        else if (out instanceof StringWriter) {
+            ((StringWriter) out).getBuffer().setLength(0);
+        }
+        else {
+            throw new StripesRuntimeException("How did I get a writer of type "
+                    + out.getClass().getName() + "??");
+        }
     }
 
     @Override
     public void write(char[] cbuf, int off, int len) throws IOException {
         if (!isSilent())
-            out.write(cbuf, off, len);
+            getOut().write(cbuf, off, len);
     }
 }
