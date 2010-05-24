@@ -87,7 +87,7 @@ public class LayoutRenderTag extends LayoutTag implements DynamicAttributes {
     }
 
     /**
-     * On the first pass (see {@link #isRecursing()}):
+     * On the first pass (see {@link LayoutContext#isComponentRenderPhase()}):
      * <ul>
      * <li>Push the values of any dynamic attributes into page context attributes for the duration
      * of the tag.</li>
@@ -119,7 +119,7 @@ public class LayoutRenderTag extends LayoutTag implements DynamicAttributes {
     }
 
     /**
-     * After the first pass (see {@link #isRecursing()}):
+     * After the first pass (see {@link LayoutContext#isComponentRenderPhase()}):
      * <ul>
      * <li>Ensure the layout rendered successfully by checking {@link LayoutContext#isRendered()}.</li>
      * <li>Remove the current layout context from request scope.</li>

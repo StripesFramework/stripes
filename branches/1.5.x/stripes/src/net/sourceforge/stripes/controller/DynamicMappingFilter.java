@@ -96,9 +96,9 @@ import org.xml.sax.SAXException;
  * <p>
  * One benefit of this approach is that static resources can be delivered from the same namespace to
  * which an {@link ActionBean} is mapped using clean URLs. (For more information on clean URLs, see
- * {@link UrlBinding}.) For example, if your {@code UserActionBean} is mapped to {@code
- * @UrlBinding("/user/{id}/{$event}")} and you have a static file at {@code /user/icon.gif}, then
- * your icon will be delivered correctly because the initial request will not have returned a
+ * {@link UrlBinding}.) For example, if your {@code UserActionBean} is mapped to
+ * {@code @UrlBinding("/user/{id}/{$event}")} and you have a static file at {@code /user/icon.gif},
+ * then your icon will be delivered correctly because the initial request will not have returned a
  * {@code 404} error.
  * </p>
  * <p>
@@ -588,10 +588,10 @@ public class DynamicMappingFilter implements Filter {
 
     /**
      * Get all the URL patterns to which a filter is mapped in {@code web.xml}. This includes direct
-     * mappings using {@code filter-mapping/url-pattern} and indirect mappings using {@code
-     * filter-mapping/servlet-name} and {@code servlet-mapping/url-pattern}.
+     * mappings using {@code filter-mapping/url-pattern} and indirect mappings using
+     * {@code filter-mapping/servlet-name} and {@code servlet-mapping/url-pattern}.
      * 
-     * @param filterNode The DOM ({@code &lt;filter&gt;) {@link Node} containing the filter
+     * @param filterNode The DOM ({@code &lt;filter&gt;)} {@link Node} containing the filter
      *            declaration from {@code web.xml}
      * @return A list of all the patterns to which the filter is mapped
      * @throws XPathExpressionException In case of failure evaluating an xpath expression
@@ -630,7 +630,7 @@ public class DynamicMappingFilter implements Filter {
     /**
      * Get the initialization parameters for a filter declared in {@code web.xml}.
      * 
-     * @param filterNode The DOM ({@code &lt;filter&gt;) {@link Node} containing the filter
+     * @param filterNode The DOM ({@code &lt;filter&gt;)} {@link Node} containing the filter
      *            declaration from {@code web.xml}
      * @return A map of parameter names to parameter values
      * @throws XPathExpressionException In case of failure evaluation an xpath expression
@@ -672,7 +672,6 @@ public class DynamicMappingFilter implements Filter {
      *            in {@code web.xml}
      * @param request The current request, required to process a forward or include
      * @param response The current response, required to process a forward or include
-     * @return
      */
     protected void issueRequests(List<String> patterns, HttpServletRequest request,
             HttpServletResponse response) {

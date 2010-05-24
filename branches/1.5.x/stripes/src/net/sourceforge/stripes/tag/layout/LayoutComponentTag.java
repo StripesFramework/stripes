@@ -89,8 +89,8 @@ public class LayoutComponentTag extends LayoutTag {
      * </p>
      * <p>
      * If this tag is nested within a {@link LayoutRenderTag} and this tag is the current component,
-     * as indicated by {@link LayoutContext#getCurrentComponentName()}, then evaluate this tag's
-     * body by returning {@code EVAL_BODY_INCLUDE}.
+     * as indicated by {@link LayoutContext#getComponent()}, then evaluate this tag's body by
+     * returning {@code EVAL_BODY_INCLUDE}.
      * </p>
      * <p>
      * In all other cases, skip this tag's body by returning SKIP_BODY.
@@ -182,8 +182,8 @@ public class LayoutComponentTag extends LayoutTag {
 
     /**
      * If this tag is the component that needs to be rendered, as indicated by
-     * {@link LayoutContext#getCurrentComponentName()}, then set the current component name back to
-     * null to indicate that the component has rendered.
+     * {@link LayoutContext#getComponent()}, then set the current component name back to null to
+     * indicate that the component has rendered.
      * 
      * @return SKIP_PAGE if this component is the current component, otherwise EVAL_PAGE.
      */
