@@ -112,7 +112,7 @@ public class LayoutContext {
      * A new context may be created only by a {@link LayoutRenderTag}. The tag provides all the
      * information necessary to initialize the context.
      * 
-     * @param tag The tag that is beginning a new layout render process.
+     * @param renderTag The tag that is beginning a new layout render process.
      */
     public LayoutContext(LayoutRenderTag renderTag) {
         this.renderTag = renderTag;
