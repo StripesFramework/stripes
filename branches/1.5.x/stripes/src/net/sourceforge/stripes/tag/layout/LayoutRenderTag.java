@@ -60,7 +60,8 @@ public class LayoutRenderTag extends LayoutTag implements DynamicAttributes {
             LayoutContext context = LayoutContext.lookup(pageContext);
             boolean contextNew = false;
 
-            if (context == null || !context.isComponentRenderPhase()) {
+            if (context == null || !context.isComponentRenderPhase()
+                    || context.isComponentRenderPhase() && isChildOfComponent()) {
                 context = LayoutContext.push(this);
                 contextNew = true;
             }
