@@ -28,8 +28,7 @@ import net.sourceforge.stripes.util.HttpUtil;
  * @since Stripes 1.5.4
  */
 public abstract class LayoutTag extends StripesTagSupport {
-    private LayoutDefinitionTag parentDefinitionTag;
-    private LayoutRenderTag parentRenderTag;
+    private LayoutTag layoutAncestor;
 
     /** Get the context-relative path of the page that invoked this tag. */
     public String getCurrentPagePath() {
@@ -40,50 +39,28 @@ public abstract class LayoutTag extends StripesTagSupport {
         return path;
     }
 
-    /** True if this tag is executing as a child of the {@link LayoutDefinitionTag}. */
-    public boolean isChildOfDefinition() {
-        // Check for cached results
-        if (this.parentDefinitionTag != null)
-            return true;
-        else if (this.parentRenderTag != null)
-            return false;
-
-        // Search the tag stack for the nearest layout tag ancestor
-        for (Tag tag = getParent(); tag != null; tag = tag.getParent()) {
-            if (tag instanceof LayoutDefinitionTag) {
-                this.parentDefinitionTag = (LayoutDefinitionTag) tag;
-                return true;
-            }
-            else if (tag instanceof LayoutRenderTag) {
-                this.parentRenderTag = (LayoutRenderTag) tag;
-                return false;
-            }
-        }
-
-        return false;
+    /**
+     * True if the nearest ancestor of this tag that is an instance of {@link LayoutTag} is also an
+     * instance of {@link LayoutRenderTag}.
+     */
+    public boolean isChildOfRender() {
+        return getLayoutAncestor() instanceof LayoutRenderTag;
     }
 
-    /** True if this tag is executing as a child of the {@link LayoutRenderTag}. */
-    public boolean isChildOfRender() {
-        // Check for cached results
-        if (this.parentRenderTag != null)
-            return true;
-        else if (this.parentDefinitionTag != null)
-            return false;
+    /**
+     * True if the nearest ancestor of this tag that is an instance of {@link LayoutTag} is also an
+     * instance of {@link LayoutDefinitionTag}.
+     */
+    public boolean isChildOfDefinition() {
+        return getLayoutAncestor() instanceof LayoutDefinitionTag;
+    }
 
-        // Search the tag stack for the nearest layout tag ancestor
-        for (Tag tag = getParent(); tag != null; tag = tag.getParent()) {
-            if (tag instanceof LayoutDefinitionTag) {
-                this.parentDefinitionTag = (LayoutDefinitionTag) tag;
-                return false;
-            }
-            else if (tag instanceof LayoutRenderTag) {
-                this.parentRenderTag = (LayoutRenderTag) tag;
-                return true;
-            }
-        }
-
-        return false;
+    /**
+     * True if the nearest ancestor of this tag that is an instance of {@link LayoutTag} is also an
+     * instance of {@link LayoutComponentTag}.
+     */
+    public boolean isChildOfComponent() {
+        return getLayoutAncestor() instanceof LayoutComponentTag;
     }
 
     /**
@@ -93,11 +70,14 @@ public abstract class LayoutTag extends StripesTagSupport {
      */
     @SuppressWarnings("unchecked")
     public <T extends LayoutTag> T getLayoutAncestor() {
-        if (isChildOfRender())
-            return (T) parentRenderTag;
-        else if (isChildOfDefinition())
-            return (T) parentDefinitionTag;
-        else
-            return null;
+        if (layoutAncestor == null) {
+            for (Tag tag = getParent(); tag != null; tag = tag.getParent()) {
+                if (tag instanceof LayoutTag) {
+                    return (T) (this.layoutAncestor = (LayoutTag) tag);
+                }
+            }
+        }
+
+        return (T) layoutAncestor;
     }
 }
