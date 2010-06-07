@@ -46,6 +46,7 @@ public class LayoutComponentRenderer {
 
     private LinkedList<PageContext> pageContext;
     private String componentName;
+    private LayoutContext sourceContext;
 
     /**
      * Create a new instance to render the named component to a string.
@@ -78,6 +79,16 @@ public class LayoutComponentRenderer {
         return pageContext == null || pageContext.isEmpty() ? null : pageContext.getLast();
     }
 
+    /**
+     * Indicates the context in the stack of layout contexts against which the component is being
+     * rendered. Any attempt to render a component with the same name as the component currently
+     * being rendered must execute against a context further down the stack to avoid infinite
+     * recursion.
+     */
+    public LayoutContext getSourceContext() {
+        return sourceContext;
+    }
+
     @Override
     public String toString() {
         final PageContext pageContext = getPageContext();
@@ -95,11 +106,19 @@ public class LayoutComponentRenderer {
         final boolean phaseFlag = context.isComponentRenderPhase();
         final String component = context.getComponent();
         final boolean silent = context.getOut().isSilent();
+        final LayoutContext currentSource = getSourceContext();
 
-        // Descend the layout context stack, trying each context where the component is registered
+        // Never use a context that sits higher up the stack than the current source
         log.debug("Stringify component \"", componentName, "\" in ", currentPage);
         LinkedList<LayoutContext> stack = LayoutContext.getStack(pageContext, true);
-        for (Iterator<LayoutContext> iter = stack.descendingIterator(); iter.hasNext();) {
+        Iterator<LayoutContext> iter = stack.descendingIterator();
+        if (currentSource != null) {
+            while (iter.hasNext() && iter.next() != currentSource)
+                ;
+        }
+
+        // Descend the stack from here, trying each context where the component is registered
+        while (iter.hasNext()) {
             // Skip contexts where the desired component is not registered or which would invoke the
             // current page again.
             final LayoutContext source = iter.next();
@@ -111,6 +130,7 @@ public class LayoutComponentRenderer {
             }
 
             // Turn on the render phase flag and set the component to render
+            sourceContext = source;
             context.setComponentRenderPhase(true);
             context.setComponent(componentName);
 
@@ -139,6 +159,7 @@ public class LayoutComponentRenderer {
                 context.setComponentRenderPhase(phaseFlag);
                 context.setComponent(component);
                 context.getOut().setSilent(silent, pageContext);
+                sourceContext = currentSource;
 
                 // Pop the buffer contents and return them if the component did render
                 String value = context.getOut().closeBuffer(pageContext);
