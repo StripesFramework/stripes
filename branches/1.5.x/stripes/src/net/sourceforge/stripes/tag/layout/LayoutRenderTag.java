@@ -15,7 +15,6 @@
 package net.sourceforge.stripes.tag.layout;
 
 import java.io.IOException;
-import java.util.LinkedList;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.DynamicAttributes;
@@ -36,17 +35,7 @@ public class LayoutRenderTag extends LayoutTag implements DynamicAttributes {
 
     private String name;
     private LayoutContext context;
-    private Boolean newContext;
-    private boolean silent;
-
-    /**
-     * True if this is the "outer" tag. That is, the render tag that kicks off the whole layout
-     * rendering process.
-     */
-    public boolean isOuterTag() {
-        LinkedList<LayoutContext> stack = LayoutContext.getStack(pageContext, false);
-        return stack != null && stack.size() < 2;
-    }
+    private boolean contextIsNew, silent, outer;
 
     /** Gets the name of the layout to be used. */
     public String getName() { return name; }
@@ -58,28 +47,19 @@ public class LayoutRenderTag extends LayoutTag implements DynamicAttributes {
     public LayoutContext getContext() {
         if (context == null) {
             LayoutContext context = LayoutContext.lookup(pageContext);
-            boolean contextNew = false;
+            boolean contextIsNew = false;
 
             if (context == null || !context.isComponentRenderPhase()
                     || context.isComponentRenderPhase() && isChildOfComponent()) {
                 context = LayoutContext.push(this);
-                contextNew = true;
+                contextIsNew = true;
             }
 
             this.context = context;
-            this.newContext = contextNew;
+            this.contextIsNew = contextIsNew;
         }
 
         return context;
-    }
-
-    /** True if the context returned by {@link #getContext()} was newly created by this tag. */
-    public boolean isNewContext() {
-        // Force initialization of the context if necessary
-        if (newContext == null)
-            getContext();
-
-        return newContext;
     }
 
     /** Used by the JSP container to provide the tag with dynamic attributes. */
@@ -101,9 +81,10 @@ public class LayoutRenderTag extends LayoutTag implements DynamicAttributes {
     @Override
     public int doStartTag() throws JspException {
         LayoutContext context = getContext();
+        outer = LayoutContext.getStack(pageContext, true).getFirst() == context;
         silent = context.getOut().isSilent();
 
-        if (isNewContext()) {
+        if (contextIsNew) {
             log.debug("Start layout init in ", context.getRenderPage());
             pushPageContextAttributes(context.getParameters());
         }
@@ -133,11 +114,11 @@ public class LayoutRenderTag extends LayoutTag implements DynamicAttributes {
 	public int doEndTag() throws JspException {
         try {
             LayoutContext context = getContext();
-            if (isNewContext()) {
+            if (contextIsNew) {
                 // Substitution of the layout writer for the regular JSP writer does not work for
                 // the initial render tag. Its body evaluation still uses the original JSP writer
                 // for output. Clear the output buffer before executing the definition page.
-                if (isOuterTag()) {
+                if (outer) {
                     try {
                         context.getOut().clear();
                     }
@@ -184,13 +165,15 @@ public class LayoutRenderTag extends LayoutTag implements DynamicAttributes {
 
             // Restore output's silent flag
             context.getOut().setSilent(silent, pageContext);
+
+            // Skip the rest of the page if this is the outer-most render tag
+            return outer ? SKIP_PAGE : EVAL_PAGE;
         }
         finally {
             this.context = null;
-            this.newContext = null;
+            this.contextIsNew = false;
             this.silent = false;
+            this.outer = false;
         }
-
-        return EVAL_PAGE;
     }
 }
