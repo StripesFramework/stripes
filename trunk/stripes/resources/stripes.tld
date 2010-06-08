@@ -819,9 +819,9 @@
         </attribute>
         <attribute>
             <description>
-            	The (optional) anchor that is appended at the end of the generated URL.
-            	If the URL specified by the value attribute already contains the anchor then
-            	the anchor specified by this attribute takes precedence.
+              The (optional) anchor that is appended at the end of the generated URL.
+              If the URL specified by the value attribute already contains the anchor then
+              the anchor specified by this attribute takes precedence.
             </description>
             <name>anchor</name><required>false</required><rtexprvalue>true</rtexprvalue>
         </attribute>
@@ -1055,8 +1055,11 @@
             through that collection calling getCatId() and getName() on each cat to produce
             HTML option tags.</p>
 
-            <p>The tag will attempt to localize the labels attributes of the option tags that are
-            generated. To do this it will look up labels in the field resource bundle using:</p>
+            <p>By default, the tag will attempt to localize the labels attributes of the option tags that are
+            generated. To override this default and turn off this behavior, thus saving unnecessary resource
+            bundle lookups, set the localizeLabels attribute to false.</p>
+         
+            <p>To do label localization, the tag will look up labels in the field resource bundle using:</p>
 
             <ul>
               <li>{className}.{labelPropertyValue}</li>
@@ -1076,7 +1079,8 @@
               <li>com.myco.Gender.M</li>
             </ul>
 
-            <p>If no localized label can be found then the value of the label property will be used.</p>
+            <p>If no localized label can be found, or if the localizeLabels attribute is set to false,
+            then the value of the label property will be used.</p>
 
             <p>Optionally, the group attribute may be used to generate &lt;optgroup&gt; tags. The value of
             this attribute is used to retrieve the corresponding property on each object of the collection.
@@ -1107,7 +1111,8 @@
                 The name of the property (of the beans in the collection) that should be used to
                 generate the value of each option (i.e. the value that is sent to the server).
             </description>
-            <name>value</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
+            <name>value</name><required>false</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
         <attribute>
             <description>
                 The name of the property (of the beans in the collection) that should be used to
@@ -1142,6 +1147,17 @@
                 Each time a new value is encountered an optgroup will be written for it.
             ]]></description>
             <name>group</name><required>false</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>
+                Determines whether attempts to localize labels will occur. If set to true (the default), labels will be
+                localized as described above. If set to false, no resource bundle lookups will be made, which can
+                improve performance.
+            </description>
+            <name>localizeLabels</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.Boolean</type>
         </attribute>
 
         <!-- Start: Standard HTML attributes -->
@@ -1187,8 +1203,11 @@
             the various JSP scopes and set it on the tag.  The tag would then proceed to iterate
             through that Map calling getKey() and getValue() on each cat to produce HTML option tags.</p>
 
-            <p>The tag will attempt to localize the labels attributes of the option tags that are
-            generated. To do this it will look up labels in the field resource bundle. If no
+            <p>By default, the tag will attempt to localize the labels attributes of the option tags that are
+            generated. To override this default and turn off this behavior, thus saving unnecessary resource
+            bundle lookups, set the localizeLabels attribute to false.</p>
+         
+            <p>To do label localization, the tag will look up labels in the field resource bundle. If no
             localized label can be found then the value of the label property will be used.</p>
 
             <p>All other attributes on the tag (other than map, label, and sort) are passed
@@ -1244,6 +1263,17 @@
             ]]></description>
             <name>group</name><required>false</required><rtexprvalue>true</rtexprvalue>
         </attribute>
+        <attribute>
+            <description>
+                Determines whether attempts to localize labels will occur. If set to true (the default), labels will be
+                localized as described above. If set to false, no resource bundle lookups will be made, which can
+                improve performance.
+            </description>
+            <name>localizeLabels</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.Boolean</type>
+        </attribute>
         
 
         <!-- Start: Standard HTML attributes -->
@@ -1279,9 +1309,13 @@
             options will be generated in ordinal value order (i.e. the order they are declared in the
             enum).</p>
 
+            <p>Please note that as with the options-collection and options-map tags, resource bundle lookups
+            are on by default but can be turned off by setting the localizeLabels attribute to false.</p>
+
             <p>The label (the value the user sees) is generated in one of three ways: by looking up a
-            localized value, by using the property named by the 'label' tag attribute if it is supplied
-            and lastly by toString()'ing the enumeration value.  For example the following tag:</p>
+            localized value (unless localizeLabels is set to false), by using the property named by the 'label'
+            tag attribute if it is supplied and lastly by toString()'ing the enumeration value.
+            For example the following tag:</p>
 
             <pre>&lt;stripes:options-enumeration enum="net.kitty.EyeColor" label="description"/&gt;</pre>
 
@@ -1289,8 +1323,8 @@
             following order:</p>
 
             <ul>
-              <li><tt>resource: EyeColor.BLUE</tt></li>
-              <li><tt>resource: net.kitty.EyeColor.BLUE</tt></li>
+              <li><tt>resource: EyeColor.BLUE</tt> (skipped if localizeLabels is set to false)</li>
+              <li><tt>resource: net.kitty.EyeColor.BLUE</tt> (skipped if localizeLabels is set to false)</li>
               <li><tt>property: EyeColor.BLUE.getDescription()</tt> (because of the label="description" above)</li>
               <li><tt>failsafe: EyeColor.BLUE.toString()</tt></li>
             </ul>
@@ -1339,6 +1373,17 @@
                 Each time a new value is encountered an optgroup will be written for it.
             ]]></description>
             <name>group</name><required>false</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>
+                Determines whether attempts to localize labels will occur. If set to true (the default), labels will be
+                localized as described above. If set to false, no resource bundle lookups will be made, which can
+                improve performance.
+            </description>
+            <name>localizeLabels</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+            <type>java.lang.Boolean</type>
         </attribute>
 
 
@@ -1914,9 +1959,9 @@
         </attribute>
         <attribute>
             <description>
-            	The (optional) anchor that is appended at the end of the generated URL.
-            	If the URL specified by the value attribute already contains the anchor then
-            	the anchor specified by this attribute takes precedence.
+              The (optional) anchor that is appended at the end of the generated URL.
+              If the URL specified by the value attribute already contains the anchor then
+              the anchor specified by this attribute takes precedence.
             </description>
             <name>anchor</name><required>false</required><rtexprvalue>true</rtexprvalue>
         </attribute>

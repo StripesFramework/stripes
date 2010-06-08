@@ -33,16 +33,16 @@ import net.sourceforge.stripes.tag.InputOptionsCollectionTag;
  */
 public class InputOptionsMapTag extends InputOptionsCollectionTag
 {
-	private Map<? extends Object,? extends Object> map;
+    private Map<? extends Object,? extends Object> map;
 
-	/**
-	 * <p>Returns the {@link java.util.Map} that was passed in via setMap().</p>
-	 * 
-	 * @return the {@link java.util.Map} passed in via setMap().
-	 */
-	public Map<? extends Object, ? extends Object> getMap() {
-		return map;
-	}
+    /**
+     * <p>Returns the {@link java.util.Map} that was passed in via setMap().</p>
+     * 
+     * @return the {@link java.util.Map} passed in via setMap().
+     */
+    public Map<? extends Object, ? extends Object> getMap() {
+        return map;
+    }
 
     /**
      * <p>This function simply passes the result of Map.entrySet()
@@ -51,26 +51,26 @@ public class InputOptionsMapTag extends InputOptionsCollectionTag
      *
      * @param map a Map
      */
-	public void setMap(Map<? extends Object, ? extends Object> map)	{
-		this.map = map;
-		
-		setCollection(map.entrySet());
-		
-		if (getValue() == null)
-			setValue("key");
-		
-		if (getLabel() == null)
-			setLabel("value");
-	}
-	
-	/**
-	 * Calls super.doEndTag() and cleans up instance variables so this instance
-	 * may be reused.
-	 */
+    public void setMap(Map<? extends Object, ? extends Object> map)    {
+        this.map = map;
+
+        setCollection(map.entrySet());
+
+        if (getValue() == null)
+            setValue("key");
+
+        if (getLabel() == null)
+            setLabel("value");
+    }
+
+    /**
+     * Calls super.doEndTag() and cleans up instance variables so this instance
+     * may be reused.
+     */
     @Override
     public int doEndTag() throws JspException {
-    	int result = super.doEndTag();
-    	
-    	return result;
+        int result = super.doEndTag();
+
+        return result;
     }
 }
