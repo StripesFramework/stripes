@@ -14,11 +14,8 @@
  */
 package net.sourceforge.stripes.tag.layout;
 
-import java.io.IOException;
-import java.util.Iterator;
 import java.util.regex.Pattern;
 
-import javax.servlet.ServletException;
 import javax.servlet.jsp.JspException;
 
 import net.sourceforge.stripes.exception.StripesJspException;
@@ -130,37 +127,19 @@ public class LayoutComponentTag extends LayoutTag {
             }
             else if (isChildOfDefinition()) {
                 if (!context.isComponentRenderPhase()) {
-                    // Set render phase flag and the name of the component to render. Iterate down
-                    // the stack of layout contexts, executing each render page that contains a
-                    // component with the same name as this one until the component has rendered or
-                    // we run out of contexts.
-                    context.setComponentRenderPhase(true);
-                    context.setComponent(getName());
-                    Iterator<LayoutContext> iterator = LayoutContext.getStack(pageContext, true)
-                            .descendingIterator();
-                    while (iterator.hasNext() && context.getComponent() != null) {
-                        LayoutContext renderer = iterator.next();
-                        if (renderer.getComponents().containsKey(getName())) {
-                            String renderPage = renderer.getRenderPage();
-                            log.debug("Execute component ", getName(), " in ", context
-                                    .getDefinitionPage(), " with include of ", renderPage);
-                            boolean silent = context.getOut().isSilent();
-                            context.getOut().setSilent(true, pageContext);
-                            pageContext.include(renderPage, false);
-                            context.getOut().setSilent(silent, pageContext);
-                        }
-                    }
-                    context.setComponentRenderPhase(false);
+                    // Use a layout component renderer to do the heavy lifting
+                    log.debug("Invoke layout component renderer for recursive render");
+                    LayoutComponentRenderer renderer = new LayoutComponentRenderer(getName());
+                    renderer.pushPageContext(pageContext);
+                    boolean rendered = renderer.write();
 
-                    // The current component name should be cleared after the component has
-                    // rendered. If it is not cleared then the component did not render so we need
-                    // to output the default content from the layout definition.
-                    if (context.getComponent() != null) {
+                    // If the component did not render then we need to output the default contents
+                    // from the layout definition.
+                    if (!rendered) {
                         log.debug("Component was not present in ", context.getRenderPage(),
                                 " so using default content from ", context.getDefinitionPage());
 
                         context.getOut().setSilent(false, pageContext);
-                        context.setComponent(null);
                         return EVAL_BODY_INCLUDE;
                     }
                 }
@@ -168,15 +147,29 @@ public class LayoutComponentTag extends LayoutTag {
                     log.debug("No-op for ", getName(), " in ", context.getDefinitionPage());
                 }
             }
+            else if (isChildOfComponent() && isCurrentComponent()
+                    && context.isComponentRenderPhase()) {
+                LayoutComponentTag parent = getLayoutAncestor();
+                if (getName().equals(parent.getName())) {
+                    log.debug("Invoke layout component renderer for recursive render");
+                    LayoutComponentRenderer renderer = (LayoutComponentRenderer) pageContext
+                            .getAttribute(getName());
+                    renderer.write();
+                }
+            }
 
             context.getOut().setSilent(true, pageContext);
             return SKIP_BODY;
         }
-        catch (ServletException e) {
-            throw new StripesJspException(e);
-        }
-        catch (IOException e) {
-            throw new StripesJspException(e);
+        catch (Exception e) {
+            log.error(e, "Unhandled exception trying to render component \"", getName(),
+                    "\" to a string in context ", context.getRenderPage(), " -> ", context
+                            .getDefinitionPage());
+
+            if (e instanceof RuntimeException)
+                throw (RuntimeException) e;
+            else
+                throw new StripesJspException(e);
         }
     }
 
