@@ -78,6 +78,7 @@ public class LayoutWriter extends Writer {
      * closed and its contents retrieved by calling {@link #closeBuffer(PageContext)}.
      */
     public void openBuffer(PageContext pageContext) {
+        log.trace("Open buffer");
         tryFlush(pageContext);
         writers.add(new StringWriter(1024));
     }
@@ -90,7 +91,9 @@ public class LayoutWriter extends Writer {
      */
     public String closeBuffer(PageContext pageContext) {
         if (getOut() instanceof StringWriter) {
-            return ((StringWriter) writers.removeLast()).toString();
+            String contents = ((StringWriter) writers.removeLast()).toString();
+            log.trace("Closed buffer: \"", contents, "\"");
+            return contents;
         }
         else {
             throw new StripesRuntimeException(
