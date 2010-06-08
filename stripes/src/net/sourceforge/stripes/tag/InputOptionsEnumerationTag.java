@@ -29,9 +29,13 @@ import java.util.Locale;
  * options will be generated in ordinal value order (i.e. the order they are declared in the
  * enum).</p>
  *
+ * <p>Please note that as with the options-collection and options-map tags, resource bundle lookups
+ * are on by default but can be turned off by setting the localizeLabels attribute to false.</p>
+ *
  * <p>The label (the value the user sees) is generated in one of three ways: by looking up a
- * localized value, by using the property named by the 'label' tag attribute if it is supplied
- * and lastly by toString()'ing the enumeration value.  For example the following tag:</p>
+ * localized value (unless localizeLabels is set to false), by using the property named by the 'label'
+ * tag attribute if it is supplied and lastly by toString()'ing the enumeration value.
+ * For example the following tag:</p>
  *
  *<pre>{@literal <stripes:options-enumeration enum="net.kitty.EyeColor" label="description"/>}</pre>
  *
@@ -39,8 +43,8 @@ import java.util.Locale;
  * following order:</p>
  *
  * <ul>
- *   <li>resource: EyeColor.BLUE</li>
- *   <li>resource: net.kitty.EyeColor.BLUE</li>
+ *   <li>resource: EyeColor.BLUE (skipped if localizeLabels is set to false)</li>
+ *   <li>resource: net.kitty.EyeColor.BLUE (skipped if localizeLabels is set to false)</li>
  *   <li>property: EyeColor.BLUE.getDescription() (because of the label="description" above)</li>
  *   <li>failsafe: EyeColor.BLUE.toString()</li>
  * </ul>
@@ -80,7 +84,7 @@ public class InputOptionsEnumerationTag extends InputOptionsCollectionTag {
      */
     @Override
     @SuppressWarnings("unchecked")
-	public int doStartTag() throws JspException {
+    public int doStartTag() throws JspException {
         Class<Enum> clazz = null;
         try {
             clazz = (Class<Enum>) ReflectUtil.findClass(this.className);
@@ -114,16 +118,20 @@ public class InputOptionsEnumerationTag extends InputOptionsCollectionTag {
 
         try {
             Locale locale = getPageContext().getRequest().getLocale();
+            boolean attemptToLocalizeLabels = isAttemptToLocalizeLabels();
 
             for (Enum item : enums) {
                 Object label = null;
-                String packageName = clazz.getPackage() == null ? "" : clazz.getPackage().getName();
 
-                // Check for a localized label using class.ENUM_VALUE and package.class.ENUM_VALUE
-                label = LocalizationUtility.getLocalizedFieldName(clazz.getSimpleName() + "." + item.name(),
-                                                                  packageName,
-                                                                  null,
-                                                                  locale);
+                if (attemptToLocalizeLabels) {
+                    String packageName = clazz.getPackage() == null ? "" : clazz.getPackage().getName();
+
+                    // Check for a localized label using class.ENUM_VALUE and package.class.ENUM_VALUE
+                    label = LocalizationUtility.getLocalizedFieldName(clazz.getSimpleName() + "." + item.name(),
+                                                                      packageName,
+                                                                      null,
+                                                                      locale);
+                }
                 if (label == null) {
                     if (getLabel() != null) {
                         label = BeanUtil.getPropertyValue(getLabel(), item);
@@ -132,7 +140,7 @@ public class InputOptionsEnumerationTag extends InputOptionsCollectionTag {
                         label = item.toString();
                     }
                 }
-                
+
                 Object group = null;
                 if (getGroup() != null)
                     group = BeanUtil.getPropertyValue(getGroup(), item);

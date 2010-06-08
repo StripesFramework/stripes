@@ -45,8 +45,11 @@ import java.util.LinkedList;
  * scopes and set it on the tag.  The tag would then proceed to iterate through that collection
  * calling getCatId() and getName() on each cat to produce HTML option tags.</p>
  *
- * <p>The tag will attempt to localize the labels attributes of the option tags that are
- * generated. To do this it will look up labels in the field resource bundle using:</p>
+ * <p>By default, the tag will attempt to localize the labels attributes of the option tags that are
+ * generated. To override this default and turn off this behavior, thus saving unnecessary resource
+ * bundle lookups, set the localizeLabels attribute to false.</p>
+ * 
+ * <p>To do label localization, the tag will look up labels in the field resource bundle using:</p>
  *
  * <ul>
  *   <li>{className}.{labelPropertyValue}</li>
@@ -66,7 +69,8 @@ import java.util.LinkedList;
  *   <li>com.myco.Gender.M</li>
  * </ul>
  *
- * <p>If no localized label can be found then the value of the label property will be used.</p>
+ * <p>If no localized label can be found, or if the localizeLabels attribute is set to false,
+ * then the value of the label property will be used.</p>
  *
  * <p>Optionally, the group attribute may be used to generate &lt;optgroup&gt; tags. The value of
  * this attribute is used to retrieve the corresponding property on each object of the collection.
@@ -95,6 +99,7 @@ public class InputOptionsCollectionTag extends HtmlTagSupport implements Tag {
     private String label;
     private String sort;
     private String group;
+    private Boolean localizeLabels;
 
     /**
      * A little container class that holds an entry in the collection of items being used
@@ -126,7 +131,7 @@ public class InputOptionsCollectionTag extends HtmlTagSupport implements Tag {
      * @param in either a Collection, an Iterable or an Array
      */
     @SuppressWarnings("unchecked")
-	public void setCollection(Object in) {
+    public void setCollection(Object in) {
         if (in == null) this.collection = null;
         else if (in instanceof Collection) this.collection = (Collection) in;
         else if (in instanceof Iterable) this.collection = CollectionUtil.asList((Iterable) in);
@@ -192,6 +197,20 @@ public class InputOptionsCollectionTag extends HtmlTagSupport implements Tag {
         return sort;
     }
 
+    /** Sets the flag that indicates whether or not attempts to localize labels should be made. */
+    public void setLocalizeLabels(Boolean localizeLabels) {
+        this.localizeLabels = localizeLabels;
+    }
+
+    /** Gets the flag that indicates whether or not attempts to localize labels should be made. */
+    public Boolean getLocalizeLabels() {
+        return localizeLabels;
+    }
+
+    protected boolean isAttemptToLocalizeLabels() {
+        return (localizeLabels == null) || (localizeLabels != null && localizeLabels.booleanValue());
+    }
+
     /**
      * Adds an entry to the internal list of items being used to generate options.
      * @param item the object represented by the option
@@ -224,9 +243,9 @@ public class InputOptionsCollectionTag extends HtmlTagSupport implements Tag {
      */
     @Override
     public int doStartTag() throws JspException {
-    	if (this.collection == null)
-    		return SKIP_BODY;
-    	
+      if (this.collection == null)
+        return SKIP_BODY;
+
         String labelProperty = getLabel();
         String valueProperty = getValue();
         String groupProperty = getGroup();
@@ -234,6 +253,7 @@ public class InputOptionsCollectionTag extends HtmlTagSupport implements Tag {
 
         try {
             Locale locale = getPageContext().getRequest().getLocale();
+            boolean attemptToLocalizeLabels = isAttemptToLocalizeLabels();
 
             for (Object item : this.collection) {
                 Class<? extends Object> clazz = item.getClass();
@@ -243,24 +263,26 @@ public class InputOptionsCollectionTag extends HtmlTagSupport implements Tag {
                 Object value = (valueProperty == null) ? item : BeanUtil.getPropertyValue(valueProperty, item);
                 Object group = (groupProperty == null) ? null : BeanUtil.getPropertyValue(groupProperty, item);
 
-                // Try to localize the label
-                String packageName = clazz.getPackage() == null ? "" : clazz.getPackage().getName();
-                String localizedLabel = null;
-                if (label != null) {
-                    localizedLabel = LocalizationUtility.getLocalizedFieldName
-                        (clazz.getSimpleName() + "."  + label, packageName, null, locale);
-                }
-                if (localizedLabel == null && value != null) {
-                    localizedLabel = LocalizationUtility.getLocalizedFieldName
-                        (clazz.getSimpleName() + "."  + value, packageName, null, locale);
-                }
-                if (localizedLabel != null) label = localizedLabel;
+                if (attemptToLocalizeLabels) {
+                    // Try to localize the label
+                    String packageName = clazz.getPackage() == null ? "" : clazz.getPackage().getName();
+                    String localizedLabel = null;
+                    if (label != null) {
+                        localizedLabel = LocalizationUtility.getLocalizedFieldName
+                            (clazz.getSimpleName() + "."  + label, packageName, null, locale);
+                    }
+                    if (localizedLabel == null && value != null) {
+                        localizedLabel = LocalizationUtility.getLocalizedFieldName
+                            (clazz.getSimpleName() + "."  + value, packageName, null, locale);
+                    }
+                    if (localizedLabel != null) label = localizedLabel;
 
-                // Try to localize the group
-                if (group != null) {
-                    String localizedGroup = LocalizationUtility.getLocalizedFieldName(
-                        clazz.getSimpleName() + "." + group, packageName, null, locale);
-                    if (localizedGroup != null) group = localizedGroup;
+                    // Try to localize the group
+                    if (group != null) {
+                        String localizedGroup = LocalizationUtility.getLocalizedFieldName(
+                            clazz.getSimpleName() + "." + group, packageName, null, locale);
+                        if (localizedGroup != null) group = localizedGroup;
+                    }
                 }
                 addEntry(item, label, value, group);
             }
@@ -299,13 +321,13 @@ public class InputOptionsCollectionTag extends HtmlTagSupport implements Tag {
         InputOptionTag tag = new InputOptionTag();
         tag.setParent(this);
         tag.setPageContext(getPageContext());
-        
+
         Object lastGroup = null;
 
         for (Entry entry : sortedEntries) {
             // Set properties common to all options
             tag.getAttributes().putAll(getAttributes());
-            
+
             // Set properties for this tag
             tag.setLabel(entry.label == null ? null : entry.label.toString());
             tag.setValue(entry.value);
@@ -316,10 +338,10 @@ public class InputOptionsCollectionTag extends HtmlTagSupport implements Tag {
                     out.write("<optgroup label=\"");
                     out.write(String.valueOf(entry.group).replaceAll("\"", "&quot;"));
                     out.write("\"/>");
-                    
+
                     lastGroup = entry.group;
                 }
-              
+
                 tag.doStartTag();
                 tag.doInitBody();
                 tag.doAfterBody();
