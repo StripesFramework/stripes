@@ -187,6 +187,8 @@ public class LayoutComponentRenderer {
         String contents;
         context.getOut().openBuffer(pageContext);
         try {
+            log.debug("Start stringify \"", componentName, "\" in ", context.getRenderPage(),
+                    " -> ", context.getDefinitionPage());
             write();
         }
         catch (Exception e) {
@@ -196,6 +198,9 @@ public class LayoutComponentRenderer {
             return "[Failed to render \"" + componentName + "\". See log for details.]";
         }
         finally {
+            log.debug("End stringify \"", componentName, "\" in ", context.getRenderPage(), " -> ",
+                    context.getDefinitionPage());
+
             contents = context.getOut().closeBuffer(pageContext);
             if ("".equals(contents)) {
                 log.debug("Component \"", componentName,
