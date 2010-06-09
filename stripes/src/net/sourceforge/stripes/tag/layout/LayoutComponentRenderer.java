@@ -118,7 +118,7 @@ public class LayoutComponentRenderer {
         final LayoutContext currentSource = getSourceContext();
 
         // Never use a context that sits higher up the stack than the current source
-        log.debug("Stringify component \"", componentName, "\" in ", currentPage);
+        log.debug("Render component \"", componentName, "\" in ", currentPage);
         LinkedList<LayoutContext> stack = LayoutContext.getStack(pageContext, true);
         Iterator<LayoutContext> iter = stack.descendingIterator();
         if (currentSource != null) {
@@ -133,7 +133,7 @@ public class LayoutComponentRenderer {
             final LayoutContext source = iter.next();
             if (!source.getComponents().containsKey(componentName)
                     || source.getRenderPage().equals(currentPage)) {
-                log.trace("Not stringifying \"", componentName, "\" in context ", source
+                log.trace("Not rendering \"", componentName, "\" in context ", source
                         .getRenderPage(), " -> ", source.getDefinitionPage());
                 continue;
             }
@@ -144,12 +144,12 @@ public class LayoutComponentRenderer {
             context.setComponent(componentName);
 
             try {
-                log.debug("Start stringify \"", componentName, "\" in ", context.getRenderPage(),
+                log.debug("Start execute \"", componentName, "\" in ", context.getRenderPage(),
                         " -> ", context.getDefinitionPage(), " from ", source.getRenderPage(),
                         " -> ", source.getDefinitionPage());
                 context.getOut().setSilent(true, pageContext);
                 pageContext.include(source.getRenderPage(), false);
-                log.debug("End stringify \"", componentName, "\" in ", context.getRenderPage(),
+                log.debug("End execute \"", componentName, "\" in ", context.getRenderPage(),
                         " -> ", context.getDefinitionPage(), " from ", source.getRenderPage(),
                         " -> ", source.getDefinitionPage());
 
