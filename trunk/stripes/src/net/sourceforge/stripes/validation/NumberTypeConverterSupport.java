@@ -37,10 +37,15 @@ public class NumberTypeConverterSupport {
         this.formats = getNumberFormats();
 
         // Use the appropriate currency symbol if our locale has a country, otherwise try the dollar sign!
-        if (locale.getCountry() != null && !"".equals(locale.getCountry()))
-            this.currencySymbol = Currency.getInstance(locale).getSymbol(locale);
-        else
-            this.currencySymbol = "$";
+        this.currencySymbol = "$";
+        if (locale.getCountry() != null && !"".equals(locale.getCountry())) {
+            try {
+              this.currencySymbol = Currency.getInstance(locale).getSymbol(locale);
+            }
+            catch (IllegalArgumentException exc) {
+              // use dollar sign as default value
+            }
+        }
     }
 
     /** Returns the Locale set on the object using setLocale(). */
