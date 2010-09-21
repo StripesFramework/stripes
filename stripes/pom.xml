@@ -12,10 +12,23 @@
     </parent>
     <artifactId>stripes</artifactId>
     <packaging>jar</packaging>
-    <name>Stripes Core</name>
+    <name>Stripes</name>
     <build>
         <sourceDirectory>src</sourceDirectory>
         <plugins>
+            <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-jar-plugin</artifactId>
+            <version>2.1</version>
+            <configuration>
+              <archive>
+                <manifest>
+                  <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                  <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                </manifest>
+              </archive>
+            </configuration>
+            </plugin>
             <!--
                 Use antrun to create the .tld files.
                 THIS IS DUPLICATED FROM THE ANT BUILD
