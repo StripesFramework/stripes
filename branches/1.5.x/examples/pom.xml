@@ -16,7 +16,7 @@
         <dependency>
             <groupId>net.sourceforge.stripes</groupId>
             <artifactId>stripes</artifactId>
-            <version>1.5.4-SNAPSHOT</version>
+            <version>${stripes.version}</version>
         </dependency>
         <dependency>
             <groupId>log4j</groupId>
