@@ -53,6 +53,26 @@
         <finalName>stripes-examples</finalName>
         <sourceDirectory>src</sourceDirectory>
         <plugins>
+            <!-- use antrun to copy the sources into the webapp -->
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.5</version>
+                <executions>
+                    <execution>
+                        <phase>process-sources</phase>
+                        <configuration>
+                            <target>
+                                <copy todir="./target/classes/WEB-INF/src" flatten="true" overwrite="true">
+                                    <fileset dir="./src" includes="**/*.java"/>
+                                </copy>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
