@@ -34,7 +34,10 @@
     </modules>
     <properties>
         <stripes.version>1.5.4-SNAPSHOT</stripes.version>
-    </properties>    
+        <stripes.repositoryId>stripes.repo</stripes.repositoryId>
+        <stripes.releases.repositoryUrl>http://localhost:8081/nexus/content/repositories/stripes.releases</stripes.releases.repositoryUrl>
+        <stripes.snapshots.repositoryUrl>http://localhost:8081/nexus/content/repositories/stripes.snapshots</stripes.snapshots.repositoryUrl>
+    </properties>
     <dependencies>
         <!--
             factorization of deps in top-level because of our tests/stripes modules
@@ -160,4 +163,16 @@
             </plugin>
         </plugins>        
     </build>
+    <distributionManagement>
+        <repository>
+            <id>stripes.releases</id>
+            <name>stripes.releases</name>
+            <url>${stripes.releases.repositoryUrl}</url>
+        </repository>
+        <snapshotRepository>
+            <id>stripes.snapshots</id>
+            <name>stripes.snapshots</name>
+            <url>${stripes.snapshots.repositoryUrl}</url>
+        </snapshotRepository>
+    </distributionManagement>
 </project>
