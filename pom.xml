@@ -32,6 +32,9 @@
         <module>tests</module>
         <module>examples</module>
     </modules>
+    <properties>
+        <stripes.version>1.5.4-SNAPSHOT</stripes.version>
+    </properties>    
     <dependencies>
         <!--
             factorization of deps in top-level because of our tests/stripes modules
