@@ -35,8 +35,8 @@
     <properties>
         <stripes.version>1.5.4-SNAPSHOT</stripes.version>
         <stripes.repositoryId>stripes.repo</stripes.repositoryId>
-        <stripes.releases.repositoryUrl>http://localhost:8081/nexus/content/repositories/stripes.releases</stripes.releases.repositoryUrl>
-        <stripes.snapshots.repositoryUrl>http://localhost:8081/nexus/content/repositories/stripes.snapshots</stripes.snapshots.repositoryUrl>
+        <stripes.releases.repositoryUrl>http://oss.sonatype.org/content/repositories/releases</stripes.releases.repositoryUrl>
+        <stripes.snapshots.repositoryUrl>http://oss.sonatype.org/content/repositories/snapshots</stripes.snapshots.repositoryUrl>
     </properties>
     <dependencies>
         <!--
