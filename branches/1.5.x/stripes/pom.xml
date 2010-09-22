@@ -100,6 +100,12 @@
                             </execution>
                         </executions>
                     </plugin>
+                    <!--
+                        Configuration of a deploy-file goal when deploying everything.
+                        The tlddocs are generated uing ant and thereby they are not
+                        included in deploy process by default, hence this little trick.
+                        // TODO find a better way to handle this !                        
+                    -->
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-deploy-plugin</artifactId>
