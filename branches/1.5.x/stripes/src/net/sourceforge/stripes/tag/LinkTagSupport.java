@@ -16,6 +16,7 @@ package net.sourceforge.stripes.tag;
 
 import net.sourceforge.stripes.exception.StripesJspException;
 import net.sourceforge.stripes.util.CryptoUtil;
+import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.util.UrlBuilder;
 import net.sourceforge.stripes.controller.StripesConstants;
 
@@ -33,6 +34,8 @@ import java.util.HashMap;
  * @since Stripes 1.4
  */
 public abstract class LinkTagSupport extends HtmlTagSupport implements ParameterizableTag {
+    private static final Log log = Log.getInstance(LinkTagSupport.class);
+
     /** Initial value for fields to indicate they were not set by a tag attribute. */
     private static final String VALUE_NOT_SET = "VALUE_NOT_SET";
 
@@ -205,12 +208,18 @@ public abstract class LinkTagSupport extends HtmlTagSupport implements Parameter
         // Prepend the context path, but only if the user didn't already
         String url = builder.toString();
         String contextPath = request.getContextPath();
-        boolean prepend = prependContext != null && prependContext
-                || prependContext == null && beanclass != null
-                || prependContext == null && contextPath.length() > 1 && !url.startsWith(contextPath);
+        if (contextPath.length() > 1) {
+            boolean prepend = prependContext != null && prependContext
+                    || prependContext == null && beanclass != null
+                    || prependContext == null && url.startsWith("/") && !url.startsWith(contextPath);
 
-        if (prepend && contextPath.length() > 1)
-            url = contextPath + url;
+            if (prepend) {
+                if (url.startsWith("/"))
+                    url = contextPath + url;
+                else
+                    log.warn("Use of prependContext=\"true\" is only valid with a URL that starts with \"/\"");
+            }
+        }
 
         return response.encodeURL(url);
     }
