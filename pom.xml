@@ -6,6 +6,11 @@
 -->
 <project>
     <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.sonatype.oss</groupId>
+        <artifactId>oss-parent</artifactId>
+        <version>5</version>
+    </parent>
     <groupId>net.sourceforge.stripes</groupId>
     <artifactId>stripes-parent</artifactId>
     <version>1.5.4-SNAPSHOT</version>
@@ -32,10 +37,6 @@
         <module>tests</module>
         <module>examples</module>
     </modules>
-    <properties>
-        <stripes.releases.repositoryUrl>http://oss.sonatype.org/content/repositories/releases</stripes.releases.repositoryUrl>
-        <stripes.snapshots.repositoryUrl>http://oss.sonatype.org/content/repositories/snapshots</stripes.snapshots.repositoryUrl>
-    </properties>
     <dependencies>
         <!--
             factorization of deps in top-level because of our tests/stripes modules
@@ -159,18 +160,29 @@
                     <target>1.5</target>
                 </configuration>
             </plugin>
-        </plugins>        
+        </plugins>
     </build>
-    <distributionManagement>
-        <repository>
-            <id>stripes.releases</id>
-            <name>stripes.releases</name>
-            <url>${stripes.releases.repositoryUrl}</url>
-        </repository>
-        <snapshotRepository>
-            <id>stripes.snapshots</id>
-            <name>stripes.snapshots</name>
-            <url>${stripes.snapshots.repositoryUrl}</url>
-        </snapshotRepository>
-    </distributionManagement>
+    <profiles>
+        <profile>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.1</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
