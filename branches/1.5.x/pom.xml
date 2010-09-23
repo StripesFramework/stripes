@@ -33,8 +33,6 @@
         <module>examples</module>
     </modules>
     <properties>
-        <stripes.version>1.5.4-SNAPSHOT</stripes.version>
-        <stripes.repositoryId>stripes.repo</stripes.repositoryId>
         <stripes.releases.repositoryUrl>http://oss.sonatype.org/content/repositories/releases</stripes.releases.repositoryUrl>
         <stripes.snapshots.repositoryUrl>http://oss.sonatype.org/content/repositories/snapshots</stripes.snapshots.repositoryUrl>
     </properties>

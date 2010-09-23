@@ -80,8 +80,8 @@
                                         <!-- generate tlddoc -->
                                         <java fork="true" jar="./lib/build/tlddoc.jar" failonerror="false">
                                             <arg line="-d './target/taglib'"/>
-                                            <arg line="-doctitle 'Stripes ${stripes.version} Tag Library Documentation'"/>
-                                            <arg line="-windowtitle 'Stripes ${stripes.version} Tag Library Documentation'"/>
+                                            <arg line="-doctitle 'Stripes ${project.version} Tag Library Documentation'"/>
+                                            <arg line="-windowtitle 'Stripes ${project.version} Tag Library Documentation'"/>
                                             <arg value="./target/classes/META-INF/stripes.tld"/>
                                         </java>
                                         <copy file="./src/javadoc.css"
@@ -90,7 +90,7 @@
                                         <replace file="./target/taglib/index.html"
                                                  token="overview-summary.html"
                                                  value="stripes/tld-summary.html"/>
-                                        <jar destfile="./target/stripes-${stripes.version}-tlddoc.jar"
+                                        <jar destfile="./target/stripes-${project.version}-tlddoc.jar"
                                              basedir="./target/taglib"/>
                                     </target>
                                 </configuration>
@@ -114,12 +114,12 @@
                                 <id>deploy-tlddoc-snapshots</id>
                                 <phase>deploy</phase>
                                 <configuration>
-                                    <url>${stripes.snapshots.repositoryUrl}</url>
-                                    <repositoryId>${stripes.repositoryId}</repositoryId>
-                                    <file>${basedir}/target/stripes-${stripes.version}-tlddoc.jar</file>
+                                    <url>${distributionManagement.repository.url}</url>
+                                    <repositoryId>${distributionManagement.repository.id}</repositoryId>
+                                    <file>${basedir}/target/stripes-${project.version}-tlddoc.jar</file>
                                     <groupId>net.sourceforge.stripes</groupId>
                                     <artifactId>stripes</artifactId>
-                                    <version>${stripes.version}</version>
+                                    <version>${project.version}</version>
                                     <classifier>tlddoc</classifier>
                                     <packaging>jar</packaging>
                                 </configuration>
