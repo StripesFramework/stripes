@@ -77,7 +77,6 @@
                                 <phase>package</phase>
                                 <configuration>
                                     <target>
-                                        <!-- generate tlddoc -->
                                         <java fork="true" jar="./lib/build/tlddoc.jar" failonerror="false">
                                             <arg line="-d './target/taglib'"/>
                                             <arg line="-doctitle 'Stripes ${project.version} Tag Library Documentation'"/>
@@ -104,8 +103,10 @@
                         Configuration of a deploy-file goal when deploying everything.
                         The tlddocs are generated uing ant and thereby they are not
                         included in deploy process by default, hence this little trick.
-                        // TODO find a better way to handle this !                        
+                        // TODO find a better way to handle this !
+                        // TODO must be gpg signed to be deployed 
                     -->
+                    <!--
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-deploy-plugin</artifactId>
@@ -129,6 +130,7 @@
                             </execution>
                         </executions>
                     </plugin>
+                    -->
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
