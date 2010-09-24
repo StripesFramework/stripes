@@ -121,7 +121,7 @@ public class ReflectUtil {
      * @throws InstantiationException if no implementation type has been configured
      * @throws IllegalAccessException if thrown by the JVM during class instantiation
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
 	public static <T> T getInterfaceInstance(Class<T> interfaceType)
             throws InstantiationException, IllegalAccessException {
         Class impl = getImplementingClass(interfaceType);
@@ -153,7 +153,7 @@ public class ReflectUtil {
      * @return the Class object representing the class
      * @throws ClassNotFoundException if the class cannot be loaded
      */
-    @SuppressWarnings("unchecked") // this allows us to assign without casting
+    @SuppressWarnings("rawtypes") // this allows us to assign without casting
 	public static Class findClass(String name) throws ClassNotFoundException {
         return Thread.currentThread().getContextClassLoader().loadClass(name);
     }
@@ -523,6 +523,19 @@ public class ReflectUtil {
                         || (pd.getWriteMethod() != null && pd.getWriteMethod().isBridge())) {
                     log.debug("Working around JVM bug involving PropertyDescriptors ",
                             "and bridge methods for ", clazz);
+
+                    // Work around a JVM bug involving covariant return types from property getters
+                    if (pd.getWriteMethod() == null && pd.getReadMethod() != null
+                            && pd.getReadMethod().isBridge()) {
+                        try {
+                            pd = new PropertyDescriptor(pd.getName(), clazz);
+                            log.debug("Working around JVM bug http://bugs.sun.com/view_bug.do?bug_id=6794807");
+                        }
+                        catch (IntrospectionException e) {
+                            // This can happen for read-only properties. Ignore it.
+                        }
+                    }
+
                     pd = new BridgedPropertyDescriptor(pd);
                     pds[i] = pd;
                 }
