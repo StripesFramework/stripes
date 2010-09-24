@@ -89,8 +89,14 @@ public class MockHttpServletResponse implements HttpServletResponse {
     /** Sets that status code to the error code provided. */
     public void sendError(int status) throws IOException { this.status = status; }
 
-    /** Simply stores the URL that was supplied, so that it can be examined later with getRedirectUrl. */
-    public void sendRedirect(String url) throws IOException { this.redirectUrl = url; }
+    /**
+     * Simply sets the status code and stores the URL that was supplied, so that it can be examined
+     * later with getRedirectUrl.
+     */
+    public void sendRedirect(String url) throws IOException {
+        this.status = HttpServletResponse.SC_MOVED_TEMPORARILY;
+        this.redirectUrl = url;
+    }
 
     /**
      * If a call was made to sendRedirect() this method will return the URL that was supplied.
