@@ -2,6 +2,7 @@ package net.sourceforge.stripes.controller;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 import net.sourceforge.stripes.StripesTestFixture;
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.action.ActionBeanContext;
@@ -51,6 +52,7 @@ public class GenericsBindingTests2
     @Test(groups="fast")
     public void testSimpleTypeVariable() throws Exception {
         MockRoundtrip trip = getRoundtrip();
+        trip.getRequest().addLocale(Locale.ENGLISH);
         trip.addParameter("number", "123.4");
         trip.execute();
 
@@ -62,6 +64,7 @@ public class GenericsBindingTests2
     @Test(groups="fast")
     public void testGenericBean() throws Exception {
         MockRoundtrip trip = getRoundtrip();
+        trip.getRequest().addLocale(Locale.ENGLISH);
         trip.addParameter("genericBean.genericA", "123.4");
         trip.addParameter("genericBean.genericB", "true");
         trip.execute();

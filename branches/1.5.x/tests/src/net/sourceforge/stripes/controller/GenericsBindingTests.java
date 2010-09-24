@@ -13,6 +13,7 @@ import org.testng.annotations.Test;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 /**
  *
@@ -40,6 +41,7 @@ public class GenericsBindingTests
     @Test(groups="fast")
     public void testSimpleTypeVariable() throws Exception {
         MockRoundtrip trip = getRoundtrip();
+        trip.getRequest().addLocale(Locale.ENGLISH);
         trip.addParameter("number", "123.4");
         trip.execute();
 
@@ -51,6 +53,7 @@ public class GenericsBindingTests
     @Test(groups="fast")
     public void testGenericBean() throws Exception {
         MockRoundtrip trip = getRoundtrip();
+        trip.getRequest().addLocale(Locale.ENGLISH);
         trip.addParameter("genericBean.genericA", "123.4");
         trip.addParameter("genericBean.genericB", "true");
         trip.execute();

@@ -15,6 +15,7 @@ import org.testng.annotations.Test;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -230,6 +231,7 @@ public class MapBindingTests implements ActionBean {
     @Test(groups="fast")
     public void bindDateKeysInMap() throws Exception {
         MockRoundtrip trip = getRoundtrip();
+        trip.getRequest().addLocale(Locale.ENGLISH);
         trip.addParameter("mapDateDate['31-Dec-1999']", "01/01/2000");
         trip.execute();
 
