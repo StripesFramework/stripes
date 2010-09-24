@@ -16,6 +16,7 @@ import java.util.Date;
 import java.util.Collection;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Locale;
 
 /**
  * Unit tests that ensure that the OneToManyTypeConverter works in the context of the
@@ -42,6 +43,7 @@ public class OneToManyTypeConverterTest implements ActionBean {
     @Test(groups="fast")
     public void testListOfDate() throws Exception {
         MockRoundtrip trip = new MockRoundtrip(StripesTestFixture.getServletContext(), getClass());
+        trip.getRequest().addLocale(Locale.ENGLISH);
         trip.addParameter("dates", "12/31/2005, 1/1/2006, 6/15/2008, 7/7/2007");
         trip.execute();
         OneToManyTypeConverterTest bean = trip.getActionBean(getClass());

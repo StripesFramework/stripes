@@ -29,6 +29,7 @@ public class StripesTestFixture {
             // Add the Stripes Filter
             Map<String,String> filterParams = new HashMap<String,String>();
             filterParams.put("ActionResolver.Packages", "net.sourceforge.stripes");
+            filterParams.put("LocalePicker.Class", "net.sourceforge.stripes.localization.MockLocalePicker");
             context.addFilter(StripesFilter.class, "StripesFilter", filterParams);
 
             // Add the Stripes Dispatcher
