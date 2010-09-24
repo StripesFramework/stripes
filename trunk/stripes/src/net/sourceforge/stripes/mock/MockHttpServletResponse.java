@@ -19,6 +19,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.ServletOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Collections;
 import java.util.ListIterator;
 import java.util.Locale;
 import java.util.Map;
@@ -47,8 +48,12 @@ public class MockHttpServletResponse implements HttpServletResponse {
     private String errorMessage;
     private String characterEncoding = "UTF-8";
     private int contentLength;
-    private String contentType = "text/html";
+    private String contentType;
     private String redirectUrl;
+
+    public MockHttpServletResponse() {
+        setContentType("text/html");
+    }
 
     /** Adds a cookie to the set of cookies in the response. */
     public void addCookie(Cookie cookie) {
@@ -179,7 +184,10 @@ public class MockHttpServletResponse implements HttpServletResponse {
     public String getCharacterEncoding() { return this.characterEncoding; }
 
     /** Sets the content type for the response. */
-    public void setContentType(String contentType) { this.contentType = contentType; }
+    public void setContentType(String contentType) {
+        this.contentType = contentType;
+        getHeaderMap().put("Content-type", Collections.<Object> singletonList(contentType));
+    }
 
     /** Gets the content type for the response. Defaults to text/html. */
     public String getContentType() { return this.contentType; }
