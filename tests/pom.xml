@@ -26,10 +26,10 @@
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
             <version>5.13.1</version>
-            <scope>test</scope>            
+            <scope>test</scope>
         </dependency>
     </dependencies>
-    <build>        
+    <build>
         <testSourceDirectory>src</testSourceDirectory>
         <testResources>
             <testResource>
@@ -40,21 +40,27 @@
             </testResource>
         </testResources>
         <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-surefire-plugin</artifactId>
-            <configuration>
-              <includes>
-                  <include>**/*Tests.java</include>
-                  <include>**/*Test.java</include>
-                  <include>**/*Tests2.java</include>
-                  <include>**/*_STS_*.java</include>
-                  <include>**/TestMockRoundtrip.java</include>
-                  <!-- can't use nested test classes ? this one is fired by the ant build -->
-                  <include>**/**ExtendedBaseAction.java</include>
-              </includes>
-            </configuration>
-          </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <includes>
+                        <include>**/*Tests.java</include>
+                        <include>**/*Test.java</include>
+                        <include>**/*Tests2.java</include>
+                        <include>**/*_STS_*.java</include>
+                        <include>**/TestMockRoundtrip.java</include>
+                        <!-- can't use nested test classes ? this one is fired by the ant build -->
+                        <include>**/**ExtendedBaseAction.java</include>
+                    </includes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 </project>
