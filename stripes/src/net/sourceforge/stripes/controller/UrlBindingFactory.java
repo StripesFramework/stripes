@@ -61,18 +61,6 @@ import net.sourceforge.stripes.util.bean.ParseException;
 public class UrlBindingFactory {
     private static final Log log = Log.getInstance(UrlBindingFactory.class);
 
-    /** Singleton instance */
-    private static final UrlBindingFactory instance = new UrlBindingFactory();
-
-    /**
-     * Get the singleton instance.
-     * 
-     * @return an instance of this class
-     */
-    public static UrlBindingFactory getInstance() {
-        return instance;
-    }
-
     /** Maps {@link ActionBean} classes to {@link UrlBinding}s */
     private final Map<Class<? extends ActionBean>, UrlBinding> classCache = new HashMap<Class<? extends ActionBean>, UrlBinding>();
 
@@ -90,11 +78,6 @@ public class UrlBindingFactory {
                     return cmp == 0 ? a.compareTo(b) : cmp;
                 }
             });
-
-    /** Don't want the constructor to be public */
-    protected UrlBindingFactory() {
-        // do nothing
-    }
 
     /**
      * Get all the classes implementing {@link ActionBean}
