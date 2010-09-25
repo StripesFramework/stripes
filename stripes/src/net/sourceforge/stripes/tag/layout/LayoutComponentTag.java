@@ -101,8 +101,8 @@ public class LayoutComponentTag extends LayoutTag {
             LayoutContext context = getContext();
             silent = context.getOut().isSilent();
 
-            if (isChildOfRender()) {
-                if (context.isComponentRenderPhase()) {
+            if (context.isComponentRenderPhase()) {
+                if (isChildOfRender()) {
                     if (isCurrentComponent()) {
                         log.debug("Render ", getName(), " in ", context.getRenderPage());
                         context.getOut().setSilent(false, pageContext);
@@ -112,7 +112,23 @@ public class LayoutComponentTag extends LayoutTag {
                         log.debug("No-op for ", getName(), " in ", context.getRenderPage());
                     }
                 }
-                else {
+                else if (isChildOfDefinition()) {
+                    log.debug("No-op for ", getName(), " in ", context.getDefinitionPage());
+                }
+                else if (isChildOfComponent()) {
+                    if (isCurrentComponent()) {
+                        LayoutComponentTag parent = getLayoutAncestor();
+                        if (getName().equals(parent.getName())) {
+                            log.debug("Invoke layout component renderer for recursive render");
+                            LayoutComponentRenderer renderer = (LayoutComponentRenderer) pageContext
+                                    .getAttribute(getName());
+                            renderer.write();
+                        }
+                    }
+                }
+            }
+            else {
+                if (isChildOfRender()) {
                     if (!javaIdentifierPattern.matcher(getName()).matches()) {
                         log.warn("The layout-component name '", getName(),
                                 "' is not a valid Java identifier. While this may work, it can ",
@@ -124,9 +140,7 @@ public class LayoutComponentTag extends LayoutTag {
                     log.debug("Register component ", getName(), " with ", context.getRenderPage());
                     context.getComponents().put(getName(), new LayoutComponentRenderer(getName()));
                 }
-            }
-            else if (isChildOfDefinition()) {
-                if (!context.isComponentRenderPhase()) {
+                else if (isChildOfDefinition()) {
                     // Use a layout component renderer to do the heavy lifting
                     log.debug("Invoke layout component renderer for recursive render");
                     LayoutComponentRenderer renderer = new LayoutComponentRenderer(getName());
@@ -143,18 +157,13 @@ public class LayoutComponentTag extends LayoutTag {
                         return EVAL_BODY_INCLUDE;
                     }
                 }
-                else {
-                    log.debug("No-op for ", getName(), " in ", context.getDefinitionPage());
-                }
-            }
-            else if (isChildOfComponent() && isCurrentComponent()
-                    && context.isComponentRenderPhase()) {
-                LayoutComponentTag parent = getLayoutAncestor();
-                if (getName().equals(parent.getName())) {
-                    log.debug("Invoke layout component renderer for recursive render");
-                    LayoutComponentRenderer renderer = (LayoutComponentRenderer) pageContext
-                            .getAttribute(getName());
-                    renderer.write();
+                else if (isChildOfComponent()) {
+                    /*
+                     * This condition cannot be true since component tags do not execute except in
+                     * component render phase, thus any component tags embedded with them will not
+                     * execute either. I've left this block here just as a placeholder for this
+                     * explanation.
+                     */
                 }
             }
 
