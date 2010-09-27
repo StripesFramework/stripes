@@ -14,6 +14,7 @@
  */
 package net.sourceforge.stripes.tag.layout;
 
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -75,9 +76,14 @@ public class LayoutDefinitionTag extends LayoutTag {
         for (Map.Entry<String, Object> entry : context.getParameters().entrySet()) {
             pageContext.setAttribute(entry.getKey(), entry.getValue());
         }
-        for (Entry<String, LayoutComponentRenderer> entry : context.getComponents().entrySet()) {
-            entry.getValue().pushPageContext(pageContext);
-            pageContext.setAttribute(entry.getKey(), entry.getValue());
+
+        // Put component renders into the page context, even those from previous contexts
+        Iterator<LayoutContext> iter = LayoutContext.getStack(pageContext, false).iterator();
+        while (iter.hasNext()) {
+            for (Entry<String, LayoutComponentRenderer> entry : iter.next().getComponents().entrySet()) {
+                entry.getValue().pushPageContext(pageContext);
+                pageContext.setAttribute(entry.getKey(), entry.getValue());
+            }
         }
 
         // Enable output only if this is the definition execution, not a component render
@@ -95,9 +101,12 @@ public class LayoutDefinitionTag extends LayoutTag {
         try {
             LayoutContext context = getContext();
             if (!renderPhase) {
-                // Pop our page context off the renderer's page context stack
-                for (LayoutComponentRenderer renderer : context.getComponents().values()) {
-                    renderer.popPageContext();
+                // Pop our page context off the renderers' page context stack
+                Iterator<LayoutContext> iter = LayoutContext.getStack(pageContext, false).iterator();
+                while (iter.hasNext()) {
+                    for (LayoutComponentRenderer renderer : iter.next().getComponents().values()) {
+                        renderer.popPageContext();
+                    }
                 }
             }
 
