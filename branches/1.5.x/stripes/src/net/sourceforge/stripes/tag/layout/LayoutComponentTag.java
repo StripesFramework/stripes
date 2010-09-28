@@ -116,14 +116,22 @@ public class LayoutComponentTag extends LayoutTag {
                     log.debug("No-op for ", getName(), " in ", context.getDefinitionPage());
                 }
                 else if (isChildOfComponent()) {
-                    if (isCurrentComponent()) {
-                        LayoutComponentTag parent = getLayoutAncestor();
-                        if (getName().equals(parent.getName())) {
-                            log.debug("Invoke layout component renderer for recursive render");
-                            LayoutComponentRenderer renderer = (LayoutComponentRenderer) pageContext
-                                    .getAttribute(getName());
-                            renderer.write();
-                        }
+                    // Use a layout component renderer to do the heavy lifting
+                    log.debug("Invoke layout component renderer for nested render");
+                    LayoutComponentRenderer renderer = (LayoutComponentRenderer) pageContext
+                            .getAttribute(getName());
+                    if (renderer == null)
+                        log.debug("No component renderer in page context for '" + getName() + "'");
+                    boolean rendered = renderer != null && renderer.write();
+
+                    // If the component did not render then we need to output the default contents
+                    // from the layout definition.
+                    if (!rendered) {
+                        log.debug("Component was not present in ", context.getRenderPage(),
+                                " so using default content from ", context.getDefinitionPage());
+
+                        context.getOut().setSilent(false, pageContext);
+                        return EVAL_BODY_INCLUDE;
                     }
                 }
             }
@@ -142,10 +150,12 @@ public class LayoutComponentTag extends LayoutTag {
                 }
                 else if (isChildOfDefinition()) {
                     // Use a layout component renderer to do the heavy lifting
-                    log.debug("Invoke layout component renderer for recursive render");
-                    LayoutComponentRenderer renderer = new LayoutComponentRenderer(getName());
-                    renderer.pushPageContext(pageContext);
-                    boolean rendered = renderer.write();
+                    log.debug("Invoke layout component renderer for nested render");
+                    LayoutComponentRenderer renderer = (LayoutComponentRenderer) pageContext
+                            .getAttribute(getName());
+                    if (renderer == null)
+                        log.debug("No component renderer in page context for '" + getName() + "'");
+                    boolean rendered = renderer != null && renderer.write();
 
                     // If the component did not render then we need to output the default contents
                     // from the layout definition.
