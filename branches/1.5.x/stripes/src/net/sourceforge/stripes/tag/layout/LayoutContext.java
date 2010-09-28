@@ -15,10 +15,8 @@
 package net.sourceforge.stripes.tag.layout;
 
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
 
-import javax.servlet.ServletRequest;
 import javax.servlet.jsp.PageContext;
 
 import net.sourceforge.stripes.util.Log;
@@ -35,26 +33,7 @@ public class LayoutContext {
     private static final Log log = Log.getInstance(LayoutContext.class);
 
     /** The attribute name by which the stack of layout contexts can be found in the request. */
-    public static final String REQ_ATTR_NAME = "stripes.layout.ContextStack";
-
-    /**
-     * Look up the stack of layout contexts a JSP page context. If {@code create} is true and no
-     * stack is found then one will be created and placed in the page context.
-     * 
-     * @param pageContext The JSP page context to search for the layout context stack.
-     * @param create If true and no stack is found, then create and save a new stack.
-     */
-    @SuppressWarnings("unchecked")
-    public static LinkedList<LayoutContext> getStack(PageContext pageContext, boolean create) {
-        ServletRequest request = pageContext.getRequest();
-        LinkedList<LayoutContext> stack = (LinkedList<LayoutContext>) request
-                .getAttribute(REQ_ATTR_NAME);
-        if (create && stack == null) {
-            stack = new LinkedList<LayoutContext>();
-            request.setAttribute(REQ_ATTR_NAME, stack);
-        }
-        return stack;
-    }
+    public static final String REQ_ATTR_NAME = "stripes.layout.Context";
 
     /**
      * Create a new layout context for the given render tag and push it onto the stack of layout
@@ -63,17 +42,22 @@ public class LayoutContext {
     public static LayoutContext push(LayoutRenderTag renderTag) {
         LayoutContext context = new LayoutContext(renderTag);
         log.debug("Push context ", context.getRenderPage(), " -> ", context.getDefinitionPage());
+
         PageContext pageContext = renderTag.getPageContext();
-        LinkedList<LayoutContext> stack = getStack(pageContext, true);
-        if (stack.isEmpty()) {
+        LayoutContext previous = lookup(pageContext);
+        if (previous == null) {
             // Create a new layout writer and push a new body
             context.out = new LayoutWriter(pageContext.getOut());
             pageContext.pushBody(context.out);
         }
         else {
-            context.out = stack.getLast().out;
+            // Link the two nodes
+            context.out = previous.out;
+            previous.next = context;
+            context.previous = previous;
         }
-        stack.add(context);
+
+        pageContext.getRequest().setAttribute(REQ_ATTR_NAME, context);
         return context;
     }
 
@@ -83,8 +67,15 @@ public class LayoutContext {
      * @param pageContext The JSP page context to search for the layout context stack.
      */
     public static LayoutContext lookup(PageContext pageContext) {
-        LinkedList<LayoutContext> stack = getStack(pageContext, false);
-        return stack == null || stack.isEmpty() ? null : stack.getLast();
+        return (LayoutContext) pageContext.getRequest().getAttribute(REQ_ATTR_NAME);
+    }
+
+    /** Locate and return the outermost layout context, starting with the given one. */
+    public static LayoutContext getOuterContext(LayoutContext context) {
+        LayoutContext outer = context;
+        while (outer.getPrevious() != null)
+            outer = outer.getPrevious();
+        return outer;
     }
 
     /**
@@ -95,12 +86,17 @@ public class LayoutContext {
      *         or was empty.
      */
     public static LayoutContext pop(PageContext pageContext) {
-        LinkedList<LayoutContext> stack = getStack(pageContext, false);
-        LayoutContext context = stack == null || stack.isEmpty() ? null : stack.removeLast();
+        LayoutContext context = lookup(pageContext);
         log.debug("Pop context ", context.getRenderPage(), " -> ", context.getDefinitionPage());
+        pageContext.getRequest().setAttribute(REQ_ATTR_NAME, context.previous);
+        if (context.previous != null) {
+            context.previous.next = null;
+            context.previous = null;
+        }
         return context;
     }
 
+    private LayoutContext previous, next;
     private LayoutRenderTag renderTag;
     private LayoutWriter out;
     private Map<String,LayoutComponentRenderer> components = new HashMap<String,LayoutComponentRenderer>();
@@ -118,6 +114,12 @@ public class LayoutContext {
         this.renderTag = renderTag;
         this.renderPage = renderTag.getCurrentPagePath();
     }
+
+    /** Get the previous layout context from the stack. */
+    public LayoutContext getPrevious() { return previous; }
+
+    /** Get the next layout context from the stack. */
+    public LayoutContext getNext() { return next; }
 
     /** Get the render tag that created this context. */
     public LayoutRenderTag getRenderTag() { return renderTag; }

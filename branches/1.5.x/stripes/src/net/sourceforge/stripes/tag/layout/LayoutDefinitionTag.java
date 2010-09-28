@@ -14,7 +14,6 @@
  */
 package net.sourceforge.stripes.tag.layout;
 
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -77,10 +76,9 @@ public class LayoutDefinitionTag extends LayoutTag {
             pageContext.setAttribute(entry.getKey(), entry.getValue());
         }
 
-        // Put component renders into the page context, even those from previous contexts
-        Iterator<LayoutContext> iter = LayoutContext.getStack(pageContext, false).iterator();
-        while (iter.hasNext()) {
-            for (Entry<String, LayoutComponentRenderer> entry : iter.next().getComponents().entrySet()) {
+        // Put component renderers into the page context, even those from previous contexts
+        for (LayoutContext c = LayoutContext.getOuterContext(context); c != null; c = c.getNext()) {
+            for (Entry<String, LayoutComponentRenderer> entry : c.getComponents().entrySet()) {
                 entry.getValue().pushPageContext(pageContext);
                 pageContext.setAttribute(entry.getKey(), entry.getValue());
             }
@@ -102,9 +100,8 @@ public class LayoutDefinitionTag extends LayoutTag {
             LayoutContext context = getContext();
             if (!renderPhase) {
                 // Pop our page context off the renderers' page context stack
-                Iterator<LayoutContext> iter = LayoutContext.getStack(pageContext, false).iterator();
-                while (iter.hasNext()) {
-                    for (LayoutComponentRenderer renderer : iter.next().getComponents().values()) {
+                for (LayoutContext c = LayoutContext.getOuterContext(context); c != null; c = c.getNext()) {
+                    for (LayoutComponentRenderer renderer : c.getComponents().values()) {
                         renderer.popPageContext();
                     }
                 }

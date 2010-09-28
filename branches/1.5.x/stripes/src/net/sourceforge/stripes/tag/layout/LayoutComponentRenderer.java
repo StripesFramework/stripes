@@ -15,7 +15,6 @@
 package net.sourceforge.stripes.tag.layout;
 
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.LinkedList;
 
 import javax.servlet.ServletException;
@@ -116,21 +115,12 @@ public class LayoutComponentRenderer {
         final String component = context.getComponent();
         final boolean silent = context.getOut().isSilent();
         final LayoutContext currentSource = getSourceContext();
-
-        // Never use a context that sits higher up the stack than the current source
         log.debug("Render component \"", componentName, "\" in ", currentPage);
-        LinkedList<LayoutContext> stack = LayoutContext.getStack(pageContext, true);
-        Iterator<LayoutContext> iter = stack.descendingIterator();
-        if (currentSource != null) {
-            while (iter.hasNext() && iter.next() != currentSource)
-                ;
-        }
 
         // Descend the stack from here, trying each context where the component is registered
-        while (iter.hasNext()) {
+        for (LayoutContext source = currentSource == null ? context : currentSource.getPrevious(); source != null; source = source.getPrevious()) {
             // Skip contexts where the desired component is not registered or which would invoke the
             // current page again.
-            final LayoutContext source = iter.next();
             if (!source.getComponents().containsKey(componentName)
                     || source.getRenderPage().equals(currentPage)) {
                 log.trace("Not rendering \"", componentName, "\" in context ", source
