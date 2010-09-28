@@ -90,8 +90,9 @@ public class LayoutRenderTag extends LayoutTag implements DynamicAttributes {
         }
 
         if (context.isComponentRenderPhase()) {
-            log.debug("Start component render phase for ", context.getComponent(), " in ", context
-                    .getRenderPage());
+            log.debug("Start component render phase for ", context.getComponent(), " in ",
+                    context.getRenderPage());
+            exportComponentRenderers();
         }
 
         // Render tags never output their contents directly
@@ -161,6 +162,7 @@ public class LayoutRenderTag extends LayoutTag implements DynamicAttributes {
             if (context.isComponentRenderPhase()) {
                 log.debug("End component render phase for ", context.getComponent(), " in ",
                         context.getRenderPage());
+                cleanUpComponentRenderers();
             }
 
             // Restore output's silent flag

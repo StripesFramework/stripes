@@ -14,6 +14,8 @@
  */
 package net.sourceforge.stripes.tag.layout;
 
+import java.util.Map.Entry;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.tagext.Tag;
 
@@ -79,5 +81,30 @@ public abstract class LayoutTag extends StripesTagSupport {
         }
 
         return (T) layoutAncestor;
+    }
+
+    /**
+     * Starting from the outer-most context and working up the stack, put a reference to each
+     * component renderer by name into the page context and push this tag's page context onto the
+     * renderer's page context stack. Working from the bottom of the stack up ensures that newly
+     * defined components override any that might have been defined previously by the same name.
+     */
+    public void exportComponentRenderers() {
+        LayoutContext outer = LayoutContext.getOuterContext(LayoutContext.lookup(pageContext));
+        for (LayoutContext c = outer; c != null; c = c.getNext()) {
+            for (Entry<String, LayoutComponentRenderer> entry : c.getComponents().entrySet()) {
+                entry.getValue().pushPageContext(pageContext);
+                pageContext.setAttribute(entry.getKey(), entry.getValue());
+            }
+        }
+    }
+
+    /** Pop this tag's page context off each of the component renderers' page context stacks. */
+    public void cleanUpComponentRenderers() {
+        for (LayoutContext c = LayoutContext.lookup(pageContext); c != null; c = c.getPrevious()) {
+            for (LayoutComponentRenderer renderer : c.getComponents().values()) {
+                renderer.popPageContext();
+            }
+        }
     }
 }

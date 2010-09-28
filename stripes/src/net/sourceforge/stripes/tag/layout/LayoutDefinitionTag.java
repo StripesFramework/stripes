@@ -15,7 +15,6 @@
 package net.sourceforge.stripes.tag.layout;
 
 import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.PageContext;
@@ -77,12 +76,7 @@ public class LayoutDefinitionTag extends LayoutTag {
         }
 
         // Put component renderers into the page context, even those from previous contexts
-        for (LayoutContext c = LayoutContext.getOuterContext(context); c != null; c = c.getNext()) {
-            for (Entry<String, LayoutComponentRenderer> entry : c.getComponents().entrySet()) {
-                entry.getValue().pushPageContext(pageContext);
-                pageContext.setAttribute(entry.getKey(), entry.getValue());
-            }
-        }
+        exportComponentRenderers();
 
         // Enable output only if this is the definition execution, not a component render
         context.getOut().setSilent(renderPhase, pageContext);
@@ -97,19 +91,8 @@ public class LayoutDefinitionTag extends LayoutTag {
     @Override
     public int doEndTag() throws JspException {
         try {
-            LayoutContext context = getContext();
-            if (!renderPhase) {
-                // Pop our page context off the renderers' page context stack
-                for (LayoutContext c = LayoutContext.getOuterContext(context); c != null; c = c.getNext()) {
-                    for (LayoutComponentRenderer renderer : c.getComponents().values()) {
-                        renderer.popPageContext();
-                    }
-                }
-            }
-
-            // Restore output's silent flag
-            context.getOut().setSilent(silent, pageContext);
-
+            cleanUpComponentRenderers();
+            getContext().getOut().setSilent(silent, pageContext);
             return SKIP_PAGE;
         }
         finally {
