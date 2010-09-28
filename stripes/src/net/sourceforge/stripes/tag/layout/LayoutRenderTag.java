@@ -81,7 +81,7 @@ public class LayoutRenderTag extends LayoutTag implements DynamicAttributes {
     @Override
     public int doStartTag() throws JspException {
         LayoutContext context = getContext();
-        outer = LayoutContext.getStack(pageContext, true).getFirst() == context;
+        outer = context.getPrevious() == null;
         silent = context.getOut().isSilent();
 
         if (contextIsNew) {
