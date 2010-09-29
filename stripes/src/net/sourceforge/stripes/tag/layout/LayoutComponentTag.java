@@ -117,7 +117,7 @@ public class LayoutComponentTag extends LayoutTag {
                 }
                 else if (isChildOfComponent()) {
                     // Use a layout component renderer to do the heavy lifting
-                    log.debug("Invoke layout component renderer for nested render");
+                    log.debug("Invoke component renderer for nested render of \"", getName(), "\"");
                     LayoutComponentRenderer renderer = (LayoutComponentRenderer) pageContext
                             .getAttribute(getName());
                     if (renderer == null)
@@ -150,7 +150,7 @@ public class LayoutComponentTag extends LayoutTag {
                 }
                 else if (isChildOfDefinition()) {
                     // Use a layout component renderer to do the heavy lifting
-                    log.debug("Invoke layout component renderer for nested render");
+                    log.debug("Invoke component renderer for direct render of \"", getName(), "\"");
                     LayoutComponentRenderer renderer = (LayoutComponentRenderer) pageContext
                             .getAttribute(getName());
                     if (renderer == null)
