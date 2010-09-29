@@ -43,7 +43,7 @@ public class LayoutDefinitionTag extends LayoutTag {
         if (context == null) {
             context = LayoutContext.lookup(pageContext);
 
-            if (context == null || getLayoutAncestor() != null) {
+            if (context == null || getLayoutParent() != null) {
                 throw new StripesJspException("The JSP page " + getCurrentPagePath()
                         + " contains a layout-definition tag and was invoked directly. "
                         + "A layout-definition can only be invoked by a page that contains "
