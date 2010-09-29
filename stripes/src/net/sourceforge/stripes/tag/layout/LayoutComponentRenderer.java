@@ -80,6 +80,12 @@ public class LayoutComponentRenderer {
         return pageContext == null || pageContext.isEmpty() ? null : pageContext.getLast();
     }
 
+    /** Get the path to the currently executing JSP. */
+    public String getCurrentPage() {
+        return (String) getPageContext().getRequest().getAttribute(
+                StripesConstants.REQ_ATTR_INCLUDE_PATH);
+    }
+
     /**
      * Indicates the context in the stack of layout contexts against which the component is being
      * rendered. Any attempt to render a component with the same name as the component currently
@@ -105,24 +111,18 @@ public class LayoutComponentRenderer {
             return false;
         }
 
-        // Get the current page so we can be sure not to invoke it again (see below)
-        final String currentPage = (String) pageContext.getRequest().getAttribute(
-                StripesConstants.REQ_ATTR_INCLUDE_PATH);
-
         // Grab some values from the current context so they can be restored when we're done
         final LayoutContext context = LayoutContext.lookup(pageContext);
         final boolean phaseFlag = context.isComponentRenderPhase();
         final String component = context.getComponent();
         final boolean silent = context.getOut().isSilent();
         final LayoutContext currentSource = getSourceContext();
-        log.debug("Render component \"", componentName, "\" in ", currentPage);
+        log.debug("Render component \"", componentName, "\" in ", getCurrentPage());
 
         // Descend the stack from here, trying each context where the component is registered
         for (LayoutContext source = currentSource == null ? context : currentSource.getPrevious(); source != null; source = source.getPrevious()) {
-            // Skip contexts where the desired component is not registered or which would invoke the
-            // current page again.
-            if (!source.getComponents().containsKey(componentName)
-                    || source.getRenderPage().equals(currentPage)) {
+            // Skip contexts where the desired component is not registered.
+            if (!source.getComponents().containsKey(componentName)) {
                 log.trace("Not rendering \"", componentName, "\" in context ", source
                         .getRenderPage(), " -> ", source.getDefinitionPage());
                 continue;
