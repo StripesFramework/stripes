@@ -17,7 +17,6 @@ package net.sourceforge.stripes.tag.layout;
 import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.jsp.tagext.Tag;
 
 import net.sourceforge.stripes.controller.StripesConstants;
 import net.sourceforge.stripes.tag.StripesTagSupport;
@@ -30,8 +29,6 @@ import net.sourceforge.stripes.util.HttpUtil;
  * @since Stripes 1.5.4
  */
 public abstract class LayoutTag extends StripesTagSupport {
-    private LayoutTag layoutAncestor;
-
     /** Get the context-relative path of the page that invoked this tag. */
     public String getCurrentPagePath() {
         HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
@@ -66,21 +63,12 @@ public abstract class LayoutTag extends StripesTagSupport {
     }
 
     /**
-     * Get the nearest ancestor of this tag that is an instance of either
-     * {@link LayoutDefinitionTag} or {@link LayoutRenderTag}. If no ancestor of either type is
-     * found then null.
+     * Get the nearest ancestor of this tag that is an instance of {@link LayoutTag}. If no ancestor
+     * of that type is found then null.
      */
     @SuppressWarnings("unchecked")
     public <T extends LayoutTag> T getLayoutAncestor() {
-        if (layoutAncestor == null) {
-            for (Tag tag = getParent(); tag != null; tag = tag.getParent()) {
-                if (tag instanceof LayoutTag) {
-                    return (T) (this.layoutAncestor = (LayoutTag) tag);
-                }
-            }
-        }
-
-        return (T) layoutAncestor;
+        return (T) getParentTag(LayoutTag.class);
     }
 
     /**
