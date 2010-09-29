@@ -119,25 +119,27 @@ public class LayoutComponentRenderer {
         final LayoutContext currentSource = getSourceContext();
         log.debug("Render component \"", componentName, "\" in ", getCurrentPage());
 
+        // Turn on the render phase flag and set the component to render
+        context.setComponentRenderPhase(true);
+        context.setComponent(componentName);
+        context.getOut().setSilent(true, pageContext);
+
         // Descend the stack from here, trying each context where the component is registered
-        for (LayoutContext source = currentSource == null ? context : currentSource.getPrevious(); source != null; source = source.getPrevious()) {
-            // Skip contexts where the desired component is not registered.
-            if (!source.getComponents().containsKey(componentName)) {
-                log.trace("Not rendering \"", componentName, "\" in context ", source
-                        .getRenderPage(), " -> ", source.getDefinitionPage());
-                continue;
-            }
+        try {
+            for (LayoutContext source = currentSource == null ? context : currentSource
+                    .getPrevious(); source != null; source = source.getPrevious()) {
 
-            // Turn on the render phase flag and set the component to render
-            sourceContext = source;
-            context.setComponentRenderPhase(true);
-            context.setComponent(componentName);
+                // Skip contexts where the desired component is not registered.
+                if (!source.getComponents().containsKey(componentName)) {
+                    log.trace("Not rendering \"", componentName, "\" in context ",
+                            source.getRenderPage(), " -> ", source.getDefinitionPage());
+                    continue;
+                }
+                sourceContext = source;
 
-            try {
                 log.debug("Start execute \"", componentName, "\" in ", context.getRenderPage(),
                         " -> ", context.getDefinitionPage(), " from ", source.getRenderPage(),
                         " -> ", source.getDefinitionPage());
-                context.getOut().setSilent(true, pageContext);
                 pageContext.include(source.getRenderPage(), false);
                 log.debug("End execute \"", componentName, "\" in ", context.getRenderPage(),
                         " -> ", context.getDefinitionPage(), " from ", source.getRenderPage(),
@@ -147,13 +149,13 @@ public class LayoutComponentRenderer {
                 if (context.getComponent() == null)
                     return true;
             }
-            finally {
-                // Reset the context properties
-                context.setComponentRenderPhase(phaseFlag);
-                context.setComponent(component);
-                context.getOut().setSilent(silent, pageContext);
-                sourceContext = currentSource;
-            }
+        }
+        finally {
+            // Reset the context properties
+            context.setComponentRenderPhase(phaseFlag);
+            context.setComponent(component);
+            context.getOut().setSilent(silent, pageContext);
+            sourceContext = currentSource;
         }
 
         log.debug("Component \"", componentName, "\" evaluated to empty string in context ",
