@@ -70,14 +70,6 @@ public class LayoutContext {
         return (LayoutContext) pageContext.getRequest().getAttribute(REQ_ATTR_NAME);
     }
 
-    /** Locate and return the outermost layout context, starting with the given one. */
-    public static LayoutContext getOuterContext(LayoutContext context) {
-        LayoutContext outer = context;
-        while (outer.getPrevious() != null)
-            outer = outer.getPrevious();
-        return outer;
-    }
-
     /**
      * Remove the current layout context from the stack of layout contexts.
      * 
@@ -120,6 +112,22 @@ public class LayoutContext {
 
     /** Get the next layout context from the stack. */
     public LayoutContext getNext() { return next; }
+
+    /** Get the first context in the list. */
+    public LayoutContext getFirst() {
+        for (LayoutContext c = this;; c = c.getPrevious()) {
+            if (c.getPrevious() == null)
+                return c;
+        }
+    }
+
+    /** Get the last context in the list. */
+    public LayoutContext getLast() {
+        for (LayoutContext c = this;; c = c.getNext()) {
+            if (c.getNext() == null)
+                return c;
+        }
+    }
 
     /** Get the render tag that created this context. */
     public LayoutRenderTag getRenderTag() { return renderTag; }

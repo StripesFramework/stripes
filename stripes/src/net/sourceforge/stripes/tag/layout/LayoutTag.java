@@ -90,8 +90,7 @@ public abstract class LayoutTag extends StripesTagSupport {
      * defined components override any that might have been defined previously by the same name.
      */
     public void exportComponentRenderers() {
-        LayoutContext outer = LayoutContext.getOuterContext(LayoutContext.lookup(pageContext));
-        for (LayoutContext c = outer; c != null; c = c.getNext()) {
+        for (LayoutContext c = LayoutContext.lookup(pageContext).getFirst(); c != null; c = c.getNext()) {
             for (Entry<String, LayoutComponentRenderer> entry : c.getComponents().entrySet()) {
                 entry.getValue().pushPageContext(pageContext);
                 pageContext.setAttribute(entry.getKey(), entry.getValue());
