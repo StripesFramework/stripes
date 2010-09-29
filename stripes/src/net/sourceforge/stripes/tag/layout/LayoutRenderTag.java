@@ -35,7 +35,7 @@ public class LayoutRenderTag extends LayoutTag implements DynamicAttributes {
 
     private String name;
     private LayoutContext context;
-    private boolean contextIsNew, silent, outer;
+    private boolean contextIsNew, silent;
 
     /** Gets the name of the layout to be used. */
     public String getName() { return name; }
@@ -62,6 +62,11 @@ public class LayoutRenderTag extends LayoutTag implements DynamicAttributes {
         return context;
     }
 
+    /** True if this is the outermost layout tag, the one that initiated the render process. */
+    public boolean isOuterLayoutTag() {
+        return getLayoutAncestor() == null;
+    }
+
     /** Used by the JSP container to provide the tag with dynamic attributes. */
     public void setDynamicAttribute(String uri, String localName, Object value) throws JspException {
         getContext().getParameters().put(localName, value);
@@ -81,7 +86,6 @@ public class LayoutRenderTag extends LayoutTag implements DynamicAttributes {
     @Override
     public int doStartTag() throws JspException {
         LayoutContext context = getContext();
-        outer = context.getPrevious() == null;
         silent = context.getOut().isSilent();
 
         if (contextIsNew) {
@@ -119,7 +123,7 @@ public class LayoutRenderTag extends LayoutTag implements DynamicAttributes {
                 // Substitution of the layout writer for the regular JSP writer does not work for
                 // the initial render tag. Its body evaluation still uses the original JSP writer
                 // for output. Clear the output buffer before executing the definition page.
-                if (outer) {
+                if (isOuterLayoutTag()) {
                     try {
                         context.getOut().clear();
                     }
@@ -134,15 +138,15 @@ public class LayoutRenderTag extends LayoutTag implements DynamicAttributes {
                     log.debug("Start layout exec in ", context.getDefinitionPage());
                     boolean silent = context.getOut().isSilent();
                     context.getOut().setSilent(true, pageContext);
-                    pageContext.include(this.name, false);
+                    pageContext.include(getName(), false);
                     context.getOut().setSilent(silent, pageContext);
                     log.debug("End layout exec in ", context.getDefinitionPage());
                 }
                 catch (Exception e) {
                     throw new StripesJspException(
                         "An exception was raised while invoking a layout. The layout used was " +
-                        "'" + this.name + "'. The following information was supplied to the render " +
-                        "tag: " + this.context.toString(), e);
+                        "'" + getName() + "'. The following information was supplied to the render " +
+                        "tag: " + context.toString(), e);
                 }
 
                 // Check that the layout actually got rendered as some containers will
@@ -150,7 +154,7 @@ public class LayoutRenderTag extends LayoutTag implements DynamicAttributes {
                 if (!context.isRendered()) {
                     throw new StripesJspException(
                             "Attempt made to render a layout that does not exist. The layout name " +
-                            "provided was '" + this.name + "'. Please check that a JSP/view exists at " +
+                            "provided was '" + getName() + "'. Please check that a JSP/view exists at " +
                             "that location within your web application."
                         );
                 }
@@ -169,13 +173,12 @@ public class LayoutRenderTag extends LayoutTag implements DynamicAttributes {
             context.getOut().setSilent(silent, pageContext);
 
             // Skip the rest of the page if this is the outer-most render tag
-            return outer ? SKIP_PAGE : EVAL_PAGE;
+            return isOuterLayoutTag() ? SKIP_PAGE : EVAL_PAGE;
         }
         finally {
             this.context = null;
             this.contextIsNew = false;
             this.silent = false;
-            this.outer = false;
         }
     }
 }

@@ -46,16 +46,16 @@ public class LayoutComponentRenderer {
     private static final Log log = Log.getInstance(LayoutComponentRenderer.class);
 
     private LinkedList<PageContext> pageContext;
-    private String componentName;
-    private LayoutContext sourceContext;
+    private String component;
+    private LayoutContext context;
 
     /**
      * Create a new instance to render the named component to a string.
      * 
-     * @param componentName The name of the component to render.
+     * @param component The name of the component to render.
      */
-    public LayoutComponentRenderer(String componentName) {
-        this.componentName = componentName;
+    public LayoutComponentRenderer(String component) {
+        this.component = component;
     }
 
     /**
@@ -87,16 +87,6 @@ public class LayoutComponentRenderer {
     }
 
     /**
-     * Indicates the context in the stack of layout contexts against which the component is being
-     * rendered. Any attempt to render a component with the same name as the component currently
-     * being rendered must execute against a context further down the stack to avoid infinite
-     * recursion.
-     */
-    public LayoutContext getSourceContext() {
-        return sourceContext;
-    }
-
-    /**
      * Write the component to the page context's writer, optionally buffering the output.
      * 
      * @return True if the named component was found and it indicated that it successfully rendered;
@@ -107,59 +97,59 @@ public class LayoutComponentRenderer {
     public boolean write() throws ServletException, IOException {
         final PageContext pageContext = getPageContext();
         if (pageContext == null) {
-            log.error("Failed to render component \"", componentName, "\" without a page context!");
+            log.error("Failed to render component \"", this.component, "\" without a page context!");
             return false;
         }
 
         // Grab some values from the current context so they can be restored when we're done
-        final LayoutContext context = LayoutContext.lookup(pageContext);
-        final boolean phaseFlag = context.isComponentRenderPhase();
-        final String component = context.getComponent();
-        final boolean silent = context.getOut().isSilent();
-        final LayoutContext currentSource = getSourceContext();
-        log.debug("Render component \"", componentName, "\" in ", getCurrentPage());
+        final LayoutContext savedContext = this.context;
+        final LayoutContext currentContext = LayoutContext.lookup(pageContext);
+        final boolean savedPhase = currentContext.isComponentRenderPhase();
+        final boolean savedSilent = currentContext.getOut().isSilent();
+        final String savedComponent = currentContext.getComponent();
+        log.debug("Render component \"", this.component, "\" in ", getCurrentPage());
 
         // Turn on the render phase flag and set the component to render
-        context.setComponentRenderPhase(true);
-        context.setComponent(componentName);
-        context.getOut().setSilent(true, pageContext);
+        currentContext.setComponentRenderPhase(true);
+        currentContext.setComponent(this.component);
+        currentContext.getOut().setSilent(true, pageContext);
 
         // Descend the stack from here, trying each context where the component is registered
         try {
-            for (LayoutContext source = currentSource == null ? context : currentSource
-                    .getPrevious(); source != null; source = source.getPrevious()) {
+            for (LayoutContext context = savedContext == null ? currentContext : savedContext
+                    .getPrevious(); context != null; context = context.getPrevious()) {
 
                 // Skip contexts where the desired component is not registered.
-                if (!source.getComponents().containsKey(componentName)) {
-                    log.trace("Not rendering \"", componentName, "\" in context ",
-                            source.getRenderPage(), " -> ", source.getDefinitionPage());
+                if (!context.getComponents().containsKey(this.component)) {
+                    log.trace("Not rendering \"", this.component, "\" in context ",
+                            context.getRenderPage(), " -> ", context.getDefinitionPage());
                     continue;
                 }
-                sourceContext = source;
+                this.context = context;
 
-                log.debug("Start execute \"", componentName, "\" in ", context.getRenderPage(),
-                        " -> ", context.getDefinitionPage(), " from ", source.getRenderPage(),
-                        " -> ", source.getDefinitionPage());
-                pageContext.include(source.getRenderPage(), false);
-                log.debug("End execute \"", componentName, "\" in ", context.getRenderPage(),
-                        " -> ", context.getDefinitionPage(), " from ", source.getRenderPage(),
-                        " -> ", source.getDefinitionPage());
+                log.debug("Start execute \"", this.component, "\" in ",
+                        currentContext.getRenderPage(), " -> ", currentContext.getDefinitionPage(),
+                        " from ", context.getRenderPage(), " -> ", context.getDefinitionPage());
+                pageContext.include(context.getRenderPage(), false);
+                log.debug("End execute \"", this.component, "\" in ",
+                        currentContext.getRenderPage(), " -> ", currentContext.getDefinitionPage(),
+                        " from ", context.getRenderPage(), " -> ", context.getDefinitionPage());
 
                 // If the component name has been cleared then the component rendered
-                if (context.getComponent() == null)
+                if (currentContext.getComponent() == null)
                     return true;
             }
         }
         finally {
             // Reset the context properties
-            context.setComponentRenderPhase(phaseFlag);
-            context.setComponent(component);
-            context.getOut().setSilent(silent, pageContext);
-            sourceContext = currentSource;
+            currentContext.setComponentRenderPhase(savedPhase);
+            currentContext.setComponent(savedComponent);
+            currentContext.getOut().setSilent(savedSilent, pageContext);
+            this.context = savedContext;
         }
 
-        log.debug("Component \"", componentName, "\" evaluated to empty string in context ",
-                context.getRenderPage(), " -> ", context.getDefinitionPage());
+        log.debug("Component \"", this.component, "\" evaluated to empty string in context ",
+                currentContext.getRenderPage(), " -> ", currentContext.getDefinitionPage());
         return false;
     }
 
@@ -171,27 +161,28 @@ public class LayoutComponentRenderer {
     public String toString() {
         final PageContext pageContext = getPageContext();
         if (pageContext == null) {
-            log.error("Failed to render component \"", componentName, "\" without a page context!");
-            return "[Failed to render component \"" + componentName + "\" without a page context!]";
+            log.error("Failed to render component \"", this.component, "\" without a page context!");
+            return "[Failed to render component \"" + this.component
+                    + "\" without a page context!]";
         }
 
         final LayoutContext context = LayoutContext.lookup(pageContext);
         String contents;
         context.getOut().openBuffer(pageContext);
         try {
-            log.debug("Start stringify \"", componentName, "\" in ", context.getRenderPage(),
+            log.debug("Start stringify \"", this.component, "\" in ", context.getRenderPage(),
                     " -> ", context.getDefinitionPage());
             write();
         }
         catch (Exception e) {
-            log.error(e, "Unhandled exception trying to render component \"", componentName,
+            log.error(e, "Unhandled exception trying to render component \"", this.component,
                     "\" to a string in context ", context.getRenderPage(), //
                     " -> ", context.getDefinitionPage());
-            return "[Failed to render \"" + componentName + "\". See log for details.]";
+            return "[Failed to render \"" + this.component + "\". See log for details.]";
         }
         finally {
-            log.debug("End stringify \"", componentName, "\" in ", context.getRenderPage(), " -> ",
-                    context.getDefinitionPage());
+            log.debug("End stringify \"", this.component, "\" in ", context.getRenderPage(),
+                    " -> ", context.getDefinitionPage());
             contents = context.getOut().closeBuffer(pageContext);
         }
 
