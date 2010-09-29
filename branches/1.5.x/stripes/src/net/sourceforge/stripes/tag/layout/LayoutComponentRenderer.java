@@ -192,13 +192,7 @@ public class LayoutComponentRenderer {
         finally {
             log.debug("End stringify \"", componentName, "\" in ", context.getRenderPage(), " -> ",
                     context.getDefinitionPage());
-
             contents = context.getOut().closeBuffer(pageContext);
-            if ("".equals(contents)) {
-                log.debug("Component \"", componentName,
-                        "\" evaluated to empty string in context ", context.getRenderPage(),
-                        " -> ", context.getDefinitionPage());
-            }
         }
 
         return contents;
