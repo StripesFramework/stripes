@@ -64,7 +64,7 @@ public class LayoutRenderTag extends LayoutTag implements DynamicAttributes {
 
     /** True if this is the outermost layout tag, the one that initiated the render process. */
     public boolean isOuterLayoutTag() {
-        return getLayoutAncestor() == null;
+        return getLayoutParent() == null;
     }
 
     /** Used by the JSP container to provide the tag with dynamic attributes. */
