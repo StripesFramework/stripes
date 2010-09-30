@@ -17,6 +17,7 @@ package net.sourceforge.stripes.tag;
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.controller.ParameterName;
+import net.sourceforge.stripes.controller.StripesConstants;
 import net.sourceforge.stripes.exception.StripesJspException;
 import net.sourceforge.stripes.util.CryptoUtil;
 import net.sourceforge.stripes.util.Log;
@@ -127,7 +128,9 @@ public class DefaultPopulationStrategy implements PopulationStrategy {
                 value = BeanUtil.getPropertyValue(tag.getName(), actionBean);
             }
             catch (ExpressionException ee) {
-                log.info("Could not locate property of name [" + tag.getName() + "] on ActionBean.", ee);
+                if (!StripesConstants.SPECIAL_URL_KEYS.contains(tag.getName())) {
+                    log.info("Could not find property [", tag.getName(), "] on ActionBean.", ee);
+                }
             }
         }
 
