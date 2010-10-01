@@ -1,11 +1,8 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>net.sourceforge.stripes</groupId>
-        <artifactId>stripes-parent</artifactId>
-        <version>1.5.4-SNAPSHOT</version>
-    </parent>
+    <groupId>net.sourceforge.stripes</groupId>
+    <version>1.5.4-SNAPSHOT</version>
     <artifactId>webtests</artifactId>
     <packaging>war</packaging>
     <name>webtests</name>
@@ -25,6 +22,7 @@
             <groupId>org.codehaus.groovy</groupId>
             <artifactId>groovy-all</artifactId>
             <version>1.6-RC-3</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
