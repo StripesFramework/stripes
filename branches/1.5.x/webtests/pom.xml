@@ -88,13 +88,16 @@
                 <artifactId>cargo-maven2-plugin</artifactId>
                 <configuration>
                     <wait>false</wait>
-                    <container>
-                        <containerId>tomcat6x</containerId>
-                        <home>${tomcat6.home}</home>
-                    </container>
-                    <configuration>
-                        <home>${project.build.directory}/tomcat6x</home>                        
-                    </configuration>
+                  <container>
+                    <containerId>tomcat6x</containerId>
+                    <zipUrlInstaller>
+                      <url>http://mirror.ibcp.fr/pub/apache//tomcat/tomcat-6/v6.0.29/bin/apache-tomcat-6.0.29.zip</url>
+                      <installDir>${baseDir}/target/tomcat6-install</installDir>
+                    </zipUrlInstaller>
+                  </container>
+                  <configuration>
+                    <home>${project.build.directory}/tomcat6x/container</home>
+                  </configuration>
                 </configuration>
                 <executions>
                     <execution>
