@@ -65,8 +65,8 @@ public class BeanFirstPopulationStrategy extends DefaultPopulationStrategy {
                 catch (ExpressionException ee) {
                     if (!StripesConstants.SPECIAL_URL_KEYS.contains(tag.getName())) {
                         log.info("Could not find property [", tag.getName(), "] on ActionBean.", ee);
-                        kaboom = true;
                     }
+                    kaboom = true;
                 }
             }
 
