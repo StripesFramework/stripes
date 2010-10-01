@@ -97,6 +97,9 @@
                   </container>
                   <configuration>
                     <home>${project.build.directory}/tomcat6x/container</home>
+                    <properties>
+                        <cargo.servlet.port>9999</cargo.servlet.port>
+                    </properties>
                   </configuration>
                 </configuration>
                 <executions>

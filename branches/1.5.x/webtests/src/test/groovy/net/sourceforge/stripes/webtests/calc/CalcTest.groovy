@@ -4,7 +4,7 @@ import com.canoo.webtest.WebtestCase
 
 class CalcTest extends WebtestCase {
 
-  def homeUrl = 'http://localhost:8080/webtests/quickstart/index.jsp'
+  def homeUrl = 'http://localhost:9999/webtests/quickstart/index.jsp'
 
   void testCalcHome() {
     webtest('testCalcHome') {
