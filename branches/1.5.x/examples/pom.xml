@@ -85,7 +85,7 @@
                         <phase>process-sources</phase>
                         <configuration>
                             <target>
-                                <copy todir="./target/classes/WEB-INF/src" flatten="true" overwrite="true">
+                                <copy todir="./web/WEB-INF/src" flatten="true" overwrite="true">
                                     <fileset dir="./src" includes="**/*.java"/>
                                 </copy>
                             </target>
