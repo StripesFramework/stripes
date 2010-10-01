@@ -67,6 +67,14 @@
     <build>
         <finalName>stripes-examples</finalName>
         <sourceDirectory>src</sourceDirectory>
+        <resources>
+            <resource>
+                <directory>src</directory>
+                <excludes>
+                    <exclude>**/*.java</exclude>
+                </excludes>
+            </resource>
+        </resources>
         <plugins>
             <!-- use antrun to copy the sources into the webapp -->
             <plugin>
