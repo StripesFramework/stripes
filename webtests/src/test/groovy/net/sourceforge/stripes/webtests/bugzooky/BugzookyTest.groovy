@@ -4,8 +4,7 @@ import com.canoo.webtest.WebtestCase
 
 class BugzookyTest extends WebtestCase {
 
-  def homeUrl = 'http://localhost:8080/webtests/bugzooky'
-  def logoutUrl = 'http://localhost:8080/webtests/bugzooky/Logout.action'
+  def homeUrl = 'http://localhost:9999/webtests/bugzooky'
 
   static int count = 10 //System.currentTimeMillis()
 
