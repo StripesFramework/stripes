@@ -41,7 +41,7 @@ import java.io.IOException;
  * @see RedirectResolution
  * @author Tim Fennell
  */
-public class ForwardResolution extends OnwardResolution<ForwardResolution> implements Resolution {
+public class ForwardResolution extends OnwardResolution<ForwardResolution> {
     private boolean autoInclude = true;
     private static final Log log = Log.getInstance(ForwardResolution.class);
     private String event;

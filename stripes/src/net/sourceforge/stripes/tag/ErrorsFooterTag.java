@@ -14,7 +14,6 @@
  */
 package net.sourceforge.stripes.tag;
 
-import javax.servlet.jsp.tagext.Tag;
 import javax.servlet.jsp.JspException;
 
 /**
@@ -24,7 +23,7 @@ import javax.servlet.jsp.JspException;
  *
  * @author Greg Hinkle
  */
-public class ErrorsFooterTag extends HtmlTagSupport implements Tag {
+public class ErrorsFooterTag extends HtmlTagSupport {
 
     @Override
     public int doStartTag() throws JspException {
