@@ -1,119 +1,217 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- This pom.xml is intended to be included with the stripes-x-bundle.jar that
-  ++ is uploaded to the maven2 repository at iBiblio. It is not a complete
-  ++ build environment for Stripes. If you intent to build Stripes locally
-  ++ please use the ant build scripts provided (they're dead simple).
-  -->
+<!--
+    Stripes core. Produces the stripe.jar needed in
+    users webapps.
+-->
 <project>
     <modelVersion>4.0.0</modelVersion>
-    <groupId>net.sourceforge.stripes</groupId>
+    <parent>
+        <groupId>net.sourceforge.stripes</groupId>
+        <artifactId>stripes-parent</artifactId>
+        <version>1.6.0-SNAPSHOT</version>
+    </parent>
     <artifactId>stripes</artifactId>
-    <version>@stripes.version@</version>
     <packaging>jar</packaging>
     <name>Stripes</name>
-    <url>http://stripesframework.org/</url>
-    <description>Stripes web framework jar, including tag library.</description>
-    <licenses>
-        <license>
-            <name>The Apache Software License, Version 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
-    <scm>
-        <url>https://svn.sourceforge.net/svnroot/stripes</url>
-    </scm>
-    <issueManagement>
-        <system>JIRA</system>
-        <url>http://stripesframework.org/jira/browse/STS</url>
-    </issueManagement>
-    <dependencies>
-        <dependency>
-            <groupId>servlets.com</groupId>
-            <artifactId>cos</artifactId>
-            <version>05Nov2002</version>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-            <version>1.1.1</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>javax.servlet</groupId>
-                    <artifactId>servlet-api</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>log4j</groupId>
-                    <artifactId>log4j</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>logkit</groupId>
-                    <artifactId>logkit</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>avalon-framework</groupId>
-                    <artifactId>avalon-framework</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>jsp-api</artifactId>
-            <version>2.0</version>
-            <scope>provided</scope>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>javax.mail</groupId>
-            <artifactId>mail</artifactId>
-            <version>1.4</version>
-            <scope>compile</scope>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>1.2.15</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.testng</groupId>
-            <artifactId>testng</artifactId>
-            <version>5.5</version>
-            <scope>test</scope>
-        </dependency>
+    <build>
+        <sourceDirectory>src</sourceDirectory>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.1</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+            <!--
+                Use antrun to create the .tld files.
+            -->
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.5</version>
+                <executions>
+                    <execution>
+                        <id>generate-tlds</id>
+                        <phase>process-resources</phase>
+                        <configuration>
+                            <target>
+                                <!-- make two copies of the taglib, one with and one without dynamic attributes -->
+                                <filter filtersfile="./resources/common-descriptions.properties"/>
+                                <filter token="dynattrs" value="false"/>
+                                <copy file="./resources/stripes.tld" todir="./target/classes/META-INF"
+                                      filtering="true"/>
 
-        <!-- Spring is needed to compile the Spring support in Stripes, and from then on, only if
-             you are actually using Spring in your own application.
-        -->
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring</artifactId>
-            <version>1.2.6</version>
-            <scope>compile</scope>
-            <optional>true</optional>
-        </dependency>
-
-        <!-- Commons fileupload and io are listed as optional dependencies for Stripes beceause
-             they are needed to compile and use the commons version of the MultipartWrapper.
-             However, the default implementation uses COS instead, so these jars are only
-             necessary if you plan to use the commons version, or which to compiles Stripes
-             from source.
-        -->
-        <dependency>
-            <groupId>commons-fileupload</groupId>
-            <artifactId>commons-fileupload</artifactId>
-            <version>1.2</version>
-            <scope>compile</scope>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>1.2</version>
-            <scope>compile</scope>
-            <optional>true</optional>
-        </dependency>
-    </dependencies>
+                                <filter token="dynattrs" value="true"/>
+                                <copy file="./resources/stripes.tld"
+                                      tofile="./target/classes/META-INF/stripes-dynattr.tld" filtering="true"/>
+                                <replace file="./target/classes/META-INF/stripes-dynattr.tld"
+                                         token="http://stripes.sourceforge.net/stripes.tld"
+                                         value="http://stripes.sourceforge.net/stripes-dynattr.tld"/>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.5</version>
+                <executions>
+                    <execution>
+                        <id>generate-tlddoc</id>
+                        <phase>package</phase>
+                        <configuration>
+                            <target>
+                                <java fork="true" jar="./lib/build/tlddoc.jar" failonerror="false">
+                                    <arg line="-d './target/taglib'"/>
+                                    <arg line="-doctitle 'Stripes ${project.version} Tag Library Documentation'"/>
+                                    <arg line="-windowtitle 'Stripes ${project.version} Tag Library Documentation'"/>
+                                    <arg value="./target/classes/META-INF/stripes.tld"/>
+                                </java>
+                                <copy file="./src/javadoc.css"
+                                      tofile="./target/taglib/stylesheet.css"
+                                      overwrite="true"/>
+                                <replace file="./target/taglib/index.html"
+                                         token="overview-summary.html"
+                                         value="stripes/tld-summary.html"/>
+                                <jar destfile="./target/stripes-${project.version}-tlddoc.jar"
+                                     basedir="./target/taglib"/>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <!--
+                Configuration of a deploy-file goal when deploying everything.
+                The tlddocs are generated uing ant and thereby they are not
+                included in deploy process by default, hence this little trick.
+                // TODO find a better way to handle this !
+                // TODO must be gpg signed to be deployed
+            -->
+            <!--
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>deploy-tlddoc-snapshots</id>
+                        <phase>deploy</phase>
+                        <configuration>
+                            <url>${distributionManagement.repository.url}</url>
+                            <repositoryId>${distributionManagement.repository.id}</repositoryId>
+                            <file>${basedir}/target/stripes-${project.version}-tlddoc.jar</file>
+                            <groupId>net.sourceforge.stripes</groupId>
+                            <artifactId>stripes</artifactId>
+                            <version>${project.version}</version>
+                            <classifier>tlddoc</classifier>
+                            <packaging>jar</packaging>
+                        </configuration>
+                        <goals>
+                            <goal>deploy-file</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.7</version>
+                <executions>
+                    <execution>
+                        <id>generate-javadoc</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <configuration>
+                            <stylesheetfile>${basedir}/src/javadoc.css</stylesheetfile>
+                            <overview>${basedir}/src/overview.html</overview>
+                            <bottom>&#169; Copyright 2005-2006, Stripes Development Team.</bottom>
+                            <author>true</author>
+                            <protected>true</protected>
+                            <use>true</use>
+                            <version>true</version>
+                            <links>
+                                <link>http://java.sun.com/j2se/1.5.0/docs/api/</link>
+                                <link>http://java.sun.com/javaee/5/docs/api/</link>
+                                <link>http://static.springframework.org/spring/docs/1.2.x/api/</link>
+                                <link>http://java.sun.com/j2se/1.5.0/docs/guide/apt/mirror/</link>
+                                <link>http://commons.apache.org/logging/commons-logging-1.1/apidocs/</link>
+                            </links>
+                            <groups>
+                                <group>
+                                    <title>Core API</title>
+                                    <packages>
+                                        net.sourceforge.stripes.action*:net.sourceforge.stripes.validation*:net.sourceforge.stripes.mock*
+                                    </packages>
+                                </group>
+                                <group>
+                                    <title>Extension API</title>
+                                    <packages>
+                                        net.sourceforge.stripes.ajax*:net.sourceforge.stripes.config*:net.sourceforge.stripes.exception*:net.sourceforge.stripes.format*:net.sourceforge.stripes.integration.spring*:net.sourceforge.stripes.localization*:net.sourceforge.stripes.tag*:net.sourceforge.stripes.tag.layout*
+                                    </packages>
+                                </group>
+                                <group>
+                                    <title>Internal Implementation</title>
+                                    <packages>
+                                        net.sourceforge.stripes.controller*:net.sourceforge.stripes.controller.multipart*:net.sourceforge.stripes.util*:net.sourceforge.stripes.util.bean*:net.sourceforge.stripes.validation.expression*
+                                    </packages>
+                                </group>
+                            </groups>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>2.1.2</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+    <profiles>
+		<!--
+			Add this profile to have tools.jar on the classpath :
+			needed by SiteStructureTool...
+			See : http://maven.apache.org/general.html#tools-jar-dependency
+		-->			
+		<profile>
+			<id>default-tools.jar</id>
+			<activation>
+				<property>
+					<name>java.vendor</name>
+					<value>Sun Microsystems Inc.</value>
+				</property>
+			</activation>
+			<dependencies>
+				<dependency>
+					<groupId>com.sun</groupId>
+					<artifactId>tools</artifactId>
+					<version>1.4.2</version>
+					<scope>system</scope>
+					<systemPath>${java.home}/../lib/tools.jar</systemPath>
+				</dependency>
+			</dependencies>
+		</profile>
+    </profiles>
 </project>
