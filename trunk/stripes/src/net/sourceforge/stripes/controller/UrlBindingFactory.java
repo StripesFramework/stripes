@@ -321,7 +321,9 @@ public class UrlBindingFactory {
     public HashMap<String, Class<? extends ActionBean>> getPathMap() {
         HashMap<String, Class<? extends ActionBean>> map = new HashMap<String, Class<? extends ActionBean>>();
         for (Entry<String, UrlBinding> entry : pathCache.entrySet()) {
-            map.put(entry.getKey(), entry.getValue().getBeanType());
+            if (entry.getValue() != null) {
+                map.put(entry.getKey(), entry.getValue().getBeanType());
+            }
         }
         return map;
     }
