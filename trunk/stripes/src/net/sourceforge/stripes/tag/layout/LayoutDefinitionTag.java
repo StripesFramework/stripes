@@ -14,75 +14,72 @@
  */
 package net.sourceforge.stripes.tag.layout;
 
-import net.sourceforge.stripes.tag.StripesTagSupport;
-import net.sourceforge.stripes.util.Log;
+import java.util.Map;
 
 import javax.servlet.jsp.JspException;
-import java.io.IOException;
-import java.util.Stack;
-import java.util.Map;
+import javax.servlet.jsp.PageContext;
+
+import net.sourceforge.stripes.exception.StripesJspException;
 
 /**
  * On the surface, allows a developer to define a layout using a custom tag - but is actually
  * the tag responsible for generating the output of the layout.  A layout can have zero or more
  * nested components, as well as regular text and other custom tags nested within it.
  *
- * @author Tim Fennell
+ * @author Tim Fennell, Ben Gunter
  * @since Stripes 1.1
  */
-public class LayoutDefinitionTag extends StripesTagSupport {
-    private static final Log log = Log.getInstance(LayoutDefinitionTag.class);
-
-    /**
-     * Prefix used to construct the request attribute name used to pass context from the
-     * LayoutRenderTag to the LayoutDefinitionTag.
-     */
-    public static final String PREFIX = "stripes.layout.";
-
+public class LayoutDefinitionTag extends LayoutTag {
     private LayoutContext context;
+    private boolean renderPhase, silent;
 
     /**
-     * Looks up the layout context that has been setup by a LayoutRenderTag. Uses the context
-     * to push any dynamic attributes supplied to the render tag in to the page context
-     * available during the body of the LayoutDefinitionTag.
-     *
-     * @return EVAL_BODY_INCLUDE in all cases.
+     * Get the current layout context.
+     * 
+     * @throws StripesJspException If there is no {@link LayoutContext} for this layout in the
+     *             current {@link PageContext}.
+     */
+    public LayoutContext getContext() throws StripesJspException {
+        if (context == null) {
+            context = LayoutContext.lookup(pageContext);
+
+            if (context == null || getLayoutParent() != null) {
+                throw new StripesJspException("The JSP page " + getCurrentPagePath()
+                        + " contains a layout-definition tag and was invoked directly. "
+                        + "A layout-definition can only be invoked by a page that contains "
+                        + "a layout-render tag.");
+            }
+        }
+
+        return context;
+    }
+
+    /**
+     * Looks up the layout context that has been setup by a {@link LayoutRenderTag}. Uses the
+     * context to push any dynamic attributes supplied to the render tag in to the page context
+     * available during the body of the {@link LayoutDefinitionTag}.
+     * 
+     * @return {@code EVAL_BODY_INCLUDE} in all cases.
      */
     @Override
-    @SuppressWarnings("unchecked")
-	public int doStartTag() throws JspException {
-        // Since the layout-render tag pushes a new writer onto the stack, we can clear the
-        // buffer here to make sure we don't output anything outside the layout-def tag.
-        try {
-            getPageContext().getOut().clearBuffer();
-        }
-        catch (IOException ioe) {
-            // Not a whole lot we can do if we cannot clear the buffer :/
-            log.warn("Could not clear buffer before rendering a layout.", ioe);
-        }
+    public int doStartTag() throws JspException {
+        LayoutContext context = getContext(); // Initialize context
+        renderPhase = context.isComponentRenderPhase(); // Initialize phase flag
+        silent = context.getOut().isSilent();
 
-        // Assuming that the layout definition page is always included, the following line gets
-        // the name of the page the tag is sitting on, as per Servlet 2.4 spec, page 65.
-        String name = (String) getPageContext().getRequest()
-                .getAttribute("javax.servlet.include.servlet_path");
-
-        // Fetch the layout context containing parameters and component overrides
-        Stack<LayoutContext> stack = (Stack<LayoutContext>)
-                getPageContext().getRequest().getAttribute(PREFIX + name);
-        this.context = stack.peek();
+        // Flag this definition has rendered, even though it's not really done yet.
+        context.setRendered(true);
 
         // Put any additional parameters into page context for the definition to use
-        for (Map.Entry<String,Object> entry : this.context.getParameters().entrySet()) {
-            getPageContext().setAttribute(entry.getKey(), entry.getValue());
+        for (Map.Entry<String, Object> entry : context.getParameters().entrySet()) {
+            pageContext.setAttribute(entry.getKey(), entry.getValue());
         }
 
-        for (Map.Entry<String,String> entry : this.context.getComponents().entrySet()) {
-            getPageContext().setAttribute(entry.getKey(), entry.getValue());
-        }
+        // Put component renderers into the page context, even those from previous contexts
+        exportComponentRenderers();
 
-        // Technically we're not quite done yet, but this flag is only used to
-        // indicate that an attempt was made to render
-        this.context.setRendered(true);
+        // Enable output only if this is the definition execution, not a component render
+        context.getOut().setSilent(renderPhase, pageContext);
 
         return EVAL_BODY_INCLUDE;
     }
@@ -93,31 +90,15 @@ public class LayoutDefinitionTag extends StripesTagSupport {
      */
     @Override
     public int doEndTag() throws JspException {
-        return SKIP_PAGE;
-    }
-
-    /**
-     * Called by nested tags to find out if they have permission to render their content, or
-     * if they have been overridden in the layout rendering tag.  Returns true if a component
-     * has not been overridden and should render as normal.  Returns false, and writes out the
-     * overridden component when the component has been overridden.
-     *
-     * @param componentName the name of the component about to render
-     * @return true if the component should render itself, false otherwise
-     * @throws JspException if the JspWriter could not be written to
-     */
-    public boolean permissionToRender(String componentName) throws JspException {
-        if (this.context.getComponents().containsKey(componentName)) {
-            try {
-                getPageContext().getOut().write(this.context.getComponents().get(componentName));
-            }
-            catch (IOException ioe) {
-                throw new JspException("Could not output overridden layout component.", ioe);
-            }
-            return false;
+        try {
+            cleanUpComponentRenderers();
+            getContext().getOut().setSilent(silent, pageContext);
+            return SKIP_PAGE;
         }
-        else {
-            return true;
+        finally {
+            this.context = null;
+            this.renderPhase = false;
+            this.silent = false;
         }
     }
 }

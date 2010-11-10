@@ -14,105 +14,209 @@
  */
 package net.sourceforge.stripes.tag.layout;
 
-import net.sourceforge.stripes.tag.StripesTagSupport;
-import net.sourceforge.stripes.util.Log;
+import java.util.regex.Pattern;
 
 import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.tagext.BodyTag;
-import javax.servlet.jsp.tagext.BodyContent;
+
+import net.sourceforge.stripes.exception.StripesJspException;
+import net.sourceforge.stripes.util.Log;
 
 /**
  * Defines a component in a layout. Used both to define the components in a layout definition
  * and to provide overridden component definitions during a layout rendering request.
  *
- * @author Tim Fennell
+ * @author Tim Fennell, Ben Gunter
  * @since Stripes 1.1
  */
-public class LayoutComponentTag extends StripesTagSupport implements BodyTag {
+public class LayoutComponentTag extends LayoutTag {
     private static final Log log = Log.getInstance(LayoutComponentTag.class);
+
+    /** Regular expression that matches valid Java identifiers. */
+    private static final Pattern javaIdentifierPattern = Pattern
+            .compile("\\p{javaJavaIdentifierStart}\\p{javaJavaIdentifierPart}*");
+
     private String name;
-    private BodyContent bodyContent;
-    private LayoutDefinitionTag definitionTag;
-    private LayoutRenderTag renderTag;
+    private LayoutContext context;
+    private boolean silent;
 
     /** Gets the name of the component. */
     public String getName() { return name; }
 
     /** Sets the name of the component. */
-    public void setName(String name) {
-        if (name != null && name.length() > 0) {
-            int length = name.length();
-            boolean validJava = Character.isJavaIdentifierStart(name.charAt(0));
-            int index = 1;
-            while (validJava && index < length) {
-                validJava = Character.isJavaIdentifierPart(name.charAt(index));
-                index++;
-            }
-            if (!validJava) {
-                log.warn("The layout-component name '", name, "' is not a valid Java identifier. ",
-                    "While this may work, it can cause bugs that are difficult to track down. Please ",
-                    "consider using valid Java identifiers for component names (no hyphens, no spaces, etc.)");
-            }
-        }
-        this.name = name;
-    }
+    public void setName(String name) { this.name = name; }
 
-    /** Save the body content output by the tag. */
-    public void setBodyContent(BodyContent bodyContent) {
-        this.bodyContent = bodyContent;
+    /**
+     * Get the current layout context.
+     * 
+     * @throws StripesJspException If a {@link LayoutContext} is not found.
+     */
+    public LayoutContext getContext() throws StripesJspException {
+        if (context == null) {
+            context = LayoutContext.lookup(pageContext);
+
+            if (context == null) {
+                throw new StripesJspException("A component tag named \"" + getName() + "\" in "
+                        + getCurrentPagePath() + " was unable to find a layout context.");
+            }
+
+            log.trace("Component ", getName() + " has context ", context.getRenderPage(), " -> ",
+                    context.getDefinitionPage());
+        }
+
+        return context;
     }
 
     /**
-     * Behaviour varies depending on whether the tag is nested inside a LayoutRenderTag or a
-     * LayoutDefinitionTag.  In the first case it will always render it's output to a buffer so that
-     * it can be provided to the render tag.  In the second case, checks to see if the component
-     * has been overridden.  If so, does nothing, else writes its content to the output stream.
-     *
-     * @return EVAL_BODY_BUFFERED, EVAL_BODY_INCLUDE or SKIP_BODY as described above.
+     * True if this tag is the component to be rendered on this pass from
+     * {@link LayoutDefinitionTag}.
+     * 
+     * @throws StripesJspException If a {@link LayoutContext} is not found.
+     */
+    public boolean isCurrentComponent() throws StripesJspException {
+        String name = getContext().getComponent();
+        return name != null && name.equals(getName());
+    }
+
+    /**
+     * <p>
+     * If this tag is nested within a {@link LayoutDefinitionTag}, then evaluate the corresponding
+     * {@link LayoutComponentTag} nested within the {@link LayoutRenderTag} that invoked the parent
+     * {@link LayoutDefinitionTag}. If, after evaluating the corresponding tag, the component has
+     * not been rendered then evaluate this tag's body by returning {@code EVAL_BODY_INCLUDE}.
+     * </p>
+     * <p>
+     * If this tag is nested within a {@link LayoutRenderTag} and this tag is the current component,
+     * as indicated by {@link LayoutContext#getComponent()}, then evaluate this tag's body by
+     * returning {@code EVAL_BODY_INCLUDE}.
+     * </p>
+     * <p>
+     * In all other cases, skip this tag's body by returning SKIP_BODY.
+     * </p>
+     * 
+     * @return {@code EVAL_BODY_INCLUDE} or {@code SKIP_BODY}, as described above.
      */
     @Override
     public int doStartTag() throws JspException {
-        this.definitionTag = getParentTag(LayoutDefinitionTag.class);
-        this.renderTag = getParentTag(LayoutRenderTag.class);
+        try {
+            LayoutContext context = getContext();
+            silent = context.getOut().isSilent();
 
-        if (this.renderTag != null) {
-            return EVAL_BODY_BUFFERED;
-        }
-        else if (this.definitionTag.permissionToRender(this.name)) {
-            return EVAL_BODY_INCLUDE;
-        }
-        else {
+            if (context.isComponentRenderPhase()) {
+                if (isChildOfRender()) {
+                    if (isCurrentComponent()) {
+                        log.debug("Render ", getName(), " in ", context.getRenderPage());
+                        context.getOut().setSilent(false, pageContext);
+                        return EVAL_BODY_INCLUDE;
+                    }
+                    else {
+                        log.debug("No-op for ", getName(), " in ", context.getRenderPage());
+                    }
+                }
+                else if (isChildOfDefinition()) {
+                    log.debug("No-op for ", getName(), " in ", context.getDefinitionPage());
+                }
+                else if (isChildOfComponent()) {
+                    // Use a layout component renderer to do the heavy lifting
+                    log.debug("Invoke component renderer for nested render of \"", getName(), "\"");
+                    LayoutComponentRenderer renderer = (LayoutComponentRenderer) pageContext
+                            .getAttribute(getName());
+                    if (renderer == null)
+                        log.debug("No component renderer in page context for '" + getName() + "'");
+                    boolean rendered = renderer != null && renderer.write();
+
+                    // If the component did not render then we need to output the default contents
+                    // from the layout definition.
+                    if (!rendered) {
+                        log.debug("Component was not present in ", context.getRenderPage(),
+                                " so using default content from ", context.getDefinitionPage());
+
+                        context.getOut().setSilent(false, pageContext);
+                        return EVAL_BODY_INCLUDE;
+                    }
+                }
+            }
+            else {
+                if (isChildOfRender()) {
+                    if (!javaIdentifierPattern.matcher(getName()).matches()) {
+                        log.warn("The layout-component name '", getName(),
+                                "' is not a valid Java identifier. While this may work, it can ",
+                                "cause bugs that are difficult to track down. Please consider ",
+                                "using valid Java identifiers for component names ",
+                                "(no hyphens, no spaces, etc.)");
+                    }
+
+                    log.debug("Register component ", getName(), " with ", context.getRenderPage());
+                    context.getComponents().put(getName(), new LayoutComponentRenderer(getName()));
+                }
+                else if (isChildOfDefinition()) {
+                    // Use a layout component renderer to do the heavy lifting
+                    log.debug("Invoke component renderer for direct render of \"", getName(), "\"");
+                    LayoutComponentRenderer renderer = (LayoutComponentRenderer) pageContext
+                            .getAttribute(getName());
+                    if (renderer == null)
+                        log.debug("No component renderer in page context for '" + getName() + "'");
+                    boolean rendered = renderer != null && renderer.write();
+
+                    // If the component did not render then we need to output the default contents
+                    // from the layout definition.
+                    if (!rendered) {
+                        log.debug("Component was not present in ", context.getRenderPage(),
+                                " so using default content from ", context.getDefinitionPage());
+
+                        context.getOut().setSilent(false, pageContext);
+                        return EVAL_BODY_INCLUDE;
+                    }
+                }
+                else if (isChildOfComponent()) {
+                    /*
+                     * This condition cannot be true since component tags do not execute except in
+                     * component render phase, thus any component tags embedded with them will not
+                     * execute either. I've left this block here just as a placeholder for this
+                     * explanation.
+                     */
+                }
+            }
+
+            context.getOut().setSilent(true, pageContext);
             return SKIP_BODY;
+        }
+        catch (Exception e) {
+            log.error(e, "Unhandled exception trying to render component \"", getName(),
+                    "\" to a string in context ", context.getRenderPage(), " -> ", context
+                            .getDefinitionPage());
+
+            if (e instanceof RuntimeException)
+                throw (RuntimeException) e;
+            else
+                throw new StripesJspException(e);
         }
     }
 
-    /** Does nothing. */
-    public void doInitBody() throws JspException { /* Do Nothing */ }
-
     /**
-     * Does nothing.
-     * @return SKIP_BODY in all cases.
-     */
-    public int doAfterBody() throws JspException { return SKIP_BODY; }
-
-    /**
-     * If the tag is nested in a LayoutRenderTag, provides the tag with the generated contents.
-     * Otherwise, does nothing.
-     *
-     * @return EVAL_PAGE in all cases.
+     * If this tag is the component that needs to be rendered, as indicated by
+     * {@link LayoutContext#getComponent()}, then set the current component name back to null to
+     * indicate that the component has rendered.
+     * 
+     * @return SKIP_PAGE if this component is the current component, otherwise EVAL_PAGE.
      */
     @Override
     public int doEndTag() throws JspException {
-        if (this.renderTag != null && this.bodyContent != null) {
-            this.renderTag.addComponent(this.name, this.bodyContent.getString());
+        try {
+            // Set current component name back to null as a signal to the component tag within the
+            // definition tag that the component did, indeed, render and it should not output the
+            // default contents.
+            LayoutContext context = getContext();
+            if (isCurrentComponent())
+                context.setComponent(null);
+
+            // Restore output's silent flag
+            context.getOut().setSilent(silent, pageContext);
+
+            return EVAL_PAGE;
         }
-
-        // Clean up in case the tag gets pooled
-        this.bodyContent = null;
-        this.definitionTag = null;
-        this.renderTag = null;
-
-
-        return EVAL_PAGE;
+        finally {
+            this.context = null;
+            this.silent = false;
+        }
     }
 }
