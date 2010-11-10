@@ -196,8 +196,7 @@ public class BeforeAfterMethodInterceptor implements Interceptor {
 		FilterMethods filterMethods = filterMethodsCache.get(beanClass);
 		if (filterMethods == null) {
 			filterMethods = new FilterMethods();
-			filterMethodsCache.put(beanClass, filterMethods);
-		
+
 			// Look for @Before and @After annotations on the methods in the ActionBean class
 			Collection<Method> methods = ReflectUtil.getMethods(beanClass);
             for (Method method : methods) {
@@ -239,6 +238,8 @@ public class BeforeAfterMethodInterceptor implements Interceptor {
                     }
                 }
             }
+
+            filterMethodsCache.put(beanClass, filterMethods);
 		}
 
         return filterMethods;
