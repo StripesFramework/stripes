@@ -591,7 +591,7 @@ public class DynamicMappingFilter implements Filter {
      * mappings using {@code filter-mapping/url-pattern} and indirect mappings using
      * {@code filter-mapping/servlet-name} and {@code servlet-mapping/url-pattern}.
      * 
-     * @param filterNode The DOM ({@code &lt;filter&gt;)} {@link Node} containing the filter
+     * @param filterNode The DOM ({@code &lt;filter&gt;}) {@link Node} containing the filter
      *            declaration from {@code web.xml}
      * @return A list of all the patterns to which the filter is mapped
      * @throws XPathExpressionException In case of failure evaluating an xpath expression
@@ -630,7 +630,7 @@ public class DynamicMappingFilter implements Filter {
     /**
      * Get the initialization parameters for a filter declared in {@code web.xml}.
      * 
-     * @param filterNode The DOM ({@code &lt;filter&gt;)} {@link Node} containing the filter
+     * @param filterNode The DOM ({@code &lt;filter&gt;}) {@link Node} containing the filter
      *            declaration from {@code web.xml}
      * @return A map of parameter names to parameter values
      * @throws XPathExpressionException In case of failure evaluation an xpath expression
