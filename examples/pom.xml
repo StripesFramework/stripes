@@ -48,10 +48,33 @@
             <artifactId>standard</artifactId>
             <version>1.1.2</version>
         </dependency>
+        <dependency>
+            <groupId>commons-fileupload</groupId>
+            <artifactId>commons-fileupload</artifactId>
+            <version>1.2</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>1.2</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.mail</groupId>
+            <artifactId>mail</artifactId>
+            <version>1.4</version>
+        </dependency>
     </dependencies>
     <build>
         <finalName>stripes-examples</finalName>
         <sourceDirectory>src</sourceDirectory>
+        <resources>
+            <resource>
+                <directory>src</directory>
+                <excludes>
+                    <exclude>**/*.java</exclude>
+                </excludes>
+            </resource>
+        </resources>
         <plugins>
             <!-- use antrun to copy the sources into the webapp -->
             <plugin>
@@ -87,22 +110,6 @@
                             </excludes>
                         </resource>
                     </webResources>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.cargo</groupId>
-                <artifactId>cargo-maven2-plugin</artifactId>
-                <configuration>
-                    <wait>true</wait>
-                    <!-- Container configuration -->
-                    <container>
-                        <containerId>tomcat6x</containerId>
-                        <home>${tomcat6.home}</home>
-                    </container>
-                    <!-- Configuration to use with the container -->
-                    <configuration>
-                        <home>${project.build.directory}/tomcat6x</home>
-                    </configuration>
                 </configuration>
             </plugin>
             <plugin>
