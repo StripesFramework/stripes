@@ -1,6 +1,6 @@
 package net.sourceforge.stripes;
 
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import net.sourceforge.stripes.config.BootstrapPropertyResolver;
@@ -56,6 +56,9 @@ public class StripesTestFixture {
 
     /** Gets a map containing the default initialization parameters for StripesFilter */
     public static Map<String, String> getDefaultFilterParams() {
-        return Collections.singletonMap("ActionResolver.Packages", "net.sourceforge.stripes");
+        Map<String, String> map = new HashMap<String, String>();
+        map.put("ActionResolver.Packages", "net.sourceforge.stripes");
+        map.put("LocalePicker.Class", "net.sourceforge.stripes.localization.MockLocalePicker");
+        return map;
     }
 }

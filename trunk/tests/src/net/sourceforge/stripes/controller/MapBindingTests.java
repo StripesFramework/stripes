@@ -15,6 +15,7 @@ import org.testng.annotations.Test;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -64,11 +65,11 @@ public class MapBindingTests implements ActionBean {
     public void setMapDateDate(Map<Date, Date> mapDateDate) { this.mapDateDate = mapDateDate; }
 
     /** A map completely lacking in type information!!. */
-    @SuppressWarnings("unchecked")
-	private Map typelessMap;
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
+    private Map typelessMap;
+    @SuppressWarnings("rawtypes")
 	public Map getTypelessMap() { return typelessMap; }
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("rawtypes")
 	public void setTypelessMap(Map typelessMap) { this.typelessMap = typelessMap; }
 
     /** Helper method to create a roundtrip with the TestActionBean class. */
@@ -230,6 +231,7 @@ public class MapBindingTests implements ActionBean {
     @Test(groups="fast")
     public void bindDateKeysInMap() throws Exception {
         MockRoundtrip trip = getRoundtrip();
+        trip.getRequest().addLocale(Locale.ENGLISH);
         trip.addParameter("mapDateDate['31-Dec-1999']", "01/01/2000");
         trip.execute();
 
@@ -242,7 +244,7 @@ public class MapBindingTests implements ActionBean {
         Assert.assertNotNull(bean.getMapDateDate().get(key));
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Before(stages=LifecycleStage.BindingAndValidation)
     public void populateTypelessMap() {
         this.typelessMap = new HashMap();
