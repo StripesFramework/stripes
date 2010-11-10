@@ -24,7 +24,6 @@ import net.sourceforge.stripes.util.CollectionUtil;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
-import javax.servlet.jsp.tagext.Tag;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.Collections;
@@ -93,7 +92,7 @@ import java.util.LinkedList;
  *
  * @author Tim Fennell
  */
-public class InputOptionsCollectionTag extends HtmlTagSupport implements Tag {
+public class InputOptionsCollectionTag extends HtmlTagSupport {
     private Collection<? extends Object> collection;
     private String value;
     private String label;

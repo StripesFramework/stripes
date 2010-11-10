@@ -19,7 +19,6 @@ import net.sourceforge.stripes.validation.ValidationError;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
-import javax.servlet.jsp.tagext.Tag;
 import java.io.IOException;
 import java.util.Locale;
 
@@ -31,7 +30,7 @@ import java.util.Locale;
  *
  * @author Greg Hinkle
  */
-public class IndividualErrorTag extends HtmlTagSupport implements Tag {
+public class IndividualErrorTag extends HtmlTagSupport {
 
     private static final Log log = Log.getInstance(IndividualErrorTag.class);
 
