@@ -80,15 +80,25 @@ public class ValidationAnnotationsTest implements ActionBean {
      * @see http://www.stripesframework.org/jira/browse/STS-610
      */
     @Test(groups="extensions")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public void testValidateTypeConverterExtendsStock() throws Exception {
         MockRoundtrip trip = new MockRoundtrip(StripesTestFixture.getServletContext(), getClass());
-        StripesFilter.getConfiguration().getTypeConverterFactory().add(Integer.class, MyIntegerTypeConverter.class);
-        trip.addParameter("shouldBeDoubled", "42");
-        trip.addParameter("shouldNotBeDoubled", "42");
-        trip.execute("validateTypeConverters");
-        ValidationAnnotationsTest actionBean = trip.getActionBean(getClass());
-        Assert.assertEquals(actionBean.shouldBeDoubled, new Integer(84));
-        Assert.assertEquals(actionBean.shouldNotBeDoubled, new Integer(42));
+        Locale locale = trip.getRequest().getLocale();
+        TypeConverterFactory factory = StripesFilter.getConfiguration().getTypeConverterFactory();
+        TypeConverter<?> tc = factory.getTypeConverter(Integer.class, locale);
+        try {
+            factory.add(Integer.class, MyIntegerTypeConverter.class);
+            trip.addParameter("shouldBeDoubled", "42");
+            trip.addParameter("shouldNotBeDoubled", "42");
+            trip.execute("validateTypeConverters");
+            ValidationAnnotationsTest actionBean = trip.getActionBean(getClass());
+            Assert.assertEquals(actionBean.shouldBeDoubled, new Integer(84));
+            Assert.assertEquals(actionBean.shouldNotBeDoubled, new Integer(42));
+        }
+        finally {
+            Class<? extends TypeConverter> tcType = tc == null ? null : tc.getClass();
+            factory.add(Integer.class, (Class<? extends TypeConverter<?>>) tcType);
+        }
     }
 
     /**
