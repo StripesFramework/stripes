@@ -231,16 +231,16 @@ public class UrlBindingFactory {
         if (prototype == null)
             return null;
 
-        // ignore trailing slashes in the URI
-        int length = uri.length();
-        while (length > 0 && uri.charAt(length - 1) == '/')
-            --length;
-
         // check for literal suffix in prototype and ignore it if found
+        int length = uri.length();
         String suffix = prototype.getSuffix();
         if (suffix != null && uri.endsWith(suffix)) {
             length -= suffix.length();
         }
+
+        // ignore trailing slashes in the URI
+        while (length > 0 && uri.charAt(length - 1) == '/')
+            --length;
 
         // extract the request parameters and add to new binding object
         ArrayList<Object> components = new ArrayList<Object>(prototype.getComponents().size());
