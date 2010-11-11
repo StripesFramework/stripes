@@ -1,8 +1,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>net.sourceforge.stripes</groupId>
-    <version>1.5.5-SNAPSHOT</version>
+    <parent>
+        <groupId>net.sourceforge.stripes</groupId>
+        <artifactId>stripes-parent</artifactId>
+        <version>1.5.5-SNAPSHOT</version>
+    </parent>
     <artifactId>webtests</artifactId>
     <packaging>war</packaging>
     <name>Stripes Web Tests</name>
@@ -42,12 +45,6 @@
                     <skip>true</skip>
                 </configuration>
             </plugin>
-            <plugin>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <configuration>
-                    <skip>true</skip>
-                </configuration>
-            </plugin>            
             <!-- Use Groovy plugin for compilation of .groovy files -->
             <plugin>
                 <groupId>org.codehaus.groovy.maven</groupId>
