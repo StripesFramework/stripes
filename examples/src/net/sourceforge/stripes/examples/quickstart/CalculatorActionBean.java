@@ -5,6 +5,7 @@ import net.sourceforge.stripes.action.ActionBeanContext;
 import net.sourceforge.stripes.action.DefaultHandler;
 import net.sourceforge.stripes.action.ForwardResolution;
 import net.sourceforge.stripes.action.Resolution;
+import net.sourceforge.stripes.examples.bugzooky.ext.Public;
 import net.sourceforge.stripes.validation.SimpleError;
 import net.sourceforge.stripes.validation.Validate;
 import net.sourceforge.stripes.validation.ValidationErrors;
@@ -14,6 +15,7 @@ import net.sourceforge.stripes.validation.ValidationMethod;
  * A very simple calculator action.
  * @author Tim Fennell
  */
+@Public
 public class CalculatorActionBean implements ActionBean {
     private ActionBeanContext context;
     @Validate(required=true) private double numberOne;
