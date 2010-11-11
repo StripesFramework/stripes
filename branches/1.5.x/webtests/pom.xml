@@ -5,7 +5,7 @@
     <version>1.5.5-SNAPSHOT</version>
     <artifactId>webtests</artifactId>
     <packaging>war</packaging>
-    <name>webtests</name>
+    <name>Stripes Web Tests</name>
     <dependencies>
         <dependency>
             <groupId>net.sourceforge.stripes</groupId>
