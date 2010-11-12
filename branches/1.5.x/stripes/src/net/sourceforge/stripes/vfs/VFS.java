@@ -25,6 +25,7 @@ import java.util.List;
 
 import net.sourceforge.stripes.exception.StripesRuntimeException;
 import net.sourceforge.stripes.util.Log;
+import net.sourceforge.stripes.util.ReflectUtil;
 
 /**
  * Provides a very simple API for accessing resources within an application server.
@@ -98,7 +99,7 @@ public abstract class VFS {
     /** Get a class by name. If the class is not found then return null. */
     protected static Class<?> getClass(String className) {
         try {
-            return Thread.currentThread().getContextClassLoader().loadClass(className);
+            return ReflectUtil.findClass(className);
         }
         catch (ClassNotFoundException e) {
             log.debug("Class not found: ", className);
