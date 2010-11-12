@@ -131,10 +131,10 @@
      use="true"
      version="true">
     <classpath location="${java.home}/../lib/tools.jar"/>
-    <link href="http://java.sun.com/j2se/1.5.0/docs/api/"/>
-    <link href="http://java.sun.com/javaee/5/docs/api/"/>
+    <link href="http://download.oracle.com/javase/1.5.0/docs/api/"/>
+    <link href="http://download.oracle.com/javaee/5/api/"/>
     <link href="http://static.springframework.org/spring/docs/1.2.x/api/"/>
-    <link href="http://java.sun.com/j2se/1.5.0/docs/guide/apt/mirror/"/>
+    <link href="http://download.oracle.com/javase/1.5.0/docs/guide/apt/mirror/"/>
     <link href="http://commons.apache.org/logging/commons-logging-1.1/apidocs/"/>
       <group>
         <title>Core API</title>

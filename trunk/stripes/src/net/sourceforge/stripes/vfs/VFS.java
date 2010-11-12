@@ -38,7 +38,7 @@ public abstract class VFS {
     /** The built-in implementations. */
     public static final Class<?>[] IMPLEMENTATIONS = { JBoss6VFS.class, DefaultVFS.class };
 
-    /** The list to which implementations are added by {@link #addImplClass(String)}. */
+    /** The list to which implementations are added by {@link #addImplClass(Class)}. */
     public static final List<Class<? extends VFS>> USER_IMPLEMENTATIONS = new ArrayList<Class<? extends VFS>>();
 
     /** Singleton instance. */
@@ -47,8 +47,6 @@ public abstract class VFS {
     /**
      * Get the singleton {@link VFS} instance. If no {@link VFS} implementation can be found for the
      * current environment, then this method returns null.
-     * 
-     * @return
      */
     @SuppressWarnings("unchecked")
     public static VFS getInstance() {
@@ -89,7 +87,7 @@ public abstract class VFS {
      * Adds the specified class to the list of {@link VFS} implementations. Classes added in this
      * manner are tried in the order they are added and before any of the built-in implementations.
      * 
-     * @param className The name of the {@link VFS} implementation class to add.
+     * @param clazz The {@link VFS} implementation class to add.
      */
     public static void addImplClass(Class<? extends VFS> clazz) {
         if (clazz != null)
