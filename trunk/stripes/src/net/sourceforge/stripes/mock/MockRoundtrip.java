@@ -23,8 +23,11 @@ import java.util.TreeMap;
 import javax.servlet.Filter;
 
 import net.sourceforge.stripes.action.ActionBean;
+import net.sourceforge.stripes.controller.ActionResolver;
+import net.sourceforge.stripes.controller.AnnotatedClassActionResolver;
 import net.sourceforge.stripes.controller.StripesConstants;
 import net.sourceforge.stripes.controller.StripesFilter;
+import net.sourceforge.stripes.controller.UrlBindingFactory;
 import net.sourceforge.stripes.util.CryptoUtil;
 import net.sourceforge.stripes.validation.ValidationErrors;
 
@@ -90,7 +93,7 @@ public class MockRoundtrip {
     public MockRoundtrip(MockServletContext context,
                          Class<? extends ActionBean> beanType,
                          MockHttpSession session) {
-        this(context, getUrlBinding(beanType, context), session);
+        this(context, getUrlBindingStub(beanType, context), session);
     }
 
     /**
@@ -341,20 +344,43 @@ public class MockRoundtrip {
         return this.response.getRedirectUrl();
     }
 
-    /**
-     * A helper method that fetches the UrlBinding of a class in the manner it would
-     * be interpreted by the current context configuration.
-     */
-    private static String getUrlBinding(Class<? extends ActionBean> clazz,
-                                        MockServletContext context) {
-        List<Filter> filters = context.getFilters();
-        for (Filter filter : filters) {
+    /** Find and return the {@link AnnotatedClassActionResolver} for the given context. */
+    private static AnnotatedClassActionResolver getActionResolver(MockServletContext context) {
+        for (Filter filter : context.getFilters()) {
             if (filter instanceof StripesFilter) {
-                return ((StripesFilter) filter).getInstanceConfiguration()
-                        .getActionResolver().getUrlBinding(clazz);
+                ActionResolver resolver = ((StripesFilter) filter).getInstanceConfiguration()
+                        .getActionResolver();
+                if (resolver instanceof AnnotatedClassActionResolver) {
+                    return (AnnotatedClassActionResolver) resolver;
+                }
             }
         }
 
         return null;
+    }
+
+    /** Find and return the {@link UrlBindingFactory} for the given context. */
+    private static UrlBindingFactory getUrlBindingFactory(MockServletContext context) {
+        ActionResolver resolver = getActionResolver(context);
+        if (resolver instanceof AnnotatedClassActionResolver) {
+            return ((AnnotatedClassActionResolver) resolver).getUrlBindingFactory();
+        }
+
+        return null;
+    }
+
+    /**
+     * A helper method that fetches the UrlBinding of a class in the manner it would be interpreted
+     * by the current context configuration.
+     */
+    private static String getUrlBinding(Class<? extends ActionBean> clazz,
+            MockServletContext context) {
+        return getActionResolver(context).getUrlBinding(clazz);
+    }
+
+    /** Get the URL binding for an {@link ActionBean} class up to the first parameter. */
+    private static String getUrlBindingStub(Class<? extends ActionBean> clazz,
+            MockServletContext context) {
+        return getUrlBindingFactory(context).getBindingPrototype(clazz).getPath();
     }
 }
