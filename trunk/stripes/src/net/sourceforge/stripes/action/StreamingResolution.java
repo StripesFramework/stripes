@@ -14,19 +14,25 @@
  */
 package net.sourceforge.stripes.action;
 
-import net.sourceforge.stripes.exception.StripesRuntimeException;
-import net.sourceforge.stripes.util.Log;
-
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringReader;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import net.sourceforge.stripes.exception.StripesRuntimeException;
+import net.sourceforge.stripes.util.Log;
+import net.sourceforge.stripes.util.Range;
 
 /**
  * <p>Resolution for streaming data back to the client (in place of forwarding the user to
@@ -58,6 +64,8 @@ import java.util.Date;
 public class StreamingResolution implements Resolution {
     /** Date format string for RFC 822 dates. */
     private static final String RFC_822_DATE_FORMAT = "EEE, d MMM yyyy HH:mm:ss Z";
+    /** Boundary for use in multipart responses. */
+    private static final String MULTIPART_BOUNDARY = "BOUNDARY_F7C98B76AEF711DF86D1B4FCDFD72085";
     private static final Log log = Log.getInstance(StreamingResolution.class);
     private InputStream inputStream;
     private Reader reader;
@@ -67,6 +75,8 @@ public class StreamingResolution implements Resolution {
     private long lastModified = -1;
     private long length = -1;
     private boolean attachment;
+    private boolean rangeSupport = false;
+    private List<Range<Long>> byteRanges;
 
     /**
      * Constructor only to be used when subclassing the StreamingResolution (usually using
@@ -182,6 +192,30 @@ public class StreamingResolution implements Resolution {
     }
 
     /**
+     * Indicates whether byte range serving is supported by stream method. (Defaults to false).
+     * Besides setting this flag, the ActionBean also needs to set the length of the response and
+     * provide an {@link InputStream}-based input. Reasons for disabling byte range serving:
+     * <ul>
+     * <li>The stream method is overridden and does not support byte range serving</li>
+     * <li>The input to this {@link StreamingResolution} was created on-demand, and retrieving in
+     * byte ranges would redo this process for every byte range.</li>
+     * </ul>
+     * Reasons for enabling byte range serving:
+     * <ul>
+     * <li>Streaming static multimedia files</li>
+     * <li>Supporting resuming download managers</li>
+     * </ul>
+     * 
+     * @param rangeSupport Whether byte range serving is supported by stream method.
+     * @return StreamingResolution so that this method call can be chained to the constructor and
+     *         returned.
+     */
+    public StreamingResolution setRangeSupport(boolean rangeSupport) {
+        this.rangeSupport = rangeSupport;
+        return this;
+    }
+
+    /**
      * Streams data from the InputStream or Reader to the response's OutputStream or PrinterWriter,
      * using a moderately sized buffer to ensure that the operation is reasonable efficient.
      * Once the InputStream or Reader signaled the end of the stream, close() is called on it.
@@ -193,6 +227,15 @@ public class StreamingResolution implements Resolution {
      */
     final public void execute(HttpServletRequest request, HttpServletResponse response)
             throws Exception {
+        /*-
+         * Process byte ranges only when the following three conditions are met:
+         *     - Length has been defined (without length it is impossible to efficiently stream)
+         *     - rangeSupport has not been set to false
+         *     - Output is binary and not character based
+        -*/
+        if (rangeSupport && (length >= 0) && (inputStream != null))
+            byteRanges = parseRangeHeader(request.getHeader("Range"));
+
         applyHeaders(response);
         stream(response);
     }
@@ -203,18 +246,39 @@ public class StreamingResolution implements Resolution {
      * @param response the current HttpServletResponse
      */
     protected void applyHeaders(HttpServletResponse response) {
-        response.setContentType(this.contentType);
+        if (byteRanges != null) {
+            response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
+        }
+
+        if ((byteRanges == null) || (byteRanges.size() == 1)) {
+            response.setContentType(this.contentType);
+        }
+        else {
+            response.setContentType("multipart/byteranges; boundary=" + MULTIPART_BOUNDARY);
+        }
+
         if (this.characterEncoding != null) {
             response.setCharacterEncoding(characterEncoding);
         }
 
         // Set Content-Length header
         if (length >= 0) {
-            // Odd that ServletResponse.setContentLength is limited to int.
-            // requires downcast from long to int e.g.
-            // response.setContentLength((int)length);
-            // Workaround to allow large files:
-            response.addHeader("Content-Length", Long.toString(length));
+            if (byteRanges == null) {
+                // Odd that ServletResponse.setContentLength is limited to int.
+                // requires downcast from long to int e.g.
+                // response.setContentLength((int)length);
+                // Workaround to allow large files:
+                response.addHeader("Content-Length", Long.toString(length));
+            }
+            else if (byteRanges.size() == 1) {
+                Range<Long> byteRange;
+
+                byteRange = byteRanges.get(0);
+                response.setHeader("Content-Length",
+                        Long.toString(byteRange.getEnd() - byteRange.getStart() + 1));
+                response.setHeader("Content-Range", "bytes " + byteRange.getStart() + "-"
+                        + byteRange.getEnd() + "/" + length);
+            }
         }
 
         // Set Last-Modified header
@@ -242,10 +306,101 @@ public class StreamingResolution implements Resolution {
     }
 
     /**
+     * Parse the Range header according to RFC 2616 section 14.35.1. Example ranges from this
+     * section:
+     * <ul>
+     * <li>The first 500 bytes (byte offsets 0-499, inclusive): bytes=0-499</li>
+     * <li>The second 500 bytes (byte offsets 500-999, inclusive): bytes=500-999</li>
+     * <li>The final 500 bytes (byte offsets 9500-9999, inclusive): bytes=-500 - Or bytes=9500-</li>
+     * <li>The first and last bytes only (bytes 0 and 9999): bytes=0-0,-1</li>
+     * <li>Several legal but not canonical specifications of the second 500 bytes (byte offsets
+     * 500-999, inclusive): bytes=500-600,601-999 bytes=500-700,601-999</li>
+     * </ul>
+     * 
+     * @param value the value of the Range header
+     * @return List of sorted, non-overlapping ranges
+     */
+    protected List<Range<Long>> parseRangeHeader(String value) {
+        Iterator<Range<Long>> i;
+        String byteRangesSpecifier[], bytesUnit, byteRangeSet[];
+        List<Range<Long>> res;
+        long lastEnd = -1;
+
+        if (value == null)
+            return null;
+        res = new ArrayList<Range<Long>>();
+        // Parse prelude
+        byteRangesSpecifier = value.split("=");
+        if (byteRangesSpecifier.length != 2)
+            return null;
+        bytesUnit = byteRangesSpecifier[0];
+        byteRangeSet = byteRangesSpecifier[1].split(",");
+        if (!bytesUnit.equals("bytes"))
+            return null;
+        // Parse individual byte ranges
+        for (String byteRangeSpec : byteRangeSet) {
+            String[] bytePos;
+            Long firstBytePos = null, lastBytePos = null;
+
+            bytePos = byteRangeSpec.split("-", -1);
+            try {
+                if (bytePos[0].trim().length() > 0)
+                    firstBytePos = Long.valueOf(bytePos[0].trim());
+                if (bytePos[1].trim().length() > 0)
+                    lastBytePos = Long.valueOf(bytePos[1].trim());
+            }
+            catch (NumberFormatException e) {
+                log.warn("Unable to parse Range header", e);
+            }
+            if ((firstBytePos == null) && (lastBytePos == null)) {
+                return null;
+            }
+            else if (firstBytePos == null) {
+                firstBytePos = length - lastBytePos;
+                lastBytePos = length - 1;
+            }
+            else if (lastBytePos == null) {
+                lastBytePos = length - 1;
+            }
+            if (firstBytePos > lastBytePos)
+                return null;
+            if (firstBytePos < 0)
+                return null;
+            if (lastBytePos >= length)
+                return null;
+            res.add(new Range<Long>(firstBytePos, lastBytePos));
+        }
+        // Sort byte ranges
+        Collections.sort(res);
+        // Remove overlapping ranges
+        i = res.listIterator();
+        while (i.hasNext()) {
+            Range<Long> range;
+
+            range = i.next();
+            if (lastEnd >= range.getStart()) {
+                range.setStart(lastEnd + 1);
+                if ((range.getStart() >= length) || (range.getStart() > range.getEnd()))
+                    i.remove();
+                else
+                    lastEnd = range.getEnd();
+            }
+            else {
+                lastEnd = range.getEnd();
+            }
+        }
+        if (res.isEmpty())
+            return null;
+        else
+            return res;
+    }
+
+    /**
      * <p>
      * Does the actual streaming of data through the response. If subclassed, this method should be
      * overridden to stream back data other than data supplied by an InputStream or a Reader
-     * supplied to a constructor.
+     * supplied to a constructor. If not implementing byte range serving, be sure not to set
+     * rangeSupport to true.
      * </p>
      * 
      * <p>
@@ -282,11 +437,46 @@ public class StreamingResolution implements Resolution {
         }
         else if (this.inputStream != null) {
             byte[] buffer = new byte[512];
+            long count = 0;
+
             try {
                 ServletOutputStream out = response.getOutputStream();
 
-                while ( (length = this.inputStream.read(buffer)) != -1) {
-                    out.write(buffer, 0, length);
+                if (byteRanges == null) {
+                    while ((length = this.inputStream.read(buffer)) != -1) {
+                        out.write(buffer, 0, length);
+                    }
+                }
+                else {
+                    for (Range<Long> byteRange : byteRanges) {
+                        // See RFC 2616 section 14.16
+                        if (byteRanges.size() > 1) {
+                            out.print("--" + MULTIPART_BOUNDARY + "\r\n");
+                            out.print("Content-Type: " + contentType + "\r\n");
+                            out.print("Content-Range: bytes " + byteRange.getStart() + "-"
+                                    + byteRange.getEnd() + "/" + this.length + "\r\n");
+                            out.print("\r\n");
+                        }
+                        if (count < byteRange.getStart()) {
+                            long skip;
+
+                            skip = byteRange.getStart() - count;
+                            this.inputStream.skip(skip);
+                            count += skip;
+                        }
+                        while ((length = this.inputStream.read(buffer, 0, (int) Math.min(
+                                (long) buffer.length, byteRange.getEnd() + 1 - count))) != -1) {
+                            out.write(buffer, 0, length);
+                            count += length;
+                            if (byteRange.getEnd() + 1 == count)
+                                break;
+                        }
+                        if (byteRanges.size() > 1) {
+                            out.print("\r\n");
+                        }
+                    }
+                    if (byteRanges.size() > 1)
+                        out.print("--" + MULTIPART_BOUNDARY + "--\r\n");
                 }
             }
             finally {
