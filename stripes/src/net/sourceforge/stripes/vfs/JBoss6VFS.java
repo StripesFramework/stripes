@@ -105,7 +105,7 @@ public class JBoss6VFS extends net.sourceforge.stripes.vfs.VFS {
      * Verifies that the provided object reference is null. If it is null, then this VFS is marked
      * as invalid for the current environment.
      * 
-     * @param objects The object references to check for null.
+     * @param object The object reference to check for null.
      */
     protected static <T> T checkNotNull(T object) {
         if (object == null)
