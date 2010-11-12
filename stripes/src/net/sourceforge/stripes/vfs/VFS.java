@@ -19,6 +19,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -32,6 +33,14 @@ import net.sourceforge.stripes.util.Log;
  */
 public abstract class VFS {
     private static final Log log = Log.getInstance(VFS.class);
+
+    /** The built-in implementations. */
+    public static final Class<?>[] IMPLEMENTATIONS = { JBoss6VFS.class, DefaultVFS.class };
+
+    /** The list to which implementations are added by {@link #addImplClass(String)}. */
+    public static final List<Class<? extends VFS>> USER_IMPLEMENTATIONS = new ArrayList<Class<? extends VFS>>();
+
+    /** Singleton instance. */
     private static VFS instance;
 
     /**
@@ -40,19 +49,50 @@ public abstract class VFS {
      * 
      * @return
      */
+    @SuppressWarnings("unchecked")
     public static VFS getInstance() {
         if (instance != null)
             return instance;
 
-        // Try JBoss 6 first
-        VFS vfs = new JBoss6VFS();
+        // Try the user implementations first, then the built-ins
+        List<Class<? extends VFS>> impls = new ArrayList<Class<? extends VFS>>();
+        impls.addAll(USER_IMPLEMENTATIONS);
+        impls.addAll(Arrays.asList((Class<? extends VFS>[]) IMPLEMENTATIONS));
 
-        // Fall back to default
-        if (!vfs.isValid())
-            vfs = new DefaultVFS();
+        // Try each implementation class until a valid one is found
+        VFS vfs = null;
+        for (int i = 0; vfs == null || !vfs.isValid(); i++) {
+            Class<? extends VFS> impl = impls.get(i);
+            try {
+                vfs = impl.newInstance();
+                if (vfs == null || !vfs.isValid()) {
+                    log.debug("VFS implementation ", impl.getName(),
+                            " is not valid in this environment.");
+                }
+            }
+            catch (InstantiationException e) {
+                log.error(e, "Failed to instantiate ", impl);
+                return null;
+            }
+            catch (IllegalAccessException e) {
+                log.error(e, "Failed to instantiate ", impl);
+                return null;
+            }
+        }
 
         log.info("Using VFS adapter ", vfs.getClass().getName());
         return VFS.instance = vfs;
+    }
+
+    /**
+     * Adds the specified class to the list of {@link VFS} implementations. Classes added in this
+     * manner are tried in the order they are added and before any of the built-in implementations.
+     * 
+     * @param className The name of the {@link VFS} implementation class to add.
+     */
+    public static void addImplClass(Class<? extends VFS> clazz) {
+        if (clazz != null)
+            USER_IMPLEMENTATIONS.add(clazz);
     }
 
     /** Get a class by name. If the class is not found then return null. */
