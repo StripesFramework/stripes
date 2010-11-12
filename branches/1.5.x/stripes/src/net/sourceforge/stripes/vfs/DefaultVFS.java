@@ -49,8 +49,6 @@ public class DefaultVFS extends VFS {
 
     @Override
     public List<String> list(URL url, String path) throws IOException {
-        log.debug("Listing ", url);
-
         InputStream is = null;
         try {
             List<String> resources = new ArrayList<String>();
@@ -60,6 +58,7 @@ public class DefaultVFS extends VFS {
             URL jarUrl = findJarForResource(url);
             if (jarUrl != null) {
                 is = jarUrl.openStream();
+                log.debug("Listing ", url);
                 resources = listResources(new JarInputStream(is), path);
             }
             else {
@@ -70,6 +69,7 @@ public class DefaultVFS extends VFS {
                         // referenced by the URL isn't actually a JAR
                         is = url.openStream();
                         JarInputStream jarInput = new JarInputStream(is);
+                        log.debug("Listing ", url);
                         for (JarEntry entry; (entry = jarInput.getNextJarEntry()) != null;) {
                             log.trace("Jar entry: ", entry.getName());
                             children.add(entry.getName());
@@ -95,7 +95,11 @@ public class DefaultVFS extends VFS {
                                 break;
                             }
                         }
-                        children.addAll(lines);
+
+                        if (!lines.isEmpty()) {
+                            log.debug("Listing ", url);
+                            children.addAll(lines);
+                        }
                     }
                 }
                 catch (FileNotFoundException e) {
@@ -108,6 +112,7 @@ public class DefaultVFS extends VFS {
                         File file = new File(url.getFile());
                         log.trace("Listing directory ", file.getAbsolutePath());
                         if (file.isDirectory()) {
+                            log.debug("Listing ", url);
                             children = Arrays.asList(file.list());
                         }
                     }
