@@ -28,6 +28,7 @@ import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.util.ReflectUtil;
 import net.sourceforge.stripes.util.ResolverUtil;
 import net.sourceforge.stripes.util.StringUtil;
+import net.sourceforge.stripes.vfs.VFS;
 
 /**
  * <p>Resolves configuration properties that are used to bootstrap the system.  Essentially this boils
@@ -50,12 +51,16 @@ public class BootstrapPropertyResolver {
     
     private FilterConfig filterConfig;
 
+    /** The Configuration Key for looking up the comma separated list of VFS classes. */
+    public static final String VFS_CLASSES = "VFS.Classes";
+
     /** The Configuration Key for looking up the comma separated list of extension packages. */
     public static final String PACKAGES = "Extension.Packages";
 
     /** Constructs a new BootstrapPropertyResolver with the given ServletConfig. */
     public BootstrapPropertyResolver(FilterConfig filterConfig) {
         setFilterConfig(filterConfig);
+        initVFS();
     }
 
     /** Stores a reference to the filter's FilterConfig object. */
@@ -66,6 +71,18 @@ public class BootstrapPropertyResolver {
     /** Returns a reference to the StripesFilter's FilterConfig object. */
     public FilterConfig getFilterConfig() {
         return this.filterConfig;
+    }
+
+    /** Add {@link VFS} implementations that are specified in the filter configuration. */
+    @SuppressWarnings("unchecked")
+    protected void initVFS() {
+        List<Class<?>> vfsImpls = getClassPropertyList(VFS_CLASSES);
+        for (Class<?> clazz : vfsImpls) {
+            if (!VFS.class.isAssignableFrom(clazz))
+                log.warn("Class ", clazz.getName(), " does not extend ", VFS.class.getName());
+            else
+                VFS.addImplClass((Class<? extends VFS>) clazz);
+        }
     }
 
     /**
