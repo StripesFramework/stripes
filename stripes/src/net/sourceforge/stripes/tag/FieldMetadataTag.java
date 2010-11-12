@@ -159,14 +159,13 @@ public class FieldMetadataTag extends HtmlTagSupport implements BodyTag {
             Class<?> typeConverterClass = null;
             
             if (data != null) {
-                if (data.encrypted())
-                    fieldInfo.append(fieldInfo.length() > 0 ? "," : "").append("encrypted:")
-                            .append(data.encrypted());
-                if (data.required())
-                    fieldInfo.append(fieldInfo.length() > 0 ? "," : "").append("required:").append(
-                            data.required());
+                fieldInfo.append("required:").append(data.required())
+                        .append(",ignore:").append(data.ignore())
+                        .append(",encrypted:").append(data.encrypted())
+                        .append(",trim:").append(data.trim());
+
                 if (data.on() != null) {
-                    fieldInfo.append(fieldInfo.length() > 0 ? "," : "").append("on:[");
+                    fieldInfo.append(",on:[");
                     Iterator<String> it = data.on().iterator();
                     while (it.hasNext()) {
                         fieldInfo.append(JavaScriptBuilder.quote(it.next()));
@@ -175,39 +174,28 @@ public class FieldMetadataTag extends HtmlTagSupport implements BodyTag {
                     }
                     fieldInfo.append("]");
                 }
-                if (data.trim())
-                    fieldInfo.append(fieldInfo.length() > 0 ? "," : "").append("trim:").append(
-                            data.trim());
                 if (data.mask() != null)
-                    fieldInfo.append(fieldInfo.length() > 0 ? "," : "").append("mask:")
-                            .append("new RegExp(")
+                    fieldInfo.append(",mask:").append("new RegExp(")
                             .append(JavaScriptBuilder.quote("^" + data.mask().toString() + "$"))
                             .append(")");
                 if (data.minlength() != null)
-                    fieldInfo.append(fieldInfo.length() > 0 ? "," : "").append("minlength:")
-                            .append(data.minlength());
+                    fieldInfo.append(",minlength:").append(data.minlength());
                 if (data.maxlength() != null)
-                    fieldInfo.append(fieldInfo.length() > 0 ? "," : "").append("maxlength:")
-                            .append(data.maxlength());
+                    fieldInfo.append(",maxlength:").append(data.maxlength());
                 if (data.minvalue() != null)
-                    fieldInfo.append(fieldInfo.length() > 0 ? "," : "").append("minvalue:").append(
-                            data.minvalue());
+                    fieldInfo.append(",minvalue:").append(data.minvalue());
                 if (data.maxvalue() != null)
-                    fieldInfo.append(fieldInfo.length() > 0 ? "," : "").append("maxvalue:").append(
-                            data.maxvalue());
-                
+                    fieldInfo.append(",maxvalue:").append(data.maxvalue());
+
                 String label = data.label();
-                if (data.label() == null)
-                {
-                    label = LocalizationUtility.getLocalizedFieldName(field,
-                            form == null ? null : form.getAction(),
-                            form == null ? null : form.getActionBeanClass(),
+                if (data.label() == null) {
+                    label = LocalizationUtility.getLocalizedFieldName(field, form == null ? null
+                            : form.getAction(), form == null ? null : form.getActionBeanClass(),
                             locale);
                 }
                 if (label != null)
-                    fieldInfo.append(fieldInfo.length() > 0 ? "," : "").append("label:").append(
-                            JavaScriptBuilder.quote(label));
-                
+                    fieldInfo.append(",label:").append(JavaScriptBuilder.quote(label));
+
                 typeConverterClass = data.converter();
             }
 
