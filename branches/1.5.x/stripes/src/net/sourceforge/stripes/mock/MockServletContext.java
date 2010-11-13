@@ -250,11 +250,11 @@ public class MockServletContext implements ServletContext {
      */
     public void acceptRequest(MockHttpServletRequest request, MockHttpServletResponse response)
     throws Exception {
+        copyCookies(request, response);
         MockFilterChain chain = new MockFilterChain();
         chain.setServlet(this.servlet);
         chain.addFilters(this.filters);
         chain.doFilter(request, response);
-        copyCookies(request, response);
     }
 
     /**
