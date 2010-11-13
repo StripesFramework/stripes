@@ -252,11 +252,11 @@ public class StripesFilter implements Filter {
         finally {
             // reset the flag that indicates if this is the initial invocation
             if (initial) {
-                flashOutbound(httpRequest);
-
                 // Once the request is processed, clean up thread locals
-                StripesFilter.configurationStash.remove();
                 StripesFilter.initialInvocation.remove();
+                StripesFilter.configurationStash.remove();
+
+                flashOutbound(httpRequest);
             }
             else {
                 // restore URI parameters to their previous state
