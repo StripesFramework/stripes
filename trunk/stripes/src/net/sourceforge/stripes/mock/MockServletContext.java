@@ -19,6 +19,7 @@ import javax.servlet.RequestDispatcher;
 import javax.servlet.Servlet;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -253,5 +254,20 @@ public class MockServletContext implements ServletContext {
         chain.setServlet(this.servlet);
         chain.addFilters(this.filters);
         chain.doFilter(request, response);
+        copyCookies(request, response);
+    }
+
+    /**
+     * Copies cookies from the request to the response.
+     * 
+     * @param request The request.
+     * @param response The response.
+     */
+    public void copyCookies(MockHttpServletRequest request, MockHttpServletResponse response) {
+        if (request.getCookies() != null) {
+            for (Cookie cookie : request.getCookies()) {
+                response.addCookie(cookie);
+            }
+        }
     }
 }
