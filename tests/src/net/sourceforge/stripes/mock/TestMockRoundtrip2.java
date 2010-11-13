@@ -45,17 +45,17 @@ public class TestMockRoundtrip2 implements ActionBean {
 
     private final static Integer REF_ID = 2;
 
-    @Test
+    @Test(groups = "fast")
     public void testUsingBeanClass() throws Exception {
         executeTest(new MockRoundtrip(getServletContext(), getClass()));
     }
 
-    @Test
+    @Test(groups = "fast")
     public void testUsingUrlWithEventSpecified() throws Exception {
         executeTest(new MockRoundtrip(getServletContext(), "/foo/" + REF_ID + "/bar"));
     }
 
-    @Test
+    @Test(groups = "fast")
     public void testUsingUrlWithoutEventSpecified() throws Exception {
         executeTest(new MockRoundtrip(getServletContext(), "/foo/" + REF_ID));
     }
