@@ -15,17 +15,22 @@
 package net.sourceforge.stripes.tag;
 
 import static net.sourceforge.stripes.controller.StripesConstants.URL_KEY_FIELDS_PRESENT;
-import net.sourceforge.stripes.action.ActionBean;
-import net.sourceforge.stripes.controller.StripesConstants;
-import net.sourceforge.stripes.exception.StripesJspException;
-import net.sourceforge.stripes.util.CryptoUtil;
-import net.sourceforge.stripes.util.HtmlUtil;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.TryCatchFinally;
-import java.util.HashSet;
-import java.util.Set;
+
+import net.sourceforge.stripes.action.ActionBean;
+import net.sourceforge.stripes.controller.ActionResolver;
+import net.sourceforge.stripes.controller.StripesConstants;
+import net.sourceforge.stripes.controller.StripesFilter;
+import net.sourceforge.stripes.exception.StripesJspException;
+import net.sourceforge.stripes.exception.StripesServletException;
+import net.sourceforge.stripes.util.CryptoUtil;
+import net.sourceforge.stripes.util.HtmlUtil;
 
 /**
  * <p>Examines the request and include hidden fields for all parameters that have do
@@ -72,6 +77,7 @@ public class WizardFieldsTag extends StripesTagSupport implements TryCatchFinall
         excludes.add( StripesConstants.URL_KEY_SOURCE_PAGE );
         excludes.add( StripesConstants.URL_KEY_FIELDS_PRESENT );
         excludes.add( StripesConstants.URL_KEY_EVENT_NAME );
+        excludes.add( StripesConstants.URL_KEY_FLASH_SCOPE_ID );
 
         // Use the submitted action bean to eliminate any event related parameters
         ServletRequest request = getPageContext().getRequest();
@@ -109,8 +115,9 @@ public class WizardFieldsTag extends StripesTagSupport implements TryCatchFinall
             }
 
             // Loop through the request parameters and output the values
+            Class<? extends ActionBean> actionBeanType = form.getActionBeanClass();
             for (String name : paramNames) {
-                if (!excludes.contains(name)) {
+                if (!excludes.contains(name) && !isEventName(actionBeanType, name)) {
                     hidden.setName(name);
                     try {
                         hidden.doStartTag();
@@ -147,6 +154,27 @@ public class WizardFieldsTag extends StripesTagSupport implements TryCatchFinall
         try { getTagStack().pop(); }
         catch (Throwable t) {
             /* Suppress anything, because otherwise this might mask any causal exception. */
+        }
+    }
+
+    /**
+     * Returns true if {@code name} is the name of an event handled by {@link ActionBean}s of type
+     * {@code beanType}.
+     * 
+     * @param beanType An {@link ActionBean} class
+     * @param name The name to look up
+     */
+    protected boolean isEventName(Class<? extends ActionBean> beanType, String name) {
+        if (beanType == null || name == null)
+            return false;
+
+        try {
+            ActionResolver actionResolver = StripesFilter.getConfiguration().getActionResolver();
+            return actionResolver.getHandler(beanType, name) != null;
+        }
+        catch (StripesServletException e) {
+            // Ignore the exception and assume the name is not an event
+            return false;
         }
     }
 }
