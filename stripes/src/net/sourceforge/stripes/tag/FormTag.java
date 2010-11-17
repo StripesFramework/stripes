@@ -247,24 +247,7 @@ public class FormTag extends HtmlTagSupport implements BodyTag, TryCatchFinally,
             }
 
             if (!isPartial()) {
-                // Write out a hidden field with the name of the page in it....
-                // The div is necessary in order to be XHTML compliant, where a form can contain
-                // only block level elements (which seems stupid, but whatever).
-                out.write("<div style=\"display: none;\">");
-                out.write("<input type=\"hidden\" name=\"");
-                out.write(StripesConstants.URL_KEY_SOURCE_PAGE);
-                out.write("\" value=\"");
-                HttpServletRequest request = (HttpServletRequest) getPageContext().getRequest();
-                out.write(CryptoUtil.encrypt(request.getServletPath()));
-                out.write("\" />");
-
-                if (isWizard()) {
-                    writeWizardFields();
-                }
-
-                writeFieldsPresentHiddenField(out);
-                out.write("</div>");
-
+                writeHiddenTags(out);
                 writeCloseTag(getPageContext().getOut(), "form");
             }
 
@@ -302,6 +285,36 @@ public class FormTag extends HtmlTagSupport implements BodyTag, TryCatchFinally,
         }
     }
 
+    /** Write out hidden tags that are internally required by Stripes to process request. */
+    protected void writeHiddenTags(JspWriter out) throws IOException, JspException {
+        /*
+         * The div is necessary in order to be XHTML compliant, where a form can contain only block
+         * level elements (which seems stupid, but whatever).
+         */
+        out.write("<div style=\"display: none;\">");
+        writeSourcePageHiddenField(out);
+        if (isWizard()) {
+            writeWizardFields();
+        }
+        writeFieldsPresentHiddenField(out);
+        out.write("</div>");
+    }
+
+    /** Write out a hidden field with the name of the page in it. */
+    protected void writeSourcePageHiddenField(JspWriter out) throws IOException {
+        out.write("<input type=\"hidden\" name=\"");
+        out.write(StripesConstants.URL_KEY_SOURCE_PAGE);
+        out.write("\" value=\"");
+        out.write(getSourcePageValue());
+        out.write("\" />");
+    }
+
+    /** Get the encrypted value for the hidden _sourcePage field. */
+    protected String getSourcePageValue() {
+        HttpServletRequest request = (HttpServletRequest) getPageContext().getRequest();
+        return CryptoUtil.encrypt(request.getServletPath());
+    }
+
     /**
      * <p>In general writes out a hidden field notifying the server exactly what fields were
      * present on the page.  Exact behaviour depends upon whether or not the current form
@@ -320,6 +333,15 @@ public class FormTag extends HtmlTagSupport implements BodyTag, TryCatchFinally,
      * @throws IOException if the writer throws one
      */
     protected void writeFieldsPresentHiddenField(JspWriter out) throws IOException {
+        out.write("<input type=\"hidden\" name=\"");
+        out.write(StripesConstants.URL_KEY_FIELDS_PRESENT);
+        out.write("\" value=\"");
+        out.write(getFieldsPresentValue());
+        out.write("\" />");
+    }
+
+    /** Get the encrypted value of the __fp hidden field. */
+    protected String getFieldsPresentValue() {
         // Figure out what set of names to include
         Set<String> namesToInclude = new HashSet<String>();
 
@@ -338,13 +360,7 @@ public class FormTag extends HtmlTagSupport implements BodyTag, TryCatchFinally,
 
         // Combine the names into a delimited String and encrypt it
         String hiddenFieldValue = HtmlUtil.combineValues(namesToInclude);
-        hiddenFieldValue = CryptoUtil.encrypt(hiddenFieldValue);
-
-        out.write("<input type=\"hidden\" name=\"");
-        out.write(StripesConstants.URL_KEY_FIELDS_PRESENT);
-        out.write("\" value=\"");
-        out.write(hiddenFieldValue);
-        out.write("\" />");
+        return CryptoUtil.encrypt(hiddenFieldValue);
     }
 
     /**
