@@ -306,7 +306,7 @@ public class FormTag extends HtmlTagSupport implements BodyTag, TryCatchFinally,
         out.write(StripesConstants.URL_KEY_SOURCE_PAGE);
         out.write("\" value=\"");
         out.write(getSourcePageValue());
-        out.write("\" />");
+        out.write(isXmlTags() ? "\" />" : "\">");
     }
 
     /** Get the encrypted value for the hidden _sourcePage field. */
@@ -337,7 +337,7 @@ public class FormTag extends HtmlTagSupport implements BodyTag, TryCatchFinally,
         out.write(StripesConstants.URL_KEY_FIELDS_PRESENT);
         out.write("\" value=\"");
         out.write(getFieldsPresentValue());
-        out.write("\" />");
+        out.write(isXmlTags() ? "\" />" : "\">");
     }
 
     /** Get the encrypted value of the __fp hidden field. */

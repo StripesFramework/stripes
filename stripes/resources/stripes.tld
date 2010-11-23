@@ -2261,6 +2261,26 @@
         </attribute>
     </tag>
 
+    <tag>
+        <description><![CDATA[
+            Sets options that affect how other tags in this tag library behave.
+        ]]></description>
+        <display-name>page-options</display-name>
+        <name>page-options</name>
+        <tag-class>net.sourceforge.stripes.tag.PageOptionsTag</tag-class>
+        <body-content>empty</body-content>
+        <attribute>
+            <description>
+                The type of HTML to write. Valid values are "html" and "xhtml". By default
+                Stripes writes XHTML-compatible output which is also valid HTML4, though
+                the default output does generate warnings with some HTML validators. The
+                HTML mode specified by this tag overrides the Stripes.HtmlMode global
+                configuration property.
+            </description>
+            <name>htmlMode</name><required>false</required><rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
     <function>
         <description>
             Returns the name of the supplied Java 5 enumeration value; useful since EL will
