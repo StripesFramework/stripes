@@ -336,7 +336,7 @@ public class InputOptionsCollectionTag extends HtmlTagSupport {
                     JspWriter out = getPageContext().getOut();
                     out.write("<optgroup label=\"");
                     out.write(String.valueOf(entry.group).replaceAll("\"", "&quot;"));
-                    out.write("\"/>");
+                    out.write(isXmlTags() ? "\" />" : "\">");
 
                     lastGroup = entry.group;
                 }
