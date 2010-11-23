@@ -118,6 +118,16 @@ public abstract class HtmlTagSupport extends StripesTagSupport implements Dynami
     }
 
     /**
+     * Returns true if HTML tags that have no body should be closed like XML tags, with "/&gt;".
+     * False if such HTML tags should be closed in the style of HTML4, with just a "&gt;".
+     * 
+     * @see PageOptionsTag#getHtmlMode()
+     */
+    protected boolean isXmlTags() {
+        return !"html".equalsIgnoreCase(PageOptionsTag.getHtmlMode(pageContext));
+    }
+
+    /**
      * Writes out an opening tag.  Uses the parameter "tag" to determine the name of the open tag
      * and then uses the map of attributes assembled through various setter calls to fill in the
      * tag attributes.
@@ -175,7 +185,7 @@ public abstract class HtmlTagSupport extends StripesTagSupport implements Dynami
             writer.print("<");
             writer.print(tag);
             writeAttributes(writer);
-            writer.print(" />");
+            writer.print(isXmlTags() ? " />" : ">");
         }
         catch (IOException ioe) {
             JspException jspe = new JspException("IOException encountered while writing singleton tag <" +
