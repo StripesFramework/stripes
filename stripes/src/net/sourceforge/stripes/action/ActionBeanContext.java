@@ -14,12 +14,9 @@
  */
 package net.sourceforge.stripes.action;
 
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.MissingResourceException;
-import java.util.ResourceBundle;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -27,12 +24,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import net.sourceforge.stripes.controller.FlashScope;
 import net.sourceforge.stripes.controller.StripesConstants;
-import net.sourceforge.stripes.controller.StripesFilter;
 import net.sourceforge.stripes.exception.SourcePageNotFoundException;
-import net.sourceforge.stripes.tag.ErrorsTag;
 import net.sourceforge.stripes.util.CryptoUtil;
-import net.sourceforge.stripes.util.Log;
-import net.sourceforge.stripes.validation.ValidationError;
 import net.sourceforge.stripes.validation.ValidationErrors;
 
 /**
@@ -226,10 +219,7 @@ public class ActionBeanContext {
     public Resolution getSourcePageResolution() throws SourcePageNotFoundException {
         String sourcePage = getSourcePage();
         if (sourcePage == null) {
-            if (StripesFilter.getConfiguration().isDebugMode())
-                return new ValidationErrorReportResolution(this);
-            else
-                throw new SourcePageNotFoundException(this);
+            throw new SourcePageNotFoundException(this);
         }
         else {
             return new ForwardResolution(sourcePage);
@@ -265,92 +255,5 @@ public class ActionBeanContext {
             "eventName='" + eventName + "'" +
             ", validationErrors=" + validationErrors +
             "}";
-    }
-}
-
-class ValidationErrorReportResolution implements Resolution {
-    private static final Log log = Log.getInstance(ValidationErrorReportResolution.class);
-    private ActionBeanContext context;
-
-    /** Construct a new instance to report validation errors in the specified context. */
-    protected ValidationErrorReportResolution(ActionBeanContext context) {
-        this.context = context;
-    }
-
-    public void execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        // log an exception for the stack trace
-        SourcePageNotFoundException exception = new SourcePageNotFoundException(this.context);
-        log.error(exception);
-
-        // start the HTML error report
-        response.setContentType("text/html");
-        PrintWriter writer = response.getWriter();
-        writer.println("<html>");
-        writer.println("<head><title>Stripes validation error report</title></head>");
-        writer.println("<body style=\"font-family: Arial, sans-serif; font-size: 10pt;\">");
-        writer.println("<h1>Stripes validation error report</h1><p>");
-        writer.println(exception.getMessage());
-        writer.println("</p><h2>Validation errors</h2><p>");
-        sendErrors(request, response);
-        writer.println("</p></body></html>");
-    }
-
-    protected void sendErrors(HttpServletRequest request, HttpServletResponse response)
-            throws Exception {
-        // Output all errors in a standard format
-        Locale locale = request.getLocale();
-        ResourceBundle bundle = null;
-
-        try {
-            bundle = StripesFilter.getConfiguration().getLocalizationBundleFactory()
-                    .getErrorMessageBundle(locale);
-        }
-        catch (MissingResourceException mre) {
-            log.warn(getClass().getName(), " could not find the error messages resource bundle. ",
-                    "As a result default headers/footers etc. will be used. Check that ",
-                    "you have a StripesResources.properties in your classpath (unless ",
-                    "of course you have configured a different bundle).");
-        }
-
-        // Fetch the header and footer
-        String header = getResource(bundle, "header", ErrorsTag.DEFAULT_HEADER);
-        String footer = getResource(bundle, "footer", ErrorsTag.DEFAULT_FOOTER);
-        String openElement = getResource(bundle, "beforeError", "<li>");
-        String closeElement = getResource(bundle, "afterError", "</li>");
-
-        // Write out the error messages
-        PrintWriter writer = response.getWriter();
-        writer.write(header);
-
-        for (List<ValidationError> list : this.context.getValidationErrors().values()) {
-            for (ValidationError fieldError : list) {
-                writer.write(openElement);
-                writer.write(fieldError.getMessage(locale));
-                writer.write(closeElement);
-            }
-        }
-
-        writer.write(footer);
-    }
-
-    /**
-     * Utility method that is used to lookup the resources used for the errors header,
-     * footer, and the strings that go before and after each error.
-     *
-     * @param bundle the bundle to look up the resource from
-     * @param name the name of the resource to lookup (prefixes will be added)
-     * @param fallback a value to return if no resource can be found
-     * @return the value to use for the named resource
-     */
-    protected String getResource(ResourceBundle bundle, String name, String fallback) {
-        if (bundle == null) {
-            return fallback;
-        }
-
-        String resource;
-        try { resource = bundle.getString("stripes.errors." + name); }
-        catch (MissingResourceException mre) { resource = fallback; }
-
-        return resource;
     }
 }

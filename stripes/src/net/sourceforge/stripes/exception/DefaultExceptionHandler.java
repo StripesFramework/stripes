@@ -33,6 +33,7 @@ import net.sourceforge.stripes.action.ActionBeanContext;
 import net.sourceforge.stripes.action.FileBean;
 import net.sourceforge.stripes.action.ForwardResolution;
 import net.sourceforge.stripes.action.Resolution;
+import net.sourceforge.stripes.action.ValidationErrorReportResolution;
 import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.controller.DispatcherHelper;
 import net.sourceforge.stripes.controller.ExecutionContext;
@@ -145,6 +146,12 @@ public class DefaultExceptionHandler implements ExceptionHandler {
                 if (resolution != null)
                     resolution.execute(request, response);
             }
+            else if (throwable instanceof SourcePageNotFoundException) {
+                Resolution resolution = handle((SourcePageNotFoundException) throwable, request,
+                        response);
+                if (resolution != null)
+                    resolution.execute(request, response);
+            }
             else {
                 // If there's no sensible proxy, rethrow the original throwable,
                 // NOT the unwrapped one since they may add extra information
@@ -159,6 +166,33 @@ public class DefaultExceptionHandler implements ExceptionHandler {
             log.error(t, message);
             throw new StripesServletException(message, t);
         }
+    }
+
+    /**
+     * <p>
+     * A default handler for {@link SourcePageNotFoundException}. That exception is thrown when
+     * validation errors occur on a request but the source page cannot be determined from the
+     * request parameters. Such a condition generally arises during application development when,
+     * for example, a parameter is accidentally omitted from a generated hyperlink or AJAX request.
+     * </p>
+     * <p>
+     * In the past, it was very difficult to determine what validation errors triggered the
+     * exception. This method returns a {@link ValidationErrorReportResolution}, which sends a
+     * simple HTML response to the client that very clearly details the validation errors.
+     * </p>
+     * <p>
+     * In production, most applications will provide their own handler for
+     * {@link SourcePageNotFoundException} by extending this class and overriding this method.
+     * </p>
+     * 
+     * @param exception The exception.
+     * @param request The servlet request.
+     * @param response The servlet response.
+     * @return A {@link ValidationErrorReportResolution}
+     */
+    protected Resolution handle(SourcePageNotFoundException exception, HttpServletRequest request,
+            HttpServletResponse response) throws Exception {
+        return new ValidationErrorReportResolution(exception.getActionBeanContext());
     }
 
     /**
