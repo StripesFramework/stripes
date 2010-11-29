@@ -28,6 +28,7 @@ import javax.servlet.http.HttpServletResponse;
 import net.sourceforge.stripes.controller.FlashScope;
 import net.sourceforge.stripes.controller.StripesConstants;
 import net.sourceforge.stripes.controller.StripesFilter;
+import net.sourceforge.stripes.exception.SourcePageNotFoundException;
 import net.sourceforge.stripes.tag.ErrorsTag;
 import net.sourceforge.stripes.util.CryptoUtil;
 import net.sourceforge.stripes.util.Log;
@@ -218,14 +219,17 @@ public class ActionBeanContext {
      * this method.</p>
      *
      * @return Resolution a resolution that will forward the user to the page they came from
-     * @throws IllegalStateException if the information required to construct a source page
-     *         resolution cannot be found in the request.
+     * @throws SourcePageNotFoundException if the information required to construct a source page
+     *             resolution cannot be found in the request.
      * @see #getSourcePage()
      */
-    public Resolution getSourcePageResolution() {
+    public Resolution getSourcePageResolution() throws SourcePageNotFoundException {
         String sourcePage = getSourcePage();
         if (sourcePage == null) {
-            return new ValidationErrorReportResolution(getValidationErrors());
+            if (StripesFilter.getConfiguration().isDebugMode())
+                return new ValidationErrorReportResolution(this);
+            else
+                throw new SourcePageNotFoundException(this);
         }
         else {
             return new ForwardResolution(sourcePage);
@@ -266,25 +270,18 @@ public class ActionBeanContext {
 
 class ValidationErrorReportResolution implements Resolution {
     private static final Log log = Log.getInstance(ValidationErrorReportResolution.class);
-    private ValidationErrors errors;
+    private ActionBeanContext context;
 
-    protected ValidationErrorReportResolution(ValidationErrors errors) {
-        this.errors = errors;
+    /** Construct a new instance to report validation errors in the specified context. */
+    protected ValidationErrorReportResolution(ActionBeanContext context) {
+        this.context = context;
     }
 
     public void execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
         // log an exception for the stack trace
-        Exception exception = new IllegalStateException(
-                "Here's how it is. Someone (quite possibly the Stripes Dispatcher) needed " +
-                "to get the source page resolution. But no source page was supplied in the " +
-                "request, and unless you override ActionBeanContext.getSourcePageResolution() " +
-                "you're going to need that value. When you use a <stripes:form> tag a hidden " +
-                "field called '" + StripesConstants.URL_KEY_SOURCE_PAGE + "' is included. " +
-                "If you write your own forms or links that could generate validation errors, " +
-                "you must include a value  for this parameter. This can be done by calling " +
-                "request.getServletPath().");
+        SourcePageNotFoundException exception = new SourcePageNotFoundException(this.context);
         log.error(exception);
-        
+
         // start the HTML error report
         response.setContentType("text/html");
         PrintWriter writer = response.getWriter();
@@ -297,7 +294,7 @@ class ValidationErrorReportResolution implements Resolution {
         sendErrors(request, response);
         writer.println("</p></body></html>");
     }
-    
+
     protected void sendErrors(HttpServletRequest request, HttpServletResponse response)
             throws Exception {
         // Output all errors in a standard format
@@ -325,7 +322,7 @@ class ValidationErrorReportResolution implements Resolution {
         PrintWriter writer = response.getWriter();
         writer.write(header);
 
-        for (List<ValidationError> list : errors.values()) {
+        for (List<ValidationError> list : this.context.getValidationErrors().values()) {
             for (ValidationError fieldError : list) {
                 writer.write(openElement);
                 writer.write(fieldError.getMessage(locale));
