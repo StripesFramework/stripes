@@ -114,7 +114,7 @@ public class DefaultMultipartWrapperFactory implements MultipartWrapperFactory {
             else {
                 log.warn("The tmpdir system property was null! File uploads will probably fail. ",
                          "This is normal if you are running on Google App Engine as it doesn't allow ",
-                         "file system access.");
+                         "file system write access.");
             }
         }
 
