@@ -42,7 +42,10 @@ import java.util.HashSet;
  * methods, and by invoking includeRequestParameters() which will cause all of the current
  * request parameters to be included into the URL.</p>
  *
- * <p>The redirect type can be switched from a 302 temporary redirect (default) to a 301 permanent redirect using the setPermanent method.</p> 
+ * <p>
+ * The redirect type can be switched from a 302 temporary redirect (default) to a 301 permanent
+ * redirect using the setPermanent method.
+ * </p>
  * 
  * @see ForwardResolution
  * @author Tim Fennell
@@ -198,12 +201,7 @@ public class RedirectResolution extends OnwardResolution<RedirectResolution> {
         response.sendRedirect(url);
     }
 
-    /**
-     * Sets the redirect type to permanent (301) instead of temporary (302).
-     * 
-     * @param permanent
-     * @return
-     */
+    /** Sets the redirect type to permanent (301) instead of temporary (302). */
     public RedirectResolution setPermanent(boolean permanent) {
         this.permanent = permanent;
         return this;
