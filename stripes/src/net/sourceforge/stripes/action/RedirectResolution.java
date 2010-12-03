@@ -21,6 +21,8 @@ import net.sourceforge.stripes.util.Log;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServletResponseWrapper;
+
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
@@ -40,6 +42,11 @@ import java.util.HashSet;
  * methods, and by invoking includeRequestParameters() which will cause all of the current
  * request parameters to be included into the URL.</p>
  *
+ * <p>
+ * The redirect type can be switched from a 302 temporary redirect (default) to a 301 permanent
+ * redirect using the setPermanent method.
+ * </p>
+ * 
  * @see ForwardResolution
  * @author Tim Fennell
  */
@@ -48,6 +55,7 @@ public class RedirectResolution extends OnwardResolution<RedirectResolution> {
     private boolean prependContext = true;
     private boolean includeRequestParameters;
     private Collection<ActionBean> beans; // used to flash action beans
+    private boolean permanent = false;
 
     /**
      * Simple constructor that takes the URL to which to forward the user. Defaults to
@@ -143,9 +151,24 @@ public class RedirectResolution extends OnwardResolution<RedirectResolution> {
      * @throws IOException thrown when the Servlet container encounters an error
      */
     @SuppressWarnings("unchecked")
-	public void execute(HttpServletRequest request, HttpServletResponse response)
-        throws ServletException, IOException {
+    public void execute(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
 
+        if (permanent) {
+            response.setStatus(HttpServletResponse.SC_MOVED_PERMANENTLY);
+            response = new HttpServletResponseWrapper(response) {
+
+                @Override
+                public void setStatus(int sc) {
+                }
+
+                @Override
+                public void sendRedirect(String location) throws IOException {
+                    setHeader("Location", location);
+                }
+
+            };
+        }
         if (this.includeRequestParameters) {
             addParameters(request.getParameterMap());
         }
@@ -176,5 +199,11 @@ public class RedirectResolution extends OnwardResolution<RedirectResolution> {
         log.trace("Redirecting ", this.beans == null ? "" : "(w/flashed bean) ", "to URL: ", url);
 
         response.sendRedirect(url);
+    }
+
+    /** Sets the redirect type to permanent (301) instead of temporary (302). */
+    public RedirectResolution setPermanent(boolean permanent) {
+        this.permanent = permanent;
+        return this;
     }
 }
