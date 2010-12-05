@@ -38,6 +38,7 @@ public class LayoutComponentTag extends LayoutTag {
     private String name;
     private LayoutContext context;
     private boolean silent;
+    private Boolean componentRenderPhase;
 
     /** Gets the name of the component. */
     public String getName() { return name; }
@@ -163,6 +164,8 @@ public class LayoutComponentTag extends LayoutTag {
                         log.debug("Component was not present in ", context.getRenderPage(),
                                 " so using default content from ", context.getDefinitionPage());
 
+                        componentRenderPhase = context.isComponentRenderPhase();
+                        context.setComponentRenderPhase(true);
                         context.getOut().setSilent(false, pageContext);
                         return EVAL_BODY_INCLUDE;
                     }
@@ -209,6 +212,10 @@ public class LayoutComponentTag extends LayoutTag {
             if (isCurrentComponent())
                 context.setComponent(null);
 
+            // If the component render phase flag was changed, then restore it now
+            if (componentRenderPhase != null)
+                context.setComponentRenderPhase(componentRenderPhase);
+
             // Restore output's silent flag
             context.getOut().setSilent(silent, pageContext);
 
@@ -217,6 +224,7 @@ public class LayoutComponentTag extends LayoutTag {
         finally {
             this.context = null;
             this.silent = false;
+            this.componentRenderPhase = null;
         }
     }
 }
