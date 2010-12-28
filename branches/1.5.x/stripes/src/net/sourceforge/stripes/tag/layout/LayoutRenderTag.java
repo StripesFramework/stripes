@@ -20,6 +20,7 @@ import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.DynamicAttributes;
 
 import net.sourceforge.stripes.exception.StripesJspException;
+import net.sourceforge.stripes.exception.StripesRuntimeException;
 import net.sourceforge.stripes.util.Log;
 
 /**
@@ -50,7 +51,7 @@ public class LayoutRenderTag extends LayoutTag implements DynamicAttributes {
             boolean contextIsNew = false;
 
             if (context == null || !context.isComponentRenderPhase()
-                    || context.isComponentRenderPhase() && isChildOfComponent()) {
+                    || context.isComponentRenderPhase() && isChildOfCurrentComponent()) {
                 context = LayoutContext.push(this);
                 contextIsNew = true;
             }
@@ -60,6 +61,19 @@ public class LayoutRenderTag extends LayoutTag implements DynamicAttributes {
         }
 
         return context;
+    }
+
+    /** Returns true if this tag is a child of the current component tag. */
+    public boolean isChildOfCurrentComponent() {
+        try {
+            LayoutTag parent = getLayoutParent();
+            return parent instanceof LayoutComponentTag
+                    && ((LayoutComponentTag) parent).isCurrentComponent();
+        }
+        catch (StripesJspException e) {
+            // This exception would have been thrown before this tag ever executed
+            throw new StripesRuntimeException("Something has happened that should never happen", e);
+        }
     }
 
     /** True if this is the outermost layout tag, the one that initiated the render process. */

@@ -14,7 +14,10 @@
  */
 package net.sourceforge.stripes.tag.layout;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.jsp.PageContext;
@@ -94,6 +97,7 @@ public class LayoutContext {
     private Map<String,LayoutComponentRenderer> components = new HashMap<String,LayoutComponentRenderer>();
     private Map<String,Object> parameters = new HashMap<String,Object>();
     private String renderPage, component;
+    private List<String> componentPath;
     private boolean componentRenderPhase, rendered;
 
     /**
@@ -105,6 +109,22 @@ public class LayoutContext {
     public LayoutContext(LayoutRenderTag renderTag) {
         this.renderTag = renderTag;
         this.renderPage = renderTag.getCurrentPagePath();
+
+        LinkedList<String> path = null;
+        for (LayoutTag parent = renderTag.getLayoutParent(); parent instanceof LayoutComponentTag;) {
+            if (path == null)
+                path = new LinkedList<String>();
+
+            path.addFirst(((LayoutComponentTag) parent).getName());
+
+            parent = parent.getLayoutParent();
+            parent = parent instanceof LayoutRenderTag ? parent.getLayoutParent() : null;
+        }
+
+        if (path != null) {
+            this.componentPath = Collections.unmodifiableList(path);
+            log.debug("Path is ", this.componentPath);
+        }
     }
 
     /** Get the previous layout context from the stack. */
@@ -164,6 +184,12 @@ public class LayoutContext {
 
     /** Set the name of the component to be rendered during the current phase of execution. */
     public void setComponent(String component) { this.component = component; }
+
+    /**
+     * Get the list of components in the render page that must execute so that the render tag that
+     * created this context can execute.
+     */
+    public List<String> getComponentPath() { return componentPath; }
 
     /** Get the layout writer to which the layout is rendered. */
     public LayoutWriter getOut() { return out; }

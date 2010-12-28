@@ -14,6 +14,8 @@
  */
 package net.sourceforge.stripes.tag.layout;
 
+import java.util.Iterator;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import javax.servlet.jsp.JspException;
@@ -68,6 +70,42 @@ public class LayoutComponentTag extends LayoutTag {
     }
 
     /**
+     * True if this tag is a component that must execute so that the current component tag can
+     * execute. That is, this tag is a parent of the current component.
+     * 
+     * @throws StripesJspException if thrown by {@link #getContext()}.
+     */
+    protected boolean isPathComponent() throws StripesJspException {
+        List<String> path = getContext().getComponentPath();
+        return path == null ? false : isPathComponent(this, path.iterator());
+    }
+
+    /**
+     * Recursive method called from {@link #isPathComponent()} that returns true if the specified
+     * tag's name is present in the component path iterator at the same position where this tag
+     * occurs in the render/component tag tree. For example, if the path iterator contains the
+     * component names {@code ["foo", "bar"]} then this method will return true if the tag's name is
+     * {@code "bar"} and it is a child of a render tag that is a child of a component tag whose name
+     * is {@code "foo"}.
+     * 
+     * @param tag The tag to check
+     * @param path The path to the check the tag against
+     * @return
+     */
+    protected boolean isPathComponent(LayoutComponentTag tag, Iterator<String> path) {
+        LayoutTag parent = tag.getLayoutParent();
+        if (parent instanceof LayoutRenderTag) {
+            parent = parent.getLayoutParent();
+            if (parent == null || parent instanceof LayoutComponentTag
+                    && isPathComponent((LayoutComponentTag) parent, path) && path.hasNext()) {
+                return tag.getName().equals(path.next());
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * True if this tag is the component to be rendered on this pass from
      * {@link LayoutDefinitionTag}.
      * 
@@ -107,6 +145,11 @@ public class LayoutComponentTag extends LayoutTag {
                     if (isCurrentComponent()) {
                         log.debug("Render ", getName(), " in ", context.getRenderPage());
                         context.getOut().setSilent(false, pageContext);
+                        return EVAL_BODY_INCLUDE;
+                    }
+                    else if (isPathComponent()) {
+                        log.debug("Silently execute '", getName(), "' in ", context.getRenderPage());
+                        context.getOut().setSilent(true, pageContext);
                         return EVAL_BODY_INCLUDE;
                     }
                     else {
