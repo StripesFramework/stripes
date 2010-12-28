@@ -43,7 +43,8 @@ public abstract class LayoutTag extends StripesTagSupport {
      * instance of {@link LayoutRenderTag}.
      */
     public boolean isChildOfRender() {
-        return getLayoutParent() instanceof LayoutRenderTag;
+        LayoutTag parent = getLayoutParent();
+        return parent instanceof LayoutRenderTag;
     }
 
     /**
@@ -51,7 +52,8 @@ public abstract class LayoutTag extends StripesTagSupport {
      * instance of {@link LayoutDefinitionTag}.
      */
     public boolean isChildOfDefinition() {
-        return getLayoutParent() instanceof LayoutDefinitionTag;
+        LayoutTag parent = getLayoutParent();
+        return parent instanceof LayoutDefinitionTag;
     }
 
     /**
@@ -59,7 +61,8 @@ public abstract class LayoutTag extends StripesTagSupport {
      * instance of {@link LayoutComponentTag}.
      */
     public boolean isChildOfComponent() {
-        return getLayoutParent() instanceof LayoutComponentTag;
+        LayoutTag parent = getLayoutParent();
+        return parent instanceof LayoutComponentTag;
     }
 
     /**
