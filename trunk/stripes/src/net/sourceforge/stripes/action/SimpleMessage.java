@@ -14,9 +14,9 @@
  */
 package net.sourceforge.stripes.action;
 
-import java.util.Locale;
-import java.util.Arrays;
 import java.text.MessageFormat;
+import java.util.Arrays;
+import java.util.Locale;
 
 /**
  * <p>A simple non-error message that uses the String supplied to it as the message (i.e. it does
@@ -89,8 +89,15 @@ public class SimpleMessage implements Message {
     public String getMessage(Locale locale) {
         // Now get the message itself
         String messageTemplate = getMessageTemplate(locale);
-        MessageFormat format = new MessageFormat(messageTemplate, locale);
-        return format.format(this.replacementParameters, new StringBuffer(), null).toString();
+
+        // For compatibility with JSTL, only apply formatting if there are replacement parameters
+        if (this.replacementParameters != null && this.replacementParameters.length > 0) {
+            MessageFormat format = new MessageFormat(messageTemplate, locale);
+            return format.format(this.replacementParameters, new StringBuffer(), null).toString();
+        }
+        else {
+            return messageTemplate;
+        }
     }
 
     /**
