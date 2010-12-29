@@ -26,6 +26,7 @@ import javax.servlet.http.HttpServletResponse;
 import net.sourceforge.stripes.controller.StripesFilter;
 import net.sourceforge.stripes.exception.SourcePageNotFoundException;
 import net.sourceforge.stripes.tag.ErrorsTag;
+import net.sourceforge.stripes.util.HtmlUtil;
 import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.validation.ValidationError;
 
@@ -58,14 +59,12 @@ public class ValidationErrorReportResolution implements Resolution {
         // start the HTML error report
         response.setContentType("text/html");
         PrintWriter writer = response.getWriter();
-        writer.println("<html>");
-        writer.println("<head><title>Stripes validation error report</title></head>");
-        writer.println("<body style=\"font-family: Arial, sans-serif; font-size: 10pt;\">");
+        writer.println("<div style=\"font-family: Arial, sans-serif; font-size: 10pt;\">");
         writer.println("<h1>Stripes validation error report</h1><p>");
-        writer.println(exception.getMessage());
+        writer.println(HtmlUtil.encode(exception.getMessage()));
         writer.println("</p><h2>Validation errors</h2><p>");
         sendErrors(request, response);
-        writer.println("</p></body></html>");
+        writer.println("</p></div>");
     }
 
     /**
@@ -106,7 +105,7 @@ public class ValidationErrorReportResolution implements Resolution {
         for (List<ValidationError> list : getContext().getValidationErrors().values()) {
             for (ValidationError fieldError : list) {
                 writer.write(openElement);
-                writer.write(fieldError.getMessage(locale));
+                writer.write(HtmlUtil.encode(fieldError.getMessage(locale)));
                 writer.write(closeElement);
             }
         }
