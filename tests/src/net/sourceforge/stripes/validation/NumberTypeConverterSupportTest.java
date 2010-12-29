@@ -57,7 +57,18 @@ public class NumberTypeConverterSupportTest {
         Assert.assertEquals(number.doubleValue(), 1999.95);
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
+    public void testCurrencyWithSpace() {
+        Number number = getConverter().parse("$ 57", new ArrayList<ValidationError>());
+        Assert.assertNotNull(number);
+        Assert.assertEquals(number.intValue(), 57);
+
+        number = getConverter().parse("1,999.95 $", new ArrayList<ValidationError>());
+        Assert.assertNotNull(number);
+        Assert.assertEquals(number.doubleValue(), 1999.95);
+    }
+
+    @Test(groups = "fast")
     public void testNegativeCurrency() {
         Number number = getConverter().parse("-$57", new ArrayList<ValidationError>());
         Assert.assertEquals(number.intValue(), -57);
