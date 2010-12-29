@@ -102,7 +102,10 @@ public class NumberTypeConverterSupport {
         // The casts are to make sure we don't call replace(String regex, String replacement)
         output = output.replace((CharSequence) currencySymbol, (CharSequence) "");
 
-        // Step 3: replace parentheses with negation
+        // Step 3: trim whitespace that might precede or follow currency symbol
+        output = output.trim();
+
+        // Step 4: replace parentheses with negation
         if (output.startsWith("(") && output.endsWith(")")) {
             output = "-" + output.substring(1, output.length() - 1);
         }
