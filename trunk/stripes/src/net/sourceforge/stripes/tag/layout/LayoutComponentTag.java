@@ -209,6 +209,7 @@ public class LayoutComponentTag extends LayoutTag {
 
                         componentRenderPhase = context.isComponentRenderPhase();
                         context.setComponentRenderPhase(true);
+                        context.setComponent(getName());
                         context.getOut().setSilent(false, pageContext);
                         return EVAL_BODY_INCLUDE;
                     }
