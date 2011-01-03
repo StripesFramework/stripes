@@ -91,8 +91,8 @@ public class LayoutComponentRenderer {
      * 
      * @return True if the named component was found and it indicated that it successfully rendered;
      *         otherwise, false.
-     * @throws IOException If thrown by {@link PageContext#include(String)}
-     * @throws ServletException If thrown by {@link PageContext#include(String)}
+     * @throws IOException If thrown by {@link LayoutContext#doInclude(PageContext, String)}
+     * @throws ServletException If thrown by {@link LayoutContext#doInclude(PageContext, String)}
      */
     public boolean write() throws ServletException, IOException {
         final PageContext pageContext = getPageContext();
@@ -130,7 +130,7 @@ public class LayoutComponentRenderer {
                 log.debug("Start execute \"", this.component, "\" in ",
                         currentContext.getRenderPage(), " -> ", currentContext.getDefinitionPage(),
                         " from ", context.getRenderPage(), " -> ", context.getDefinitionPage());
-                pageContext.include(context.getRenderPage(), false);
+                currentContext.doInclude(pageContext, context.getRenderPage());
                 log.debug("End execute \"", this.component, "\" in ",
                         currentContext.getRenderPage(), " -> ", currentContext.getDefinitionPage(),
                         " from ", context.getRenderPage(), " -> ", context.getDefinitionPage());
