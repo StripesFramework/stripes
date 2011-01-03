@@ -152,7 +152,7 @@ public class LayoutRenderTag extends LayoutTag implements DynamicAttributes {
                     log.debug("Start layout exec in ", context.getDefinitionPage());
                     boolean silent = context.getOut().isSilent();
                     context.getOut().setSilent(true, pageContext);
-                    pageContext.include(getName(), false);
+                    context.doInclude(pageContext, getName());
                     context.getOut().setSilent(silent, pageContext);
                     log.debug("End layout exec in ", context.getDefinitionPage());
                 }
