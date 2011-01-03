@@ -14,12 +14,14 @@
  */
 package net.sourceforge.stripes.tag.layout;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.ServletException;
 import javax.servlet.jsp.PageContext;
 
 import net.sourceforge.stripes.util.Log;
@@ -36,7 +38,7 @@ public class LayoutContext {
     private static final Log log = Log.getInstance(LayoutContext.class);
 
     /** The attribute name by which the stack of layout contexts can be found in the request. */
-    public static final String REQ_ATTR_NAME = "stripes.layout.Context";
+    public static final String LAYOUT_CONTEXT_KEY = LayoutContext.class.getName() + "#Context";
 
     /**
      * Create a new layout context for the given render tag and push it onto the stack of layout
@@ -60,7 +62,7 @@ public class LayoutContext {
             context.previous = previous;
         }
 
-        pageContext.getRequest().setAttribute(REQ_ATTR_NAME, context);
+        pageContext.setAttribute(LAYOUT_CONTEXT_KEY, context);
         return context;
     }
 
@@ -70,7 +72,15 @@ public class LayoutContext {
      * @param pageContext The JSP page context to search for the layout context stack.
      */
     public static LayoutContext lookup(PageContext pageContext) {
-        return (LayoutContext) pageContext.getRequest().getAttribute(REQ_ATTR_NAME);
+        LayoutContext context = (LayoutContext) pageContext.getAttribute(LAYOUT_CONTEXT_KEY);
+        if (context == null) {
+            context = (LayoutContext) pageContext.getRequest().getAttribute(LAYOUT_CONTEXT_KEY);
+            if (context != null) {
+                pageContext.setAttribute(LAYOUT_CONTEXT_KEY, context);
+                pageContext.getRequest().removeAttribute(LAYOUT_CONTEXT_KEY);
+            }
+        }
+        return context;
     }
 
     /**
@@ -83,7 +93,7 @@ public class LayoutContext {
     public static LayoutContext pop(PageContext pageContext) {
         LayoutContext context = lookup(pageContext);
         log.debug("Pop context ", context.getRenderPage(), " -> ", context.getDefinitionPage());
-        pageContext.getRequest().setAttribute(REQ_ATTR_NAME, context.previous);
+        pageContext.setAttribute(LAYOUT_CONTEXT_KEY, context.previous);
         if (context.previous != null) {
             context.previous.next = null;
             context.previous = null;
@@ -146,6 +156,29 @@ public class LayoutContext {
         for (LayoutContext c = this;; c = c.getNext()) {
             if (c.getNext() == null)
                 return c;
+        }
+    }
+
+    /**
+     * <p>
+     * Called when a layout tag needs to execute a page in order to execute another layout tag.
+     * Special handling is implemented to ensure the included page is aware of the current layout
+     * context while also ensuring that pages included by other means (e.g., {@code jsp:include} or
+     * {@code c:import}) are <em>not</em> aware of the current layout context.
+     * </p>
+     * <p>
+     * This method calls {@link PageContext#include(String, boolean)} with {@code false} as the
+     * second parameter so that the response is not flushed before the include request executes.
+     * </p>
+     */
+    public void doInclude(PageContext pageContext, String relativeUrlPath) throws ServletException,
+            IOException {
+        try {
+            pageContext.getRequest().setAttribute(LAYOUT_CONTEXT_KEY, this);
+            pageContext.include(relativeUrlPath, false);
+        }
+        finally {
+            pageContext.getRequest().removeAttribute(LAYOUT_CONTEXT_KEY);
         }
     }
 
