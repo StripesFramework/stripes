@@ -14,10 +14,11 @@
  */
 package net.sourceforge.stripes.tag.layout;
 
-import java.io.IOException;
-
 import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.tagext.BodyContent;
+import javax.servlet.jsp.tagext.BodyTag;
 import javax.servlet.jsp.tagext.DynamicAttributes;
+import javax.servlet.jsp.tagext.Tag;
 
 import net.sourceforge.stripes.exception.StripesJspException;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
@@ -31,12 +32,13 @@ import net.sourceforge.stripes.util.Log;
  * @author Tim Fennell, Ben Gunter
  * @since Stripes 1.1
  */
-public class LayoutRenderTag extends LayoutTag implements DynamicAttributes {
+public class LayoutRenderTag extends LayoutTag implements BodyTag, DynamicAttributes {
     private static final Log log = Log.getInstance(LayoutRenderTag.class);
 
     private String name;
     private LayoutContext context;
     private boolean contextIsNew, silent;
+    private BodyContent bodyContent;
 
     /** Gets the name of the layout to be used. */
     public String getName() { return name; }
@@ -116,7 +118,24 @@ public class LayoutRenderTag extends LayoutTag implements DynamicAttributes {
         // Render tags never output their contents directly
         context.getOut().setSilent(true, pageContext);
 
-        return EVAL_BODY_INCLUDE;
+        return contextIsNew ? EVAL_BODY_BUFFERED : EVAL_BODY_INCLUDE;
+    }
+
+    /**
+     * Set the tag's body content. Called by the JSP engine during component registration phase,
+     * when {@link #doStartTag()} returns {@link BodyTag#EVAL_BODY_BUFFERED}
+     */
+    public void setBodyContent(BodyContent bodyContent) {
+        this.bodyContent = bodyContent;
+    }
+
+    /** Does nothing. */
+    public void doInitBody() throws JspException {
+    }
+
+    /** Returns {@link Tag#SKIP_BODY}. */
+    public int doAfterBody() throws JspException {
+        return SKIP_BODY;
     }
 
     /**
@@ -134,18 +153,6 @@ public class LayoutRenderTag extends LayoutTag implements DynamicAttributes {
         try {
             LayoutContext context = getContext();
             if (contextIsNew) {
-                // Substitution of the layout writer for the regular JSP writer does not work for
-                // the initial render tag. Its body evaluation still uses the original JSP writer
-                // for output. Clear the output buffer before executing the definition page.
-                if (isOuterLayoutTag()) {
-                    try {
-                        context.getOut().clear();
-                    }
-                    catch (IOException e) {
-                        log.debug("Could not clear output buffer: ", e.getMessage());
-                    }
-                }
-
                 log.debug("End layout init in ", context.getRenderPage());
 
                 try {
@@ -185,14 +192,17 @@ public class LayoutRenderTag extends LayoutTag implements DynamicAttributes {
 
             // Restore output's silent flag
             context.getOut().setSilent(silent, pageContext);
-
-            // Skip the rest of the page if this is the outer-most render tag
-            return isOuterLayoutTag() ? SKIP_PAGE : EVAL_PAGE;
+            return EVAL_PAGE;
         }
         finally {
             this.context = null;
             this.contextIsNew = false;
             this.silent = false;
+
+            if (this.bodyContent != null) {
+                this.bodyContent.clearBody();
+                this.bodyContent = null;
+            }
         }
     }
 }
