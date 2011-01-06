@@ -48,12 +48,12 @@ public class LayoutWriter extends Writer {
      */
     public LayoutWriter(JspWriter out) {
         log.debug("Create layout writer wrapped around ", out);
-        this.writers.add(out);
+        this.writers.addFirst(out);
     }
 
     /** Get the writer to which output is currently being written. */
     protected Writer getOut() {
-        return writers.isEmpty() ? null : writers.getLast();
+        return writers.peek();
     }
 
     /** If true, then discard all output. If false, then resume sending output to the JSP writer. */
@@ -80,7 +80,7 @@ public class LayoutWriter extends Writer {
     public void openBuffer(PageContext pageContext) {
         log.trace("Open buffer");
         tryFlush(pageContext);
-        writers.add(new StringWriter(1024));
+        writers.addFirst(new StringWriter(1024));
     }
 
     /**
@@ -91,7 +91,7 @@ public class LayoutWriter extends Writer {
      */
     public String closeBuffer(PageContext pageContext) {
         if (getOut() instanceof StringWriter) {
-            String contents = ((StringWriter) writers.removeLast()).toString();
+            String contents = ((StringWriter) writers.poll()).toString();
             log.trace("Closed buffer: \"", contents, "\"");
             return contents;
         }
