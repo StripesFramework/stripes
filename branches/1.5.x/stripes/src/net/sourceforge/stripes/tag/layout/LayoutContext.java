@@ -93,11 +93,17 @@ public class LayoutContext {
     public static LayoutContext pop(PageContext pageContext) {
         LayoutContext context = lookup(pageContext);
         log.debug("Pop context ", context.getRenderPage(), " -> ", context.getDefinitionPage());
+
         pageContext.setAttribute(LAYOUT_CONTEXT_KEY, context.previous);
-        if (context.previous != null) {
+
+        if (context.previous == null) {
+            pageContext.popBody();
+        }
+        else {
             context.previous.next = null;
             context.previous = null;
         }
+
         return context;
     }
 
