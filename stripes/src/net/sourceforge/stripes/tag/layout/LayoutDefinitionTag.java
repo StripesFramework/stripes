@@ -71,8 +71,10 @@ public class LayoutDefinitionTag extends LayoutTag {
         context.setRendered(true);
 
         // Put any additional parameters into page context for the definition to use
-        for (Map.Entry<String, Object> entry : context.getParameters().entrySet()) {
-            pageContext.setAttribute(entry.getKey(), entry.getValue());
+        if (!renderPhase) {
+            for (Map.Entry<String, Object> entry : context.getParameters().entrySet()) {
+                pageContext.setAttribute(entry.getKey(), entry.getValue());
+            }
         }
 
         // Put component renderers into the page context, even those from previous contexts
