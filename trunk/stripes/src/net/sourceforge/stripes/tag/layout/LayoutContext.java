@@ -79,8 +79,7 @@ public class LayoutContext {
             if (context != null) {
                 for (LayoutContext c = context.getFirst(); c != context; c = c.getNext()) {
                     for (Entry<String, Object> entry : c.getParameters().entrySet()) {
-                        pageContext.setAttribute(entry.getKey(), entry.getValue(),
-                                PageContext.PAGE_SCOPE);
+                        pageContext.setAttribute(entry.getKey(), entry.getValue());
                     }
                 }
 
