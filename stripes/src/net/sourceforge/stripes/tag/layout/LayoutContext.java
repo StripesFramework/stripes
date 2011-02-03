@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.servlet.ServletException;
 import javax.servlet.jsp.PageContext;
@@ -76,6 +77,13 @@ public class LayoutContext {
         if (context == null) {
             context = (LayoutContext) pageContext.getRequest().getAttribute(LAYOUT_CONTEXT_KEY);
             if (context != null) {
+                for (LayoutContext c = context.getFirst(); c != context; c = c.getNext()) {
+                    for (Entry<String, Object> entry : c.getParameters().entrySet()) {
+                        pageContext.setAttribute(entry.getKey(), entry.getValue(),
+                                PageContext.PAGE_SCOPE);
+                    }
+                }
+
                 pageContext.setAttribute(LAYOUT_CONTEXT_KEY, context);
                 pageContext.getRequest().removeAttribute(LAYOUT_CONTEXT_KEY);
             }
