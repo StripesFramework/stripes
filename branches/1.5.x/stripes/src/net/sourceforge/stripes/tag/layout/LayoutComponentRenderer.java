@@ -67,17 +67,17 @@ public class LayoutComponentRenderer {
             this.pageContext = new LinkedList<PageContext>();
         }
 
-        this.pageContext.add(pageContext);
+        this.pageContext.addFirst(pageContext);
     }
 
     /** Pop the last page context off the stack and return it. */
     public PageContext popPageContext() {
-        return pageContext == null || pageContext.isEmpty() ? null : pageContext.removeLast();
+        return pageContext == null ? null : pageContext.poll();
     }
 
     /** Get the last page context that was pushed onto the stack. */
     public PageContext getPageContext() {
-        return pageContext == null || pageContext.isEmpty() ? null : pageContext.getLast();
+        return pageContext == null ? null : pageContext.peek();
     }
 
     /** Get the path to the currently executing JSP. */
