@@ -50,16 +50,15 @@ public class LayoutRenderTag extends LayoutTag implements BodyTag, DynamicAttrib
     public LayoutContext getContext() {
         if (context == null) {
             LayoutContext context = LayoutContext.lookup(pageContext);
-            boolean contextIsNew = false;
 
-            if (context == null || !context.isComponentRenderPhase()
-                    || context.isComponentRenderPhase() && isChildOfCurrentComponent()) {
+            boolean create = context == null || !context.isComponentRenderPhase()
+                    || context.isComponentRenderPhase() && isChildOfCurrentComponent();
+
+            if (create)
                 context = LayoutContext.push(this);
-                contextIsNew = true;
-            }
 
             this.context = context;
-            this.contextIsNew = contextIsNew;
+            this.contextIsNew = create;
         }
 
         return context;
@@ -76,11 +75,6 @@ public class LayoutRenderTag extends LayoutTag implements BodyTag, DynamicAttrib
             // This exception would have been thrown before this tag ever executed
             throw new StripesRuntimeException("Something has happened that should never happen", e);
         }
-    }
-
-    /** True if this is the outermost layout tag, the one that initiated the render process. */
-    public boolean isOuterLayoutTag() {
-        return getLayoutParent() == null;
     }
 
     /** Used by the JSP container to provide the tag with dynamic attributes. */
@@ -157,10 +151,8 @@ public class LayoutRenderTag extends LayoutTag implements BodyTag, DynamicAttrib
 
                 try {
                     log.debug("Start layout exec in ", context.getDefinitionPage());
-                    boolean silent = context.getOut().isSilent();
                     context.getOut().setSilent(true, pageContext);
                     context.doInclude(pageContext, getName());
-                    context.getOut().setSilent(silent, pageContext);
                     log.debug("End layout exec in ", context.getDefinitionPage());
                 }
                 catch (Exception e) {
