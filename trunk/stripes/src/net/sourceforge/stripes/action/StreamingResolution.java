@@ -465,7 +465,7 @@ public class StreamingResolution implements Resolution {
                             count += skip;
                         }
                         while ((length = this.inputStream.read(buffer, 0, (int) Math.min(
-                                (long) buffer.length, byteRange.getEnd() + 1 - count))) != -1) {
+                                buffer.length, byteRange.getEnd() + 1 - count))) != -1) {
                             out.write(buffer, 0, length);
                             count += length;
                             if (byteRange.getEnd() + 1 == count)

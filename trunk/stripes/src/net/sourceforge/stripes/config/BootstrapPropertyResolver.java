@@ -144,7 +144,7 @@ public class BootstrapPropertyResolver {
         if (className != null) {
             // web.xml takes precedence
             try {
-                clazz = (Class<? extends T>) ReflectUtil.findClass(className);
+                clazz = ReflectUtil.findClass(className);
                 log.info("Class implementing/extending ", targetType.getSimpleName(),
                         " found in web.xml: ", className);
             }

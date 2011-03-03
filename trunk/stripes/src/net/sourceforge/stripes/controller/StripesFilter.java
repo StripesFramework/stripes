@@ -111,7 +111,7 @@ public class StripesFilter implements Filter {
             clazz = RuntimeConfiguration.class;
 
         try {
-            this.configuration = (Configuration) clazz.newInstance();
+            this.configuration = clazz.newInstance();
         }
         catch (Exception e) {
             log.fatal(e,

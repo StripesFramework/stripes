@@ -41,7 +41,7 @@ public class FlashScopeTests implements ActionBean {
     @DefaultHandler
     public Resolution flash() {
         HttpServletRequest req = getContext().getRequest();
-        Map<String,String[]> params = (Map<String,String[]>) req.getParameterMap();
+        Map<String,String[]> params = req.getParameterMap();
         
         for (Map.Entry<String,String[]> entry : params.entrySet()) {
             FlashScope flash = FlashScope.getCurrent(getContext().getRequest(), true);
