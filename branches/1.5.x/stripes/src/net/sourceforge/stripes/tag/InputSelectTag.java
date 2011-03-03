@@ -14,7 +14,6 @@
  */
 package net.sourceforge.stripes.tag;
 
-import net.sourceforge.stripes.exception.StripesJspException;
 import net.sourceforge.stripes.validation.BooleanTypeConverter;
 
 import javax.servlet.jsp.JspException;
@@ -101,8 +100,7 @@ public class InputSelectTag extends InputTagSupport implements BodyTag {
      * @param optionValue the value of the option under consideration
      * @param selectedOnPage true if the page contains selected=... and false otherwise
      */
-    public boolean isOptionSelected(Object optionValue, boolean selectedOnPage)
-    throws StripesJspException {
+    public boolean isOptionSelected(Object optionValue, boolean selectedOnPage) {
         if (this.selectedValueOrValues != null) {
             return isItemSelected(optionValue, this.selectedValueOrValues);
         }
