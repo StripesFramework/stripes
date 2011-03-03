@@ -570,7 +570,7 @@ public class UrlBindingFactory {
      * 
      * @param beanType The {@link ActionBean} type to be mapped to the pattern.
      * @param pattern The URL binding pattern to parse.
-     * @return A {@link UrlBinding} or null if the pattern is null or zero-length
+     * @return A {@link UrlBinding} or null if the pattern is null
      * @throws ParseException If the pattern cannot be parsed
      */
     public static UrlBinding parseUrlBinding(Class<? extends ActionBean> beanType, String pattern) {
