@@ -46,7 +46,7 @@ import java.util.Locale;
  *
  * <p>The individual components of the String are then converted using an appropriate
  * {@link TypeConverter} which is looked up using the {@link TypeConverterFactory}.  As a result
- * the {@code OneToManyTypeConverter} can be used to convert to a list of any type fo which
+ * the {@code OneToManyTypeConverter} can be used to convert to a list of any type for which
  * a {@code TypeConverter} has been registered.  If a usable {@code TypeConverter} cannot be
  * discovered then an Exception will be thrown!  However, if you wish to use the
  * {@code OneToManyTypeConverter} with a {@code TypeConverter} which is not registered as the
@@ -56,7 +56,7 @@ import java.util.Locale;
  * <p>Strictly speaking the {@code OneToManyTypeConverter} returns a {@link java.util.Collection}
  * of converted items. It does not have any way of inferring the collection type that should be
  * used, and so by default it will always return an instance of {@link java.util.List}. This
- * behaviour can easily be overriden by extending this class and overriding
+ * behaviour can easily be overridden by extending this class and overriding
  * {@link #getCollectionInstance()}.</p>
  *
  * <p>Note that the converter itself does not create any {@link ValidationError}s, but that
