@@ -757,7 +757,7 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
             }
             converter = factory.getInstance(validationInfo.converter(), locale);
         }
-        // Else, if we got a converter for the declared type (e.g. Foo implementes List<Bar>)
+        // Else, if we got a converter for the declared type (e.g. Foo implements List<Bar>)
         // then convert for the declared type
         else if (converter != null) {
             returnType = declaredType;
