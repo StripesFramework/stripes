@@ -43,21 +43,27 @@ public class UrlBinding {
     public UrlBinding(Class<? extends ActionBean> beanType, String path, List<Object> components) {
         this.beanType = beanType;
         this.path = path;
-        if (components != null)
-            this.components = Collections.unmodifiableList(components);
 
-        this.parameters = new ArrayList<UrlBindingParameter>(this.components.size());
-        for (Object component : components) {
-            if (component instanceof UrlBindingParameter) {
-                this.parameters.add((UrlBindingParameter) component);
+        if (components != null && !components.isEmpty()) {
+            this.components = Collections.unmodifiableList(components);
+            this.parameters = new ArrayList<UrlBindingParameter>(components.size());
+
+            for (Object component : components) {
+                if (component instanceof UrlBindingParameter) {
+                    this.parameters.add((UrlBindingParameter) component);
+                }
+            }
+
+            if (!this.parameters.isEmpty()) {
+                Object last = components.get(components.size() - 1);
+                if (last instanceof String) {
+                    this.suffix = (String) last;
+                }
             }
         }
-
-        if (this.parameters.size() > 0) {
-            Object last = this.components.get(this.components.size() - 1);
-            if (last instanceof String) {
-                this.suffix = (String) last;
-            }
+        else {
+            this.components = Collections.emptyList();
+            this.parameters = Collections.emptyList();
         }
     }
 

@@ -135,25 +135,22 @@ public class AnnotatedClassActionResolver implements ActionResolver {
             getUrlBindingFactory().addBinding(clazz, new UrlBinding(clazz, binding));
         }
 
-        // Only process the class if it's properly annotated
-        if (binding != null) {
-            // Construct the mapping of event->method for the class
-            Map<String, Method> classMappings = new HashMap<String, Method>();
-            processMethods(clazz, classMappings);
+        // Construct the mapping of event->method for the class
+        Map<String, Method> classMappings = new HashMap<String, Method>();
+        processMethods(clazz, classMappings);
 
-            // Put the event->method mapping for the class into the set of mappings
-            this.eventMappings.put(clazz, classMappings);
+        // Put the event->method mapping for the class into the set of mappings
+        this.eventMappings.put(clazz, classMappings);
 
-            if (log.getRealLog().isDebugEnabled()) {
-                // Print out the event mappings nicely
-                for (Map.Entry<String, Method> entry : classMappings.entrySet()) {
-                    String event = entry.getKey();
-                    Method handler = entry.getValue();
-                    boolean isDefault = DEFAULT_HANDLER_KEY.equals(event);
+        if (log.getRealLog().isDebugEnabled()) {
+            // Print out the event mappings nicely
+            for (Map.Entry<String, Method> entry : classMappings.entrySet()) {
+                String event = entry.getKey();
+                Method handler = entry.getValue();
+                boolean isDefault = DEFAULT_HANDLER_KEY.equals(event);
 
-                    log.debug("Bound: ", clazz.getSimpleName(), ".", handler.getName(), "() ==> ",
-                            binding, isDefault ? "" : "?" + event);
-                }
+                log.debug("Bound: ", clazz.getSimpleName(), ".", handler.getName(), "() ==> ",
+                        binding, isDefault ? "" : "?" + event);
             }
         }
     }
