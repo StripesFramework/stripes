@@ -534,12 +534,10 @@ public class UrlBuilder {
             StripesFilter.getConfiguration().getActionResolver().getActionBeanType(url);
         }
         catch (UrlBindingConflictException e) {
-            if (binding != null) {
-                UrlBindingConflictException tmp = new UrlBindingConflictException(binding
-                        .getBeanType(), e.getPath(), e.getMatches());
-                tmp.setStackTrace(e.getStackTrace());
-                e = tmp;
-            }
+            UrlBindingConflictException tmp = new UrlBindingConflictException(
+                    binding.getBeanType(), e.getPath(), e.getMatches());
+            tmp.setStackTrace(e.getStackTrace());
+            e = tmp;
             throw e;
         }
         return url;

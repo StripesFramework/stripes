@@ -473,7 +473,7 @@ public class DynamicMappingFilter implements Filter {
                     + StripesFilter.class.getName() + "']/..", document, XPathConstants.NODESET);
             if (filterNodes == null || filterNodes.getLength() != 1) {
                 String msg;
-                if (filterNodes.getLength() < 1) {
+                if (filterNodes == null || filterNodes.getLength() < 1) {
                     msg = "StripesFilter is not declared in web.xml. ";
                 }
                 else {
