@@ -501,7 +501,7 @@ class MergedParameterMap implements Map<String, String[]> {
                     if (value == null && request.getParameterValues(name) == null) {
                         value = p.getDefaultValue();
                     }
-                    if (name != null && value != null) {
+                    if (value != null) {
                         if (params == null) {
                             params = new LinkedHashMap<String, String[]>();
                         }
