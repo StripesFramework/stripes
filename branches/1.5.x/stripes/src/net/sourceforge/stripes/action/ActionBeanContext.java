@@ -186,6 +186,23 @@ public class ActionBeanContext {
 
         if (messages == null) {
             messages = new ArrayList<Message>();
+
+            /*
+             * Messages imported from previous flash scope will be present in request scope but not
+             * in current flash scope. Handle such cases by copying the existing messages to a new
+             * list in the current flash and request scopes.
+             */
+            if (getRequest().getAttribute(key) instanceof List) {
+                try {
+                    for (Message message : ((List<Message>) getRequest().getAttribute(key))) {
+                        messages.add(message);
+                    }
+                }
+                catch (ClassCastException e) {
+                    messages.clear();
+                }
+            }
+
             scope.put(key, messages);
         }
 
