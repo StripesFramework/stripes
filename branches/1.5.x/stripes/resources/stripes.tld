@@ -1034,6 +1034,7 @@
         <attribute><description>@tabindex@</description><name>tabindex</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
         <attribute><description>@title@</description><name>title</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
         <!-- End: Standard HTML attributes -->
+        <dynamic-attributes>@dynattrs@</dynamic-attributes>
     </tag>
 
     <tag>
@@ -1168,6 +1169,7 @@
         <attribute><description>@tabindex@</description><name>tabindex</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
         <attribute><description>@title@</description><name>title</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
         <!-- End: Standard HTML attributes -->
+        <dynamic-attributes>@dynattrs@</dynamic-attributes>
     </tag>
 
     <tag>
@@ -1270,6 +1272,7 @@
         <attribute><description>@tabindex@</description><name>tabindex</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
         <attribute><description>@title@</description><name>title</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
         <!-- End: Standard HTML attributes -->
+        <dynamic-attributes>@dynattrs@</dynamic-attributes>
     </tag>
 
     <tag>
@@ -1366,6 +1369,7 @@
         <attribute><description>@tabindex@</description><name>tabindex</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
         <attribute><description>@title@</description><name>title</name><required>false</required><rtexprvalue>true</rtexprvalue></attribute>
         <!-- End: Standard HTML attributes -->
+        <dynamic-attributes>@dynattrs@</dynamic-attributes>
     </tag>
 
     <tag>
