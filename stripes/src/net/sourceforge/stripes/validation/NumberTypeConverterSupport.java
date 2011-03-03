@@ -99,8 +99,7 @@ public class NumberTypeConverterSupport {
         String output = input.trim();
 
         // Step 2: remove the currency symbol
-        // The casts are to make sure we don't call replace(String regex, String replacement)
-        output = output.replace((CharSequence) currencySymbol, (CharSequence) "");
+        output = output.replace(currencySymbol, "");
 
         // Step 3: trim whitespace that might precede or follow currency symbol
         output = output.trim();
