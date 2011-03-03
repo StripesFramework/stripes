@@ -566,7 +566,7 @@ public class UrlBindingFactory {
 
     /**
      * Parse the binding pattern and create a {@link UrlBinding} object for the {@link ActionBean}
-     * class. If pattern is null or zero-length, then return null.
+     * class. If pattern is null, then return null.
      * 
      * @param beanType The {@link ActionBean} type to be mapped to the pattern.
      * @param pattern The URL binding pattern to parse.
@@ -579,7 +579,7 @@ public class UrlBindingFactory {
             return null;
 
         // make sure it starts with /
-        if (pattern == null || pattern.length() < 1 || !pattern.startsWith("/")) {
+        if (!pattern.startsWith("/")) {
             throw new ParseException(pattern, "A URL binding must begin with /");
         }
 
