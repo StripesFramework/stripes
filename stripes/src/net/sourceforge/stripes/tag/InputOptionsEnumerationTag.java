@@ -87,7 +87,7 @@ public class InputOptionsEnumerationTag extends InputOptionsCollectionTag {
     public int doStartTag() throws JspException {
         Class<Enum> clazz = null;
         try {
-            clazz = (Class<Enum>) ReflectUtil.findClass(this.className);
+            clazz = ReflectUtil.findClass(this.className);
         }
         catch (Exception e) {
             // Try replacing the last period with a $ just in case the enum in question
