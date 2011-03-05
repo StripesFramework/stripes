@@ -49,6 +49,9 @@ public abstract class OnwardResolution<T extends OnwardResolution<T>> implements
      * @param path the path to which the resolution should navigate
      */
     public OnwardResolution(String path) {
+        if (path==null) {
+            throw new IllegalArgumentException("path cannot be null");
+        }
         this.path = path;
     }
 
