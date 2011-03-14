@@ -1,0 +1,153 @@
+Upgrading Stripes
+http://www.stripesframework.org/
+
+This file documents the steps involved in upgrading an application from Stripes
+1.4.x to Stripes 1.5. Since Stripes 1.0-1.4.3 have been backwards compatible it
+should be possible to apple these steps to upgrade to Stripes 1.5 from earlier
+versions also.
+
+Contents
+--------
+1. Required Steps
+2. Suggested Steps
+3. Backwards Incompatibilities
+
+1. Required Steps
+   --------------
+   -> Replace your existing stripes.jar with the new copy from the lib/ directory
+      of the distribution.
+   -> Replace your existing commons-logging.jar with the new copy from the lib/
+      directory of the distribution
+   -> If you are using commons-fileupload download the latest version from the
+      apache website http://commons.apache.org/downloads/download_fileupload.cgi
+   -> Address backward compatibilities listed in section 3 as necessary
+
+2. Suggested Steps
+   --------------
+   One significant new feature in Stripes 1.5 that you may wish to leverage at upgrade
+   time is the concept of "Extension Packages". Using this feature you can inform Stripes
+   of one or more extension packages, e.g.:
+      <init-param>
+         <param-name>Extension.Packages</param-name>
+         <param-value>com.myco.myapp.web.stripesext</param-value>
+      </init-param>
+
+   If one or more packages are specified Stripes will search these packages for classes
+   that implement various interfaces and wire them up without requiring you to configure
+   them manually in web.xml. This includes custom:
+      -> ActionBeanContext classes
+      -> Interceptor classes
+      -> ConfigurableComponent classes (e.g. ActionResolvers, LocalePickers)
+      -> Formatter classes
+      -> TypeConverter classes
+
+   To reduce your configuration it is recommended that you move any and all such
+   custom classes into a single package hierarchy and specify the root package. Once
+   done you can remove all web.xml configuration for these custom classes.
+
+3. Backwards Incompatibilities
+   ---------------------------
+   Stripes 1.5 is the first major release of Stripes that is not completely
+   backwards compatible with earlier versions of Stripes. However most of the
+   incompatible change are quite small and require only minor edits to your
+   application (often achievable with search & replace functionality). This
+   section documents these incompatibilities.
+
+   -> ActionResolver.PackageFilters has been replaced by ActionResolver.Packages
+      which is now a required configuration property. Changes in class scanning to
+      make it more efficient and robust across containers have changed the meaning
+      of this property and we have therefore changed the name to reflect this. If you
+      already specified ActionResolver.PackageFilters simply renaming it will do.
+      Otherwise you must specify ActionResolver.Packages to be the list of root
+      packages to scan for ActionBeans in your application
+
+   -> Attribute name change in @Before and @After annotations. Previously the
+      lifecycle changes were specified using the 'value' attribute which
+      allowed the abbreviated form of '@Before(LifecycleStage.BindingAndValidation)'.
+      Due to the addition of the 'on' attribute to support selective execution this
+      is no longer desirable and the 'value' attribute has been renamed to 'stages'.
+      In most cases replacing '@Before(' with '@Before(stages=' (and the same for
+      @After) will be enough to  ix this problem.
+
+   -> The Validatable interface has been removed. Where it was used remove the
+      implemented clause from your ActionBean and annotate your validate() method
+      with the @ValidationMethod annotation
+
+   -> The link-param tag has been removed in preference to the param tag. A search
+      and replace of 'link-param' to 'param' is sufficient to fix this.
+
+   -> SpringAwareActionResolver has been removed. Please instead use the
+      SpringInterceptor introduced in Stripes 1.3.
+
+   -> Stripes now performs stricter checking of various annotations. If you have
+      multiple methods annotated with @DefaultHandler or if you have @Validate
+      annotations in multiple locations (e.g. getter and setter) for a single
+      property Stripes will throw an exception instead of producing non-deterministic
+      behaviour.
+
+   -> The _sourcePage parameter is no longer inserted into links (using the link and
+      url tags) by default (it is still submitted in forms). If the _sourcePage parameter
+      is relied on in certain places you can request Stripes insert it using the new
+      attribute addSourcePage="true".
+
+   -> The _sourcePage parameter is always encrypted to avoid revealing potentially
+      sensitive information. The plaintext value can be easily accessed by calling
+      the new method ActionBeanContext.getSourcePage().
+
+   -> The way Interceptor classes are configured has changed. Two configuration
+      properties are supported: 'Interceptor.Classes' and 'CoreInterceptor.Classes'.
+      The first has the same name as before but the behaviour has changed. Now specifying
+      this property does NOT require you to specify the interceptors that Stripes
+      executes by default, only additional interceptors you would like to use. To
+      override the set of core interceptors used by Stripes you may now separately
+      specify the 'CoreInterceptor.Classes' property. When upgrading you should
+      remove referenced to the BeforeAfterMethodInterceptor from the
+      'Interceptor.Classes' property.
+
+   -> Behaviour of file uploads when using commons-fileupload has changed to match
+      the behaviour when using the cos implementation. When the user does not provide
+      a file a null FileBean will be produced instead of one containing a zero-length
+      file.  In addition the filenames returned will never have path information
+      (previously path information would be included if the user was using IE).
+
+   -> ActionClassCache has been removed. If you require a list of all ActionBeans
+      configured use ActionResolver.getActionBeanClasses() instead.
+
+   -> All parameter values are now trimmed before validation, type conversion and
+      binding. If your app has any fields that allow whitespace as valid input or need
+      to retain leading and trailing whitespace during binding, you must use
+      @Validate(trim=false) on the field to override this behavior.
+
+   -> The special parameter _eventName now overrides all request parameters that would
+      otherwise indicate the event name. E.g., given an ActionBean with events foo, bar
+      and blah and request parameters foo=foo, bar=bar and _eventName=blah, the event to
+      be executed will be blah because _eventName overrides the other two parameters.
+      Previous versions gave _eventName a lower precedence than other parameters.
+
+   -> If multiple request parameters match event names, Stripes will throw an exception
+      reporting the conflict. In such a case, it cannot be determined which event should
+      execute. However, if the _eventName parameter is present, as noted in the previous
+      bullet, it overrides all others, even in case of such a conflict. The behavior of
+      previous versions of Stripes was indeterminate.
+
+   -> When flashing an ActionBean and redirecting to that same ActionBean, as in:
+
+         return new RedirectResolution(getClass(), "event").flash(this);
+
+      the ActionBean receives a newly created ActionBeanContext on the ensuing request.
+      (In cases where the flashed bean is not the target of the redirect, the bean
+      retains its old ActionBeanContext.) One side-effect of this is that
+      ValidationErrors no longer carry over to the next request. It is recommended
+      that you use Messages instead of ValidationErrors when flashing and redirecting
+      to the same ActionBean.
+
+   In addition to the above changes there have also been changes to several core classes.
+   In most cases these changes will be invisible to application developers, but where you
+   have implemented your own ConfigurableComponents from scratch (as opposed to extending
+   the default implementations) you may notice additional interface methods and changes
+   to signatures. Please refer to the javadoc for the 1.5 release in these cases. The
+   following is a non-exhaustive list of core classes with interface changes in 1.5:
+      -> Configuration (and implementations thereof)
+      -> ActionResolver (and implementations thereof)
+      -> BootstrapPropertyResolver
+      -> UrlBuilder
