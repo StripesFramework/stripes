@@ -75,7 +75,6 @@ public class LayoutWriter extends Writer {
     public void setSilent(boolean silent, PageContext pageContext) throws IOException {
         if (silent != this.silent) {
             pageContext.getOut().write(TOGGLE);
-            tryFlush(pageContext);
             this.silent = silent;
             log.trace("Output is ", (silent ? "DISABLED" : "ENABLED"));
         }
@@ -99,6 +98,7 @@ public class LayoutWriter extends Writer {
      */
     public String closeBuffer(PageContext pageContext) {
         if (getOut() instanceof StringWriter) {
+            tryFlush(pageContext);
             String contents = ((StringWriter) writers.poll()).toString();
             log.trace("Closed buffer: \"", contents, "\"");
             return contents;
