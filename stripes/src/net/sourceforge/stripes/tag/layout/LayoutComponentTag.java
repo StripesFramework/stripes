@@ -14,6 +14,7 @@
  */
 package net.sourceforge.stripes.tag.layout;
 
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -264,6 +265,9 @@ public class LayoutComponentTag extends LayoutTag {
             context.getOut().setSilent(silent, pageContext);
 
             return EVAL_PAGE;
+        }
+        catch (IOException e) {
+            throw new JspException(e);
         }
         finally {
             this.context = null;

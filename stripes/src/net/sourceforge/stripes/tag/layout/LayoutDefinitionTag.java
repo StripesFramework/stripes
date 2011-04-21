@@ -14,6 +14,7 @@
  */
 package net.sourceforge.stripes.tag.layout;
 
+import java.io.IOException;
 import java.util.Map;
 
 import javax.servlet.jsp.JspException;
@@ -63,27 +64,32 @@ public class LayoutDefinitionTag extends LayoutTag {
      */
     @Override
     public int doStartTag() throws JspException {
-        LayoutContext context = getContext(); // Initialize context
-        renderPhase = context.isComponentRenderPhase(); // Initialize phase flag
-        silent = context.getOut().isSilent();
+        try {
+            LayoutContext context = getContext(); // Initialize context
+            renderPhase = context.isComponentRenderPhase(); // Initialize phase flag
+            silent = context.getOut().isSilent();
 
-        // Flag this definition has rendered, even though it's not really done yet.
-        context.setRendered(true);
+            // Flag this definition has rendered, even though it's not really done yet.
+            context.setRendered(true);
 
-        // Put any additional parameters into page context for the definition to use
-        if (!renderPhase) {
-            for (Map.Entry<String, Object> entry : context.getParameters().entrySet()) {
-                pageContext.setAttribute(entry.getKey(), entry.getValue());
+            // Put any additional parameters into page context for the definition to use
+            if (!renderPhase) {
+                for (Map.Entry<String, Object> entry : context.getParameters().entrySet()) {
+                    pageContext.setAttribute(entry.getKey(), entry.getValue());
+                }
             }
+
+            // Put component renderers into the page context, even those from previous contexts
+            exportComponentRenderers();
+
+            // Enable output only if this is the definition execution, not a component render
+            context.getOut().setSilent(renderPhase, pageContext);
+
+            return EVAL_BODY_INCLUDE;
         }
-
-        // Put component renderers into the page context, even those from previous contexts
-        exportComponentRenderers();
-
-        // Enable output only if this is the definition execution, not a component render
-        context.getOut().setSilent(renderPhase, pageContext);
-
-        return EVAL_BODY_INCLUDE;
+        catch (IOException e) {
+            throw new JspException(e);
+        }
     }
 
     /**
@@ -96,6 +102,9 @@ public class LayoutDefinitionTag extends LayoutTag {
             cleanUpComponentRenderers();
             getContext().getOut().setSilent(silent, pageContext);
             return SKIP_PAGE;
+        }
+        catch (IOException e) {
+            throw new JspException(e);
         }
         finally {
             this.context = null;
