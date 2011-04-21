@@ -38,8 +38,11 @@ import net.sourceforge.stripes.util.Log;
 public class LayoutWriter extends Writer {
     private static final Log log = Log.getInstance(LayoutWriter.class);
 
+    /** The control character that, when encountered in the output stream, toggles the silent state. */
+    private static final char TOGGLE = 0;
+
     private LinkedList<Writer> writers = new LinkedList<Writer>();
-    private boolean silent;
+    private boolean silent, silentState;
 
     /**
      * Create a new layout writer that wraps the given JSP writer.
@@ -64,12 +67,17 @@ public class LayoutWriter extends Writer {
     /**
      * Enable or disable silent mode. The output buffer for the given page context will be flushed
      * before silent mode is enabled to ensure all buffered data are written.
+     * 
+     * @param silent True to silence output, false to enable output.
+     * @param pageContext The page context in use at the time output is to be silenced.
+     * @throws IOException If an error occurs writing to output.
      */
-    public void setSilent(boolean silent, PageContext pageContext) {
+    public void setSilent(boolean silent, PageContext pageContext) throws IOException {
         if (silent != this.silent) {
+            pageContext.getOut().write(TOGGLE);
             tryFlush(pageContext);
             this.silent = silent;
-            log.trace("Output is " + (silent ? "DISABLED" : "ENABLED"));
+            log.trace("Output is ", (silent ? "DISABLED" : "ENABLED"));
         }
     }
 
@@ -144,7 +152,21 @@ public class LayoutWriter extends Writer {
 
     @Override
     public void write(char[] cbuf, int off, int len) throws IOException {
-        if (!isSilent())
-            getOut().write(cbuf, off, len);
+        for (int i = off, mark = i, n = i + len; i < n; ++i) {
+            switch (cbuf[i]) {
+            case TOGGLE:
+                if (this.silentState)
+                    mark = i + 1;
+                else if (i > mark)
+                    getOut().write(cbuf, mark, i - mark);
+                this.silentState = !this.silentState;
+                break;
+            default:
+                if (this.silentState)
+                    ++mark;
+                else if (i > mark && i == n - 1)
+                    getOut().write(cbuf, mark, i - mark + 1);
+            }
+        }
     }
 }
