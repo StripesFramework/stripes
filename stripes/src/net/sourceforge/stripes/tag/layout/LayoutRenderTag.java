@@ -14,6 +14,8 @@
  */
 package net.sourceforge.stripes.tag.layout;
 
+import java.io.IOException;
+
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.BodyContent;
 import javax.servlet.jsp.tagext.BodyTag;
@@ -95,24 +97,29 @@ public class LayoutRenderTag extends LayoutTag implements BodyTag, DynamicAttrib
      */
     @Override
     public int doStartTag() throws JspException {
-        LayoutContext context = getContext();
-        silent = context.getOut().isSilent();
+        try {
+            LayoutContext context = getContext();
+            silent = context.getOut().isSilent();
 
-        if (contextIsNew) {
-            log.debug("Start layout init in ", context.getRenderPage());
-            pushPageContextAttributes(context.getParameters());
+            if (contextIsNew) {
+                log.debug("Start layout init in ", context.getRenderPage());
+                pushPageContextAttributes(context.getParameters());
+            }
+
+            if (context.isComponentRenderPhase()) {
+                log.debug("Start component render phase for ", context.getComponent(), " in ",
+                        context.getRenderPage());
+                exportComponentRenderers();
+            }
+
+            // Render tags never output their contents directly
+            context.getOut().setSilent(true, pageContext);
+
+            return contextIsNew ? EVAL_BODY_BUFFERED : EVAL_BODY_INCLUDE;
         }
-
-        if (context.isComponentRenderPhase()) {
-            log.debug("Start component render phase for ", context.getComponent(), " in ",
-                    context.getRenderPage());
-            exportComponentRenderers();
+        catch (IOException e) {
+            throw new JspException(e);
         }
-
-        // Render tags never output their contents directly
-        context.getOut().setSilent(true, pageContext);
-
-        return contextIsNew ? EVAL_BODY_BUFFERED : EVAL_BODY_INCLUDE;
     }
 
     /**
@@ -172,8 +179,12 @@ public class LayoutRenderTag extends LayoutTag implements BodyTag, DynamicAttrib
                         );
                 }
 
+                context.getOut().setSilent(silent, pageContext);
                 LayoutContext.pop(pageContext);
                 popPageContextAttributes(); // remove any dynattrs from page scope
+            }
+            else {
+                context.getOut().setSilent(silent, pageContext);
             }
 
             if (context.isComponentRenderPhase()) {
@@ -182,9 +193,10 @@ public class LayoutRenderTag extends LayoutTag implements BodyTag, DynamicAttrib
                 cleanUpComponentRenderers();
             }
 
-            // Restore output's silent flag
-            context.getOut().setSilent(silent, pageContext);
             return EVAL_PAGE;
+        }
+        catch (IOException e) {
+            throw new JspException(e);
         }
         finally {
             this.context = null;
