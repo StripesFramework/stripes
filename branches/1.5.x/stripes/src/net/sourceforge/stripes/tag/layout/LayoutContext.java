@@ -133,8 +133,24 @@ public class LayoutContext {
         this.renderTag = renderTag;
         this.renderPage = renderTag.getCurrentPagePath();
 
+        List<String> path = getPathToRenderTag(renderTag);
+        if (path != null) {
+            this.componentPath = Collections.unmodifiableList(path);
+            log.debug("Path is ", this.componentPath);
+        }
+    }
+
+    /**
+     * Calculate the path to a render tag. The path is a list of names of components that must
+     * execute, in order, so that the specified render tag can execute.
+     * 
+     * @param tag The render tag.
+     * @return A list of component names or null if the render tag is not a child of a component.
+     */
+    public List<String> getPathToRenderTag(LayoutRenderTag tag) {
         LinkedList<String> path = null;
-        for (LayoutTag parent = renderTag.getLayoutParent(); parent instanceof LayoutComponentTag;) {
+
+        for (LayoutTag parent = tag.getLayoutParent(); parent instanceof LayoutComponentTag;) {
             if (path == null)
                 path = new LinkedList<String>();
 
@@ -144,10 +160,7 @@ public class LayoutContext {
             parent = parent instanceof LayoutRenderTag ? parent.getLayoutParent() : null;
         }
 
-        if (path != null) {
-            this.componentPath = Collections.unmodifiableList(path);
-            log.debug("Path is ", this.componentPath);
-        }
+        return path;
     }
 
     /** Get the previous layout context from the stack. */
