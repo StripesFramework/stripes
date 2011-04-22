@@ -113,8 +113,24 @@ public class LayoutComponentTag extends LayoutTag {
      * @throws StripesJspException If a {@link LayoutContext} is not found.
      */
     public boolean isCurrentComponent() throws StripesJspException {
-        String name = getContext().getComponent();
-        return name != null && name.equals(getName());
+        final LayoutContext context = getContext();
+        String name = context.getComponent();
+        if (name == null || !name.equals(getName()))
+            return false;
+
+        final List<String> want = context.getComponentPath();
+        if (want == null)
+            return true;
+
+        final LayoutTag parent = getLayoutParent();
+        if (!(parent instanceof LayoutRenderTag))
+            return false;
+
+        final List<String> got = context.getPathToRenderTag((LayoutRenderTag) parent);
+        if (got == null)
+            return false;
+
+        return want.equals(got);
     }
 
     /**
