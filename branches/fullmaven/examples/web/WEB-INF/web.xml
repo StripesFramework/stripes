@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<web-app xmlns="http://java.sun.com/xml/ns/j2ee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee
+         http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
+         version="2.4">
+
+    <description>
+      Stripes Examples
+    </description>
+    <display-name>Stripes Examples</display-name>
+
+    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    <!--              Configuration of the Stripes Filter.                   -->
+    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    <filter>
+        <description>
+            Provides essential configuration and request processing services
+            for the Stripes framework.
+        </description>
+        <display-name>Stripes Filter</display-name>
+        <filter-name>StripesFilter</filter-name>
+        <filter-class>net.sourceforge.stripes.controller.StripesFilter</filter-class>
+
+        <!-- REQUIRED init parameter for the Stripes Filter. -->
+        <init-param>
+            <param-name>ActionResolver.Packages</param-name>
+            <param-value>net.sourceforge.stripes.examples</param-value>
+        </init-param>
+
+        <!-- Optional init parameter for the Stripes Filter. -->
+        <init-param>
+            <param-name>Extension.Packages</param-name>
+            <param-value>net.sourceforge.stripes.examples.bugzooky.ext</param-value>
+        </init-param>
+
+        <init-param>
+            <param-name>Stripes.EncryptionKey</param-name>
+            <param-value>Don't Copy/Paste Me! Make up your own encryption key and keep it secret!</param-value>
+        </init-param>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>StripesFilter</filter-name>
+        <url-pattern>*.jsp</url-pattern>
+        <dispatcher>REQUEST</dispatcher>
+    </filter-mapping>
+
+    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    <!--         Configuration of Stripes Dynamic Mapping Filter.            -->
+    <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+    <filter>
+        <description>
+            Dynamically maps URLs to ActionBeans without requiring you to
+            map prefixes or extensions explicitly in the deployment descriptor.
+            Note that this filter always should be the last filter defined.
+        </description>
+        <filter-name>DMF</filter-name>
+        <filter-class>net.sourceforge.stripes.controller.DynamicMappingFilter</filter-class>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>DMF</filter-name>
+        <url-pattern>/*</url-pattern>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+        <dispatcher>ERROR</dispatcher>
+    </filter-mapping>
+</web-app>
