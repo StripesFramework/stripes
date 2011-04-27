@@ -66,15 +66,6 @@
     </dependencies>
     <build>
         <finalName>stripes-examples</finalName>
-        <sourceDirectory>src</sourceDirectory>
-        <resources>
-            <resource>
-                <directory>src</directory>
-                <excludes>
-                    <exclude>**/*.java</exclude>
-                </excludes>
-            </resource>
-        </resources>
         <plugins>
             <!-- use antrun to copy the sources into the webapp -->
             <plugin>
@@ -86,7 +77,7 @@
                         <configuration>
                             <target>
                                 <copy todir="./web/WEB-INF/src" flatten="true" overwrite="true">
-                                    <fileset dir="./src" includes="**/*.java"/>
+                                    <fileset dir="./src/main/java" includes="**/*.java"/>
                                 </copy>
                             </target>
                         </configuration>
