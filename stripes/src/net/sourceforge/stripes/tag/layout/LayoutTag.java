@@ -91,7 +91,7 @@ public abstract class LayoutTag extends StripesTagSupport {
 
     /** Pop this tag's page context off each of the component renderers' page context stacks. */
     public void cleanUpComponentRenderers() {
-        for (LayoutContext c = LayoutContext.lookup(pageContext); c != null; c = c.getPrevious()) {
+        for (LayoutContext c = LayoutContext.lookup(pageContext).getLast(); c != null; c = c.getPrevious()) {
             for (LayoutComponentRenderer renderer : c.getComponents().values()) {
                 renderer.popPageContext();
             }
