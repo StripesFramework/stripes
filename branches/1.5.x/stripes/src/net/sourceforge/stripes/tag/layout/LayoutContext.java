@@ -25,6 +25,7 @@ import java.util.Map.Entry;
 import javax.servlet.ServletException;
 import javax.servlet.jsp.PageContext;
 
+import net.sourceforge.stripes.exception.StripesRuntimeException;
 import net.sourceforge.stripes.util.Log;
 
 /**
@@ -57,6 +58,12 @@ public class LayoutContext {
             pageContext.pushBody(context.out);
         }
         else {
+            // Sanity check
+            if (previous.next != null) {
+                throw new StripesRuntimeException(
+                        "Attempt to insert a new context into the middle of the stack");
+            }
+
             // Link the two nodes
             context.out = previous.out;
             previous.next = context;
