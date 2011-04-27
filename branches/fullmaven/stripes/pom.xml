@@ -14,7 +14,6 @@
     <packaging>jar</packaging>
     <name>Stripes</name>
     <build>
-        <sourceDirectory>src</sourceDirectory>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -42,13 +41,12 @@
                         <configuration>
                             <target>
                                 <!-- make two copies of the taglib, one with and one without dynamic attributes -->
-                                <filter filtersfile="./resources/common-descriptions.properties"/>
+                                <filter filtersfile="./build-resources/common-descriptions.properties"/>
                                 <filter token="dynattrs" value="false"/>
-                                <copy file="./resources/stripes.tld" todir="./target/classes/META-INF"
+                                <copy file="./build-resources/stripes.tld" todir="./target/classes/META-INF"
                                       filtering="true"/>
-
                                 <filter token="dynattrs" value="true"/>
-                                <copy file="./resources/stripes.tld"
+                                <copy file="./build-resources/stripes.tld"
                                       tofile="./target/classes/META-INF/stripes-dynattr.tld" filtering="true"/>
                                 <replace file="./target/classes/META-INF/stripes-dynattr.tld"
                                          token="http://stripes.sourceforge.net/stripes.tld"
@@ -59,24 +57,18 @@
                             <goal>run</goal>
                         </goals>
                     </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.5</version>
-                <executions>
                     <execution>
                         <id>generate-tlddoc</id>
                         <phase>package</phase>
                         <configuration>
                             <target>
-                                <java fork="true" jar="./lib/build/tlddoc.jar" failonerror="false">
+                                <java fork="true" jar="./build-resources/tlddoc.jar" failonerror="false">
                                     <arg line="-d './target/taglib'"/>
                                     <arg line="-doctitle 'Stripes ${project.version} Tag Library Documentation'"/>
                                     <arg line="-windowtitle 'Stripes ${project.version} Tag Library Documentation'"/>
                                     <arg value="./target/classes/META-INF/stripes.tld"/>
                                 </java>
-                                <copy file="./src/javadoc.css"
+                                <copy file="./src/main/java/javadoc.css"
                                       tofile="./target/taglib/stylesheet.css"
                                       overwrite="true"/>
                                 <replace file="./target/taglib/index.html"
@@ -136,8 +128,8 @@
                             <goal>jar</goal>
                         </goals>
                         <configuration>
-                            <stylesheetfile>${basedir}/src/javadoc.css</stylesheetfile>
-                            <overview>${basedir}/src/overview.html</overview>
+                            <stylesheetfile>${basedir}/src/main/java/javadoc.css</stylesheetfile>
+                            <overview>${basedir}/src/main/java/overview.html</overview>
                             <bottom>&#169; Copyright 2005-2006, Stripes Development Team.</bottom>
                             <author>true</author>
                             <protected>true</protected>
