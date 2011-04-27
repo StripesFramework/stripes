@@ -97,7 +97,7 @@ public class LayoutComponentTag extends LayoutTag {
         LayoutTag parent = tag.getLayoutParent();
         if (parent instanceof LayoutRenderTag) {
             parent = parent.getLayoutParent();
-            if (parent == null || parent instanceof LayoutComponentTag
+            if (!(parent instanceof LayoutComponentTag) || parent instanceof LayoutComponentTag
                     && isPathComponent((LayoutComponentTag) parent, path) && path.hasNext()) {
                 return tag.getName().equals(path.next());
             }

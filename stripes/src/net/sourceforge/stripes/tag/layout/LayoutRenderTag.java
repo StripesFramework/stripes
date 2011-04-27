@@ -53,8 +53,10 @@ public class LayoutRenderTag extends LayoutTag implements BodyTag, DynamicAttrib
         if (context == null) {
             LayoutContext context = LayoutContext.lookup(pageContext);
 
-            boolean create = context == null || !context.isComponentRenderPhase()
-                    || context.isComponentRenderPhase() && isChildOfCurrentComponent();
+            boolean create = context == null
+                    || context.getNext() == null
+                    && (!context.isComponentRenderPhase() || context.isComponentRenderPhase()
+                            && isChildOfCurrentComponent());
 
             if (create)
                 context = LayoutContext.push(this);
