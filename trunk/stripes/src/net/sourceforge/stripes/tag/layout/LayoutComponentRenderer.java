@@ -104,48 +104,52 @@ public class LayoutComponentRenderer {
         // Grab some values from the current context so they can be restored when we're done
         final LayoutContext savedContext = this.context;
         final LayoutContext currentContext = LayoutContext.lookup(pageContext);
-        final boolean savedPhase = currentContext.isComponentRenderPhase();
-        final boolean savedSilent = currentContext.getOut().isSilent();
-        final String savedComponent = currentContext.getComponent();
         log.debug("Render component \"", this.component, "\" in ", getCurrentPage());
 
-        // Turn on the render phase flag and set the component to render
-        currentContext.setComponentRenderPhase(true);
-        currentContext.setComponent(this.component);
-        currentContext.getOut().setSilent(true, pageContext);
-
         // Descend the stack from here, trying each context where the component is registered
-        try {
-            for (LayoutContext context = savedContext == null ? currentContext : savedContext
-                    .getPrevious(); context != null; context = context.getPrevious()) {
+        for (LayoutContext context = savedContext == null ? currentContext : savedContext
+                .getPrevious(); context != null; context = context.getPrevious()) {
 
-                // Skip contexts where the desired component is not registered.
-                if (!context.getComponents().containsKey(this.component)) {
-                    log.trace("Not rendering \"", this.component, "\" in context ",
-                            context.getRenderPage(), " -> ", context.getDefinitionPage());
-                    continue;
-                }
-                this.context = context;
+            // Skip contexts where the desired component is not registered.
+            if (!context.getComponents().containsKey(this.component)) {
+                log.trace("Not rendering \"", this.component, "\" in context ",
+                        context.getRenderPage(), " -> ", context.getDefinitionPage());
+                continue;
+            }
+            this.context = context;
+
+            // Take a snapshot of the context state
+            final String savedComponent = context.getComponent();
+            final boolean savedComponentRenderPhase = context.isComponentRenderPhase();
+            final boolean savedSilent = context.getOut().isSilent();
+
+            try {
+                // Set up the context to render the component
+                context.setComponentRenderPhase(true);
+                context.setComponent(this.component);
+                context.getOut().setSilent(true, pageContext);
 
                 log.debug("Start execute \"", this.component, "\" in ",
                         currentContext.getRenderPage(), " -> ", currentContext.getDefinitionPage(),
                         " from ", context.getRenderPage(), " -> ", context.getDefinitionPage());
-                currentContext.doInclude(pageContext, context.getRenderPage());
+                context.doInclude(pageContext, context.getRenderPage());
                 log.debug("End execute \"", this.component, "\" in ",
                         currentContext.getRenderPage(), " -> ", currentContext.getDefinitionPage(),
                         " from ", context.getRenderPage(), " -> ", context.getDefinitionPage());
 
                 // If the component name has been cleared then the component rendered
-                if (currentContext.getComponent() == null)
+                if (context.getComponent() == null)
                     return true;
             }
-        }
-        finally {
-            // Reset the context properties
-            currentContext.setComponentRenderPhase(savedPhase);
-            currentContext.setComponent(savedComponent);
-            currentContext.getOut().setSilent(savedSilent, pageContext);
-            this.context = savedContext;
+            finally {
+                // Restore the context state
+                context.setComponent(savedComponent);
+                context.setComponentRenderPhase(savedComponentRenderPhase);
+                context.getOut().setSilent(savedSilent, pageContext);
+
+                // Restore the saved context
+                this.context = savedContext;
+            }
         }
 
         log.debug("Component \"", this.component, "\" evaluated to empty string in context ",
