@@ -34,8 +34,7 @@
     </issueManagement>
     <modules>
         <module>stripes</module>
-        <module>tests</module>
-        <module>examples</module>        
+        <module>examples</module>
     </modules>
     <dependencies>
         <!--
