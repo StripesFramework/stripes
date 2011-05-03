@@ -92,7 +92,7 @@
                   <container>
                     <containerId>tomcat6x</containerId>
                     <zipUrlInstaller>
-                      <url>http://mirror.ibcp.fr/pub/apache//tomcat/tomcat-6/v6.0.29/bin/apache-tomcat-6.0.29.zip</url>
+                      <url>http://apache.crihan.fr/dist/tomcat/tomcat-6/v6.0.32/bin/apache-tomcat-6.0.32.zip</url>
                       <installDir>${basedir}/target/tomcat6-install</installDir>
                     </zipUrlInstaller>
                   </container>
