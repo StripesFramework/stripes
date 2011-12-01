@@ -17,6 +17,7 @@ package net.sourceforge.stripes.exception;
 
 import java.beans.PropertyDescriptor;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.URL;
@@ -102,10 +103,21 @@ public class DefaultExceptionHandler implements ExceptionHandler {
         }
 
         /** Invokes the handler and executes the resolution if one is returned. */
-        public void handle(Throwable t, HttpServletRequest req, HttpServletResponse res)  throws Exception {
-            Object resolution = handlerMethod.invoke(this.handler, t, req, res);
-            if (resolution != null && resolution instanceof Resolution) {
-                ((Resolution) resolution).execute(req, res);
+        public void handle(Throwable t, HttpServletRequest req, HttpServletResponse res) throws Exception {
+            try {
+                Object resolution = handlerMethod.invoke(this.handler, t, req, res);
+                if (resolution != null && resolution instanceof Resolution) {
+                    ((Resolution) resolution).execute(req, res);
+                }
+            }
+            catch (InvocationTargetException e) {
+                Throwable cause = e.getCause();
+                if (cause instanceof Exception)
+                    throw (Exception) cause;
+                else if (cause instanceof Error)
+                    throw (Error) cause;
+                else
+                    throw e;
             }
         }
 
