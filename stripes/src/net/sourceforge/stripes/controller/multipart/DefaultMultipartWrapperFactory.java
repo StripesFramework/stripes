@@ -132,7 +132,7 @@ public class DefaultMultipartWrapperFactory implements MultipartWrapperFactory {
             else {
                 String digits = matcher.group(1);
                 String suffix = matcher.group(2).toLowerCase();
-                int number = Integer.parseInt(digits);
+                long number = Long.parseLong(digits);
 
                 if ("k".equals(suffix)) { number = number * 1024; }
                 else if ("m".equals(suffix)) {  number = number * 1024 * 1024; }
