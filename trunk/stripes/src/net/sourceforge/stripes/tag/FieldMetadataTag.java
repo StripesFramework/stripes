@@ -159,6 +159,9 @@ public class FieldMetadataTag extends HtmlTagSupport implements BodyTag {
             Class<?> typeConverterClass = null;
             
             if (data != null) {
+                if (fieldInfo.length() > 0)
+                    fieldInfo.append(',');
+
                 fieldInfo.append("required:").append(data.required())
                         .append(",ignore:").append(data.ignore())
                         .append(",encrypted:").append(data.encrypted())
