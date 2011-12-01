@@ -42,6 +42,7 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -373,8 +374,15 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
         }
         else if (Collection.class.isAssignableFrom(targetType)
                 && !Collection.class.isAssignableFrom(valueType)) {
-            Collection collection = getConfiguration().getObjectFactory().newInstance(
-                    (Class<? extends Collection>) targetType);
+            Collection collection;
+            if (EnumSet.class.isAssignableFrom(targetType) && Enum.class.isAssignableFrom(scalarType)) {
+                collection = EnumSet.noneOf(scalarType.asSubclass(Enum.class));
+            }
+            else {
+                collection = getConfiguration().getObjectFactory().newInstance(
+                        (Class<? extends Collection>) targetType);
+            }
+
             collection.addAll(valueOrValues);
             propertyEvaluation.setValue(collection);
         }
