@@ -44,6 +44,7 @@ import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -378,6 +379,9 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
             Collection collection = null;
             if (targetType.isInterface()) {
                 collection = (Collection) ReflectUtil.getInterfaceInstance(targetType);
+            }
+            else if (EnumSet.class.isAssignableFrom(targetType) && Enum.class.isAssignableFrom(scalarType)) {
+                collection = EnumSet.noneOf(scalarType.asSubclass(Enum.class));
             }
             else {
                 collection = (Collection) targetType.newInstance();
