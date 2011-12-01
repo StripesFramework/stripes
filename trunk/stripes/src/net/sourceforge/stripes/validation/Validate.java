@@ -45,7 +45,7 @@ public @interface Validate {
      * If true, then a parameter value to be bound to this field must be an encrypted string. It
      * also implies that when the value of this field is rendered by certain tags (e.g.,
      * {@link InputHiddenTag}) that it is to be rendered as an encrypted string. This prevents
-     * clients from injecting random values.
+     * clients from injecting random values. Encryption is disabled in debug mode.
      */
     boolean encrypted() default false;
 
