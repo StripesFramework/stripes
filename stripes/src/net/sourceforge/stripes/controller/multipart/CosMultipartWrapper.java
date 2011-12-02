@@ -15,8 +15,11 @@
 package net.sourceforge.stripes.controller.multipart;
 
 import com.oreilly.servlet.MultipartRequest;
+import com.oreilly.servlet.multipart.FileRenamePolicy;
+
 import net.sourceforge.stripes.action.FileBean;
 import net.sourceforge.stripes.controller.FileUploadLimitExceededException;
+import net.sourceforge.stripes.exception.StripesRuntimeException;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -62,15 +65,29 @@ public class CosMultipartWrapper implements MultipartWrapper {
      * @throws FileUploadLimitExceededException if the POST content is longer than the
      *         maxPostSize supplied.
      */
-    public void build(HttpServletRequest request, File tempDir, long maxPostSize)
+    public void build(HttpServletRequest request, final File tempDir, long maxPostSize)
             throws IOException, FileUploadLimitExceededException {
 
         try {
+            // Create a new file in the temp directory in case of file name conflict
+            FileRenamePolicy renamePolicy = new FileRenamePolicy() {
+                public File rename(File arg0) {
+                    try {
+                        return File.createTempFile("cos", "", tempDir);
+                    }
+                    catch (IOException e) {
+                        throw new StripesRuntimeException(
+                                "Caught an exception while trying to rename an uploaded file", e);
+                    }
+                }
+            };
+
             this.charset = request.getCharacterEncoding();
             this.multipart = new MultipartRequest(request,
                                                   tempDir.getAbsolutePath(),
                                                   (int) maxPostSize,
-                                                  this.charset);
+                                                  this.charset,
+                                                  renamePolicy);
         }
         catch (IOException ioe) {
             Matcher matcher = EXCEPTION_PATTERN.matcher(ioe.getMessage());
