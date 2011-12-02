@@ -488,6 +488,15 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
                     // in the set of fields that were on the page
                     if (!wizard || fieldsOnPage.contains(propertyName)) {
                         String[] values = trim(request.getParameterValues(propertyName), validationInfo);
+
+                        // Decrypt encrypted fields before checking for null
+                        if (validationInfo.encrypted()) {
+                            for (int i = 0, n = values.length; i < n; i++) {
+                                if (values[i] != null)
+                                    values[i] = CryptoUtil.decrypt(values[i]);
+                            }
+                        }
+
                         log.debug("Checking required field: ", propertyName, ", with values: ", values);
                         checkSingleRequiredField(propertyName, propertyName, values, stripesReq, errors);
                     }
@@ -579,7 +588,7 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
         }
         else {
             for (String value : values) {
-                if (value.length() == 0) {
+                if (value == null || value.length() == 0) {
                     ValidationError error = new ScopedLocalizableError("validation.required",
                             "valueNotPresent");
                     error.setFieldValue(value);
