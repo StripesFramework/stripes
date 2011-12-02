@@ -93,6 +93,19 @@ import java.util.LinkedList;
  * @author Tim Fennell
  */
 public class InputOptionsCollectionTag extends HtmlTagSupport {
+    /** A helper for writing HTML &lt;optgroup&gt; tags. */
+    private final HtmlTagSupport optgroupSupport = new HtmlTagSupport() {
+        @Override
+        public int doStartTag() throws JspException {
+            return 0;
+        }
+
+        @Override
+        public int doEndTag() throws JspException {
+            return 0;
+        }
+    };
+
     private Collection<? extends Object> collection;
     private String value;
     private String label;
@@ -323,6 +336,7 @@ public class InputOptionsCollectionTag extends HtmlTagSupport {
 
         Object lastGroup = null;
 
+        JspWriter out = getPageContext().getOut();
         for (Entry entry : sortedEntries) {
             // Set properties common to all options
             tag.getAttributes().putAll(getAttributes());
@@ -333,10 +347,11 @@ public class InputOptionsCollectionTag extends HtmlTagSupport {
             try {
                 if (entry.group != null && !entry.group.equals(lastGroup))
                 {
-                    JspWriter out = getPageContext().getOut();
-                    out.write("<optgroup label=\"");
-                    out.write(String.valueOf(entry.group).replaceAll("\"", "&quot;"));
-                    out.write(isXmlTags() ? "\" />" : "\">");
+                    if (lastGroup != null)
+                        optgroupSupport.writeCloseTag(out, "optgroup");
+
+                    optgroupSupport.set("label", String.valueOf(entry.group));
+                    optgroupSupport.writeOpenTag(out, "optgroup");
 
                     lastGroup = entry.group;
                 }
@@ -359,6 +374,9 @@ public class InputOptionsCollectionTag extends HtmlTagSupport {
                 tag.doFinally();
             }
         }
+
+        if (lastGroup != null)
+            optgroupSupport.writeCloseTag(out, "optgroup");
 
         // Clean up any temporary state
         this.entries.clear();
