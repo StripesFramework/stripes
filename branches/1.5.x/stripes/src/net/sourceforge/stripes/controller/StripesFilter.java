@@ -100,6 +100,27 @@ public class StripesFilter implements Filter {
      * @throws ServletException thrown if a problem is encountered initializing Stripes
      */
     public void init(FilterConfig filterConfig) throws ServletException {
+        this.configuration = createConfiguration(filterConfig);
+        StripesFilter.configurations.add(new WeakReference<Configuration>(this.configuration));
+
+        this.servletContext = filterConfig.getServletContext();
+        this.servletContext.setAttribute(StripesFilter.class.getName(), this);
+
+        Package pkg = getClass().getPackage();
+        log.info("Stripes Initialization Complete. Version: ", pkg.getSpecificationVersion(),
+                 ", Build: ", pkg.getImplementationVersion());
+    }
+
+    /**
+     * Create and configure a new {@link Configuration} instance using the suppied
+     * {@link FilterConfig}.
+     * 
+     * @param filterConfig The filter configuration supplied by the container.
+     * @return The new configuration instance.
+     * @throws ServletException If the configuration cannot be created.
+     */
+    protected static Configuration createConfiguration(FilterConfig filterConfig)
+            throws ServletException {
         BootstrapPropertyResolver bootstrap = new BootstrapPropertyResolver(filterConfig);
 
         // Set up the Configuration - if one isn't found by the bootstrapper then
@@ -111,7 +132,10 @@ public class StripesFilter implements Filter {
             clazz = RuntimeConfiguration.class;
 
         try {
-            this.configuration = clazz.newInstance();
+            Configuration configuration = clazz.newInstance();
+            configuration.setBootstrapPropertyResolver(bootstrap);
+            configuration.init();
+            return configuration;
         }
         catch (Exception e) {
             log.fatal(e,
@@ -120,17 +144,6 @@ public class StripesFilter implements Filter {
             throw new StripesServletException("Could not instantiate specified Configuration. "
                     + "Class name specified was [" + clazz.getName() + "].", e);
         }
-
-        this.configuration.setBootstrapPropertyResolver(bootstrap);
-        this.configuration.init();
-        StripesFilter.configurations.add(new WeakReference<Configuration>(this.configuration));
-
-        this.servletContext = filterConfig.getServletContext();
-        this.servletContext.setAttribute(StripesFilter.class.getName(), this);
-
-        Package pkg = getClass().getPackage();
-        log.info("Stripes Initialization Complete. Version: ", pkg.getSpecificationVersion(),
-                 ", Build: ", pkg.getImplementationVersion());
     }
 
     /**
