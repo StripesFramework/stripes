@@ -176,6 +176,9 @@ public class LayoutContext {
     /** Get the next layout context from the stack. */
     public LayoutContext getNext() { return next; }
 
+    /** Set the next layout context in the stack. */
+    public void setNext(LayoutContext next) { this.next = next; }
+
     /** Get the first context in the list. */
     public LayoutContext getFirst() {
         for (LayoutContext c = this;; c = c.getPrevious()) {
