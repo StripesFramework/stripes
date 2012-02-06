@@ -38,7 +38,7 @@ public class LayoutRenderTag extends LayoutTag implements BodyTag, DynamicAttrib
     private static final Log log = Log.getInstance(LayoutRenderTag.class);
 
     private String name;
-    private LayoutContext context;
+    private LayoutContext context, forkedContext;
     private boolean contextIsNew, silent;
     private BodyContent bodyContent;
 
@@ -53,10 +53,27 @@ public class LayoutRenderTag extends LayoutTag implements BodyTag, DynamicAttrib
         if (context == null) {
             LayoutContext context = LayoutContext.lookup(pageContext);
 
-            boolean create = context == null
-                    || context.getNext() == null
-                    && (!context.isComponentRenderPhase() || context.isComponentRenderPhase()
-                            && isChildOfCurrentComponent());
+            boolean create = context == null;
+            if (!create) {
+                boolean rendering = context.isComponentRenderPhase();
+                LayoutContext next = context.getNext();
+
+                if (next == null) {
+                    create = !rendering || rendering && isChildOfCurrentComponent();
+                }
+                else {
+                    create = rendering
+                            && isChildOfCurrentComponent()
+                            && !(context.getRenderPage().equals(next.getRenderPage()) && context
+                                    .getComponent().equals(next.getComponent()));
+
+                    if (create) {
+                        log.debug("Encountered a fork in the rendering path");
+                        forkedContext = next;
+                        context.setNext(null);
+                    }
+                }
+            }
 
             if (create)
                 context = LayoutContext.push(this);
@@ -201,6 +218,11 @@ public class LayoutRenderTag extends LayoutTag implements BodyTag, DynamicAttrib
             throw new JspException(e);
         }
         finally {
+            if (this.forkedContext != null) {
+                this.context.setNext(this.forkedContext);
+                this.forkedContext = null;
+            }
+
             this.context = null;
             this.contextIsNew = false;
             this.silent = false;
