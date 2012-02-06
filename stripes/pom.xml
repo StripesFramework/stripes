@@ -44,8 +44,8 @@
                                 <!-- make two copies of the taglib, one with and one without dynamic attributes -->
                                 <filter filtersfile="./resources/common-descriptions.properties"/>
                                 <filter token="dynattrs" value="false"/>
-                                <copy file="./resources/stripes.tld" todir="./target/classes/META-INF"
-                                      filtering="true"/>
+                                <copy file="./resources/stripes.tld" todir="./target/classes/META-INF" filtering="true"/>
+                                <copy file="./resources/stripes-buffered-layout.tld" todir="./target/classes/META-INF" filtering="true"/>
 
                                 <filter token="dynattrs" value="true"/>
                                 <copy file="./resources/stripes.tld"

@@ -88,6 +88,7 @@
     <filter filtersfile="${tld.dir}/common-descriptions.properties"/>
     <filter token="dynattrs" value="false"/>
     <copy file="${tld.dir}/stripes.tld" todir="${classes.dir}/META-INF" filtering="true"/>
+    <copy file="${tld.dir}/stripes-buffered-layout.tld" todir="${classes.dir}/META-INF" filtering="true"/>
 
     <filter token="dynattrs" value="true"/>
     <copy file="${tld.dir}/stripes.tld" tofile="${classes.dir}/META-INF/stripes-dynattr.tld" filtering="true"/>
