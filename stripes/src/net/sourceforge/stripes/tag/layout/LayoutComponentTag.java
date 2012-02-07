@@ -207,7 +207,18 @@ public class LayoutComponentTag extends LayoutTag {
                     }
 
                     log.debug("Register component ", getName(), " with ", context.getRenderPage());
-                    context.getComponents().put(getName(), new LayoutComponentRenderer(getName()));
+
+                    // Look for an existing renderer for a component with the same name
+                    LayoutComponentRenderer renderer = null;
+                    for (LayoutContext c = context; c != null && renderer == null; c = c.getPrevious()) {
+                        renderer = c.getComponents().get(getName());
+                    }
+
+                    // If not found then create a new one
+                    if (renderer == null)
+                        renderer = new LayoutComponentRenderer(getName());
+
+                    context.getComponents().put(getName(), renderer);
                 }
                 else if (isChildOfDefinition()) {
                     // Use a layout component renderer to do the heavy lifting
