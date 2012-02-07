@@ -62,11 +62,7 @@ public class LayoutRenderTag extends LayoutTag implements BodyTag, DynamicAttrib
                     create = !rendering || rendering && isChildOfCurrentComponent();
                 }
                 else {
-                    create = rendering
-                            && isChildOfCurrentComponent()
-                            && !(context.getRenderPage().equals(next.getRenderPage()) && context
-                                    .getComponent().equals(next.getComponent()));
-
+                    create = rendering && isChildOfCurrentComponent();
                     if (create) {
                         log.debug("Encountered a fork in the rendering path");
                         forkedContext = next;
