@@ -119,12 +119,14 @@ public class LayoutComponentRenderer {
             this.context = context;
 
             // Take a snapshot of the context state
+            final LayoutContext savedNext = context.getNext();
             final String savedComponent = context.getComponent();
             final boolean savedComponentRenderPhase = context.isComponentRenderPhase();
             final boolean savedSilent = context.getOut().isSilent();
 
             try {
                 // Set up the context to render the component
+                context.setNext(null);
                 context.setComponentRenderPhase(true);
                 context.setComponent(this.component);
                 context.getOut().setSilent(true, pageContext);
@@ -143,6 +145,7 @@ public class LayoutComponentRenderer {
             }
             finally {
                 // Restore the context state
+                context.setNext(savedNext);
                 context.setComponent(savedComponent);
                 context.setComponentRenderPhase(savedComponentRenderPhase);
                 context.getOut().setSilent(savedSilent, pageContext);
