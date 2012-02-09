@@ -15,6 +15,8 @@
 package net.sourceforge.stripes.tag.layout;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.Writer;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -23,6 +25,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServletResponseWrapper;
 import javax.servlet.jsp.PageContext;
 
 import net.sourceforge.stripes.exception.StripesRuntimeException;
@@ -41,6 +46,13 @@ public class LayoutContext {
 
     /** The attribute name by which the stack of layout contexts can be found in the request. */
     public static final String LAYOUT_CONTEXT_KEY = LayoutContext.class.getName() + "#Context";
+
+    /**
+     * The attribute name by which the indicator of broken include functionality in the application
+     * server can be found in the application scope.
+     */
+    public static final String BROKEN_INCLUDE_KEY = LayoutContext.class.getName()
+            + "#BROKEN_INCLUDE";
 
     /**
      * Create a new layout context for the given render tag and push it onto the stack of layout
@@ -211,11 +223,113 @@ public class LayoutContext {
             IOException {
         try {
             pageContext.getRequest().setAttribute(LAYOUT_CONTEXT_KEY, this);
-            pageContext.include(relativeUrlPath, false);
+            if (isIncludeBroken(pageContext))
+                doIncludeHack(pageContext, relativeUrlPath);
+            else
+                pageContext.include(relativeUrlPath, false);
         }
         finally {
             pageContext.getRequest().removeAttribute(LAYOUT_CONTEXT_KEY);
         }
+    }
+
+    /**
+     * Returns true if the current thread is executing in an application server that is known to
+     * have issues with doing normal includes using {@link PageContext#include(String, boolean)}.
+     */
+    protected boolean isIncludeBroken(PageContext pageContext) {
+        Boolean b = (Boolean) pageContext.getServletContext().getAttribute(BROKEN_INCLUDE_KEY);
+        if (b == null) {
+            b = pageContext.getClass().getName().startsWith("weblogic.");
+            pageContext.getServletContext().setAttribute(BROKEN_INCLUDE_KEY, b);
+            if (b) {
+                log.info("This application server's include is broken so a workaround will be used.");
+            }
+        }
+
+        return b;
+    }
+
+    /**
+     * An alternative to {@link PageContext#include(String, boolean)} that works around broken
+     * include functionality in certain application servers, including several current and recent
+     * releases of WebLogic.
+     */
+    protected void doIncludeHack(PageContext pageContext, String relativeUrlPath)
+            throws ServletException, IOException {
+        class MyServletOutputStream extends ServletOutputStream {
+            static final String DEFAULT_CHARSET = "UTF-8";
+
+            Writer out;
+            String charset = DEFAULT_CHARSET;
+
+            MyServletOutputStream(Writer out) {
+                this.out = out;
+            }
+
+            String getCharset() {
+                return charset;
+            }
+
+            void setCharset(String charset) {
+                this.charset = charset == null ? DEFAULT_CHARSET : charset;
+            }
+
+            @Override
+            public void write(int b) throws IOException {
+                throw new IOException("Unexpected call to write(byte)");
+            }
+
+            @Override
+            public void print(char c) throws IOException {
+                out.write(c);
+            }
+
+            @Override
+            public void print(String s) throws IOException {
+                out.write(s);
+            }
+
+            @Override
+            public void write(byte[] buf, int off, int len) throws IOException {
+                String s = new String(buf, off, len, charset);
+                out.write(s);
+            }
+
+            @Override
+            public void write(byte[] buf) throws IOException {
+                String s = new String(buf, charset);
+                out.write(s);
+            }
+        }
+
+        final MyServletOutputStream os = new MyServletOutputStream(pageContext.getOut());
+        final PrintWriter writer = new PrintWriter(pageContext.getOut());
+        final HttpServletResponse response = new HttpServletResponseWrapper(
+                (HttpServletResponse) pageContext.getResponse()) {
+            @Override
+            public String getCharacterEncoding() {
+                return os.getCharset();
+            }
+
+            @Override
+            public void setCharacterEncoding(String charset) {
+                os.setCharset(charset);
+            }
+
+            @Override
+            public ServletOutputStream getOutputStream() throws IOException {
+                return os;
+            }
+
+            @Override
+            public PrintWriter getWriter() throws IOException {
+                return writer;
+            }
+        };
+
+        pageContext.getRequest().getRequestDispatcher(relativeUrlPath)
+                .include(pageContext.getRequest(), response);
     }
 
     /** Get the render tag that created this context. */
