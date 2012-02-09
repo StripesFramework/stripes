@@ -164,7 +164,7 @@ public class LayoutWriter extends Writer {
             default:
                 if (this.silentState)
                     ++mark;
-                else if (i > mark && i == n - 1)
+                else if (i >= mark && i == n - 1)
                     getOut().write(cbuf, mark, i - mark + 1);
             }
         }
