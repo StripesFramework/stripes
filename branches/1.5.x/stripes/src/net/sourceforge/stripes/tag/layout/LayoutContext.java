@@ -17,6 +17,10 @@ package net.sourceforge.stripes.tag.layout;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Writer;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -257,27 +261,84 @@ public class LayoutContext {
      */
     protected void doIncludeHack(PageContext pageContext, String relativeUrlPath)
             throws ServletException, IOException {
+
+        /**
+         * A servlet output stream implementation that decodes bytes to characters and writes the
+         * characters to an underlying writer.
+         */
         class MyServletOutputStream extends ServletOutputStream {
             static final String DEFAULT_CHARSET = "UTF-8";
+            static final int BUFFER_SIZE = 1024;
 
             Writer out;
             String charset = DEFAULT_CHARSET;
+            CharsetDecoder decoder;
+            ByteBuffer bbuf;
+            CharBuffer cbuf;
 
+            /** Construct a new instance that sends output to the specified writer. */
             MyServletOutputStream(Writer out) {
                 this.out = out;
             }
 
+            /** Get the character set to which bytes will be decoded. */
             String getCharset() {
                 return charset;
             }
 
+            /** Set the character set to which bytes will be decoded. */
             void setCharset(String charset) {
-                this.charset = charset == null ? DEFAULT_CHARSET : charset;
+                if (charset == null)
+                    charset = DEFAULT_CHARSET;
+
+                // Create a new decoder only if the charset has changed
+                if (!charset.equals(this.charset))
+                    decoder = null;
+
+                this.charset = charset;
             }
 
-            @Override
-            public void write(int b) throws IOException {
-                throw new IOException("Unexpected call to write(byte)");
+            /** Initialize the character decoder, byte buffer and character buffer. */
+            void initDecoder() {
+                if (decoder == null) {
+                    decoder = Charset.forName(getCharset()).newDecoder();
+
+                    if (bbuf == null)
+                        bbuf = ByteBuffer.allocate(BUFFER_SIZE);
+
+                    int size = (int) Math.ceil(BUFFER_SIZE * decoder.maxCharsPerByte());
+                    if (cbuf == null || cbuf.capacity() != size)
+                        cbuf = CharBuffer.allocate(size);
+                }
+            }
+
+            /**
+             * Clear the byte buffer. If the byte buffer has any data remaining to be read, then
+             * those bytes are shifted to the front of the buffer and the buffer's position is
+             * updated accordingly.
+             */
+            void resetBuffer() {
+                if (bbuf.hasRemaining()) {
+                    ByteBuffer slice = bbuf.slice();
+                    bbuf.clear();
+                    bbuf.put(slice);
+                }
+                else {
+                    bbuf.clear();
+                }
+            }
+
+            /**
+             * Decode the contents of the byte buffer to the character buffer and then write the
+             * contents of the character buffer to the underlying writer.
+             */
+            void decodeBuffer() throws IOException {
+                bbuf.flip();
+                cbuf.clear();
+                decoder.decode(bbuf, cbuf, false);
+                cbuf.flip();
+                out.write(cbuf.array(), cbuf.position(), cbuf.remaining());
+                resetBuffer();
             }
 
             @Override
@@ -291,15 +352,29 @@ public class LayoutContext {
             }
 
             @Override
+            public void write(int b) throws IOException {
+                initDecoder();
+                bbuf.put((byte) b);
+                decodeBuffer();
+            }
+
+            @Override
             public void write(byte[] buf, int off, int len) throws IOException {
-                String s = new String(buf, off, len, charset);
-                out.write(s);
+                initDecoder();
+
+                for (int i = 0; i < len; i += bbuf.remaining()) {
+                    int n = len - i;
+                    if (n > bbuf.remaining())
+                        n = bbuf.remaining();
+
+                    bbuf.put(buf, i, n);
+                    decodeBuffer();
+                }
             }
 
             @Override
             public void write(byte[] buf) throws IOException {
-                String s = new String(buf, charset);
-                out.write(s);
+                write(buf, 0, buf.length);
             }
         }
 
