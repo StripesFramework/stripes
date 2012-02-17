@@ -23,6 +23,7 @@ import net.sourceforge.stripes.exception.StripesJspException;
 import net.sourceforge.stripes.util.CryptoUtil;
 import net.sourceforge.stripes.util.HtmlUtil;
 import net.sourceforge.stripes.util.Log;
+import net.sourceforge.stripes.util.StringUtil;
 import net.sourceforge.stripes.util.UrlBuilder;
 import net.sourceforge.stripes.validation.ValidationErrors;
 import net.sourceforge.stripes.validation.ValidationError;
@@ -97,9 +98,10 @@ public class FormTag extends HtmlTagSupport implements BodyTag, TryCatchFinally,
     protected String getActionBeanUrlBinding() {
         ActionResolver resolver = StripesFilter.getConfiguration().getActionResolver();
         if (actionBeanClass == null) {
-            String binding = resolver.getUrlBindingFromPath(actionWithoutContext);
+            String path = StringUtil.trimFragment(this.actionWithoutContext);
+            String binding = resolver.getUrlBindingFromPath(path);
             if (binding == null)
-                binding = actionWithoutContext;
+                binding = path;
             return binding;
         }
         else {

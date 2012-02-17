@@ -127,4 +127,22 @@ public class StringUtil {
 
         return buf.toString();
     }
+
+    /**
+     * Return the specified URL or path string with the fragment part removed. If the string does
+     * not contain a fragment then return the string unchanged.
+     * 
+     * @param url The URL or path
+     * @return The URL or path without the fragment
+     */
+    public static String trimFragment(String url) {
+        if (url == null || url.length() < 1)
+            return url;
+
+        int index = url.indexOf('#');
+        if (index >= 0)
+            return url.substring(0, index);
+        else
+            return url;
+    }
 }
