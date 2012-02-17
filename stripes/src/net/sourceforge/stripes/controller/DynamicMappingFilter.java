@@ -467,6 +467,10 @@ public class DynamicMappingFilter implements Filter {
     protected synchronized void initStripesFilter(HttpServletRequest request,
             HttpServletResponse response) throws ServletException {
         try {
+            // Check if another thread got into this method before the current thread
+            if (getStripesFilter() != null)
+                return;
+
             log.info("StripesFilter not initialized. Checking the situation in web.xml ...");
             Document document = parseWebXml();
             NodeList filterNodes = eval("/web-app/filter/filter-class[text()='"
