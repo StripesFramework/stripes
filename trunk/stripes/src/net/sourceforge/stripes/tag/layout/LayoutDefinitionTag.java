@@ -20,7 +20,7 @@ import java.util.Map;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.PageContext;
 
-import net.sourceforge.stripes.exception.StripesJspException;
+import net.sourceforge.stripes.exception.StripesRuntimeException;
 
 /**
  * On the surface, allows a developer to define a layout using a custom tag - but is actually
@@ -34,25 +34,23 @@ public class LayoutDefinitionTag extends LayoutTag {
     private LayoutContext context;
     private boolean renderPhase, silent;
 
-    /**
-     * Get the current layout context.
-     * 
-     * @throws StripesJspException If there is no {@link LayoutContext} for this layout in the
-     *             current {@link PageContext}.
-     */
-    public LayoutContext getContext() throws StripesJspException {
-        if (context == null) {
-            context = LayoutContext.lookup(pageContext);
+    @Override
+    public void setPageContext(PageContext pageContext) {
+        // Call super method
+        super.setPageContext(pageContext);
+        
+        // Initialize layout context and related fields
+        context = LayoutContext.lookup(pageContext);
 
-            if (context == null || getLayoutParent() != null) {
-                throw new StripesJspException("The JSP page " + getCurrentPagePath()
-                        + " contains a layout-definition tag and was invoked directly. "
-                        + "A layout-definition can only be invoked by a page that contains "
-                        + "a layout-render tag.");
-            }
+        if (context == null || getLayoutParent() != null) {
+            throw new StripesRuntimeException("The JSP page " + getCurrentPagePath()
+                    + " contains a layout-definition tag and was invoked directly. "
+                    + "A layout-definition can only be invoked by a page that contains "
+                    + "a layout-render tag.");
         }
 
-        return context;
+        renderPhase = context.isComponentRenderPhase();
+        silent = context.getOut().isSilent();
     }
 
     /**
@@ -65,10 +63,6 @@ public class LayoutDefinitionTag extends LayoutTag {
     @Override
     public int doStartTag() throws JspException {
         try {
-            LayoutContext context = getContext(); // Initialize context
-            renderPhase = context.isComponentRenderPhase(); // Initialize phase flag
-            silent = context.getOut().isSilent();
-
             // Flag this definition has rendered, even though it's not really done yet.
             context.setRendered(true);
 
@@ -100,7 +94,7 @@ public class LayoutDefinitionTag extends LayoutTag {
     public int doEndTag() throws JspException {
         try {
             cleanUpComponentRenderers();
-            getContext().getOut().setSilent(silent, pageContext);
+            context.getOut().setSilent(silent, pageContext);
             return SKIP_PAGE;
         }
         catch (IOException e) {
