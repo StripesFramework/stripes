@@ -15,13 +15,13 @@
 package net.sourceforge.stripes.tag.layout;
 
 import java.io.IOException;
-import java.util.Iterator;
-import java.util.List;
 import java.util.regex.Pattern;
 
 import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.PageContext;
 
 import net.sourceforge.stripes.exception.StripesJspException;
+import net.sourceforge.stripes.exception.StripesRuntimeException;
 import net.sourceforge.stripes.util.Log;
 
 /**
@@ -49,61 +49,23 @@ public class LayoutComponentTag extends LayoutTag {
     /** Sets the name of the component. */
     public void setName(String name) { this.name = name; }
 
-    /**
-     * Get the current layout context.
-     * 
-     * @throws StripesJspException If a {@link LayoutContext} is not found.
-     */
-    public LayoutContext getContext() throws StripesJspException {
+    @Override
+    public void setPageContext(PageContext pageContext) {
+        // Call super method
+        super.setPageContext(pageContext);
+
+        // Initialize the layout context and related fields
+        context = LayoutContext.lookup(pageContext);
+
         if (context == null) {
-            context = LayoutContext.lookup(pageContext);
-
-            if (context == null) {
-                throw new StripesJspException("A component tag named \"" + getName() + "\" in "
-                        + getCurrentPagePath() + " was unable to find a layout context.");
-            }
-
-            log.trace("Component ", getName() + " has context ", context.getRenderPage(), " -> ",
-                    context.getDefinitionPage());
+            throw new StripesRuntimeException("A component tag named \"" + getName() + "\" in "
+                    + getCurrentPagePath() + " was unable to find a layout context.");
         }
 
-        return context;
-    }
+        log.trace("Component ", getName() + " has context ", context.getRenderPage(), " -> ",
+                context.getDefinitionPage());
 
-    /**
-     * True if this tag is a component that must execute so that the current component tag can
-     * execute. That is, this tag is a parent of the current component.
-     * 
-     * @throws StripesJspException if thrown by {@link #getContext()}.
-     */
-    protected boolean isPathComponent() throws StripesJspException {
-        List<String> path = getContext().getComponentPath();
-        return path == null ? false : isPathComponent(this, path.iterator());
-    }
-
-    /**
-     * Recursive method called from {@link #isPathComponent()} that returns true if the specified
-     * tag's name is present in the component path iterator at the same position where this tag
-     * occurs in the render/component tag tree. For example, if the path iterator contains the
-     * component names {@code ["foo", "bar"]} then this method will return true if the tag's name is
-     * {@code "bar"} and it is a child of a render tag that is a child of a component tag whose name
-     * is {@code "foo"}.
-     * 
-     * @param tag The tag to check
-     * @param path The path to the check the tag against
-     * @return
-     */
-    protected boolean isPathComponent(LayoutComponentTag tag, Iterator<String> path) {
-        LayoutTag parent = tag.getLayoutParent();
-        if (parent instanceof LayoutRenderTag) {
-            parent = parent.getLayoutParent();
-            if (!(parent instanceof LayoutComponentTag) || parent instanceof LayoutComponentTag
-                    && isPathComponent((LayoutComponentTag) parent, path) && path.hasNext()) {
-                return tag.getName().equals(path.next());
-            }
-        }
-
-        return false;
+        silent = context.getOut().isSilent();
     }
 
     /**
@@ -113,24 +75,16 @@ public class LayoutComponentTag extends LayoutTag {
      * @throws StripesJspException If a {@link LayoutContext} is not found.
      */
     public boolean isCurrentComponent() throws StripesJspException {
-        final LayoutContext context = getContext();
         String name = context.getComponent();
         if (name == null || !name.equals(getName()))
             return false;
 
-        final List<String> want = context.getComponentPath();
-        if (want == null)
-            return true;
-
         final LayoutTag parent = getLayoutParent();
         if (!(parent instanceof LayoutRenderTag))
-            return false;
+            return context.getComponentPath().getComponentPath() == null;
 
-        final List<String> got = context.getPathToRenderTag((LayoutRenderTag) parent);
-        if (got == null)
-            return false;
-
-        return want.equals(got);
+        final LayoutRenderTagPath got = ((LayoutRenderTag) parent).getPath();
+        return got != null && got.equals(context.getComponentPath());
     }
 
     /**
@@ -154,9 +108,6 @@ public class LayoutComponentTag extends LayoutTag {
     @Override
     public int doStartTag() throws JspException {
         try {
-            LayoutContext context = getContext();
-            silent = context.getOut().isSilent();
-
             if (context.isComponentRenderPhase()) {
                 if (isChildOfRender()) {
                     if (isCurrentComponent()) {
@@ -164,7 +115,7 @@ public class LayoutComponentTag extends LayoutTag {
                         context.getOut().setSilent(false, pageContext);
                         return EVAL_BODY_INCLUDE;
                     }
-                    else if (isPathComponent()) {
+                    else if (context.getComponentPath().isPathComponent(this)) {
                         log.debug("Silently execute '", getName(), "' in ", context.getRenderPage());
                         context.getOut().setSilent(true, pageContext);
                         return EVAL_BODY_INCLUDE;
@@ -280,7 +231,6 @@ public class LayoutComponentTag extends LayoutTag {
             // Set current component name back to null as a signal to the component tag within the
             // definition tag that the component did, indeed, render and it should not output the
             // default contents.
-            LayoutContext context = getContext();
             if (isCurrentComponent())
                 context.setComponent(null);
 
