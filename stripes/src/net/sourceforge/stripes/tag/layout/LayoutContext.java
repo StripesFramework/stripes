@@ -21,10 +21,7 @@ import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -143,7 +140,7 @@ public class LayoutContext {
     private Map<String,LayoutComponentRenderer> components = new HashMap<String,LayoutComponentRenderer>();
     private Map<String,Object> parameters = new HashMap<String,Object>();
     private String renderPage, component;
-    private List<String> componentPath;
+    private LayoutRenderTagPath componentPath;
     private boolean componentRenderPhase, rendered;
 
     /**
@@ -155,35 +152,8 @@ public class LayoutContext {
     public LayoutContext(LayoutRenderTag renderTag) {
         this.renderTag = renderTag;
         this.renderPage = renderTag.getCurrentPagePath();
-
-        List<String> path = getPathToRenderTag(renderTag);
-        if (path != null) {
-            this.componentPath = Collections.unmodifiableList(path);
-            log.debug("Path is ", this.componentPath);
-        }
-    }
-
-    /**
-     * Calculate the path to a render tag. The path is a list of names of components that must
-     * execute, in order, so that the specified render tag can execute.
-     * 
-     * @param tag The render tag.
-     * @return A list of component names or null if the render tag is not a child of a component.
-     */
-    public List<String> getPathToRenderTag(LayoutRenderTag tag) {
-        LinkedList<String> path = null;
-
-        for (LayoutTag parent = tag.getLayoutParent(); parent instanceof LayoutComponentTag;) {
-            if (path == null)
-                path = new LinkedList<String>();
-
-            path.addFirst(((LayoutComponentTag) parent).getName());
-
-            parent = parent.getLayoutParent();
-            parent = parent instanceof LayoutRenderTag ? parent.getLayoutParent() : null;
-        }
-
-        return path;
+        this.componentPath = new LayoutRenderTagPath(renderTag);
+        log.debug("Path is ", this.componentPath);
     }
 
     /** Get the previous layout context from the stack. */
@@ -447,7 +417,7 @@ public class LayoutContext {
      * Get the list of components in the render page that must execute so that the render tag that
      * created this context can execute.
      */
-    public List<String> getComponentPath() { return componentPath; }
+    public LayoutRenderTagPath getComponentPath() { return componentPath; }
 
     /** Get the layout writer to which the layout is rendered. */
     public LayoutWriter getOut() { return out; }
