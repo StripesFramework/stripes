@@ -46,35 +46,41 @@ public class LayoutRenderTag extends LayoutTag implements BodyTag, DynamicAttrib
     /** Gets the name of the layout to be used. */
     public String getName() { return name; }
 
-    /** Sets the name of the layout to be used. */
-    public void setName(String name) { this.name = name; }
+    /** Sets the name of the layout to be used and then calls {@link #initialize()}. */
+    public void setName(String name) {
+        this.name = name;
+        initialize();
+    }
 
     /** Get the {@link LayoutRenderTagPath} that identifies this tag within the current page. */
     public LayoutRenderTagPath getPath( ) { return path; }
 
-    /** Look up an existing layout context or create a new one if none is found. */
-    public LayoutContext getContext() {
-        if (context == null) {
-            LayoutContext context = LayoutContext.lookup(pageContext);
+    /**
+     * Initialize fields before execution begins. Typically, this would be done by overriding
+     * {@link #setPageContext(javax.servlet.jsp.PageContext)}, but that isn't possible in this case
+     * because some of the logic depends on {@link #setName(String)} having been called, which does
+     * not happen until after {@link #setPageContext(javax.servlet.jsp.PageContext)} has been
+     * called.
+     */
+    protected void initialize() {
+        LayoutContext context = LayoutContext.lookup(pageContext);
 
-            boolean create = context == null || !context.isComponentRenderPhase()
-                    || isChildOfCurrentComponent();
+        boolean create = context == null || !context.isComponentRenderPhase()
+                || isChildOfCurrentComponent();
 
-            LayoutRenderTagPath path;
-            if (create) {
-                context = LayoutContext.push(this);
-                path = context.getComponentPath();
-            }
-            else {
-                path = new LayoutRenderTagPath(this);
-            }
-
-            this.context = context;
-            this.contextIsNew = create;
-            this.path = path;
+        LayoutRenderTagPath path;
+        if (create) {
+            context = LayoutContext.push(this);
+            path = context.getComponentPath();
+        }
+        else {
+            path = new LayoutRenderTagPath(this);
         }
 
-        return context;
+        this.context = context;
+        this.contextIsNew = create;
+        this.path = path;
+        this.silent = context.getOut().isSilent();
     }
 
     /** Returns true if this tag is a child of the current component tag. */
@@ -92,7 +98,7 @@ public class LayoutRenderTag extends LayoutTag implements BodyTag, DynamicAttrib
 
     /** Used by the JSP container to provide the tag with dynamic attributes. */
     public void setDynamicAttribute(String uri, String localName, Object value) throws JspException {
-        getContext().getParameters().put(localName, value);
+        context.getParameters().put(localName, value);
     }
 
     /**
@@ -109,9 +115,6 @@ public class LayoutRenderTag extends LayoutTag implements BodyTag, DynamicAttrib
     @Override
     public int doStartTag() throws JspException {
         try {
-            LayoutContext context = getContext();
-            silent = context.getOut().isSilent();
-
             if (contextIsNew) {
                 log.debug("Start layout init in ", context.getRenderPage());
                 pushPageContextAttributes(context.getParameters());
@@ -163,7 +166,6 @@ public class LayoutRenderTag extends LayoutTag implements BodyTag, DynamicAttrib
     @Override
 	public int doEndTag() throws JspException {
         try {
-            LayoutContext context = getContext();
             if (contextIsNew) {
                 log.debug("End layout init in ", context.getRenderPage());
 

@@ -18,8 +18,10 @@ import java.io.IOException;
 import java.util.regex.Pattern;
 
 import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.PageContext;
 
 import net.sourceforge.stripes.exception.StripesJspException;
+import net.sourceforge.stripes.exception.StripesRuntimeException;
 import net.sourceforge.stripes.util.Log;
 
 /**
@@ -47,25 +49,23 @@ public class LayoutComponentTag extends LayoutTag {
     /** Sets the name of the component. */
     public void setName(String name) { this.name = name; }
 
-    /**
-     * Get the current layout context.
-     * 
-     * @throws StripesJspException If a {@link LayoutContext} is not found.
-     */
-    public LayoutContext getContext() throws StripesJspException {
+    @Override
+    public void setPageContext(PageContext pageContext) {
+        // Call super method
+        super.setPageContext(pageContext);
+
+        // Initialize the layout context and related fields
+        context = LayoutContext.lookup(pageContext);
+
         if (context == null) {
-            context = LayoutContext.lookup(pageContext);
-
-            if (context == null) {
-                throw new StripesJspException("A component tag named \"" + getName() + "\" in "
-                        + getCurrentPagePath() + " was unable to find a layout context.");
-            }
-
-            log.trace("Component ", getName() + " has context ", context.getRenderPage(), " -> ",
-                    context.getDefinitionPage());
+            throw new StripesRuntimeException("A component tag named \"" + getName() + "\" in "
+                    + getCurrentPagePath() + " was unable to find a layout context.");
         }
 
-        return context;
+        log.trace("Component ", getName() + " has context ", context.getRenderPage(), " -> ",
+                context.getDefinitionPage());
+
+        silent = context.getOut().isSilent();
     }
 
     /**
@@ -75,7 +75,6 @@ public class LayoutComponentTag extends LayoutTag {
      * @throws StripesJspException If a {@link LayoutContext} is not found.
      */
     public boolean isCurrentComponent() throws StripesJspException {
-        final LayoutContext context = getContext();
         String name = context.getComponent();
         if (name == null || !name.equals(getName()))
             return false;
@@ -109,9 +108,6 @@ public class LayoutComponentTag extends LayoutTag {
     @Override
     public int doStartTag() throws JspException {
         try {
-            LayoutContext context = getContext();
-            silent = context.getOut().isSilent();
-
             if (context.isComponentRenderPhase()) {
                 if (isChildOfRender()) {
                     if (isCurrentComponent()) {
@@ -235,7 +231,6 @@ public class LayoutComponentTag extends LayoutTag {
             // Set current component name back to null as a signal to the component tag within the
             // definition tag that the component did, indeed, render and it should not output the
             // default contents.
-            LayoutContext context = getContext();
             if (isCurrentComponent())
                 context.setComponent(null);
 
