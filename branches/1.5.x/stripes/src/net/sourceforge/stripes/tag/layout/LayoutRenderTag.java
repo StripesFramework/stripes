@@ -40,6 +40,7 @@ public class LayoutRenderTag extends LayoutTag implements BodyTag, DynamicAttrib
     private String name;
     private LayoutContext context;
     private boolean contextIsNew, silent;
+    private LayoutRenderTagPath path;
     private BodyContent bodyContent;
 
     /** Gets the name of the layout to be used. */
@@ -47,6 +48,9 @@ public class LayoutRenderTag extends LayoutTag implements BodyTag, DynamicAttrib
 
     /** Sets the name of the layout to be used. */
     public void setName(String name) { this.name = name; }
+
+    /** Get the {@link LayoutRenderTagPath} that identifies this tag within the current page. */
+    public LayoutRenderTagPath getPath( ) { return path; }
 
     /** Look up an existing layout context or create a new one if none is found. */
     public LayoutContext getContext() {
@@ -56,11 +60,18 @@ public class LayoutRenderTag extends LayoutTag implements BodyTag, DynamicAttrib
             boolean create = context == null || !context.isComponentRenderPhase()
                     || isChildOfCurrentComponent();
 
-            if (create)
+            LayoutRenderTagPath path;
+            if (create) {
                 context = LayoutContext.push(this);
+                path = context.getComponentPath();
+            }
+            else {
+                path = new LayoutRenderTagPath(this);
+            }
 
             this.context = context;
             this.contextIsNew = create;
+            this.path = path;
         }
 
         return context;
@@ -201,6 +212,7 @@ public class LayoutRenderTag extends LayoutTag implements BodyTag, DynamicAttrib
         finally {
             this.context = null;
             this.contextIsNew = false;
+            this.path = null;
             this.silent = false;
 
             if (this.bodyContent != null) {
