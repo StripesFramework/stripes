@@ -262,9 +262,11 @@ public class SpringHelper {
                                            boolean allowFindByType) {
         // First try to lookup using the name provided
         try {
-            Object bean =  ctx.getBean(name, type);
-            log.debug("Found spring bean with name [", name, "] and type [",
-                      bean.getClass().getName(), "]");
+            Object bean = ctx.getBean(name, type);
+            if (bean != null) {
+                log.debug("Found spring bean with name [", name, "] and type [", bean.getClass()
+                        .getName(), "]");
+            }
             return bean;
         }
         catch (NestedRuntimeException nre) {
