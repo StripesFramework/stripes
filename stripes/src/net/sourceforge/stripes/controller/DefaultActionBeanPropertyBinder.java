@@ -357,7 +357,7 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
      * @param targetType the declared type of the property on the ActionBean
      * @throws Exception if the property cannot be bound for any reason
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     protected void bindNonNullValue(ActionBean bean,
             PropertyExpressionEvaluation propertyEvaluation, List<Object> valueOrValues,
             Class targetType, Class scalarType) throws Exception {
@@ -743,7 +743,7 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
      * @return List<Object> a List of objects containing only objects of the desired type. It is
      *         not guaranteed to be the same length as the values array passed in.
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     protected List<Object> convert(ActionBean bean, ParameterName propertyName, String[] values,
                                    Class<?> declaredType, Class<?> scalarType,
                                    ValidationMetadata validationInfo, List<ValidationError> errors)
@@ -794,7 +794,7 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
                 value = CryptoUtil.decrypt(value);
             }
 
-            if (!"".equals(value)) {
+            if (value != null && value.length() > 0) {
                 try {
                     Object retval = null;
                     if (converter != null) {
