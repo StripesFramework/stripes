@@ -78,6 +78,16 @@ public abstract class OnwardResolution<T extends OnwardResolution<T>> implements
         this.event = event;
     }
 
+    /** Get the event name that was specified in one of the constructor calls. */
+    public String getEvent() {
+        return event;
+    }
+
+    /** Return true if an event name was specified when this instance was constructed. */
+    public boolean isEventSpecified() {
+        return event != VALUE_NOT_SET;
+    }
+
     /** Accessor for the path that the user should be sent to. */
     public String getPath() {
         return path;
