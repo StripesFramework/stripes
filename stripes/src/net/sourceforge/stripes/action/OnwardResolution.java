@@ -80,7 +80,7 @@ public abstract class OnwardResolution<T extends OnwardResolution<T>> implements
 
     /** Get the event name that was specified in one of the constructor calls. */
     public String getEvent() {
-        return event;
+        return event == VALUE_NOT_SET ? null : event;
     }
 
     /** Return true if an event name was specified when this instance was constructed. */
