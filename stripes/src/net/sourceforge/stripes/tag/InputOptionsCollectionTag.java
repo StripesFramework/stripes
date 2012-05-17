@@ -278,21 +278,22 @@ public class InputOptionsCollectionTag extends HtmlTagSupport {
                 if (attemptToLocalizeLabels) {
                     // Try to localize the label
                     String packageName = clazz.getPackage() == null ? "" : clazz.getPackage().getName();
+                    String simpleName = LocalizationUtility.getSimpleName(clazz);
                     String localizedLabel = null;
                     if (label != null) {
                         localizedLabel = LocalizationUtility.getLocalizedFieldName
-                            (clazz.getSimpleName() + "."  + label, packageName, null, locale);
+                            (simpleName + "."  + label, packageName, null, locale);
                     }
                     if (localizedLabel == null && value != null) {
                         localizedLabel = LocalizationUtility.getLocalizedFieldName
-                            (clazz.getSimpleName() + "."  + value, packageName, null, locale);
+                            (simpleName + "."  + value, packageName, null, locale);
                     }
                     if (localizedLabel != null) label = localizedLabel;
 
                     // Try to localize the group
                     if (group != null) {
                         String localizedGroup = LocalizationUtility.getLocalizedFieldName(
-                            clazz.getSimpleName() + "." + group, packageName, null, locale);
+                            simpleName + "." + group, packageName, null, locale);
                         if (localizedGroup != null) group = localizedGroup;
                     }
                 }

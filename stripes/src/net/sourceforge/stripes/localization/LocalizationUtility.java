@@ -152,4 +152,26 @@ public class LocalizationUtility {
             return null;
         }
     }
+
+    /**
+     * Gets the simple name of a class for use as a key to look up a resource. This is usually the
+     * same as {@link Class#getSimpleName()}, but static inner classes are handled such that the
+     * simple name is {@code OuterClass.InnerClass}. Multiple layers of nesting are supported.
+     * 
+     * @param c The class whose simple name is requested.
+     * @return The simple name of the class.
+     */
+    public static String getSimpleName(Class<?> c) {
+        if (c.getEnclosingClass() == null)
+            return c.getSimpleName();
+        else
+            return prefixSimpleName(new StringBuilder(), c).toString();
+    }
+
+    /** A recursive method used by {@link #getSimpleName(Class)}. */
+    private static StringBuilder prefixSimpleName(StringBuilder s, Class<?> c) {
+        if (c.getEnclosingClass() != null)
+            prefixSimpleName(s, c.getEnclosingClass()).append('.');
+        return s.append(c.getSimpleName());
+    }
 }
