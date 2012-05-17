@@ -127,8 +127,8 @@ public class PropertyExpression {
                 }
                 else {
                     String value = builder.toString();
-                    addNode(value, value.length() == 1 ? value.charAt(0) :  value);
-                    builder = new StringBuilder();
+                    addNode(value, value.length() == 1 ? value.charAt(0) :  value, inSquareBrackets);
+                    builder.setLength(0);
                 }
             }
             else if (inSingleQuotedString) { builder.append(ch); }
@@ -144,27 +144,27 @@ public class PropertyExpression {
                 }
                 else {
                     String value = builder.toString();
-                    addNode(value, value);
-                    builder = new StringBuilder();
+                    addNode(value, value, inSquareBrackets);
+                    builder.setLength(0);
                 }
             }
             else if (inDoubleQuotedString) { builder.append(ch); }
             // Deal with square brackets
             else if (!inSquareBrackets && ch == '[') {
                 if (builder.length() > 0) {
-                    addNode(builder.toString(), null);
-                    builder = new StringBuilder();
+                    addNode(builder.toString(), null, inSquareBrackets);
+                    builder.setLength(0);
                 }
                 inSquareBrackets = true;
             }
             else if (inSquareBrackets) {
                 // Using the nested IF allows us to consume periods in unquoted strings of digits
                 if (ch == ']') {
-                    inSquareBrackets = false;
                     if (builder.length() > 0) {
-                        addNode(builder.toString(), null);
-                        builder = new StringBuilder();
+                        addNode(builder.toString(), null, inSquareBrackets);
+                        builder.setLength(0);
                     }
+                    inSquareBrackets = false;
                 }
                 else {
                     builder.append(ch);
@@ -176,7 +176,7 @@ public class PropertyExpression {
                     // Ignore pseudo-zero-length nodes
                 }
                 else {
-                    addNode(builder.toString(), null);
+                    addNode(builder.toString(), null, inSquareBrackets);
                     builder = new StringBuilder();
                 }
             }
@@ -199,7 +199,7 @@ public class PropertyExpression {
                                              "Expression appears to terminate inside of square bracketed sub-expression.");
                 }
                 else if (builder.length() > 0) {
-                    addNode(builder.toString(), null);
+                    addNode(builder.toString(), null, inSquareBrackets);
                 }
             }
         }
@@ -210,8 +210,9 @@ public class PropertyExpression {
      * @param nodeValue the String part of the expression that the node represents
      * @param typedValue a strongly typed value for the nodeValue if one is indicated by
      *        the expression String, otherwise null to automatically determine
+     * @param bracketed True if {@code nodeValue} was inside square brackets.
      */
-    private void addNode(String nodeValue, Object typedValue) {
+    private void addNode(String nodeValue, Object typedValue, boolean bracketed) {
         // Determine the primitive/wrapper type of the node
         if (typedValue != null) {
             // skip ahead
@@ -239,7 +240,7 @@ public class PropertyExpression {
             typedValue = nodeValue;
         }
 
-        Node node = new Node(nodeValue, typedValue);
+        Node node = new Node(nodeValue, typedValue, bracketed);
 
         // Attach the node at the appropriate point in the expression
         if (this.root == null) {
