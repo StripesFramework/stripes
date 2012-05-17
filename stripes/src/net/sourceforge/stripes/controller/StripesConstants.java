@@ -32,8 +32,8 @@ public interface StripesConstants {
     String URL_KEY_SOURCE_PAGE = "_sourcePage";
 
     /**
-     * The name of a URL parameter that is used to hold the path (relative to the web application
-     * root) from which the current form submission was made.
+     * The name of a URL parameter that is used to hold the names of certain inputs that are present
+     * in a form if those inputs might not be submitted with the form, such as checkboxes.
      */
     String URL_KEY_FIELDS_PRESENT = "__fp";
 
