@@ -74,6 +74,7 @@ public class PropertyExpressionEvaluation {
         }
 
         fillInTypeInformation();
+        validateTypeInformation();
     }
 
     /**
@@ -190,6 +191,22 @@ public class PropertyExpressionEvaluation {
                 if (type == null) {
                     // FIXME: What do we do now?
                 }
+            }
+        }
+    }
+
+    /**
+     * Ensures no violations exist in the expression in the context of this evaluation. Currently,
+     * this ensures that no attempt is made to access a bean property via a bracket expression. Such
+     * an expression could be used to circumvent validations that use dot notation for the same
+     * property. See <a href="http://www.stripesframework.org/jira/browse/STS-841">STS-841</a> for
+     * more information.
+     */
+    protected void validateTypeInformation() {
+        for (NodeEvaluation n = getRootNode(); n != null; n = n.getNext()) {
+            if (n.getType() == NodeType.BeanProperty && n.getNode().isBracketed()) {
+                throw new EvaluationException("The expression \"" + getExpression().getSource()
+                        + "\" illegally attempts to access a bean property using bracket notation");
             }
         }
     }
