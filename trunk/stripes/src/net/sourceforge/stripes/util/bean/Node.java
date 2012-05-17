@@ -26,13 +26,15 @@ package net.sourceforge.stripes.util.bean;
 public class Node {
     private String stringValue;
     private Object typedValue;
+    private boolean bracketed;
     private Node next;
     private Node previous;
 
     /** Constructs a new node with the String value and typed value provided. */
-    public Node(String value, Object typedValue) {
+    public Node(String value, Object typedValue, boolean bracketed) {
         this.stringValue = value;
         this.typedValue = typedValue;
+        this.bracketed = bracketed;
     }
 
     /**
@@ -55,6 +57,9 @@ public class Node {
      * @return the typed value (may also be a String)
      */
     public Object getTypedValue() { return typedValue; }
+
+    /** True if the expression that generated this node was inside square brackets. */
+    public boolean isBracketed() { return bracketed; }
 
     /** Gets the next node in the expression. Returns null if this is the terminal node. */
     public Node getNext() { return next; }
