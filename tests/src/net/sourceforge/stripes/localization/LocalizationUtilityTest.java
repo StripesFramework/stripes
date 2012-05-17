@@ -44,4 +44,24 @@ public class LocalizationUtilityTest {
         String output = LocalizationUtility.makePseudoFriendlyName(input);
         Assert.assertEquals(output, "Bug Submitted By First Name");
     }
+
+    public static enum TestEnum {
+        A, B, C;
+    }
+
+    public static class A {
+        public static class B {
+            public static class C {
+            }
+        }
+    }
+
+    @Test(groups = "fast")
+    public void testSimpleClassName() throws Exception {
+        String output = LocalizationUtility.getSimpleName(TestEnum.class);
+        Assert.assertEquals(output, "LocalizationUtilityTest.TestEnum");
+
+        output = LocalizationUtility.getSimpleName(A.B.C.class);
+        Assert.assertEquals(output, "LocalizationUtilityTest.A.B.C");
+    }
 }
