@@ -205,6 +205,14 @@ public class ValidationMetadata {
             this.on = null;
         }
         else {
+            // Check for empty strings in the "on" element
+            for (String s : on) {
+                if (s.isEmpty() || "!".equals(s)) {
+                    throw new IllegalArgumentException(
+                            "@Validate's \"on\" element must not contain empty strings");
+                }
+            }
+
             this.on = new HashSet<String>();
             this.onIsPositive = !(on[0].charAt(0) == '!');
             for (String s : on) {
