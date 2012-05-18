@@ -91,7 +91,6 @@ public class LayoutRenderTagPath {
      * can execute. That is, this tag is a parent of the current component.
      * 
      * @param tag The tag to check to see if it is part of this path.
-     * @throws StripesJspException if thrown by {@link #getContext()}.
      */
     public boolean isPathComponent(LayoutComponentTag tag) throws StripesJspException {
         List<String> path = getComponentPath();
@@ -99,16 +98,15 @@ public class LayoutRenderTagPath {
     }
 
     /**
-     * Recursive method called from {@link #isPathComponent()} that returns true if the specified
-     * tag's name is present in the component path iterator at the same position where this tag
-     * occurs in the render/component tag tree. For example, if the path iterator contains the
-     * component names {@code ["foo", "bar"]} then this method will return true if the tag's name is
-     * {@code "bar"} and it is a child of a render tag that is a child of a component tag whose name
-     * is {@code "foo"}.
+     * Recursive method called from {@link #isPathComponent(LayoutComponentTag)} that returns true
+     * if the specified tag's name is present in the component path iterator at the same position
+     * where this tag occurs in the render/component tag tree. For example, if the path iterator
+     * contains the component names {@code ["foo", "bar"]} then this method will return true if the
+     * tag's name is {@code "bar"} and it is a child of a render tag that is a child of a component
+     * tag whose name is {@code "foo"}.
      * 
      * @param tag The tag to check
      * @param path The path to the check the tag against
-     * @return
      */
     protected boolean isPathComponent(LayoutComponentTag tag, Iterator<String> path) {
         LayoutTag parent = tag.getLayoutParent();
