@@ -4,7 +4,7 @@
     We use multi-module project in order to avoid directory refactorings
     and thereby breaking of the currently used and build.    
 -->
-<project>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.sonatype.oss</groupId>
@@ -13,7 +13,7 @@
     </parent>
     <groupId>net.sourceforge.stripes</groupId>
     <artifactId>stripes-parent</artifactId>
-    <version>1.5.7-SNAPSHOT</version>
+    <version>1.5.7</version>
     <packaging>pom</packaging>
     <name>Stripes Parent</name>
     <url>http://stripesframework.org/</url>
@@ -26,9 +26,9 @@
         </license>
     </licenses>
     <scm>
-        <url>https://stripes.svn.sourceforge.net/svnroot/stripes</url>
-        <connection>scm:svn:https://stripes.svn.sourceforge.net/svnroot/stripes</connection>
-        <developerConnection>scm:svn:https://stripes.svn.sourceforge.net/svnroot/stripes</developerConnection>
+        <url>https://stripes.svn.sourceforge.net/svnroot/stripes/tags/1.5.7</url>
+        <connection>scm:svn:https://stripes.svn.sourceforge.net/svnroot/stripes/tags/1.5.7</connection>
+        <developerConnection>scm:svn:https://stripes.svn.sourceforge.net/svnroot/stripes/tags/1.5.7</developerConnection>
     </scm>
     <issueManagement>
         <system>JIRA</system>
