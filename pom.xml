@@ -13,7 +13,7 @@
     </parent>
     <groupId>net.sourceforge.stripes</groupId>
     <artifactId>stripes-parent</artifactId>
-    <version>1.5.7</version>
+    <version>1.5.8-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Stripes Parent</name>
     <url>http://stripesframework.org/</url>
@@ -26,9 +26,9 @@
         </license>
     </licenses>
     <scm>
-        <url>https://stripes.svn.sourceforge.net/svnroot/stripes/tags/1.5.7</url>
-        <connection>scm:svn:https://stripes.svn.sourceforge.net/svnroot/stripes/tags/1.5.7</connection>
-        <developerConnection>scm:svn:https://stripes.svn.sourceforge.net/svnroot/stripes/tags/1.5.7</developerConnection>
+        <url>https://stripes.svn.sourceforge.net/svnroot/stripes</url>
+        <connection>scm:svn:https://stripes.svn.sourceforge.net/svnroot/stripes</connection>
+        <developerConnection>scm:svn:https://stripes.svn.sourceforge.net/svnroot/stripes</developerConnection>
     </scm>
     <issueManagement>
         <system>JIRA</system>

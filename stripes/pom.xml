@@ -8,7 +8,7 @@
     <parent>
         <groupId>net.sourceforge.stripes</groupId>
         <artifactId>stripes-parent</artifactId>
-        <version>1.5.7</version>
+        <version>1.5.8-SNAPSHOT</version>
     </parent>
     <artifactId>stripes</artifactId>
     <packaging>jar</packaging>
