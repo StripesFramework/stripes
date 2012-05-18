@@ -27,8 +27,8 @@
     </licenses>
     <scm>
         <url>https://svn.sourceforge.net/svnroot/stripes</url>
-        <developerConnection>https://svn.sourceforge.net/svnroot/stripes</developerConnection>
-        <connection>https://svn.sourceforge.net/svnroot/stripes</connection>
+        <connection>scm:svn:https://svn.sourceforge.net/svnroot/stripes</connection>
+        <developerConnection>scm:svn:https://svn.sourceforge.net/svnroot/stripes</developerConnection>
     </scm>
     <issueManagement>
         <system>JIRA</system>
