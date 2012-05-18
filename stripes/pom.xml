@@ -3,12 +3,12 @@
     Stripes core. Produces the stripe.jar needed in
     users webapps.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project>
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>net.sourceforge.stripes</groupId>
         <artifactId>stripes-parent</artifactId>
-        <version>1.5.7</version>
+        <version>1.5.7-SNAPSHOT</version>
     </parent>
     <artifactId>stripes</artifactId>
     <packaging>jar</packaging>
@@ -42,14 +42,17 @@
                         <configuration>
                             <target>
                                 <!-- make two copies of the taglib, one with and one without dynamic attributes -->
-                                <filter filtersfile="./resources/common-descriptions.properties" />
-                                <filter token="dynattrs" value="false" />
-                                <copy file="./resources/stripes.tld" todir="./target/classes/META-INF" filtering="true" />
-                                <copy file="./resources/stripes-buffered-layout.tld" todir="./target/classes/META-INF" filtering="true" />
+                                <filter filtersfile="./resources/common-descriptions.properties"/>
+                                <filter token="dynattrs" value="false"/>
+                                <copy file="./resources/stripes.tld" todir="./target/classes/META-INF" filtering="true"/>
+                                <copy file="./resources/stripes-buffered-layout.tld" todir="./target/classes/META-INF" filtering="true"/>
 
-                                <filter token="dynattrs" value="true" />
-                                <copy file="./resources/stripes.tld" tofile="./target/classes/META-INF/stripes-dynattr.tld" filtering="true" />
-                                <replace file="./target/classes/META-INF/stripes-dynattr.tld" token="http://stripes.sourceforge.net/stripes.tld" value="http://stripes.sourceforge.net/stripes-dynattr.tld" />
+                                <filter token="dynattrs" value="true"/>
+                                <copy file="./resources/stripes.tld"
+                                      tofile="./target/classes/META-INF/stripes-dynattr.tld" filtering="true"/>
+                                <replace file="./target/classes/META-INF/stripes-dynattr.tld"
+                                         token="http://stripes.sourceforge.net/stripes.tld"
+                                         value="http://stripes.sourceforge.net/stripes-dynattr.tld"/>
                             </target>
                         </configuration>
                         <goals>
@@ -68,14 +71,19 @@
                         <configuration>
                             <target>
                                 <java fork="true" jar="./lib/build/tlddoc.jar" failonerror="false">
-                                    <arg line="-d './target/taglib'" />
-                                    <arg line="-doctitle 'Stripes ${project.version} Tag Library Documentation'" />
-                                    <arg line="-windowtitle 'Stripes ${project.version} Tag Library Documentation'" />
-                                    <arg value="./target/classes/META-INF/stripes.tld" />
+                                    <arg line="-d './target/taglib'"/>
+                                    <arg line="-doctitle 'Stripes ${project.version} Tag Library Documentation'"/>
+                                    <arg line="-windowtitle 'Stripes ${project.version} Tag Library Documentation'"/>
+                                    <arg value="./target/classes/META-INF/stripes.tld"/>
                                 </java>
-                                <copy file="./src/javadoc.css" tofile="./target/taglib/stylesheet.css" overwrite="true" />
-                                <replace file="./target/taglib/index.html" token="overview-summary.html" value="stripes/tld-summary.html" />
-                                <jar destfile="./target/stripes-${project.version}-tlddoc.jar" basedir="./target/taglib" />
+                                <copy file="./src/javadoc.css"
+                                      tofile="./target/taglib/stylesheet.css"
+                                      overwrite="true"/>
+                                <replace file="./target/taglib/index.html"
+                                         token="overview-summary.html"
+                                         value="stripes/tld-summary.html"/>
+                                <jar destfile="./target/stripes-${project.version}-tlddoc.jar"
+                                     basedir="./target/taglib"/>
                             </target>
                         </configuration>
                         <goals>
@@ -130,7 +138,7 @@
                         <configuration>
                             <stylesheetfile>${basedir}/src/javadoc.css</stylesheetfile>
                             <overview>${basedir}/src/overview.html</overview>
-                            <bottom>© Copyright 2005-2006, Stripes Development Team.</bottom>
+                            <bottom>&#169; Copyright 2005-2006, Stripes Development Team.</bottom>
                             <author>true</author>
                             <protected>true</protected>
                             <use>true</use>
