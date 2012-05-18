@@ -64,8 +64,8 @@ public class PageOptionsTag extends StripesTagSupport {
 
     /**
      * Get the HTML mode for the given page context. If the request attribute
-     * {@value #REQ_ATTR_HTML_MODE} is present then use that value. Otherwise, use the global
-     * configuration property {@value #CFG_KEY_HTML_MODE}.
+     * {@link #REQ_ATTR_HTML_MODE} is present then use that value. Otherwise, use the global
+     * configuration property {@link #CFG_KEY_HTML_MODE}.
      */
     public static String getHtmlMode(PageContext pageContext) {
         String htmlMode = (String) pageContext.getAttribute(REQ_ATTR_HTML_MODE,
