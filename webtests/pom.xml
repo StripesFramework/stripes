@@ -4,7 +4,7 @@
     <parent>
         <groupId>net.sourceforge.stripes</groupId>
         <artifactId>stripes-parent</artifactId>
-        <version>1.5.7-SNAPSHOT</version>
+        <version>1.5.7</version>
     </parent>
     <artifactId>webtests</artifactId>
     <packaging>war</packaging>
