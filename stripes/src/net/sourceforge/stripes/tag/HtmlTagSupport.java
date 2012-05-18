@@ -121,7 +121,7 @@ public abstract class HtmlTagSupport extends StripesTagSupport implements Dynami
      * Returns true if HTML tags that have no body should be closed like XML tags, with "/&gt;".
      * False if such HTML tags should be closed in the style of HTML4, with just a "&gt;".
      * 
-     * @see PageOptionsTag#getHtmlMode()
+     * @see PageOptionsTag#setHtmlMode(String)
      */
     protected boolean isXmlTags() {
         return !"html".equalsIgnoreCase(PageOptionsTag.getHtmlMode(pageContext));
