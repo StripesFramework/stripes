@@ -2,12 +2,12 @@
 <!--
     Stripes Examples Webapp.
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project>
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>net.sourceforge.stripes</groupId>
         <artifactId>stripes-parent</artifactId>
-        <version>1.5.8-SNAPSHOT</version>
+        <version>1.5.7-SNAPSHOT</version>
     </parent>
     <artifactId>examples</artifactId>
     <packaging>war</packaging>
@@ -86,7 +86,7 @@
                         <configuration>
                             <target>
                                 <copy todir="./web/WEB-INF/src" flatten="true" overwrite="true">
-                                    <fileset dir="./src" includes="**/*.java" />
+                                    <fileset dir="./src" includes="**/*.java"/>
                                 </copy>
                             </target>
                         </configuration>
