@@ -15,7 +15,7 @@
 package net.sourceforge.stripes.controller;
 
 import java.lang.reflect.Method;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
@@ -66,7 +66,7 @@ public class HttpCacheInterceptor implements Interceptor {
 
     private static final Log logger = Log.getInstance(HttpCacheInterceptor.class);
 
-    private Map<CacheKey, HttpCache> cache = new HashMap<CacheKey, HttpCache>(128);
+    private Map<CacheKey, HttpCache> cache = new ConcurrentHashMap<CacheKey, HttpCache>(128);
 
     public Resolution intercept(ExecutionContext ctx) throws Exception {
         final ActionBean actionBean = ctx.getActionBean();
