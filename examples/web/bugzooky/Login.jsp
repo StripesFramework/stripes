@@ -7,8 +7,8 @@
 			<tr>
 				<td style="width: 25%; vertical-align: top;">
 				<!-- Somewhat contrived example of using the errors tag 'beanclass' attribute. -->
-				<stripes:errors beanclass="${actionBean.class}" />
-				<stripes:form beanclass="${actionBean.class}" focus="username">
+				<stripes:errors action="/examples/bugzooky/Login.action"/>
+				<stripes:form action="/examples/bugzooky/Login.action" focus="username">
 					<table>
 						<tr>
 							<td style="font-weight: bold;"><stripes:label for="username" />:</td>
