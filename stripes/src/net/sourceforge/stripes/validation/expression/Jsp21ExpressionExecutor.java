@@ -85,7 +85,7 @@ public class Jsp21ExpressionExecutor implements ExpressionExecutor {
          */
         @Override
         public Object getValue(ELContext ctx, Object base, Object prop) {
-            if ("this".equals(prop)) {
+            if (ExpressionExecutorSupport.isSelfKeyword(this.bean, prop)) {
                 ctx.setPropertyResolved(true);
                 return this.currentValue;
             }
