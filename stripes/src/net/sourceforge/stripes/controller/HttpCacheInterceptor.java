@@ -139,10 +139,9 @@ public class HttpCacheInterceptor implements Interceptor {
                 logger.warn(HttpCache.class.getSimpleName(), " for ", beanClass.getName(), ".",
                         method.getName(), "() disables caching but explicitly sets expires");
             }
+            cache.put(cacheKey, annotation);
         }
 
-        // cache and return it
-        cache.put(cacheKey, annotation);
         return annotation;
     }
 }
