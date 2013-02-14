@@ -14,6 +14,7 @@
  */
 package net.sourceforge.stripes.controller;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.Map;
@@ -66,6 +67,20 @@ public class HttpCacheInterceptor implements Interceptor {
 
     private static final Log logger = Log.getInstance(HttpCacheInterceptor.class);
 
+    private static final HttpCache NULL_CACHE = new HttpCache() {
+        public boolean allow() {
+            return false;
+        }
+
+        public int expires() {
+            return 0;
+        }
+
+        public Class<? extends Annotation> annotationType() {
+            return null;
+        }
+    };
+
     private Map<CacheKey, HttpCache> cache = new ConcurrentHashMap<CacheKey, HttpCache>(128);
 
     public Resolution intercept(ExecutionContext ctx) throws Exception {
@@ -112,6 +127,9 @@ public class HttpCacheInterceptor implements Interceptor {
         CacheKey cacheKey = new CacheKey(method, beanClass);
         if (cache.containsKey(cacheKey)) {
             HttpCache annotation = cache.get(cacheKey);
+            if (annotation==NULL_CACHE) {
+                return null;
+            }
             return annotation;
         }
 
@@ -139,8 +157,12 @@ public class HttpCacheInterceptor implements Interceptor {
                 logger.warn(HttpCache.class.getSimpleName(), " for ", beanClass.getName(), ".",
                         method.getName(), "() disables caching but explicitly sets expires");
             }
-            cache.put(cacheKey, annotation);
         }
+
+        if (annotation==null) {
+            annotation = NULL_CACHE;
+        }
+        cache.put(cacheKey, annotation);
 
         return annotation;
     }
