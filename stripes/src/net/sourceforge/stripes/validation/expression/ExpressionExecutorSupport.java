@@ -41,6 +41,7 @@ import java.util.List;
  */
 @SuppressWarnings("deprecation")
 public abstract class ExpressionExecutorSupport implements ExpressionExecutor {
+
     private static final Log log = Log.getInstance(ExpressionExecutorSupport.class);
 
     /**
@@ -73,7 +74,7 @@ public abstract class ExpressionExecutorSupport implements ExpressionExecutor {
          * @throws javax.servlet.jsp.el.ELException
          */
         public Object resolveVariable(String property) throws ELException {
-            if (ExpressionExecutor.THIS.equals(property)) {
+            if (isSelfKeyword(bean, property)) {
                 return this.currentValue;
             }
             else if (StripesConstants.REQ_ATTR_ACTION_BEAN.equals(property)) {
@@ -142,4 +143,26 @@ public abstract class ExpressionExecutorSupport implements ExpressionExecutor {
      * @return a working ExpressionEvaluator implementation.
      */
     protected abstract ExpressionEvaluator getEvaluator() ;
+
+    /**
+     * Utility method for checking deprecated use of 'this' in expressions. Checks if
+     * <code>prop</code> == 'this' and logs a Warning message inviting the user to
+     * update to the new keyword.
+     */
+    static boolean isSelfKeyword(ActionBean bean, Object prop) {
+        boolean isDeprecatedThis = THIS.equals(prop);
+        if (isDeprecatedThis) {
+            // log a message if using the deprecated 'this' keyword. This can happen
+            // if the appserver (e.g. tomcat 7) is configured to skip identifier
+            // check.
+            // this message encourages the user to update EL validation
+            // expressions using the new keyword
+            log.warn("You are using the 'this' keyword in ActionBean class '" + bean.getClass().getName() +
+                    "'. It is a reserved keyword. Your application server doesn't seem to complain, but " +
+                    "the application could malfunction on other servers. " +
+                    "Please use the keyword '" + SELF + "' in replacement of 'this' in your EL expressions.");
+        }
+        return isDeprecatedThis || SELF.equals(prop);
+    }
+
 }

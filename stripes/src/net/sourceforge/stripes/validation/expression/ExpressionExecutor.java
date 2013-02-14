@@ -39,8 +39,23 @@ public interface ExpressionExecutor {
     /** The error key to use when constructing errors. */
     String ERROR_KEY = "valueFailedExpression";
 
-    /** The special name given to the field that the expression is annotated on. */
+    /**
+     * The special name given to the field that the expression is annotated on.
+     *
+     * @deprecated  See http://www.stripesframework.org/jira/browse/STS-822 - replaced by SELF
+     */
+    @Deprecated
     String THIS = "this";
+
+    /**
+     * .
+     * This constant is the keyword to be used to refer to the 'this' in EL expressions, which is invalid in
+     * EL implementations.
+     *
+     * http://www.stripesframework.org/jira/browse/STS-822
+     */
+    final String SELF = "self";
+
 
     /**
      * Performs validation of an ActionBean property using the expression contained
