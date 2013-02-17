@@ -1,12 +1,16 @@
 package net.sourceforge.stripes.validation;
 
+import net.sourceforge.stripes.FilterEnabledTestBase;
 import net.sourceforge.stripes.StripesTestFixture;
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.action.ActionBeanContext;
 import net.sourceforge.stripes.action.Resolution;
 import net.sourceforge.stripes.mock.MockRoundtrip;
 
+import net.sourceforge.stripes.mock.MockServletContext;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
@@ -14,7 +18,8 @@ import org.testng.annotations.Test;
  * 
  * @author Ben Gunter
  */
-public class ValidationWithGenericsTest {
+public class ValidationWithGenericsTest extends FilterEnabledTestBase {
+
     public static class User {
         private String username, password;
         public String getUsername() { return username; }
@@ -111,7 +116,7 @@ public class ValidationWithGenericsTest {
 
     protected void runValidationTests(Class<? extends BaseActionBean<User>> type) throws Exception {
         // Trigger the validation errors
-        MockRoundtrip trip = new MockRoundtrip(StripesTestFixture.getServletContext(), type);
+        MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), type);
         trip.execute("login");
         ValidationErrors errors = trip.getValidationErrors();
         Assert.assertNotNull(errors, "Expected validation errors but got none");

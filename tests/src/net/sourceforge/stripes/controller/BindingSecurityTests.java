@@ -1,5 +1,6 @@
 package net.sourceforge.stripes.controller;
 
+import net.sourceforge.stripes.FilterEnabledTestBase;
 import net.sourceforge.stripes.StripesTestFixture;
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.action.ActionBeanContext;
@@ -9,6 +10,7 @@ import net.sourceforge.stripes.action.StrictBinding;
 import net.sourceforge.stripes.action.StrictBinding.Policy;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
 import net.sourceforge.stripes.mock.MockRoundtrip;
+import net.sourceforge.stripes.mock.MockServletContext;
 import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.util.bean.PropertyExpression;
 import net.sourceforge.stripes.util.bean.PropertyExpressionEvaluation;
@@ -16,12 +18,14 @@ import net.sourceforge.stripes.validation.Validate;
 import net.sourceforge.stripes.validation.ValidateNestedProperties;
 
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
  * Tests binding security.
  */
-public class BindingSecurityTests {
+public class BindingSecurityTests extends FilterEnabledTestBase {
     public static class NoAnnotation implements ActionBean {
         private ActionBeanContext context;
 
@@ -211,7 +215,7 @@ public class BindingSecurityTests {
         boolean[] expect = bean.getExpectSuccess();
 
         Class<? extends NoAnnotation> beanType = bean.getClass();
-        MockRoundtrip trip = new MockRoundtrip(StripesTestFixture.getServletContext(), beanType);
+        MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), beanType);
         for (String p : properties)
             trip.addParameter(p, p + "Value");
         trip.execute();

@@ -2,6 +2,7 @@ package net.sourceforge.stripes.validation;
 
 import java.util.Locale;
 
+import net.sourceforge.stripes.FilterEnabledTestBase;
 import net.sourceforge.stripes.StripesTestFixture;
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.action.ActionBeanContext;
@@ -10,9 +11,12 @@ import net.sourceforge.stripes.controller.StripesFilter;
 import net.sourceforge.stripes.extensions.MyIntegerTypeConverter;
 import net.sourceforge.stripes.extensions.MyStringTypeConverter;
 import net.sourceforge.stripes.mock.MockRoundtrip;
+import net.sourceforge.stripes.mock.MockServletContext;
 import net.sourceforge.stripes.util.CryptoUtil;
 
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
@@ -20,7 +24,7 @@ import org.testng.annotations.Test;
  *
  * @author Freddy Daoud
  */
-public class ValidationAnnotationsTest implements ActionBean {
+public class ValidationAnnotationsTest extends FilterEnabledTestBase implements ActionBean {
     private ActionBeanContext context;
     public ActionBeanContext getContext() { return context; }
     public void setContext(ActionBeanContext context) { this.context = context;}
@@ -40,7 +44,7 @@ public class ValidationAnnotationsTest implements ActionBean {
      */
     @Test(groups="fast")
     public void testValidateRequiredAndIgnored() throws Exception {
-        MockRoundtrip trip = new MockRoundtrip(StripesTestFixture.getServletContext(), getClass());
+        MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
         trip.execute("validateRequiredAndIgnored");
         ActionBean actionBean = trip.getActionBean(getClass());
         Assert.assertEquals(actionBean.getContext().getValidationErrors().size(), 0);
@@ -58,7 +62,7 @@ public class ValidationAnnotationsTest implements ActionBean {
      */
     @Test(groups="fast")
     public void testValidatePublicField() throws Exception {
-        MockRoundtrip trip = new MockRoundtrip(StripesTestFixture.getServletContext(), getClass());
+        MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
         trip.execute("validatePublicField");
         ActionBean actionBean = trip.getActionBean(getClass());
         Assert.assertEquals(actionBean.getContext().getValidationErrors().size(), 1);
@@ -82,7 +86,7 @@ public class ValidationAnnotationsTest implements ActionBean {
     @Test(groups="extensions")
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public void testValidateTypeConverterExtendsStock() throws Exception {
-        MockRoundtrip trip = new MockRoundtrip(StripesTestFixture.getServletContext(), getClass());
+        MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
         Locale locale = trip.getRequest().getLocale();
         TypeConverterFactory factory = StripesFilter.getConfiguration().getTypeConverterFactory();
         TypeConverter<?> tc = factory.getTypeConverter(Integer.class, locale);
@@ -115,7 +119,7 @@ public class ValidationAnnotationsTest implements ActionBean {
         Class<? extends TypeConverter> oldtc = factory.getTypeConverter(//
                 String.class, Locale.getDefault()).getClass();
         try {
-            MockRoundtrip trip = new MockRoundtrip(StripesTestFixture.getServletContext(), getClass());
+            MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
             factory.add(String.class, MyStringTypeConverter.class);
             trip.addParameter("shouldBeUpperCased", "test");
             trip.addParameter("shouldNotBeUpperCased", "test");
@@ -141,7 +145,7 @@ public class ValidationAnnotationsTest implements ActionBean {
      */
     @Test(groups="fast")
     public void testValidateEncryptedEmptyString() throws Exception {
-        MockRoundtrip trip = new MockRoundtrip(StripesTestFixture.getServletContext(), getClass());
+        MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
         trip.addParameter("encryptedParam", CryptoUtil.encrypt(""));
         trip.execute("validateEncrypted");
         ValidationAnnotationsTest actionBean = trip.getActionBean(getClass());

@@ -1,9 +1,14 @@
 package net.sourceforge.stripes.util.bean;
 
+import net.sourceforge.stripes.FilterEnabledTestBase;
+import net.sourceforge.stripes.StripesTestFixture;
+import net.sourceforge.stripes.mock.MockServletContext;
 import net.sourceforge.stripes.test.TestActionBean;
 import net.sourceforge.stripes.test.TestBean;
 import net.sourceforge.stripes.test.TestEnum;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.util.ArrayList;
@@ -13,7 +18,8 @@ import java.util.HashMap;
 /**
  * 
  */
-public class PropertyExpressionEvaluationTests {
+public class PropertyExpressionEvaluationTests extends FilterEnabledTestBase {
+
     @Test(groups="fast")
     public void testGetBasicPropertyType() {
         PropertyExpression expr = PropertyExpression.getExpression("singleLong");

@@ -1,5 +1,9 @@
 package net.sourceforge.stripes.validation;
 
+import net.sourceforge.stripes.FilterEnabledTestBase;
+import net.sourceforge.stripes.mock.MockServletContext;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.testng.Assert;
 import net.sourceforge.stripes.action.ActionBean;
@@ -25,14 +29,14 @@ import java.util.Locale;
  * @author Tim Fennell
  */
 @UrlBinding("/test/OneToMany.action")
-public class OneToManyTypeConverterTest implements ActionBean {
+public class OneToManyTypeConverterTest extends FilterEnabledTestBase implements ActionBean {
     private ActionBeanContext context;
     @Validate(converter=OneToManyTypeConverter.class) private List<Long> numbers;
     @Validate(converter=OneToManyTypeConverter.class) private List<Date> dates;
 
     @Test(groups="fast")
     public void testListOfLong() throws Exception {
-        MockRoundtrip trip = new MockRoundtrip(StripesTestFixture.getServletContext(), getClass());
+        MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
         trip.addParameter("numbers", "123 456 789");
         trip.execute();
         OneToManyTypeConverterTest bean = trip.getActionBean(getClass());
@@ -42,7 +46,7 @@ public class OneToManyTypeConverterTest implements ActionBean {
 
     @Test(groups="fast")
     public void testListOfDate() throws Exception {
-        MockRoundtrip trip = new MockRoundtrip(StripesTestFixture.getServletContext(), getClass());
+        MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
         trip.getRequest().addLocale(Locale.ENGLISH);
         trip.addParameter("dates", "12/31/2005, 1/1/2006, 6/15/2008, 7/7/2007");
         trip.execute();
@@ -58,7 +62,7 @@ public class OneToManyTypeConverterTest implements ActionBean {
 
     @Test(groups="fast")
     public void testWithErrors() throws Exception {
-        MockRoundtrip trip = new MockRoundtrip(StripesTestFixture.getServletContext(), getClass());
+        MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
         trip.addParameter("numbers", "123 456 abc 789 def");
         trip.execute();
 

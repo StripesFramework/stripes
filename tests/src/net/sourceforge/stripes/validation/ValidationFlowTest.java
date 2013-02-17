@@ -1,5 +1,6 @@
 package net.sourceforge.stripes.validation;
 
+import net.sourceforge.stripes.FilterEnabledTestBase;
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.action.ActionBeanContext;
 import net.sourceforge.stripes.action.DefaultHandler;
@@ -8,6 +9,9 @@ import net.sourceforge.stripes.action.Resolution;
 import net.sourceforge.stripes.action.UrlBinding;
 import net.sourceforge.stripes.mock.MockRoundtrip;
 import net.sourceforge.stripes.StripesTestFixture;
+import net.sourceforge.stripes.mock.MockServletContext;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.testng.Assert;
 
@@ -19,7 +23,7 @@ import org.testng.Assert;
  * @author Tim Fennell
  */
 @UrlBinding("/test/ValidationFlowTest.action")
-public class ValidationFlowTest implements ActionBean {
+public class ValidationFlowTest extends FilterEnabledTestBase implements ActionBean {
     int counter=1, validateAlwaysRan, validateOneRan, validateTwoRan;
 
     private ActionBeanContext context;
@@ -67,7 +71,7 @@ public class ValidationFlowTest implements ActionBean {
      */
     @Test(groups="fast")
     public void testEventZeroNoErrors() throws Exception {
-        MockRoundtrip trip = new MockRoundtrip(StripesTestFixture.getServletContext(), getClass());
+        MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
         trip.addParameter("numberZero", "99");
         trip.execute("eventZero");
 
@@ -86,7 +90,7 @@ public class ValidationFlowTest implements ActionBean {
      */
     @Test(groups="fast")
     public void testEventZeroWithErrors() throws Exception {
-        MockRoundtrip trip = new MockRoundtrip(StripesTestFixture.getServletContext(), getClass());
+        MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
         trip.addParameter("numberZero", "99");
         trip.addParameter("numberOne", "-100");
         trip.execute("eventZero");
@@ -105,7 +109,7 @@ public class ValidationFlowTest implements ActionBean {
      */
     @Test(groups="fast")
     public void testEventOneNoErrors() throws Exception {
-        MockRoundtrip trip = new MockRoundtrip(StripesTestFixture.getServletContext(), getClass());
+        MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
         trip.addParameter("numberZero", "100");
         trip.addParameter("numberOne", "101");
 
@@ -127,7 +131,7 @@ public class ValidationFlowTest implements ActionBean {
      */
     @Test(groups="fast")
     public void testEventOneWithErrors() throws Exception {
-        MockRoundtrip trip = new MockRoundtrip(StripesTestFixture.getServletContext(), getClass());
+        MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
         trip.addParameter("numberZero", "100");
         trip.addParameter("numberOne", "");  // required field for event one
         trip.execute("eventOne");
@@ -147,7 +151,7 @@ public class ValidationFlowTest implements ActionBean {
      */
     @Test(groups="fast")
     public void testEventOneAsDefault() throws Exception {
-        MockRoundtrip trip = new MockRoundtrip(StripesTestFixture.getServletContext(), getClass());
+        MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
         trip.addParameter("numberZero", "100");
         trip.addParameter("numberOne", "101");
         trip.execute();
@@ -168,7 +172,7 @@ public class ValidationFlowTest implements ActionBean {
      */
     @Test(groups="fast")
     public void testEventTwoNoErrors() throws Exception {
-        MockRoundtrip trip = new MockRoundtrip(StripesTestFixture.getServletContext(), getClass());
+        MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
         trip.addParameter("numberZero", "100");
         trip.addParameter("numberTwo",  "102");
 
@@ -189,7 +193,7 @@ public class ValidationFlowTest implements ActionBean {
      */
     @Test(groups="fast")
     public void testEventTwoWithErrors() throws Exception {
-        MockRoundtrip trip = new MockRoundtrip(StripesTestFixture.getServletContext(), getClass());
+        MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
         trip.addParameter("numberZero", ""); // required field always
         trip.addParameter("numberTwo", "");  // required field for event one
         trip.execute("eventTwo");

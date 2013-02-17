@@ -46,32 +46,36 @@ public class TestMockRoundtripCookies implements ActionBean {
     @Test(groups = "fast")
     public void testDefaultEvent() throws Exception {
         // Setup the servlet engine
-        MockServletContext ctx = StripesTestFixture.getServletContext();
-        MockRoundtrip trip = new MockRoundtrip(ctx, TestMockRoundtripCookies.class);
+        MockServletContext ctx = StripesTestFixture.createServletContext();
+        try {
+            MockRoundtrip trip = new MockRoundtrip(ctx, TestMockRoundtripCookies.class);
 
-        Cookie[] cookies = new Cookie[] { new Cookie("Cookie", "1"), new Cookie("Monster", "2"),
-                new Cookie("Test", "3") };
-        trip.getRequest().setCookies(cookies);
-        trip.execute();
+            Cookie[] cookies = new Cookie[] { new Cookie("Cookie", "1"), new Cookie("Monster", "2"),
+                    new Cookie("Test", "3") };
+            trip.getRequest().setCookies(cookies);
+            trip.execute();
 
-        Assert.assertEquals(trip.getResponse().getCookies().length, 4);
+            Assert.assertEquals(trip.getResponse().getCookies().length, 4);
 
-        for (Cookie cookie : trip.getResponse().getCookies()) {
-            if ("Cookie".equals(cookie.getName())) {
-                Assert.assertEquals(cookie.getValue(), "1");
+            for (Cookie cookie : trip.getResponse().getCookies()) {
+                if ("Cookie".equals(cookie.getName())) {
+                    Assert.assertEquals(cookie.getValue(), "1");
+                }
+                else if ("Monster".equals(cookie.getName())) {
+                    Assert.assertEquals(cookie.getValue(), "2");
+                }
+                else if ("Test".equals(cookie.getName())) {
+                    Assert.assertEquals(cookie.getValue(), "3");
+                }
+                else if ("testCookie".equals(cookie.getName())) {
+                    Assert.assertEquals(cookie.getValue(), "testCookie");
+                }
+                else {
+                    throw new RuntimeException("Unexected cookie found in response!");
+                }
             }
-            else if ("Monster".equals(cookie.getName())) {
-                Assert.assertEquals(cookie.getValue(), "2");
-            }
-            else if ("Test".equals(cookie.getName())) {
-                Assert.assertEquals(cookie.getValue(), "3");
-            }
-            else if ("testCookie".equals(cookie.getName())) {
-                Assert.assertEquals(cookie.getValue(), "testCookie");
-            }
-            else {
-                throw new RuntimeException("Unexected cookie found in response!");
-            }
+        } finally {
+            ctx.close();
         }
     }
 }

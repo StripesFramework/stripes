@@ -7,8 +7,11 @@ import net.sourceforge.stripes.action.DefaultHandler;
 import net.sourceforge.stripes.action.RedirectResolution;
 import net.sourceforge.stripes.action.Resolution;
 import net.sourceforge.stripes.mock.MockRoundtrip;
+import net.sourceforge.stripes.mock.MockServletContext;
 import net.sourceforge.stripes.test.TestBean;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.util.Calendar;
@@ -33,9 +36,22 @@ public class GenericsBindingTests
     // Test and Support Methods
     ///////////////////////////////////////////////////////////////////////////
 
+    private MockServletContext ctx;
+
+    @BeforeClass
+    public void setupServletContext(){
+        ctx = StripesTestFixture.createServletContext();
+    }
+
+    @AfterClass
+    public void closeServletContext(){
+        ctx.close();
+    }
+
+
     /** Makes a roundtrip using the current instances' type. */
     protected MockRoundtrip getRoundtrip() {
-        return new MockRoundtrip(StripesTestFixture.getServletContext(), GenericsBindingTests.class);
+        return new MockRoundtrip(ctx, GenericsBindingTests.class);
     }
 
     @Test(groups="fast")

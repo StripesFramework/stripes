@@ -18,6 +18,8 @@ import javax.servlet.Filter;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.Servlet;
 import javax.servlet.ServletContext;
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
@@ -56,6 +58,7 @@ public class MockServletContext implements ServletContext {
     private Map<String,String> initParameters = new HashMap<String,String>();
     private Map<String,Object> attributes = new HashMap<String,Object>();
     private List<Filter> filters = new ArrayList<Filter>();
+    private List<ServletContextListener> listeners = new ArrayList<ServletContextListener>();
     private HttpServlet servlet;
 
     /** Simple constructor that creates a new mock ServletContext with the supplied context name. */
@@ -199,7 +202,7 @@ public class MockServletContext implements ServletContext {
     }
 
     /** Adds a filter to the end of filter chain that will be used to filter requests.*/
-    public void addFilter(Class<? extends Filter> filterClass,
+    public MockServletContext addFilter(Class<? extends Filter> filterClass,
                           String filterName,
                           Map<String,String> initParams) {
         try {
@@ -211,10 +214,24 @@ public class MockServletContext implements ServletContext {
             Filter filter = filterClass.newInstance();
             filter.init(config);
             this.filters.add(filter);
+            return this;
         }
         catch (Exception e) {
             throw new RuntimeException("Exception registering new filter with name " + filterName, e);
         }
+    }
+
+    /** Removes and destroys all registered filters. */
+    public MockServletContext removeFilters() {
+        for (Filter each : filters) {
+            try {
+                each.destroy();
+            } catch (Exception e) {
+                log("Error while destroying filter " + each, e);
+            }
+        }
+        filters.clear();
+        return this;
     }
 
     /** Provides access to the set of filters configured for this context. */
@@ -222,8 +239,26 @@ public class MockServletContext implements ServletContext {
         return this.filters;
     }
 
+    /** Adds a {@link ServletContextListener} to this context and initializes it. */
+    public MockServletContext addListener(ServletContextListener listener) {
+        ServletContextEvent event = new ServletContextEvent(this);
+        listener.contextInitialized(event);
+        listeners.add(listener);
+        return this;
+    }
+
+    /**Removes and destroys all registered {@link ServletContextListener}. */
+    public MockServletContext removeListeners() {
+        ServletContextEvent e = new ServletContextEvent(this);
+        for (ServletContextListener l : listeners) {
+            l.contextDestroyed(e);
+        }
+        listeners.clear();
+        return this;
+    }
+
     /** Sets the servlet that will receive all requests in this servlet context. */
-    public void setServlet(Class<? extends HttpServlet> servletClass,
+    public MockServletContext setServlet(Class<? extends HttpServlet> servletClass,
                            String servletName,
                            Map<String,String> initParams) {
         try {
@@ -234,6 +269,7 @@ public class MockServletContext implements ServletContext {
 
             this.servlet = servletClass.newInstance();
             this.servlet.init(config);
+            return this;
         }
         catch (Exception e) {
             throw new RuntimeException("Exception registering servlet with name " + servletName, e);
@@ -267,6 +303,25 @@ public class MockServletContext implements ServletContext {
         if (request.getCookies() != null) {
             for (Cookie cookie : request.getCookies()) {
                 response.addCookie(cookie);
+            }
+        }
+    }
+
+    /**
+     * Closes all filters and servlets for this context (application shutdown).
+     */
+    public void close() {
+        removeListeners();
+        removeFilters();
+        Enumeration<?> servlets = getServlets();
+        while (servlets.hasMoreElements()) {
+            Object servlet = servlets.nextElement();
+            if (servlet instanceof Servlet) {
+                try {
+                    ((Servlet)servlet).destroy();
+                } catch (Exception e) {
+                    log("Exception caught destroying servlet " + servlet + " contextName=" + contextName, e);
+                }
             }
         }
     }

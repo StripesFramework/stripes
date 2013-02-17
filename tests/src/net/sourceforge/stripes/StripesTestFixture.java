@@ -14,28 +14,19 @@ import java.util.HashMap;
  * @author Tim Fennell
  */
 public class StripesTestFixture {
-    private static MockServletContext context;
 
     /**
-     * Gets a reference to the test MockServletContext. If the context is not already
-     * instantiated and setup, it will be built lazily.
+     * Create and return a new MockServletContext.
      *
      * @return an instance of MockServletContext for testing wiith
      */
-    public static synchronized MockServletContext getServletContext() {
-        if (context == null) {
-            context = new MockServletContext("test");
-
-            // Add the Stripes Filter
-            Map<String,String> filterParams = new HashMap<String,String>();
-            filterParams.put("ActionResolver.Packages", "net.sourceforge.stripes");
-            filterParams.put("LocalePicker.Class", "net.sourceforge.stripes.localization.MockLocalePicker");
-            context.addFilter(StripesFilter.class, "StripesFilter", filterParams);
-
-            // Add the Stripes Dispatcher
-            context.setServlet(DispatcherServlet.class, "StripesDispatcher", null);
-        }
-
-        return context;
+    public static synchronized MockServletContext createServletContext() {
+        Map<String,String> filterParams = new HashMap<String,String>();
+        filterParams.put("ActionResolver.Packages", "net.sourceforge.stripes");
+        filterParams.put("LocalePicker.Class", "net.sourceforge.stripes.localization.MockLocalePicker");
+        return new MockServletContext("test")
+            .addFilter(StripesFilter.class, "StripesFilter", filterParams)
+            .setServlet(DispatcherServlet.class, "StripesDispatcher", null);
     }
+
 }

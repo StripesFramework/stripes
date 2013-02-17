@@ -1,5 +1,6 @@
 package net.sourceforge.stripes.mock;
 
+import net.sourceforge.stripes.FilterEnabledTestBase;
 import net.sourceforge.stripes.StripesTestFixture;
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.action.ActionBeanContext;
@@ -13,6 +14,8 @@ import net.sourceforge.stripes.action.UrlBinding;
 import net.sourceforge.stripes.validation.SimpleError;
 import net.sourceforge.stripes.validation.Validate;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.StringReader;
@@ -24,7 +27,7 @@ import java.io.StringReader;
  * @author Tim Fennell
  */
 @UrlBinding("/mock/MockRoundtrip.test")
-public class TestMockRoundtrip implements ActionBean {
+public class TestMockRoundtrip extends FilterEnabledTestBase implements ActionBean {
     private ActionBeanContext context;
     private double lhs;
     private double rhs;
@@ -91,12 +94,10 @@ public class TestMockRoundtrip implements ActionBean {
     // below this line is a test!
     ///////////////////////////////////////////////////////////////////////////
 
+
     @Test(groups="fast")
     public void testDefaultEvent() throws Exception {
-        // Setup the servlet engine
-        MockServletContext ctx = StripesTestFixture.getServletContext();
-
-        MockRoundtrip trip = new MockRoundtrip(ctx, TestMockRoundtrip.class);
+        MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), TestMockRoundtrip.class);
         trip.setParameter("lhs", "2");
         trip.setParameter("rhs", "2");
         trip.execute();
@@ -109,10 +110,7 @@ public class TestMockRoundtrip implements ActionBean {
 
     @Test(groups="fast")
     public void testWithNamedEvent() throws Exception {
-        // Setup the servlet engine
-        MockServletContext ctx = StripesTestFixture.getServletContext();
-
-        MockRoundtrip trip = new MockRoundtrip(ctx, TestMockRoundtrip.class);
+        MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), TestMockRoundtrip.class);
         trip.setParameter("lhs", "2");
         trip.setParameter("rhs", "2");
         trip.execute("add");
@@ -125,10 +123,7 @@ public class TestMockRoundtrip implements ActionBean {
 
     @Test(groups="fast")
     public void testWithRedirect() throws Exception {
-        // Setup the servlet engine
-        MockServletContext ctx = StripesTestFixture.getServletContext();
-
-        MockRoundtrip trip = new MockRoundtrip(ctx, TestMockRoundtrip.class);
+        MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), TestMockRoundtrip.class);
         trip.setParameter("lhs", "2");
         trip.setParameter("rhs", "2");
         trip.execute("addAndRedirect");
@@ -142,10 +137,7 @@ public class TestMockRoundtrip implements ActionBean {
 
     @Test(groups="fast")
     public void testWithStreamingOutput() throws Exception {
-        // Setup the servlet engine
-        MockServletContext ctx = StripesTestFixture.getServletContext();
-
-        MockRoundtrip trip = new MockRoundtrip(ctx, TestMockRoundtrip.class);
+        MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), TestMockRoundtrip.class);
         trip.setParameter("lhs", "2");
         trip.setParameter("rhs", "2");
         trip.execute("addAndStream");
@@ -159,10 +151,7 @@ public class TestMockRoundtrip implements ActionBean {
 
     @Test(groups="fast")
     public void testWithValidationErrors() throws Exception {
-        // Setup the servlet engine
-        MockServletContext ctx = StripesTestFixture.getServletContext();
-
-        MockRoundtrip trip = new MockRoundtrip(ctx, TestMockRoundtrip.class);
+        MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), TestMockRoundtrip.class);
         trip.setParameter("lhs", "");
         trip.setParameter("rhs", "abc");
         trip.execute();
@@ -173,10 +162,7 @@ public class TestMockRoundtrip implements ActionBean {
 
     @Test(groups="fast")
     public void testWithDifferentNamedEvent() throws Exception {
-        // Setup the servlet engine
-        MockServletContext ctx = StripesTestFixture.getServletContext();
-
-        MockRoundtrip trip = new MockRoundtrip(ctx, TestMockRoundtrip.class);
+        MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), TestMockRoundtrip.class);
         trip.setParameter("lhs", "4");
         trip.setParameter("rhs", "4");
         trip.execute("multiply");
@@ -189,10 +175,7 @@ public class TestMockRoundtrip implements ActionBean {
 
     @Test(groups="fast")
     public void testWithCustomValidationErrors() throws Exception {
-        // Setup the servlet engine
-        MockServletContext ctx = StripesTestFixture.getServletContext();
-
-        MockRoundtrip trip = new MockRoundtrip(ctx, TestMockRoundtrip.class);
+        MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), TestMockRoundtrip.class);
         trip.setParameter("lhs", "2");
         trip.setParameter("rhs", "0");
         trip.execute("divide");
@@ -203,10 +186,7 @@ public class TestMockRoundtrip implements ActionBean {
 
     @Test(groups="fast")
     public void testFetchingRequestAttributes() throws Exception {
-        // Setup the servlet engine
-        MockServletContext ctx = StripesTestFixture.getServletContext();
-
-        MockRoundtrip trip = new MockRoundtrip(ctx, TestMockRoundtrip.class);
+        MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), TestMockRoundtrip.class);
         trip.setParameter("lhs", "10");
         trip.setParameter("rhs", "4");
         trip.execute("divide");
@@ -228,12 +208,11 @@ public class TestMockRoundtrip implements ActionBean {
     @Test(groups="fast")
     public void testAddParameter() throws Exception {
         // Setup the servlet engine
-        MockServletContext ctx = StripesTestFixture.getServletContext();
-        MockRoundtrip trip = new MockRoundtrip(ctx, TestMockRoundtrip.class);
+        MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), TestMockRoundtrip.class);
         trip.addParameter("param", "a");
         trip.addParameter("param", "b");
         trip.execute();
-        
+
         TestMockRoundtrip bean = trip.getActionBean(TestMockRoundtrip.class);
         String[] params = bean.getContext().getRequest().getParameterValues("param");
         Assert.assertEquals(2, params.length);

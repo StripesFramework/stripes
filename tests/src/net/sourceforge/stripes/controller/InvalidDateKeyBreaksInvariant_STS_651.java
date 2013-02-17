@@ -1,6 +1,9 @@
 package net.sourceforge.stripes.controller;
 
+import net.sourceforge.stripes.FilterEnabledTestBase;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import net.sourceforge.stripes.mock.MockRoundtrip;
 import net.sourceforge.stripes.mock.MockServletContext;
@@ -12,12 +15,11 @@ import java.util.Map;
 /**
  * reproduces http://www.stripesframework.org/jira/browse/STS-651
  */
-public class InvalidDateKeyBreaksInvariant_STS_651 {
+public class InvalidDateKeyBreaksInvariant_STS_651 extends FilterEnabledTestBase {
 
     /** Helper method to create a roundtrip with the TestActionBean class. */
     protected MockRoundtrip getRoundtrip() {
-        MockServletContext context = StripesTestFixture.getServletContext();
-        return new MockRoundtrip(context, MapBindingTests.class);
+        return new MockRoundtrip(getMockServletContext(), MapBindingTests.class);
     }
 
     @Test

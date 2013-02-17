@@ -1,5 +1,10 @@
 package net.sourceforge.stripes.util.bean;
 
+import net.sourceforge.stripes.FilterEnabledTestBase;
+import net.sourceforge.stripes.StripesTestFixture;
+import net.sourceforge.stripes.mock.MockServletContext;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.testng.Assert;
 
@@ -12,7 +17,7 @@ import org.testng.Assert;
  *
  * @author Tim Fennell
  */
-public class GenericInterfaceImplTest  {
+public class GenericInterfaceImplTest extends FilterEnabledTestBase {
     /** An interface that has a type parameter for a property type. */
     public static interface GenericInterface<T> {
         T getProp();
