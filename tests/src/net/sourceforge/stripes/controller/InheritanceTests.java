@@ -8,10 +8,13 @@ import net.sourceforge.stripes.action.Resolution;
 import net.sourceforge.stripes.action.RedirectResolution;
 import net.sourceforge.stripes.action.DontValidate;
 import net.sourceforge.stripes.action.HandlesEvent;
+import net.sourceforge.stripes.mock.MockServletContext;
 import net.sourceforge.stripes.validation.Validate;
 import net.sourceforge.stripes.validation.ValidationErrors;
 import net.sourceforge.stripes.mock.MockRoundtrip;
 import net.sourceforge.stripes.StripesTestFixture;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.testng.Assert;
 
@@ -31,13 +34,25 @@ public class InheritanceTests extends SuperclassActionBean {
     @HandlesEvent("/Validate.action")
     public Resolution another() { return new RedirectResolution("/child.jsp"); }
 
+    private MockServletContext ctx;
+
+    @BeforeClass
+    public void setupServletContext(){
+        ctx = StripesTestFixture.createServletContext();
+    }
+
+    @AfterClass
+    public void closeServletContext(){
+        ctx.close();
+    }
+
     /**
      * When we invoke the action without an event it should get routed to the default
      * handler in this class, not the one in the super class!
      */
     @Test(groups="fast")
     public void invokeDefault() throws Exception {
-        MockRoundtrip trip = new MockRoundtrip(StripesTestFixture.getServletContext(),
+        MockRoundtrip trip = new MockRoundtrip(ctx,
                                                InheritanceTests.class);
         trip.execute();
         Assert.assertEquals(trip.getDestination(), "/child.jsp", "Wrong default handler called!");
@@ -63,18 +78,22 @@ public class InheritanceTests extends SuperclassActionBean {
      */
     @Test(groups="fast")
     public void testInheritedValidations() throws Exception {
-        MockRoundtrip trip = new MockRoundtrip(StripesTestFixture.getServletContext(),
-                                               InheritanceTests.class);
-        trip.addParameter("two", "not25chars");
-        trip.addParameter("three", "3");
-        trip.addParameter("four", "onetwothree");
-        trip.execute("/Validate.action");
+        MockServletContext ctx = StripesTestFixture.createServletContext();
+        try {
+            MockRoundtrip trip = new MockRoundtrip(ctx, InheritanceTests.class);
+            trip.addParameter("two", "not25chars");
+            trip.addParameter("three", "3");
+            trip.addParameter("four", "onetwothree");
+            trip.execute("/Validate.action");
 
-        ValidationErrors errors = trip.getValidationErrors();
-        Assert.assertNull(errors.get("one"), "Field one should not have errors.");
-        Assert.assertEquals(errors.get("two").size(), 1, "Field two should not have 1 error.");
-        Assert.assertEquals(errors.get("three").size(), 1, "Field three should not have errors.");
-        Assert.assertEquals(errors.get("four").size(), 1, "Field one should not have errors.");
+            ValidationErrors errors = trip.getValidationErrors();
+            Assert.assertNull(errors.get("one"), "Field one should not have errors.");
+            Assert.assertEquals(errors.get("two").size(), 1, "Field two should not have 1 error.");
+            Assert.assertEquals(errors.get("three").size(), 1, "Field three should not have errors.");
+            Assert.assertEquals(errors.get("four").size(), 1, "Field one should not have errors.");
+        } finally {
+            ctx.close();
+        }
     }
 }
 

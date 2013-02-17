@@ -18,25 +18,17 @@ import net.sourceforge.stripes.mock.MockServletContext;
  * @author Tim Fennell
  */
 public class StripesTestFixture {
-    private static MockServletContext context;
     private static Configuration configuration;
 
     /**
-     * Gets a reference to the test MockServletContext. If the context is not already
-     * instantiated and setup, it will be built lazily.
+     * Create and return a new MockServletContext.
      *
      * @return an instance of MockServletContext for testing wiith
      */
-    public static synchronized MockServletContext getServletContext() {
-        if (context == null) {
-            context = new MockServletContext("test");
-            context.addFilter(StripesFilter.class, "StripesFilter", getDefaultFilterParams());
-
-            // Add the Stripes Dispatcher
-            context.setServlet(DispatcherServlet.class, "StripesDispatcher", null);
-        }
-
-        return context;
+    public static synchronized MockServletContext createServletContext() {
+        return new MockServletContext("test")
+                .addFilter(StripesFilter.class, "StripesFilter", getDefaultFilterParams())
+                .setServlet(DispatcherServlet.class, "StripesDispatcher", null);
     }
 
     /** Gets a reference to the default configuration, which can be used for simple testing. */
@@ -45,10 +37,15 @@ public class StripesTestFixture {
             Configuration configuration = new DefaultConfiguration();
             MockFilterConfig filterConfig = new MockFilterConfig();
             filterConfig.addAllInitParameters(getDefaultFilterParams());
-            filterConfig.setServletContext(getServletContext());
-            configuration.setBootstrapPropertyResolver(new BootstrapPropertyResolver(filterConfig));
-            configuration.init();
-            StripesTestFixture.configuration = configuration;
+            MockServletContext mockServletContext = createServletContext();
+            try {
+                filterConfig.setServletContext(mockServletContext);
+                configuration.setBootstrapPropertyResolver(new BootstrapPropertyResolver(filterConfig));
+                configuration.init();
+                StripesTestFixture.configuration = configuration;
+            } finally {
+                mockServletContext.close();
+            }
         }
 
         return configuration;

@@ -19,7 +19,12 @@ import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 
+import net.sourceforge.stripes.FilterEnabledTestBase;
+import net.sourceforge.stripes.StripesTestFixture;
+import net.sourceforge.stripes.mock.MockServletContext;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
@@ -27,7 +32,7 @@ import org.testng.annotations.Test;
  *
  * @author Tim Fennell
  */
-public class UrlBuilderTest {
+public class UrlBuilderTest extends FilterEnabledTestBase {
 
     @Test(groups="fast")
     public void testBasicUrl() throws Exception {

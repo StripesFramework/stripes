@@ -4,20 +4,15 @@ import java.util.Locale;
 
 import javax.servlet.http.HttpServletResponse;
 
-import net.sourceforge.stripes.StripesTestFixture;
+import net.sourceforge.stripes.FilterEnabledTestBase;
 import net.sourceforge.stripes.mock.MockHttpServletRequest;
 import net.sourceforge.stripes.mock.MockHttpServletResponse;
 
 import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-public class RedirectResolutionTest {
-    
-    @BeforeClass
-    public void setupServletContext(){
-        StripesTestFixture.getServletContext();
-    }
+public class RedirectResolutionTest extends FilterEnabledTestBase {
+
     //helper method
     private MockHttpServletRequest buildMockServletRequest(){
         MockHttpServletRequest request = new MockHttpServletRequest("/context", "/whatever");

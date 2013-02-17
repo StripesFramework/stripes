@@ -1,5 +1,6 @@
 package net.sourceforge.stripes.controller;
 
+import net.sourceforge.stripes.FilterEnabledTestBase;
 import net.sourceforge.stripes.StripesTestFixture;
 import net.sourceforge.stripes.action.ActionBeanContext;
 import net.sourceforge.stripes.mock.MockRoundtrip;
@@ -8,6 +9,8 @@ import net.sourceforge.stripes.test.TestActionBean;
 import net.sourceforge.stripes.test.TestBean;
 import net.sourceforge.stripes.test.TestEnum;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.util.Arrays;
@@ -18,12 +21,11 @@ import java.util.Arrays;
  *
  * @author Tim Fennell
  */
-public class BasicBindingTests {
+public class BasicBindingTests extends FilterEnabledTestBase {
 
     /** Helper method to create a roundtrip with the TestActionBean class. */
     protected MockRoundtrip getRoundtrip() {
-        MockServletContext context = StripesTestFixture.getServletContext();
-        return new MockRoundtrip(context, TestActionBean.class);
+        return new MockRoundtrip(getMockServletContext(), TestActionBean.class);
     }
 
     @Test(groups="fast")

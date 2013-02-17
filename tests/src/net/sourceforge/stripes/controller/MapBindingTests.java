@@ -1,5 +1,6 @@
 package net.sourceforge.stripes.controller;
 
+import net.sourceforge.stripes.FilterEnabledTestBase;
 import net.sourceforge.stripes.StripesTestFixture;
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.action.ActionBeanContext;
@@ -10,6 +11,8 @@ import net.sourceforge.stripes.mock.MockServletContext;
 import net.sourceforge.stripes.test.TestBean;
 import net.sourceforge.stripes.test.TestEnum;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.util.Calendar;
@@ -25,7 +28,7 @@ import java.util.Map;
  *
  * @author Tim Fennell
  */
-public class MapBindingTests implements ActionBean {
+public class MapBindingTests extends FilterEnabledTestBase implements ActionBean {
     public enum Color { red, green, blue }
 
     // Boilerplate ActionBean methods
@@ -72,10 +75,10 @@ public class MapBindingTests implements ActionBean {
     @SuppressWarnings("rawtypes")
 	public void setTypelessMap(Map typelessMap) { this.typelessMap = typelessMap; }
 
+
     /** Helper method to create a roundtrip with the TestActionBean class. */
     protected MockRoundtrip getRoundtrip() {
-        MockServletContext context = StripesTestFixture.getServletContext();
-        return new MockRoundtrip(context, MapBindingTests.class);
+        return new MockRoundtrip(getMockServletContext(), MapBindingTests.class);
     }
 
     @Test(groups="fast")

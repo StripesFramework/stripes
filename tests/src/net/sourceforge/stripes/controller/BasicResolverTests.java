@@ -3,6 +3,8 @@ package net.sourceforge.stripes.controller;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+
+import net.sourceforge.stripes.FilterEnabledTestBase;
 import net.sourceforge.stripes.StripesTestFixture;
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.action.ActionBeanContext;
@@ -12,6 +14,9 @@ import net.sourceforge.stripes.action.HandlesEvent;
 import net.sourceforge.stripes.action.Resolution;
 import net.sourceforge.stripes.action.UrlBinding;
 import net.sourceforge.stripes.mock.MockRoundtrip;
+import net.sourceforge.stripes.mock.MockServletContext;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.testng.Assert;
 
@@ -21,7 +26,7 @@ import org.testng.Assert;
  * @author Tim Fennell
  */
 @UrlBinding("/BasicResolverTests.action")
-public class BasicResolverTests implements ActionBean {
+public class BasicResolverTests extends FilterEnabledTestBase implements ActionBean {
     private ActionBeanContext context;
     private int number;
 
@@ -51,7 +56,7 @@ public class BasicResolverTests implements ActionBean {
 
     @Test(groups="fast")
     public void testDefaultResolution() throws Exception {
-        MockRoundtrip trip = new MockRoundtrip(StripesTestFixture.getServletContext(), getClass());
+        MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
         trip.execute();
 
         BasicResolverTests bean = trip.getActionBean( getClass() );
@@ -60,7 +65,7 @@ public class BasicResolverTests implements ActionBean {
 
     @Test(groups="fast")
     public void testNonDefaultResolution() throws Exception {
-        MockRoundtrip trip = new MockRoundtrip(StripesTestFixture.getServletContext(), getClass());
+        MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
         trip.execute("two");
 
         BasicResolverTests bean = trip.getActionBean( getClass() );
@@ -69,7 +74,7 @@ public class BasicResolverTests implements ActionBean {
 
     @Test(groups="fast")
     public void testImageStyleResolution() throws Exception {
-        MockRoundtrip trip = new MockRoundtrip(StripesTestFixture.getServletContext(), getClass());
+        MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
         trip.execute("two.x");
 
         BasicResolverTests bean = trip.getActionBean( getClass() );
@@ -78,7 +83,7 @@ public class BasicResolverTests implements ActionBean {
 
     @Test(groups="fast")
     public void testImageStyleResolution2() throws Exception {
-        MockRoundtrip trip = new MockRoundtrip(StripesTestFixture.getServletContext(), getClass());
+        MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
         trip.addParameter("two.x", "381");
         trip.execute();
 
@@ -88,7 +93,7 @@ public class BasicResolverTests implements ActionBean {
 
     @Test(groups="fast")
     public void testEventNameParameterResolution() throws Exception {
-        MockRoundtrip trip = new MockRoundtrip(StripesTestFixture.getServletContext(), getClass());
+        MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
         trip.addParameter(StripesConstants.URL_KEY_EVENT_NAME, "two");
         trip.execute();
 
