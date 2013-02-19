@@ -91,10 +91,11 @@
                     <wait>false</wait>
                   <container>
                     <containerId>tomcat6x</containerId>
-                    <zipUrlInstaller>
-                      <url>http://mirror.ibcp.fr/pub/apache//tomcat/tomcat-6/v6.0.29/bin/apache-tomcat-6.0.29.zip</url>
-                      <installDir>${basedir}/target/tomcat6-install</installDir>
-                    </zipUrlInstaller>
+			<zipUrlInstaller>
+                        	<url>http://apache.opensourcemirror.com/tomcat/tomcat-6/v6.0.36/bin/apache-tomcat-6.0.36.zip</url>
+                                <downloadDir>${project.build.directory}/downloads</downloadDir>
+                                <extractDir>${project.build.directory}/extracts</extractDir>
+                        </zipUrlInstaller>
                   </container>
                   <configuration>
                     <home>${project.build.directory}/tomcat6x/container</home>
