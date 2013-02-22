@@ -1,8 +1,8 @@
 package net.sourceforge.stripes.webtests.calc
 
-import com.canoo.webtest.WebtestCase
+import net.sourceforge.stripes.webtests.WebtestCaseFixed
 
-class CalcTest extends WebtestCase {
+class CalcTest extends WebtestCaseFixed {
 
   def homeUrl = 'http://localhost:9999/webtests/quickstart/index.jsp'
 

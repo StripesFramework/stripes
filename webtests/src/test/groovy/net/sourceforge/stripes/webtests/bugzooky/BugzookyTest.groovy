@@ -1,8 +1,8 @@
 package net.sourceforge.stripes.webtests.bugzooky
 
-import com.canoo.webtest.WebtestCase
+import net.sourceforge.stripes.webtests.WebtestCaseFixed
 
-class BugzookyTest extends WebtestCase {
+class BugzookyTest extends WebtestCaseFixed {
 
   def homeUrl = 'http://localhost:9999/webtests/examples/bugzooky'
 
