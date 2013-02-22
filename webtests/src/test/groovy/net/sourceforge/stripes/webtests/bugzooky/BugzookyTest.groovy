@@ -25,7 +25,7 @@ class BugzookyTest extends WebtestCaseFixed {
 
   private String register() {
     count++
-    def username = "foobar$count"
+    def username = "foobarfoobar$count"
     ant.invoke "$homeUrl/Register.action"
 
     ant.setInputField name:'user.firstName', value:username
