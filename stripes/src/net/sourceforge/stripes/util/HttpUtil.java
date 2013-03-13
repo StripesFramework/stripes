@@ -44,9 +44,12 @@ public class HttpUtil {
 
         // Check to see if the request is processing an include, and pull the path
         // information from the appropriate source.
-        servletPath = (String) request.getAttribute(StripesConstants.REQ_ATTR_INCLUDE_PATH);
+        // only request attributes need decoding, not servletPath and pathInfo
+        // see http://www.stripesframework.org/jira/browse/STS-899
+
+        servletPath = urlDecodeNullSafe((String) request.getAttribute(StripesConstants.REQ_ATTR_INCLUDE_PATH));
         if (servletPath != null) {
-            pathInfo = (String) request.getAttribute(StripesConstants.REQ_ATTR_INCLUDE_PATH_INFO);
+            pathInfo = urlDecodeNullSafe((String) request.getAttribute(StripesConstants.REQ_ATTR_INCLUDE_PATH_INFO));
         }
         else {
             servletPath = request.getServletPath();
@@ -54,11 +57,11 @@ public class HttpUtil {
         }
 
         if (servletPath == null)
-            return pathInfo == null ? "" : StringUtil.urlDecode(pathInfo);
+            return pathInfo == null ? "" : pathInfo;
         else if (pathInfo == null)
-            return StringUtil.urlDecode(servletPath);
+            return servletPath;
         else
-            return StringUtil.urlDecode(servletPath + pathInfo);
+            return servletPath + pathInfo;
     }
 
     /**
@@ -78,5 +81,12 @@ public class HttpUtil {
 
     /** No instances */
     private HttpUtil() {
+    }
+
+    private static String urlDecodeNullSafe(String url) {
+        if (url==null) {
+            return null;
+        }
+        return StringUtil.urlDecode(url);
     }
 }
