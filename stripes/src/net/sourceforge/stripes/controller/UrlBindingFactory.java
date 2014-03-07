@@ -187,7 +187,7 @@ public class UrlBindingFactory {
                 minComponentCount = componentCount;
                 maxComponentMatch = componentMatch;
             }
-            else if (idx == maxIndex && componentCount == minComponentCount) {
+            else if (idx == maxIndex && componentCount == minComponentCount && componentMatch == maxComponentMatch) {
                 if (conflicts == null) {
                     conflicts = new ArrayList<String>(candidates.size());
                     conflicts.add(prototype.toString());
