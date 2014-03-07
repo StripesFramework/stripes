@@ -452,12 +452,15 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
 
         log.debug("Running required field validation on bean class ", bean.getClass().getName());
 
-        // Assemble a set of names that we know have indexed parameters, so we won't check
-        // for required-ness the regular way
-        Set<String> indexedParams = new HashSet<String>();
+        // Assemble a set of non-indexed parameter names, so we can check for required-ness later
+        boolean validateIndexedProperties = false;
+        Set<String> regularParams = new HashSet<String>();
         for (ParameterName name : parameters.keySet()) {
-            if (name.isIndexed()) {
-                indexedParams.add(name.getStrippedName());
+            if (!name.isIndexed()) {
+                regularParams.add(name.getName());
+            }
+            else {
+                validateIndexedProperties = true;
             }
         }
 
@@ -478,7 +481,7 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
                 // If the field is required, and we don't have index params that collapse
                 // to that property name, check that it was supplied
                 if (validationInfo.requiredOn(context.getEventName())
-                        && !indexedParams.contains(propertyName)) {
+                        && regularParams.contains(propertyName)) {
 
                     // Make the added check that if the form is a wizard, the required field is
                     // in the set of fields that were on the page
@@ -502,7 +505,7 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
 
         // Now the easy work is done, figure out which rows of indexed props had values submitted
         // and what to flag up as failing required field validation
-        if (indexedParams.size() > 0) {
+        if (validateIndexedProperties) {
             Map<String, Row> rows = new HashMap<String, Row>();
 
             for (Map.Entry<ParameterName, String[]> entry : parameters.entrySet()) {
