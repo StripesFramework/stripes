@@ -1,7 +1,10 @@
 package net.sourceforge.stripes.controller;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
 import net.sourceforge.stripes.FilterEnabledTestBase;
-import net.sourceforge.stripes.StripesTestFixture;
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.action.ActionBeanContext;
 import net.sourceforge.stripes.action.DefaultHandler;
@@ -10,7 +13,6 @@ import net.sourceforge.stripes.action.StrictBinding;
 import net.sourceforge.stripes.action.StrictBinding.Policy;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
 import net.sourceforge.stripes.mock.MockRoundtrip;
-import net.sourceforge.stripes.mock.MockServletContext;
 import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.util.bean.PropertyExpression;
 import net.sourceforge.stripes.util.bean.PropertyExpressionEvaluation;
@@ -18,8 +20,6 @@ import net.sourceforge.stripes.validation.Validate;
 import net.sourceforge.stripes.validation.ValidateNestedProperties;
 
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
@@ -232,7 +232,79 @@ public class BindingSecurityTests extends FilterEnabledTestBase {
         }
     }
 
+    @Test(groups = "fast")
+    @SuppressWarnings("unused")
+    public void protectedClasses() {
+        class TestBean implements ActionBean {
+            public void setContext(ActionBeanContext context) {
+            }
+
+            public ClassLoader getClassLoader() {
+                return null;
+            }
+
+            public ActionBeanContext getContext() {
+                return null;
+            }
+
+            public HttpServletRequest getRequest() {
+                return null;
+            }
+
+            public HttpServletResponse getResponse() {
+                return null;
+            }
+
+            public HttpSession getSession() {
+                return null;
+            }
+
+            public TestBean getOther() {
+                return null;
+            }
+        }
+
+        final String[] expressions = {
+                // Direct, single node
+                "class",
+                "classLoader",
+                "context",
+                "request",
+                "response",
+                "session",
+
+                // Indirect, last node
+                "other.class",
+                "other.classLoader",
+                "other.context",
+                "other.request",
+                "other.response",
+                "other.session",
+
+                // Indirect, not first node, not last node
+                "other.class.name",
+                "other.request.cookies",
+                "other.session.id",
+        };
+
+        final TestBean bean = new TestBean();
+        final BindingPolicyManager bpm = new BindingPolicyManager(TestBean.class);
+        for (String expression : expressions) {
+            log.debug("Testing illegal expression: " + expression);
+            PropertyExpression pe = PropertyExpression.getExpression(expression);
+            PropertyExpressionEvaluation eval = new PropertyExpressionEvaluation(pe, bean);
+            Assert.assertFalse(bpm.isBindingAllowed(eval), "Binding should not be allowed for expression " + expression);
+        }
+    }
+
     public static void main(String[] args) {
-        new BindingSecurityTests().bindingPolicyEnforcement();
+        BindingSecurityTests tests = new BindingSecurityTests();
+        try {
+            tests.initCtx();
+            tests.bindingPolicyEnforcement();
+            tests.protectedClasses();
+        } finally {
+            tests.closeCtx();
+        }
     }
 }
