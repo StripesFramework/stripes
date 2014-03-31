@@ -14,6 +14,7 @@
  */
 package net.sourceforge.stripes.controller;
 
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,12 +25,17 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpSession;
+
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.action.ActionBeanContext;
 import net.sourceforge.stripes.action.StrictBinding;
 import net.sourceforge.stripes.action.StrictBinding.Policy;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
 import net.sourceforge.stripes.util.Log;
+import net.sourceforge.stripes.util.bean.NodeEvaluation;
 import net.sourceforge.stripes.util.bean.PropertyExpressionEvaluation;
 import net.sourceforge.stripes.validation.ValidationMetadata;
 import net.sourceforge.stripes.validation.ValidationMetadataProvider;
@@ -43,6 +49,15 @@ import net.sourceforge.stripes.validation.ValidationMetadataProvider;
  */
 @StrictBinding(defaultPolicy = Policy.ALLOW)
 public class BindingPolicyManager {
+    /** List of classes that, for security reasons, are not allowed as a {@link NodeEvaluation} value type. */
+    private static final List<Class<?>> ILLEGAL_NODE_VALUE_TYPES = Arrays.<Class<?>> asList(
+            ActionBeanContext.class,
+            Class.class,
+            ClassLoader.class,
+            HttpSession.class,
+            ServletRequest.class,
+            ServletResponse.class);
+
     /** The regular expression that a property name must match */
     private static final String PROPERTY_REGEX = "\\p{javaJavaIdentifierStart}\\p{javaJavaIdentifierPart}*";
 
@@ -128,10 +143,8 @@ public class BindingPolicyManager {
      * @return true if binding is allowed; false if not
      */
     public boolean isBindingAllowed(PropertyExpressionEvaluation eval) {
-        // Ensure no-one is trying to bind into the ActionBeanContext!!
-        Type firstNodeType = eval.getRootNode().getValueType();
-        if (firstNodeType instanceof Class<?>
-                && ActionBeanContext.class.isAssignableFrom((Class<?>) firstNodeType)) {
+        // Ensure no-one is trying to bind into a protected type
+        if (usesIllegalNodeValueType(eval)) {
             return false;
         }
 
@@ -157,6 +170,31 @@ public class BindingPolicyManager {
 
         // any other conditions pass the test
         return true;
+    }
+
+    /**
+     * Indicates if any node in the given {@link PropertyExpressionEvaluation} has a value type that is assignable from
+     * any of the classes listed in {@link #ILLEGAL_NODE_VALUE_TYPES}.
+     * 
+     * @param eval a property expression that has been evaluated against an {@link ActionBean}
+     * @return true if the expression uses an illegal node value type; false otherwise
+     */
+    protected boolean usesIllegalNodeValueType(PropertyExpressionEvaluation eval) {
+        for (NodeEvaluation node = eval.getRootNode(); node != null; node = node.getNext()) {
+            Type type = node.getValueType();
+            if (type instanceof ParameterizedType) {
+                type = ((ParameterizedType) type).getRawType();
+            }
+            if (type instanceof Class) {
+                final Class<?> nodeClass = (Class<?>) type;
+                for (Class<?> protectedClass : ILLEGAL_NODE_VALUE_TYPES) {
+                    if (protectedClass.isAssignableFrom(nodeClass)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     /**
