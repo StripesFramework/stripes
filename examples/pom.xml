@@ -43,6 +43,7 @@
 		<dependency>
 			<groupId>commons-logging</groupId>
 			<artifactId>commons-logging</artifactId>
+			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>log4j</groupId>
@@ -58,14 +59,18 @@
 	<build>
 		<resources>
 			<resource>
-				<directory>src/main/resources</directory>
-				<filtering>true</filtering>
+				<directory>src/main/java/net/sourceforge/stripes/examples/bugzooky</directory>
+				<includes>
+					<include>**/*.java</include>
+				</includes>
+				<targetPath>${project.build.directory}/${project.artifactId}-${project.version}/WEB-INF/src</targetPath>
 			</resource>
 		</resources>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-war-plugin</artifactId>
+				<configuration></configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
