@@ -97,9 +97,8 @@
 							<goal>jar</goal>
 						</goals>
 						<configuration>
-							<stylesheetfile>${basedir}/src/main/resources/javadoc.css</stylesheetfile>
 							<overview>${basedir}/src/main/resources/overview.html</overview>
-							<bottom>© Copyright 2005-2006, Stripes Development Team.</bottom>
+							<bottom>© Copyright 2005-2014, Stripes Development Team.</bottom>
 							<author>true</author>
 							<protected>true</protected>
 							<use>true</use>
