@@ -135,6 +135,20 @@
 				</executions>
 			</plugin>
 			<plugin>
+				<groupId>net.sourceforge.maven-taglib</groupId>
+				<artifactId>maven-taglib-plugin</artifactId>
+				<configuration>
+					<taglib.src.dir>target/classes/META-INF/</taglib.src.dir>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>taglibdocjar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
 				<executions>
