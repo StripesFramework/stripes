@@ -57,20 +57,29 @@
 		</dependency>
 	</dependencies>
 	<build>
-		<resources>
-			<resource>
-				<directory>src/main/java/net/sourceforge/stripes/examples/bugzooky</directory>
-				<includes>
-					<include>**/*.java</include>
-				</includes>
-				<targetPath>${project.build.directory}/${project.artifactId}-${project.version}/WEB-INF/src</targetPath>
-			</resource>
-		</resources>
 		<plugins>
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>1.7</version>
+				<executions>
+					<execution>
+						<phase>generate-resources</phase>
+						<configuration>
+							<target>
+								<copy todir="${project.build.directory}/${project.build.finalName}/WEB-INF/src" flatten="true" overwrite="true">
+									<fileset dir="${project.build.sourceDirectory}" includes="**/*.java" />
+								</copy>
+							</target>
+						</configuration>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-war-plugin</artifactId>
-				<configuration></configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -78,10 +87,6 @@
 				<configuration>
 					<skip>true</skip>
 				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.tomcat.maven</groupId>
-				<artifactId>tomcat7-maven-plugin</artifactId>
 			</plugin>
 		</plugins>
 	</build>
