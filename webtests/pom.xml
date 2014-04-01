@@ -6,13 +6,13 @@
         <artifactId>stripes-parent</artifactId>
         <version>1.5.8-SNAPSHOT</version>
     </parent>
-    <artifactId>webtests</artifactId>
+    <artifactId>stripes-webtests</artifactId>
     <packaging>war</packaging>
     <name>Stripes Web Tests</name>
     <dependencies>
         <dependency>
             <groupId>net.sourceforge.stripes</groupId>
-            <artifactId>examples</artifactId>
+            <artifactId>stripes-examples</artifactId>
             <version>${project.version}</version>
             <type>war</type>
         </dependency>
@@ -35,7 +35,6 @@
         </dependency>
     </dependencies>
     <build>
-        <finalName>webtests</finalName>
         <plugins>
             <!-- don't deploy test artifacts in the mvn repo -->
             <plugin>
