@@ -14,10 +14,9 @@
  */
 package net.sourceforge.stripes.controller;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -36,10 +35,13 @@ import net.sourceforge.stripes.util.Log;
  */
 @Intercepts(LifecycleStage.ResolutionExecution)
 public class HttpCacheInterceptor implements Interceptor {
+    private static final Log logger = Log.getInstance(HttpCacheInterceptor.class);
+
+    @HttpCache
     private static final class CacheKey {
-        private Method method;
-        private Class<?> beanClass;
-        private int hashCode;
+        final Method method;
+        final Class<?> beanClass;
+        final int hashCode;
 
         /** Create a cache key for the given event handler method and {@link ActionBean} class. */
         public CacheKey(Method method, Class<? extends ActionBean> beanClass) {
@@ -50,7 +52,7 @@ public class HttpCacheInterceptor implements Interceptor {
 
         @Override
         public boolean equals(Object obj) {
-            CacheKey that = (CacheKey) obj;
+            final CacheKey that = (CacheKey) obj;
             return this.method.equals(that.method) && this.beanClass.equals(that.beanClass);
         }
 
@@ -65,23 +67,10 @@ public class HttpCacheInterceptor implements Interceptor {
         }
     }
 
-    private static final Log logger = Log.getInstance(HttpCacheInterceptor.class);
-
-    private static final HttpCache NULL_CACHE = new HttpCache() {
-        public boolean allow() {
-            return false;
-        }
-
-        public int expires() {
-            return 0;
-        }
-
-        public Class<? extends Annotation> annotationType() {
-            return null;
-        }
-    };
-
     private Map<CacheKey, HttpCache> cache = new ConcurrentHashMap<CacheKey, HttpCache>(128);
+
+    /** Null values are not allowed by {@link ConcurrentHashMap} so use this reference instead. */
+    private static final HttpCache NULL_CACHE = CacheKey.class.getAnnotation(HttpCache.class);
 
     public Resolution intercept(ExecutionContext ctx) throws Exception {
         final ActionBean actionBean = ctx.getActionBean();
@@ -89,11 +78,11 @@ public class HttpCacheInterceptor implements Interceptor {
         if (actionBean != null && handler != null) {
             final Class<? extends ActionBean> beanClass = actionBean.getClass();
             // if caching is disabled, then set the appropriate response headers
-            logger.debug("Looking for ", HttpCache.class.getSimpleName(), " on ", beanClass
-                    .getName(), ".", handler.getName(), "()");
-            HttpCache annotation = getAnnotation(handler, beanClass);
+            logger.debug("Looking for ", HttpCache.class.getSimpleName(), " on ",
+                    beanClass.getName(), ".", handler.getName(), "()");
+            final HttpCache annotation = getAnnotation(handler, beanClass);
             if (annotation != null) {
-                HttpServletResponse response = ctx.getActionBeanContext().getResponse();
+                final HttpServletResponse response = ctx.getActionBeanContext().getResponse();
                 if (annotation.allow()) {
                     long expires = annotation.expires();
                     if (expires != HttpCache.DEFAULT_EXPIRES) {
@@ -124,17 +113,14 @@ public class HttpCacheInterceptor implements Interceptor {
      */
     protected HttpCache getAnnotation(Method method, Class<? extends ActionBean> beanClass) {
         // check cache first
-        CacheKey cacheKey = new CacheKey(method, beanClass);
-        if (cache.containsKey(cacheKey)) {
-            HttpCache annotation = cache.get(cacheKey);
-            if (annotation==NULL_CACHE) {
-                return null;
-            }
-            return annotation;
+        final CacheKey cacheKey = new CacheKey(method, beanClass);
+        HttpCache annotation = cache.get(cacheKey);
+        if (annotation != null) {
+            return annotation == NULL_CACHE ? null : annotation;
         }
 
         // not found in cache so figure it out
-        HttpCache annotation = method.getAnnotation(HttpCache.class);
+        annotation = method.getAnnotation(HttpCache.class);
         if (annotation == null) {
             // search the method's class and its superclasses
             Class<?> clazz = beanClass;
@@ -148,7 +134,7 @@ public class HttpCacheInterceptor implements Interceptor {
         if (annotation != null) {
             logger.debug("Found ", HttpCache.class.getSimpleName(), " for ", beanClass.getName(),
                     ".", method.getName(), "()");
-            int expires = annotation.expires();
+            final int expires = annotation.expires();
             if (annotation.allow() && expires != HttpCache.DEFAULT_EXPIRES && expires < 0) {
                 logger.warn(HttpCache.class.getSimpleName(), " for ", beanClass.getName(), ".",
                         method.getName(), "() allows caching but expires in the past");
@@ -158,12 +144,11 @@ public class HttpCacheInterceptor implements Interceptor {
                         method.getName(), "() disables caching but explicitly sets expires");
             }
         }
-
-        if (annotation==null) {
+        else {
             annotation = NULL_CACHE;
         }
-        cache.put(cacheKey, annotation);
 
+        cache.put(cacheKey, annotation);
         return annotation;
     }
 }
