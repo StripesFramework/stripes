@@ -109,13 +109,11 @@
 						<artifactId>avalon-framework</artifactId>
 					</exclusion>
 				</exclusions>
-				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>log4j</groupId>
 				<artifactId>log4j</artifactId>
 				<version>1.2.17</version>
-				<scope>provided</scope>
 				<!-- define those exlusions otherwise we get annoying zip corruption errors -->
 				<exclusions>
 					<exclusion>
@@ -177,6 +175,11 @@
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-jar-plugin</artifactId>
 					<version>2.1</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-assembly-plugin</artifactId>
+					<version>2.4</version>
 				</plugin>
 				<plugin>
 					<groupId>net.sourceforge.maven-taglib</groupId>
