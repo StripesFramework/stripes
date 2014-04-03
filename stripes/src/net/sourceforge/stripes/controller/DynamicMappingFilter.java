@@ -406,7 +406,7 @@ public class DynamicMappingFilter implements Filter {
 
         // If a FileNotFoundException or SC_NOT_FOUND error occurred, then try to match an ActionBean to the URL
         Integer errorCode = wrapper.getErrorCode();
-        if (!initializing && (errorCode != null && errorCode == HttpServletResponse.SC_NOT_FOUND)
+        if (!initializing && (errorCode != null && (errorCode == HttpServletResponse.SC_NOT_FOUND || errorCode == HttpServletResponse.SC_METHOD_NOT_ALLOWED))
                 || fileNotFoundExceptionThrown) {
             // Get a reference to a StripesFilter instance
             StripesFilter sf = getStripesFilter();
