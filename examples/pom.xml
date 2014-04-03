@@ -10,7 +10,10 @@
 	</parent>
 	<artifactId>stripes-examples</artifactId>
 	<packaging>war</packaging>
+
 	<name>Stripes Examples Webapp</name>
+	<description>Example web application built with the Stripes web framework.</description>
+
 	<dependencies>
 		<dependency>
 			<groupId>net.sourceforge.stripes</groupId>
@@ -46,6 +49,7 @@
 			<scope>compile</scope>
 		</dependency>
 	</dependencies>
+
 	<build>
 		<plugins>
 			<plugin>
