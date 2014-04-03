@@ -5,15 +5,28 @@
 	<parent>
 		<groupId>org.sonatype.oss</groupId>
 		<artifactId>oss-parent</artifactId>
-		<version>5</version>
+		<version>9</version>
 	</parent>
 	<groupId>net.sourceforge.stripes</groupId>
 	<artifactId>stripes-parent</artifactId>
 	<version>1.5.8-SNAPSHOT</version>
 	<packaging>pom</packaging>
+
+	<modules>
+		<module>stripes</module>
+		<module>examples</module>
+		<module>dist</module>
+	</modules>
+
 	<name>Stripes Parent</name>
 	<url>http://stripesframework.org/</url>
-	<description>Stripes web framework jar, including tag library.</description>
+	<description>Stripes web framework parent project.</description>
+
+	<organization>
+		<name>Stripes Framework</name>
+		<url>http://www.stripesframework.org/</url>
+	</organization>
+
 	<licenses>
 		<license>
 			<name>The Apache Software License, Version 2.0</name>
@@ -21,20 +34,22 @@
 			<distribution>repo</distribution>
 		</license>
 	</licenses>
+
 	<scm>
 		<url>https://github.com/StripesFramework/stripes</url>
 		<connection>scm:git:https://github.com/StripesFramework/stripes.git</connection>
 		<developerConnection>scm:git:https://github.com/StripesFramework/stripes.git</developerConnection>
 	</scm>
+
 	<issueManagement>
 		<system>JIRA</system>
 		<url>http://stripesframework.org/jira/browse/STS</url>
 	</issueManagement>
-	<modules>
-		<module>stripes</module>
-		<module>examples</module>
-		<module>dist</module>
-	</modules>
+
+	<ciManagement>
+		<system>Jenkins</system>
+		<url>http://www.stripesframework.org/jenkins</url>
+	</ciManagement>
 
 	<dependencyManagement>
 		<dependencies>
@@ -219,6 +234,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-javadoc-plugin</artifactId>
+					<version>2.9.1</version>
 					<executions>
 						<execution>
 							<id>generate-javadoc</id>
@@ -246,33 +262,13 @@
 			</plugins>
 		</pluginManagement>
 	</build>
+
 	<profiles>
 		<profile>
 			<id>webtests</id>
 			<modules>
 				<module>webtests</module>
 			</modules>
-		</profile>
-		<profile>
-			<id>release</id>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-gpg-plugin</artifactId>
-						<version>1.1</version>
-						<executions>
-							<execution>
-								<id>sign-artifacts</id>
-								<phase>verify</phase>
-								<goals>
-									<goal>sign</goal>
-								</goals>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
 		</profile>
 	</profiles>
 </project>
