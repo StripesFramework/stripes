@@ -182,6 +182,7 @@ public class UrlBuilder {
      */
     public UrlBuilder setEvent(String event) {
         this.event = new Parameter(UrlBindingParameter.PARAMETER_NAME_EVENT, event);
+        this.url = null;
         return this;
     }
 
@@ -321,7 +322,7 @@ public class UrlBuilder {
      *            the object to be formatted
      * @return the formatted value
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     protected String format(Object value) {
         if (value == null) {
             return "";
@@ -343,8 +344,8 @@ public class UrlBuilder {
      * @param value the object to be formatted
      * @return a formatter, if one can be found; null otherwise
      */
-    @SuppressWarnings("unchecked")
-	protected Formatter getFormatter(Object value) {
+    @SuppressWarnings("rawtypes")
+    protected Formatter getFormatter(Object value) {
         Configuration configuration = StripesFilter.getConfiguration();
         if (configuration == null)
             return null;
