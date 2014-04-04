@@ -290,9 +290,11 @@ public class StreamingResolution implements Resolution {
         if (attachment || filename != null) {
             // Value of filename should be RFC 2047 encoded here (see RFC 2616) but few browsers
             // support that, so just escape the quote for now
-            String escaped = this.filename.replace("\"", "\\\"");
-            StringBuilder header = new StringBuilder(attachment ? "attachment" : "inline").append(
-                    ";filename=\"").append(escaped).append("\"");
+            StringBuilder header = new StringBuilder(attachment ? "attachment" : "inline");
+            if (filename != null) {
+                String escaped = this.filename.replace("\"", "\\\"");
+                header.append(";filename=\"").append(escaped).append("\"");
+            }
             if (lastModified >= 0) {
                 SimpleDateFormat format = new SimpleDateFormat(RFC_822_DATE_FORMAT);
                 String value = format.format(new Date(lastModified));
