@@ -335,7 +335,6 @@ public class AnnotatedClassActionResolver implements ActionResolver {
         catch (Exception e) {
             StripesServletException sse = new StripesServletException(
                 "Could not create instance of ActionBean type [" + beanClass.getName() + "].", e);
-            log.error(sse);
             throw sse;
         }
 
