@@ -43,8 +43,8 @@ public class ValidationMetadata {
     private Double minvalue, maxvalue;
     private Pattern mask;
     private String expression;
-    @SuppressWarnings("unchecked")
-	private Class<? extends TypeConverter> converter;
+    @SuppressWarnings("rawtypes")
+    private Class<? extends TypeConverter> converter;
     private String label;
 
     /**
@@ -179,15 +179,15 @@ public class ValidationMetadata {
     public Pattern mask() { return this.mask; }
 
     /** Sets the overridden TypeConveter to use to convert values. */
-	@SuppressWarnings("unchecked")
-	public ValidationMetadata converter(Class<? extends TypeConverter> converter) {
+	@SuppressWarnings("rawtypes")
+    public ValidationMetadata converter(Class<? extends TypeConverter> converter) {
         this.converter = converter;
         return this;
     }
 
     /** Returns the overridden TypeConverter if there is one, or null. */
-    @SuppressWarnings("unchecked")
-	public Class<? extends TypeConverter> converter() { return this.converter; }
+	@SuppressWarnings("rawtypes")
+    public Class<? extends TypeConverter> converter() { return this.converter; }
 
     /** Sets the expression that should be used to validate values. */
     public ValidationMetadata expression(String expression) {
@@ -207,7 +207,7 @@ public class ValidationMetadata {
         else {
             // Check for empty strings in the "on" element
             for (String s : on) {
-                if (s.isEmpty() || "!".equals(s)) {
+                if (s.length() == 0 || "!".equals(s)) {
                     throw new IllegalArgumentException(
                             "@Validate's \"on\" element must not contain empty strings");
                 }
