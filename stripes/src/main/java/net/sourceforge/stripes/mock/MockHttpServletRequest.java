@@ -14,10 +14,6 @@
  */
 package net.sourceforge.stripes.mock;
 
-import javax.servlet.ServletInputStream;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.security.Principal;
@@ -31,6 +27,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+
+import javax.servlet.ServletInputStream;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 /**
  * <p>Mock implementation of an HttpServletRequest object.  Allows for setting most values that
@@ -115,15 +116,8 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
     /** Returns any header as a String if it exists. */
     public String getHeader(String name) {
-        if (name != null)
-            name = name.toLowerCase();
-        Object header = this.headers.get(name);
-        if (header != null) {
-            return header.toString();
-        }
-        else {
-            return null;
-        }
+        final Object header = this.headers.get(name == null ? null : name.toLowerCase());
+        return header == null ? null : header.toString();
     }
 
     /** Returns an enumeration with single value of the named header, or an empty enum if no value. */
@@ -141,7 +135,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
     /** Gets the named header as an int. Must have been set as an Integer with addHeader(). */
     public int getIntHeader(String name) {
-        return (Integer) this.headers.get(name);
+        return (Integer) this.headers.get(name == null ? null : name.toLowerCase());
     }
 
     /** Sets the method used by the request. Defaults to POST. */

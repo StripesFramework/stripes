@@ -1,7 +1,8 @@
 package net.sourceforge.stripes.mock;
 
+import java.io.StringReader;
+
 import net.sourceforge.stripes.FilterEnabledTestBase;
-import net.sourceforge.stripes.StripesTestFixture;
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.action.ActionBeanContext;
 import net.sourceforge.stripes.action.DefaultHandler;
@@ -13,12 +14,9 @@ import net.sourceforge.stripes.action.StreamingResolution;
 import net.sourceforge.stripes.action.UrlBinding;
 import net.sourceforge.stripes.validation.SimpleError;
 import net.sourceforge.stripes.validation.Validate;
-import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
 
-import java.io.StringReader;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
 /**
  * Unit test that is designed to do some fairly simple testing of the mock engine to ensure that
@@ -199,10 +197,26 @@ public class TestMockRoundtrip extends FilterEnabledTestBase implements ActionBe
     }
     
     @Test(groups="fast")
-    public void testRequestCaseInsensitive(){
-    	MockHttpServletRequest request = new MockHttpServletRequest("", "");
-    	request.addHeader("User-Agent", "Netscape/6.0");
-    	Assert.assertEquals(request.getHeader("User-Agent"), "Netscape/6.0", MockHttpServletRequest.class + ".addHeader/getHeader do not properly");
+    public void testRequestCaseInsensitive() {
+        final MockHttpServletRequest request = new MockHttpServletRequest("", "");
+
+        String headerName = "User-Agent";
+        Object value = "Netscape/6.0";
+        request.addHeader(headerName, value);
+        String[] variants = { headerName, headerName.toLowerCase(), headerName.toUpperCase() };
+        for (String v : variants) {
+            Assert.assertEquals(request.getHeader(v), value,
+                    "MockHttpServletRequest.addHeader/getHeader are case sensitive");
+        }
+
+        headerName = "Content-Length";
+        value = 1024;
+        request.addHeader(headerName, value);
+        variants = new String[] { headerName, headerName.toLowerCase(), headerName.toUpperCase() };
+        for (String v : variants) {
+            Assert.assertEquals(request.getIntHeader(v), value,
+                    "MockHttpServletRequest.addHeader/getIntHeader are case sensitive");
+        }
     }
 
     @Test(groups="fast")
