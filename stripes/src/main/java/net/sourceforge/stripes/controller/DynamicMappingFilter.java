@@ -401,13 +401,26 @@ public class DynamicMappingFilter implements Filter {
         }
 
         // Check the instance field as well as request header for initialization request
+        HttpServletRequest httpServletRequest = (HttpServletRequest) request;
         boolean initializing = this.initializing
-                || ((HttpServletRequest) request).getHeader(REQ_HEADER_INIT_FLAG) != null;
+                || httpServletRequest.getHeader(REQ_HEADER_INIT_FLAG) != null;
 
         // If a FileNotFoundException or SC_NOT_FOUND error occurred, then try to match an ActionBean to the URL
+        boolean notFound = false;
         Integer errorCode = wrapper.getErrorCode();
-        if (!initializing && (errorCode != null && (errorCode == HttpServletResponse.SC_NOT_FOUND || errorCode == HttpServletResponse.SC_METHOD_NOT_ALLOWED))
-                || fileNotFoundExceptionThrown) {
+        if (errorCode!=null) {
+            if (errorCode==HttpServletResponse.SC_NOT_FOUND) {
+                notFound = true;
+            } else {
+                // special handling for WildFly,
+                // see http://www.stripesframework.org/jira/browse/STS-916
+                if ("POST".equals(httpServletRequest.getMethod())
+                        && errorCode == HttpServletResponse.SC_METHOD_NOT_ALLOWED) {
+                    notFound = true;
+                }
+            }
+        }
+        if (!initializing && (notFound || fileNotFoundExceptionThrown)) {
             // Get a reference to a StripesFilter instance
             StripesFilter sf = getStripesFilter();
             if (sf == null) {
