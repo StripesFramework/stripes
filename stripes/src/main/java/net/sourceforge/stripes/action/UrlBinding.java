@@ -41,6 +41,16 @@ import java.lang.annotation.ElementType;
  * URL /foo/bar.
  * </p>
  * <p>
+ * Example usages of the $event parameter:
+ * <ul>
+ * <li>{@code @UrlBinding("/admin/{$event}")}</li>
+ * <li>{@code @UrlBinding("/admin/{$event}/{employeeId}")}</li>
+ * </ul>
+ * You cannot interleave the $event parameter with other URL parameters. The $event parameter must be first parameter
+ * declared in the UrlBinding. For example, the following binding would not work:
+ * {@code @UrlBinding("/admin/{employeeId}/{$event}")}
+ * </p>
+ * <p>
  * Clean URL parameters can be assigned default values using the {@code =} operator. For example,
  * {@code @UrlBinding("/foo/{bar=abc}/{baz=123}")}. If a parameter with a default value is missing
  * from a request URL, it will still be made available as a request parameter with the default
