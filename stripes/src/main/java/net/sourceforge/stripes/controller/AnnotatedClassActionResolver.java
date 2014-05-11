@@ -154,6 +154,10 @@ public class AnnotatedClassActionResolver implements ActionResolver {
         // Put the event->method mapping for the class into the set of mappings
         this.eventMappings.put(clazz, classMappings);
 
+        if (proto != null) {
+            proto.initDefaultValueWithDefaultHandlerIfNeeded(this);
+        }
+
         if (log.getRealLog().isDebugEnabled()) {
             // Print out the event mappings nicely
             for (Map.Entry<String, Method> entry : classMappings.entrySet()) {

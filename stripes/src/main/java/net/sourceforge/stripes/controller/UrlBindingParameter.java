@@ -18,6 +18,8 @@ import java.lang.reflect.Method;
 
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.action.HandlesEvent;
+import net.sourceforge.stripes.exception.StripesRuntimeException;
+import net.sourceforge.stripes.exception.StripesServletException;
 
 /**
  * A parameter to a clean URL.
@@ -90,23 +92,30 @@ public class UrlBindingParameter {
      * @return the default value
      */
     public String getDefaultValue() {
-        // for $event parameters with no explicit default value, get default from action resolver
-        if (this.defaultValue == null && PARAMETER_NAME_EVENT.equals(name)) {
+        return defaultValue;
+    }
+
+    /**
+     * Ensure the default event name is set if the binding uses the $event parameter.
+     * Can only be done safely after the event mappings have been processed.
+     * see http://www.stripesframework.org/jira/browse/STS-803
+     */
+    void initDefaultValueWithDefaultHandlerIfNeeded(ActionResolver actionResolver) {
+        if (PARAMETER_NAME_EVENT.equals(name)) {
+            Method defaultHandler;
             try {
-                Method defaultHandler = StripesFilter.getConfiguration().getActionResolver()
-                        .getDefaultHandler(beanClass);
-                HandlesEvent annotation = defaultHandler.getAnnotation(HandlesEvent.class);
-                if (annotation != null)
-                    this.defaultValue = annotation.value();
-                else
-                    this.defaultValue = defaultHandler.getName();
+                defaultHandler = actionResolver.getDefaultHandler(beanClass);
+            } catch (StripesServletException e) {
+                throw new StripesRuntimeException("Caught an exception trying to get default handler for ActionBean '" + beanClass.getName() +
+                        "'. Make sure this ActionBean has a default handler.", e);
             }
-            catch (Exception e) {
-                /* Ignore any exceptions and just return null. */
+            HandlesEvent annotation = defaultHandler.getAnnotation(HandlesEvent.class);
+            if (annotation != null) {
+                this.defaultValue = annotation.value();
+            } else {
+                this.defaultValue = defaultHandler.getName();
             }
         }
-
-        return defaultValue;
     }
 
     /**
