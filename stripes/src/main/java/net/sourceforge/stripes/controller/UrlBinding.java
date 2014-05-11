@@ -146,4 +146,12 @@ public class UrlBinding {
         }
         return buf.toString();
     }
+
+    public void setDefaultEventName(ActionResolver actionResolver) {
+        for(UrlBindingParameter parameter : parameters) {
+            if (parameter.isEventParameter()) {
+                parameter.setDefaultEvent(actionResolver);
+            }
+        }
+    }
 }
