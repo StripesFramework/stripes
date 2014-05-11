@@ -4,3 +4,4 @@
 .project
 .settings
 target
+webtests/tomcat6x/
