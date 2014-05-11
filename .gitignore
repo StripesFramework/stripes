@@ -4,3 +4,4 @@ target
 .classpath
 *.iml
 .idea
+webtests/tomcat6x
