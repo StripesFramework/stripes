@@ -143,8 +143,10 @@ public class AnnotatedClassActionResolver implements ActionResolver {
 
         // make sure mapping exists in cache
         UrlBinding proto = getUrlBindingFactory().getBindingPrototype(clazz);
+        UrlBinding newProto = null;
         if (proto == null) {
-            getUrlBindingFactory().addBinding(clazz, new UrlBinding(clazz, binding));
+            newProto = new UrlBinding(clazz, binding);
+            getUrlBindingFactory().addBinding(clazz, newProto);
         }
 
         // Construct the mapping of event->method for the class
@@ -154,8 +156,9 @@ public class AnnotatedClassActionResolver implements ActionResolver {
         // Put the event->method mapping for the class into the set of mappings
         this.eventMappings.put(clazz, classMappings);
 
-        if (proto != null) {
-            proto.initDefaultValueWithDefaultHandlerIfNeeded(this);
+        // init once, and after events mappings have been computed
+        if (newProto!=null) {
+            newProto.initDefaultValueWithDefaultHandlerIfNeeded(this);
         }
 
         if (log.getRealLog().isDebugEnabled()) {
