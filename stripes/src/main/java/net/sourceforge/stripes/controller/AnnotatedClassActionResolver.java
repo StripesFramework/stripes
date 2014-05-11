@@ -143,10 +143,7 @@ public class AnnotatedClassActionResolver implements ActionResolver {
         this.eventMappings.put(clazz, classMappings);
 
         if (proto != null) {
-            // action bean is using the URLBinding annotation
-            // ensure the default event name is set if the binding uses the $event parameter
-            // can only be done safely after the event mappings have been processed
-            proto.setDefaultEventName(this);
+            proto.initDefaultValueWithDefaultHandlerIfNeeded(this);
         }
 
         if (log.getRealLog().isDebugEnabled()) {

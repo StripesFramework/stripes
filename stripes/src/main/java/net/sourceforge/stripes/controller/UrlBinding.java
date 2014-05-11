@@ -147,11 +147,14 @@ public class UrlBinding {
         return buf.toString();
     }
 
-    public void setDefaultEventName(ActionResolver actionResolver) {
+    /**
+     * Ensure the default event name is set if the binding uses the $event parameter.
+     * Can only be done safely after the event mappings have been processed.
+     * see http://www.stripesframework.org/jira/browse/STS-803
+     */
+    public void initDefaultValueWithDefaultHandlerIfNeeded(ActionResolver actionResolver) {
         for(UrlBindingParameter parameter : parameters) {
-            if (parameter.isEventParameter()) {
-                parameter.setDefaultEvent(actionResolver);
-            }
+            parameter.initDefaultValueWithDefaultHandlerIfNeeded(actionResolver);
         }
     }
 }

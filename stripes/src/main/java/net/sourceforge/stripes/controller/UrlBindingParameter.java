@@ -18,8 +18,8 @@ import java.lang.reflect.Method;
 
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.action.HandlesEvent;
+import net.sourceforge.stripes.exception.StripesRuntimeException;
 import net.sourceforge.stripes.exception.StripesServletException;
-import net.sourceforge.stripes.util.Log;
 
 /**
  * A parameter to a clean URL.
@@ -30,8 +30,6 @@ import net.sourceforge.stripes.util.Log;
 public class UrlBindingParameter {
     /** The special parameter name for the event to execute */
     public static final String PARAMETER_NAME_EVENT = "$event";
-
-    private static final Log log = Log.getInstance(UrlBindingParameter.class);
 
     protected Class<? extends ActionBean> beanClass;
     protected String name;
@@ -97,20 +95,26 @@ public class UrlBindingParameter {
         return defaultValue;
     }
 
-    public boolean isEventParameter() {
-        return PARAMETER_NAME_EVENT.equals(name);
-    }
-
-    public void setDefaultEvent(ActionResolver actionResolver) {
-        try {
-            Method defaultHandler = actionResolver.getDefaultHandler(beanClass);
+    /**
+     * Ensure the default event name is set if the binding uses the $event parameter.
+     * Can only be done safely after the event mappings have been processed.
+     * see http://www.stripesframework.org/jira/browse/STS-803
+     */
+    void initDefaultValueWithDefaultHandlerIfNeeded(ActionResolver actionResolver) {
+        if (PARAMETER_NAME_EVENT.equals(name)) {
+            Method defaultHandler;
+            try {
+                defaultHandler = actionResolver.getDefaultHandler(beanClass);
+            } catch (StripesServletException e) {
+                throw new StripesRuntimeException("Caught an exception trying to get default handler for ActionBean '" + beanClass.getName() +
+                        "'. Make sure this ActionBean has a default handler.", e);
+            }
             HandlesEvent annotation = defaultHandler.getAnnotation(HandlesEvent.class);
-            if (annotation != null)
+            if (annotation != null) {
                 this.defaultValue = annotation.value();
-            else
+            } else {
                 this.defaultValue = defaultHandler.getName();
-        } catch (StripesServletException e) {
-            log.info("No default event found for action bean class: " + beanClass.getName());
+            }
         }
     }
 
