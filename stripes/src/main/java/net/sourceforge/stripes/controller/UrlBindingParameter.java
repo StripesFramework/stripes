@@ -20,6 +20,7 @@ import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.action.HandlesEvent;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
 import net.sourceforge.stripes.exception.StripesServletException;
+import net.sourceforge.stripes.util.Log;
 
 /**
  * A parameter to a clean URL.
@@ -30,6 +31,8 @@ import net.sourceforge.stripes.exception.StripesServletException;
 public class UrlBindingParameter {
     /** The special parameter name for the event to execute */
     public static final String PARAMETER_NAME_EVENT = "$event";
+
+    private static final Log log = Log.getInstance(UrlBindingParameter.class);
 
     protected Class<? extends ActionBean> beanClass;
     protected String name;
@@ -102,18 +105,17 @@ public class UrlBindingParameter {
      */
     void initDefaultValueWithDefaultHandlerIfNeeded(ActionResolver actionResolver) {
         if (PARAMETER_NAME_EVENT.equals(name)) {
-            Method defaultHandler;
             try {
-                defaultHandler = actionResolver.getDefaultHandler(beanClass);
+                Method defaultHandler = actionResolver.getDefaultHandler(beanClass);
+                HandlesEvent annotation = defaultHandler.getAnnotation(HandlesEvent.class);
+                if (annotation != null) {
+                    this.defaultValue = annotation.value();
+                } else {
+                    this.defaultValue = defaultHandler.getName();
+                }
             } catch (StripesServletException e) {
-                throw new StripesRuntimeException("Caught an exception trying to get default handler for ActionBean '" + beanClass.getName() +
-                        "'. Make sure this ActionBean has a default handler.", e);
-            }
-            HandlesEvent annotation = defaultHandler.getAnnotation(HandlesEvent.class);
-            if (annotation != null) {
-                this.defaultValue = annotation.value();
-            } else {
-                this.defaultValue = defaultHandler.getName();
+                log.warn(e, "Caught an exception trying to get default handler for ActionBean '",
+                        beanClass.getName(), "'. Make sure this ActionBean has a default handler.");
             }
         }
     }
