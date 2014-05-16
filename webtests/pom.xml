@@ -25,12 +25,6 @@
 			<artifactId>webtest</artifactId>
 			<version>3.0</version>
 		</dependency>
-        <dependency>
-            <groupId>net.sourceforge.stripes</groupId>
-            <artifactId>stripes</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
 		<dependency>
 			<groupId>org.codehaus.groovy</groupId>
 			<artifactId>groovy-all</artifactId>
@@ -88,22 +82,13 @@
 			<plugin>
 				<groupId>org.codehaus.cargo</groupId>
 				<artifactId>cargo-maven2-plugin</artifactId>
+                <version>1.4.7</version>
 				<configuration>
-					<wait>false</wait>
-					<container>
-						<containerId>tomcat6x</containerId>
-						<zipUrlInstaller>
-							<url>http://www.us.apache.org/dist/tomcat/tomcat-6/v6.0.39/bin/apache-tomcat-6.0.39.tar.gz</url>
-							<downloadDir>${project.build.directory}/downloads</downloadDir>
-							<extractDir>${project.build.directory}/extracts</extractDir>
-						</zipUrlInstaller>
-					</container>
-					<configuration>
-						<home>${project.basedir}/tomcat6x/container</home>
-						<properties>
-							<cargo.servlet.port>9999</cargo.servlet.port>
-						</properties>
-					</configuration>
+                    <configuration>
+                        <properties>
+                            <cargo.servlet.port>9999</cargo.servlet.port>
+                        </properties>
+                    </configuration>
                     <deployables>
                         <deployable>
                             <groupId>net.sourceforge.stripes</groupId>
