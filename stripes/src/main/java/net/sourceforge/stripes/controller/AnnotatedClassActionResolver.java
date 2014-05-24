@@ -38,9 +38,11 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * <p>Uses Annotations on classes to identify the ActionBean that corresponds to the current
@@ -75,6 +77,10 @@ public class AnnotatedClassActionResolver implements ActionResolver {
     /** Parses {@link UrlBinding} values and maps request URLs to {@link ActionBean}s. */
     private UrlBindingFactory urlBindingFactory = new UrlBindingFactory();
 
+    /** Maps action bean classes simple name -> action bean class */
+    protected final Map<String, Class<? extends ActionBean>> actionBeansByName =
+            new ConcurrentHashMap<String, Class<? extends ActionBean>>();
+
     /**
      * Map used to resolve the methods handling events within form beans. Maps the class
      * representing a subclass of ActionBean to a Map of event names to Method objects.
@@ -105,6 +111,23 @@ public class AnnotatedClassActionResolver implements ActionResolver {
         // Process each ActionBean
         for (Class<? extends ActionBean> clazz : findClasses()) {
             addActionBean(clazz);
+        }
+
+        addBeanNameMappings();
+    }
+
+    protected void addBeanNameMappings() {
+        Set<String> foundBeanNames = new HashSet<String>();
+        for (Class<? extends ActionBean> clazz : getActionBeanClasses()) {
+            if (foundBeanNames.contains(clazz.getSimpleName())) {
+                log.warn("Found multiple action beans with the same simple name: ", clazz.getSimpleName(), ". You will " +
+                        "need to reference these action beans by their fully qualified names");
+                actionBeansByName.remove(clazz.getSimpleName());
+                continue;
+            }
+
+            foundBeanNames.add(clazz.getSimpleName());
+            actionBeansByName.put(clazz.getSimpleName(), clazz);
         }
     }
 
@@ -643,5 +666,9 @@ public class AnnotatedClassActionResolver implements ActionResolver {
      */
     public Collection<Class<? extends ActionBean>> getActionBeanClasses() {
         return getUrlBindingFactory().getActionBeanClasses();
+    }
+
+    public Class<? extends ActionBean> getActionBeanByName(String actionBeanName) {
+        return actionBeansByName.get(actionBeanName);
     }
 }
