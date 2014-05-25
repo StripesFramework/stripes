@@ -256,7 +256,7 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
                 .isBindingAllowed(eval);
         if (!allowed) {
             String param = eval.getExpression().getSource();
-            log.warn("Binding denied for parameter [", param, "]");
+            log.warn("Binding denied for parameter [", param, "]. Use @Validate to allow binding in conjunction with @StrictBinding.");
         }
         return allowed;
     }
