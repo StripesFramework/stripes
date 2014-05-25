@@ -19,6 +19,7 @@ import net.sourceforge.stripes.action.ActionBeanContext;
 import net.sourceforge.stripes.action.FileBean;
 import net.sourceforge.stripes.action.Wizard;
 import net.sourceforge.stripes.config.Configuration;
+import net.sourceforge.stripes.exception.BindingDeniedException;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
 import net.sourceforge.stripes.util.CollectionUtil;
 import net.sourceforge.stripes.util.CryptoUtil;
@@ -256,6 +257,9 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
                 .isBindingAllowed(eval);
         if (!allowed) {
             String param = eval.getExpression().getSource();
+            if (configuration.isDebugMode()) {
+                throw new BindingDeniedException(param);
+            }
             log.warn("Binding denied for parameter [", param, "]. Use @Validate to allow binding in conjunction with @StrictBinding.");
         }
         return allowed;
