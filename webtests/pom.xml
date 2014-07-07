@@ -44,14 +44,15 @@
 			</plugin>
 			<!-- Use Groovy plugin for compilation of .groovy files -->
 			<plugin>
-				<groupId>org.codehaus.groovy.maven</groupId>
+                <groupId>org.codehaus.gmaven</groupId>
 				<artifactId>gmaven-plugin</artifactId>
+                <version>1.4</version>
+                <configuration>
+                    <providerSelection>2.0</providerSelection>
+                </configuration>
 				<executions>
 					<execution>
 						<goals>
-							<goal>generateStubs</goal>
-							<goal>compile</goal>
-							<goal>generateTestStubs</goal>
 							<goal>testCompile</goal>
 						</goals>
 					</execution>
@@ -81,22 +82,22 @@
 			<plugin>
 				<groupId>org.codehaus.cargo</groupId>
 				<artifactId>cargo-maven2-plugin</artifactId>
+                <version>1.4.7</version>
 				<configuration>
-					<wait>false</wait>
-					<container>
-						<containerId>tomcat6x</containerId>
-						<zipUrlInstaller>
-							<url>http://apache.opensourcemirror.com/tomcat/tomcat-6/v6.0.36/bin/apache-tomcat-6.0.36.zip</url>
-							<downloadDir>${project.build.directory}/downloads</downloadDir>
-							<extractDir>${project.build.directory}/extracts</extractDir>
-						</zipUrlInstaller>
-					</container>
-					<configuration>
-						<home>${project.build.directory}/tomcat6x/container</home>
-						<properties>
-							<cargo.servlet.port>9999</cargo.servlet.port>
-						</properties>
-					</configuration>
+                    <configuration>
+                        <properties>
+                            <cargo.servlet.port>9999</cargo.servlet.port>
+                        </properties>
+                    </configuration>
+                    <deployables>
+                        <deployable>
+                            <groupId>net.sourceforge.stripes</groupId>
+                            <artifactId>stripes-examples</artifactId>
+                            <properties>
+                                <context>webtests</context>
+                            </properties>
+                        </deployable>
+                    </deployables>
 				</configuration>
 				<executions>
 					<execution>

@@ -1,6 +1,8 @@
+.DS_Store
 target
 .settings
 .project
 .classpath
 *.iml
 .idea
+webtests/tomcat6x
