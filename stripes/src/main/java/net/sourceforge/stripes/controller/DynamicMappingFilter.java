@@ -399,6 +399,15 @@ public class DynamicMappingFilter implements Filter {
         catch (FileNotFoundException exc) {
             fileNotFoundExceptionThrown = true;
         }
+        catch(ServletException e) {
+            // IBM Liberty basically wraps the FileNotFound into a ServletException
+            if (e.getRootCause() instanceof FileNotFoundException) {
+                fileNotFoundExceptionThrown = true;
+            } else {
+                // re-throw the exception
+                throw e;
+            }
+        }
 
         // Check the instance field as well as request header for initialization request
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
