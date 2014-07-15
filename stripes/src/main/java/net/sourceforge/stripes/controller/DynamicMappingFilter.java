@@ -296,6 +296,17 @@ public class DynamicMappingFilter implements Filter {
                     super.sendError(errorCode, errorMessage);
             }
         }
+
+        @Override
+        public void setStatus(int sc) {
+            this.errorCode = sc;
+        }
+
+        @Override
+        public void setStatus(int sc, String sm) {
+            this.errorCode = sc;
+            this.errorMessage = sm;
+        }
     }
 
     /**
