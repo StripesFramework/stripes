@@ -90,7 +90,7 @@ public class FlashScope extends HashMap<String,Object> {
     private static final Random random = new Random();
     private long startTime;
     private int timeout = DEFAULT_TIMEOUT_IN_SECONDS;
-    private HttpServletRequest request;
+    private transient HttpServletRequest request;
     private Integer key;
     private Semaphore semaphore;
 
