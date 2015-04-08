@@ -100,19 +100,48 @@ public class ReflectUtil {
     private static final Set<String> INHERITED_ANNOTATION_METHODS =
             Literal.set("toString", "equals", "hashCode", "annotationType");
 
+    /** 
+     * A cache classes already found by {@code findClass(String)}.
+     */
+    private static Map<String, Class<?>> classCache = new ConcurrentHashMap<String, Class<?>>();
+
     /**
      * Utility method used to load a class.  Any time that Stripes needs to load of find a
      * class by name it uses this method.  As a result any time the classloading strategy
      * needs to change it can be done in one place!  Currently uses
      * {@code Thread.currentThread().getContextClassLoader().loadClass(String)}.
      *
+     * <p>Uses a cache of classes found because it has been seen that under load it can 
+     * at least in Jetty, result in lock contention in the classloader of the application
+     * server.
+     *
      * @param name the fully qualified (binary) name of the class to find or load
      * @return the Class object representing the class
      * @throws ClassNotFoundException if the class cannot be loaded
      */
     @SuppressWarnings("rawtypes") // this allows us to assign without casting
-	public static Class findClass(String name) throws ClassNotFoundException {
-        return Thread.currentThread().getContextClassLoader().loadClass(name);
+	 public static Class findClass(String name) throws ClassNotFoundException {
+        
+        Class theClass = classCache.get(name);
+        
+        if (theClass == ClassNotFoundException.class) {
+          log.error("Still could not find class with name: '" + name + "'");
+          throw new ClassNotFoundException(name);
+        }
+        
+        if (theClass == null) {
+          try {
+            theClass = Thread.currentThread().getContextClassLoader().loadClass(name);
+          }
+          catch (ClassNotFoundException cnfe) {
+            log.error("Could not find class with name: : '" + name + "'");
+            classCache.put(name, ClassNotFoundException.class);
+            throw cnfe;
+          }
+          classCache.put(name, theClass);
+        }
+        
+        return theClass;
     }
 
     /**
