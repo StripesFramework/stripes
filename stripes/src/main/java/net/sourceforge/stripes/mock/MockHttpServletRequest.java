@@ -135,8 +135,10 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
     /** Gets the named header as an int. Must have been set as an Integer with addHeader(). */
     public int getIntHeader(String name) {
-        if( !this.headers.containsKey(name) ) return -1;
-        return (Integer) this.headers.get(name);    }
+        String headerValue = getHeader( name );
+        if( headerValue == null ) return -1;
+        return Integer.parseInt( headerValue );
+    }
 
     /** Sets the method used by the request. Defaults to POST. */
     public void setMethod(String method) { this.method = method; }
