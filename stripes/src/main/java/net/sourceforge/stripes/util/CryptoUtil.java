@@ -20,9 +20,11 @@ import java.security.SecureRandom;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.DESedeKeySpec;
+import javax.crypto.spec.IvParameterSpec;
 
 import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.controller.StripesFilter;
@@ -50,40 +52,28 @@ import net.sourceforge.stripes.exception.StripesRuntimeException;
  * {@link javax.crypto.SecretKey#getAlgorithm()}.  If using this method, the key should be set
  * before any requests are made, e.g. in a {@link javax.servlet.ServletContextListener}.</p>
  *
- * <p>Two additional measures are taken to improve security. Firstly a nonce value is prepended
- * to the input during encryption.  This is a value generated each time using a SecureRandom.
- * Doing this ensures that the same value is not encrypted the same way each time and leads to
- * increased unpredictability of the encrypted values.  Secondly a "magic number" is also
- * prepended to the input (after the nonce).  The magic number is verified at decryption time
- * to ensure that the value passed in was encrypted using the same key as was used for decryption.</p>
+ * <p>Stripes originally performed a broken authentication scheme. It was rewritten in STS-934
+ * to perform the Encrypt-then-Mac pattern. Also the encryption mode was changed from ECB to CBC.</p>
  *
  * @author Tim Fennell
  * @since Stripes 1.2
+ * @see https://en.wikipedia.org/wiki/Authenticated_encryption
  */
 public class CryptoUtil {
-    private static final Log log = Log.getInstance(CryptoUtil.class);
-    private static final SecureRandom random = new SecureRandom();
+	private static final Log log = Log.getInstance(CryptoUtil.class);
 
     /** The algorithm that is used to encrypt values. */
-    public static final String ALGORITHM = "DESede";
+    protected static final String ALGORITHM = "DESede";
+    protected static final String CIPHER_MODE_MODIFIER = "/CBC/PKCS5Padding";
+	protected static final int CIPHER_BLOCK_LENGTH = 8;
+	private static final String CIPHER_HMAC_ALGORITHM = "HmacSHA256";
+	private static final int CIPHER_HMAC_LENGTH = 32;
 
     /** Key used to look up the location of a secret key. */
     public static final String CONFIG_ENCRYPTION_KEY = "Stripes.EncryptionKey";
 
     /** Minimum number of bytes to raise the key material to before generating a key. */
     private static final int MIN_KEY_BYTES = 128;
-
-    /** The number of bytes that should be used to generate the nonce value. */
-    private static final int NONCE_SIZE = 2;
-
-    /** A seed number used when generating a hash code from a byte array. */
-    private static final int HASH_CODE_SEED = 5381;
-
-    /** The number of bytes required to hold the hash code (sizeof short) */
-    private static final int HASH_CODE_SIZE = 2;
-
-    /** Short hand for the combined size of the nonce + magic number. */
-    private static final int DISCARD_BYTES = NONCE_SIZE + HASH_CODE_SIZE;
 
     /** The options used for Base64 Encoding. */
     private static final int BASE64_OPTIONS = Base64.URL_SAFE | Base64.DONT_BREAK_LINES;
@@ -110,24 +100,30 @@ public class CryptoUtil {
             return input;
 
         try {
-            // First size the output
-            Cipher cipher = getCipher(Cipher.ENCRYPT_MODE);
             byte[] inbytes = input.getBytes();
             final int inputLength = inbytes.length;
-            int size = cipher.getOutputSize(DISCARD_BYTES + inputLength);
-            byte[] output = new byte[size];
+        	byte[] output = new byte[ calculateCipherbytes(inputLength) + CIPHER_HMAC_LENGTH ];
 
-            // Then encrypt along with the nonce and the hash code
-            byte[] nonce = nextNonce();
-            byte[] hash = generateHashCode(nonce, inbytes);
-            int index = cipher.update(hash, 0, HASH_CODE_SIZE, output, 0);
-            index = cipher.update(nonce, 0, NONCE_SIZE, output, index);
-            if (inbytes.length == 0) {
-                cipher.doFinal(output, index);
-            }
-            else {
-                cipher.doFinal(inbytes, 0, inbytes.length, output, index);
-            }
+        	//key required by cipher and hmac
+        	SecretKey key = getSecretKey();
+
+        	/*
+        	 * Generate an initialization vector required by block cipher modes
+        	 */
+            byte[] iv = generateInitializationVector();
+			System.arraycopy(iv, 0, output, 0, CIPHER_BLOCK_LENGTH);
+        	
+        	/*
+        	 * Encrypt-then-Mac (EtM) pattern, first encrypt plaintext 
+        	 */
+        	
+            Cipher cipher = getCipher(key, Cipher.ENCRYPT_MODE, iv, 0, CIPHER_BLOCK_LENGTH);
+            cipher.doFinal(inbytes, 0, inbytes.length, output, CIPHER_BLOCK_LENGTH);
+            
+        	/*
+        	 * Encrypt-then-Mac (EtM) pattern, authenticate ciphertext
+        	 */        	
+            hmac(key, output, 0, output.length - CIPHER_HMAC_LENGTH, output, output.length - CIPHER_HMAC_LENGTH);
 
             // Then base64 encode the bytes
             return Base64.encodeBytes(output, BASE64_OPTIONS);
@@ -138,6 +134,48 @@ public class CryptoUtil {
     }
 
     /**
+	 * Generates IV, random start bytes required by most block cipher modes,
+	 * which is intended to prevent analyzing a cipher mode as an xor substitution cipher.
+	 * 
+	 * @return CIPHER_BLOCK_LENGTH bytes of random data
+	 */
+	private static byte[] generateInitializationVector() {
+		// always create a new SecureRandom; get new OS/JVM random bytes instead of cycling the prng.
+		SecureRandom random = new SecureRandom();
+		byte[] iv = new byte[CIPHER_BLOCK_LENGTH];
+		random.nextBytes(iv);
+		return iv;
+	}
+
+    /**
+     * Performs keyed authentication using HMAC.
+     * Note: When building ciphertext+hmac array, data and mac will be the same array, and dataLength == macPos.
+     * @param key the authentication key
+     * @param data the data to be authenticated
+     * @param dataPos start of data to be authenticated
+     * @param dataLength the number of bytes to be authenticated
+     * @param mac the array which holds the resulting hmac
+     * @param macPos the position to write the hmac to
+     */
+    private static void hmac(SecretKey key, byte[] data, int dataPos, int dataLength, byte[] mac, int macPos) throws Exception {
+		Mac m = Mac.getInstance(CIPHER_HMAC_ALGORITHM);
+		m.init(key);
+		m.update(data, dataPos, dataLength);
+		m.doFinal(mac, macPos);
+	}
+
+    /**
+     * Returns the ciphertext length for a given plaintext,
+     * @param inputLength the length of plaintext
+     * @return the length of ciphertext, calculated based on blockcipher block size
+     */
+	private static int calculateCipherbytes(int inputLength) {
+		// 2 = IV + last block (including padding)
+		int blocks = 2 + (inputLength/CIPHER_BLOCK_LENGTH);
+		return blocks * CIPHER_BLOCK_LENGTH;
+	}
+
+	/**
      * Takes in a base64 encoded and encrypted String that was generated by a call to
      * {@link #encrypt(String)} and decrypts it. If {@code input} is null, then null will be
      * returned.
@@ -160,45 +198,105 @@ public class CryptoUtil {
             log.warn("Input is not Base64 encoded: ", input);
             return null;
         }
+        
+        if (bytes.length < CIPHER_BLOCK_LENGTH * 2 + CIPHER_HMAC_LENGTH) {
+            log.warn("Input is too short: ", input);
+            return null;        	
+        }
 
+        SecretKey key = getSecretKey();
+        
+        /*  
+         * HMAC: validate ciphertext integrity. 
+         * invalid hmac = choosen ciphertext attack against system.
+         *
+         * Encrypt-then-Mac (EtM) pattern, HMAC must be validated before the dangerous decrypt operation.
+         *
+         */
+        
+        byte[] mac = new byte[CIPHER_HMAC_LENGTH];
+        try {
+			hmac(key, bytes, 0, bytes.length - CIPHER_HMAC_LENGTH, mac, 0);
+		} catch (Exception e1) {
+	        log.warn("Unexpected error performing hmac on: ", input);
+	        return null;
+	 	}
+        
+        boolean validCiphertext;
+        try {
+			validCiphertext = hmacEquals(key, bytes, bytes.length - CIPHER_HMAC_LENGTH, mac, 0);
+		} catch (Exception e1) {
+	        log.warn("Unexpected error validating hmac of: ", input);
+	        return null;
+		}
+		if (!validCiphertext) {
+	        log.warn("Input was not encrypted with the current encryption key (bad HMAC): ", input);
+	        return null;        	
+        }
+        
+		/*
+		 * Encrypt-then-Mac pattern;
+		 * If validation success, ciphertext is assumed to be friendly and safe to process. 
+		 * Padding attacks, wrong blocklength etc is not expected from this point.
+		 * 
+		 */
+		
         // Then fetch a cipher and decrypt the bytes
-        Cipher cipher = getCipher(Cipher.DECRYPT_MODE);
+        Cipher cipher = getCipher(key, Cipher.DECRYPT_MODE, bytes, 0, CIPHER_BLOCK_LENGTH);
         byte[] output;
         try {
-            output = cipher.doFinal(bytes);
+            output = cipher.doFinal(bytes, CIPHER_BLOCK_LENGTH, bytes.length - CIPHER_HMAC_LENGTH - CIPHER_BLOCK_LENGTH);
         }
         catch (IllegalBlockSizeException e) {
-            log.warn("Input was not encrypted with the current encryption key: ", input);
+            log.warn("Unexpected IllegalBlockSizeException on: ", input);
             return null;
         }
         catch (BadPaddingException e) {
-            log.warn("Input was not encrypted with the current encryption key: ", input);
+            log.warn("Unexpected BadPaddingException on: ", input);
             return null;
         }
 
-        // Check the hash code so we don't eat garbage
-        if (!checkHashCode(output)) {
-            log.warn("Input was not encrypted with the current encryption key: ", input);
-            return null;
-        }
-
-        return new String(output, DISCARD_BYTES, output.length - DISCARD_BYTES);
+        return new String(output);
     }
 
-    /**
-     * Gets the secret key that should be used to encrypt and decrypt values for the
-     * current request.  If a key does not already exist in Session, one is created and
-     * then deposited there for use later.
-     *
-     * @return a SecretKey that can be used to manufacture Ciphers
-     */
-    protected static Cipher getCipher(int mode) {
-        try {
-            SecretKey key = getSecretKey();
+	/**
+	 * Compares HMAC in a manner secured against timing attacks, as per NCC Group "Double Hmac Verification" recepie.
+	 * Destructive compare, the hmac's will be replaced with the hmac's of themselves as a side effect.
+	 * @param key the hmac crypto key
+	 * @param mac1 the array which contains the hmac
+	 * @param mac1pos the position of the hmac in mac1 array.
+	 * @param mac2 the array which contains the hmac
+	 * @param mac2pos the position of the hmac in mac2 array.
+	 * @return true if hmacs are equal, otherwise false
+	 * @see double hmac as per https://www.nccgroup.trust/us/about-us/newsroom-and-events/blog/2011/february/double-hmac-verification/ 
+	 */
+    private static boolean hmacEquals(SecretKey key, byte[] mac1, int mac1pos,
+			byte[] mac2, int mac2pos) throws Exception {
+    	hmac(key, mac1, mac1pos, CIPHER_HMAC_LENGTH, mac1, mac1pos);
+       	hmac(key, mac2, mac2pos, CIPHER_HMAC_LENGTH, mac2, mac2pos);
+       	for(int i = 0; i < CIPHER_HMAC_LENGTH; i++)
+       		if (mac1[mac1pos+i] != mac2[mac2pos+i])
+       			return false;
+		return true;
+	}
 
+    /**
+     * Generates a cipher based on a key and an initialization vector
+     * @param key the crypto key
+     * @param mode Cipher.ENCRYPT_MODE or Cipher.DECRYPT_MODE
+     * @param iv the initialization vector
+     * @param ivpos the start position of the initialization vector, typically 0
+     * @param ivlength the length of the initialization vector
+     * @return the cipher object
+     * @see Cipher#ENCRYPT_MODE
+     * @see Cipher#DECRYPT_MODE
+     */
+	protected static Cipher getCipher(SecretKey key, int mode, byte[] iv, int ivpos, int ivlength) {
+        try {
             // Then build a cipher for the correct mode
-            Cipher cipher = Cipher.getInstance(key.getAlgorithm());
-            cipher.init(mode, key);
+            Cipher cipher = Cipher.getInstance(key.getAlgorithm() + CIPHER_MODE_MODIFIER);
+            IvParameterSpec ivps = new IvParameterSpec(iv, ivpos, ivlength);
+            cipher.init(mode, key, ivps);
             return cipher;
         }
         catch (Exception e) {
@@ -288,55 +386,4 @@ public class CryptoUtil {
         CryptoUtil.secretKey = key;
     }
 
-    /** Generates a nonce value using a secure random. */
-    protected static byte[] nextNonce() {
-        byte[] nonce = new byte[NONCE_SIZE];
-        CryptoUtil.random.nextBytes(nonce);
-        return nonce;
-    }
-
-    /** Generates and returns a hash code from the given byte arrays */
-    protected static byte[] generateHashCode(byte[]... byteses) {
-        long hash = HASH_CODE_SEED;
-        for (int i = 0; i < byteses.length; i++) {
-            byte[] bytes = byteses[i];
-            for (int j = 0; j < bytes.length; j++) {
-                hash = (((hash << 5) + hash) + bytes[j]);
-            }
-        }
-
-        // convert to bytes
-        byte[] hashBytes = new byte[HASH_CODE_SIZE];
-        for (int i = HASH_CODE_SIZE - 1; i >= 0; i--) {
-            hashBytes[i] = (byte) (hash & 0xff);
-            hash >>>= 8;
-        }
-        return hashBytes;
-    }
-
-    /**
-     * Checks the hash code in the first bytes of the value to make sure it is correct.
-     * 
-     * @param value byte array that contains the hash code and the bytes from which the hash code
-     *            was generated
-     * @return true if the hash code is valid; otherwise, false
-     */
-    protected static boolean checkHashCode(byte[] value) {
-        // array must be at least as long as the hash code
-        if (value.length < HASH_CODE_SIZE)
-            return false;
-
-        // generate hash
-        long hash = HASH_CODE_SEED;
-        for (int i = HASH_CODE_SIZE; i < value.length; i++)
-            hash = (((hash << 5) + hash) + value[i]);
-
-        // compare to first bytes of array
-        for (int i = HASH_CODE_SIZE - 1; i >= 0; i--) {
-            if (value[i] != (byte) (hash & 0xff))
-                return false;
-            hash >>>= 8;
-        }
-        return true;
-    }
 }
