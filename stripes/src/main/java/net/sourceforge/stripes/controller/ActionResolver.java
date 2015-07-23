@@ -157,4 +157,15 @@ public interface ActionResolver extends ConfigurableComponent {
      * after the call to init().
      */
     Collection<Class<? extends ActionBean>> getActionBeanClasses();
+
+    /**
+     * Gets the {@link ActionBean} type that matches <code>actionBeanName</code>. Implementers may use different
+     * strategies for naming {@link ActionBean}s. This method can return null if no
+     * action beans exist with the given <code>actionBeanName</code> or multiple action beans resolve to the same
+     * <code>actionBeanName</code>
+     *
+     * @param actionBeanName The name that identifies the {@link ActionBean}
+     * @return the ActionBean class that matches actionBeanName, or null if an ActionBean can't be resolved for the name
+     */
+    Class<? extends ActionBean> getActionBeanByName(String actionBeanName);
 }
