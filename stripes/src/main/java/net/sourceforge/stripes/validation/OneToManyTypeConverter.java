@@ -121,7 +121,7 @@ public class OneToManyTypeConverter implements TypeConverter<Object> {
      * @return a regular expression matching an optional comma followed by one or more spaces.
      */
     protected String getSplitRegex() {
-        return ",?[ ]+";
+        return "[, ]+";
     }
 
     /**
