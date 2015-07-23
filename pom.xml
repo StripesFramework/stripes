@@ -48,7 +48,7 @@
 
 	<ciManagement>
 		<system>Jenkins</system>
-		<url>http://www.stripesframework.org/jenkins</url>
+		<url>https://stripesframework.ci.cloudbees.com</url>
 	</ciManagement>
 
 	<dependencyManagement>
