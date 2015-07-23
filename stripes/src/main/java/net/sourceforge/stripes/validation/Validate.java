@@ -122,7 +122,7 @@ public @interface Validate {
      * a value is supplied</i> - it will not be evaluated if the user did not supply a value for the
      * field.</p>
      *
-     * <p>The value being validated is available in the EL variable 'this'.  Properties of the
+     * <p>The value being validated is available in the EL variable 'self'.  Properties of the
      * ActionBean (including the context) can be referenced directly, as can values in request
      * and session scope if necessary.</p>
      *
