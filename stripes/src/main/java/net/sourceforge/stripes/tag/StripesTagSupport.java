@@ -191,7 +191,11 @@ public abstract class StripesTagSupport implements Tag {
                 result = ReflectUtil.findClass((String) nameOrClass);
             }
             catch (ClassNotFoundException cnfe) {
-                log.error(cnfe, "Could not find class of type: ", nameOrClass);
+                result = StripesFilter.getConfiguration().getActionResolver().getActionBeanByName((String)nameOrClass);
+            }
+
+            if (result == null) {
+                log.error("Could not find class of type: ", nameOrClass);
                 return null;
             }
         }

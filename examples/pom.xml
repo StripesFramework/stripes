@@ -98,6 +98,11 @@
 					<skip>true</skip>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.mortbay.jetty</groupId>
+				<artifactId>jetty-maven-plugin</artifactId>
+				<version>7.6.15.v20140411</version>
+			</plugin>
 		</plugins>
 	</build>
 </project>

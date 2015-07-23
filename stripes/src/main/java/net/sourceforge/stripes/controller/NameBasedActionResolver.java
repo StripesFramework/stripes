@@ -29,6 +29,7 @@ import java.lang.reflect.Modifier;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -385,5 +386,38 @@ public class NameBasedActionResolver extends AnnotatedClassActionResolver {
         }
 
         return attempts;
+    }
+
+    /**
+     * In addition to the {@link net.sourceforge.stripes.action.ActionBean} class simple name, also add aliases for
+     * short hand names. For instance, ManageUsersActionBean would get:
+     * <ul>
+     *     <li>ManageUsersActionBean (simple name)</li>
+     *     <li>ManageUsersAction</li>
+     *     <li>ManageUsers</li>
+     * </ul>
+     */
+    @Override
+    protected void addBeanNameMappings() {
+        super.addBeanNameMappings();
+
+        Set<String> generatedAliases = new HashSet<String>();
+        for(Class<? extends ActionBean> clazz : getActionBeanClasses()) {
+            String name = clazz.getSimpleName();
+            for (String suffix : getActionBeanSuffixes()) {
+                if (name.endsWith(suffix)) {
+                    name = name.substring(0, name.length() - suffix.length());
+                    if (generatedAliases.contains(name)) {
+                        log.warn("Found multiple action beans with same bean name ", name, ". You will need to " +
+                                "reference these action beans by their fully qualified names");
+                        actionBeansByName.remove(name);
+                        continue;
+                    }
+
+                    generatedAliases.add(name);
+                    actionBeansByName.put(name, clazz);
+                }
+            }
+        }
     }
 }
