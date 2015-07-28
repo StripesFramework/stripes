@@ -14,6 +14,7 @@
  */
 package net.sourceforge.stripes.controller;
 
+import java.lang.annotation.Annotation;
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.action.ActionBeanContext;
 import net.sourceforge.stripes.action.DontBind;
@@ -34,9 +35,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.PageContext;
 import java.lang.reflect.Method;
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -44,43 +48,62 @@ import java.util.MissingResourceException;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.WeakHashMap;
+import javax.servlet.http.HttpServletResponse;
+import net.sourceforge.stripes.action.DELETE;
+import net.sourceforge.stripes.action.ErrorResolution;
+import net.sourceforge.stripes.action.GET;
+import net.sourceforge.stripes.action.HEAD;
+import net.sourceforge.stripes.action.HttpRequestMethod;
+import net.sourceforge.stripes.action.JsonBuilder;
+import net.sourceforge.stripes.action.POST;
+import net.sourceforge.stripes.action.PUT;
+import net.sourceforge.stripes.action.RestActionBean;
 
 /**
- * Helper class that contains much of the logic used when dispatching requests in Stripes.
- * Used primarily by the DispatcherSerlvet, but also by the UseActionBean tag.
+ * Helper class that contains much of the logic used when dispatching requests
+ * in Stripes. Used primarily by the DispatcherSerlvet, but also by the
+ * UseActionBean tag.
  *
  * @author Tim Fennell
  */
 public class DispatcherHelper {
+
     private static final Log log = Log.getInstance(DispatcherHelper.class);
 
     /**
-     * A Map that is used to cache the validation method that are discovered for each
-     * ActionBean.  Entries are added to this map the first time that a request is made
-     * to a particular ActionBean.  The Map will contain a zero length array for ActionBeans
-     * that do not have any validation methods.
+     * A Map that is used to cache the validation method that are discovered for
+     * each ActionBean. Entries are added to this map the first time that a
+     * request is made to a particular ActionBean. The Map will contain a zero
+     * length array for ActionBeans that do not have any validation methods.
      */
-    private static final Map<Class<?>, WeakReference<Method[]>> customValidations =
-            Collections.synchronizedMap(new WeakHashMap<Class<?>, WeakReference<Method[]>>());
+    private static final Map<Class<?>, WeakReference<Method[]>> customValidations
+            = Collections.synchronizedMap(new WeakHashMap<Class<?>, WeakReference<Method[]>>());
 
-    /** A place to hide a page context object so that we can get access to EL classes. */
+    /**
+     * A place to hide a page context object so that we can get access to EL
+     * classes.
+     */
     private static ThreadLocal<PageContext> pageContextStash = new ThreadLocal<PageContext>();
 
     /**
-     * Should be called prior to invoking validation related methods to provide the helper
-     * with access to a PageContext object that can be used to manufacture expression
-     * evaluator instances.
+     * Should be called prior to invoking validation related methods to provide
+     * the helper with access to a PageContext object that can be used to
+     * manufacture expression evaluator instances.
      *
      * @param ctx a page context object supplied by the container
      */
     public static void setPageContext(PageContext ctx) {
-        if (ctx == null)  pageContextStash.remove();
-        else pageContextStash.set(ctx);
+        if (ctx == null) {
+            pageContextStash.remove();
+        } else {
+            pageContextStash.set(ctx);
+        }
     }
 
     /**
-     * Used by the validation subsystem to access a page context that can be used to
-     * create an expression evaluator for use in the expression validation code.
+     * Used by the validation subsystem to access a page context that can be
+     * used to create an expression evaluator for use in the expression
+     * validation code.
      *
      * @return a page context object if one was set with setPageContext()
      */
@@ -89,19 +112,20 @@ public class DispatcherHelper {
     }
 
     /**
-     * Responsible for resolving the ActionBean for this request and setting it on the
-     * ExecutionContext. If no ActionBean can be found the ActionResolver will throw an
-     * exception, thereby aborting the current request.
+     * Responsible for resolving the ActionBean for this request and setting it
+     * on the ExecutionContext. If no ActionBean can be found the ActionResolver
+     * will throw an exception, thereby aborting the current request.
      *
      * @param ctx the ExecutionContext being used to process the current request
-     * @return a Resolution if any interceptor determines that the request processing should
-     *         be aborted in favor of another Resolution, null otherwise.
+     * @return a Resolution if any interceptor determines that the request
+     * processing should be aborted in favor of another Resolution, null
+     * otherwise.
      */
     public static Resolution resolveActionBean(final ExecutionContext ctx) throws Exception {
         final Configuration config = StripesFilter.getConfiguration();
         ctx.setLifecycleStage(LifecycleStage.ActionBeanResolution);
         ctx.setInterceptors(config.getInterceptors(LifecycleStage.ActionBeanResolution));
-        return  ctx.wrap( new Interceptor() {
+        return ctx.wrap(new Interceptor() {
             public Resolution intercept(ExecutionContext ctx) throws Exception {
                 // Look up the ActionBean and set it on the context
                 ActionBeanContext context = ctx.getActionBeanContext();
@@ -128,21 +152,23 @@ public class DispatcherHelper {
     }
 
     /**
-     * Responsible for resolving the event name for this request and setting it on the
-     * ActionBeanContext contained within the ExecutionContext. Once the event name has
-     * been determined this method must resolve the handler method. If a handler method
-     * cannot be determined an exception should be thrown to abort processing.
+     * Responsible for resolving the event name for this request and setting it
+     * on the ActionBeanContext contained within the ExecutionContext. Once the
+     * event name has been determined this method must resolve the handler
+     * method. If a handler method cannot be determined an exception should be
+     * thrown to abort processing.
      *
      * @param ctx the ExecutionContext being used to process the current request
-     * @return a Resolution if any interceptor determines that the request processing should
-     *         be aborted in favor of another Resolution, null otherwise.
+     * @return a Resolution if any interceptor determines that the request
+     * processing should be aborted in favor of another Resolution, null
+     * otherwise.
      */
     public static Resolution resolveHandler(final ExecutionContext ctx) throws Exception {
         final Configuration config = StripesFilter.getConfiguration();
         ctx.setLifecycleStage(LifecycleStage.HandlerResolution);
         ctx.setInterceptors(config.getInterceptors(LifecycleStage.HandlerResolution));
 
-        return ctx.wrap( new Interceptor() {
+        return ctx.wrap(new Interceptor() {
             public Resolution intercept(ExecutionContext ctx) throws Exception {
                 ActionBean bean = ctx.getActionBean();
                 ActionBeanContext context = ctx.getActionBeanContext();
@@ -152,26 +178,62 @@ public class DispatcherHelper {
                 String eventName = resolver.getEventName(bean.getClass(), context);
                 context.setEventName(eventName);
 
-                final Method handler;
-                if (eventName != null) {
-                    handler = resolver.getHandler(bean.getClass(), eventName);
-                }
-                else {
-                    handler = resolver.getDefaultHandler(bean.getClass());
-                    if (handler != null) {
-                        context.setEventName(resolver.getHandledEvent(handler));
+                // Attempt to look up the handler.  If the handler is not found
+                // then the resolver will throw a StripesServletException.  If
+                // this is a RestActionBean, then we need to return a 404
+                // ErrorResolution to the caller
+                Method handler;
+                try {
+                    if (eventName != null) {
+                        handler = resolver.getHandler(bean.getClass(), eventName);
+                    } else {
+                        // If there is no event name given and this is a RestActionBean, then
+                        // attempt to find the handler method by using the HTTP 
+                        // request method itself as the event name.  
+                        if (bean.getClass().isAnnotationPresent(RestActionBean.class)) {
+                            eventName = context.getRequest().getMethod().toLowerCase();
+                            handler = resolver.getHandler(bean.getClass(), eventName);
+                        } else {
+                            // Otherwise, if this is a regular actionbean
+                            // then try to find a default handler
+                            handler = resolver.getDefaultHandler(bean.getClass());
+                        }
+                        if (handler != null) {
+                            context.setEventName(resolver.getHandledEvent(handler));
+                        }
+                    }
+                } catch (StripesServletException sse) {
+                    if (bean.getClass().isAnnotationPresent(RestActionBean.class)) {
+                        log.error("No handler method found for request with ActionBean ["
+                                + bean.getClass().getName() + "] and eventName [ " + eventName + "] and "
+                                + " request method [" + context.getRequest().getMethod() + "]");
+                        return new ErrorResolution(HttpServletResponse.SC_NOT_FOUND, "The requested handler method "
+                                + "(" + eventName + ") is not found on this RestActionBean (" + ctx.getActionBean().getClass().getSimpleName() + ")");
+                    } else {
+                        throw sse;
                     }
                 }
 
                 // Insist that we have a handler
                 if (handler == null) {
-                    throw new StripesServletException(
-                            "No handler method found for request with  ActionBean [" +
-                            bean.getClass().getName() + "] and eventName [ " + eventName + "]");
+
+                    if (bean.getClass().isAnnotationPresent(RestActionBean.class)) {
+                        log.error("No handler method found for request with ActionBean ["
+                                + bean.getClass().getName() + "] and eventName [ " + eventName + "] and "
+                                + " request method [" + context.getRequest().getMethod() + "]");
+                        return new ErrorResolution(HttpServletResponse.SC_NOT_FOUND, "The requested handler method "
+                                + "(" + eventName + ") is not found on this RestActionBean (" + ctx.getActionBean().getClass().getSimpleName() + ")");
+                    } else {
+                        throw new StripesServletException(
+                                "No handler method found for request with ActionBean ["
+                                + bean.getClass().getName() + "] and eventName [ " + eventName + "] and "
+                                + " request method [" + context.getRequest().getMethod() + "]");
+                    }
                 }
 
                 log.debug("Resolved event: ", context.getEventName(), "; will invoke: ",
-                          bean.getClass().getSimpleName(), ".", handler.getName(), "()");
+                        bean.getClass().getSimpleName(), ".", handler.getName(), "() with ",
+                        "request method [", context.getRequest().getMethod(), "]");
 
                 ctx.setHandler(handler);
                 return null;
@@ -180,17 +242,19 @@ public class DispatcherHelper {
     }
 
     /**
-     * Responsible for performing binding and validation. Once properties have been bound and
-     * validation complete then they ValidationErrors object must be accessible through the
-     * ActionBeanContext contained within the ExecutionContext (regardless of whether any
-     * errors were generated or not).
+     * Responsible for performing binding and validation. Once properties have
+     * been bound and validation complete then they ValidationErrors object must
+     * be accessible through the ActionBeanContext contained within the
+     * ExecutionContext (regardless of whether any errors were generated or
+     * not).
      *
      * @param ctx the ExecutionContext being used to process the current request
-     * @return a Resolution if any interceptor determines that the request processing should
-     *         be aborted in favor of another Resolution, null otherwise.
+     * @return a Resolution if any interceptor determines that the request
+     * processing should be aborted in favor of another Resolution, null
+     * otherwise.
      */
     public static Resolution doBindingAndValidation(final ExecutionContext ctx,
-                                                    final boolean validate) throws Exception {
+            final boolean validate) throws Exception {
         // Bind the value to the bean - this includes performing field level validation
         final Method handler = ctx.getHandler();
         final boolean doBind = handler == null || handler.getAnnotation(DontBind.class) == null;
@@ -213,16 +277,18 @@ public class DispatcherHelper {
     }
 
     /**
-     * Responsible for coordinating the invocation of any custom validation logic exposed
-     * by the ActionBean.  Will only call the validation methods if certain conditions are
-     * met (there are no errors, or the always call validate flag is set etc.).
+     * Responsible for coordinating the invocation of any custom validation
+     * logic exposed by the ActionBean. Will only call the validation methods if
+     * certain conditions are met (there are no errors, or the always call
+     * validate flag is set etc.).
      *
      * @param ctx the ExecutionContext being used to process the current request
-     * @return a Resolution if any interceptor determines that the request processing should
-     *         be aborted in favor of another Resolution, null otherwise.
+     * @return a Resolution if any interceptor determines that the request
+     * processing should be aborted in favor of another Resolution, null
+     * otherwise.
      */
     public static Resolution doCustomValidation(final ExecutionContext ctx,
-                                                final boolean alwaysInvokeValidate) throws Exception {
+            final boolean alwaysInvokeValidate) throws Exception {
         final ValidationErrors errors = ctx.getActionBeanContext().getValidationErrors();
         final ActionBean bean = ctx.getActionBean();
         final Method handler = ctx.getHandler();
@@ -239,23 +305,22 @@ public class DispatcherHelper {
             ctx.setLifecycleStage(LifecycleStage.CustomValidation);
             ctx.setInterceptors(config.getInterceptors(LifecycleStage.CustomValidation));
 
-            return ctx.wrap( new Interceptor() {
-				public Resolution intercept(ExecutionContext context) throws Exception {
+            return ctx.wrap(new Interceptor() {
+                public Resolution intercept(ExecutionContext context) throws Exception {
                     // Run any of the annotated validation methods
                     Method[] validations = findCustomValidationMethods(bean.getClass());
                     for (Method validation : validations) {
                         ValidationMethod ann = validation.getAnnotation(ValidationMethod.class);
 
                         boolean run = (ann.when() == ValidationState.ALWAYS)
-                                   || (ann.when() == ValidationState.DEFAULT && alwaysInvokeValidate)
-                                   || errors.isEmpty();
+                                || (ann.when() == ValidationState.DEFAULT && alwaysInvokeValidate)
+                                || errors.isEmpty();
 
                         if (run && applies(ann, ctx.getActionBeanContext().getEventName())) {
                             Class<?>[] args = validation.getParameterTypes();
                             if (args.length == 1 && args[0].equals(ValidationErrors.class)) {
                                 validation.invoke(bean, errors);
-                            }
-                            else {
+                            } else {
                                 validation.invoke(bean);
                             }
                         }
@@ -265,65 +330,70 @@ public class DispatcherHelper {
                     return null;
                 }
             });
-        }
-        else {
+        } else {
             return null;
         }
     }
 
     /**
-     * <p>Determines if the ValidationMethod annotation should be applied to the named
-     * event.  True if the list of events to apply the validation to is empty, or it
-     * contains the event name, or it contains event names starting with "!" but not the
-     * event name. Some examples to illustrate the point</p>
+     * <p>
+     * Determines if the ValidationMethod annotation should be applied to the
+     * named event. True if the list of events to apply the validation to is
+     * empty, or it contains the event name, or it contains event names starting
+     * with "!" but not the event name. Some examples to illustrate the
+     * point</p>
      *
      * <ul>
-     *   <li>info.on={}, event="save" => true</li>
-     *   <li>info.on={"save", "update"}, event="save" => true</li>
-     *   <li>info.on={"save", "update"}, event="delete" => false</li>
-     *   <li>info.on={"!delete"}, event="save" => true</li>
-     *   <li>info.on={"!delete"}, event="delete" => false</li>
+     * <li>info.on={}, event="save" => true</li>
+     * <li>info.on={"save", "update"}, event="save" => true</li>
+     * <li>info.on={"save", "update"}, event="delete" => false</li>
+     * <li>info.on={"!delete"}, event="save" => true</li>
+     * <li>info.on={"!delete"}, event="delete" => false</li>
      * </ul>
      *
      * @param info the ValidationMethod being examined
      * @param event the event being processed
-     * @return true if the custom validation should be applied to this event, false otherwise
+     * @return true if the custom validation should be applied to this event,
+     * false otherwise
      */
     public static boolean applies(ValidationMethod info, String event) {
         return CollectionUtil.applies(info.on(), event);
     }
 
     /**
-     * Finds and returns all methods in the ActionBean class and it's superclasses that
-     * are marked with the ValidationMethod annotation and returns them ordered by
-     * priority (and alphabetically within priorities).  Looks first in an instance level
-     * cache, and if that does not contain information for an ActionBean, examines the
-     * ActionBean and adds the information to the cache.
+     * Finds and returns all methods in the ActionBean class and it's
+     * superclasses that are marked with the ValidationMethod annotation and
+     * returns them ordered by priority (and alphabetically within priorities).
+     * Looks first in an instance level cache, and if that does not contain
+     * information for an ActionBean, examines the ActionBean and adds the
+     * information to the cache.
      *
      * @param type a Class representing an ActionBean
-     * @return a Method[] containing all methods marked as custom validations. May return
-     *         an empty array, but never null.
+     * @return a Method[] containing all methods marked as custom validations.
+     * May return an empty array, but never null.
      */
     public static Method[] findCustomValidationMethods(Class<? extends ActionBean> type) throws Exception {
         Method[] validations = null;
         WeakReference<Method[]> ref = customValidations.get(type);
-        if (ref != null) validations = ref.get();
+        if (ref != null) {
+            validations = ref.get();
+        }
 
         // Lazily examine the ActionBean and collect this information
         if (validations == null) {
             // A sorted set with a custom comparator that will order the methods in
             // the set based upon the priority in their custom validation annotation
-            SortedSet<Method> validationMethods = new TreeSet<Method>( new Comparator<Method>() {
+            SortedSet<Method> validationMethods = new TreeSet<Method>(new Comparator<Method>() {
                 public int compare(Method o1, Method o2) {
                     // If one of the methods overrides the others, return equal!
-                    if (o1.getName().equals(o2.getName()) &&
-                            Arrays.equals(o1.getParameterTypes(), o2.getParameterTypes())) {
+                    if (o1.getName().equals(o2.getName())
+                            && Arrays.equals(o1.getParameterTypes(), o2.getParameterTypes())) {
                         return 0;
                     }
 
                     ValidationMethod ann1 = o1.getAnnotation(ValidationMethod.class);
                     ValidationMethod ann2 = o2.getAnnotation(ValidationMethod.class);
-                    int returnValue =  new Integer(ann1.priority()).compareTo(ann2.priority());
+                    int returnValue = new Integer(ann1.priority()).compareTo(ann2.priority());
 
                     if (returnValue == 0) {
                         returnValue = o1.getName().compareTo(o2.getName());
@@ -334,12 +404,12 @@ public class DispatcherHelper {
             });
 
             Class<?> temp = type;
-            while ( temp != null ) {
+            while (temp != null) {
                 for (Method method : temp.getDeclaredMethods()) {
                     Class<?>[] args = method.getParameterTypes();
 
-                    if ((method.getAnnotation(ValidationMethod.class) != null) &&
-                            ((args.length == 0) || (args.length == 1 && args[0].equals(ValidationErrors.class)))) {
+                    if ((method.getAnnotation(ValidationMethod.class) != null)
+                            && ((args.length == 0) || (args.length == 1 && args[0].equals(ValidationErrors.class)))) {
                         validationMethods.add(method);
                     }
                 }
@@ -355,13 +425,15 @@ public class DispatcherHelper {
     }
 
     /**
-     * Responsible for checking to see if validation errors exist and if so for handling
-     * them appropriately.  This includes ensuring that the error objects have all information
-     * necessary to render themselves appropriately and invoking any error handling code.
+     * Responsible for checking to see if validation errors exist and if so for
+     * handling them appropriately. This includes ensuring that the error
+     * objects have all information necessary to render themselves appropriately
+     * and invoking any error handling code.
      *
      * @param ctx the ExecutionContext being used to process the current request
-     * @return a Resolution if the error handling code determines that some kind of resolution
-     *         should be processed in favor of continuing on to handler invocation
+     * @return a Resolution if the error handling code determines that some kind
+     * of resolution should be processed in favor of continuing on to handler
+     * invocation
      */
     public static Resolution handleValidationErrors(ExecutionContext ctx) throws Exception {
         DontValidate annotation = ctx.getHandler().getAnnotation(DontValidate.class);
@@ -382,10 +454,70 @@ public class DispatcherHelper {
                 fillInValidationErrors(ctx);
             }
 
-            // If there are still errors see if we need to lookup the resolution
-            if (errors.size() > 0 && resolution == null) {
-                logValidationErrors(context);
-                resolution = context.getSourcePageResolution();
+            // For RestActionBean objects, we need to package up all of the validation errors
+            // and return them to the caller in an ErrorResolution
+            if (bean.getClass().isAnnotationPresent(RestActionBean.class)) {
+                ValidationErrors validationErrors = ctx.getActionBeanContext().getValidationErrors();
+
+                log.debug("(", ctx.getActionBean().getClass(), ") Checking for validation errors : ", ctx.getLifecycleStage().name());
+
+                if (validationErrors != null && !validationErrors.isEmpty()) {
+                    log.debug("(", ctx.getActionBean().getClass(), ") Found validation errors : ", ctx.getLifecycleStage().name());
+
+                    Map< Object, Object> jsonErrorMap = new HashMap< Object, Object>();
+
+                    // First, append the global errors -- if any
+                    List< String> jsonGlobalErrors = new ArrayList< String>();
+
+                    if (!validationErrors.hasFieldErrors()) {
+                        List< ValidationError> globalErrors = validationErrors.get(ValidationErrors.GLOBAL_ERROR);
+
+                        for (ValidationError validationError : globalErrors) {
+                            jsonGlobalErrors.add(validationError.getMessage(Locale.getDefault()));
+                        }
+
+                    }
+
+                    jsonErrorMap.put("globalErrors", jsonGlobalErrors);
+
+                    ArrayList< Map< String, Object>> allFieldErrors = new ArrayList< Map< String, Object>>();
+
+                    // Next, append the field errors -- if any
+                    if (validationErrors.hasFieldErrors()) {
+                        for (String fieldName : validationErrors.keySet()) {
+                            if (!fieldName.equals(ValidationErrors.GLOBAL_ERROR)) {
+                                List< ValidationError> fieldValidationErrors = validationErrors.get(fieldName);
+                                Map< String, Object> fieldErrors = new HashMap< String, Object>();
+                                fieldErrors.put("fieldName", fieldName);
+                                fieldErrors.put("fieldValue", fieldValidationErrors.get(0).getFieldValue());
+
+                                List< String> fieldErrorMessages = new ArrayList< String>();
+                                for (ValidationError validationError : fieldValidationErrors) {
+                                    fieldErrorMessages.add(validationError.getMessage(Locale.getDefault()));
+                                }
+
+                                fieldErrors.put("errorMessages", fieldErrorMessages);
+
+                                allFieldErrors.add(fieldErrors);
+                            }
+                        }
+
+                        jsonErrorMap.put("fieldErrors", allFieldErrors);
+                    }
+
+                    JsonBuilder jsonBuilder = new JsonBuilder(jsonErrorMap);
+
+                    log.debug("(", ctx.getActionBean().getClass(), ") Returning validation error resolution : ", ctx.getLifecycleStage().name());
+
+                    return new ErrorResolution(HttpServletResponse.SC_BAD_REQUEST, jsonBuilder.build());
+                }
+            } else {
+
+                // If there are still errors see if we need to lookup the resolution
+                if (errors.size() > 0 && resolution == null) {
+                    logValidationErrors(context);
+                    resolution = context.getSourcePageResolution();
+                }
             }
         }
 
@@ -393,9 +525,9 @@ public class DispatcherHelper {
     }
 
     /**
-     * Makes sure that validation errors have all the necessary information to render
-     * themselves properly, including the UrlBinding of the action bean and the field
-     * value if it hasn't already been set.
+     * Makes sure that validation errors have all the necessary information to
+     * render themselves properly, including the UrlBinding of the action bean
+     * and the field value if it hasn't already been set.
      *
      * @param ctx the ExecutionContext being used to process the current request
      */
@@ -408,7 +540,10 @@ public class DispatcherHelper {
                     .getUrlBinding(ctx.getActionBean().getClass());
             HttpServletRequest request = ctx.getActionBeanContext().getRequest();
 
-            /** Since we don't pass form action down the stack, we add it to the errors here. */
+            /**
+             * Since we don't pass form action down the stack, we add it to the
+             * errors here.
+             */
             for (Map.Entry<String, List<ValidationError>> entry : errors.entrySet()) {
                 String parameterName = entry.getKey();
                 List<ValidationError> listOfErrors = entry.getValue();
@@ -422,8 +557,7 @@ public class DispatcherHelper {
                         // If the value isn't set, set it, otherwise encode the one that's there
                         if (error.getFieldValue() == null) {
                             error.setFieldValue(HtmlUtil.encode(request.getParameter(parameterName)));
-                        }
-                        else {
+                        } else {
                             error.setFieldValue(HtmlUtil.encode(error.getFieldValue()));
                         }
                     }
@@ -433,14 +567,15 @@ public class DispatcherHelper {
     }
 
     /**
-     * Responsible for invoking the event handler identified.  This method will only be
-     * called if an event handler was identified, and can assume that the bean and handler
-     * are present in the ExecutionContext.
+     * Responsible for invoking the event handler identified. This method will
+     * only be called if an event handler was identified, and can assume that
+     * the bean and handler are present in the ExecutionContext.
      *
      * @param ctx the ExecutionContext being used to process the current request
-     *        type conversion should occur
-     * @return a Resolution if the error handling code determines that some kind of resolution
-     *         should be processed in favor of continuing on to handler invocation
+     * type conversion should occur
+     * @return a Resolution if the error handling code determines that some kind
+     * of resolution should be processed in favor of continuing on to handler
+     * invocation
      */
     public static Resolution invokeEventHandler(ExecutionContext ctx) throws Exception {
         final Configuration config = StripesFilter.getConfiguration();
@@ -451,19 +586,76 @@ public class DispatcherHelper {
         ctx.setLifecycleStage(LifecycleStage.EventHandling);
         ctx.setInterceptors(config.getInterceptors(LifecycleStage.EventHandling));
 
-        return ctx.wrap( new Interceptor() {
+        return ctx.wrap(new Interceptor() {
             public Resolution intercept(ExecutionContext ctx) throws Exception {
+
+                // Check the HTTP request method and ensure that the target handler
+                // method supports it.
+                Collection<HttpRequestMethod> supportedRequestMethods = new ArrayList<HttpRequestMethod>();
+                Collection<Annotation> annotations = Arrays.asList(handler.getAnnotations());
+
+                // First, get the supported HTTP request methods for the target 
+                // event handler method.  If none are explictly declared, then
+                // all HTTP request methods are considered to be supported.
+                for (Annotation annotation : handler.getAnnotations()) {
+                    if (annotation instanceof GET) {
+                        supportedRequestMethods.add(HttpRequestMethod.GET);
+                    } else if (annotation instanceof POST) {
+                        supportedRequestMethods.add(HttpRequestMethod.POST);
+                    } else if (annotation instanceof HEAD) {
+                        supportedRequestMethods.add(HttpRequestMethod.HEAD);
+                    } else if (annotation instanceof DELETE) {
+                        supportedRequestMethods.add(HttpRequestMethod.DELETE);
+                    } else if (annotation instanceof PUT) {
+                        supportedRequestMethods.add(HttpRequestMethod.PUT);
+                    }
+                }
+
+                // If no request methods are declared to be supported, then
+                // add all of them.  
+                if (supportedRequestMethods.isEmpty()) {
+                    supportedRequestMethods.addAll(HttpRequestMethod.all());
+                }
+
+                // Now, get the actual request method from the client and see if
+                // the event handler method supports it.
+                String requestMethod = ctx.getActionBeanContext().getRequest().getMethod();
+                boolean methodSupported = false;
+                for (HttpRequestMethod supportedMethod : supportedRequestMethods) {
+                    if (supportedMethod.toString().equalsIgnoreCase(requestMethod)) {
+                        methodSupported = true;
+                    }
+                }
+
+                // If the HTTP request method is not supported by the handler method,
+                // throw an exception.  This is not permitted.
+                if (!methodSupported) {
+                    String msg = "The handler method [" + handler.getName() + "] in ActionBean ["
+                            + bean.getClass().getName() + "] for eventName [ "
+                            + ctx.getActionBeanContext().getEventName() + "] does not support "
+                            + " the request method [" + requestMethod + "]";
+                    if (bean.getClass().isAnnotationPresent(RestActionBean.class)) {
+                        log.error(msg);
+                        return new ErrorResolution(HttpServletResponse.SC_METHOD_NOT_ALLOWED, msg);
+                    } else {
+                        throw new StripesServletException(msg);
+                    }
+                } else {
+                    log.debug("Invoking the handler method [" + handler.getName() + "] in ActionBean ["
+                            + bean.getClass().getName() + "] for eventName ["
+                            + ctx.getActionBeanContext().getEventName() + "] with request method [" + requestMethod + "]");
+                }
+
                 Object returnValue = handler.invoke(bean);
                 fillInValidationErrors(ctx);
 
                 if (returnValue != null && returnValue instanceof Resolution) {
                     ctx.setResolutionFromHandler(true);
                     return (Resolution) returnValue;
-                }
-                else if (returnValue != null) {
+                } else if (returnValue != null) {
                     log.warn("Expected handler method ", handler.getName(), " on class ",
-                             bean.getClass().getSimpleName(), " to return a Resolution. Instead it ",
-                             "returned: ", returnValue);
+                            bean.getClass().getSimpleName(), " to return a Resolution. Instead it ",
+                            "returned: ", returnValue);
                 }
 
                 return null;
@@ -472,14 +664,15 @@ public class DispatcherHelper {
     }
 
     /**
-     * Responsible for executing the Resolution returned by the request. Transitions the
-     * execution context to {@link net.sourceforge.stripes.controller.LifecycleStage#ResolutionExecution}, sets the resolution
-     * on the execution context and then invokes the interceptor chain to execute the
-     * Resolution.
+     * Responsible for executing the Resolution returned by the request.
+     * Transitions the execution context to
+     * {@link net.sourceforge.stripes.controller.LifecycleStage#ResolutionExecution},
+     * sets the resolution on the execution context and then invokes the
+     * interceptor chain to execute the Resolution.
      *
      * @param ctx the current execution context representing the request
-     * @param resolution the resolution to be executed unless another is substituted by an
-     *        interceptor before calling ctx.proceed()
+     * @param resolution the resolution to be executed unless another is
+     * substituted by an interceptor before calling ctx.proceed()
      */
     public static void executeResolution(ExecutionContext ctx, Resolution resolution) throws Exception {
         final Configuration config = StripesFilter.getConfiguration();
@@ -488,7 +681,7 @@ public class DispatcherHelper {
         ctx.setInterceptors(config.getInterceptors(LifecycleStage.ResolutionExecution));
         ctx.setResolution(resolution);
 
-        Resolution retval = ctx.wrap( new Interceptor() {
+        Resolution retval = ctx.wrap(new Interceptor() {
             public Resolution intercept(ExecutionContext context) throws Exception {
                 ActionBeanContext abc = context.getActionBeanContext();
                 Resolution resolution = context.getResolution();
@@ -503,34 +696,36 @@ public class DispatcherHelper {
 
         if (retval != null) {
             log.warn("An interceptor wrapping LifecycleStage.ResolutionExecution returned ",
-                     "a Resolution. This almost certainly did NOT have the desired effect. ",
-                     "At this LifecycleStage interceptors are running *around* the actual ",
-                     "execution of the Resolution, and so returning an alternate Resolution ",
-                     "has the effect of stopping the original Resolution from being executed ",
-                     "while NOT causing the alternate Resolution to get executed. Interceptor ",
-                     "code running before the Resolution is executed (i.e. before calling ",
-                     "ExecutionContext.proceed()) can alter the Resolution by calling ",
-                     "ExecutionContext.setResolution() instead. Code running after the Resolution ",
-                     "has been executed can no longer alter what Resolution is executed for ",
-                     "what are hopefully obvious reasons!");
+                    "a Resolution. This almost certainly did NOT have the desired effect. ",
+                    "At this LifecycleStage interceptors are running *around* the actual ",
+                    "execution of the Resolution, and so returning an alternate Resolution ",
+                    "has the effect of stopping the original Resolution from being executed ",
+                    "while NOT causing the alternate Resolution to get executed. Interceptor ",
+                    "code running before the Resolution is executed (i.e. before calling ",
+                    "ExecutionContext.proceed()) can alter the Resolution by calling ",
+                    "ExecutionContext.setResolution() instead. Code running after the Resolution ",
+                    "has been executed can no longer alter what Resolution is executed for ",
+                    "what are hopefully obvious reasons!");
         }
     }
 
-    /** Log validation errors at DEBUG to help during development. */
+    /**
+     * Log validation errors at DEBUG to help during development.
+     */
     public static final void logValidationErrors(ActionBeanContext context) {
         StringBuilder buf = new StringBuilder("The following validation errors need to be fixed:");
 
         for (List<ValidationError> list : context.getValidationErrors().values()) {
             for (ValidationError error : list) {
                 String fieldName = error.getFieldName();
-                if (ValidationErrors.GLOBAL_ERROR.equals(fieldName))
+                if (ValidationErrors.GLOBAL_ERROR.equals(fieldName)) {
                     fieldName = "GLOBAL";
+                }
 
                 String message;
                 try {
                     message = error.getMessage(Locale.getDefault());
-                }
-                catch (MissingResourceException e) {
+                } catch (MissingResourceException e) {
                     message = "(missing resource)";
                 }
 

@@ -1,16 +1,12 @@
 package net.sourceforge.stripes.controller;
 
 import net.sourceforge.stripes.FilterEnabledTestBase;
-import net.sourceforge.stripes.StripesTestFixture;
 import net.sourceforge.stripes.action.ActionBeanContext;
 import net.sourceforge.stripes.mock.MockRoundtrip;
-import net.sourceforge.stripes.mock.MockServletContext;
 import net.sourceforge.stripes.test.TestActionBean;
 import net.sourceforge.stripes.test.TestBean;
 import net.sourceforge.stripes.test.TestEnum;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.util.Arrays;
