@@ -9,7 +9,7 @@
 	</parent>
 	<groupId>net.sourceforge.stripes</groupId>
 	<artifactId>stripes-parent</artifactId>
-	<version>1.6.0-SNAPSHOT</version>
+	<version>1.7.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<modules>
@@ -43,12 +43,12 @@
 
 	<issueManagement>
 		<system>JIRA</system>
-		<url>http://stripesframework.org/jira/browse/STS</url>
+		<url>https://stripesframework.atlassian.net/projects/STS</url>
 	</issueManagement>
 
 	<ciManagement>
 		<system>Jenkins</system>
-		<url>http://www.stripesframework.org/jenkins</url>
+		<url>https://stripesframework.ci.cloudbees.com</url>
 	</ciManagement>
 
 	<dependencyManagement>
@@ -244,14 +244,14 @@
 							</goals>
 							<configuration>
 								<overview>${basedir}/src/main/resources/overview.html</overview>
-								<bottom>© Copyright 2005-2014, Stripes Development Team.</bottom>
+								<bottom>© Copyright 2005-2015, Stripes Development Team.</bottom>
 								<author>true</author>
 								<protected>true</protected>
 								<use>true</use>
 								<version>true</version>
 								<links>
 									<link>http://docs.oracle.com/javase/1.5.0/docs/api/</link>
-									<link>http://docs.oracle.com/javaee/5/api/</link>
+									<link>http://docs.oracle.com/javase/7/docs/api/</link>
 									<link>http://docs.spring.io/spring/docs/1.2.x/api/</link>
 									<link>http://commons.apache.org/proper/commons-logging/apidocs/</link>
 								</links>
