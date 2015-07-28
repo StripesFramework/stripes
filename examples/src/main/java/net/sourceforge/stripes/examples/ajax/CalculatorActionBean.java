@@ -13,6 +13,7 @@ import net.sourceforge.stripes.validation.ValidationErrors;
 
 import java.io.StringReader;
 import java.util.List;
+import net.sourceforge.stripes.action.UrlBinding;
 
 /**
  * A very simple calculator action that is designed to work with an ajax front end.
@@ -24,6 +25,7 @@ import java.util.List;
  * @author Tim Fennell
  */
 @Public
+@UrlBinding("/Calculator.action")
 public class CalculatorActionBean implements ActionBean, ValidationErrorHandler {
     private ActionBeanContext context;
     @Validate(required=true) private double numberOne;

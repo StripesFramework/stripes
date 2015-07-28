@@ -40,6 +40,7 @@ public @interface DontValidate {
      * during binding will be present in the {@link ActionBeanContext}.
      * 
      * @see ActionBeanContext#getValidationErrors()
+     * @return Whether or not binding errors should be ignored during the binding and validation lifecycle stage.
      */
     boolean ignoreBindingErrors() default true;
 }

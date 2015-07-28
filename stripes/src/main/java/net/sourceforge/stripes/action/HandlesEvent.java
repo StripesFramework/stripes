@@ -21,9 +21,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.ElementType;
 
 /**
- * Annotation used by ActionBean to declare that a method is capable of handling a named event
- * being submitted by a client.  Used by the AnnotatedClassActionResolver to map requests to the
- * appropriate method to handle them at run time.
+ * Annotation used by ActionBean to declare that a method is capable of handling
+ * a named event being submitted by a client. Used by the
+ * AnnotatedClassActionResolver to map requests to the appropriate method to
+ * handle them at run time.
  *
  * @author Tim Fennell
  */
@@ -31,6 +32,11 @@ import java.lang.annotation.ElementType;
 @Target({ElementType.METHOD})
 @Documented
 public @interface HandlesEvent {
-    /** The name of the event that will be handled by the annotated method. */
+
+    /**
+     * The name of the event that will be handled by the annotated method.
+     * 
+     * @return The name of the event that will be handled by this method.
+     */
     String value();
 }

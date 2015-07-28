@@ -23,43 +23,55 @@ import java.lang.annotation.Target;
 
 /**
  * <p>
- * This annotation can be applied to an event handler method or to an {@link ActionBean} class to
- * suggest to the HTTP client how it should cache the response. Classes will inherit this annotation
- * from their superclass. Method-level annotations override class-level annotations. This means, for
- * example, that applying {@code @HttpCache(allow=false)} to an {@link ActionBean} class turns off
- * client-side caching for all events except those that are annotated with
- * {@code @HttpCache(allow=true)}.
+ * This annotation can be applied to an event handler method or to an
+ * {@link ActionBean} class to suggest to the HTTP client how it should cache
+ * the response. Classes will inherit this annotation from their superclass.
+ * Method-level annotations override class-level annotations. This means, for
+ * example, that applying {@code @HttpCache(allow=false)} to an
+ * {@link ActionBean} class turns off client-side caching for all events except
+ * those that are annotated with {@code @HttpCache(allow=true)}.
  * </p>
  * <p>
  * Some examples:
  * <ul>
- * <li>{@code @HttpCache} - Same behavior as if the annotation were not present. No headers are
- * set.</li>
+ * <li>{@code @HttpCache} - Same behavior as if the annotation were not present.
+ * No headers are set.</li>
  * <li>{@code @HttpCache(allow=true)} - Same as above.</li>
- * <li>{@code @HttpCache(allow=false)} - Set headers to disable caching and immediately expire the
- * document.</li>
- * <li>{@code @HttpCache(expires=600)} - Caching is allowed. The document expires in 10 minutes.</li>
+ * <li>{@code @HttpCache(allow=false)} - Set headers to disable caching and
+ * immediately expire the document.</li>
+ * <li>{@code @HttpCache(expires=600)} - Caching is allowed. The document
+ * expires in 10 minutes.</li>
  * </ul>
  * </p>
- * 
+ *
  * @author Ben Gunter
  * @since Stripes 1.5
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target( { ElementType.METHOD, ElementType.TYPE })
+@Target({ElementType.METHOD, ElementType.TYPE})
 @Inherited
 @Documented
 public @interface HttpCache {
-    /** Default value for {@link #expires()}. */
+
+    /**
+     * Default value for {@link #expires()}.
+     */
     public static final int DEFAULT_EXPIRES = Integer.MIN_VALUE;
 
-    /** Indicates whether the response should be cached by the client. */
+    /**
+     * Indicates whether the response should be cached by the client.
+     * 
+     * @return Whether the response should be cached by the client.
+     */
     boolean allow() default true;
 
     /**
-     * The number of seconds into the future that the response should expire. If {@link #allow()} is
-     * false, then this value is ignored and zero is used. If {@link #allow()} is true and this
-     * value is less than zero, then no Expires header is sent.
+     * The number of seconds into the future that the response should expire. If
+     * {@link #allow()} is false, then this value is ignored and zero is used.
+     * If {@link #allow()} is true and this value is less than zero, then no
+     * Expires header is sent.
+     * 
+     * @return The number of seconds that the response should expire.
      */
     int expires() default DEFAULT_EXPIRES;
 }

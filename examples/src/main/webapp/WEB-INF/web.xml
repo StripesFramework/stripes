@@ -26,7 +26,7 @@
         <!-- REQUIRED init parameter for the Stripes Filter. -->
         <init-param>
             <param-name>ActionResolver.Packages</param-name>
-            <param-value>net.sourceforge.stripes.examples</param-value>
+            <param-value>net.sourceforge.stripes.examples,net.sourceforge.stripes.examples.ajax</param-value>
         </init-param>
 
         <!-- Optional init parameter for the Stripes Filter. -->

@@ -57,7 +57,7 @@ public class FileBean {
      *
      * @param file the File object on the server which holds the uploaded contents of the file
      * @param contentType the content type of the file declared by the browser during upload
-     * @param originalName the name of the file as declared by the user&apos;s browser
+     * @param originalName the name of the file as declared by the user's browser
      */
     public FileBean(File file, String contentType, String originalName) {
         this.file = file;
@@ -70,7 +70,7 @@ public class FileBean {
      * 
      * @param file the File object on the server which holds the uploaded contents of the file
      * @param contentType the content type of the file declared by the browser during upload
-     * @param originalName the name of the file as declared by the user&apos;s browser
+     * @param originalName the name of the file as declared by the user's browser
      * @param charset the charset specified by the servlet request
      */
     public FileBean(File file, String contentType, String originalName, String charset) {
@@ -83,6 +83,8 @@ public class FileBean {
     /**
      * Returns the name of the file that the user selected and uploaded (this is not necessarily
      * the name that the underlying file is now stored on the server using).
+     * 
+     * @return The file name associated with this file bean.
      */
     public String getFileName() {
         return fileName;
@@ -90,6 +92,8 @@ public class FileBean {
 
     /**
      * Returns the content type of the file that the user selected and uploaded.
+     * 
+     * @return The context type of the file that the user selected and uploaded.
      */
     public String getContentType() {
         return contentType;
@@ -97,6 +101,8 @@ public class FileBean {
 
     /**
      * Gets the size of the file that was uploaded.
+     * 
+     * @return Size of the file that was uploaded (in bytes)
      */
     public long getSize() {
         return this.file.length();
@@ -104,6 +110,9 @@ public class FileBean {
 
     /**
      * Gets an input stream to read from the file uploaded
+     * 
+     * @throws IOException - If an I/O error occurs during file upload.
+     * @return Inputstream for reading from the file uploaded
      */
     public InputStream getInputStream() throws IOException {
         return new FileInputStream(this.file);
@@ -114,8 +123,8 @@ public class FileBean {
      * charset, then that charset is used. Otherwise, the reader uses the default charset.
      * 
      * @return a new reader
-     * @throws UnsupportedEncodingException
-     * @throws IOException
+     * @throws UnsupportedEncodingException - If the encoding is not supported
+     * @throws IOException - If an I/O error occurs
      */
     public Reader getReader() throws UnsupportedEncodingException, IOException {
         if (charset == null) {
@@ -131,8 +140,8 @@ public class FileBean {
      * 
      * @param charset the charset the reader should use
      * @return a new reader
-     * @throws UnsupportedEncodingException
-     * @throws IOException
+     * @throws UnsupportedEncodingException - If the encoding is not supported
+     * @throws IOException - If an I/O error occurs
      */
     public Reader getReader(String charset) throws UnsupportedEncodingException, IOException {
         return new InputStreamReader(getInputStream(), charset);
@@ -189,6 +198,7 @@ public class FileBean {
      * target file is on a different file system than the temporary file.
      *
      * @param toFile the file to save to
+     * @throws IOException - If an I/O error occurs saving the uploaded file
      */
     protected void saveViaCopy(File toFile) throws IOException {
         OutputStream out = null;

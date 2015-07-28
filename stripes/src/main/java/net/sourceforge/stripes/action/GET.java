@@ -31,18 +31,18 @@ import java.lang.annotation.Target;
  * 
  * <p>For example:</p>
  * <pre>
- * @RestActionBean
- * @UrlBinding( "/person" )
+ * {@literal @}RestActionBean
+ * {@literal @}UrlBinding( "/person" )
  * public class PersonActionBean implements ActionBean {
  * 
- *   @GET
- *   @HandlesEvent( "retrieve" ) 
+ *   {@literal @}GET
+ *   {@literal @}HandlesEvent( "retrieve" ) 
  *   public Resolution getPerson() {
  *     ...
  *   }
  * 
- *   @PUT
- *   @HandlesEvent( "update" )
+ *   {@literal @}PUT
+ *   {@literal @}HandlesEvent( "update" )
  *   public Resolution updatePerson() {
  *     ...
  *   }

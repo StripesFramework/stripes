@@ -23,25 +23,32 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * <p>Resolution that uses the Servlet API to <em>forward</em> the user to another path within the
- * same web application using a server side forward.</p>
+ * <p>
+ * Resolution that uses the Servlet API to <em>forward</em> the user to another
+ * path within the same web application using a server side forward.</p>
  *
- * <p>There is one case when this resolution will issue an include instead of a forward. The
- * Servlet specification is ambiguous about what should happen when a forward is issued inside
- * of an include. The behaviour varies widely by container, from outputting only the content
- * of the forward, to only the content prior to the include!  To make this behaviour more
- * consistent the ForwardResolution will automatically determine if it is executing inside of
- * an include, and if that is the case it will <i>include</i> the appropriate URL instead of
+ * <p>
+ * There is one case when this resolution will issue an include instead of a
+ * forward. The Servlet specification is ambiguous about what should happen when
+ * a forward is issued inside of an include. The behaviour varies widely by
+ * container, from outputting only the content of the forward, to only the
+ * content prior to the include! To make this behaviour more consistent the
+ * ForwardResolution will automatically determine if it is executing inside of
+ * an include, and if that is the case it will <i>include</i> the appropriate
+ * URL instead of
  * <i>forwarding</i> to it. This behaviour can be turned off be calling
  * {@literal autoInclude(false)}.</p>
  *
- * <p>You can optionally set an HTTP status code with {@link #setStatus(int)}, in which case a call
- * to {@code response.setStatus(status)} will be made when executing the resolution.</p>
+ * <p>
+ * You can optionally set an HTTP status code with {@link #setStatus(int)}, in
+ * which case a call to {@code response.setStatus(status)} will be made when
+ * executing the resolution.</p>
  *
  * @see RedirectResolution
  * @author Tim Fennell
  */
 public class ForwardResolution extends OnwardResolution<ForwardResolution> {
+
     private boolean autoInclude = true;
     private static final Log log = Log.getInstance(ForwardResolution.class);
     private String event;
@@ -49,29 +56,35 @@ public class ForwardResolution extends OnwardResolution<ForwardResolution> {
 
     /**
      * Simple constructor that takes in the path to forward the user to.
-     * @param path the path within the web application that the user should be forwarded to
+     *
+     * @param path the path within the web application that the user should be
+     * forwarded to
      */
     public ForwardResolution(String path) {
         super(path);
     }
 
     /**
-     * Constructs a ForwardResolution that will forward to the URL appropriate for
-     * the ActionBean supplied.  This constructor should be preferred when forwarding
-     * to an ActionBean as it will ensure the correct URL is always used.
+     * Constructs a ForwardResolution that will forward to the URL appropriate
+     * for the ActionBean supplied. This constructor should be preferred when
+     * forwarding to an ActionBean as it will ensure the correct URL is always
+     * used.
      *
-     * @param beanType the Class object representing the ActionBean to redirect to
+     * @param beanType the Class object representing the ActionBean to redirect
+     * to
      */
     public ForwardResolution(Class<? extends ActionBean> beanType) {
         super(beanType);
     }
 
     /**
-     * Constructs a ForwardResolution that will forward to the URL appropriate for
-     * the ActionBean supplied.  This constructor should be preferred when forwarding
-     * to an ActionBean as it will ensure the correct URL is always used.
+     * Constructs a ForwardResolution that will forward to the URL appropriate
+     * for the ActionBean supplied. This constructor should be preferred when
+     * forwarding to an ActionBean as it will ensure the correct URL is always
+     * used.
      *
-     * @param beanType the Class object representing the ActionBean to redirect to
+     * @param beanType the Class object representing the ActionBean to redirect
+     * to
      * @param event the event that should be triggered on the redirect
      */
     public ForwardResolution(Class<? extends ActionBean> beanType, String event) {
@@ -80,9 +93,9 @@ public class ForwardResolution extends OnwardResolution<ForwardResolution> {
     }
 
     /**
-     * If true then the ForwardResolution will automatically detect when it is executing
-     * as part of a server-side Include and <i>include</i> the supplied URL instead of
-     * forwarding to it.  Defaults to true.
+     * If true then the ForwardResolution will automatically detect when it is
+     * executing as part of a server-side Include and <i>include</i> the
+     * supplied URL instead of forwarding to it. Defaults to true.
      *
      * @param auto whether or not to automatically detect and use includes
      */
@@ -90,14 +103,22 @@ public class ForwardResolution extends OnwardResolution<ForwardResolution> {
         this.autoInclude = auto;
     }
 
-    /** Get the HTTP status, or <code>null</code> if none was explicitly set. */
+    /**
+     * Get the HTTP status, or <code>null</code> if none was explicitly set.
+     * 
+     * @return HTTP status code associated with this resolution or null if none was set.
+     */
     public Integer getStatus() {
         return status;
     }
 
     /**
-     * Explicitly sets an HTTP status code, in which case a call to {@code response.setStatus(status)}
-     * will be made when executing the resolution.
+     * Explicitly sets an HTTP status code, in which case a call to
+     * {@code response.setStatus(status)} will be made when executing the
+     * resolution.
+     * 
+     * @param status - HTTP status code to associated with this resolution.
+     * @return Current resolution object
      */
     public ForwardResolution setStatus(int status) {
         this.status = status;
@@ -106,11 +127,13 @@ public class ForwardResolution extends OnwardResolution<ForwardResolution> {
 
     /**
      * Attempts to forward the user to the specified path.
-     * @throws ServletException thrown when the Servlet container encounters an error
+     *
+     * @throws ServletException thrown when the Servlet container encounters an
+     * error
      * @throws IOException thrown when the Servlet container encounters an error
      */
     public void execute(HttpServletRequest request, HttpServletResponse response)
-        throws ServletException, IOException {
+            throws ServletException, IOException {
 
         if (status != null) {
             response.setStatus(status);
@@ -125,8 +148,7 @@ public class ForwardResolution extends OnwardResolution<ForwardResolution> {
         if (autoInclude && request.getAttribute(StripesConstants.REQ_ATTR_INCLUDE_PATH) != null) {
             log.trace("Including URL: ", path);
             request.getRequestDispatcher(path).include(request, response);
-        }
-        else {
+        } else {
             log.trace("Forwarding to URL: ", path);
             request.getRequestDispatcher(path).forward(request, response);
         }
