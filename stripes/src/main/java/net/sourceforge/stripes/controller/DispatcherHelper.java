@@ -646,7 +646,26 @@ public class DispatcherHelper {
                             + ctx.getActionBeanContext().getEventName() + "] with request method [" + requestMethod + "]");
                 }
 
-                Object returnValue = handler.invoke(bean);
+                Object returnValue;
+
+                try {
+                    returnValue = handler.invoke(bean);
+                } catch (Exception e) {
+                    // If this is a RestActionBean and an unhandled exception occurs, we need to bypass 
+                    // the standard exception handler and return an internal error REST response.  We should
+                    // also log this error.
+                    if (bean.getClass().isAnnotationPresent(RestActionBean.class)) {
+                        log.fatal(e, "Unhandled exception occurred executing REST action bean [" + handler.getName() + "] in ActionBean ["
+                                + bean.getClass().getName() + "] for eventName ["
+                                + ctx.getActionBeanContext().getEventName() + "] with request method [" + requestMethod + "]");
+                        return new ErrorResolution(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Unhandled error occurred executing request : " + e.getCause().getMessage());
+                    } else {
+                        // If this is a regular action bean, then just rethrow the error and let Stripes 
+                        // do what it normally does.
+                        throw e;
+                    }
+                }
+
                 fillInValidationErrors(ctx);
 
                 if (returnValue != null && returnValue instanceof Resolution) {
