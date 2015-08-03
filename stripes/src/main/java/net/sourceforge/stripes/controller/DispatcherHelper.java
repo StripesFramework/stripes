@@ -589,61 +589,67 @@ public class DispatcherHelper {
         return ctx.wrap(new Interceptor() {
             public Resolution intercept(ExecutionContext ctx) throws Exception {
 
-                // Check the HTTP request method and ensure that the target handler
-                // method supports it.
-                Collection<HttpRequestMethod> supportedRequestMethods = new ArrayList<HttpRequestMethod>();
-                Collection<Annotation> annotations = Arrays.asList(handler.getAnnotations());
-
-                // First, get the supported HTTP request methods for the target 
-                // event handler method.  If none are explictly declared, then
-                // all HTTP request methods are considered to be supported.
-                for (Annotation annotation : handler.getAnnotations()) {
-                    if (annotation instanceof GET) {
-                        supportedRequestMethods.add(HttpRequestMethod.GET);
-                    } else if (annotation instanceof POST) {
-                        supportedRequestMethods.add(HttpRequestMethod.POST);
-                    } else if (annotation instanceof HEAD) {
-                        supportedRequestMethods.add(HttpRequestMethod.HEAD);
-                    } else if (annotation instanceof DELETE) {
-                        supportedRequestMethods.add(HttpRequestMethod.DELETE);
-                    } else if (annotation instanceof PUT) {
-                        supportedRequestMethods.add(HttpRequestMethod.PUT);
-                    }
-                }
-
-                // If no request methods are declared to be supported, then
-                // add all of them.  
-                if (supportedRequestMethods.isEmpty()) {
-                    supportedRequestMethods.addAll(HttpRequestMethod.all());
-                }
-
-                // Now, get the actual request method from the client and see if
-                // the event handler method supports it.
+                // If the name of the event handler is the same as the name of the
+                // HTTP request, then skip any request method/verb checking logic.
+                // It is assumed that an event name that is the same as the HTTP
+                // request method supports that request method.
                 String requestMethod = ctx.getActionBeanContext().getRequest().getMethod();
-                boolean methodSupported = false;
-                for (HttpRequestMethod supportedMethod : supportedRequestMethods) {
-                    if (supportedMethod.toString().equalsIgnoreCase(requestMethod)) {
-                        methodSupported = true;
-                    }
-                }
+                
+                if (!handler.getName().equalsIgnoreCase(requestMethod)) {
+                    // Check the HTTP request method and ensure that the target handler
+                    // method supports it.
+                    Collection<HttpRequestMethod> supportedRequestMethods = new ArrayList<HttpRequestMethod>();
 
-                // If the HTTP request method is not supported by the handler method,
-                // throw an exception.  This is not permitted.
-                if (!methodSupported) {
-                    String msg = "The handler method [" + handler.getName() + "] in ActionBean ["
-                            + bean.getClass().getName() + "] for eventName [ "
-                            + ctx.getActionBeanContext().getEventName() + "] does not support "
-                            + " the request method [" + requestMethod + "]";
-                    if (bean.getClass().isAnnotationPresent(RestActionBean.class)) {
-                        log.error(msg);
-                        return new ErrorResolution(HttpServletResponse.SC_METHOD_NOT_ALLOWED, msg);
-                    } else {
-                        throw new StripesServletException(msg);
+                    // First, get the supported HTTP request methods for the target 
+                    // event handler method.  If none are explictly declared, then
+                    // all HTTP request methods are considered to be supported.
+                    for (Annotation annotation : handler.getAnnotations()) {
+                        if (annotation instanceof GET) {
+                            supportedRequestMethods.add(HttpRequestMethod.GET);
+                        } else if (annotation instanceof POST) {
+                            supportedRequestMethods.add(HttpRequestMethod.POST);
+                        } else if (annotation instanceof HEAD) {
+                            supportedRequestMethods.add(HttpRequestMethod.HEAD);
+                        } else if (annotation instanceof DELETE) {
+                            supportedRequestMethods.add(HttpRequestMethod.DELETE);
+                        } else if (annotation instanceof PUT) {
+                            supportedRequestMethods.add(HttpRequestMethod.PUT);
+                        }
                     }
-                } else {
-                    log.debug("Invoking the handler method [" + handler.getName() + "] in ActionBean ["
-                            + bean.getClass().getName() + "] for eventName ["
-                            + ctx.getActionBeanContext().getEventName() + "] with request method [" + requestMethod + "]");
+
+                    // If no request methods are declared to be supported, then
+                    // add all of them.  
+                    if (supportedRequestMethods.isEmpty()) {
+                        supportedRequestMethods.addAll(HttpRequestMethod.all());
+                    }
+
+                    // Now, get the actual request method from the client and see if
+                    // the event handler method supports it.
+                    boolean methodSupported = false;
+                    for (HttpRequestMethod supportedMethod : supportedRequestMethods) {
+                        if (supportedMethod.toString().equalsIgnoreCase(requestMethod)) {
+                            methodSupported = true;
+                        }
+                    }
+
+                    // If the HTTP request method is not supported by the handler method,
+                    // throw an exception.  This is not permitted.
+                    if (!methodSupported) {
+                        String msg = "The handler method [" + handler.getName() + "] in ActionBean ["
+                                + bean.getClass().getName() + "] for eventName [ "
+                                + ctx.getActionBeanContext().getEventName() + "] does not support "
+                                + " the request method [" + requestMethod + "]";
+                        if (bean.getClass().isAnnotationPresent(RestActionBean.class)) {
+                            log.error(msg);
+                            return new ErrorResolution(HttpServletResponse.SC_METHOD_NOT_ALLOWED, msg);
+                        } else {
+                            throw new StripesServletException(msg);
+                        }
+                    } else {
+                        log.debug("Invoking the handler method [" + handler.getName() + "] in ActionBean ["
+                                + bean.getClass().getName() + "] for eventName ["
+                                + ctx.getActionBeanContext().getEventName() + "] with request method [" + requestMethod + "]");
+                    }
                 }
 
                 Object returnValue;

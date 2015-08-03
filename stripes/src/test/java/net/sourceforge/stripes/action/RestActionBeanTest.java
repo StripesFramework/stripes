@@ -31,149 +31,136 @@ import org.testng.annotations.Test;
  * This is a series of tests for Stripes REST action beans.
  */
 @RestActionBean
-@UrlBinding( "/test" )
-public class RestActionBeanTest extends FilterEnabledTestBase implements ActionBean
-{
+@UrlBinding("/test")
+public class RestActionBeanTest extends FilterEnabledTestBase implements ActionBean {
 
-    @Validate( on = "head", required = true )
+    @Validate(on = "head", required = true)
     private String id;
 
-    public Resolution get()
-    {
+    public Resolution customHttpVerb() {
+        return new JsonResolution("Yay!  This is a custom HTTP verb!");
+    }
+
+    public Resolution get() {
         Map< String, Object> response = new HashMap< String, Object>();
-        response.put( "foo", "bar" );
-        response.put( "hello", "world" );
+        response.put("foo", "bar");
+        response.put("hello", "world");
 
         Map< String, Number> nested = new HashMap< String, Number>();
-        nested.put( "one", 1 );
-        nested.put( "two", 2 );
+        nested.put("one", 1);
+        nested.put("two", 2);
 
-        response.put( "numbers", nested );
+        response.put("numbers", nested);
 
-        return new JsonResolution( response );
+        return new JsonResolution(response);
     }
 
-    @ValidationMethod( on = "head" )
-    public void validateHeadCall( ValidationErrors errors )
-    {
-        errors.addGlobalError( new SimpleError( "The head request was not valid for whatever custom reason." ) );
+    @ValidationMethod(on = "head")
+    public void validateHeadCall(ValidationErrors errors) {
+        errors.addGlobalError(new SimpleError("The head request was not valid for whatever custom reason."));
     }
 
-    public Resolution head()
-    {
-        return new JsonResolution( "Successful head!" );
+    public Resolution head() {
+        return new JsonResolution("Successful head!");
+    }
+
+    public Resolution testUnhandledExceptionEvent() {
+        throw new RuntimeException("Some Unhandled Exception Occurred!");
     }
 
     @POST
-    public Resolution onlySupportsPost()
-    {
-        return new JsonResolution( "Successful onlySupportsPost()!" );
+    public Resolution onlySupportsPost() {
+        return new JsonResolution("Successful onlySupportsPost()!");
     }
 
-    public void setId( String id )
-    {
+    public void setId(String id) {
         this.id = id;
     }
 
-    public String getId()
-    {
+    public String getId() {
         return this.id;
     }
 
     private ActionBeanContext context;
 
-    public ActionBeanContext getContext()
-    {
+    public ActionBeanContext getContext() {
         return this.context;
     }
 
-    public void setContext( ActionBeanContext context )
-    {
+    public void setContext(ActionBeanContext context) {
         this.context = context;
     }
 
-    @Test( groups = "fast" )
-    public Resolution testUnhandledExceptionEvent()
-    {
-        throw new RuntimeException( "Some Unhandled Exception Occurred!" );
+    @Test(groups = "fast")
+    public void testGetAttemptOnPostMethod() throws Exception {
+        MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
+        trip.getRequest().setMethod("GET");
+        trip.execute("onlySupportsPost");
+        Assert.assertEquals(trip.getResponse().getStatus(), HttpURLConnection.HTTP_BAD_METHOD);
     }
 
-    @Test( groups = "fast" )
-    public void testGetAttemptOnPostMethod() throws Exception
-    {
-        MockRoundtrip trip = new MockRoundtrip( getMockServletContext(), getClass() );
-        trip.getRequest().setMethod( "GET" );
-        trip.execute( "onlySupportsPost" );
-        Assert.assertEquals( trip.getResponse().getStatus(), HttpURLConnection.HTTP_BAD_METHOD );
-        logTripResponse( trip );
+    @Test(groups = "fast")
+    public void testPostAttemptOnPostMethod() throws Exception {
+        MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
+        trip.getRequest().setMethod("POST");
+        trip.execute("onlySupportsPost");
+        Assert.assertEquals(trip.getResponse().getStatus(), HttpURLConnection.HTTP_OK);
     }
 
-    @Test( groups = "fast" )
-    public void testPostAttemptOnPostMethod() throws Exception
-    {
-        MockRoundtrip trip = new MockRoundtrip( getMockServletContext(), getClass() );
-        trip.getRequest().setMethod( "POST" );
-        trip.execute( "onlySupportsPost" );
-        Assert.assertEquals( trip.getResponse().getStatus(), HttpURLConnection.HTTP_OK );
-        logTripResponse( trip );
-    }
-
-    @Test( groups = "fast" )
-    public void successfulGet() throws Exception
-    {
-        MockRoundtrip trip = new MockRoundtrip( getMockServletContext(), getClass() );
-        trip.getRequest().setMethod( "GET" );
+    @Test(groups = "fast")
+    public void testSuccessfulGet() throws Exception {
+        MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
+        trip.getRequest().setMethod("GET");
         trip.execute();
-        Assert.assertEquals( trip.getResponse().getStatus(), HttpURLConnection.HTTP_OK );
-        logTripResponse( trip );
+        Assert.assertEquals(trip.getResponse().getStatus(), HttpURLConnection.HTTP_OK);
     }
 
-    @Test( groups = "fast" )
-    public void failedPost() throws Exception
-    {
+    @Test(groups = "fast")
+    public void testFailedPost() throws Exception {
         // Since no event is specified, this should default to the post() method and attempt
         // to execute it.  Since one doesn't exist, it should throw a 404.
-        MockRoundtrip trip = new MockRoundtrip( getMockServletContext(), getClass() );
-        trip.getRequest().setMethod( "POST" );
+        MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
+        trip.getRequest().setMethod("POST");
         trip.execute();
-        Assert.assertEquals( trip.getResponse().getStatus(), HttpURLConnection.HTTP_NOT_FOUND );
-        logTripResponse( trip );
+        Assert.assertEquals(trip.getResponse().getStatus(), HttpURLConnection.HTTP_NOT_FOUND);
     }
 
-    @Test( groups = "fast" )
-    public void missingRequiredParameterOnHead() throws Exception
-    {
-        MockRoundtrip trip = new MockRoundtrip( getMockServletContext(), getClass() );
-        trip.getRequest().setMethod( "HEAD" );
+    @Test(groups = "fast")
+    public void testMissingRequiredParameterOnHead() throws Exception {
+        MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
+        trip.getRequest().setMethod("HEAD");
         trip.execute();
-        Assert.assertTrue( trip.getValidationErrors().hasFieldErrors() && trip.getValidationErrors().size() == 1 );
-        logTripResponse( trip );
+        Assert.assertTrue(trip.getValidationErrors().hasFieldErrors() && trip.getValidationErrors().size() == 1);
     }
 
-    @Test( groups = "fast" )
-    public void failedCustomValidationOnHead() throws Exception
-    {
-        MockRoundtrip trip = new MockRoundtrip( getMockServletContext(), getClass() );
-        trip.setParameter( "id", "SOME_ID" );
-        trip.getRequest().setMethod( "HEAD" );
+    @Test(groups = "fast")
+    public void testFailedCustomValidationOnHead() throws Exception {
+        MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
+        trip.setParameter("id", "SOME_ID");
+        trip.getRequest().setMethod("HEAD");
         trip.execute();
-        Assert.assertTrue( !trip.getValidationErrors().hasFieldErrors() && trip.getValidationErrors().size() == 1 );
-        logTripResponse( trip );
+        Assert.assertTrue(!trip.getValidationErrors().hasFieldErrors() && trip.getValidationErrors().size() == 1);
     }
 
-    @Test( groups = "fast" )
-    public void testUnhandledException() throws Exception
-    {
-        MockRoundtrip trip = new MockRoundtrip( getMockServletContext(), getClass() );
-        trip.execute( "testUnhandledExceptionEvent" );
-        logTripResponse( trip );
+    @Test(groups = "fast")
+    public void testUnhandledException() throws Exception {
+        MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
+        trip.execute("testUnhandledExceptionEvent");
+        Assert.assertEquals(trip.getResponse().getStatus(), HttpURLConnection.HTTP_INTERNAL_ERROR);
     }
 
-    private void logTripResponse( MockRoundtrip trip )
-    {
-        System.out.println( "TRIP RESPONSE: [Event=" + trip.getActionBean( getClass() ).getContext().getEventName() + "] [Status=" + trip.getResponse().getStatus()
+    @Test(groups = "fast")
+    public void testCustomHTTPVerb() throws Exception {
+        MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
+        trip.getRequest().setMethod("customHttpVerb");
+        trip.execute();
+        Assert.assertEquals(trip.getResponse().getStatus(), HttpURLConnection.HTTP_OK);
+    }
+
+    private void logTripResponse(MockRoundtrip trip) {
+        System.out.println("TRIP RESPONSE: [Event=" + trip.getActionBean(getClass()).getContext().getEventName() + "] [Status=" + trip.getResponse().getStatus()
                 + "] [Message=" + trip.getResponse().getOutputString() + "] [Error Message="
-                + trip.getResponse().getErrorMessage() + "]" );
+                + trip.getResponse().getErrorMessage() + "]");
     }
 
 }

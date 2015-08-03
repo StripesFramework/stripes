@@ -45,65 +45,85 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * <p>Uses Annotations on classes to identify the ActionBean that corresponds to the current
- * request.  ActionBeans are annotated with an {@code @UrlBinding} annotation, which denotes the
- * web application relative URL that the ActionBean should respond to.</p>
+ * <p>
+ * Uses Annotations on classes to identify the ActionBean that corresponds to
+ * the current request. ActionBeans are annotated with an {@code @UrlBinding}
+ * annotation, which denotes the web application relative URL that the
+ * ActionBean should respond to.</p>
  *
- * <p>Individual methods on ActionBean classes are expected to be annotated with @HandlesEvent
- * annotations, and potentially a @DefaultHandler annotation.  Using these annotations the
- * Resolver will determine which method should be executed for the current request.</p>
+ * <p>
+ * Individual methods on ActionBean classes are expected to be annotated with
+ * @HandlesEvent annotations, and potentially a @DefaultHandler annotation.
+ * Using these annotations the Resolver will determine which method should be
+ * executed for the current request.</p>
  *
  * @see net.sourceforge.stripes.action.UrlBinding
  * @author Tim Fennell
  */
 public class AnnotatedClassActionResolver implements ActionResolver {
+
     /**
-     * Configuration key used to lookup a comma-separated list of package names. The
-     * packages (and their sub-packages) will be scanned for implementations of
-     * ActionBean.
-     * @since Stripes 1.5 
+     * Configuration key used to lookup a comma-separated list of package names.
+     * The packages (and their sub-packages) will be scanned for implementations
+     * of ActionBean.
+     *
+     * @since Stripes 1.5
      */
     public static final String PACKAGES = "ActionResolver.Packages";
 
-    /** Key used to store the default handler in the Map of handler methods. */
+    /**
+     * Key used to store the default handler in the Map of handler methods.
+     */
     private static final String DEFAULT_HANDLER_KEY = "__default_handler";
 
-    /** Log instance for use within in this class. */
+    /**
+     * Log instance for use within in this class.
+     */
     private static final Log log = Log.getInstance(AnnotatedClassActionResolver.class);
 
-    /** Handle to the configuration. */
+    /**
+     * Handle to the configuration.
+     */
     private Configuration configuration;
 
-    /** Parses {@link UrlBinding} values and maps request URLs to {@link ActionBean}s. */
+    /**
+     * Parses {@link UrlBinding} values and maps request URLs to
+     * {@link ActionBean}s.
+     */
     private UrlBindingFactory urlBindingFactory = new UrlBindingFactory();
 
-    /** Maps action bean classes simple name -> action bean class */
-    protected final Map<String, Class<? extends ActionBean>> actionBeansByName =
-            new ConcurrentHashMap<String, Class<? extends ActionBean>>();
-
     /**
-     * Map used to resolve the methods handling events within form beans. Maps the class
-     * representing a subclass of ActionBean to a Map of event names to Method objects.
+     * Maps action bean classes simple name -> action bean class
      */
-    private Map<Class<? extends ActionBean>,Map<String,Method>> eventMappings =
-        new HashMap<Class<? extends ActionBean>,Map<String,Method>>() {
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            public Map<String, Method> get(Object key) {
-                Map<String, Method> value = super.get(key);
-                if (value == null)
-                    return Collections.emptyMap();
-                else
-                    return value;
-            }
-    };
+    protected final Map<String, Class<? extends ActionBean>> actionBeansByName
+            = new ConcurrentHashMap<String, Class<? extends ActionBean>>();
 
     /**
-     * Scans the classpath of the current classloader (not including parents) to find implementations
-     * of the ActionBean interface.  Examines annotations on the classes found to determine what
-     * forms and events they map to, and stores this information in a pair of maps for fast
-     * access during request processing.
+     * Map used to resolve the methods handling events within form beans. Maps
+     * the class representing a subclass of ActionBean to a Map of event names
+     * to Method objects.
+     */
+    private Map<Class<? extends ActionBean>, Map<String, Method>> eventMappings
+            = new HashMap<Class<? extends ActionBean>, Map<String, Method>>() {
+                private static final long serialVersionUID = 1L;
+
+                @Override
+                public Map<String, Method> get(Object key) {
+                    Map<String, Method> value = super.get(key);
+                    if (value == null) {
+                        return Collections.emptyMap();
+                    } else {
+                        return value;
+                    }
+                }
+            };
+
+    /**
+     * Scans the classpath of the current classloader (not including parents) to
+     * find implementations of the ActionBean interface. Examines annotations on
+     * the classes found to determine what forms and events they map to, and
+     * stores this information in a pair of maps for fast access during request
+     * processing.
      */
     public void init(Configuration configuration) throws Exception {
         this.configuration = configuration;
@@ -120,8 +140,8 @@ public class AnnotatedClassActionResolver implements ActionResolver {
         Set<String> foundBeanNames = new HashSet<String>();
         for (Class<? extends ActionBean> clazz : getActionBeanClasses()) {
             if (foundBeanNames.contains(clazz.getSimpleName())) {
-                log.warn("Found multiple action beans with the same simple name: ", clazz.getSimpleName(), ". You will " +
-                        "need to reference these action beans by their fully qualified names");
+                log.warn("Found multiple action beans with the same simple name: ", clazz.getSimpleName(), ". You will "
+                        + "need to reference these action beans by their fully qualified names");
                 actionBeansByName.remove(clazz.getSimpleName());
                 continue;
             }
@@ -131,26 +151,31 @@ public class AnnotatedClassActionResolver implements ActionResolver {
         }
     }
 
-    /** Get the {@link UrlBindingFactory} that is being used by this action resolver. */
+    /**
+     * Get the {@link UrlBindingFactory} that is being used by this action
+     * resolver.
+     */
     public UrlBindingFactory getUrlBindingFactory() {
         return urlBindingFactory;
     }
 
     /**
-     * Adds an ActionBean class to the set that this resolver can resolve. Identifies
-     * the URL binding and the events managed by the class and stores them in Maps
-     * for fast lookup.
+     * Adds an ActionBean class to the set that this resolver can resolve.
+     * Identifies the URL binding and the events managed by the class and stores
+     * them in Maps for fast lookup.
      *
      * @param clazz a class that implements ActionBean
      */
     protected void addActionBean(Class<? extends ActionBean> clazz) {
         // Ignore abstract classes
-        if (Modifier.isAbstract(clazz.getModifiers()) || clazz.isAnnotationPresent(DontAutoLoad.class))
+        if (Modifier.isAbstract(clazz.getModifiers()) || clazz.isAnnotationPresent(DontAutoLoad.class)) {
             return;
+        }
 
         String binding = getUrlBinding(clazz);
-        if (binding == null)
+        if (binding == null) {
             return;
+        }
 
         // make sure mapping exists in cache
         UrlBinding proto = getUrlBindingFactory().getBindingPrototype(clazz);
@@ -183,8 +208,9 @@ public class AnnotatedClassActionResolver implements ActionResolver {
     }
 
     /**
-     * Removes an ActionBean class from the set that this resolver can resolve. The URL binding
-     * and the events managed by the class are removed from the cache.
+     * Removes an ActionBean class from the set that this resolver can resolve.
+     * The URL binding and the events managed by the class are removed from the
+     * cache.
      *
      * @param clazz a class that implements ActionBean
      */
@@ -197,14 +223,15 @@ public class AnnotatedClassActionResolver implements ActionResolver {
     }
 
     /**
-     * Returns the URL binding that is a substring of the path provided. For example, if there
-     * is an ActionBean bound to {@code /user/Profile.action} the path
-     * {@code /user/Profile.action/view} would return {@code /user/Profile.action}.
+     * Returns the URL binding that is a substring of the path provided. For
+     * example, if there is an ActionBean bound to {@code /user/Profile.action}
+     * the path {@code /user/Profile.action/view} would return
+     * {@code /user/Profile.action}.
      *
-     * @param path the path being used to access an ActionBean, either in a form or link tag,
-     *        or in a request that is hitting the DispatcherServlet.
-     * @return the UrlBinding of the ActionBean appropriate for the request, or null if the path
-     *         supplied cannot be mapped to an ActionBean.
+     * @param path the path being used to access an ActionBean, either in a form
+     * or link tag, or in a request that is hitting the DispatcherServlet.
+     * @return the UrlBinding of the ActionBean appropriate for the request, or
+     * null if the path supplied cannot be mapped to an ActionBean.
      */
     public String getUrlBindingFromPath(String path) {
         UrlBinding mapping = getUrlBindingFactory().getBindingPrototype(path);
@@ -212,10 +239,11 @@ public class AnnotatedClassActionResolver implements ActionResolver {
     }
 
     /**
-     * Takes a class that implements ActionBean and returns the URL binding of that class.
-     * The default implementation retrieves the UrlBinding annotations and returns its
-     * value. Subclasses could do more complex things like parse the class and package names
-     * and construct a "default" binding when one is not specified.
+     * Takes a class that implements ActionBean and returns the URL binding of
+     * that class. The default implementation retrieves the UrlBinding
+     * annotations and returns its value. Subclasses could do more complex
+     * things like parse the class and package names and construct a "default"
+     * binding when one is not specified.
      *
      * @param clazz a class that implements ActionBean
      * @return the UrlBinding or null if none can be determined
@@ -226,11 +254,11 @@ public class AnnotatedClassActionResolver implements ActionResolver {
     }
 
     /**
-     * Helper method that examines a class, starting at it's highest super class and
-     * working it's way down again, to find method annotations and ensure that child
-     * class annotations take precedence.
+     * Helper method that examines a class, starting at it's highest super class
+     * and working it's way down again, to find method annotations and ensure
+     * that child class annotations take precedence.
      */
-    protected void processMethods(Class<?> clazz, Map<String,Method> classMappings) {
+    protected void processMethods(Class<?> clazz, Map<String, Method> classMappings) {
         // Do the super class first if there is one
         Class<?> superclass = clazz.getSuperclass();
         if (superclass != null) {
@@ -239,7 +267,7 @@ public class AnnotatedClassActionResolver implements ActionResolver {
 
         Method[] methods = clazz.getDeclaredMethods();
         for (Method method : methods) {
-            if ( Modifier.isPublic(method.getModifiers()) && !method.isBridge() ) {
+            if (Modifier.isPublic(method.getModifiers()) && !method.isBridge()) {
                 String eventName = getHandledEvent(method);
 
                 // look for duplicate event names within the current class
@@ -269,9 +297,9 @@ public class AnnotatedClassActionResolver implements ActionResolver {
     }
 
     /**
-     * Responsible for determining the name of the event handled by this method, if indeed
-     * it handles one at all.  By default looks for the HandlesEvent annotations and returns
-     * it's value if present.
+     * Responsible for determining the name of the event handled by this method,
+     * if indeed it handles one at all. By default looks for the HandlesEvent
+     * annotations and returns it's value if present.
      *
      * @param handler a method that might or might not be a handler method
      * @return the name of the event handled, or null
@@ -280,21 +308,23 @@ public class AnnotatedClassActionResolver implements ActionResolver {
         HandlesEvent mapping = handler.getAnnotation(HandlesEvent.class);
         if (mapping != null) {
             return mapping.value();
-        }
-        else {
+        } else {
             return null;
         }
     }
 
     /**
-     * <p>Fetches the Class representing the type of ActionBean that would respond were a
-     * request made with the path specified. Checks to see if the full path matches any
-     * bean's UrlBinding. If no ActionBean matches then successively removes path segments
-     * (separated by slashes) from the end of the path until a match is found.</p>
+     * <p>
+     * Fetches the Class representing the type of ActionBean that would respond
+     * were a request made with the path specified. Checks to see if the full
+     * path matches any bean's UrlBinding. If no ActionBean matches then
+     * successively removes path segments (separated by slashes) from the end of
+     * the path until a match is found.</p>
      *
      * @param path the path segment of a URL
-     * @return the Class object for the type of action bean that will respond if a request
-     *         is made using the path specified or null if no ActionBean matches.
+     * @return the Class object for the type of action bean that will respond if
+     * a request is made using the path specified or null if no ActionBean
+     * matches.
      */
     public Class<? extends ActionBean> getActionBeanType(String path) {
         UrlBinding binding = getUrlBindingFactory().getBindingPrototype(path);
@@ -302,9 +332,9 @@ public class AnnotatedClassActionResolver implements ActionResolver {
     }
 
     /**
-     * Gets the logical name of the ActionBean that should handle the request.  Implemented to look
-     * up the name of the form based on the name assigned to the form in the form tag, and
-     * encoded in a hidden field.
+     * Gets the logical name of the ActionBean that should handle the request.
+     * Implemented to look up the name of the form based on the name assigned to
+     * the form in the form tag, and encoded in a hidden field.
      *
      * @param context the ActionBeanContext for the current request
      * @return the name of the form to be used for this request
@@ -318,16 +348,18 @@ public class AnnotatedClassActionResolver implements ActionResolver {
     }
 
     /**
-     * Returns the ActionBean class that is bound to the UrlBinding supplied. If the action
-     * bean already exists in the appropriate scope (request or session) then the existing
-     * instance will be supplied.  If not, then a new instance will be manufactured and have
-     * the supplied ActionBeanContext set on it.
+     * Returns the ActionBean class that is bound to the UrlBinding supplied. If
+     * the action bean already exists in the appropriate scope (request or
+     * session) then the existing instance will be supplied. If not, then a new
+     * instance will be manufactured and have the supplied ActionBeanContext set
+     * on it.
      *
-     * @param path a URL to which an ActionBean is bound, or a path starting with the URL
-     *        to which an ActionBean has been bound.
+     * @param path a URL to which an ActionBean is bound, or a path starting
+     * with the URL to which an ActionBean has been bound.
      * @param context the current ActionBeanContext
      * @return a Class<ActionBean> for the ActionBean requested
-     * @throws StripesServletException if the UrlBinding does not match an ActionBean binding
+     * @throws StripesServletException if the UrlBinding does not match an
+     * ActionBean binding
      */
     public ActionBean getActionBean(ActionBeanContext context, String path) throws StripesServletException {
         Class<? extends ActionBean> beanClass = getActionBeanType(path);
@@ -348,8 +380,7 @@ public class AnnotatedClassActionResolver implements ActionResolver {
                     bean = makeNewActionBean(beanClass, context);
                     request.getSession().setAttribute(bindingPath, bean);
                 }
-            }
-            else {
+            } else {
                 bean = (ActionBean) request.getAttribute(bindingPath);
                 if (bean == null) {
                     bean = makeNewActionBean(beanClass, context);
@@ -358,10 +389,9 @@ public class AnnotatedClassActionResolver implements ActionResolver {
             }
 
             setActionBeanContext(bean, context);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             StripesServletException sse = new StripesServletException(
-                "Could not create instance of ActionBean type [" + beanClass.getName() + "].", e);
+                    "Could not create instance of ActionBean type [" + beanClass.getName() + "].", e);
             throw sse;
         }
 
@@ -371,10 +401,11 @@ public class AnnotatedClassActionResolver implements ActionResolver {
     }
 
     /**
-     * Calls {@link ActionBean#setContext(ActionBeanContext)} with the given {@code context} only if
-     * necessary. Subclasses should use this method instead of setting the context directly because
-     * it can be somewhat tricky to determine when it needs to be done.
-     * 
+     * Calls {@link ActionBean#setContext(ActionBeanContext)} with the given
+     * {@code context} only if necessary. Subclasses should use this method
+     * instead of setting the context directly because it can be somewhat tricky
+     * to determine when it needs to be done.
+     *
      * @param bean The bean whose context may need to be set.
      * @param context The context to pass to the bean if necessary.
      */
@@ -382,38 +413,40 @@ public class AnnotatedClassActionResolver implements ActionResolver {
         ActionBeanContext abcFromBean = bean.getContext();
         if (abcFromBean == null) {
             bean.setContext(context);
-        }
-        else {
+        } else {
             StripesRequestWrapper wrapperFromBean = StripesRequestWrapper
                     .findStripesWrapper(abcFromBean.getRequest());
             StripesRequestWrapper wrapperFromRequest = StripesRequestWrapper
                     .findStripesWrapper(context.getRequest());
-            if (wrapperFromBean != wrapperFromRequest)
+            if (wrapperFromBean != wrapperFromRequest) {
                 bean.setContext(context);
+            }
         }
     }
 
     /**
-     * Since many down stream parts of Stripes rely on the ActionBean properly returning the
-     * context it is given, we'll just test it up front. Called after the bean is instantiated.
+     * Since many down stream parts of Stripes rely on the ActionBean properly
+     * returning the context it is given, we'll just test it up front. Called
+     * after the bean is instantiated.
      *
      * @param bean the ActionBean to test to see if getContext() works correctly
      * @throws StripesServletException if getContext() returns null
      */
     protected void assertGetContextWorks(final ActionBean bean) throws StripesServletException {
         if (bean.getContext() == null) {
-            throw new StripesServletException("Ahem. Stripes has just resolved and instantiated " +
-                    "the ActionBean class " + bean.getClass().getName() + " and set the ActionBeanContext " +
-                    "on it. However calling getContext() isn't returning the context back! Since " +
-                    "this is required for several parts of Stripes to function correctly you should " +
-                    "now stop and implement setContext()/getContext() correctly. Thank you.");
+            throw new StripesServletException("Ahem. Stripes has just resolved and instantiated "
+                    + "the ActionBean class " + bean.getClass().getName() + " and set the ActionBeanContext "
+                    + "on it. However calling getContext() isn't returning the context back! Since "
+                    + "this is required for several parts of Stripes to function correctly you should "
+                    + "now stop and implement setContext()/getContext() correctly. Thank you.");
         }
     }
 
     /**
-     * Helper method to construct and return a new ActionBean instance. Called whenever a new
-     * instance needs to be manufactured.  Provides a convenient point for subclasses to add
-     * specific behaviour during action bean creation.
+     * Helper method to construct and return a new ActionBean instance. Called
+     * whenever a new instance needs to be manufactured. Provides a convenient
+     * point for subclasses to add specific behaviour during action bean
+     * creation.
      *
      * @param type the type of ActionBean to create
      * @param context the current ActionBeanContext
@@ -421,49 +454,59 @@ public class AnnotatedClassActionResolver implements ActionResolver {
      * @throws Exception if anything goes wrong!
      */
     protected ActionBean makeNewActionBean(Class<? extends ActionBean> type, ActionBeanContext context)
-        throws Exception {
+            throws Exception {
 
         return getConfiguration().getObjectFactory().newInstance(type);
     }
 
-
     /**
      * <p>
-     * Try various means to determine which event is to be executed on the current ActionBean. If a
-     * 'special' request attribute ({@link StripesConstants#REQ_ATTR_EVENT_NAME}) is present in
-     * the request, then return its value. This attribute is used to handle internal forwards, when
-     * request parameters are merged and cannot reliably determine the desired event name.
+     * Try various means to determine which event is to be executed on the
+     * current ActionBean. If a 'special' request attribute
+     * ({@link StripesConstants#REQ_ATTR_EVENT_NAME}) is present in the request,
+     * then return its value. This attribute is used to handle internal
+     * forwards, when request parameters are merged and cannot reliably
+     * determine the desired event name.
      * </p>
-     * 
+     *
      * <p>
-     * If that doesn't work, the value of a 'special' request parameter ({@link StripesConstants#URL_KEY_EVENT_NAME})
-     * is checked to see if contains a single value matching an event name.
+     * If that doesn't work, the value of a 'special' request parameter
+     * ({@link StripesConstants#URL_KEY_EVENT_NAME}) is checked to see if
+     * contains a single value matching an event name.
      * </p>
-     * 
+     *
      * <p>
-     * Failing that, search for a parameter in the request whose name matches one of the named
-     * events handled by the ActionBean. For example, if the ActionBean can handle events foo and
-     * bar, this method will scan the request for foo=somevalue and bar=somevalue. If it finds a
-     * request parameter with a matching name it will return that name. If there are multiple
-     * matching names, the result of this method cannot be guaranteed and a
-     * {@link StripesRuntimeException} will be thrown.
+     * Failing that, search for a parameter in the request whose name matches
+     * one of the named events handled by the ActionBean. For example, if the
+     * ActionBean can handle events foo and bar, this method will scan the
+     * request for foo=somevalue and bar=somevalue. If it finds a request
+     * parameter with a matching name it will return that name. If there are
+     * multiple matching names, the result of this method cannot be guaranteed
+     * and a {@link StripesRuntimeException} will be thrown.
      * </p>
-     * 
+     *
      * <p>
-     * Finally, if the event name cannot be determined through the parameter names and there is
-     * extra path information beyond the URL binding of the ActionBean, it is checked to see if it
-     * matches an event name.
+     * Finally, if the event name cannot be determined through the parameter
+     * names and there is extra path information beyond the URL binding of the
+     * ActionBean, it is checked to see if it matches an event name.
      * </p>
-     * 
+     *
      * @param bean the ActionBean type bound to the request
      * @param context the ActionBeanContect for the current request
-     * @return String the name of the event submitted, or null if none can be found
+     * @return String the name of the event submitted, or null if none can be
+     * found
      */
     public String getEventName(Class<? extends ActionBean> bean, ActionBeanContext context) {
         String event = getEventNameFromRequestAttribute(bean, context);
-        if (event == null) event = getEventNameFromEventNameParam(bean, context);
-        if (event == null) event = getEventNameFromRequestParams(bean, context);
-        if (event == null) event = getEventNameFromPath(bean, context);
+        if (event == null) {
+            event = getEventNameFromEventNameParam(bean, context);
+        }
+        if (event == null) {
+            event = getEventNameFromRequestParams(bean, context);
+        }
+        if (event == null) {
+            event = getEventNameFromPath(bean, context);
+        }
         return event;
     }
 
@@ -471,7 +514,7 @@ public class AnnotatedClassActionResolver implements ActionResolver {
      * Checks a special request attribute to get the event name. This attribute
      * may be set when the presence of the original request parameters on a
      * forwarded request makes it difficult to determine which event to fire.
-     * 
+     *
      * @param bean the ActionBean type bound to the request
      * @param context the ActionBeanContect for the current request
      * @return the name of the event submitted, or null if none can be found
@@ -484,20 +527,21 @@ public class AnnotatedClassActionResolver implements ActionResolver {
     }
 
     /**
-     * Loops through the set of known events for the ActionBean to see if the event
-     * names are present as parameter names in the request.  Returns the first event
-     * name found in the request, or null if none is found.
+     * Loops through the set of known events for the ActionBean to see if the
+     * event names are present as parameter names in the request. Returns the
+     * first event name found in the request, or null if none is found.
      *
      * @param bean the ActionBean type bound to the request
      * @param context the ActionBeanContext for the current request
-     * @return String the name of the event submitted, or null if none can be found
+     * @return String the name of the event submitted, or null if none can be
+     * found
      */
     @SuppressWarnings("unchecked")
     protected String getEventNameFromRequestParams(Class<? extends ActionBean> bean,
-                                                   ActionBeanContext context) {
+            ActionBeanContext context) {
 
         List<String> eventParams = new ArrayList<String>();
-        Map<String,String[]> parameterMap = context.getRequest().getParameterMap();
+        Map<String, String[]> parameterMap = context.getRequest().getParameterMap();
         for (String event : this.eventMappings.get(bean).keySet()) {
             if (parameterMap.containsKey(event) || parameterMap.containsKey(event + ".x")) {
                 eventParams.add(event);
@@ -506,11 +550,9 @@ public class AnnotatedClassActionResolver implements ActionResolver {
 
         if (eventParams.size() == 0) {
             return null;
-        }
-        else if (eventParams.size() == 1) {
+        } else if (eventParams.size() == 1) {
             return eventParams.get(0);
-        }
-        else {
+        } else {
             throw new StripesRuntimeException("Multiple event parameters " + eventParams
                     + " are present in this request. Only one event parameter may be specified "
                     + "per request. Otherwise, Stripes would be unable to determine which event "
@@ -519,17 +561,19 @@ public class AnnotatedClassActionResolver implements ActionResolver {
     }
 
     /**
-     * Looks to see if there is extra path information beyond simply the url binding of the
-     * bean. If it does and the next /-separated part of the path matches one of the known
-     * event names for the bean, that event name will be returned, otherwise null.
+     * Looks to see if there is extra path information beyond simply the url
+     * binding of the bean. If it does and the next /-separated part of the path
+     * matches one of the known event names for the bean, that event name will
+     * be returned, otherwise null.
      *
      * @param bean the ActionBean type bound to the request
      * @param context the ActionBeanContect for the current request
-     * @return String the name of the event submitted, or null if none can be found
+     * @return String the name of the event submitted, or null if none can be
+     * found
      */
     protected String getEventNameFromPath(Class<? extends ActionBean> bean,
-                                          ActionBeanContext context) {
-        Map<String,Method> mappings = this.eventMappings.get(bean);
+            ActionBeanContext context) {
+        Map<String, Method> mappings = this.eventMappings.get(bean);
         String path = HttpUtil.getRequestedPath(context.getRequest());
         UrlBinding prototype = getUrlBindingFactory().getBindingPrototype(path);
         String binding = prototype == null ? null : prototype.getPath();
@@ -547,16 +591,18 @@ public class AnnotatedClassActionResolver implements ActionResolver {
     }
 
     /**
-     * Looks to see if there is a single non-empty parameter value for the parameter name
-     * specified by {@link StripesConstants#URL_KEY_EVENT_NAME}. If there is, and it
-     * matches a known event it is returned, otherwise returns null.
+     * Looks to see if there is a single non-empty parameter value for the
+     * parameter name specified by {@link StripesConstants#URL_KEY_EVENT_NAME}.
+     * If there is, and it matches a known event it is returned, otherwise
+     * returns null.
      *
      * @param bean the ActionBean type bound to the request
      * @param context the ActionBeanContect for the current request
-     * @return String the name of the event submitted, or null if none can be found
+     * @return String the name of the event submitted, or null if none can be
+     * found
      */
     protected String getEventNameFromEventNameParam(Class<? extends ActionBean> bean,
-                                                    ActionBeanContext context) {
+            ActionBeanContext context) {
         String[] values = context.getRequest().getParameterValues(StripesConstants.URL_KEY_EVENT_NAME);
         String event = null;
         if (values != null && values.length == 1 && this.eventMappings.get(bean).containsKey(values[0])) {
@@ -575,8 +621,7 @@ public class AnnotatedClassActionResolver implements ActionResolver {
                             StripesConstants.URL_KEY_EVENT_NAME,
                             " overrides all other request parameters.");
                 }
-            }
-            catch (StripesRuntimeException e) {
+            } catch (StripesRuntimeException e) {
                 // Ignore this. It means there were too many event params, which is OK in this case.
             }
         }
@@ -585,59 +630,94 @@ public class AnnotatedClassActionResolver implements ActionResolver {
     }
 
     /**
-     * Uses the Maps constructed earlier to locate the Method which can handle the event.
+     * Uses the Maps constructed earlier to locate the Method which can handle
+     * the event.
      *
      * @param bean the subclass of ActionBean that is bound to the request.
      * @param eventName the name of the event being handled
      * @return a Method object representing the handling method.
-     * @throws StripesServletException thrown when no method handles the named event.
+     * @throws StripesServletException thrown when no method handles the named
+     * event.
      */
     public Method getHandler(Class<? extends ActionBean> bean, String eventName)
-        throws StripesServletException {
-        Map<String,Method> mappings = this.eventMappings.get(bean);
+            throws StripesServletException {
+        Map<String, Method> mappings = this.eventMappings.get(bean);
         Method handler = mappings.get(eventName);
+
+        // If we haven't found a handler yet, then go through the mapping keys 
+        // again to see if we have a case-insensitive match.  If we have exactly 
+        // one match, then use that, but give a warning.
+        if (handler == null) {
+            int eventNameCount = 0;
+            for (String key : mappings.keySet()) {
+                if (key.equalsIgnoreCase(eventName)) {
+                    eventNameCount++;
+                    handler = mappings.get(key);
+                }
+            }
+
+            if (eventNameCount > 1) {
+                throw new StripesServletException(
+                        "There is more than one handler which could match the "
+                        + " requested event name [" + eventName + "].  Check "
+                        + " your event name in the ActionBean to ensure it is "
+                        + "correct. [" + bean.getName() + "].  Known handler mappings are: " + mappings);
+            } else {
+                log.warn("Found event handler using a case-insensitive match.  Check "
+                        + " the ActionBean event method name and request name "
+                        + " to make sure they match. [eventNameRequested=" + eventName
+                        + "] [ActionBean=" + bean.getName() + "]");
+            }
+            
+        }
 
         // If we could not find a handler then we should blow up quickly
         if (handler == null) {
             throw new StripesServletException(
-                    "Could not find handler method for event name [" + eventName + "] on class [" +
-                    bean.getName() + "].  Known handler mappings are: " + mappings);
+                    "Could not find handler method for event name [" + eventName + "] on class ["
+                    + bean.getName() + "].  Known handler mappings are: " + mappings);
         }
 
         return handler;
     }
 
     /**
-     * Returns the Method that is the default handler for events in the ActionBean class supplied.
-     * If only one handler method is defined in the class, that is assumed to be the default. If
-     * there is more than one then the method marked with @DefaultHandler will be returned.
+     * Returns the Method that is the default handler for events in the
+     * ActionBean class supplied. If only one handler method is defined in the
+     * class, that is assumed to be the default. If there is more than one then
+     * the method marked with @DefaultHandler will be returned.
      *
      * @param bean the ActionBean type bound to the request
      * @return Method object that should handle the request
      * @throws StripesServletException if no default handler could be located
      */
     public Method getDefaultHandler(Class<? extends ActionBean> bean) throws StripesServletException {
-        Map<String,Method> handlers = this.eventMappings.get(bean);
+        Map<String, Method> handlers = this.eventMappings.get(bean);
 
         if (handlers.size() == 1) {
             return handlers.values().iterator().next();
-        }
-        else {
+        } else {
             Method handler = handlers.get(DEFAULT_HANDLER_KEY);
-            if (handler != null) return handler;
+            if (handler != null) {
+                return handler;
+            }
         }
 
         // If we get this far, there is no sensible default!  Kaboom!
-        throw new StripesServletException("No default handler could be found for ActionBean of " +
-            "type: " + bean.getName());
+        throw new StripesServletException("No default handler could be found for ActionBean of "
+                + "type: " + bean.getName());
     }
 
-    /** Provides subclasses with access to the configuration object. */
-    protected Configuration getConfiguration() { return this.configuration; }
+    /**
+     * Provides subclasses with access to the configuration object.
+     */
+    protected Configuration getConfiguration() {
+        return this.configuration;
+    }
 
     /**
-     * Helper method to find implementations of ActionBean in the packages specified in
-     * Configuration using the {@link ResolverUtil} class.
+     * Helper method to find implementations of ActionBean in the packages
+     * specified in Configuration using the {@link ResolverUtil} class.
      *
      * @return a set of Class objects that represent subclasses of ActionBean
      */
@@ -647,10 +727,10 @@ public class AnnotatedClassActionResolver implements ActionResolver {
         String packages = bootstrap.getProperty(PACKAGES);
         if (packages == null) {
             throw new StripesRuntimeException(
-                "You must supply a value for the configuration parameter '" + PACKAGES + "'. The " +
-                "value should be a list of one or more package roots (comma separated) that are " +
-                "to be scanned for ActionBean implementations. The packages specified and all " +
-                "subpackages are examined for implementations of ActionBean."
+                    "You must supply a value for the configuration parameter '" + PACKAGES + "'. The "
+                    + "value should be a list of one or more package roots (comma separated) that are "
+                    + "to be scanned for ActionBean implementations. The packages specified and all "
+                    + "subpackages are examined for implementations of ActionBean."
             );
         }
 
@@ -661,8 +741,8 @@ public class AnnotatedClassActionResolver implements ActionResolver {
     }
 
     /**
-     * Get all the classes implementing {@link ActionBean} that are recognized by this
-     * {@link ActionResolver}.
+     * Get all the classes implementing {@link ActionBean} that are recognized
+     * by this {@link ActionResolver}.
      */
     public Collection<Class<? extends ActionBean>> getActionBeanClasses() {
         return getUrlBindingFactory().getActionBeanClasses();
