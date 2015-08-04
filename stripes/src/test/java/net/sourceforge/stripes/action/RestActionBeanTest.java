@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.Map;
 import net.sourceforge.stripes.FilterEnabledTestBase;
 import net.sourceforge.stripes.mock.MockRoundtrip;
+import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.validation.SimpleError;
 import net.sourceforge.stripes.validation.Validate;
 import net.sourceforge.stripes.validation.ValidationErrors;
@@ -34,6 +35,8 @@ import org.testng.annotations.Test;
 @UrlBinding("/test")
 public class RestActionBeanTest extends FilterEnabledTestBase implements ActionBean {
 
+    private static final Log log = Log.getInstance(RestActionBeanTest.class);
+
     @Validate(on = "head", required = true)
     private String id;
 
@@ -45,6 +48,7 @@ public class RestActionBeanTest extends FilterEnabledTestBase implements ActionB
         Map< String, Object> response = new HashMap< String, Object>();
         response.put("foo", "bar");
         response.put("hello", "world");
+        response.put("person", new Person());
 
         Map< String, Number> nested = new HashMap< String, Number>();
         nested.put("one", 1);
@@ -97,6 +101,7 @@ public class RestActionBeanTest extends FilterEnabledTestBase implements ActionB
         trip.getRequest().setMethod("GET");
         trip.execute("onlySupportsPost");
         Assert.assertEquals(trip.getResponse().getStatus(), HttpURLConnection.HTTP_BAD_METHOD);
+        logTripResponse(trip);
     }
 
     @Test(groups = "fast")
@@ -105,6 +110,7 @@ public class RestActionBeanTest extends FilterEnabledTestBase implements ActionB
         trip.getRequest().setMethod("POST");
         trip.execute("onlySupportsPost");
         Assert.assertEquals(trip.getResponse().getStatus(), HttpURLConnection.HTTP_OK);
+        logTripResponse(trip);
     }
 
     @Test(groups = "fast")
@@ -113,6 +119,7 @@ public class RestActionBeanTest extends FilterEnabledTestBase implements ActionB
         trip.getRequest().setMethod("GET");
         trip.execute();
         Assert.assertEquals(trip.getResponse().getStatus(), HttpURLConnection.HTTP_OK);
+        logTripResponse(trip);
     }
 
     @Test(groups = "fast")
@@ -123,6 +130,7 @@ public class RestActionBeanTest extends FilterEnabledTestBase implements ActionB
         trip.getRequest().setMethod("POST");
         trip.execute();
         Assert.assertEquals(trip.getResponse().getStatus(), HttpURLConnection.HTTP_NOT_FOUND);
+        logTripResponse(trip);
     }
 
     @Test(groups = "fast")
@@ -131,6 +139,7 @@ public class RestActionBeanTest extends FilterEnabledTestBase implements ActionB
         trip.getRequest().setMethod("HEAD");
         trip.execute();
         Assert.assertTrue(trip.getValidationErrors().hasFieldErrors() && trip.getValidationErrors().size() == 1);
+        logTripResponse(trip);
     }
 
     @Test(groups = "fast")
@@ -140,6 +149,7 @@ public class RestActionBeanTest extends FilterEnabledTestBase implements ActionB
         trip.getRequest().setMethod("HEAD");
         trip.execute();
         Assert.assertTrue(!trip.getValidationErrors().hasFieldErrors() && trip.getValidationErrors().size() == 1);
+        logTripResponse(trip);
     }
 
     @Test(groups = "fast")
@@ -147,6 +157,7 @@ public class RestActionBeanTest extends FilterEnabledTestBase implements ActionB
         MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
         trip.execute("testUnhandledExceptionEvent");
         Assert.assertEquals(trip.getResponse().getStatus(), HttpURLConnection.HTTP_INTERNAL_ERROR);
+        logTripResponse(trip);
     }
 
     @Test(groups = "fast")
@@ -155,12 +166,35 @@ public class RestActionBeanTest extends FilterEnabledTestBase implements ActionB
         trip.getRequest().setMethod("customHttpVerb");
         trip.execute();
         Assert.assertEquals(trip.getResponse().getStatus(), HttpURLConnection.HTTP_OK);
+        logTripResponse(trip);
     }
 
     private void logTripResponse(MockRoundtrip trip) {
-        System.out.println("TRIP RESPONSE: [Event=" + trip.getActionBean(getClass()).getContext().getEventName() + "] [Status=" + trip.getResponse().getStatus()
+        log.debug("TRIP RESPONSE: [Event=" + trip.getActionBean(getClass()).getContext().getEventName() + "] [Status=" + trip.getResponse().getStatus()
                 + "] [Message=" + trip.getResponse().getOutputString() + "] [Error Message="
                 + trip.getResponse().getErrorMessage() + "]");
+    }
+
+    class Person {
+
+        String firstName = "John";
+        String lastName = "Doe";
+
+        public String getFirstName() {
+            return this.firstName;
+        }
+
+        public String getLastName() {
+            return this.lastName;
+        }
+
+        public void setFirstName(String firstName) {
+            this.firstName = firstName;
+        }
+
+        public void setLastName(String lastName) {
+            this.lastName = lastName;
+        }
     }
 
 }
