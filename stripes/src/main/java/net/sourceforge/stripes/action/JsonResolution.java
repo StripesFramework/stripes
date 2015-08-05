@@ -15,7 +15,6 @@
  */
 package net.sourceforge.stripes.action;
 
-import java.io.Writer;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -24,43 +23,28 @@ import javax.servlet.http.HttpServletResponse;
  * type of resolution will take a Java object and serialize it to JSON
  * automatically.
  */
-public class JsonResolution implements Resolution
-{
+public class JsonResolution implements Resolution {
 
-    private final String rawJsonText;
-
-    /**
-     * This constructor should be used if the caller has already serialized the
-     * object into JSON.
-     *
-     * @param rawJsonText - Raw text JSON string
-     */
-    public JsonResolution( String rawJsonText )
-    {
-        this.rawJsonText = rawJsonText;
-    }
+    private final JsonBuilder builder;
 
     /**
      * This constructor should be used if the caller wants to return an object
      * and have it automatically serialized into JSON.
      *
      * @param objectToSerialize - Object to serialize into JSON
+     * @param propertiesToExclude - Properties to exclude from marshaling
      */
-    public JsonResolution( Object objectToSerialize )
-    {
-        JsonBuilder builder = new JsonBuilder(objectToSerialize);
-        this.rawJsonText = builder.build();
+    public JsonResolution(Object objectToSerialize, String... propertiesToExclude) {
+        builder = new JsonBuilder( objectToSerialize, propertiesToExclude );
     }
 
     /**
-     * Converts the object passed in to JSON and streams it back to the
-     * client.
+     * Converts the object passed in to JSON and streams it back to the client.
+     * @throws java.lang.Exception
      */
-    public void execute( HttpServletRequest request, HttpServletResponse response ) throws Exception
-    {
+    public void execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
         response.setContentType("application/json");
-        Writer writer = response.getWriter();
-        writer.write(rawJsonText);
+        builder.build(response.getWriter());
         response.flushBuffer();
     }
 }

@@ -15,90 +15,54 @@
  */
 package net.sourceforge.stripes.action;
 
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import net.sourceforge.stripes.ajax.JavaScriptBuilder;
-import net.sourceforge.stripes.exception.StripesRuntimeException;
+import com.fasterxml.jackson.annotation.JsonFilter;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ser.FilterProvider;
+import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
+import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
+import java.io.Writer;
 
 /**
- * This class converts an object to JSON. It uses the same conventions as
- * JavaScriptBuilder.
+ * This class converts an object to JSON. This implementation initially
+ * uses Jackson.  In the future, this will be a pluggable implementation for
+ * building JSON.
  *
  * @author Rick Grashel
  */
-public class JsonBuilder
-{
-
-    private JavaScriptBuilder javascriptBuilder;
+public class JsonBuilder extends ObjectOutputBuilder<JsonBuilder> {
 
     /**
-     * Constructs a new JsonBuilder object which is used to convert
-     * the passed Java object into JSON -- exluding the optional list
-     * of objects passed.
-     * 
+     * Constructs a new JsonBuilder object which is used to convert the passed
+     * Java object into JSON.  The optional list of properties will be excluded
+     * from serialization.
+     *
      * @param root - Root object to convert to JSON
-     * @param objectsToExclude - Objects to exclude from the resulting JSON
+     * @param propertiesToExclude - List of property names to exclude from serialization
+     * marshaling
      */
-    public JsonBuilder( Object root, Object... objectsToExclude )
-    {
-        // Construct the Stripes JavascriptBuilder.  This will be used to
-        // create a Javascript object which will be converted to JSON.
-        javascriptBuilder = new JavaScriptBuilder(root, objectsToExclude);
+    public JsonBuilder(Object root, String... propertiesToExclude) {
+        super(root);
+        addPropertyExclusion(propertiesToExclude);
+    }
+
+    @Override
+    public void build(Writer writer) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setSerializationInclusion(Include.NON_NULL);
+        mapper.addMixInAnnotations(Object.class, DynamicPropertyFilterMixin.class);
+        FilterProvider filterProvider = new SimpleFilterProvider()
+                .addFilter("dynamicPropertyFilter",
+                        SimpleBeanPropertyFilter.serializeAllExcept(getExcludedProperties()));
+        mapper.writer(filterProvider).writeValue(writer, getRootObject());
     }
 
     /**
-     * Adds one or more properties to the list of property to exclude when
-     * translating to JSON.
-     *
-     * @param property one or more property names to be excluded
+     * This is an empty class which is used to do dynamic exclusion of property
+     * names from serialization.
      */
-    public void addPropertyExclusion( String... property )
-    {
-        this.javascriptBuilder = javascriptBuilder.addPropertyExclusion(property);
-    }
-
-    /**
-     * Adds one or more properties to the list of properties to exclude when
-     * translating to JSON.
-     *
-     * @param clazz one or more classes to exclude
-     */
-    public void addClassExclusion( Class<?>... clazz )
-    {
-        this.javascriptBuilder = javascriptBuilder.addClassExclusion(clazz);
-    }
-
-    /**
-     * Causes the JsonBuilder to navigate the properties of the supplied object
-     * and convert them to JSON
-     *
-     * @return JSON version of the Java object supplied to the builder.
-     */
-    public String build()
-    {
-        try
-        {
-            // Create the Javascript enging to be used for JSON conversion
-            String javascriptString = javascriptBuilder.build();
-            ScriptEngineManager manager = new ScriptEngineManager();
-            ScriptEngine engine = manager.getEngineByName("JavaScript");
-
-            // Convert the root object to Javascript, and then take the 
-            // Javascript representation and convert it to JSON
-            // using the Rhino scripting engine within the JDK
-            StringBuilder jsonStringBuilder = new StringBuilder();
-            engine.put("jsonStringBuilder", jsonStringBuilder);
-            engine.eval(javascriptString + "; jsonString = JSON.stringify(" + javascriptBuilder.getRootVariableName() + ", undefined, 2); jsonStringBuilder.append( jsonString );");
-
-            return jsonStringBuilder.toString();
-        }
-        catch ( Exception e )
-        {
-            throw new StripesRuntimeException("Could not build JSON for object. An "
-                    + "exception was thrown while trying to convert a property from Java to "
-                    + "JSON. The object being converted is: " + javascriptBuilder.getRootVariableName() );
-        }
-
+    @JsonFilter("dynamicPropertyFilter")
+    class DynamicPropertyFilterMixin {
     }
 
 }

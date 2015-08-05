@@ -59,6 +59,11 @@ public class RestActionBeanTest extends FilterEnabledTestBase implements ActionB
         return new JsonResolution(response);
     }
 
+    public Resolution jsonResolutionWithExclusion() {
+        Person p = new Person();
+        return new JsonResolution(p, "firstName");
+    }
+
     @ValidationMethod(on = "head")
     public void validateHeadCall(ValidationErrors errors) {
         errors.addGlobalError(new SimpleError("The head request was not valid for whatever custom reason."));
@@ -166,6 +171,15 @@ public class RestActionBeanTest extends FilterEnabledTestBase implements ActionB
         trip.getRequest().setMethod("customHttpVerb");
         trip.execute();
         Assert.assertEquals(trip.getResponse().getStatus(), HttpURLConnection.HTTP_OK);
+        logTripResponse(trip);
+    }
+
+    @Test(groups = "fast")
+    public void testJsonResolutionWithPropertyExclusion() throws Exception {
+        MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
+        trip.getRequest().setMethod("jsonResolutionWithExclusion");
+        trip.execute();
+        Assert.assertFalse(trip.getResponse().getOutputString().toUpperCase().contains("FIRSTNAME"));
         logTripResponse(trip);
     }
 

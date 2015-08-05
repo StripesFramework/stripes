@@ -92,6 +92,7 @@ public class JavaScriptBuilder extends ObjectOutputBuilder<JavaScriptBuilder> {
      * object and convert them to JavaScript, writing them to the supplied
      * writer as it goes.
      */
+    @Override
     public void build(Writer writer) {
         try {
             // If for some reason a caller provided us with a simple scalar object, then

@@ -162,8 +162,9 @@ public abstract class ObjectOutputBuilder< T extends ObjectOutputBuilder> {
      *
      * @return String a fragment of JavaScript that will define and return the
      * JavaScript equivalent of the Java object supplied to the builder.
+     * @throws java.lang.Exception
      */
-    public String build() {
+    public String build() throws Exception {
         Writer writer = new StringWriter();
         build(writer);
         return writer.toString();
@@ -176,8 +177,9 @@ public abstract class ObjectOutputBuilder< T extends ObjectOutputBuilder> {
      *
      * @param writer Instance of the writer that the converted object should be
      * written to.
+     * @throws java.lang.Exception
      */
-    public abstract void build(Writer writer);
+    public abstract void build(Writer writer) throws Exception;
 
     /**
      * Returns true if the supplied type should be excluded from conversion,
