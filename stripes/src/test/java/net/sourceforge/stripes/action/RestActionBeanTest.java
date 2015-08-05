@@ -158,14 +158,6 @@ public class RestActionBeanTest extends FilterEnabledTestBase implements ActionB
     }
 
     @Test(groups = "fast")
-    public void testUnhandledException() throws Exception {
-        MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
-        trip.execute("testUnhandledExceptionEvent");
-        Assert.assertEquals(trip.getResponse().getStatus(), HttpURLConnection.HTTP_INTERNAL_ERROR);
-        logTripResponse(trip);
-    }
-
-    @Test(groups = "fast")
     public void testCustomHTTPVerb() throws Exception {
         MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
         trip.getRequest().setMethod("customHttpVerb");
