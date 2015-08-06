@@ -16,13 +16,19 @@
 package net.sourceforge.stripes.action;
 
 import java.net.HttpURLConnection;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import net.sourceforge.stripes.FilterEnabledTestBase;
 import net.sourceforge.stripes.mock.MockRoundtrip;
 import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.validation.SimpleError;
+import net.sourceforge.stripes.validation.TypeConverter;
 import net.sourceforge.stripes.validation.Validate;
+import net.sourceforge.stripes.validation.ValidationError;
 import net.sourceforge.stripes.validation.ValidationErrors;
 import net.sourceforge.stripes.validation.ValidationMethod;
 import org.testng.Assert;
@@ -32,13 +38,16 @@ import org.testng.annotations.Test;
  * This is a series of tests for Stripes REST action beans.
  */
 @RestActionBean
-@UrlBinding("/test")
+@UrlBinding("/test/{person}")
 public class RestActionBeanTest extends FilterEnabledTestBase implements ActionBean {
 
     private static final Log log = Log.getInstance(RestActionBeanTest.class);
 
     @Validate(on = "head", required = true)
     private String id;
+
+    @Validate(converter = PersonTypeConverter.class)
+    private Person person;
 
     public Resolution customHttpVerb() {
         return new JsonResolution("Yay!  This is a custom HTTP verb!");
@@ -57,6 +66,11 @@ public class RestActionBeanTest extends FilterEnabledTestBase implements ActionB
         response.put("numbers", nested);
 
         return new JsonResolution(response);
+    }
+
+    @POST
+    public Resolution boundPersonEvent() {
+        return new JsonResolution(getPerson());
     }
 
     public Resolution jsonResolutionWithExclusion() {
@@ -88,6 +102,14 @@ public class RestActionBeanTest extends FilterEnabledTestBase implements ActionB
 
     public String getId() {
         return this.id;
+    }
+
+    public void setPerson(Person person) {
+        this.person = person;
+    }
+
+    public Person getPerson() {
+        return this.person;
     }
 
     private ActionBeanContext context;
@@ -175,16 +197,65 @@ public class RestActionBeanTest extends FilterEnabledTestBase implements ActionB
         logTripResponse(trip);
     }
 
+    @Test(groups = "fast")
+    public void testJsonBindingFromRequestBody() throws Exception {
+        MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), "/test/1" );
+        trip.getRequest().addHeader("Content-Type", "application/json");
+        trip.getRequest().setMethod("POST");
+        String json = "{ \"person\" : { \"firstName\":\"Jane\", \"lastName\":\"Johnson\", \"favoriteFoods\" : [\"Snickers\",\"Scotch\",\"Pizza\"], \"children\" : [{ \"firstName\": \"Jackie\"},{\"firstName\":\"Janie\"}]}}";
+        trip.getRequest().setRequestBody(json);
+        trip.execute("boundPersonEvent");
+        RestActionBeanTest bean = trip.getActionBean( getClass() );
+        Assert.assertEquals( bean.getPerson().getId(), "1" );
+        Assert.assertEquals( bean.getPerson().getFirstName(), "Jane" );
+        Assert.assertEquals( bean.getPerson().getLastName(), "Johnson" );
+        Assert.assertEquals( bean.getPerson().getChildren().size(), 2);
+        List< String > favoriteFoods = new ArrayList< String >();
+        favoriteFoods.add( "Snickers" );
+        favoriteFoods.add( "Scotch" );
+        favoriteFoods.add( "Pizza" );
+        Assert.assertEquals( bean.getPerson().getFavoriteFoods(), favoriteFoods );
+        
+        logTripResponse(trip);
+    }
+
     private void logTripResponse(MockRoundtrip trip) {
         log.debug("TRIP RESPONSE: [Event=" + trip.getActionBean(getClass()).getContext().getEventName() + "] [Status=" + trip.getResponse().getStatus()
                 + "] [Message=" + trip.getResponse().getOutputString() + "] [Error Message="
                 + trip.getResponse().getErrorMessage() + "]");
     }
 
-    class Person {
+    public static class Person {
 
+        String id = null;
         String firstName = "John";
         String lastName = "Doe";
+        List< String> favoriteFoods = new ArrayList< String>();
+        List< Person> children = new ArrayList<Person>();
+        
+        public void setChildren( List< Person > children ) {
+            this.children = children;
+        }
+        
+        public List< Person > getChildren() {
+            return this.children;
+        }
+        
+        public void setId( String id ) {
+            this.id = id;
+        }
+        
+        public String getId() {
+            return this.id;
+        }
+
+        public void setFavoriteFoods(List< String> favoriteFoods) {
+            this.favoriteFoods = favoriteFoods;
+        }
+
+        public List< String> getFavoriteFoods() {
+            return this.favoriteFoods;
+        }
 
         public String getFirstName() {
             return this.firstName;
@@ -203,4 +274,19 @@ public class RestActionBeanTest extends FilterEnabledTestBase implements ActionB
         }
     }
 
+    public static class PersonTypeConverter implements TypeConverter<Person> {
+
+        public void setLocale(Locale locale) {
+        }
+        
+        public Locale getLocale() {
+            return Locale.getDefault();
+        }
+
+        public Person convert(String input, Class<? extends Person> targetType, Collection<ValidationError> errors) {
+            Person p = new Person();
+            p.setId(input);
+            return p;
+        }
+    }
 }

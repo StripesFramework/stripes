@@ -15,7 +15,10 @@
 package net.sourceforge.stripes.mock;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -67,6 +70,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
     private Set<String> roles = new HashSet<String>();
     private String forwardUrl;
     private List<String> includedUrls = new ArrayList<String>();
+    private byte[] requestBody = new byte[0];
 
     // All the bits of the URL
     private String protocol = "https";
@@ -249,13 +253,34 @@ public class MockHttpServletRequest implements HttpServletRequest {
     public void setCharacterEncoding(String encoding) { this.characterEncoding = encoding; }
 
     /** Always returns -1 (unknown). */
-    public int getContentLength() { return -1; }
+    public int getContentLength() { return requestBody.length; }
 
     /** Always returns null. */
-    public String getContentType() { return null; }
+    public String getContentType() {
+        return getHeader("content-type");
+    }
 
     /** Always returns null. */
-    public ServletInputStream getInputStream() throws IOException { return null; }
+    public ServletInputStream getInputStream() throws IOException { 
+        return new ServletInputStream() {
+            
+            ByteArrayInputStream wrappedStream = new ByteArrayInputStream( requestBody );
+
+            public final InputStream getWrappedInputStream() {
+                return wrappedStream;
+            }
+            
+            @Override
+            public int read() throws IOException {
+                return wrappedStream.read();
+            }
+            
+            @Override
+            public void close() throws IOException {
+                wrappedStream.close();
+            }
+        };
+    }
 
     /** Gets the first value of the named parameter or null if a value does not exist. */
     public String getParameter(String name) {
@@ -308,7 +333,9 @@ public class MockHttpServletRequest implements HttpServletRequest {
     public int getServerPort() { return this.serverPort; }
 
     /** Always returns null. */
-    public BufferedReader getReader() throws IOException { return null; }
+    public BufferedReader getReader() throws IOException {
+        return new BufferedReader( new InputStreamReader( getInputStream() ) );
+    }
 
     /** Aways returns "127.0.0.1". */
     public String getRemoteAddr() { return "127.0.0.1"; }
@@ -319,6 +346,13 @@ public class MockHttpServletRequest implements HttpServletRequest {
     /** Sets the supplied value for the named request attribute. */
     public void setAttribute(String name, Object value) {
         this.attributes.put(name, value);
+    }
+    
+    /** Sets the body of the request */
+    public void setRequestBody( String requestBody ) {
+        if ( requestBody != null ) {
+            this.requestBody = requestBody.getBytes();
+        }
     }
 
     /** Removes any value for the named request attribute. */
