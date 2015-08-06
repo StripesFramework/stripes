@@ -27,8 +27,8 @@ import java.util.Map;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import net.sourceforge.stripes.controller.ContentTypeRequestWrapper;
-import net.sourceforge.stripes.controller.ParameterName;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
+import net.sourceforge.stripes.util.Log;
 
 /**
  * This class is responsible for extracting parameters from the body of requests
@@ -38,9 +38,14 @@ import net.sourceforge.stripes.exception.StripesRuntimeException;
  */
 public class JsonContentTypeRequestWrapper implements ContentTypeRequestWrapper {
 
-    private Map< ParameterName, Set<String>> parameters = new HashMap< ParameterName, Set<String>>();
+    private static final Log log = Log.getInstance(JsonContentTypeRequestWrapper.class);
+
+    private Map< String, Set<String>> parameters = new HashMap< String, Set<String>>();
 
     public void build(HttpServletRequest request) throws IOException {
+
+        log.debug("build() called.");
+
         ObjectMapper mapper = new ObjectMapper();
         JsonNode rootNode = mapper.readTree(new BufferedInputStream(request.getInputStream()));
 
@@ -59,6 +64,9 @@ public class JsonContentTypeRequestWrapper implements ContentTypeRequestWrapper 
      * @param parent - The parent path of this JSON node
      */
     private void processNode(JsonNode node, String parent) {
+
+        log.debug("Processing node (", node.toString(), ")");
+
         if (node.isArray()) {
             for (int i = 0; i < node.size(); ++i) {
                 String currentPath = parent + "[" + i + "]";
@@ -73,12 +81,14 @@ public class JsonContentTypeRequestWrapper implements ContentTypeRequestWrapper 
                 processNode(childNode, currentPath);
             }
         } else {
-            ParameterName name = new ParameterName(parent);
+            String name = parent;
             Set<String> parameterValues = parameters.get(name);
             if (parameterValues == null) {
                 parameterValues = new HashSet<String>();
             }
             parameterValues.add(node.asText());
+
+            log.debug("Adding parameter (name=", name, ",value=", node.asText(), ")");
 
             parameters.put(name, parameterValues);
         }
@@ -90,16 +100,19 @@ public class JsonContentTypeRequestWrapper implements ContentTypeRequestWrapper 
      * @return Names of the parameters for this request
      */
     public Enumeration<String> getParameterNames() {
+
+        log.debug("Returning parameter names to a caller.");
+
         return new Enumeration<String>() {
 
-            Iterator<ParameterName> iterator = parameters.keySet().iterator();
+            Iterator<String> iterator = parameters.keySet().iterator();
 
             public boolean hasMoreElements() {
                 return iterator.hasNext();
             }
 
             public String nextElement() {
-                return iterator.next().getName();
+                return iterator.next();
             }
         };
     }
@@ -111,12 +124,17 @@ public class JsonContentTypeRequestWrapper implements ContentTypeRequestWrapper 
      * @return Array of values for the passed parameter name
      */
     public String[] getParameterValues(String name) {
+
+        log.debug("Returning parameter value for name (", name, ") to a caller.");
+
         String[] returnValues = null;
         Set<String> values = parameters.get(name);
 
         if (values != null) {
             returnValues = values.toArray(new String[values.size()]);
         }
+
+        log.debug("Returning parameter value (", returnValues, ") for name (", name, ") to a caller.");
 
         return returnValues;
     }
