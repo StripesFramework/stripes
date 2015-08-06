@@ -14,11 +14,7 @@
  */
 package net.sourceforge.stripes.controller.multipart;
 
-import net.sourceforge.stripes.config.ConfigurableComponent;
-import net.sourceforge.stripes.controller.FileUploadLimitExceededException;
-
-import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
+import net.sourceforge.stripes.controller.ContentTypeRequestWrapperFactory;
 
 /**
  * Factory for classes that implement {@link MultipartWrapper}. The factory may chose to
@@ -28,17 +24,4 @@ import java.io.IOException;
  * @author Tim Fennell
  * @since Stripes 1.4
  */
-public interface MultipartWrapperFactory extends ConfigurableComponent {
-    /**
-     * Wraps the request in an appropriate implementation of MultipartWrapper that is capable
-     * of providing access to request parameters and any file parts contained within the
-     * request.
-     *
-     * @param request an active HttpServletRequest
-     * @return an implementation of the appropriate wrapper
-     * @throws IOException if encountered when consuming the contents of the request
-     * @throws FileUploadLimitExceededException if the post size of the request exceeds
-     *         any configured limits
-     */
-    MultipartWrapper wrap(HttpServletRequest request) throws IOException, FileUploadLimitExceededException;
-}
+public interface MultipartWrapperFactory extends ContentTypeRequestWrapperFactory {}
