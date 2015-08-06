@@ -33,40 +33,54 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 
 import net.sourceforge.stripes.action.FileBean;
+import net.sourceforge.stripes.controller.json.JsonContentTypeRequestWrapper;
 import net.sourceforge.stripes.controller.multipart.MultipartWrapper;
 import net.sourceforge.stripes.exception.StripesServletException;
 import net.sourceforge.stripes.exception.UrlBindingConflictException;
 
 /**
- * HttpServletRequestWrapper that is used to make the file upload functionality transparent.
- * Every request handled by Stripes is wrapped.  Those containing multipart form file uploads
- * are parsed and treated differently, while normal requests are silently wrapped and all calls
- * are delegated to the real request.
+ * HttpServletRequestWrapper that is used to make the file upload functionality
+ * transparent as well as request body parameter processing for other content
+ * types. Every request handled by Stripes is wrapped. Non-default content
+ * types, such as those containing multipart form file uploads or JSON request
+ * bodies, are parsed and treated differently, while normal requests are
+ * silently wrapped and all calls are delegated to the real request.
  *
  * @author Tim Fennell
+ * @author Rick Grashel
  */
 public class StripesRequestWrapper extends HttpServletRequestWrapper {
-    /** The Multipart Request that parses out all the pieces. */
-    private MultipartWrapper multipart;
 
-    /** The Locale that is going to be used to process the request. */
+    /**
+     * The Multipart Request that parses out all the pieces.
+     */
+    private ContentTypeRequestWrapper contentTypeRequestWrapper;
+
+    /**
+     * The Locale that is going to be used to process the request.
+     */
     private Locale locale;
 
-    /** Local copy of the parameter map, into which URI-embedded parameters will be merged. */
+    /**
+     * Local copy of the parameter map, into which URI-embedded parameters will
+     * be merged.
+     */
     private MergedParameterMap parameterMap;
 
     /**
-     * Looks for the StripesRequesetWrapper for the specific request and returns it. This is done
-     * by checking to see if the request is a StripesRequestWrapper, and if not, successively
-     * unwrapping the request until the StripesRequestWrapper is found.
+     * Looks for the StripesRequesetWrapper for the specific request and returns
+     * it. This is done by checking to see if the request is a
+     * StripesRequestWrapper, and if not, successively unwrapping the request
+     * until the StripesRequestWrapper is found.
      *
-     * @param request the ServletRequest that is wrapped by a StripesRequestWrapper
+     * @param request the ServletRequest that is wrapped by a
+     * StripesRequestWrapper
      * @return the StripesRequestWrapper that is wrapping the supplied request
      * @throws IllegalStateException if the request is not wrapped by Stripes
      */
     public static StripesRequestWrapper findStripesWrapper(ServletRequest request) {
         // Loop through any request wrappers looking for the stripes one
-        while ( !(request instanceof StripesRequestWrapper)
+        while (!(request instanceof StripesRequestWrapper)
                 && request != null
                 && request instanceof HttpServletRequestWrapper) {
             request = ((HttpServletRequestWrapper) request).getRequest();
@@ -75,83 +89,102 @@ public class StripesRequestWrapper extends HttpServletRequestWrapper {
         // If we have our wrapper after the loop exits, we're good; otherwise...
         if (request instanceof StripesRequestWrapper) {
             return (StripesRequestWrapper) request;
-        }
-
-        else {
-            throw new IllegalStateException("A request made it through to some part of Stripes " +
-                "without being wrapped in a StripesRequestWrapper. The StripesFilter is " +
-                "responsible for wrapping the request, so it is likely that either the " +
-                "StripesFilter is not deployed, or that its mappings do not include the " +
-                "DispatcherServlet _and_ *.jsp. Stripes does not require that the Stripes " +
-                "wrapper is the only request wrapper, or the outermost; only that it is present.");
+        } else {
+            throw new IllegalStateException("A request made it through to some part of Stripes "
+                    + "without being wrapped in a StripesRequestWrapper. The StripesFilter is "
+                    + "responsible for wrapping the request, so it is likely that either the "
+                    + "StripesFilter is not deployed, or that its mappings do not include the "
+                    + "DispatcherServlet _and_ *.jsp. Stripes does not require that the Stripes "
+                    + "wrapper is the only request wrapper, or the outermost; only that it is present.");
         }
     }
 
     /**
-     * Constructor that will, if the POST is multi-part, parse the POST data and make it
-     * available through the normal channels.  If the request is not a multi-part post then it is
-     * just wrapped and the behaviour is unchanged.
+     * Constructor that will, if the POST is multi-part, parse the POST data and
+     * make it available through the normal channels. If the request is not a
+     * multi-part post then it is just wrapped and the behaviour is unchanged.
      *
-     * @param request the HttpServletRequest to wrap
-     *        this is not a file size limit, but a post size limit.
-     * @throws FileUploadLimitExceededException if the total post size is larger than the limit
-     * @throws StripesServletException if any other error occurs constructing the wrapper
+     * @param request the HttpServletRequest to wrap this is not a file size
+     * limit, but a post size limit.
+     * @throws FileUploadLimitExceededException if the total post size is larger
+     * than the limit
+     * @throws StripesServletException if any other error occurs constructing
+     * the wrapper
      */
     public StripesRequestWrapper(HttpServletRequest request) throws StripesServletException {
         super(request);
 
         String contentType = request.getContentType();
         boolean isPost = "POST".equalsIgnoreCase(request.getMethod());
-        if (isPost && contentType != null && contentType.startsWith("multipart/form-data")) {
-            constructMultipartWrapper(request);
+
+        // Based on the content-type, decide if we need to create content-type
+        // sensitive request wrappers for parameter handling
+        if (contentType != null) {
+            if (isPost && contentType.startsWith("multipart/form-data")) {
+                constructMultipartWrapper(request);
+            } else if (contentType.toLowerCase().contains("json")) {
+                this.contentTypeRequestWrapper = new JsonContentTypeRequestWrapper();
+                try {
+                    this.contentTypeRequestWrapper.build(request);
+                } catch (IOException ioe) {
+                    throw new StripesServletException("Could not construct JSON request wrapper.", ioe);
+                }
+            }
         }
 
         // Create a parameter map that merges the URI parameters with the others
-        if (isMultipart())
-            this.parameterMap = new MergedParameterMap(this, this.multipart);
-        else
+        if (contentTypeRequestWrapper != null) {
+            this.parameterMap = new MergedParameterMap(this, this.contentTypeRequestWrapper);
+        } else {
             this.parameterMap = new MergedParameterMap(this);
+        }
     }
 
     /**
-     * Responsible for constructing the MultipartWrapper object and setting it on to
-     * the instance variable 'multipart'.
+     * Responsible for constructing the MultipartWrapper object and setting it
+     * on to the instance variable 'multipart'.
      *
-     * @param request the HttpServletRequest to wrap
-     *        this is not a file size limit, but a post size limit.
-     * @throws StripesServletException if any other error occurs constructing the wrapper
+     * @param request the HttpServletRequest to wrap this is not a file size
+     * limit, but a post size limit.
+     * @throws StripesServletException if any other error occurs constructing
+     * the wrapper
      */
     protected void constructMultipartWrapper(HttpServletRequest request) throws StripesServletException {
         try {
-            this.multipart =
-                    StripesFilter.getConfiguration().getMultipartWrapperFactory().wrap(request);
-        }
-        catch (IOException e) {
+            this.contentTypeRequestWrapper
+                    = StripesFilter.getConfiguration().getMultipartWrapperFactory().wrap(request);
+        } catch (Exception e) {
             throw new StripesServletException("Could not construct request wrapper.", e);
         }
     }
 
-    /** Returns true if this request is wrapping a multipart request, false otherwise. */
+    /**
+     * Returns true if this request is wrapping a multipart request, false
+     * otherwise.
+     */
     public boolean isMultipart() {
-        return this.multipart != null;
+        return (this.contentTypeRequestWrapper != null && MultipartWrapper.class.isAssignableFrom(this.contentTypeRequestWrapper.getClass()));
     }
 
     /**
-     * Fetches just the names of regular parameters and does not include file upload parameters. If
-     * the request is multipart then the information is sourced from the parsed multipart object
-     * otherwise it is just pulled out of the request in the usual manner.
+     * Fetches just the names of regular parameters and does not include file
+     * upload parameters. If the request is multipart then the information is
+     * sourced from the parsed multipart object otherwise it is just pulled out
+     * of the request in the usual manner.
      */
     @Override
-	public Enumeration<String> getParameterNames() {
+    public Enumeration<String> getParameterNames() {
         return Collections.enumeration(getParameterMap().keySet());
     }
 
     /**
-     * Returns all values sent in the request for a given parameter name. If the request is
-     * multipart then the information is sourced from the parsed multipart object otherwise it is
-     * just pulled out of the request in the usual manner.  Values are consistent with
-     * HttpServletRequest.getParameterValues(String).  Values for file uploads cannot be retrieved
-     * in this way (though parameters sent along with file uploads can).
+     * Returns all values sent in the request for a given parameter name. If the
+     * request is multipart then the information is sourced from the parsed
+     * multipart object otherwise it is just pulled out of the request in the
+     * usual manner. Values are consistent with
+     * HttpServletRequest.getParameterValues(String). Values for file uploads
+     * cannot be retrieved in this way (though parameters sent along with file
+     * uploads can).
      */
     @Override
     public String[] getParameterValues(String name) {
@@ -164,34 +197,33 @@ public class StripesRequestWrapper extends HttpServletRequestWrapper {
 
         MergedParameterMap map = getParameterMap();
         if (map == null) {
-            if (isMultipart())
-                return this.multipart.getParameterValues(name);
-            else
+            if (isMultipart()) {
+                return this.contentTypeRequestWrapper.getParameterValues(name);
+            } else {
                 return super.getParameterValues(name);
-        }
-        else {
+            }
+        } else {
             return map.get(name);
         }
     }
 
     /**
-     * Retrieves the first value of the specified parameter from the request. If the parameter was
-     * not sent, null will be returned.
+     * Retrieves the first value of the specified parameter from the request. If
+     * the parameter was not sent, null will be returned.
      */
     @Override
     public String getParameter(String name) {
         String[] values = getParameterValues(name);
         if (values != null && values.length > 0) {
             return values[0];
-        }
-        else {
+        } else {
             return null;
         }
     }
 
     /**
-     * If the request is a clean URL, then extract the parameters from the URI and merge with the
-     * parameters from the query string and/or request body.
+     * If the request is a clean URL, then extract the parameters from the URI
+     * and merge with the parameters from the query string and/or request body.
      */
     @Override
     public MergedParameterMap getParameterMap() {
@@ -199,16 +231,16 @@ public class StripesRequestWrapper extends HttpServletRequestWrapper {
     }
 
     /**
-     * Extract new URI parameters from the URI of the given {@code request} and merge them with the
-     * previous URI parameters.
+     * Extract new URI parameters from the URI of the given {@code request} and
+     * merge them with the previous URI parameters.
      */
     public void pushUriParameters(HttpServletRequestWrapper request) {
         getParameterMap().pushUriParameters(request);
     }
 
     /**
-     * Restore the URI parameters to the state they were in before the previous call to
-     * {@link #pushUriParameters(HttpServletRequestWrapper)}.
+     * Restore the URI parameters to the state they were in before the previous
+     * call to {@link #pushUriParameters(HttpServletRequestWrapper)}.
      */
     public void popUriParameters() {
         getParameterMap().popUriParameters();
@@ -216,6 +248,7 @@ public class StripesRequestWrapper extends HttpServletRequestWrapper {
 
     /**
      * Provides access to the Locale being used to process the request.
+     *
      * @return a Locale object representing the chosen locale for the request.
      * @see net.sourceforge.stripes.localization.LocalePicker
      */
@@ -225,8 +258,10 @@ public class StripesRequestWrapper extends HttpServletRequestWrapper {
     }
 
     /**
-     *  Returns a single element enumeration containing the selected Locale for this request.
-     *  @see net.sourceforge.stripes.localization.LocalePicker
+     * Returns a single element enumeration containing the selected Locale for
+     * this request.
+     *
+     * @see net.sourceforge.stripes.localization.LocalePicker
      */
     @Override
     public Enumeration<Locale> getLocales() {
@@ -239,46 +274,57 @@ public class StripesRequestWrapper extends HttpServletRequestWrapper {
     // The following methods are specific to the StripesRequestWrapper and are
     // not present in the HttpServletRequest interface.
     ///////////////////////////////////////////////////////////////////////////
-
-    /** Used by the dispatcher to set the Locale chosen by the configured LocalePicker. */
+    /**
+     * Used by the dispatcher to set the Locale chosen by the configured
+     * LocalePicker.
+     */
     protected void setLocale(Locale locale) {
         this.locale = locale;
     }
 
     /**
-     * Returns the names of request parameters that represent files being uploaded by the user. If
-     * no file upload parameters are submitted returns an empty enumeration.
+     * Returns the names of request parameters that represent files being
+     * uploaded by the user. If no file upload parameters are submitted returns
+     * an empty enumeration.
+     *
+     * @return Returns the file name parameters if this is a multipart-request.
      */
     public Enumeration<String> getFileParameterNames() {
-        return this.multipart.getFileParameterNames();
+        if (this.contentTypeRequestWrapper != null && MultipartWrapper.class.isAssignableFrom(this.contentTypeRequestWrapper.getClass())) {
+            return ((MultipartWrapper) this.contentTypeRequestWrapper).getFileParameterNames();
+        } else {
+            return Collections.emptyEnumeration();
+        }
     }
 
     /**
-     * Returns a FileBean representing an uploaded file with the form field name = &quot;name&quot;.
-     * If the form field was present in the request, but no file was uploaded, this method will
-     * return null.
+     * Returns a FileBean representing an uploaded file with the form field name
+     * = &quot;name&quot;. If the form field was present in the request, but no
+     * file was uploaded, this method will return null.
      *
      * @param name the form field name of type file
-     * @return a FileBean if a file was actually submitted by the user, otherwise null
+     * @return a FileBean if a file was actually submitted by the user,
+     * otherwise null
      */
     public FileBean getFileParameterValue(String name) {
-        if (this.multipart != null) {
-            return this.multipart.getFileParameterValue(name);
-        }
-        else {
+        if (this.contentTypeRequestWrapper != null && MultipartWrapper.class.isAssignableFrom(this.contentTypeRequestWrapper.getClass())) {
+            return ((MultipartWrapper) this.contentTypeRequestWrapper).getFileParameterValue(name);
+        } else {
             return null;
         }
     }
 }
 
 /**
- * A {@link Map} implementation that is used by {@link StripesRequestWrapper} to merge URI parameter
- * values with request parameter values on the fly.
- * 
+ * A {@link Map} implementation that is used by {@link StripesRequestWrapper} to
+ * merge URI parameter values with request parameter values on the fly.
+ *
  * @author Ben Gunter
  */
 class MergedParameterMap implements Map<String, String[]> {
+
     class Entry implements Map.Entry<String, String[]> {
+
         private String key;
 
         Entry(String key) {
@@ -326,7 +372,7 @@ class MergedParameterMap implements Map<String, String[]> {
         }
     }
 
-    MergedParameterMap(HttpServletRequestWrapper request, MultipartWrapper multipart) {
+    MergedParameterMap(HttpServletRequestWrapper request, ContentTypeRequestWrapper contentTypeRequestWrapper) {
         this.request = request;
 
         // extract URI parameters
@@ -337,20 +383,19 @@ class MergedParameterMap implements Map<String, String[]> {
          * pulled from the MultipartWrapper and merged in with the URI parameters.
          */
         Map<String, String[]> multipartParams = null;
-        Enumeration<?> names = multipart.getParameterNames();
+        Enumeration<?> names = contentTypeRequestWrapper.getParameterNames();
         if (names != null && names.hasMoreElements()) {
             multipartParams = new LinkedHashMap<String, String[]>();
             while (names.hasMoreElements()) {
                 String name = (String) names.nextElement();
-                multipartParams.put(name, multipart.getParameterValues(name));
+                multipartParams.put(name, contentTypeRequestWrapper.getParameterValues(name));
             }
         }
 
         // if no multipart params and no URI params then use empty map
         if (uriParams == null && multipartParams == null) {
             this.uriParams = Collections.emptyMap();
-        }
-        else {
+        } else {
             this.uriParams = mergeParameters(uriParams, multipartParams);
         }
     }
@@ -376,10 +421,11 @@ class MergedParameterMap implements Map<String, String[]> {
     }
 
     public String[] get(Object key) {
-        if (key == null)
+        if (key == null) {
             return null;
-        else
+        } else {
             return mergeParameters(getParameterMap().get(key), uriParams.get(key));
+        }
     }
 
     public boolean isEmpty() {
@@ -424,21 +470,25 @@ class MergedParameterMap implements Map<String, String[]> {
         for (Map.Entry<String, String[]> entry : entrySet()) {
             buf.append(entry).append(", ");
         }
-        if (buf.toString().endsWith(", "))
+        if (buf.toString().endsWith(", ")) {
             buf.setLength(buf.length() - 2);
+        }
         buf.append(" }");
         return buf.toString();
     }
 
-    /** Get the parameter map from the request that is wrapped by the {@link StripesRequestWrapper}. */
+    /**
+     * Get the parameter map from the request that is wrapped by the
+     * {@link StripesRequestWrapper}.
+     */
     @SuppressWarnings("unchecked")
     Map<String, String[]> getParameterMap() {
         return request == null ? Collections.emptyMap() : request.getRequest().getParameterMap();
     }
 
     /**
-     * Extract new URI parameters from the URI of the given {@code request} and merge them with the
-     * previous URI parameters.
+     * Extract new URI parameters from the URI of the given {@code request} and
+     * merge them with the previous URI parameters.
      */
     void pushUriParameters(HttpServletRequestWrapper request) {
         if (this.uriParamStack == null) {
@@ -450,33 +500,33 @@ class MergedParameterMap implements Map<String, String[]> {
     }
 
     /**
-     * Restore the URI parameters to the state they were in before the previous call to
-     * {@link #pushUriParameters(HttpServletRequestWrapper)}.
+     * Restore the URI parameters to the state they were in before the previous
+     * call to {@link #pushUriParameters(HttpServletRequestWrapper)}.
      */
     void popUriParameters() {
         if (this.uriParamStack == null || this.uriParamStack.isEmpty()) {
             this.uriParams = null;
-        }
-        else {
+        } else {
             this.uriParams = this.uriParamStack.pop();
         }
     }
 
     /**
-     * Extract any parameters embedded in the URI of the given {@code request} and return them in a
-     * {@link Map}. If no parameters are present in the URI, then return null.
+     * Extract any parameters embedded in the URI of the given {@code request}
+     * and return them in a {@link Map}. If no parameters are present in the
+     * URI, then return null.
      */
     Map<String, String[]> getUriParameters(HttpServletRequest request) {
         ActionResolver resolver = StripesFilter.getConfiguration().getActionResolver();
-        if (!(resolver instanceof AnnotatedClassActionResolver))
+        if (!(resolver instanceof AnnotatedClassActionResolver)) {
             return null;
+        }
 
         UrlBinding binding = null;
         try {
             binding = ((AnnotatedClassActionResolver) resolver).getUrlBindingFactory()
                     .getBinding(request);
-        }
-        catch (UrlBindingConflictException e) {
+        } catch (UrlBindingConflictException e) {
             // This can be safely ignored
         }
 
@@ -492,8 +542,7 @@ class MergedParameterMap implements Map<String, String[]> {
                             // automatically, and there's no way of knowing at this point if another
                             // event name is provided by a different parameter.
                             continue;
-                        }
-                        else {
+                        } else {
                             name = value;
                             value = "";
                         }
@@ -507,9 +556,8 @@ class MergedParameterMap implements Map<String, String[]> {
                         }
                         String[] values = params.get(name);
                         if (values == null) {
-                            values = new String[] { value };
-                        }
-                        else {
+                            values = new String[]{value};
+                        } else {
                             String[] tmp = new String[values.length + 1];
                             System.arraycopy(values, 0, tmp, 0, values.length);
                             tmp[tmp.length - 1] = value;
@@ -524,15 +572,19 @@ class MergedParameterMap implements Map<String, String[]> {
         return params;
     }
 
-    /** Merge the values from {@code source} into {@code target}. */
+    /**
+     * Merge the values from {@code source} into {@code target}.
+     */
     Map<String, String[]> mergeParameters(Map<String, String[]> target, Map<String, String[]> source) {
         // target must not be null and we must not modify source
-        if (target == null)
+        if (target == null) {
             target = new LinkedHashMap<String, String[]>();
+        }
 
         // nothing to do if source is null or empty
-        if (source == null || source.isEmpty())
+        if (source == null || source.isEmpty()) {
             return target;
+        }
 
         // merge the values from source that already exist in target
         for (Map.Entry<String, String[]> entry : target.entrySet()) {
@@ -550,24 +602,24 @@ class MergedParameterMap implements Map<String, String[]> {
     }
 
     /**
-     * Merge request parameter values from the original request with the parameters that are
-     * embedded in the URI. Either or both arguments may be empty or null.
-     * 
+     * Merge request parameter values from the original request with the
+     * parameters that are embedded in the URI. Either or both arguments may be
+     * empty or null.
+     *
      * @param requestParams the parameters from the original request
      * @param uriParams parameters extracted from the URI
      * @return the merged parameter values
      */
     String[] mergeParameters(String[] requestParams, String[] uriParams) {
         if (requestParams == null || requestParams.length == 0) {
-            if (uriParams == null || uriParams.length == 0)
+            if (uriParams == null || uriParams.length == 0) {
                 return null;
-            else
+            } else {
                 return uriParams;
-        }
-        else if (uriParams == null || uriParams.length == 0) {
+            }
+        } else if (uriParams == null || uriParams.length == 0) {
             return requestParams;
-        }
-        else {
+        } else {
             String[] merged = new String[uriParams.length + requestParams.length];
             System.arraycopy(uriParams, 0, merged, 0, uriParams.length);
             System.arraycopy(requestParams, 0, merged, uriParams.length, requestParams.length);

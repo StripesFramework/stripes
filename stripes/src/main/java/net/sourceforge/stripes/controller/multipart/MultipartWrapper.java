@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.File;
 import java.util.Enumeration;
+import net.sourceforge.stripes.controller.ContentTypeRequestWrapper;
 
 /**
  * Interface which must be implemented by classes which provide the ability to parse
@@ -30,7 +31,7 @@ import java.util.Enumeration;
  * @author Tim Fennell
  * @since Stripes 1.4
  */
-public interface MultipartWrapper {
+public interface MultipartWrapper extends ContentTypeRequestWrapper {
     /**
      * Pseudo-constructor that allows the class to perform any initialization necessary.
      *
@@ -45,24 +46,6 @@ public interface MultipartWrapper {
      */
     void build(HttpServletRequest request, File tempDir, long maxPostSize)
             throws IOException, FileUploadLimitExceededException;
-
-    /**
-     * Fetches the names of all non-file parameters in the request. Directly analogous to the
-     * method of the same name in HttpServletRequest when the request is non-multipart.
-     *
-     * @return an Enumeration of all non-file parameter names in the request
-     */
-    Enumeration<String> getParameterNames();
-
-    /**
-     * Fetches all values of a specific parameter in the request. To simulate the HTTP
-     * request style, the array should be null for non-present parameters, and values in the
-     * array should never be null - the empty String should be used when there is value.
-     *
-     * @param name the name of the request parameter
-     * @return an array of non-null parameters or null
-     */
-    String[] getParameterValues(String name);
 
     /**
      * Fetches the names of all file parameters in the request. Note that these are not the
