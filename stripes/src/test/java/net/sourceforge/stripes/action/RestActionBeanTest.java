@@ -28,6 +28,7 @@ import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.validation.SimpleError;
 import net.sourceforge.stripes.validation.TypeConverter;
 import net.sourceforge.stripes.validation.Validate;
+import net.sourceforge.stripes.validation.ValidateNestedProperties;
 import net.sourceforge.stripes.validation.ValidationError;
 import net.sourceforge.stripes.validation.ValidationErrors;
 import net.sourceforge.stripes.validation.ValidationMethod;
@@ -46,6 +47,9 @@ public class RestActionBeanTest extends FilterEnabledTestBase implements ActionB
     @Validate(on = "head", required = true)
     private String id;
 
+    @ValidateNestedProperties( {
+        @Validate( field = "id", required = true, on = "boundPersonEvent" )
+    })
     @Validate(converter = PersonTypeConverter.class)
     private Person person;
 
@@ -219,6 +223,24 @@ public class RestActionBeanTest extends FilterEnabledTestBase implements ActionB
         logTripResponse(trip);
     }
 
+    @Test(groups = "fast")
+    /**
+     * This tests to make sure that a JSON request that is bound to an event
+     * has its validation handled properly.  In this case, the person.id is 
+     * a required field and is not bound.
+     */
+    public void testJsonBindingFromRequestBodyWithValidationError() throws Exception {
+        MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), "/test" );
+        trip.getRequest().addHeader("Content-Type", "application/json");
+        trip.getRequest().setMethod("POST");
+        String json = "{ \"person\" : { \"firstName\":\"Jane\", \"lastName\":\"Johnson\", \"favoriteFoods\" : [\"Snickers\",\"Scotch\",\"Pizza\"], \"children\" : [{ \"firstName\": \"Jackie\"},{\"firstName\":\"Janie\"}]}}";
+        trip.getRequest().setRequestBody(json);
+        trip.execute("boundPersonEvent");
+        Assert.assertTrue( trip.getValidationErrors().hasFieldErrors() );
+        
+        logTripResponse(trip);
+    }
+    
     private void logTripResponse(MockRoundtrip trip) {
         log.debug("TRIP RESPONSE: [Event=" + trip.getActionBean(getClass()).getContext().getEventName() + "] [Status=" + trip.getResponse().getStatus()
                 + "] [Message=" + trip.getResponse().getOutputString() + "] [Error Message="
