@@ -26,13 +26,13 @@
         <!-- REQUIRED init parameter for the Stripes Filter. -->
         <init-param>
             <param-name>ActionResolver.Packages</param-name>
-            <param-value>net.sourceforge.stripes.examples,net.sourceforge.stripes.examples.ajax</param-value>
+            <param-value>net.sourceforge.stripes.examples,net.sourceforge.stripes.examples.ajax,net.sourceforge.stripes.examples.rockandroll</param-value>
         </init-param>
 
         <!-- Optional init parameter for the Stripes Filter. -->
         <init-param>
             <param-name>Extension.Packages</param-name>
-            <param-value>net.sourceforge.stripes.examples.bugzooky.ext</param-value>
+            <param-value>net.sourceforge.stripes.examples.bugzooky.ext,net.sourceforge.stripes.examples.rockandroll</param-value>
         </init-param>
 
         <init-param>
