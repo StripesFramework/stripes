@@ -6,6 +6,7 @@ import net.sourceforge.stripes.action.ForwardResolution;
 import net.sourceforge.stripes.action.LocalizableMessage;
 import net.sourceforge.stripes.action.RedirectResolution;
 import net.sourceforge.stripes.action.Resolution;
+import net.sourceforge.stripes.action.UrlBinding;
 import net.sourceforge.stripes.action.Wizard;
 import net.sourceforge.stripes.examples.bugzooky.biz.Person;
 import net.sourceforge.stripes.examples.bugzooky.biz.PersonManager;
@@ -23,6 +24,7 @@ import net.sourceforge.stripes.validation.ValidationMethod;
  */
 @Public
 @Wizard(startEvents = "start")
+@UrlBinding( "/bugzooky/Register.action" )
 public class RegisterActionBean extends BugzookyActionBean {
     @ValidateNestedProperties({
         @Validate(field="username", required=true, minlength=5, maxlength=20),
