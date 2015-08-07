@@ -1,0 +1,38 @@
+.empty-list {
+  min-height: 100px;
+  text-align: center;
+}
+
+.empty-list .empty-message {
+  display: inline-block;
+  color: #555;
+  line-height: 100px;
+}
+
+.new-artist {
+  width: 70%;
+}
+
+.new-artist-button {
+  margin-left: 2em;
+  padding: 3px 10px;
+}
+
+.new-song {
+  width: 50%;
+}
+
+.new-song-button {
+  margin-left: 20px;
+}
+
+.rating-panel {
+  display: inline-block;
+  float: right;
+}
+
+.rating-star {
+  display: inline;
+  float: left;
+  margin-left: 3px;
+}

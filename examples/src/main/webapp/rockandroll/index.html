@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Rock & Roll</title>
+  <link rel="stylesheet" href="css/normalize.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/bootstrap.css">
+</head>
+<body>
+  <script type="text/x-handlebars">
+    <div class="container">
+      <div class="page-header">
+        {{#link-to "index"}}
+          <h1>Rock & Roll<small> with Ember.js</small> and <img src='https://upload.wikimedia.org/wikipedia/en/d/d8/Stripes_logo.png'></h1>
+        {{/link-to}}
+      </div>
+      <div class="row">
+        {{outlet}}
+      </div>
+    </div>
+  </script>
+
+  <script type="text/x-handlebars" data-template-name="artists">
+    <div class="col-md-4">
+      <div class="list-group">
+        <div class="list-group-item">
+          {{input type="text" class="new-artist" placeholder="New Artist" value=newName insert-newline="createArtist" }}
+          <button class="btn btn-primary btn-sm new-artist-button" {{action "createArtist"}}
+            {{bind-attr disabled=disabled}}>Add</button>
+        </div>
+        {{#each model}}
+          {{#link-to "artists.songs" this class="list-group-item artist-link"}}
+            {{name}}
+            <span class="pointer glyphicon glyphicon-chevron-right"></span>
+          {{/link-to}}
+        {{/each}}
+      </div>
+    </div>
+    <div class="col-md-8">
+      <div class="list-group">
+        {{outlet}}
+      </div>
+    </div>
+  </script>
+
+  <script type="text/x-handlebars" data-template-name="artists/index">
+    <div class="list-group-item empty-list">
+      <div class="empty-message">
+        Select an artist.
+      </div>
+    </div>
+  </script>
+
+  <script type="text/x-handlebars" data-template-name="artists/songs">
+    {{#if canCreateSong}}
+      <div class="list-group-item">
+        {{input type="text" class="new-artist" placeholder=newSongPlaceholder value=newTitle insert-newline="createSong" }}
+        <button class="btn btn-primary btn-sm new-song-button" {{action "createSong"}}>Add</button>
+      </div>
+    {{/if}}
+    {{#each songs}}
+      <div class="list-group-item">
+        {{title}}
+        {{view App.StarRating maxRating=5}}
+      </div>
+    {{else}}
+      {{#unless canCreateSong}}
+        <div class="list-group-item empty-list">
+          <div class="empty-message">
+            There are no {{name}} songs. Why don't you <a href="#" {{action enableSongCreation}}>create one?</a>
+          </div>
+        </div>
+      {{/unless}}
+    {{/each}}
+  </script>
+
+  <script type="text/x-handlebars" data-template-name="star-rating">
+    {{#each view.stars}}
+      <span {{bind-attr data-rating=rating}}
+        {{bind-attr class=":star-rating :glyphicon full:glyphicon-star:glyphicon-star-empty"}}
+        {{action "setRating" target=view}}>
+      </span>
+    {{/each}}
+  </script>
+
+  <script src="js/libs/jquery-1.9.1.js"></script>
+  <script src="js/libs/handlebars-1.0.0.js"></script>
+  <script src="js/libs/ember-1.0.0.js"></script>
+  <script src="js/libs/bootstrap.js"></script>
+  <script src="js/app.js"></script>
+
+</body>
+</html>
