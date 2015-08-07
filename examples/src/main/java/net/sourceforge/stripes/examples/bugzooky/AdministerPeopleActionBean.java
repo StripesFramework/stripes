@@ -8,6 +8,7 @@ import net.sourceforge.stripes.action.ForwardResolution;
 import net.sourceforge.stripes.action.HandlesEvent;
 import net.sourceforge.stripes.action.RedirectResolution;
 import net.sourceforge.stripes.action.Resolution;
+import net.sourceforge.stripes.action.UrlBinding;
 import net.sourceforge.stripes.examples.bugzooky.biz.Person;
 import net.sourceforge.stripes.examples.bugzooky.biz.PersonManager;
 import net.sourceforge.stripes.validation.EmailTypeConverter;
@@ -21,6 +22,7 @@ import net.sourceforge.stripes.validation.ValidateNestedProperties;
  *
  * @author Tim Fennell
  */
+@UrlBinding( "/bugzooky/AdministerPeople.action" )
 public class AdministerPeopleActionBean extends BugzookyActionBean {
     private int[] deleteIds;
 

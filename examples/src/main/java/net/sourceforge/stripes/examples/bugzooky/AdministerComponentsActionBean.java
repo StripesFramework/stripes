@@ -7,6 +7,7 @@ import net.sourceforge.stripes.action.DontBind;
 import net.sourceforge.stripes.action.ForwardResolution;
 import net.sourceforge.stripes.action.RedirectResolution;
 import net.sourceforge.stripes.action.Resolution;
+import net.sourceforge.stripes.action.UrlBinding;
 import net.sourceforge.stripes.examples.bugzooky.biz.Component;
 import net.sourceforge.stripes.examples.bugzooky.biz.ComponentManager;
 import net.sourceforge.stripes.validation.Validate;
@@ -19,6 +20,7 @@ import net.sourceforge.stripes.validation.ValidateNestedProperties;
  *
  * @author Tim Fennell
  */
+@UrlBinding( "/bugzooky/AdministerComponents.action")
 public class AdministerComponentsActionBean extends BugzookyActionBean {
     private int[] deleteIds;
 

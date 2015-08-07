@@ -37,5 +37,6 @@
             </tr>
         </table>
     </stripes:form>
+    <p><a href="../index.html"><< Back To Example Listing</a></p>
   </body>
 </html>

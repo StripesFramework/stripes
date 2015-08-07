@@ -18,12 +18,14 @@ import net.sourceforge.stripes.action.DefaultHandler;
 import net.sourceforge.stripes.action.DontBind;
 import net.sourceforge.stripes.action.ForwardResolution;
 import net.sourceforge.stripes.action.Resolution;
+import net.sourceforge.stripes.action.UrlBinding;
 
 /**
  * Forwards to the view and provides some help displaying the bug list.
  * 
  * @author Ben Gunter
  */
+@UrlBinding( "/bugzooky/BugList.action")
 public class BugListActionBean extends BugzookyActionBean {
     @DefaultHandler
     @DontBind

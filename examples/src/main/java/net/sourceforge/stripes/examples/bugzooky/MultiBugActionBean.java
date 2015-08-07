@@ -8,6 +8,7 @@ import net.sourceforge.stripes.action.DontValidate;
 import net.sourceforge.stripes.action.ForwardResolution;
 import net.sourceforge.stripes.action.RedirectResolution;
 import net.sourceforge.stripes.action.Resolution;
+import net.sourceforge.stripes.action.UrlBinding;
 import net.sourceforge.stripes.examples.bugzooky.biz.Bug;
 import net.sourceforge.stripes.examples.bugzooky.biz.BugManager;
 import net.sourceforge.stripes.examples.bugzooky.ext.BugzookyActionBeanContext;
@@ -21,6 +22,7 @@ import net.sourceforge.stripes.validation.ValidateNestedProperties;
  *
  * @author Tim Fennell
  */
+@UrlBinding( "/bugzooky/MultiBug.action" )
 public class MultiBugActionBean extends BugzookyActionBean {
     /** Populated during bulk add/edit operations. */
     @ValidateNestedProperties({

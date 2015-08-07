@@ -35,16 +35,16 @@
 					<c:when test="${empty user}">
 						<div class="sectionTitle">Welcome</div>
 
-						<p>Welcome to Bugzooky, the Stripes demo application. If you haven't already created an account, you will need
+						<p>Welcome to Bugzooky, a Stripes demo application. If you haven't already created an account, you will need
 						to <stripes:link beanclass="net.sourceforge.stripes.examples.bugzooky.RegisterActionBean">register</stripes:link>
 						in order to log in.</p>
 
 						<div class="sectionTitle">Intuitive development</div>
 
-						<p><a href="http://stripesframework.org">Stripes</a> is a relatively new framework for developing web
+						<p><a href="http://stripesframework.org">Stripes</a> is a mature framework for developing web
 						applications in Java. It uses an action-oriented model that will be familiar to anyone who has previously used
-						Struts or anything similar. Stripes is designed to be extremely easy to develop with - to be intuitive to
-						developers and to require the minimum amount of code and configuration.</p>
+						Struts, SpringMVC or anything similar. Stripes is designed to be extremely easy to develop with - to be intuitive to
+						developers, and to require the minimum amount of code and configuration.</p>
 
 						<p>As you try out the demo application you can use the links in the footer to view the source of the current
 						JSP, and of other files that are part of the application.</p>

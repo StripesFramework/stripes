@@ -11,7 +11,7 @@
                 {
                     e.preventDefault(); //STOP default action
 
-                    var postData = $(this).serializeArray(); 
+                    var postData = $(this).serializeArray();
                     var formURL = $(this).attr("action");
                     $.ajax(
                             {
@@ -64,5 +64,6 @@
                 </tr>
             </table>
         </form>
+        <p><a href="../index.html"><< Back To Example Listing</a></p>
     </body>
 </html>

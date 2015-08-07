@@ -5,6 +5,7 @@ import net.sourceforge.stripes.action.DontValidate;
 import net.sourceforge.stripes.action.ForwardResolution;
 import net.sourceforge.stripes.action.RedirectResolution;
 import net.sourceforge.stripes.action.Resolution;
+import net.sourceforge.stripes.action.UrlBinding;
 import net.sourceforge.stripes.examples.bugzooky.biz.Person;
 import net.sourceforge.stripes.examples.bugzooky.biz.PersonManager;
 import net.sourceforge.stripes.examples.bugzooky.ext.Public;
@@ -20,6 +21,7 @@ import net.sourceforge.stripes.validation.ValidationError;
  * @author Tim Fennell
  */
 @Public
+@UrlBinding( "/bugzooky/Login.action" )
 public class LoginActionBean extends BugzookyActionBean {
     @Validate(required=true)
     private String username;
