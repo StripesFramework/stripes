@@ -141,6 +141,8 @@
                             <goal>jar</goal>
                         </goals>
                         <configuration>
+                            <!-- needed for Java8 otherwise build fails -->
+                            <additionalparam>-Xdoclint:none</additionalparam>
                             <groups>
                                 <group>
                                     <title>Core API</title>
