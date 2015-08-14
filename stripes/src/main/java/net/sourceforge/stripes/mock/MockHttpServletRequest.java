@@ -31,10 +31,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-import javax.servlet.ServletInputStream;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
+import javax.servlet.*;
+import javax.servlet.http.*;
 
 /**
  * <p>Mock implementation of an HttpServletRequest object.  Allows for setting most values that
@@ -279,6 +277,21 @@ public class MockHttpServletRequest implements HttpServletRequest {
             public void close() throws IOException {
                 wrappedStream.close();
             }
+
+            @Override
+            public boolean isFinished() {
+                return wrappedStream.available()==0;
+            }
+
+            @Override
+            public boolean isReady() {
+                return true;
+            }
+
+            @Override
+            public void setReadListener(ReadListener readListener) {
+
+            }
         };
     }
 
@@ -413,4 +426,64 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
     /** Gets the list (potentially empty) or URLs that were included during the request. */
     public List<String> getIncludedUrls() { return this.includedUrls; }
+
+    public String changeSessionId() {
+        return null;
+    }
+
+    public boolean authenticate(HttpServletResponse response) throws IOException, ServletException {
+        return false;
+    }
+
+    public void login(String username, String password) throws ServletException {
+
+    }
+
+    public void logout() throws ServletException {
+
+    }
+
+    public Collection<Part> getParts() throws IOException, ServletException {
+        return null;
+    }
+
+    public Part getPart(String name) throws IOException, ServletException {
+        return null;
+    }
+
+    public <T extends HttpUpgradeHandler> T upgrade(Class<T> handlerClass) throws IOException, ServletException {
+        return null;
+    }
+
+    public long getContentLengthLong() {
+        return 0;
+    }
+
+    public ServletContext getServletContext() {
+        return null;
+    }
+
+    public AsyncContext startAsync() throws IllegalStateException {
+        return null;
+    }
+
+    public AsyncContext startAsync(ServletRequest servletRequest, ServletResponse servletResponse) throws IllegalStateException {
+        return null;
+    }
+
+    public boolean isAsyncStarted() {
+        return false;
+    }
+
+    public boolean isAsyncSupported() {
+        return false;
+    }
+
+    public AsyncContext getAsyncContext() {
+        return null;
+    }
+
+    public DispatcherType getDispatcherType() {
+        return null;
+    }
 }

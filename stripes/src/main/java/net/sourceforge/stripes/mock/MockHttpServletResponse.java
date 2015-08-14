@@ -19,13 +19,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.ServletOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Collections;
-import java.util.ListIterator;
-import java.util.Locale;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.List;
-import java.util.ArrayList;
+import java.util.*;
 
 /**
  * <p>Mock implementation of an HttpServletResponse.  Captures any output is written along with
@@ -251,4 +245,20 @@ public class MockHttpServletResponse implements HttpServletResponse {
 
     /** Gets the response locale. Default to the system default locale. */
     public Locale getLocale() { return this.locale; }
+
+    public String getHeader(String name) {
+        return null;
+    }
+
+    public Collection<String> getHeaders(String name) {
+        return null;
+    }
+
+    public Collection<String> getHeaderNames() {
+        return null;
+    }
+
+    public void setContentLengthLong(long len) {
+
+    }
 }

@@ -27,6 +27,7 @@ import java.util.Map.Entry;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
+import javax.servlet.WriteListener;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 import javax.servlet.jsp.PageContext;
@@ -345,6 +346,16 @@ public class LayoutContext {
             @Override
             public void write(byte[] buf) throws IOException {
                 write(buf, 0, buf.length);
+            }
+
+            @Override
+            public boolean isReady() {
+                return true;
+            }
+
+            @Override
+            public void setWriteListener(WriteListener writeListener) {
+
             }
         }
 

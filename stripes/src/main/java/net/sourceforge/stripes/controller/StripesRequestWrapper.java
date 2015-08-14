@@ -483,7 +483,7 @@ class MergedParameterMap implements Map<String, String[]> {
      */
     @SuppressWarnings("unchecked")
     Map<String, String[]> getParameterMap() {
-        return request == null ? Collections.emptyMap() : request.getRequest().getParameterMap();
+        return request == null ? Collections.<String,String[]>emptyMap() : request.getRequest().getParameterMap();
     }
 
     /**

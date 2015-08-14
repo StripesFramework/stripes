@@ -1,20 +1,13 @@
 package net.sourceforge.stripes.controller;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.Serializable;
 import java.security.Principal;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletInputStream;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
+import javax.servlet.*;
+import javax.servlet.http.*;
 
 /**
  * Captures the state of an {@link javax.servlet.http.HttpServletRequest} so that the information
@@ -382,5 +375,66 @@ public class FlashRequest implements HttpServletRequest, Serializable {
 
     public int getLocalPort() {
         return localPort;
+    }
+
+
+    public String changeSessionId() {
+        return null;
+    }
+
+    public boolean authenticate(HttpServletResponse response) throws IOException, ServletException {
+        return false;
+    }
+
+    public void login(String username, String password) throws ServletException {
+
+    }
+
+    public void logout() throws ServletException {
+
+    }
+
+    public Collection<Part> getParts() throws IOException, ServletException {
+        return null;
+    }
+
+    public Part getPart(String name) throws IOException, ServletException {
+        return null;
+    }
+
+    public <T extends HttpUpgradeHandler> T upgrade(Class<T> handlerClass) throws IOException, ServletException {
+        return null;
+    }
+
+    public long getContentLengthLong() {
+        return 0;
+    }
+
+    public ServletContext getServletContext() {
+        return null;
+    }
+
+    public AsyncContext startAsync() throws IllegalStateException {
+        return null;
+    }
+
+    public AsyncContext startAsync(ServletRequest servletRequest, ServletResponse servletResponse) throws IllegalStateException {
+        return null;
+    }
+
+    public boolean isAsyncStarted() {
+        return false;
+    }
+
+    public boolean isAsyncSupported() {
+        return false;
+    }
+
+    public AsyncContext getAsyncContext() {
+        return null;
+    }
+
+    public DispatcherType getDispatcherType() {
+        return null;
     }
 }

@@ -16,6 +16,7 @@ package net.sourceforge.stripes.controller;
 
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.action.ActionBeanContext;
+import net.sourceforge.stripes.action.AsyncResolution;
 import net.sourceforge.stripes.action.Resolution;
 import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.exception.StripesServletException;
@@ -25,12 +26,17 @@ import net.sourceforge.stripes.validation.BooleanTypeConverter;
 import net.sourceforge.stripes.validation.expression.ExpressionValidator;
 import net.sourceforge.stripes.validation.expression.Jsp20ExpressionExecutor;
 
+import javax.servlet.AsyncContext;
+import javax.servlet.AsyncEvent;
+import javax.servlet.AsyncListener;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.JspFactory;
 import javax.servlet.jsp.PageContext;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Stack;
 
@@ -44,6 +50,7 @@ import java.util.Stack;
  *
  * @author Tim Fennell
  */
+@WebServlet(asyncSupported = true)
 public class DispatcherServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
@@ -96,6 +103,8 @@ public class DispatcherServlet extends HttpServlet {
         PageContext pageContext = null;
         final ExecutionContext ctx = new ExecutionContext();
 
+        boolean async = false;
+
         try {
             final Configuration config = StripesFilter.getConfiguration();
 
@@ -136,7 +145,7 @@ public class DispatcherServlet extends HttpServlet {
             saveActionBean(request);
             
             Resolution resolution = requestInit(ctx);
-            
+
             if (resolution == null) {
                 resolution = resolveActionBean(ctx);
 
@@ -167,6 +176,46 @@ public class DispatcherServlet extends HttpServlet {
             
             // Whatever stage it came from, execute the resolution
             if (resolution != null) {
+                if (resolution instanceof AsyncResolution) {
+                    async = true;
+                    AsyncContext asyncContext = request.startAsync();
+                    final PageContext pc = pageContext;
+                    asyncContext.addListener(new AsyncListener() {
+                        // TODO factor out and make sure this finalizations are needed...
+                        public void onComplete(AsyncEvent event) throws IOException {
+                            if (pc != null) {
+                                JspFactory.getDefaultFactory().releasePageContext(pc);
+                                DispatcherHelper.setPageContext(null);
+                            }
+                            requestComplete(ctx);
+                            restoreActionBean(request);
+                        }
+
+                        public void onTimeout(AsyncEvent event) throws IOException {
+                            if (pc != null) {
+                                JspFactory.getDefaultFactory().releasePageContext(pc);
+                                DispatcherHelper.setPageContext(null);
+                            }
+                            requestComplete(ctx);
+                            restoreActionBean(request);
+                        }
+
+                        public void onError(AsyncEvent event) throws IOException {
+                            if (pc != null) {
+                                JspFactory.getDefaultFactory().releasePageContext(pc);
+                                DispatcherHelper.setPageContext(null);
+                            }
+                            requestComplete(ctx);
+                            restoreActionBean(request);
+                        }
+
+                        public void onStartAsync(AsyncEvent event) throws IOException {
+
+                        }
+                    });
+                    AsyncResolution asyncResolution = (AsyncResolution)resolution;
+                    asyncResolution.setAsyncContext(asyncContext);
+                }
                 executeResolution(ctx, resolution);
             }
         }
@@ -189,14 +238,16 @@ public class DispatcherServlet extends HttpServlet {
         }
         finally {
             // Make sure to release the page context
-            if (pageContext != null) {
-                JspFactory.getDefaultFactory().releasePageContext(pageContext);
-                DispatcherHelper.setPageContext(null);
+            if (!async) {
+                if (pageContext != null) {
+                    JspFactory.getDefaultFactory().releasePageContext(pageContext);
+                    DispatcherHelper.setPageContext(null);
+                }
+
+                requestComplete(ctx);
+
+                restoreActionBean(request);
             }
-            
-            requestComplete(ctx);
-            
-            restoreActionBean(request);
         }
     }
 

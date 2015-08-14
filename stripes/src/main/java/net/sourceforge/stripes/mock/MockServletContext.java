@@ -14,25 +14,14 @@
  */
 package net.sourceforge.stripes.mock;
 
-import javax.servlet.Filter;
-import javax.servlet.RequestDispatcher;
-import javax.servlet.Servlet;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
-import javax.servlet.ServletException;
+import javax.servlet.*;
+import javax.servlet.descriptor.JspConfigDescriptor;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * <p>Mock implementation of a ServletContext.  Provides implementation the most commonly used
@@ -91,7 +80,7 @@ public class MockServletContext implements ServletContext {
     public String getMimeType(String file) { return null; }
 
     /** Always returns null (i.e. there are no resources under this path). */
-    public Set<?> getResourcePaths(String path) {
+    public Set<String> getResourcePaths(String path) {
         return null;
     }
 
@@ -122,14 +111,16 @@ public class MockServletContext implements ServletContext {
     /** Deprecated method always returns null. */
     public Servlet getServlet(String string) throws ServletException { return null; }
 
+
+
     /** Deprecated method always returns an empty enumeration. */
-    public Enumeration<?> getServlets() {
-        return Collections.enumeration( Collections.emptySet() );
+    public Enumeration<Servlet> getServlets() {
+        return Collections.enumeration( Collections.<Servlet>emptySet() );
     }
 
     /** Deprecated method always returns an empty enumeration. */
-    public Enumeration<?> getServletNames() {
-        return Collections.enumeration( Collections.emptySet() );
+    public Enumeration<String> getServletNames() {
+        return Collections.enumeration( Collections.<String>emptySet() );
     }
 
     /** Logs the message to System.out. */
@@ -324,5 +315,113 @@ public class MockServletContext implements ServletContext {
                 }
             }
         }
+    }
+
+    public int getEffectiveMajorVersion() {
+        return 0;
+    }
+
+    public int getEffectiveMinorVersion() {
+        return 0;
+    }
+
+    public boolean setInitParameter(String name, String value) {
+        return false;
+    }
+
+    public ServletRegistration.Dynamic addServlet(String servletName, String className) {
+        return null;
+    }
+
+    public ServletRegistration.Dynamic addServlet(String servletName, Servlet servlet) {
+        return null;
+    }
+
+    public ServletRegistration.Dynamic addServlet(String servletName, Class<? extends Servlet> servletClass) {
+        return null;
+    }
+
+    public <T extends Servlet> T createServlet(Class<T> clazz) throws ServletException {
+        return null;
+    }
+
+    public ServletRegistration getServletRegistration(String servletName) {
+        return null;
+    }
+
+    public Map<String, ? extends ServletRegistration> getServletRegistrations() {
+        return null;
+    }
+
+    public FilterRegistration.Dynamic addFilter(String filterName, String className) {
+        return null;
+    }
+
+    public FilterRegistration.Dynamic addFilter(String filterName, Filter filter) {
+        return null;
+    }
+
+    public FilterRegistration.Dynamic addFilter(String filterName, Class<? extends Filter> filterClass) {
+        return null;
+    }
+
+    public <T extends Filter> T createFilter(Class<T> clazz) throws ServletException {
+        return null;
+    }
+
+    public FilterRegistration getFilterRegistration(String filterName) {
+        return null;
+    }
+
+    public Map<String, ? extends FilterRegistration> getFilterRegistrations() {
+        return null;
+    }
+
+    public SessionCookieConfig getSessionCookieConfig() {
+        return null;
+    }
+
+    public void setSessionTrackingModes(Set<SessionTrackingMode> sessionTrackingModes) {
+
+    }
+
+    public Set<SessionTrackingMode> getDefaultSessionTrackingModes() {
+        return null;
+    }
+
+    public Set<SessionTrackingMode> getEffectiveSessionTrackingModes() {
+        return null;
+    }
+
+    public void addListener(String className) {
+
+    }
+
+    public <T extends EventListener> void addListener(T t) {
+
+    }
+
+    public void addListener(Class<? extends EventListener> listenerClass) {
+
+    }
+
+    public <T extends EventListener> T createListener(Class<T> clazz) throws ServletException {
+        return null;
+    }
+
+    public JspConfigDescriptor getJspConfigDescriptor() {
+        return null;
+    }
+
+    public ClassLoader getClassLoader() {
+        return null;
+    }
+
+    public void declareRoles(String... roleNames) {
+
+    }
+
+    public String getVirtualServerName() {
+        return null;
     }
 }

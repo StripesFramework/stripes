@@ -30,16 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
@@ -362,7 +353,7 @@ public class DynamicMappingFilter implements Filter {
                 return config.getInitParameter(name);
             }
 
-            public Enumeration<?> getInitParameterNames() {
+            public Enumeration<String> getInitParameterNames() {
                 return config.getInitParameterNames();
             }
 
@@ -716,6 +707,16 @@ public class DynamicMappingFilter implements Filter {
                     @Override
                     public void write(int b) throws IOException {
                         // No output
+                    }
+
+                    @Override
+                    public boolean isReady() {
+                        return true;
+                    }
+
+                    @Override
+                    public void setWriteListener(WriteListener writeListener) {
+
                     }
                 };
             }
