@@ -13,6 +13,20 @@
 <s:link beanclass="<%=AsyncActionBean.class%>" event="asyncEvent">
     I'm an async event
 </s:link>
-<pre>${actionBean.ghResponse}</pre>
+<div id="result"></div>
+<script type="application/json" id="gh-response">${actionBean.ghResponse}</script>
+<script type="text/javascript">
+    $(function() {
+        var commits = JSON.parse($('#gh-response').text());
+        var html = "<ul>";
+        $.each(commits, function(index, commit) {
+            var author = commit.commit.author.name;
+            var msg = commit.commit.message;
+            html +=  "<li>" + author + " : " + msg + "</li>";
+        });
+        html += "</ul>";
+        $("#result").html(html);
+    });
+</script>
 </body>
 </html>

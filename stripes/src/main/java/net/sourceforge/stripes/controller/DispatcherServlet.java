@@ -176,10 +176,17 @@ public class DispatcherServlet extends HttpServlet {
             
             // Whatever stage it came from, execute the resolution
             if (resolution != null) {
+
                 if (resolution instanceof AsyncResolution) {
+
+                    // special handling for async resolutions
                     async = true;
+                    // remove currentContext ThreadLocal
+                    ExecutionContext.clearContextThreadLocal();
+                    // start async processing
                     AsyncContext asyncContext = request.startAsync();
                     final PageContext pc = pageContext;
+                    // register listener for finalizing the async processing
                     asyncContext.addListener(new AsyncListener() {
                         // TODO factor out and make sure this finalizations are needed...
                         public void onComplete(AsyncEvent event) throws IOException {

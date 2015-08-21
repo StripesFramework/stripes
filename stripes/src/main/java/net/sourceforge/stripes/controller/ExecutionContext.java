@@ -88,8 +88,12 @@ public class ExecutionContext {
         finally {
             // Make sure the current execution context gets cleared after RequestComplete
             if (LifecycleStage.RequestComplete == getLifecycleStage())
-                currentContext.set(null);
+                clearContextThreadLocal();
         }
+    }
+
+    static void clearContextThreadLocal() {
+        currentContext.set(null);
     }
 
     /**
