@@ -217,7 +217,7 @@ public class StreamingResolution implements Resolution {
 
     /**
      * Streams data from the InputStream or Reader to the response's OutputStream or PrinterWriter,
-     * using a moderately sized buffer to ensure that the operation is reasonable efficient.
+     * using a moderately sized buffer to ensure that the operation is reasonably efficient.
      * Once the InputStream or Reader signaled the end of the stream, close() is called on it.
      *
      * @param request the HttpServletRequest being processed
