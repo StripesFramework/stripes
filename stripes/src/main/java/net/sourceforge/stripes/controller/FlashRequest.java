@@ -116,17 +116,18 @@ public class FlashRequest implements HttpServletRequest, Serializable {
         servletPath = prototype.getServletPath();
 
         // copy attributes
-        for (String key : Collections.list((Enumeration<String>) prototype.getAttributeNames())) {
+        for (String key : Collections.list(prototype.getAttributeNames())) {
             attributes.put(key, prototype.getAttribute(key));
         }
 
         // copy headers
-        for (String key : Collections.list((Enumeration<String>) prototype.getHeaderNames())) {
+        for (String key : Collections.list(prototype.getHeaderNames())) {
             headers.put(key, Collections.list(prototype.getHeaders(key)));
             try {
                 dateHeaders.put(key, prototype.getDateHeader(key));
             }
             catch (Exception e) {
+                // dunno
             }
         }
 
@@ -403,7 +404,7 @@ public class FlashRequest implements HttpServletRequest, Serializable {
     }
 
     public <T extends HttpUpgradeHandler> T upgrade(Class<T> handlerClass) throws IOException, ServletException {
-        return upgrade(handlerClass);
+        return delegate.upgrade(handlerClass);
     }
 
     public long getContentLengthLong() {
