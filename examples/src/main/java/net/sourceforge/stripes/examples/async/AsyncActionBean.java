@@ -26,7 +26,7 @@ import java.net.InetAddress;
 import java.nio.charset.Charset;
 
 @Public
-@UrlBinding("/async.action")
+@UrlBinding("/async")
 public class AsyncActionBean implements ActionBean {
 
 	private ActionBeanContext context;

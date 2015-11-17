@@ -1,4 +1,4 @@
-package net.sourceforge.stripes.webtests.calc
+package net.sourceforge.stripes.webtests
 
 import com.google.common.base.Function
 import com.pojosontheweb.selenium.Findr

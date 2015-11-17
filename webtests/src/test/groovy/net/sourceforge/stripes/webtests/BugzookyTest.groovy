@@ -1,4 +1,4 @@
-package net.sourceforge.stripes.webtests.bugzooky
+package net.sourceforge.stripes.webtests
 
 import com.pojosontheweb.selenium.Findr
 import com.pojosontheweb.selenium.ManagedDriverJunit4TestBase
