@@ -36,7 +36,6 @@ public class AsyncActionBean implements ActionBean {
 	private int status;
 	private String ghResponse;
 
-
 	public ActionBeanContext getContext() {
 		return context;
 	}

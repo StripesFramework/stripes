@@ -18,7 +18,8 @@
 <script type="text/javascript">
     $(function() {
         var commits = JSON.parse($('#gh-response').text());
-        var html = "<ul>";
+        var nbCommits = commits.length;
+        var html = "<p>Displaying " + nbCommits + " commits received asynchronously from GitHub !</p><ul>";
         $.each(commits, function(index, commit) {
             var author = commit.commit.author.name;
             var msg = commit.commit.message;
