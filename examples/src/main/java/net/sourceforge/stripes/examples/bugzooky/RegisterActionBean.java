@@ -34,7 +34,7 @@ public class RegisterActionBean extends BugzookyActionBean {
     })
     private Person user;
 
-    @Validate(required=true, minlength=5, maxlength=20, expression="this == user.password")
+    @Validate(required=true, minlength=5, maxlength=20) // TODO bug : using expression doesn't work expression="this == user.password")
     private String confirmPassword;
 
     /** The user being registered. */
@@ -59,6 +59,9 @@ public class RegisterActionBean extends BugzookyActionBean {
     public void validate(ValidationErrors errors) {
         if ( new PersonManager().getPerson(this.user.getUsername()) != null ) {
             errors.add("user.username", new LocalizableError("usernameTaken"));
+        }
+        if (confirmPassword!=null && !confirmPassword.equals(user.getPassword())) {
+            errors.add("confirmPassword", new LocalizableError("confirmPassword.valueFailedExpression"));
         }
     }
 

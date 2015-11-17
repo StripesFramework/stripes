@@ -1,214 +1,259 @@
 package net.sourceforge.stripes.webtests.bugzooky
 
-import net.sourceforge.stripes.webtests.WebtestCaseFixed
+import com.pojosontheweb.selenium.Findr
+import com.pojosontheweb.selenium.ManagedDriverJunit4TestBase
+import com.pojosontheweb.selenium.formz.Select
+import org.junit.Test
+import org.openqa.selenium.By
+import org.pojosontheweb.selenium.groovy.DollrCategory
+import org.pojosontheweb.selenium.groovy.FindrCategory
+import org.pojosontheweb.selenium.groovy.ListFindrCategory
+import org.pojosontheweb.selenium.groovy.WebDriverCategory
+import static com.pojosontheweb.selenium.Findrs.*
 
-class BugzookyTest extends WebtestCaseFixed {
+class BugzookyTest extends ManagedDriverJunit4TestBase {
 
-  def homeUrl = 'http://localhost:9999/webtests/examples/bugzooky'
+    def homeUrl = 'http://localhost:9999/webtests/bugzooky'
 
-  static int count = 10 //System.currentTimeMillis()
+    int count = System.currentTimeMillis()
 
-  void testAuthenticationIsRequired() {
-    webtest('testAuthenticationIsRequired') {
-      [
-        'BugList.action',
-        'SingleBug.action',
-        'MultiBug.action',
-        'AdministerComponents.action'
-      ].each { p ->
-        invoke "$homeUrl/$p"
-        verifyTitle 'Bugzooky - Login'
-        verifyText 'Login'
-      }
+    @Test
+    void testAuthenticationIsRequired() {
+        [
+            'BugList.action',
+            'SingleBug.action',
+            'MultiBug.action',
+            'AdministerComponents.action'
+        ].each { p ->
+            webDriver.get "$homeUrl/$p"
+            use(WebDriverCategory, FindrCategory, ListFindrCategory, DollrCategory) {
+                $('#pageContent') +
+                    $$('.sectionTitle') +
+                    at(0) +
+                    textEquals('Login') >> eval()
+            }
+        }
     }
-  }
 
-  private String register() {
-    count++
-    def username = "foobarfoobar$count"
-    ant.invoke "$homeUrl/Register.action"
-
-    ant.setInputField name:'user.firstName', value:username
-    ant.clickButton name:'gotoStep2'
-
-    ant.verifyText 'Last Name is a required field'
-    ant.verifyText 'Username is a required field'
-    ant.setInputField name:'user.lastName', value:username
-    ant.setInputField name:'user.username', value:'a'
-    ant.clickButton name:'gotoStep2'
-
-    ant.verifyText 'Username must be at least 5 characters long'
-    ant.setInputField name:'user.username', value:username
-    ant.clickButton name:'gotoStep2'
-
-    ant.verifyText "Welcome $username, please pick a password"
-    ant.setInputField name:'user.password', value:username
-    ant.setInputField name:'confirmPassword', value:'bazbazbaz'
-    ant.clickButton name:'register'
-
-    ant.verifyText 'The Passwords entered did not match'
-    ant.setInputField name:'user.password', value:username
-    ant.setInputField name:'confirmPassword', value:username
-    ant.clickButton name:'register'
-
-    ant.verifyText "Thank you for registering, ${username}. Your account has been created with username '${username}'."      
-    return username
-  }
-  
-  void testBugListSingleEdit() {
-    webtest('testBugListSingleEdit') {
-      register()
-
-      // list bugs
-      invoke "$homeUrl/BugList.action"
-
-      verifyTitle 'Bugzooky - Bug List'
-      verifyXPath xpath:'/html/body/div/div[2]/form/table/tbody/tr[2]/td[4]',
-              text:'First ever bug in the system.'
-      clickLink xpath:'/html/body/div/div[2]/form/table/tbody/tr[2]/td[9]/a'
-
-      // bug edition
-      setSelectField name:'bug.component', value:'2'
-      clickButton name:'saveAndAgain'
-
-      // fill in new bug
-      setSelectField name:'bug.component', value:'3'
-      setSelectField name:'bug.owner', value:'4'
-      setSelectField name:'bug.priority', value:'Blocker'
-      setInputField name:'bug.longDescription',
-              value:'This is a long decription for this new bug blah blah blah...'
-      setInputField name:'bug.shortDescription', value:''
-      clickButton name:'save'
-
-      verifyXPath xpath:'/html/body/div/div[2]/ol/li',
-              text:'Short Description is a required field'
-      setInputField name:'bug.shortDescription', value:'brand new bug'
-      clickButton name:'save'
-
-      verifyXPath xpath:'/html/body/div/div[2]/form/table/tbody/tr[2]/td[4]',
-              text:'brand new bug'
-      verifyXPath xpath:'/html/body/div/div[2]/form/table/tbody/tr[2]/td[5]',
-              text:'Component 3'
-      verifyXPath xpath:'/html/body/div/div[2]/form/table/tbody/tr[2]/td[6]',
-              text:'Blocker'
-      verifyXPath xpath:'/html/body/div/div[2]/form/table/tbody/tr[2]/td[8]',
-              text:'velma'
+    private Findr input(String name) {
+        findr().elemList(By.tagName('input')).where(attrEquals('name', name)).at(0)
     }
-  }
 
-  void testBulkAdd() {
-    webtest('testBulkAdd') {
-      register()
-
-      clickLink xpath:'/html/body/div/div/div/a[3]'
-
-      verifyXPath xpath:'/html/body/div/div[2]/div',
-              text:'Bulk Add/Edit Bugs'
-      setSelectField name:'bugs[0].component', value:'1'
-      setSelectField name:'bugs[1].component', value:'2'
-      setSelectField name:'bugs[0].owner', value:'1'
-      setSelectField name:'bugs[1].owner', value:'2'
-      setSelectField name:'bugs[0].priority', value:'Critical'
-      setSelectField name:'bugs[1].priority', value:'Blocker'
-      setInputField name:'bugs[0].shortDescription', value:'Short desc 1'
-      setInputField name:'bugs[0].longDescription',
-              value:'This is looooooooooooooooooooooooooooooooooooooooong !'
-      setInputField name:'bugs[1].longDescription',
-              value:'This is looooooooooooooooooooooooooooooooooooooooong too !'
-      clickButton name:'save'
-
-      verifyText 'Short Description is a required field'
-      setInputField name:'bugs[1].shortDescription',
-              value:'Short desc 2'
-      clickButton name:'save'
-
-      verifyXPath xpath:'/html/body/div/div[2]/form/table/tbody/tr[7]/td[4]',
-              text:'Short desc 1'
-      verifyXPath xpath:'/html/body/div/div[2]/form/table/tbody/tr[7]/td[5]',
-              text:'Component 1'
-      verifyXPath xpath:'/html/body/div/div[2]/form/table/tbody/tr[7]/td[6]',
-              text:'Critical'
-      verifyXPath xpath:'/html/body/div/div[2]/form/table/tbody/tr[7]/td[8]',
-              text:'shaggy'
-      verifyXPath xpath:'/html/body/div/div[2]/form/table/tbody/tr[8]/td[4]',
-              text:'Short desc 2'
-      verifyXPath xpath:'/html/body/div/div[2]/form/table/tbody/tr[8]/td[5]',
-              text:'Component 2'
-      verifyXPath xpath:'/html/body/div/div[2]/form/table/tbody/tr[8]/td[6]',
-              text:'Blocker'
-      verifyXPath xpath:'/html/body/div/div[2]/form/table/tbody/tr[8]/td[8]',
-              text:'scrappy'
+    private String username() {
+        "u$count"
     }
-  }
 
-  void testBugListBulkEdit() {
-    webtest('testBugListBulkEdit') {
-      register()
+    private String register() {
+        use(WebDriverCategory, FindrCategory, ListFindrCategory, DollrCategory) {
+            count++
+            def username = username()
+            webDriver.get "$homeUrl/Register.action"
 
-      // list bugs
-      invoke "$homeUrl/BugList.action"
+            input('user.firstName') >> sendKeys(username)
+            input('gotoStep2') >> click()
 
-      // check the two first bugs and bulk edit
-      setCheckbox xpath:'/html/body/div/div[2]/form/table/tbody/tr[2]/td/input'
-      setCheckbox xpath:'/html/body/div/div[2]/form/table/tbody/tr[3]/td/input'
-      clickButton xpath:'/html/body/div/div[2]/form/div/input'
+            $$('label.error') + attrEquals('for', 'user.lastName') >> eval()
+            $$('label.error') + attrEquals('for', 'user.username') >> eval()
 
-      verifyXPath xpath:'/html/body/div/div[2]/form/table/tbody/tr[2]/td[5]/textarea',
-              text:'brand new bug',
-              regex:true
-      verifyXPath xpath: '/html/body/div/div[2]/form/table/tbody/tr[3]/td[5]/textarea',
-              text:'Another bug!  Oh no!.',
-              regex:true
-      // don't test more : it's already done in testBulkAdd
+            input('user.lastName') >> sendKeys(username)
+            input('user.username') >> sendKeys('a')
+            input('gotoStep2') >> click()
+            $$('span') +
+                textEquals('Username must be at least 5 characters long') +
+                whereElemCount(1) +
+                at(0) >> eval()
+
+            input('user.username') >> sendKeys(username)
+            input('gotoStep2') >> click()
+
+            $('#pageContent') +
+                $$('.sectionTitle') +
+                at(0) +
+                textEquals('Register') >> eval()
+
+            $$('form') +
+                attrEquals('action', '/webtests/bugzooky/Register.action') +
+                at(0) +
+                $$('p') +
+                at(0) +
+                textEquals("Welcome $username, please pick a password:")
+
+            input('user.password') >> sendKeys(username)
+
+            input('confirmPassword') >> sendKeys('bazbazbaz')
+
+            input('register') >> click()
+
+            $$('form') +
+                attrEquals('action', '/webtests/bugzooky/Register.action') +
+                at(0) +
+                $$('ol')[0] +
+                $$('li')[0] + textEquals('The Passwords entered did not match')
+
+            input('user.password') >> clear()
+            input('user.password') >> sendKeys(username)
+            input('confirmPassword') >> clear()
+            input('confirmPassword') >> sendKeys(username)
+            input('register') >> click()
+
+            $$('ul.messages')[0] +
+                $$('li') +
+                textStartsWith("Thank you for registering, ${username}") +
+                whereElemCount(1) +
+                at(0) >> eval()
+            return username
+        }
     }
-  }
 
-  void testAdminister() {
-    webtest('testAdminister') {
-      register()
-
-      invoke "$homeUrl/AdministerComponents.action"
-
-      // change email for first user
-      setInputField xpath:'/html/body/div/div[2]/form/table/tbody/tr[2]/td[6]/input',
-              value:'foo@bar.com'
-      clickButton xpath:'/html/body/div/div[2]/form/div/input'
-
-      // check email change, remove first user
-      verifyXPath xpath:"/html/body/div/div[2]/form/table/tbody/tr[2]/td[6]/input[@value='foo@bar.com']"
-      setCheckbox xpath:'/html/body/div/div[2]/form/table/tbody/tr[2]/td/input'
-      clickButton xpath:'/html/body/div/div[2]/form/div/input'
-
-      // check email is not foo@bar.com for the first user
-      not {
-        verifyXPath xpath:"/html/body/div/div[2]/form/table/tbody/tr[2]/td[6]/input[@value='foo@bar.com']"
-      }
-
-      // change the value of component 3
-      setInputField xpath:'/html/body/div/div[2]/form[2]/table/tbody/tr[5]/td[3]/input',
-              value:'Component X'
-      clickButton xpath:'/html/body/div/div[2]/form[2]/div/input'
-
-      // verify component name change, and create new component
-      verifyXPath xpath:"/html/body/div/div[2]/form[2]/table/tbody/tr[5]/td[3]/input[@value='Component X']"
-      setInputField xpath:'/html/body/div/div[2]/form[2]/table/tbody/tr[7]/td[3]/input',
-              value:'My Component'
-      clickButton xpath:'/html/body/div/div[2]/form[2]/div/input'
-
-      // assert component creation, and remove component
-      verifyXPath xpath:"/html/body/div/div[2]/form[2]/table/tbody/tr[7]/td[3]/input[@value='My Component']"
-      setCheckbox xpath:'/html/body/div/div[2]/form[2]/table/tbody/tr[7]/td/input'
-      clickButton xpath:'/html/body/div/div[2]/form[2]/div/input'
-
-      // assert component removal
-      not {
-        verifyXPath xpath:"/html/body/div/div[2]/form[2]/table/tbody/tr[7]/td[3]/input[@value='My Component']"
-      }
+    private Select select(String name) {
+        new Select(findr().elemList(By.tagName('select')).where(attrEquals('name', name)).at(0))
     }
-  }
 
-  
+    private Findr findTableRowMultiBug(int index) {
+        findr().elemList(By.tagName('form'))
+            .where(attrEndsWith('action', '/webtests/bugzooky/MultiBug.action'))
+            .whereElemCount(1)
+            .at(0)
+            .elemList(By.cssSelector('table.display'))
+            .at(0)
+            .elemList(By.tagName('tr'))
+            .at(index + 1)
+    }
 
-  
+    @Test
+    void testBugListSingleEdit() {
+        register()
+        use(WebDriverCategory, FindrCategory, ListFindrCategory, DollrCategory) {
+            webDriver.get "$homeUrl/BugList.action"
+            findTableRowMultiBug(0) + $$('td')[3] + textEquals('First ever bug in the system.') >> eval()
+            findTableRowMultiBug(0) + $$('a') + textEquals('Edit') + at(0) >> click()
+
+            select('bug.component').selectByVisibleText('Component 2')
+
+            input('saveAndAgain') >> click()
+
+            select('bug.component').selectByVisibleText('Component 3')
+            select('bug.owner').selectByVisibleText('velma')
+            select('bug.priority').selectByVisibleText('Blocker')
+            def textAreaLongDesc = textarea('bug.longDescription')
+            textAreaLongDesc >> clear()
+            textAreaLongDesc >> sendKeys('This is a long decription for this new bug blah blah blah...')
+            input('bug.shortDescription') >> clear()
+            input('save') >> click()
+
+            $$('#pageContent')[0] +
+                $$('ol')[0] +
+                $$('li') +
+                textEquals('Short Description is a required field') +
+                whereElemCount(1) +
+                at(0) >> eval()
+
+            input('bug.shortDescription') >> sendKeys('brand new bug')
+            input('save').click()
+
+            findTableRowMultiBug(0) + $$('td')[3] + textEquals('brand new bug')
+        }
+    }
+
+    private Findr textarea(String name) {
+        findr().elemList(By.tagName('textarea')).where(attrEquals('name', name)).at(0)
+    }
+
+    private Findr findTd(int row, int col) {
+        findTableRowMultiBug(row).elemList(By.tagName('td')).at(col)
+    }
+
+
+    @Test
+    void testBulkAdd() {
+        register()
+        use(WebDriverCategory, FindrCategory, ListFindrCategory, DollrCategory) {
+            $('#navLinks') + $$('a') + textEquals('Bulk Add') + at(0) >> click()
+            select('bugs[0].component').selectByVisibleText('Component 1')
+            select('bugs[1].component').selectByVisibleText('Component 2')
+            select('bugs[0].owner').selectByVisibleText('shaggy')
+            select('bugs[1].owner').selectByVisibleText('scrappy')
+            select('bugs[0].priority').selectByVisibleText('Critical')
+            select('bugs[1].priority').selectByVisibleText('Blocker')
+            textarea('bugs[0].shortDescription').sendKeys('Short desc 1')
+            textarea('bugs[0].longDescription').sendKeys('This is looooooooooooooooooooooooooooooooooooooooong !')
+            textarea('bugs[1].longDescription').sendKeys('This is looooooooooooooooooooooooooooooooooooooooong too !')
+            input('save') >> click()
+
+            $$('form') +
+                attrEndsWith('action', '/webtests/bugzooky/MultiBug.action') +
+                at(0) +
+                $$('ol')[0] +
+                $('li') + textEquals('Short Description is a required field')
+
+            textarea('bugs[1].shortDescription').sendKeys('Short desc 2')
+            input('save') >> click()
+
+            def assertTd = { int row, int col, String expectedText ->
+                findTd(row, col) + textEquals(expectedText) >> eval()
+            }
+
+            assertTd 5, 3, 'Short desc 1'
+            assertTd 5, 4, 'Component 1'
+            assertTd 5, 5, 'Critical'
+            assertTd 5, 7, 'shaggy'
+
+            assertTd 6, 3, 'Short desc 2'
+            assertTd 6, 4, 'Component 2'
+            assertTd 6, 5, 'Blocker'
+            assertTd 6, 7, 'scrappy'
+        }
+
+    }
+
+    @Test
+    void testBugListBulkEdit() {
+        register()
+        webDriver.get "$homeUrl/BugList.action"
+
+        // check the two first bugs and bulk edit
+        def clickCheckbox = { int row ->
+            findTd(row, 0).elem(By.tagName('input')).where(attrEquals('type', 'checkbox')).click()
+        }
+
+        clickCheckbox(0)
+        clickCheckbox(1)
+        input('view').click()
+
+        textarea('bugs[0].shortDescription').where(textEquals('First ever bug in the system.')).eval()
+        textarea('bugs[1].shortDescription').where(textEquals('Another bug!  Oh no!.')).eval()
+        // don't test more : it's already done in testBulkAdd
+    }
+
+
+    @Test
+    void testAdminister() {
+        register()
+        webDriver.get "$homeUrl/AdministerComponents.action"
+        use(WebDriverCategory, FindrCategory, ListFindrCategory, DollrCategory) {
+            input('people[0].email') >> clear()
+            input('people[0].email') >> sendKeys('foo@bar.com')
+            input('Save') >> click()
+
+            input('people[0].email') + attrEquals('value', 'foo@bar.com') >> eval()
+
+            $$('input') + attrEquals('name', 'deleteIds') + at(0) >> click()
+            input('Save') >> click()
+
+            input('people[0].email') + attrEquals('value', 'shaggy@mystery.machine.tv') >> eval()
+        }
+    }
+
+    @Test
+    void testLogin() {
+        register()
+        use(WebDriverCategory, FindrCategory, ListFindrCategory, DollrCategory) {
+            $$('a') + textEquals('Logout') + at(0) >> click()
+            $$('a') + textEquals('Bug List') + at(0) >> click()
+            input('username').sendKeys(username())
+            input('password').sendKeys(username())
+            input('login') >> click()
+        }
+    }
 
 }

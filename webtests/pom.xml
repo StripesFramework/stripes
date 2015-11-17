@@ -3,12 +3,16 @@
 	<parent>
 		<groupId>net.sourceforge.stripes</groupId>
 		<artifactId>stripes-parent</artifactId>
-		<version>1.6.0-SNAPSHOT</version>
+		<version>1.7.0-SNAPSHOT</version>
 		<relativePath>..</relativePath>
 	</parent>
 	<artifactId>stripes-webtests</artifactId>
 	<packaging>war</packaging>
 	<name>Stripes Web Tests</name>
+	<properties>
+		<webtests.browser>firefox</webtests.browser>
+		<webdriver.chrome.driver>PASS_SYS_PROP</webdriver.chrome.driver>
+	</properties>
 	<dependencies>
 		<dependency>
 			<groupId>net.sourceforge.stripes</groupId>
@@ -17,18 +21,21 @@
 			<type>war</type>
 		</dependency>
 		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>servlet-api</artifactId>
+			<groupId>com.pojosontheweb</groupId>
+			<artifactId>selenium-utils-groovy</artifactId>
+			<version>1.4.4</version>
+			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<artifactId>selenium-htmlunit-driver</artifactId>
+					<groupId>org.seleniumhq.selenium</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
-			<groupId>com.canoo.webtest</groupId>
-			<artifactId>webtest</artifactId>
-			<version>3.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.codehaus.groovy</groupId>
-			<artifactId>groovy-all</artifactId>
-			<version>2.2.2</version>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.11</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
@@ -64,6 +71,11 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<configuration>
 					<skip>true</skip>
+					<systemProperties>
+						<webtests.findr.verbose>true</webtests.findr.verbose>
+						<webtests.browser>${webtests.browser}</webtests.browser>
+						<webdriver.chrome.driver>${webdriver.chrome.driver}</webdriver.chrome.driver>
+					</systemProperties>
 				</configuration>
 				<executions>
 					<execution>

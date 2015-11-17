@@ -1,3 +1,4 @@
+<%@ page import="net.sourceforge.stripes.examples.quickstart.CalculatorActionBean" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="stripes" uri="http://stripes.sourceforge.net/stripes.tld"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
@@ -14,8 +15,10 @@
     Hi, I'm the Stripes Calculator. I can only do addition. Maybe, some day, a nice programmer
     will come along and teach me how to do other things?
 
-    <stripes:form action="/Calculator.action" focus="">
-        <stripes:errors/>
+    <stripes:form beanclass="<%=CalculatorActionBean.class%>" focus="">
+        <div class="errors">
+            <stripes:errors/>
+        </div>
         <table>
             <tr>
                 <td>Number 1:</td>
@@ -33,7 +36,7 @@
             </tr>
             <tr>
                 <td>Result:</td>
-                <td>${actionBean.result}</td>
+                <td id="result">${actionBean.result}</td>
             </tr>
         </table>
     </stripes:form>
