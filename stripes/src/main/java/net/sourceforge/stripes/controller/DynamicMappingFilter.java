@@ -193,7 +193,7 @@ public class DynamicMappingFilter implements Filter {
 
         /**
          * Write the contents of the buffer to the underlying writer. After a call to
-         * {@link #overflow()}, all future writes to this writer will pass directly to the
+         * this method, all future writes to this writer will pass directly to the
          * underlying writer.
          */
         protected void overflow() {
@@ -266,6 +266,7 @@ public class DynamicMappingFilter implements Filter {
         }
 
         /** Clear error code and error message. */
+        @SuppressWarnings("unused")
         public void clearError() {
             this.errorCode = null;
             this.errorMessage = null;
