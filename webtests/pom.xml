@@ -90,37 +90,35 @@
 					</execution>
 				</executions>
 			</plugin>
-			<!-- Use Cargo plugin to start/stop tomcat and deploy examples for integration tests -->
+
 			<plugin>
-				<groupId>org.codehaus.cargo</groupId>
-				<artifactId>cargo-maven2-plugin</artifactId>
-                <version>1.4.7</version>
+				<groupId>org.eclipse.jetty</groupId>
+				<artifactId>jetty-maven-plugin</artifactId>
+				<version>9.3.6.v20151106</version>
 				<configuration>
-                    <configuration>
-                        <properties>
-                            <cargo.servlet.port>9999</cargo.servlet.port>
-                        </properties>
-                    </configuration>
-                    <deployables>
-                        <deployable>
-                            <groupId>net.sourceforge.stripes</groupId>
-                            <artifactId>stripes-examples</artifactId>
-                            <properties>
-                                <context>webtests</context>
-                            </properties>
-                        </deployable>
-                    </deployables>
+					<httpConnector>
+						<port>9999</port>
+					</httpConnector>
+					<scanIntervalSeconds>10</scanIntervalSeconds>
+					<stopKey>foo</stopKey>
+					<stopPort>19999</stopPort>
+					<webApp>
+						<contextPath>/webtests</contextPath>
+					</webApp>
 				</configuration>
 				<executions>
 					<execution>
-						<id>start-container</id>
+						<id>start-jetty</id>
 						<phase>pre-integration-test</phase>
 						<goals>
 							<goal>start</goal>
 						</goals>
+						<configuration>
+							<scanIntervalSeconds>0</scanIntervalSeconds>
+						</configuration>
 					</execution>
 					<execution>
-						<id>stop-container</id>
+						<id>stop-jetty</id>
 						<phase>post-integration-test</phase>
 						<goals>
 							<goal>stop</goal>
@@ -128,6 +126,7 @@
 					</execution>
 				</executions>
 			</plugin>
+
 		</plugins>
 	</build>
 </project>

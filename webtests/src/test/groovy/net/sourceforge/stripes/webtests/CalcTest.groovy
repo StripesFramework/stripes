@@ -1,6 +1,5 @@
 package net.sourceforge.stripes.webtests
 
-import net.sourceforge.stripes.webtests.CalcHelper
 import org.junit.Test
 import com.pojosontheweb.selenium.ManagedDriverJunit4TestBase
 

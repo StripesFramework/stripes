@@ -36,7 +36,7 @@
             </tr>
             <tr>
                 <td>Result:</td>
-                <td id="result">${actionBean.result}</td>
+                <td id="resultWrapper">${actionBean.result}</td>
             </tr>
         </table>
     </stripes:form>

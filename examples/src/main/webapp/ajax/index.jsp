@@ -48,14 +48,14 @@
                 <tr>
                     <td colspan="2">
                         <stripes:submit name="add" value="Add"
-                                        onclick="invoke(this.form, this.name, 'result');"/>
+                                        onclick="invoke(this.form, this.name, 'resultWrapper');"/>
                         <stripes:submit name="divide" value="Divide"
-                                        onclick="invoke(this.form, this.name, 'result');"/>
+                                        onclick="invoke(this.form, this.name, 'resultWrapper');"/>
                     </td>
                 </tr>
                 <tr>
                     <td>Result:</td>
-                    <td id="result"></td>
+                    <td id="resultWrapper"></td>
                 </tr>
             </table>
         </stripes:form>

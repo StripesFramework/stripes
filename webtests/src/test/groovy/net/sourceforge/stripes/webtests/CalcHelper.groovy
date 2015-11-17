@@ -49,7 +49,7 @@ class CalcHelper {
     }
 
     void assertResult(String expected) {
-        findr.elemList(id('result'))
+        findr.elemList(id('resultWrapper'))
             .whereElemCount(1)
             .at(0)
             .where(textEquals(expected))
@@ -73,7 +73,7 @@ class CalcHelper {
         }
 
         if (ajax) {
-            findr.elem(id('result'))
+            findr.elem(id('resultWrapper'))
                 .elemList(tagName('div'))
                 .whereElemCount(expectedErrors.length)
                 .eval(func)
