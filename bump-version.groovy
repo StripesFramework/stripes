@@ -29,6 +29,6 @@ new File(".").eachFileRecurse { File f ->
     }
 }
 
-assert nbPoms == 4
+assert nbPoms == 5
 println "Replaced versions in $nbPoms pom files"
 println "Done. Version bumped from $oldVersion to $newVersion"
