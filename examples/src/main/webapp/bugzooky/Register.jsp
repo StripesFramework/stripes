@@ -1,4 +1,5 @@
 <%@ page import="net.sourceforge.stripes.examples.bugzooky.biz.Status"%>
+<%@ page import="net.sourceforge.stripes.examples.bugzooky.RegisterActionBean" %>
 <%@ include file="/bugzooky/taglibs.jsp"%>
 
 <stripes:layout-render name="/bugzooky/layout/standard.jsp" title="Register">
@@ -6,7 +7,7 @@
 
 		<stripes:errors globalErrorsOnly="true" />
 
-		<stripes:form beanclass="${actionBean.class}" focus="">
+		<stripes:form beanclass="<%=RegisterActionBean.class%>" focus="">
 			<p>Please provide the following information:</p>
 
 			<table class="leftRightForm">

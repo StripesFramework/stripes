@@ -6,10 +6,7 @@ import net.sourceforge.stripes.action.DefaultHandler;
 import net.sourceforge.stripes.action.Resolution;
 import net.sourceforge.stripes.action.StreamingResolution;
 import net.sourceforge.stripes.examples.bugzooky.ext.Public;
-import net.sourceforge.stripes.validation.Validate;
-import net.sourceforge.stripes.validation.ValidationError;
-import net.sourceforge.stripes.validation.ValidationErrorHandler;
-import net.sourceforge.stripes.validation.ValidationErrors;
+import net.sourceforge.stripes.validation.*;
 
 import java.io.StringReader;
 import java.util.List;
@@ -60,6 +57,18 @@ public class CalculatorActionBean implements ActionBean, ValidationErrorHandler 
         String result = String.valueOf(numberOne / numberTwo);
         return new StreamingResolution("text", new StringReader(result));
     }
+
+    /**
+     * An example of a custom validation that checks that division operations
+     * are not dividing by zero.
+     */
+    @ValidationMethod(on="divide")
+    public void avoidDivideByZero(ValidationErrors errors) {
+        if (this.numberTwo == 0) {
+            errors.add("numberTwo", new SimpleError("Dividing by zero is not allowed."));
+        }
+    }
+
 
     // Standard getter and setter methods
     public double getNumberOne() { return numberOne; }

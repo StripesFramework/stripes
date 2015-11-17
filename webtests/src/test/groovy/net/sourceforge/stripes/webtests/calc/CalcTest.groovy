@@ -1,66 +1,68 @@
 package net.sourceforge.stripes.webtests.calc
 
-import net.sourceforge.stripes.webtests.WebtestCaseFixed
+import org.junit.Test
+import com.pojosontheweb.selenium.ManagedDriverJunit4TestBase
 
-class CalcTest extends WebtestCaseFixed {
+class CalcTest extends ManagedDriverJunit4TestBase {
 
-  def homeUrl = 'http://localhost:9999/webtests/quickstart/index.jsp'
 
-  void testCalcHome() {
-    webtest('testCalcHome') {
-      invoke homeUrl
-      verifyTitle 'My First Stripe'
-      verifyText 'Stripes Calculator'
+    def helpers = {
+        [
+            new CalcHelper(findr(), false),
+            new CalcHelper(findr(), true)
+        ]
     }
-  }
 
-  void testAdd() {
-    webtest('testAdd') {
-      invoke homeUrl
-      setInputField(name:'numberOne', value: '2')
-      setInputField(name:'numberTwo', value: '2')
-      clickButton(name:'addition')
-      verifyText 'Result:'
-      verifyText '4.0'      
+    @Test
+    void add() {
+        helpers().each { CalcHelper h ->
+            h.openPage()
+            h.numberOne().sendKeys('2')
+            h.numberTwo().sendKeys('2')
+            h.buttonAddition().click()
+            h.assertResult('4.0')
+        }
     }
-  }
 
-  void testDivide() {
-    webtest('testDivide') {
-      invoke homeUrl
-      setInputField(name:'numberOne', value: '2')
-      setInputField(name:'numberTwo', value: '2')
-      clickButton(name:'division')
-      verifyText 'Result:'
-      verifyText '1.0'      
+    @Test
+    void divide() {
+        helpers().each { CalcHelper h ->
+            h.openPage()
+            h.numberOne().sendKeys('2')
+            h.numberTwo().sendKeys('2')
+            h.buttonDivision().click()
+            h.assertResult('1.0')
+        }
     }
-  }
 
-  void testValidationErrors() {
-    webtest('testValidationErrors') {
-      invoke homeUrl
-      clickButton(name:'division')
-      verifyText 'Number One is a required field'
-      verifyText 'Number Two is a required field'
+    @Test
+    void validationErrors() {
+        helpers().each { CalcHelper h ->
+            h.openPage()
+            h.buttonDivision().click()
+            h.assertValidationErrors(
+                'Number One is a required field',
+                'Number Two is a required field'
+            )
 
-      invoke homeUrl
-      setInputField(name:'numberOne', value: 'abc')
-      clickButton(name:'division')
-      verifyText 'The value (abc) entered in field Number One must be a valid number'
-      verifyText 'Number Two is a required field'
+            h.numberOne().sendKeys('abc')
+            h.buttonDivision().click()
+            h.assertValidationErrors(
+                'The value (abc) entered in field Number One must be a valid number',
+                'Number Two is a required field'
+            )
 
-      invoke homeUrl
-      setInputField(name:'numberOne', value: '2')
-      clickButton(name:'division')
-      verifyText 'Number Two is a required field'
+            h.numberOne().clear()
+            h.numberOne().sendKeys('2')
+            h.buttonDivision().click()
+            h.assertValidationErrors('Number Two is a required field')
 
-      invoke homeUrl
-      setInputField(name:'numberOne', value: '2')
-      setInputField(name:'numberTwo', value: '0')
-      clickButton(name:'division')
-      verifyText 'Dividing by zero is not allowed.'
+            h.numberOne().clear()
+            h.numberOne().sendKeys('2')
+            h.numberTwo().sendKeys('0')
+            h.buttonDivision().click()
+            h.assertValidationErrors('Dividing by zero is not allowed.')
+        }
     }
-  }
-
 
 }
