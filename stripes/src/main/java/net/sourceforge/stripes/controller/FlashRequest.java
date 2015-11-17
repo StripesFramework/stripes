@@ -379,31 +379,31 @@ public class FlashRequest implements HttpServletRequest, Serializable {
 
 
     public String changeSessionId() {
-        return null;
+        return getDelegate().changeSessionId();
     }
 
     public boolean authenticate(HttpServletResponse response) throws IOException, ServletException {
-        return false;
+        return delegate.authenticate(response);
     }
 
     public void login(String username, String password) throws ServletException {
-
+        delegate.login(username, password);
     }
 
     public void logout() throws ServletException {
-
+        delegate.logout();
     }
 
     public Collection<Part> getParts() throws IOException, ServletException {
-        return null;
+        return delegate.getParts();
     }
 
     public Part getPart(String name) throws IOException, ServletException {
-        return null;
+        return delegate.getPart(name);
     }
 
     public <T extends HttpUpgradeHandler> T upgrade(Class<T> handlerClass) throws IOException, ServletException {
-        return null;
+        return upgrade(handlerClass);
     }
 
     public long getContentLengthLong() {
@@ -411,30 +411,30 @@ public class FlashRequest implements HttpServletRequest, Serializable {
     }
 
     public ServletContext getServletContext() {
-        return null;
+        return delegate.getServletContext();
     }
 
     public AsyncContext startAsync() throws IllegalStateException {
-        return null;
+        return delegate.startAsync();
     }
 
     public AsyncContext startAsync(ServletRequest servletRequest, ServletResponse servletResponse) throws IllegalStateException {
-        return null;
+        return delegate.startAsync(servletRequest, servletResponse);
     }
 
     public boolean isAsyncStarted() {
-        return false;
+        return delegate.isAsyncStarted();
     }
 
     public boolean isAsyncSupported() {
-        return false;
+        return delegate.isAsyncSupported();
     }
 
     public AsyncContext getAsyncContext() {
-        return null;
+        return delegate.getAsyncContext();
     }
 
     public DispatcherType getDispatcherType() {
-        return null;
+        return delegate.getDispatcherType();
     }
 }
