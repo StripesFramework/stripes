@@ -755,10 +755,10 @@ public class DynamicMappingFilter implements Filter {
             try {
                 initializing = true;
                 RequestDispatcher dispatcher = servletContext.getRequestDispatcher(uri);
-                dispatcher.forward(req, rsp);
+                dispatcher.include(req, rsp);
             }
             catch (Exception e) {
-                log.debug(e, "Ignored exception during forward");
+                log.debug(e, "Ignored exception during include");
             }
             finally {
                 initializing = false;
@@ -820,9 +820,10 @@ public class DynamicMappingFilter implements Filter {
         }
         finally {
             try {
-                cxn.disconnect();
-            }
-            catch (Exception e) {
+                if (cxn != null) {
+                    cxn.disconnect();
+                }
+            } catch (Exception e) {
                 // Ignore
             }
         }
