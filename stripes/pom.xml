@@ -135,7 +135,7 @@
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>generate-javadoc</id>
+                        <id>attach-javadoc</id>
                         <phase>package</phase>
                         <goals>
                             <goal>jar</goal>
