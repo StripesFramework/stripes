@@ -58,13 +58,24 @@ class CalcHelper {
 
     void assertValidationErrors(String... expectedErrors) {
 
+        def sortedExpectedErrors = Arrays.asList(expectedErrors)
+        Collections.sort(sortedExpectedErrors)
+
         def func = new Function<List<WebElement>, Boolean>() {
             @Override
             Boolean apply(List<WebElement> divs) {
-                for (int i = 0; i < expectedErrors.length; i++) {
-                    String expected = expectedErrors[i]
-                    String actual = divs[i].text
+
+                // we have random ordering issues, so
+                // we sort those lists...
+                List<String> texts = divs.collect { it.text }.sort()
+
+                for (int i = 0; i < sortedExpectedErrors.size(); i++) {
+                    String expected = sortedExpectedErrors[i]
+                    String actual = texts[i]
                     if (expected != actual) {
+                        Findr.logDebug("""unexpected validation :
+expected='$expected'
+actual='$actual'""")
                         return false
                     }
                 }

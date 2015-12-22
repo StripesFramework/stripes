@@ -105,9 +105,13 @@ public class ValidationWithGenericsTest extends FilterEnabledTestBase {
         runValidationTests(OverrideGetterAndSetterActionBean.class);
         runValidationTests(OverrideGetterActionBean.class);
         runValidationTests(OverrideSetterActionBean.class);
-        runValidationTests(OverloadSetterActionBean.class);
         runValidationTests(ExtendOverloadSetterActionBean.class);
         runValidationTests(ExtendOverloadSetterAgainActionBean.class);
+    }
+
+    @Test(groups = "fast")
+    public void testActionBeanWithTypeParameterFailsRandomlyOnJava8() throws Exception {
+        runValidationTests(OverloadSetterActionBean.class);
     }
 
     protected void runValidationTests(Class<? extends BaseActionBean<User>> type) throws Exception {
