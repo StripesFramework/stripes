@@ -9,7 +9,7 @@
     </parent>
     <groupId>net.sourceforge.stripes</groupId>
     <artifactId>stripes-parent</artifactId>
-    <version>1.7.0-async-beta</version>
+    <version>1.7.0-async-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>

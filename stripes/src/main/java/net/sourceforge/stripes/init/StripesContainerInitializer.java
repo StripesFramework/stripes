@@ -10,6 +10,7 @@ import net.sourceforge.stripes.controller.ObjectPostProcessor;
 import net.sourceforge.stripes.exception.AutoExceptionHandler;
 import net.sourceforge.stripes.format.Formatter;
 import net.sourceforge.stripes.tag.TagErrorRenderer;
+import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.validation.TypeConverter;
 
 import javax.servlet.ServletContainerInitializer;
@@ -34,6 +35,8 @@ import java.util.Set;
 })
 public class StripesContainerInitializer implements ServletContainerInitializer {
 
+	private static final Log log = Log.getInstance(StripesContainerInitializer.class);
+
 	public static Set<Class<?>> LOADED_CLASSES = null;
 
 	public static StripesContainerInitializer INSTANCE = null;
@@ -41,6 +44,12 @@ public class StripesContainerInitializer implements ServletContainerInitializer 
 	public void onStartup(Set<Class<?>> c, ServletContext ctx) throws ServletException {
 		LOADED_CLASSES = new HashSet<Class<?>>(c);
 		INSTANCE = this;
+		log.info(LOADED_CLASSES.size() + " classes loaded.");
+		if (log.getRealLog().isDebugEnabled()) {
+			for (Class<?> clazz : LOADED_CLASSES) {
+				log.debug("  * " + clazz.getName());
+			}
+		}
 	}
 
 }
