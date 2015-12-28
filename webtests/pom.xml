@@ -7,7 +7,7 @@
 		<relativePath>..</relativePath>
 	</parent>
 	<artifactId>stripes-webtests</artifactId>
-	<packaging>war</packaging>
+	<packaging>jar</packaging>
 	<name>Stripes Web Tests</name>
 	<properties>
 		<webtests.browser>firefox</webtests.browser>
@@ -15,7 +15,7 @@
 	</properties>
 	<dependencies>
 		<dependency>
-			<groupId>net.sourceforge.stripes</groupId>
+			<groupId>${project.groupId}</groupId>
 			<artifactId>stripes-examples</artifactId>
 			<version>${project.version}</version>
 			<type>war</type>
@@ -90,43 +90,137 @@
 					</execution>
 				</executions>
 			</plugin>
-
-			<plugin>
-				<groupId>org.eclipse.jetty</groupId>
-				<artifactId>jetty-maven-plugin</artifactId>
-				<version>9.3.6.v20151106</version>
-				<configuration>
-					<httpConnector>
-						<port>9999</port>
-					</httpConnector>
-					<scanIntervalSeconds>10</scanIntervalSeconds>
-					<stopKey>foo</stopKey>
-					<stopPort>19999</stopPort>
-					<webApp>
-						<contextPath>/webtests</contextPath>
-					</webApp>
-				</configuration>
-				<executions>
-					<execution>
-						<id>start-jetty</id>
-						<phase>pre-integration-test</phase>
-						<goals>
-							<goal>start</goal>
-						</goals>
-						<configuration>
-							<scanIntervalSeconds>0</scanIntervalSeconds>
-						</configuration>
-					</execution>
-					<execution>
-						<id>stop-jetty</id>
-						<phase>post-integration-test</phase>
-						<goals>
-							<goal>stop</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-
 		</plugins>
 	</build>
+	<profiles>
+		<profile>
+			<id>jetty9</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<build>
+				<plugins>
+
+					<!-- copy war to this module for jetty run-war -->
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-dependency-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>copy-war</id>
+								<phase>package</phase>
+								<goals>
+									<goal>copy</goal>
+								</goals>
+								<configuration>
+									<outputDirectory>${project.build.directory}</outputDirectory>
+									<artifactItems>
+										<artifactItem>
+											<groupId>${project.groupId}</groupId>
+											<artifactId>stripes-examples</artifactId>
+											<version>${project.version}</version>
+											<type>war</type>
+										</artifactItem>
+									</artifactItems>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+
+					<!-- run the war with jetty -->
+					<plugin>
+						<groupId>org.eclipse.jetty</groupId>
+						<artifactId>jetty-maven-plugin</artifactId>
+						<version>9.3.6.v20151106</version>
+						<configuration>
+							<httpConnector>
+								<port>9999</port>
+							</httpConnector>
+							<scanIntervalSeconds>10</scanIntervalSeconds>
+							<stopKey>foo</stopKey>
+							<stopPort>19999</stopPort>
+							<war>${project.build.directory}/stripes-examples-${project.version}.war</war>
+							<webApp>
+								<contextPath>/webtests</contextPath>
+							</webApp>
+						</configuration>
+						<executions>
+							<execution>
+								<id>start-jetty</id>
+								<phase>pre-integration-test</phase>
+								<goals>
+									<goal>deploy-war</goal>
+								</goals>
+							</execution>
+							<execution>
+								<id>stop-jetty</id>
+								<phase>post-integration-test</phase>
+								<goals>
+									<goal>stop</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>tomcat7</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.cargo</groupId>
+						<artifactId>cargo-maven2-plugin</artifactId>
+						<version>1.2.0</version>
+						<configuration>
+							<wait>false</wait>
+							<container>
+								<containerId>tomcat7x</containerId>
+								<zipUrlInstaller>
+									<url>http://apache.mindstudios.com/tomcat/tomcat-7/v7.0.67/bin/apache-tomcat-7.0.67.zip</url>
+									<downloadDir>${project.build.directory}/downloads</downloadDir>
+									<extractDir>${project.build.directory}/extracts</extractDir>
+								</zipUrlInstaller>
+							</container>
+							<configuration>
+								<home>${project.build.directory}/tomcat/container</home>
+								<properties>
+									<cargo.servlet.port>9999</cargo.servlet.port>
+									<cargo.servlet.users>wdevel:wdevel:developer</cargo.servlet.users>
+									<cargo.container.timeout>600000</cargo.container.timeout>
+									<cargo.tomcat.ajp.port>9009</cargo.tomcat.ajp.port>
+								</properties>
+								<deployables>
+									<deployable>
+										<groupId>${project.groupId}</groupId>
+										<artifactId>stripes-examples</artifactId>
+										<type>war</type>
+										<properties>
+											<context>/webtests</context>
+										</properties>
+									</deployable>
+								</deployables>
+							</configuration>
+						</configuration>
+						<executions>
+							<execution>
+								<id>start-container</id>
+								<phase>pre-integration-test</phase>
+								<goals>
+									<goal>start</goal>
+								</goals>
+							</execution>
+							<execution>
+								<id>stop-container</id>
+								<phase>post-integration-test</phase>
+								<goals>
+									<goal>stop</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 </project>

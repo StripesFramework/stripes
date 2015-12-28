@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Set;
 
 import net.sourceforge.stripes.vfs.VFS;
+import net.sourceforge.stripes.init.StripesContainerInitializer;
 
 /**
  * <p>ResolverUtil is used to locate classes that are available in the/a class path and meet
@@ -196,6 +197,14 @@ public class ResolverUtil<T> {
      *        classes, e.g. {@code net.sourceforge.stripes}
      */
     public ResolverUtil<T> find(Test test, String packageName) {
+
+        // if the container initializer is there, then use it
+        if (StripesContainerInitializer.INSTANCE != null) {
+            return findInContainerSuppliedClasses(test, packageName);
+        }
+
+        // otherwise try the VFSs...
+
         String path = getPackagePath(packageName);
 
         try {
@@ -209,6 +218,16 @@ public class ResolverUtil<T> {
             log.warn("Could not read package: ", packageName, " -- ", ioe);
         }
 
+        return this;
+    }
+
+    @SuppressWarnings("unchecked")
+    private ResolverUtil<T> findInContainerSuppliedClasses(Test test, String packageName) {
+        for (Class<?> clazz : StripesContainerInitializer.LOADED_CLASSES) {
+            if (clazz.getName().startsWith(packageName) && test.matches(clazz)) {
+                matches.add( (Class<T>) clazz);
+            }
+        }
         return this;
     }
 
