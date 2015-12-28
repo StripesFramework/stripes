@@ -4,7 +4,13 @@ import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.action.ActionBeanContext;
 import net.sourceforge.stripes.config.ConfigurableComponent;
 import net.sourceforge.stripes.config.Configuration;
+import net.sourceforge.stripes.controller.ContentTypeRequestWrapper;
+import net.sourceforge.stripes.controller.Interceptor;
+import net.sourceforge.stripes.controller.ObjectPostProcessor;
 import net.sourceforge.stripes.exception.AutoExceptionHandler;
+import net.sourceforge.stripes.format.Formatter;
+import net.sourceforge.stripes.tag.TagErrorRenderer;
+import net.sourceforge.stripes.validation.TypeConverter;
 
 import javax.servlet.ServletContainerInitializer;
 import javax.servlet.ServletContext;
@@ -16,9 +22,15 @@ import java.util.Set;
 @HandlesTypes({
 	ConfigurableComponent.class,
 	Configuration.class,
+	ObjectPostProcessor.class,
 	ActionBean.class,
 	AutoExceptionHandler.class,
-	ActionBeanContext.class
+	ActionBeanContext.class,
+	TagErrorRenderer.class,
+	ContentTypeRequestWrapper.class,
+	Interceptor.class,
+	Formatter.class,
+	TypeConverter.class
 })
 public class StripesContainerInitializer implements ServletContainerInitializer {
 
