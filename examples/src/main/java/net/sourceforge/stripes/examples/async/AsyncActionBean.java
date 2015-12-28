@@ -3,6 +3,7 @@ package net.sourceforge.stripes.examples.async;
 import net.sourceforge.stripes.action.*;
 import net.sourceforge.stripes.examples.bugzooky.ext.Public;
 import net.sourceforge.stripes.util.Base64;
+import net.sourceforge.stripes.validation.Validate;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
@@ -29,6 +30,9 @@ import java.nio.charset.Charset;
 @UrlBinding("/async")
 public class AsyncActionBean implements ActionBean {
 
+	@Validate(required = true)
+	private String someProp;
+
 	private ActionBeanContext context;
 
 	private Exception clientException;
@@ -45,6 +49,7 @@ public class AsyncActionBean implements ActionBean {
 	}
 
 	@DefaultHandler
+	@DontValidate
 	public Resolution display() {
 		return new ForwardResolution("/WEB-INF/async/async.jsp");
 	}
@@ -129,5 +134,13 @@ public class AsyncActionBean implements ActionBean {
 
 	public String getGhResponse() {
 		return ghResponse;
+	}
+
+	public String getSomeProp() {
+		return someProp;
+	}
+
+	public void setSomeProp(String someProp) {
+		this.someProp = someProp;
 	}
 }

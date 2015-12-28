@@ -12,9 +12,17 @@
     Hi, this is an async demo.
 </h1>
 <s:link beanclass="<%=AsyncActionBean.class%>" event="asyncEvent">
+    <s:param name="someProp" value="foobar"/>
     I'm an async event
 </s:link>
+<hr/>
+<s:errors/>
+<s:form beanclass="<%=AsyncActionBean.class%>">
+    <s:text name="someProp"/>
+    <s:submit name="asyncEvent"/>
+</s:form>
 <c:if test="${not empty actionBean.ghResponse}">
+    <hr/>
     <div id="result"></div>
     <script type="application/json" id="gh-response">${actionBean.ghResponse}</script>
     <script type="text/javascript">
