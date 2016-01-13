@@ -96,6 +96,26 @@ public class AsyncActionBean implements ActionBean {
 		};
 	}
 
+	@DontValidate
+	public Resolution asyncEventThatTimeouts() {
+		return new AsyncResolution() {
+			public void execute(final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+				getAsyncContext().setTimeout(1000);
+				getAsyncContext().getResponse().getWriter().write("OK");
+				// never call complete/dispatch...
+			}
+		};
+	}
+
+	@DontValidate
+	public Resolution asyncEventThatThrows() {
+		return new AsyncResolution() {
+			public void execute(final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+				throw new RuntimeException("WTF");
+			}
+		};
+	}
+
 	private void dispatch(CloseableHttpAsyncClient asyncClient, AsyncContext c) {
 		try {
 			asyncClient.close();

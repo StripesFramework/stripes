@@ -188,36 +188,52 @@ public class DispatcherServlet extends HttpServlet {
                     final PageContext pc = pageContext;
                     // register listener for finalizing the async processing
                     asyncContext.addListener(new AsyncListener() {
-                        // TODO factor out and make sure this finalizations are needed...
-                        public void onComplete(AsyncEvent event) throws IOException {
-                            if (pc != null) {
-                                JspFactory.getDefaultFactory().releasePageContext(pc);
-                                DispatcherHelper.setPageContext(null);
+
+                        private boolean completed = false;
+
+                        private void doComplete() {
+                            if (!completed) {
+                                completed = true;
+                                if (pc != null) {
+                                    JspFactory.getDefaultFactory().releasePageContext(pc);
+                                    DispatcherHelper.setPageContext(null);
+                                }
+                                requestComplete(ctx);
+                                restoreActionBean(request);
                             }
-                            requestComplete(ctx);
-                            restoreActionBean(request);
                         }
 
+                        public void onComplete(AsyncEvent event) throws IOException {
+                            log.debug("Async context completed=", event.getAsyncContext());
+                            doComplete();
+                        }
+
+                        // TODO i18n, use stripes exception handlers
                         public void onTimeout(AsyncEvent event) throws IOException {
-                            if (pc != null) {
-                                JspFactory.getDefaultFactory().releasePageContext(pc);
-                                DispatcherHelper.setPageContext(null);
-                            }
-                            requestComplete(ctx);
-                            restoreActionBean(request);
+                            log.error("Async context timeout after ", event.getAsyncContext().getTimeout(), "ms, ctx=", event.getAsyncContext());
+                            HttpServletResponse response = (HttpServletResponse)event.getSuppliedResponse();
+                            response.sendError(500, "Operation timed out");
+
+                            // TODO understand why we need to call this
+                            // if we don't then dispatcher is called twice (probably
+                            // because of server side dispatch)
+                            event.getAsyncContext().complete();
                         }
 
                         public void onError(AsyncEvent event) throws IOException {
-                            if (pc != null) {
-                                JspFactory.getDefaultFactory().releasePageContext(pc);
-                                DispatcherHelper.setPageContext(null);
-                            }
-                            requestComplete(ctx);
-                            restoreActionBean(request);
+                            log.error("Async context error=", event.getAsyncContext());
+                            HttpServletResponse response = (HttpServletResponse)event.getSuppliedResponse();
+                            Throwable err = event.getThrowable();
+                            String msg = err != null ? err.getMessage() : "";
+                            response.sendError(500, msg);
+                            doComplete();
                         }
 
+                        // this one is not called because we register the listener after starting the async context...
                         public void onStartAsync(AsyncEvent event) throws IOException {
-
+                            log.debug("Async context started=", event.getAsyncContext(),
+                                "request=", event.getSuppliedRequest(),
+                                "response=", event.getSuppliedResponse());
                         }
                     });
                     AsyncResolution asyncResolution = (AsyncResolution)resolution;

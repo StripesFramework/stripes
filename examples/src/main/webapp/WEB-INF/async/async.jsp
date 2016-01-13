@@ -15,6 +15,14 @@
     <s:param name="someProp" value="foobar"/>
     I'm an async event
 </s:link>
+<br/>
+<s:link beanclass="<%=AsyncActionBean.class%>" event="asyncEventThatTimeouts">
+    I'm an async event that timeouts
+</s:link>
+<br/>
+<s:link beanclass="<%=AsyncActionBean.class%>" event="asyncEventThatThrows">
+    I'm an async event that throws an Exception
+</s:link>
 <hr/>
 <s:errors/>
 <s:form beanclass="<%=AsyncActionBean.class%>">
