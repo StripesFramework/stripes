@@ -238,6 +238,7 @@ public class DispatcherServlet extends HttpServlet {
                     });
                     AsyncResolution asyncResolution = (AsyncResolution)resolution;
                     asyncResolution.setAsyncContext(asyncContext);
+                    asyncResolution.setContext(ctx.getActionBeanContext());
                 }
                 executeResolution(ctx, resolution);
             }

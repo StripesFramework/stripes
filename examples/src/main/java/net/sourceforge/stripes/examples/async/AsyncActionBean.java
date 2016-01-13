@@ -6,14 +6,13 @@ import net.sourceforge.stripes.validation.Validate;
 import org.apache.http.HttpHost;
 
 import javax.servlet.AsyncContext;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
 
 @Public
 @UrlBinding("/async")
 public class AsyncActionBean implements ActionBean {
 
+	private static final String JSP_PATH = "/WEB-INF/async/async.jsp";
 	private ActionBeanContext context;
 	public ActionBeanContext getContext() {
 		return context;
@@ -50,7 +49,8 @@ public class AsyncActionBean implements ActionBean {
 		return new AsyncResolution() {
 
 			// only this method to implement. you must complete() or dispatch() yourself.
-			public void execute(final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+			@Override
+			protected void executeAsync() throws Exception {
 
 				// we use an Async Http Client in order to call the github web service as a demo.
 				// the async http client calls on of the lambdas when he's done, and
@@ -72,10 +72,10 @@ public class AsyncActionBean implements ActionBean {
 							} catch (Exception e) {
 								clientException = e;
 							}
-							dispatchToJsp(getAsyncContext());
+							dispatch(JSP_PATH);
 						} else {
 							ghResponse = result.getStatusLine().getReasonPhrase();
-							dispatchToJsp(getAsyncContext());
+							dispatch(JSP_PATH);
 						}
 
 					})
@@ -83,14 +83,14 @@ public class AsyncActionBean implements ActionBean {
 
 						// http client failure
 						clientException = ex;
-						dispatchToJsp(getAsyncContext());
+						dispatch(JSP_PATH);
 
 					})
 					.cancelled(() -> {
 
 						// just for demo, we never call it...
 						cancelled = true;
-						dispatchToJsp(getAsyncContext());
+						dispatch(JSP_PATH);
 
 					})
 					.get(); // trigger async request
@@ -101,9 +101,10 @@ public class AsyncActionBean implements ActionBean {
 	@DontValidate
 	public Resolution asyncEventThatTimeouts() {
 		return new AsyncResolution() {
-			public void execute(final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+			@Override
+			protected void executeAsync() throws Exception {
 				getAsyncContext().setTimeout(1000);
-				getAsyncContext().getResponse().getWriter().write("OK");
+				getResponse().getWriter().write("OK");
 				// never call complete/dispatch...
 			}
 		};
@@ -112,15 +113,11 @@ public class AsyncActionBean implements ActionBean {
 	@DontValidate
 	public Resolution asyncEventThatThrows() {
 		return new AsyncResolution() {
-			public void execute(final HttpServletRequest request, final HttpServletResponse response) throws Exception {
+			@Override
+			protected void executeAsync() throws Exception {
 				throw new RuntimeException("WTF");
 			}
 		};
-	}
-
-	// helper dispatch method
-	private void dispatchToJsp(AsyncContext asyncContext) {
-		asyncContext.dispatch("/WEB-INF/async/async.jsp");
 	}
 
 	// getters for instance fields that have been set by event method

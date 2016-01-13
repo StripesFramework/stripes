@@ -38,11 +38,11 @@ public class TestMockAsync extends FilterEnabledTestBase {
 		@DefaultHandler
 		public Resolution doAsync() {
 			return new AsyncResolution() {
-				public void execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
+				@Override
+				protected void executeAsync() throws Exception {
 					Thread.sleep(5000);
-					AsyncContext asyncContext = getAsyncContext();
-					asyncContext.getResponse().getWriter().write("DONE");
-					asyncContext.complete();
+					getResponse().getWriter().write("DONE");
+					complete();
 				}
 			};
 		}
