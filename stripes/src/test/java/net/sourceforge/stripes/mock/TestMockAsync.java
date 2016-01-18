@@ -37,6 +37,7 @@ public class TestMockAsync extends FilterEnabledTestBase {
 			trip.execute("doAsyncTimeout");
 		} catch(Exception e) {
 			caught = true;
+			e.printStackTrace();
 		}
 		assertTrue(caught);
 		AsyncActionBean bean = trip.getActionBean(AsyncActionBean.class);
@@ -53,6 +54,7 @@ public class TestMockAsync extends FilterEnabledTestBase {
 			MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), AsyncActionBean.class);
 			trip.execute("doRegularException");
 		} catch(Exception e) {
+			e.printStackTrace();
 			caught = true;
 		}
 		assertTrue(caught);
@@ -65,6 +67,7 @@ public class TestMockAsync extends FilterEnabledTestBase {
 			MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), AsyncActionBean.class);
 			trip.execute("doAsyncException");
 		} catch(Exception e) {
+			e.printStackTrace();
 			caught = true;
 		}
 		assertTrue(caught);
@@ -89,7 +92,6 @@ public class TestMockAsync extends FilterEnabledTestBase {
 			return new AsyncResolution() {
 				@Override
 				protected void executeAsync() throws Exception {
-					Thread.sleep(5000);
 					System.out.println("Not Really Async...");
 					getResponse().getWriter().write("DONE");
 					completed = true;
