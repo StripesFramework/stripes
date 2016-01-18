@@ -3,9 +3,11 @@ package net.sourceforge.stripes.mock;
 import net.sourceforge.stripes.FilterEnabledTestBase;
 import net.sourceforge.stripes.action.*;
 import static org.testng.Assert.*;
+
 import org.testng.annotations.Test;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 public class TestMockAsync extends FilterEnabledTestBase {
 
@@ -13,6 +15,15 @@ public class TestMockAsync extends FilterEnabledTestBase {
 	public void testSuccess() throws Exception {
 		MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), AsyncActionBean.class);
 		trip.execute();
+		AsyncActionBean bean = trip.getActionBean(AsyncActionBean.class);
+		assertNotNull(bean);
+		assertTrue(bean.isCompleted());
+	}
+
+	@Test
+	public void testReallyAsync() throws Exception {
+		MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), AsyncActionBean.class);
+		trip.execute("doReallyAsync");
 		AsyncActionBean bean = trip.getActionBean(AsyncActionBean.class);
 		assertNotNull(bean);
 		assertTrue(bean.isCompleted());
@@ -79,9 +90,29 @@ public class TestMockAsync extends FilterEnabledTestBase {
 				@Override
 				protected void executeAsync() throws Exception {
 					Thread.sleep(5000);
+					System.out.println("Not Really Async...");
 					getResponse().getWriter().write("DONE");
 					completed = true;
 					complete();
+				}
+			};
+		}
+
+		public Resolution doReallyAsync() {
+			return new AsyncResolution() {
+				@Override
+				protected void executeAsync() throws Exception {
+					new Thread(() -> {
+						System.out.println("Really Async !");
+						try {
+							getResponse().getWriter().write("DONE");
+							completed = true;
+							complete();
+						} catch (IOException e) {
+							// will timeout...
+							e.printStackTrace();
+						}
+					}).start();
 				}
 			};
 		}
