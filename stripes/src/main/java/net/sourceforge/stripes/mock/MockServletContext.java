@@ -52,7 +52,6 @@ public class MockServletContext implements ServletContext {
     private List<Filter> filters = new ArrayList<Filter>();
     private List<ServletContextListener> listeners = new ArrayList<ServletContextListener>();
     private HttpServlet servlet;
-    private ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     /** Simple constructor that creates a new mock ServletContext with the supplied context name. */
     public MockServletContext(String contextName) {
@@ -67,10 +66,6 @@ public class MockServletContext implements ServletContext {
         else {
             return null;
         }
-    }
-
-    public ExecutorService getExecutorService() {
-        return executorService;
     }
 
     /** Servlet 2.3 method. Returns the context name with a leading slash. */
@@ -290,6 +285,12 @@ public class MockServletContext implements ServletContext {
         chain.setServlet(this.servlet);
         chain.addFilters(this.filters);
         chain.doFilter(request, response);
+        // wait for any async context to finish (block)
+        if (request.isAsyncStarted()) {
+            MockAsyncContext asyncContext = request.getAsyncContext();
+            asyncContext.waitForCompletion();
+        }
+
     }
 
     /**
@@ -322,14 +323,6 @@ public class MockServletContext implements ServletContext {
                     log("Exception caught destroying servlet " + servlet + " contextName=" + contextName, e);
                 }
             }
-        }
-        executorService.shutdownNow();
-        try {
-            if (!executorService.awaitTermination(10, TimeUnit.SECONDS)) {
-                log("Unable to shut down executor service !");
-            }
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
         }
     }
 

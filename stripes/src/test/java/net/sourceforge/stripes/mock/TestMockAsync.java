@@ -21,14 +21,42 @@ public class TestMockAsync extends FilterEnabledTestBase {
 	@Test
 	public void testTimeout() throws Exception {
 		MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), AsyncActionBean.class);
-		trip.execute("doAsyncTimeout");
+		boolean caught = false;
+		try {
+			trip.execute("doAsyncTimeout");
+		} catch(Exception e) {
+			caught = true;
+		}
+		assertTrue(caught);
 		AsyncActionBean bean = trip.getActionBean(AsyncActionBean.class);
-		// wait for longer than timeout
-		Thread.sleep(3000);
 		assertNotNull(bean);
 		assertTrue(!bean.isCompleted());
 		HttpServletResponse response = bean.getContext().getResponse();
 		assertEquals(response.getStatus(), 500);
+	}
+
+	@Test
+	public void testRegularException() throws Exception {
+		boolean caught = false;
+		try {
+			MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), AsyncActionBean.class);
+			trip.execute("doRegularException");
+		} catch(Exception e) {
+			caught = true;
+		}
+		assertTrue(caught);
+	}
+
+	@Test
+	public void testAsyncException() throws Exception {
+		boolean caught = false;
+		try {
+			MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), AsyncActionBean.class);
+			trip.execute("doAsyncException");
+		} catch(Exception e) {
+			caught = true;
+		}
+		assertTrue(caught);
 	}
 
 	@UrlBinding("/async")
@@ -64,6 +92,19 @@ public class TestMockAsync extends FilterEnabledTestBase {
 				protected void executeAsync() throws Exception {
 					getAsyncContext().setTimeout(1000);
 					// we never complete !
+				}
+			};
+		}
+
+		public Resolution doRegularException() {
+			throw new RuntimeException("boom");
+		}
+
+		public Resolution doAsyncException() {
+			return new AsyncResolution() {
+				@Override
+				protected void executeAsync() throws Exception {
+					throw new RuntimeException("Async boom");
 				}
 			};
 		}

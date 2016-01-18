@@ -81,8 +81,6 @@ public class MockHttpServletRequest implements HttpServletRequest {
     private String queryString = "";
 
     private MockAsyncContext asyncContext = null;
-    private final ExecutorService executorService;
-
 
     /**
      * Minimal constructor that makes sense. Requires a context path (should be the same as
@@ -90,12 +88,12 @@ public class MockHttpServletRequest implements HttpServletRequest {
      * new MockHttpServletRequest("/myapp", "/actionType/foo.action").
      *  @param contextPath
      * @param servletPath
-     * @param executorService
      */
-    public MockHttpServletRequest(String contextPath, String servletPath, ExecutorService executorService) {
+    public MockHttpServletRequest(
+        String contextPath,
+        String servletPath) {
         this.contextPath = contextPath;
         this.servletPath = servletPath;
-        this.executorService = executorService;
     }
 
     /** Sets the auth type that will be reported by this request. */
@@ -475,7 +473,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
     public AsyncContext startAsync(ServletRequest servletRequest, ServletResponse servletResponse) throws IllegalStateException {
         if (asyncContext == null) {
-            asyncContext = new MockAsyncContext(servletRequest, servletResponse, executorService);
+            asyncContext = new MockAsyncContext(servletRequest, servletResponse);
         }
         return asyncContext;
     }
@@ -488,7 +486,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
         return true;
     }
 
-    public AsyncContext getAsyncContext() {
+    public MockAsyncContext getAsyncContext() {
         return asyncContext;
     }
 

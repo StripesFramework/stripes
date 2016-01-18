@@ -16,44 +16,16 @@ public class MockAsyncContext implements AsyncContext {
 	private final ServletResponse response;
 	private final List<AsyncListener> listeners = new ArrayList<>();
 
-
 	private boolean completed = false;
+	private boolean timedOut = false;
 	private long timeout = 30000;
+	private long startedOn;
 
-	public MockAsyncContext(ServletRequest request, ServletResponse response, ExecutorService executorService) {
+	public MockAsyncContext(ServletRequest request, ServletResponse response) {
+		this.startedOn = System.currentTimeMillis();
 		this.request = request;
 		this.response = response;
-		long startTime = System.currentTimeMillis();
 		log.info("async started, request=", request, ", response=", response);
-		// trigger the timeout thread...
-		executorService.submit(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					while (true) {
-						long now = System.currentTimeMillis();
-						long elapsed = now - startTime;
-						log.debug("timeout thread check : elapsed=", elapsed);
-						if (elapsed > timeout) {
-							// invoke listeners timeout
-							AsyncEvent timeoutEvent = new AsyncEvent(MockAsyncContext.this, request, response);
-							for (AsyncListener l : listeners) {
-								try {
-									l.onTimeout(timeoutEvent);
-								} catch (Exception e) {
-									log.warn("listener onTimeout threw exception", e);
-								}
-							}
-							break;
-						}
-						Thread.sleep(200);
-					}
-				}catch(InterruptedException e){
-					// exit the loop
-					log.warn("Async Context was Interrupted", e);
-				}
-			}
-		});
 	}
 
 	@Override
@@ -138,5 +110,30 @@ public class MockAsyncContext implements AsyncContext {
 	@Override
 	public long getTimeout() {
 		return timeout;
+	}
+
+	public void waitForCompletion() throws Exception {
+		log.debug("Waiting for completion...");
+		while(true) {
+			long elapsed = System.currentTimeMillis() - startedOn;
+			if (elapsed > timeout) {
+				timedOut = true;
+				// invoke listeners timeout
+				AsyncEvent timeoutEvent = new AsyncEvent(MockAsyncContext.this, request, response);
+				for (AsyncListener l : listeners) {
+					try {
+						l.onTimeout(timeoutEvent);
+					} catch (Exception e) {
+						log.warn("listener onTimeout threw exception", e);
+					}
+				}
+				log.error("Operation timed out, will throw exception");
+				throw new RuntimeException("Operation timed out (elapsed=" + elapsed + ", timeout=" + timeout + ")");
+			} else if (completed) {
+				log.debug("...Completed in ", elapsed, "ms");
+				break;
+			}
+			Thread.sleep(200);
+		}
 	}
 }

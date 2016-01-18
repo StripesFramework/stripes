@@ -159,7 +159,7 @@ public class MockRoundtrip {
         }
 
         this.context = context;
-        this.request = new MockHttpServletRequest("/" + context.getServletContextName(), path, context.getExecutorService());
+        this.request = new MockHttpServletRequest("/" + context.getServletContextName(), path);
         this.request.setSession(session);
         this.response = new MockHttpServletResponse();
         setSourcePage(DEFAULT_SOURCE_PAGE);
