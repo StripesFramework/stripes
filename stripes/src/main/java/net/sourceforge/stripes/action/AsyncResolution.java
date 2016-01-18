@@ -3,6 +3,8 @@ package net.sourceforge.stripes.action;
 import javax.servlet.AsyncContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public abstract class AsyncResolution implements Resolution {
 
@@ -53,4 +55,14 @@ public abstract class AsyncResolution implements Resolution {
 	protected void complete() {
 		getAsyncContext().complete();
 	}
+
+	protected void complete(Resolution resolution) {
+		try {
+			resolution.execute(getRequest(), getResponse());
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+
 }

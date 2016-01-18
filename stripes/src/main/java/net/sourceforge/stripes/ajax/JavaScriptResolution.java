@@ -74,5 +74,8 @@ public class JavaScriptResolution implements Resolution {
         response.setContentType("text/javascript");
         this.builder.build(response.getWriter());
         response.flushBuffer();
+        if (request.isAsyncStarted()) {
+            request.getAsyncContext().complete();
+        }
     }
 }

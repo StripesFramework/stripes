@@ -46,5 +46,8 @@ public class JsonResolution implements Resolution {
         response.setContentType("application/json");
         builder.build(response.getWriter());
         response.flushBuffer();
+        if (request.isAsyncStarted()) {
+            request.getAsyncContext().complete();
+        }
     }
 }

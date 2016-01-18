@@ -222,6 +222,10 @@ public class RedirectResolution extends OnwardResolution<RedirectResolution> {
         log.trace("Redirecting ", this.beans == null ? "" : "(w/flashed bean) ", "to URL: ", url);
 
         response.sendRedirect(url);
+
+        if (request.isAsyncStarted()) {
+            request.getAsyncContext().complete();
+        }
     }
 
     /**

@@ -73,10 +73,19 @@ public class TestMockAsync extends FilterEnabledTestBase {
 		assertTrue(caught);
 	}
 
+	@Test
+	public void testCompleteWithForwardResolution() throws Exception {
+		MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), AsyncActionBean.class);
+		trip.execute("doAsyncAndCompleteWithForwardResolution");
+		AsyncActionBean bean = trip.getActionBean(AsyncActionBean.class);
+		assertNotNull(bean);
+	}
+
 	@UrlBinding("/async")
 	public static class AsyncActionBean implements ActionBean {
 
 		private boolean completed = false;
+		private boolean executedForwardResolution;
 		private ActionBeanContext context;
 
 		public ActionBeanContext getContext() {
@@ -142,9 +151,21 @@ public class TestMockAsync extends FilterEnabledTestBase {
 			};
 		}
 
+		public Resolution doAsyncAndCompleteWithForwardResolution() {
+			return new AsyncResolution() {
+				@Override
+				protected void executeAsync() throws Exception {
+					System.out.println("hiya, I'm forwarding...");
+					complete(new ForwardResolution("/foo/bar.jsp"));
+				}
+			};
+		}
+
+
 		public boolean isCompleted() {
 			return completed;
 		}
+
 	}
 
 

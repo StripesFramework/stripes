@@ -65,6 +65,10 @@ public class ValidationErrorReportResolution implements Resolution {
         writer.println("</p><h2>Validation errors</h2><p>");
         sendErrors(request, response);
         writer.println("</p></div>");
+
+        if (request.isAsyncStarted()) {
+            request.getAsyncContext().complete();
+        }
     }
 
     /**

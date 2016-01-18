@@ -6,7 +6,6 @@ import javax.servlet.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
 
 public class MockAsyncContext implements AsyncContext {
 
@@ -18,7 +17,7 @@ public class MockAsyncContext implements AsyncContext {
 
 	private boolean completed = false;
 	private boolean timedOut = false;
-	private long timeout = 30000;
+	private long timeout = 5000;
 	private long startedOn;
 
 	public MockAsyncContext(ServletRequest request, ServletResponse response) {
@@ -135,5 +134,17 @@ public class MockAsyncContext implements AsyncContext {
 			}
 			Thread.sleep(200);
 		}
+	}
+
+	public long getStartedOn() {
+		return startedOn;
+	}
+
+	public boolean isTimedOut() {
+		return timedOut;
+	}
+
+	public boolean isCompleted() {
+		return completed;
 	}
 }

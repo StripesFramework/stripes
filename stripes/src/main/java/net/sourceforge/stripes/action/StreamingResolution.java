@@ -238,6 +238,10 @@ public class StreamingResolution implements Resolution {
 
         applyHeaders(response);
         stream(response);
+
+        if (request.isAsyncStarted()) {
+            request.getAsyncContext().complete();
+        }
     }
 
     /**
