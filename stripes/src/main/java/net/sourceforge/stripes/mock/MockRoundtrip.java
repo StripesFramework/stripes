@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.servlet.Filter;
 
@@ -157,7 +159,7 @@ public class MockRoundtrip {
         }
 
         this.context = context;
-        this.request = new MockHttpServletRequest("/" + context.getServletContextName(), path);
+        this.request = new MockHttpServletRequest("/" + context.getServletContextName(), path, context.getExecutorService());
         this.request.setSession(session);
         this.response = new MockHttpServletResponse();
         setSourcePage(DEFAULT_SOURCE_PAGE);

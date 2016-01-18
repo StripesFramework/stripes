@@ -184,7 +184,8 @@ public class DispatcherServlet extends HttpServlet {
                     // remove currentContext ThreadLocal
                     ExecutionContext.clearContextThreadLocal();
                     // start async processing
-                    AsyncContext asyncContext = request.startAsync();
+                    log.debug("Starting async processing from action ", ctx.getActionBean());
+                    AsyncContext asyncContext = request.startAsync(request, response);
                     final PageContext pc = pageContext;
                     // register listener for finalizing the async processing
                     asyncContext.addListener(new AsyncListener() {

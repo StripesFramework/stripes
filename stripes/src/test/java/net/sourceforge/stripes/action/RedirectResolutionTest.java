@@ -15,7 +15,7 @@ public class RedirectResolutionTest extends FilterEnabledTestBase {
 
     //helper method
     private MockHttpServletRequest buildMockServletRequest(){
-        MockHttpServletRequest request = new MockHttpServletRequest("/context", "/whatever");
+        MockHttpServletRequest request = new MockHttpServletRequest("/context", "/whatever", null);
         request.addLocale(Locale.US);
         return request;
     }

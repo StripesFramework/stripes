@@ -22,6 +22,9 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>Mock implementation of a ServletContext.  Provides implementation the most commonly used
@@ -49,6 +52,7 @@ public class MockServletContext implements ServletContext {
     private List<Filter> filters = new ArrayList<Filter>();
     private List<ServletContextListener> listeners = new ArrayList<ServletContextListener>();
     private HttpServlet servlet;
+    private ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     /** Simple constructor that creates a new mock ServletContext with the supplied context name. */
     public MockServletContext(String contextName) {
@@ -63,6 +67,10 @@ public class MockServletContext implements ServletContext {
         else {
             return null;
         }
+    }
+
+    public ExecutorService getExecutorService() {
+        return executorService;
     }
 
     /** Servlet 2.3 method. Returns the context name with a leading slash. */
@@ -314,6 +322,14 @@ public class MockServletContext implements ServletContext {
                     log("Exception caught destroying servlet " + servlet + " contextName=" + contextName, e);
                 }
             }
+        }
+        executorService.shutdownNow();
+        try {
+            if (!executorService.awaitTermination(10, TimeUnit.SECONDS)) {
+                log("Unable to shut down executor service !");
+            }
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
     }
 

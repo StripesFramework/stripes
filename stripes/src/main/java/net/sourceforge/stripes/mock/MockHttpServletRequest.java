@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
 
 import javax.servlet.*;
 import javax.servlet.http.*;
@@ -79,17 +80,22 @@ public class MockHttpServletRequest implements HttpServletRequest {
     private String pathInfo    = "";
     private String queryString = "";
 
+    private MockAsyncContext asyncContext = null;
+    private final ExecutorService executorService;
+
+
     /**
      * Minimal constructor that makes sense. Requires a context path (should be the same as
      * the name of the servlet context, prepended with a '/') and a servlet path. E.g.
      * new MockHttpServletRequest("/myapp", "/actionType/foo.action").
-     *
-     * @param contextPath
+     *  @param contextPath
      * @param servletPath
+     * @param executorService
      */
-    public MockHttpServletRequest(String contextPath, String servletPath) {
+    public MockHttpServletRequest(String contextPath, String servletPath, ExecutorService executorService) {
         this.contextPath = contextPath;
         this.servletPath = servletPath;
+        this.executorService = executorService;
     }
 
     /** Sets the auth type that will be reported by this request. */
@@ -464,23 +470,26 @@ public class MockHttpServletRequest implements HttpServletRequest {
     }
 
     public AsyncContext startAsync() throws IllegalStateException {
-        return null;
+        throw new UnsupportedOperationException("use request,response variant");
     }
 
     public AsyncContext startAsync(ServletRequest servletRequest, ServletResponse servletResponse) throws IllegalStateException {
-        return null;
+        if (asyncContext == null) {
+            asyncContext = new MockAsyncContext(servletRequest, servletResponse, executorService);
+        }
+        return asyncContext;
     }
 
     public boolean isAsyncStarted() {
-        return false;
+        return asyncContext != null;
     }
 
     public boolean isAsyncSupported() {
-        return false;
+        return true;
     }
 
     public AsyncContext getAsyncContext() {
-        return null;
+        return asyncContext;
     }
 
     public DispatcherType getDispatcherType() {

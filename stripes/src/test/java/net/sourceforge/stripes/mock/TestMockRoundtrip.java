@@ -198,7 +198,7 @@ public class TestMockRoundtrip extends FilterEnabledTestBase implements ActionBe
     
     @Test(groups="fast")
     public void testRequestCaseInsensitive() {
-        final MockHttpServletRequest request = new MockHttpServletRequest("", "");
+        final MockHttpServletRequest request = new MockHttpServletRequest("", "", null);
 
         String headerName = "User-Agent";
         Object value = "Netscape/6.0";

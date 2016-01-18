@@ -2,24 +2,34 @@ package net.sourceforge.stripes.mock;
 
 import net.sourceforge.stripes.FilterEnabledTestBase;
 import net.sourceforge.stripes.action.*;
-import org.testng.Assert;
+import static org.testng.Assert.*;
 import org.testng.annotations.Test;
 
-import javax.servlet.AsyncContext;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public class TestMockAsync extends FilterEnabledTestBase {
 
-	@Test(groups="fast")
-	public void testDefaultEvent() throws Exception {
+	@Test
+	public void testSuccess() throws Exception {
 		MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), AsyncActionBean.class);
 		trip.execute();
-
 		AsyncActionBean bean = trip.getActionBean(AsyncActionBean.class);
-		Assert.assertNotNull(bean);
+		assertNotNull(bean);
+		assertTrue(bean.isCompleted());
 	}
 
+	@Test
+	public void testTimeout() throws Exception {
+		MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), AsyncActionBean.class);
+		trip.execute("doAsyncTimeout");
+		AsyncActionBean bean = trip.getActionBean(AsyncActionBean.class);
+		// wait for longer than timeout
+		Thread.sleep(3000);
+		assertNotNull(bean);
+		assertTrue(!bean.isCompleted());
+		HttpServletResponse response = bean.getContext().getResponse();
+		assertEquals(response.getStatus(), 500);
+	}
 
 	@UrlBinding("/async")
 	public static class AsyncActionBean implements ActionBean {
@@ -42,12 +52,25 @@ public class TestMockAsync extends FilterEnabledTestBase {
 				protected void executeAsync() throws Exception {
 					Thread.sleep(5000);
 					getResponse().getWriter().write("DONE");
+					completed = true;
 					complete();
 				}
 			};
 		}
 
+		public Resolution doAsyncTimeout() {
+			return new AsyncResolution() {
+				@Override
+				protected void executeAsync() throws Exception {
+					getAsyncContext().setTimeout(1000);
+					// we never complete !
+				}
+			};
+		}
 
+		public boolean isCompleted() {
+			return completed;
+		}
 	}
 
 
