@@ -15,11 +15,8 @@
 package net.sourceforge.stripes.controller;
 
 import java.lang.annotation.Annotation;
-import net.sourceforge.stripes.action.ActionBean;
-import net.sourceforge.stripes.action.ActionBeanContext;
-import net.sourceforge.stripes.action.DontBind;
-import net.sourceforge.stripes.action.DontValidate;
-import net.sourceforge.stripes.action.Resolution;
+
+import net.sourceforge.stripes.action.*;
 import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.exception.StripesServletException;
 import net.sourceforge.stripes.util.HtmlUtil;
@@ -49,15 +46,6 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.WeakHashMap;
 import javax.servlet.http.HttpServletResponse;
-import net.sourceforge.stripes.action.DELETE;
-import net.sourceforge.stripes.action.ErrorResolution;
-import net.sourceforge.stripes.action.GET;
-import net.sourceforge.stripes.action.HEAD;
-import net.sourceforge.stripes.action.HttpRequestMethod;
-import net.sourceforge.stripes.action.JsonBuilder;
-import net.sourceforge.stripes.action.POST;
-import net.sourceforge.stripes.action.PUT;
-import net.sourceforge.stripes.action.RestActionBean;
 
 /**
  * Helper class that contains much of the logic used when dispatching requests
@@ -657,7 +645,17 @@ public class DispatcherHelper {
                 // a exception to be handled differently for RestActionBeans that regular
                 // ActionBeans, they will need to write this code accordingly in their
                 // ExceptionHandler class.
-                Object returnValue = handler.invoke(bean);
+                final Object returnValue;
+                if (NameBasedActionResolver.isAsyncEventHandler(handler)) {
+                    returnValue = new AsyncResolution(
+                        ctx.getActionBeanContext().getRequest(),
+                        ctx.getActionBeanContext().getResponse(),
+                        bean,
+                        handler
+                    );
+                } else {
+                    returnValue = handler.invoke(bean);
+                }
 
                 fillInValidationErrors(ctx);
 

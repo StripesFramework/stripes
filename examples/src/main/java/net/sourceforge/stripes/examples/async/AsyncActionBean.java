@@ -43,81 +43,63 @@ public class AsyncActionBean implements ActionBean {
 	 * asynchronously fetch data from a remote web service (github)
 	 * and set instance fields for use in the view.
  	 */
-	public Resolution asyncEvent() {
+	public void asyncEvent(AsyncResolution async) {
 
-		// we return an AsyncResolution : this triggers the asynchronous servlet mode...
-		return new AsyncResolution() {
+		// we use an Async Http Client in order to call the github web service as a demo.
+		// the async http client calls back one of the lambdas when it's done, and
+		// then we complete the async request.
 
-			// only this method to implement. you must complete() or dispatch() yourself.
-			@Override
-			protected void executeAsync() throws Exception {
+		final Resolution forwardResolution = new ForwardResolution(JSP_PATH);
+		HttpHost host = new HttpHost("api.github.com", 443, "https");
+		new AsyncHttpClient(host)
+			.buildRequest("/repos/StripesFramework/stripes/commits")
+			.completed(result -> {
 
-				// we use an Async Http Client in order to call the github web service as a demo.
-				// the async http client calls on of the lambdas when he's done, and
-				// then we dispatch to a JSP, completing the async request.
+				// response is returned, deserialize result
+				status = result.getStatusLine().getStatusCode();
+				if (status == 200) {
+					ByteArrayOutputStream bos = new ByteArrayOutputStream();
+					try {
+						result.getEntity().writeTo(bos);
+						bos.close();
+						ghResponse = bos.toString("UTF-8");
+					} catch (Exception e) {
+						clientException = e;
+					}
+					async.complete(forwardResolution);
+				} else {
+					ghResponse = result.getStatusLine().getReasonPhrase();
+					async.complete(forwardResolution);
+				}
 
-				HttpHost host = new HttpHost("api.github.com", 443, "https");
-				new AsyncHttpClient(host)
-					.buildRequest("/repos/StripesFramework/stripes/commits")
-					.completed(result -> {
+			})
+			.failed(ex -> {
 
-						// response is returned, deserialize result
-						status = result.getStatusLine().getStatusCode();
-						if (status == 200) {
-							ByteArrayOutputStream bos = new ByteArrayOutputStream();
-							try {
-								result.getEntity().writeTo(bos);
-								bos.close();
-								ghResponse = bos.toString("UTF-8");
-							} catch (Exception e) {
-								clientException = e;
-							}
-							dispatch(JSP_PATH);
-						} else {
-							ghResponse = result.getStatusLine().getReasonPhrase();
-							dispatch(JSP_PATH);
-						}
+				// http client failure
+				clientException = ex;
+				async.complete(forwardResolution);
 
-					})
-					.failed(ex -> {
+			})
+			.cancelled(() -> {
 
-						// http client failure
-						clientException = ex;
-						dispatch(JSP_PATH);
+				// just for demo, we never call it...
+				cancelled = true;
+				async.complete(forwardResolution);
 
-					})
-					.cancelled(() -> {
-
-						// just for demo, we never call it...
-						cancelled = true;
-						dispatch(JSP_PATH);
-
-					})
-					.get(); // trigger async request
-			}
-		};
+			})
+			.get(); // trigger async request
 	}
 
 	@DontValidate
-	public Resolution asyncEventThatTimeouts() {
-		return new AsyncResolution() {
-			@Override
-			protected void executeAsync() throws Exception {
-				getAsyncContext().setTimeout(1000);
-				getResponse().getWriter().write("OK");
-				// never call complete/dispatch...
-			}
-		};
+	public void asyncEventThatTimeouts(AsyncResolution r) throws Exception {
+		r.getAsyncContext().setTimeout(1000);
+		r.getResponse().getWriter().write("OK");
+		// never call complete/dispatch...
 	}
 
 	@DontValidate
-	public Resolution asyncEventThatThrows() {
-		return new AsyncResolution() {
-			@Override
-			protected void executeAsync() throws Exception {
-				throw new RuntimeException("WTF");
-			}
-		};
+	public void asyncEventThatThrows(AsyncResolution r) {
+		throw new RuntimeException("BOOM");
 	}
 
 	// getters for instance fields that have been set by event method

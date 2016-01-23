@@ -11,20 +11,26 @@ import java.io.IOException;
 
 public class TestMockAsync extends FilterEnabledTestBase {
 
+	private AsyncActionBean execute(String eventName) throws Exception {
+		MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), AsyncActionBean.class);
+		trip.execute(eventName);
+		AsyncActionBean bean = trip.getActionBean(AsyncActionBean.class);
+		assertNotNull(bean);
+		assertEquals(eventName, bean.getContext().getEventName());
+		assertTrue(bean.completed);
+		return bean;
+	}
+
 	@Test
 	public void testSuccess() throws Exception {
-		MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), AsyncActionBean.class);
-		trip.execute();
-		AsyncActionBean bean = trip.getActionBean(AsyncActionBean.class);
+		AsyncActionBean bean = execute("doAsync");
 		assertNotNull(bean);
 		assertTrue(bean.isCompleted());
 	}
 
 	@Test
 	public void testReallyAsync() throws Exception {
-		MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), AsyncActionBean.class);
-		trip.execute("doReallyAsync");
-		AsyncActionBean bean = trip.getActionBean(AsyncActionBean.class);
+		AsyncActionBean bean = execute("doReallyAsync");
 		assertNotNull(bean);
 		assertTrue(bean.isCompleted());
 	}
@@ -75,17 +81,18 @@ public class TestMockAsync extends FilterEnabledTestBase {
 
 	@Test
 	public void testCompleteWithForwardResolution() throws Exception {
-		MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), AsyncActionBean.class);
-		trip.execute("doAsyncAndCompleteWithForwardResolution");
-		AsyncActionBean bean = trip.getActionBean(AsyncActionBean.class);
-		assertNotNull(bean);
+		execute("doAsyncAndCompleteWithForwardResolution");
+	}
+
+	@Test
+	public void testAsyncClassy() throws Exception {
+		execute("doAsyncClassy");
 	}
 
 	@UrlBinding("/async")
 	public static class AsyncActionBean implements ActionBean {
 
 		private boolean completed = false;
-		private boolean executedForwardResolution;
 		private ActionBeanContext context;
 
 		public ActionBeanContext getContext() {
@@ -97,70 +104,52 @@ public class TestMockAsync extends FilterEnabledTestBase {
 		}
 
 		@DefaultHandler
-		public Resolution doAsync() {
-			return new AsyncResolution() {
-				@Override
-				protected void executeAsync() throws Exception {
-					System.out.println("Not Really Async...");
-					getResponse().getWriter().write("DONE");
+		public void doAsync(AsyncResolution r) throws Exception {
+			System.out.println("Not Really Async...");
+			r.getResponse().getWriter().write("DONE");
+			completed = true;
+			r.complete();
+		}
+
+		public void doReallyAsync(AsyncResolution r) throws Exception {
+			new Thread(() -> {
+				System.out.println("Really Async !");
+				try {
+					r.getResponse().getWriter().write("DONE");
 					completed = true;
-					complete();
+					r.complete();
+				} catch (IOException e) {
+					// will timeout...
+					e.printStackTrace();
 				}
-			};
+			}).start();
 		}
 
-		public Resolution doReallyAsync() {
-			return new AsyncResolution() {
-				@Override
-				protected void executeAsync() throws Exception {
-					new Thread(() -> {
-						System.out.println("Really Async !");
-						try {
-							getResponse().getWriter().write("DONE");
-							completed = true;
-							complete();
-						} catch (IOException e) {
-							// will timeout...
-							e.printStackTrace();
-						}
-					}).start();
-				}
-			};
-		}
-
-		public Resolution doAsyncTimeout() {
-			return new AsyncResolution() {
-				@Override
-				protected void executeAsync() throws Exception {
-					getAsyncContext().setTimeout(1000);
-					// we never complete !
-				}
-			};
+		public void doAsyncTimeout(AsyncResolution r) {
+			r.getAsyncContext().setTimeout(1000);
+			// we never complete !
 		}
 
 		public Resolution doRegularException() {
 			throw new RuntimeException("boom");
 		}
 
-		public Resolution doAsyncException() {
-			return new AsyncResolution() {
-				@Override
-				protected void executeAsync() throws Exception {
-					throw new RuntimeException("Async boom");
-				}
-			};
+		public void doAsyncException(AsyncResolution r) {
+			throw new RuntimeException("Async boom");
 		}
 
-		public Resolution doAsyncAndCompleteWithForwardResolution() {
-			return new AsyncResolution() {
-				@Override
-				protected void executeAsync() throws Exception {
-					System.out.println("hiya, I'm forwarding...");
-					complete(new ForwardResolution("/foo/bar.jsp"));
-				}
-			};
+		public void doAsyncAndCompleteWithForwardResolution(AsyncResolution r) {
+			System.out.println("hiya, I'm forwarding...");
+			completed = true;
+			r.complete(new ForwardResolution("/foo/bar.jsp"));
 		}
 
+		public void doAsyncClassy(AsyncResolution callback) {
+			new Thread(() -> {
+				completed = true;
+				callback.complete(new ForwardResolution("/foo/bar"));
+			}).start();
+		}
 
 		public boolean isCompleted() {
 			return completed;
@@ -170,3 +159,4 @@ public class TestMockAsync extends FilterEnabledTestBase {
 
 
 }
+

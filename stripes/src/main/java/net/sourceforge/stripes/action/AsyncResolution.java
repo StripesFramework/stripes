@@ -3,12 +3,22 @@ package net.sourceforge.stripes.action;
 import javax.servlet.AsyncContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
+import java.lang.reflect.Method;
 
-public abstract class AsyncResolution implements Resolution {
+public class AsyncResolution implements Resolution {
 
+	private final HttpServletRequest request;
+	private final HttpServletResponse response;
+	private final Object bean;
+	private final Method handler;
 	private AsyncContext asyncContext;
+
+	public AsyncResolution(HttpServletRequest request, HttpServletResponse response, Object bean, Method handler) {
+		this.request = request;
+		this.response = response;
+		this.bean = bean;
+		this.handler = handler;
+	}
 
 	public AsyncContext getAsyncContext() {
 		return asyncContext;
@@ -28,8 +38,6 @@ public abstract class AsyncResolution implements Resolution {
 		this.context = context;
 	}
 
-	private HttpServletRequest request;
-	private HttpServletResponse response;
 
 	public HttpServletRequest getRequest() {
 		return request;
@@ -40,29 +48,25 @@ public abstract class AsyncResolution implements Resolution {
 	}
 
 	@Override
-	public final void execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
-		this.request = request;
-		this.response = response;
-		executeAsync();
+	public void execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		// invoke the handler (start async has been done already) and let it complete...
+		handler.invoke(bean, this);
 	}
 
-	protected abstract void executeAsync() throws Exception;
-
-	protected void dispatch(String path) {
+	public void dispatch(String path) {
 		getAsyncContext().dispatch(path);
 	}
 
-	protected void complete() {
+	public void complete() {
 		getAsyncContext().complete();
 	}
 
-	protected void complete(Resolution resolution) {
+	public void complete(Resolution resolution) {
 		try {
 			resolution.execute(getRequest(), getResponse());
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
-
 
 }

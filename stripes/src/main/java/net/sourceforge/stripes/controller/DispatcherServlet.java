@@ -186,6 +186,9 @@ public class DispatcherServlet extends HttpServlet {
                     // start async processing
                     log.debug("Starting async processing from action ", ctx.getActionBean());
                     AsyncContext asyncContext = request.startAsync(request, response);
+                    AsyncResolution asyncResolution = (AsyncResolution)resolution;
+                    asyncResolution.setAsyncContext(asyncContext);
+                    asyncResolution.setContext(ctx.getActionBeanContext());
                     final PageContext pc = pageContext;
                     // register listener for finalizing the async processing
                     asyncContext.addListener(new AsyncListener() {
@@ -237,9 +240,6 @@ public class DispatcherServlet extends HttpServlet {
                                 "response=", event.getSuppliedResponse());
                         }
                     });
-                    AsyncResolution asyncResolution = (AsyncResolution)resolution;
-                    asyncResolution.setAsyncContext(asyncContext);
-                    asyncResolution.setContext(ctx.getActionBeanContext());
                 }
                 executeResolution(ctx, resolution);
             }
