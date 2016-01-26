@@ -4,8 +4,8 @@ import net.sourceforge.stripes.action.*;
 import net.sourceforge.stripes.examples.bugzooky.ext.Public;
 import net.sourceforge.stripes.validation.Validate;
 import org.apache.http.HttpHost;
+import org.apache.http.HttpResponse;
 
-import javax.servlet.AsyncContext;
 import java.io.ByteArrayOutputStream;
 
 @Public
@@ -43,7 +43,7 @@ public class AsyncActionBean implements ActionBean {
 	 * asynchronously fetch data from a remote web service (github)
 	 * and set instance fields for use in the view.
  	 */
-	public void asyncEvent(AsyncResolution async) {
+	public void asyncEvent(final AsyncResolution async) {
 
 		// we use an Async Http Client in order to call the github web service as a demo.
 		// the async http client calls back one of the lambdas when it's done, and
@@ -53,41 +53,44 @@ public class AsyncActionBean implements ActionBean {
 		HttpHost host = new HttpHost("api.github.com", 443, "https");
 		new AsyncHttpClient(host)
 			.buildRequest("/repos/StripesFramework/stripes/commits")
-			.completed(result -> {
-
-				// response is returned, deserialize result
-				status = result.getStatusLine().getStatusCode();
-				if (status == 200) {
-					ByteArrayOutputStream bos = new ByteArrayOutputStream();
-					try {
-						result.getEntity().writeTo(bos);
-						bos.close();
-						ghResponse = bos.toString("UTF-8");
-					} catch (Exception e) {
-						clientException = e;
+			.completed(new AsyncHttpClient.Consumer<HttpResponse>() {
+				@Override
+				public void accept(HttpResponse result) {
+					// response is returned, deserialize result
+					status = result.getStatusLine().getStatusCode();
+					if (status == 200) {
+						ByteArrayOutputStream bos = new ByteArrayOutputStream();
+						try {
+							result.getEntity().writeTo(bos);
+							bos.close();
+							ghResponse = bos.toString("UTF-8");
+						} catch (Exception e) {
+							clientException = e;
+						}
+						async.complete(forwardResolution);
+					} else {
+						ghResponse = result.getStatusLine().getReasonPhrase();
+						async.complete(forwardResolution);
 					}
-					async.complete(forwardResolution);
-				} else {
-					ghResponse = result.getStatusLine().getReasonPhrase();
+				}
+			})
+			.failed(new AsyncHttpClient.Consumer<Exception>() {
+				@Override
+				public void accept(Exception e) {
+					// http client failure
+					clientException = e;
 					async.complete(forwardResolution);
 				}
-
 			})
-			.failed(ex -> {
+			.cancelled(new Runnable() {
+				@Override
+				public void run() {
+					// just for demo, we never call it...
+					cancelled = true;
+					async.complete(forwardResolution);
 
-				// http client failure
-				clientException = ex;
-				async.complete(forwardResolution);
-
-			})
-			.cancelled(() -> {
-
-				// just for demo, we never call it...
-				cancelled = true;
-				async.complete(forwardResolution);
-
-			})
-			.get(); // trigger async request
+				}
+			}).get(); // trigger async request
 	}
 
 	@DontValidate

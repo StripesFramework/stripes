@@ -111,16 +111,19 @@ public class TestMockAsync extends FilterEnabledTestBase {
 			r.complete();
 		}
 
-		public void doReallyAsync(AsyncResolution r) throws Exception {
-			new Thread(() -> {
-				System.out.println("Really Async !");
-				try {
-					r.getResponse().getWriter().write("DONE");
-					completed = true;
-					r.complete();
-				} catch (IOException e) {
-					// will timeout...
-					e.printStackTrace();
+		public void doReallyAsync(final AsyncResolution r) throws Exception {
+			new Thread(new Runnable() {
+				@Override
+				public void run() {
+					System.out.println("Really Async !");
+					try {
+						r.getResponse().getWriter().write("DONE");
+						completed = true;
+						r.complete();
+					} catch (IOException e) {
+						// will timeout...
+						e.printStackTrace();
+					}
 				}
 			}).start();
 		}
@@ -144,10 +147,13 @@ public class TestMockAsync extends FilterEnabledTestBase {
 			r.complete(new ForwardResolution("/foo/bar.jsp"));
 		}
 
-		public void doAsyncClassy(AsyncResolution callback) {
-			new Thread(() -> {
-				completed = true;
-				callback.complete(new ForwardResolution("/foo/bar"));
+		public void doAsyncClassy(final AsyncResolution callback) {
+			new Thread(new Runnable() {
+				@Override
+				public void run() {
+					completed = true;
+					callback.complete(new ForwardResolution("/foo/bar"));
+				}
 			}).start();
 		}
 

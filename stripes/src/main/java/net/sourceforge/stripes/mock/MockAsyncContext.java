@@ -13,7 +13,7 @@ public class MockAsyncContext implements AsyncContext {
 
 	private final ServletRequest request;
 	private final ServletResponse response;
-	private final List<AsyncListener> listeners = new ArrayList<>();
+	private final List<AsyncListener> listeners = new ArrayList<AsyncListener>();
 
 	private boolean completed = false;
 	private boolean timedOut = false;

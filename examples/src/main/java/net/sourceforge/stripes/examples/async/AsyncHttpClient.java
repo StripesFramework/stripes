@@ -13,7 +13,6 @@ import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.nio.reactor.ConnectingIOReactor;
 
 import java.io.IOException;
-import java.util.function.Consumer;
 
 /**
  * Wrapper for non-blocking http client example. Avoids cluttering the action bean's code...
@@ -52,6 +51,10 @@ public class AsyncHttpClient  {
 
 	public AsyncRequest buildRequest(String uri) {
 		return new AsyncRequest(uri);
+	}
+
+	public interface Consumer<T> {
+		void accept(T t);
 	}
 
 	public class AsyncRequest {

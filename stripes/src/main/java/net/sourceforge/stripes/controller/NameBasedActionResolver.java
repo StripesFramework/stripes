@@ -23,7 +23,6 @@ import net.sourceforge.stripes.util.Log;
 import javax.servlet.ServletContext;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.Parameter;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -251,10 +250,10 @@ public class NameBasedActionResolver extends AnnotatedClassActionResolver {
     public static boolean isAsyncEventHandler(Method handler) {
         if (!Modifier.isAbstract(handler.getModifiers())
             && handler.getReturnType().equals(Void.TYPE)
-            && handler.getParameterCount() == 1) {
+            && handler.getParameterTypes().length == 1) {
             // look at arg type
-            Parameter p = handler.getParameters()[0];
-            return AsyncResolution.class.isAssignableFrom(p.getType());
+            Class<?> pType = handler.getParameterTypes()[0];
+            return AsyncResolution.class.isAssignableFrom(pType);
         }
         return false;
     }
