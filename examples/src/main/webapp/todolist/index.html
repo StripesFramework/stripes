@@ -1,0 +1,145 @@
+<!doctype html>
+<html>
+    <head>
+        <title>jQuery To-Do List</title>
+        <script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
+        <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
+        <script src="http://cdn.datatables.net/1.10.10/js/jquery.dataTables.min.js"></script>
+        <script src="http://ajax.aspnetcdn.com/ajax/jquery.validate/1.14.0/jquery.validate.min.js"></script>
+        <script src="http://cdn.datatables.net/1.10.10/js/jquery.dataTables.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="https://code.jquery.com/ui/1.11.3/themes/smoothness/jquery-ui.css">
+        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.10/css/jquery.dataTables.min.css">
+
+        <script>
+
+            todoStore = [];
+            var todoValidator;
+
+            $(document).ready(function () {
+
+                // Setup and initialize the todo table
+                var todoTable = $("#todoTable").DataTable({
+                    processing: true,
+                    serverside: true,
+                    ajax: { url: "todos", dataSrc: "" },
+                    columns: [
+                        {title: "Priority", data: "priority"},
+                        {title: "Description", data: "description"},
+                        {title: "Action", mRender: function (data, type, rowData) {
+                                return '<button class="updateButton">Update</button><button class="deleteButton">Delete</button>';
+                            }}]
+                });
+
+                // When delete is clicked on a row, delete it 
+                $('.dataTable').on('click', '.deleteButton', function (e) {
+                    var rowNumber = $(this).closest('tr')[0];
+
+                    // Confirm the deletion and delete the row
+                    if (confirm("Are you sure you want to delete this todo item? (id=" + todoTable.row(rowNumber).data().id + "?)")) {
+                        $.ajax({
+                            type: "DELETE",
+                            url: "todos/" + todoTable.row(rowNumber).data().id,
+                            success: function (todo) {
+                                todoTable.row(rowNumber).remove().draw();
+                                $("#resetButton").click();
+                            }
+                        });
+                    }
+                });
+
+                // When update is clicked on a row, grab the object data out of the
+                // selected row and put it in the form fields.
+                $('.dataTable').on('click', '.updateButton', function (e) {
+                    var tableRow = $(this).closest('tr')[0];
+                    var todo = todoTable.row(tableRow).data();
+                    $("#description").val(todo.description);
+                    $("#priority").val(todo.priority);
+                    $("#id").val(todo.id);
+                    $("#rowNumber").val(todoTable.row(tableRow).index());
+                });
+
+                // Reset buttons are moronic and won't clear hidden inputs
+                $("#resetButton").click(function (e) {
+                    $("#id").removeAttr("value");
+                    $("#rowNumber").removeAttr("value");
+                    todoValidator.resetForm();
+                });
+
+                // Add form validator and submit handler
+                todoValidator = $("#todoForm").validate({
+                    debug: true,
+                    rules: {
+                        priority: {
+                            required: true,
+                            digits: true,
+                            range: [0, 100]
+                        },
+                        description: {
+                            required: true,
+                            maxlength: 128
+                        }
+                    },
+                    submitHandler: function (form) {
+                        // Instantiate our todo object
+                        todo = createTodo($("#id").val(), $("#priority").val(), $("#description").val());
+
+                        // If we have an ID, then update the row
+                        // in the table.  Otherwise, create a new ID and add it
+                        // to the table.
+                        if (todo.id) {
+                            $.ajax({
+                                type: "POST",
+                                contentType: "application/json",
+                                url: "todos/" + todo.id,
+                                data: '{ "todo": ' + JSON.stringify(todo) + '}',
+                                processData: false,
+                                success: function (todo) {
+                                    todoTable.row($("#rowNumber").val()).data(todo);
+                                    $("#resetButton").click();
+                                }
+                            });
+
+                        } else {
+                            $.ajax({
+                                type: "POST",
+                                contentType: "application/json",
+                                url: "todos",
+                                dataType: "json",
+                                data: '{ "todo": ' + JSON.stringify(todo) + '}',
+                                processData: false,
+                                success: function (todo) {
+                                    todoTable.row.add(todo).draw();
+                                    $("#resetButton").click();
+                                }
+                            });
+                        }
+                    }
+                });
+            });
+
+            function createTodo(id, priority, description) {
+                todo = {};
+                todo.id = id;
+                todo.priority = priority;
+                todo.description = description;
+                return todo;
+            }
+        </script>
+
+    </head>
+    <body>
+        <h1>jQuery todolist</h1>
+        <form id="todoForm" method="post" action="">
+            <input type="hidden" id="id" name="id">
+            <input type="hidden" id="rowNumber">
+            <label for="priority">Priority:</label>
+            <input type="text" id="priority" name="priority"/><br/>
+            <label for="description">Description:</label>
+            <input type="text"  name="description" id="description"/><br/>
+            <input id="saveButton" type="submit" name="save" value="Save">
+            <input id="resetButton" type="reset" name="reset" value="Cancel">
+        </form>
+        <hr/>
+        <table id="todoTable" class="display"></table>
+    </body>
+</html>

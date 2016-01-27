@@ -6,7 +6,7 @@
 
 
     <description>
-        Stripes Examples
+      Stripes Examples
     </description>
     <display-name>Stripes Examples</display-name>
 
@@ -26,7 +26,7 @@
         <!-- REQUIRED init parameter for the Stripes Filter. -->
         <init-param>
             <param-name>ActionResolver.Packages</param-name>
-            <param-value>net.sourceforge.stripes.examples</param-value>
+            <param-value>net.sourceforge.stripes.examples,net.sourceforge.stripes.examples.ajax,net.sourceforge.stripes.examples.rockandroll</param-value>
         </init-param>
 
         <!-- Optional init parameter for the Stripes Filter. -->
@@ -71,4 +71,18 @@
         <dispatcher>ERROR</dispatcher>
     </filter-mapping>
 
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>all</web-resource-name>
+            <url-pattern>/*</url-pattern>
+            <url-pattern>/todolist/*</url-pattern>
+            <http-method>GET</http-method>
+            <http-method>POST</http-method>
+            <http-method>HEAD</http-method>
+            <http-method>PUT</http-method>
+            <http-method>OPTIONS</http-method>
+            <http-method>TRACE</http-method>
+            <http-method>DELETE</http-method>
+        </web-resource-collection>
+    </security-constraint>
 </web-app>

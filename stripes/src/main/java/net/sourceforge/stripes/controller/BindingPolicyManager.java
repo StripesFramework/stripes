@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -68,7 +69,7 @@ public class BindingPolicyManager {
     private static final Log log = Log.getInstance(BindingPolicyManager.class);
 
     /** Cached instances */
-    private static final Map<Class<?>, BindingPolicyManager> instances = new HashMap<Class<?>, BindingPolicyManager>();
+    private static final Map<Class<?>, BindingPolicyManager> instances = new ConcurrentHashMap<Class<?>, BindingPolicyManager>();
 
     /**
      * Get the policy manager for the given class. Instances are cached and returned on subsequent
@@ -78,12 +79,18 @@ public class BindingPolicyManager {
      * @return a policy manager
      */
     public static BindingPolicyManager getInstance(Class<?> beanType) {
-        if (instances.containsKey(beanType))
-            return instances.get(beanType);
+        BindingPolicyManager oldInstance = instances.get(beanType);
+        if(oldInstance != null) {
+            return oldInstance;
+        } else {
+            BindingPolicyManager newInstance = new BindingPolicyManager(beanType);
+            oldInstance = instances.put(beanType, newInstance);
+            if(oldInstance != null) {
+                newInstance = oldInstance;
+            }
 
-        BindingPolicyManager instance = new BindingPolicyManager(beanType);
-        instances.put(beanType, instance);
-        return instance;
+            return newInstance;
+        }
     }
 
     /** The class to which the binding policy applies */
