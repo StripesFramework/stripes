@@ -4,7 +4,7 @@ import net.sourceforge.stripes.FilterEnabledTestBase;
 import net.sourceforge.stripes.action.*;
 import static org.testng.Assert.*;
 
-import net.sourceforge.stripes.controller.AsyncResolution;
+import net.sourceforge.stripes.controller.AsyncResponse;
 import org.testng.annotations.Test;
 
 import javax.servlet.http.HttpServletResponse;
@@ -105,14 +105,14 @@ public class TestMockAsync extends FilterEnabledTestBase {
 		}
 
 		@DefaultHandler
-		public void doAsync(AsyncResolution r) throws Exception {
+		public void doAsync(AsyncResponse r) throws Exception {
 			System.out.println("Not Really Async...");
 			r.getResponse().getWriter().write("DONE");
 			completed = true;
 			r.complete();
 		}
 
-		public void doReallyAsync(final AsyncResolution r) throws Exception {
+		public void doReallyAsync(final AsyncResponse r) throws Exception {
 			new Thread(new Runnable() {
 				@Override
 				public void run() {
@@ -129,7 +129,7 @@ public class TestMockAsync extends FilterEnabledTestBase {
 			}).start();
 		}
 
-		public void doAsyncTimeout(AsyncResolution r) {
+		public void doAsyncTimeout(AsyncResponse r) {
 			r.setTimeout(1000);
 			// we never complete !
 		}
@@ -138,17 +138,17 @@ public class TestMockAsync extends FilterEnabledTestBase {
 			throw new RuntimeException("boom");
 		}
 
-		public void doAsyncException(AsyncResolution r) {
+		public void doAsyncException(AsyncResponse r) {
 			throw new RuntimeException("Async boom");
 		}
 
-		public void doAsyncAndCompleteWithForwardResolution(AsyncResolution r) {
+		public void doAsyncAndCompleteWithForwardResolution(AsyncResponse r) {
 			System.out.println("hiya, I'm forwarding...");
 			completed = true;
 			r.complete(new ForwardResolution("/foo/bar.jsp"));
 		}
 
-		public void doAsyncClassy(final AsyncResolution callback) {
+		public void doAsyncClassy(final AsyncResponse callback) {
 			new Thread(new Runnable() {
 				@Override
 				public void run() {

@@ -15,7 +15,7 @@
  */
 package net.sourceforge.stripes.action;
 
-import net.sourceforge.stripes.controller.AsyncResolution;
+import net.sourceforge.stripes.controller.AsyncResponse;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -48,10 +48,10 @@ public class JsonResolution implements Resolution {
         response.setContentType("application/json");
         builder.build(response.getWriter());
         response.flushBuffer();
-        AsyncResolution asyncResolution = AsyncResolution.get(request);
-        if (asyncResolution != null) {
+        AsyncResponse asyncResponse = AsyncResponse.get(request);
+        if (asyncResponse != null) {
             // async started, complete
-            asyncResolution.complete();
+            asyncResponse.complete();
         }
     }
 }

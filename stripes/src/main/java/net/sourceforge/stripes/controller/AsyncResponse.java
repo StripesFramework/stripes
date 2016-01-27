@@ -20,9 +20,9 @@ import java.lang.reflect.Method;
  * do not want to depend on Servlet3 APIs at runtime, so that
  * Stripes continues to run in Servlet2 containers.
  */
-public abstract class AsyncResolution implements Resolution {
+public abstract class AsyncResponse implements Resolution {
 
-	private static final Log log = Log.getInstance(AsyncResolution.class);
+	private static final Log log = Log.getInstance(AsyncResponse.class);
 
 	private static final String REQ_ATTR_NAME = "__Stripes_Async_Resolution";
 	private final HttpServletRequest request;
@@ -39,7 +39,7 @@ public abstract class AsyncResolution implements Resolution {
 	static {
 		try {
 			HttpServletRequest.class.getMethod("startAsync");
-			Class<?> impl = Class.forName("net.sourceforge.stripes.controller.AsyncResolutionServlet3");
+			Class<?> impl = Class.forName("net.sourceforge.stripes.controller.AsyncResponseServlet3");
 			ctor = impl.getDeclaredConstructor(
 				HttpServletRequest.class,
 				HttpServletResponse.class,
@@ -50,7 +50,7 @@ public abstract class AsyncResolution implements Resolution {
 			log.info("Container is not using Servlet3 : Async event handlers will throw runtime exceptions.");
 		} catch (Exception e) {
 			// should not happen unless we break internals (bad refactor etc).
-			log.error("Exception while initializing AsyncResolution implementation class.", e);
+			log.error("Exception while initializing AsyncResponse implementation class.", e);
 			throw new RuntimeException(e);
 		}
 
@@ -58,7 +58,7 @@ public abstract class AsyncResolution implements Resolution {
 
 	private Runnable cleanupCallback;
 
-	AsyncResolution(HttpServletRequest request, HttpServletResponse response, ActionBean bean, Method handler) {
+	AsyncResponse(HttpServletRequest request, HttpServletResponse response, ActionBean bean, Method handler) {
 		this.request = request;
 		this.response = response;
 		this.bean = bean;
@@ -68,14 +68,14 @@ public abstract class AsyncResolution implements Resolution {
 	}
 
 	/**
-	 * Return the AsyncResolution bound to the request, if any.
+	 * Return the AsyncResponse bound to the request, if any.
 	 * Primarily used by Resolutions in order to complete processing
 	 * accordingly when async is started.
 	 * @param request the request
-	 * @return the AsyncResolution or null
+	 * @return the AsyncResponse or null
 	 */
-	public static AsyncResolution get(HttpServletRequest request) {
-		return (AsyncResolution)request.getAttribute(REQ_ATTR_NAME);
+	public static AsyncResponse get(HttpServletRequest request) {
+		return (AsyncResponse)request.getAttribute(REQ_ATTR_NAME);
 	}
 
 	void setCleanupCallback(Runnable cleanupCallback) {
@@ -134,13 +134,13 @@ public abstract class AsyncResolution implements Resolution {
 	 */
 	public abstract void setTimeout(long timeout);
 
-	static AsyncResolution newInstance(HttpServletRequest request, HttpServletResponse response, ActionBean bean, Method handler) {
+	static AsyncResponse newInstance(HttpServletRequest request, HttpServletResponse response, ActionBean bean, Method handler) {
 		if (ctor == null) {
 			throw new StripesRuntimeException("Async events are not available in your container (requires Servlet3+).");
 		}
 		try {
 			Object o = ctor.newInstance(request, response, bean, handler);
-			return (AsyncResolution)o;
+			return (AsyncResponse)o;
 		} catch (IllegalAccessException e) {
 			throw new RuntimeException(e);
 		} catch (InstantiationException e) {

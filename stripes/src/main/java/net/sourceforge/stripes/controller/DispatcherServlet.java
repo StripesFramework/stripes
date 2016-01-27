@@ -169,7 +169,7 @@ public class DispatcherServlet extends HttpServlet {
             
             // Whatever stage it came from, execute the resolution
             if (resolution != null) {
-                if (resolution instanceof AsyncResolution) {
+                if (resolution instanceof AsyncResponse) {
                     // special handling for async resolutions : we defer
                     // cleanup to async processing. We register a
                     // "cleanup" callback that the async processing will
@@ -178,7 +178,7 @@ public class DispatcherServlet extends HttpServlet {
                     // so that Stripes still works with Servlet2.x containers.)
                     async = true;
                     final PageContext pc = pageContext;
-                    ((AsyncResolution)resolution).setCleanupCallback(new Runnable() {
+                    ((AsyncResponse)resolution).setCleanupCallback(new Runnable() {
                         @Override
                         public void run() {
                             if (pc != null) {

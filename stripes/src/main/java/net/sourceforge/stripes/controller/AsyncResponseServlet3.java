@@ -9,25 +9,23 @@ import javax.servlet.AsyncEvent;
 import javax.servlet.AsyncListener;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.jsp.JspFactory;
-import javax.servlet.jsp.PageContext;
 import java.io.IOException;
 import java.lang.reflect.Method;
 
 /**
- * Concrete implementation for AsyncResolution in Servlet3 containers.
+ * Concrete implementation for AsyncResponse in Servlet3 containers.
  * Handles cleanup on completion, and delegates to servlet's AsyncContext methods.
  */
-public class AsyncResolutionServlet3 extends AsyncResolution {
+public class AsyncResponseServlet3 extends AsyncResponse {
 
-	private final static Log log = Log.getInstance(AsyncResolutionServlet3.class);
+	private final static Log log = Log.getInstance(AsyncResponseServlet3.class);
 
 	private final AsyncContext asyncContext;
 
-	public AsyncResolutionServlet3(HttpServletRequest request,
-								   HttpServletResponse response,
-								   ActionBean bean,
-								   Method handler) {
+	public AsyncResponseServlet3(HttpServletRequest request,
+								 HttpServletResponse response,
+								 ActionBean bean,
+								 Method handler) {
 		super(request, response, bean, handler);
 		this.asyncContext = request.startAsync(request, response);
 		// remove currentContext ThreadLocal

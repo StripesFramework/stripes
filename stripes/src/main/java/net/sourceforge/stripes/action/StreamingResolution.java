@@ -30,7 +30,7 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import net.sourceforge.stripes.controller.AsyncResolution;
+import net.sourceforge.stripes.controller.AsyncResponse;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
 import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.util.Range;
@@ -240,10 +240,10 @@ public class StreamingResolution implements Resolution {
         applyHeaders(response);
         stream(response);
 
-        AsyncResolution asyncResolution = AsyncResolution.get(request);
-        if (asyncResolution != null) {
+        AsyncResponse asyncResponse = AsyncResponse.get(request);
+        if (asyncResponse != null) {
             // async started, complete
-            asyncResolution.complete();
+            asyncResponse.complete();
         }
     }
 

@@ -15,7 +15,7 @@
 package net.sourceforge.stripes.ajax;
 
 import net.sourceforge.stripes.action.Resolution;
-import net.sourceforge.stripes.controller.AsyncResolution;
+import net.sourceforge.stripes.controller.AsyncResponse;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -75,10 +75,10 @@ public class JavaScriptResolution implements Resolution {
         response.setContentType("text/javascript");
         this.builder.build(response.getWriter());
         response.flushBuffer();
-        AsyncResolution asyncResolution = AsyncResolution.get(request);
-        if (asyncResolution != null) {
+        AsyncResponse asyncResponse = AsyncResponse.get(request);
+        if (asyncResponse != null) {
             // async started, complete
-            asyncResolution.complete();
+            asyncResponse.complete();
         }
     }
 }

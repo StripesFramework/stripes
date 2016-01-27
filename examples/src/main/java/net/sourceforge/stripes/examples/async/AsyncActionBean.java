@@ -1,7 +1,7 @@
 package net.sourceforge.stripes.examples.async;
 
 import net.sourceforge.stripes.action.*;
-import net.sourceforge.stripes.controller.AsyncResolution;
+import net.sourceforge.stripes.controller.AsyncResponse;
 import net.sourceforge.stripes.examples.bugzooky.ext.Public;
 import net.sourceforge.stripes.validation.Validate;
 import org.apache.http.HttpHost;
@@ -44,7 +44,7 @@ public class AsyncActionBean implements ActionBean {
 	 * asynchronously fetch data from a remote web service (github)
 	 * and set instance fields for use in the view.
  	 */
-	public void asyncEvent(final AsyncResolution async) {
+	public void asyncEvent(final AsyncResponse async) {
 
 		// we use an Async Http Client in order to call the github web service as a demo.
 		// the async http client calls back one of the lambdas when it's done, and
@@ -95,14 +95,14 @@ public class AsyncActionBean implements ActionBean {
 	}
 
 	@DontValidate
-	public void asyncEventThatTimeouts(AsyncResolution r) throws Exception {
+	public void asyncEventThatTimeouts(AsyncResponse r) throws Exception {
 		r.setTimeout(1000);
 		r.getResponse().getWriter().write("OK");
 		// never call complete/dispatch...
 	}
 
 	@DontValidate
-	public void asyncEventThatThrows(AsyncResolution r) {
+	public void asyncEventThatThrows(AsyncResponse r) {
 		throw new RuntimeException("BOOM");
 	}
 

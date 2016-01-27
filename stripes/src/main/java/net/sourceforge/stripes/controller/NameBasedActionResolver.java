@@ -253,7 +253,7 @@ public class NameBasedActionResolver extends AnnotatedClassActionResolver {
             && handler.getParameterTypes().length == 1) {
             // look at arg type
             Class<?> pType = handler.getParameterTypes()[0];
-            return AsyncResolution.class.isAssignableFrom(pType);
+            return AsyncResponse.class.isAssignableFrom(pType);
         }
         return false;
     }

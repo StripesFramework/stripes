@@ -14,7 +14,7 @@
  */
 package net.sourceforge.stripes.action;
 
-import net.sourceforge.stripes.controller.AsyncResolution;
+import net.sourceforge.stripes.controller.AsyncResponse;
 import net.sourceforge.stripes.controller.FlashScope;
 import net.sourceforge.stripes.controller.StripesConstants;
 import net.sourceforge.stripes.util.Log;
@@ -224,10 +224,10 @@ public class RedirectResolution extends OnwardResolution<RedirectResolution> {
 
         response.sendRedirect(url);
 
-        AsyncResolution asyncResolution = AsyncResolution.get(request);
-        if (asyncResolution != null) {
+        AsyncResponse asyncResponse = AsyncResponse.get(request);
+        if (asyncResponse != null) {
             // async started, complete
-            asyncResolution.complete();
+            asyncResponse.complete();
         }
     }
 

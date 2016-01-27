@@ -648,7 +648,7 @@ public class DispatcherHelper {
                 final Object returnValue;
                 if (NameBasedActionResolver.isAsyncEventHandler(handler)) {
                     ActionBeanContext abc = ctx.getActionBeanContext();
-                    returnValue = AsyncResolution.newInstance(abc.getRequest(), abc.getResponse(), bean, handler);
+                    returnValue = AsyncResponse.newInstance(abc.getRequest(), abc.getResponse(), bean, handler);
                 } else {
                     returnValue = handler.invoke(bean);
                 }
