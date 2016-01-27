@@ -11,6 +11,15 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+/**
+ * Base class for Servlet3-style asynchronous processing. Instances of
+ * this class are passed by Stripes to asynchronous event handlers,
+ * and allow to complete the asynchronous processing.
+ *
+ * Needs an abstract + concrete implementation because we
+ * do not want to depend on Servlet3 APIs at runtime, so that
+ * Stripes continues to run in Servlet2 containers.
+ */
 public abstract class AsyncResolution implements Resolution {
 
 	private static final Log log = Log.getInstance(AsyncResolution.class);
@@ -21,7 +30,11 @@ public abstract class AsyncResolution implements Resolution {
 	private final ActionBean bean;
 	private final Method handler;
 
+	// store static reference to impl constructor
+	// in order to avoid useless lookups
 	private static Constructor<?> ctor = null;
+
+	private boolean handlerInvoked = false;
 
 	static {
 		try {
@@ -44,25 +57,32 @@ public abstract class AsyncResolution implements Resolution {
 	}
 
 	private Runnable cleanupCallback;
-	private long timeout;
 
-	protected AsyncResolution(HttpServletRequest request, HttpServletResponse response, ActionBean bean, Method handler) {
+	AsyncResolution(HttpServletRequest request, HttpServletResponse response, ActionBean bean, Method handler) {
 		this.request = request;
 		this.response = response;
 		this.bean = bean;
 		this.handler = handler;
+		// bind to request so that Resolutions can access
 		request.setAttribute(REQ_ATTR_NAME, this);
 	}
 
+	/**
+	 * Return the AsyncResolution bound to the request, if any.
+	 * Primarily used by Resolutions in order to complete processing
+	 * accordingly when async is started.
+	 * @param request the request
+	 * @return the AsyncResolution or null
+	 */
 	public static AsyncResolution get(HttpServletRequest request) {
 		return (AsyncResolution)request.getAttribute(REQ_ATTR_NAME);
 	}
 
-	public void setCleanupCallback(Runnable cleanupCallback) {
+	void setCleanupCallback(Runnable cleanupCallback) {
 		this.cleanupCallback = cleanupCallback;
 	}
 
-	public void cleanup() {
+	void cleanup() {
 		if (cleanupCallback != null) {
 			cleanupCallback.run();
 		}
@@ -77,22 +97,44 @@ public abstract class AsyncResolution implements Resolution {
 	}
 
 	@Override
-	public void execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public final void execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		// invoke the handler (start async has been done already) and let it complete...
+		if (handlerInvoked) {
+			throw new StripesRuntimeException("Handler already invoked.");
+		}
+		handlerInvoked = true;
 		handler.invoke(bean, this);
 	}
 
+	/**
+	 * Completes asynchronous processing.
+	 */
 	public abstract void complete();
 
+	/**
+	 * Completes asynchronous processing and executes passed resolution.
+	 */
 	public abstract void complete(Resolution resolution);
 
+	/**
+	 * Dispatches to a webappo resource
+	 * @param path the path to dispatch to
+	 */
 	public abstract void dispatch(String path);
 
+	/**
+	 * Return the timeout for async requests
+	 * @return the timeout in milliseconds
+	 */
 	public abstract long getTimeout();
 
+	/**
+	 * Set the timeout for async requests
+	 * @param timeout the timout in milliseconds
+	 */
 	public abstract void setTimeout(long timeout);
 
-	public static AsyncResolution newInstance(HttpServletRequest request, HttpServletResponse response, ActionBean bean, Method handler) {
+	static AsyncResolution newInstance(HttpServletRequest request, HttpServletResponse response, ActionBean bean, Method handler) {
 		if (ctor == null) {
 			throw new StripesRuntimeException("Async events are not available in your container (requires Servlet3+).");
 		}

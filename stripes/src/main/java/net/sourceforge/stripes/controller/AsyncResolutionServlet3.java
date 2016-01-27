@@ -14,6 +14,10 @@ import javax.servlet.jsp.PageContext;
 import java.io.IOException;
 import java.lang.reflect.Method;
 
+/**
+ * Concrete implementation for AsyncResolution in Servlet3 containers.
+ * Handles cleanup on completion, and delegates to servlet's AsyncContext methods.
+ */
 public class AsyncResolutionServlet3 extends AsyncResolution {
 
 	private final static Log log = Log.getInstance(AsyncResolutionServlet3.class);
