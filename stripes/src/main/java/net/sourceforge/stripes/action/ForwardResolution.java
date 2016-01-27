@@ -14,6 +14,7 @@
  */
 package net.sourceforge.stripes.action;
 
+import net.sourceforge.stripes.controller.AsyncResolution;
 import net.sourceforge.stripes.controller.StripesConstants;
 import net.sourceforge.stripes.util.Log;
 
@@ -145,10 +146,11 @@ public class ForwardResolution extends OnwardResolution<ForwardResolution> {
         request.setAttribute(StripesConstants.REQ_ATTR_EVENT_NAME, event);
 
         // are we asynchronous ?
-        if (request.isAsyncStarted()) {
+        AsyncResolution asyncResolution = AsyncResolution.get(request);
+        if (asyncResolution != null) {
             // async started, dispatch...
             log.trace("Async mode, dispatching to URL: ", path);
-            request.getAsyncContext().dispatch(path);
+            asyncResolution.dispatch(path);
         } else {
             // Figure out if we're inside an include, and use an include instead of a forward
             if (autoInclude && request.getAttribute(StripesConstants.REQ_ATTR_INCLUDE_PATH) != null) {

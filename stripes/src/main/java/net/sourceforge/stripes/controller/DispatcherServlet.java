@@ -16,7 +16,6 @@ package net.sourceforge.stripes.controller;
 
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.action.ActionBeanContext;
-import net.sourceforge.stripes.action.AsyncResolution;
 import net.sourceforge.stripes.action.Resolution;
 import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.exception.StripesServletException;
@@ -26,17 +25,12 @@ import net.sourceforge.stripes.validation.BooleanTypeConverter;
 import net.sourceforge.stripes.validation.expression.ExpressionValidator;
 import net.sourceforge.stripes.validation.expression.Jsp20ExpressionExecutor;
 
-import javax.servlet.AsyncContext;
-import javax.servlet.AsyncEvent;
-import javax.servlet.AsyncListener;
 import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.JspFactory;
 import javax.servlet.jsp.PageContext;
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Stack;
 
@@ -50,7 +44,7 @@ import java.util.Stack;
  *
  * @author Tim Fennell
  */
-@WebServlet(asyncSupported = true)
+//@WebServlet(asyncSupported = true)
 public class DispatcherServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
@@ -176,68 +170,24 @@ public class DispatcherServlet extends HttpServlet {
             
             // Whatever stage it came from, execute the resolution
             if (resolution != null) {
-
                 if (resolution instanceof AsyncResolution) {
-
-                    // special handling for async resolutions
+                    // special handling for async resolutions : we defer
+                    // cleanup to async processing. We register a
+                    // "cleanup" callback that the async processing will
+                    // invoke when completed. This allows to hide the details
+                    // from dispatcher (and to cut the dependency on the class,
+                    // so that Stripes still works with Servlet2.x containers.)
                     async = true;
-                    // remove currentContext ThreadLocal
-                    ExecutionContext.clearContextThreadLocal();
-                    // start async processing
-                    log.debug("Starting async processing from action ", ctx.getActionBean());
-                    AsyncContext asyncContext = request.startAsync(request, response);
-                    AsyncResolution asyncResolution = (AsyncResolution)resolution;
-                    asyncResolution.setAsyncContext(asyncContext);
-                    asyncResolution.setContext(ctx.getActionBeanContext());
                     final PageContext pc = pageContext;
-                    // register listener for finalizing the async processing
-                    asyncContext.addListener(new AsyncListener() {
-
-                        private boolean completed = false;
-
-                        private void doComplete() {
-                            if (!completed) {
-                                completed = true;
-                                if (pc != null) {
-                                    JspFactory.getDefaultFactory().releasePageContext(pc);
-                                    DispatcherHelper.setPageContext(null);
-                                }
-                                requestComplete(ctx);
-                                restoreActionBean(request);
+                    ((AsyncResolution)resolution).setCleanupCallback(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (pc != null) {
+                                JspFactory.getDefaultFactory().releasePageContext(pc);
+                                DispatcherHelper.setPageContext(null);
                             }
-                        }
-
-                        public void onComplete(AsyncEvent event) throws IOException {
-                            log.debug("Async context completed=", event.getAsyncContext());
-                            doComplete();
-                        }
-
-                        // TODO i18n, use stripes exception handlers
-                        public void onTimeout(AsyncEvent event) throws IOException {
-                            log.error("Async context timeout after ", event.getAsyncContext().getTimeout(), "ms, ctx=", event.getAsyncContext());
-                            HttpServletResponse response = (HttpServletResponse)event.getSuppliedResponse();
-                            response.sendError(500, "Operation timed out");
-
-                            // TODO understand why we need to call this
-                            // if we don't then dispatcher is called twice (probably
-                            // because of server side dispatch)
-                            event.getAsyncContext().complete();
-                        }
-
-                        public void onError(AsyncEvent event) throws IOException {
-                            log.error("Async context error=", event.getAsyncContext());
-                            HttpServletResponse response = (HttpServletResponse)event.getSuppliedResponse();
-                            Throwable err = event.getThrowable();
-                            String msg = err != null ? err.getMessage() : "";
-                            response.sendError(500, msg);
-                            doComplete();
-                        }
-
-                        // this one is not called because we register the listener after starting the async context...
-                        public void onStartAsync(AsyncEvent event) throws IOException {
-                            log.debug("Async context started=", event.getAsyncContext(),
-                                "request=", event.getSuppliedRequest(),
-                                "response=", event.getSuppliedResponse());
+                            requestComplete(ctx);
+                            restoreActionBean(request);
                         }
                     });
                 }
@@ -268,9 +218,7 @@ public class DispatcherServlet extends HttpServlet {
                     JspFactory.getDefaultFactory().releasePageContext(pageContext);
                     DispatcherHelper.setPageContext(null);
                 }
-
                 requestComplete(ctx);
-
                 restoreActionBean(request);
             }
         }

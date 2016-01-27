@@ -186,7 +186,63 @@
 								<home>${project.build.directory}/tomcat/container</home>
 								<properties>
 									<cargo.servlet.port>9999</cargo.servlet.port>
-									<cargo.servlet.users>wdevel:wdevel:developer</cargo.servlet.users>
+									<cargo.container.timeout>600000</cargo.container.timeout>
+									<cargo.tomcat.ajp.port>9009</cargo.tomcat.ajp.port>
+								</properties>
+								<deployables>
+									<deployable>
+										<groupId>${project.groupId}</groupId>
+										<artifactId>stripes-examples</artifactId>
+										<type>war</type>
+										<properties>
+											<context>/webtests</context>
+										</properties>
+									</deployable>
+								</deployables>
+							</configuration>
+						</configuration>
+						<executions>
+							<execution>
+								<id>start-container</id>
+								<phase>pre-integration-test</phase>
+								<goals>
+									<goal>start</goal>
+								</goals>
+							</execution>
+							<execution>
+								<id>stop-container</id>
+								<phase>post-integration-test</phase>
+								<goals>
+									<goal>stop</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>tomcat6</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.cargo</groupId>
+						<artifactId>cargo-maven2-plugin</artifactId>
+						<version>1.2.0</version>
+						<configuration>
+							<wait>false</wait>
+							<container>
+								<containerId>tomcat6x</containerId>
+								<zipUrlInstaller>
+									<url>http://apache.mindstudios.com/tomcat/tomcat-6/v6.0.44/bin/apache-tomcat-6.0.44.zip</url>
+									<downloadDir>${project.build.directory}/downloads</downloadDir>
+									<extractDir>${project.build.directory}/extracts</extractDir>
+								</zipUrlInstaller>
+							</container>
+							<configuration>
+								<home>${project.build.directory}/tomcat/container</home>
+								<properties>
+									<cargo.servlet.port>9999</cargo.servlet.port>
 									<cargo.container.timeout>600000</cargo.container.timeout>
 									<cargo.tomcat.ajp.port>9009</cargo.tomcat.ajp.port>
 								</properties>

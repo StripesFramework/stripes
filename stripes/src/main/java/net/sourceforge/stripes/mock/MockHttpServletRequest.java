@@ -474,6 +474,8 @@ public class MockHttpServletRequest implements HttpServletRequest {
     public AsyncContext startAsync(ServletRequest servletRequest, ServletResponse servletResponse) throws IllegalStateException {
         if (asyncContext == null) {
             asyncContext = new MockAsyncContext(servletRequest, servletResponse);
+        } else if (asyncContext.isCompleted()) {
+            throw new IllegalStateException("Async Context already completed");
         }
         return asyncContext;
     }

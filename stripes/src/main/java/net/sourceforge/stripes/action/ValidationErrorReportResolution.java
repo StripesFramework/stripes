@@ -23,6 +23,7 @@ import java.util.ResourceBundle;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import net.sourceforge.stripes.controller.AsyncResolution;
 import net.sourceforge.stripes.controller.StripesFilter;
 import net.sourceforge.stripes.exception.SourcePageNotFoundException;
 import net.sourceforge.stripes.tag.ErrorsTag;
@@ -66,8 +67,10 @@ public class ValidationErrorReportResolution implements Resolution {
         sendErrors(request, response);
         writer.println("</p></div>");
 
-        if (request.isAsyncStarted()) {
-            request.getAsyncContext().complete();
+        AsyncResolution asyncResolution = AsyncResolution.get(request);
+        if (asyncResolution != null) {
+            // async started, complete
+            asyncResolution.complete();
         }
     }
 

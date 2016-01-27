@@ -1,6 +1,7 @@
 package net.sourceforge.stripes.examples.async;
 
 import net.sourceforge.stripes.action.*;
+import net.sourceforge.stripes.controller.AsyncResolution;
 import net.sourceforge.stripes.examples.bugzooky.ext.Public;
 import net.sourceforge.stripes.validation.Validate;
 import org.apache.http.HttpHost;
@@ -95,7 +96,7 @@ public class AsyncActionBean implements ActionBean {
 
 	@DontValidate
 	public void asyncEventThatTimeouts(AsyncResolution r) throws Exception {
-		r.getAsyncContext().setTimeout(1000);
+		r.setTimeout(1000);
 		r.getResponse().getWriter().write("OK");
 		// never call complete/dispatch...
 	}

@@ -14,6 +14,8 @@
  */
 package net.sourceforge.stripes.action;
 
+import net.sourceforge.stripes.controller.AsyncResolution;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -56,6 +58,11 @@ public class ErrorResolution implements Resolution {
             response.sendError(errorCode, errorMessage);
         } else {
             response.sendError(errorCode);
+        }
+        AsyncResolution asyncResolution = AsyncResolution.get(request);
+        if (asyncResolution != null) {
+            // async started, complete
+            asyncResolution.complete();
         }
     }
 

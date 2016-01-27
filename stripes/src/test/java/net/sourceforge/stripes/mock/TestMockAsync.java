@@ -4,6 +4,7 @@ import net.sourceforge.stripes.FilterEnabledTestBase;
 import net.sourceforge.stripes.action.*;
 import static org.testng.Assert.*;
 
+import net.sourceforge.stripes.controller.AsyncResolution;
 import org.testng.annotations.Test;
 
 import javax.servlet.http.HttpServletResponse;
@@ -129,7 +130,7 @@ public class TestMockAsync extends FilterEnabledTestBase {
 		}
 
 		public void doAsyncTimeout(AsyncResolution r) {
-			r.getAsyncContext().setTimeout(1000);
+			r.setTimeout(1000);
 			// we never complete !
 		}
 

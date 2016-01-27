@@ -29,6 +29,7 @@ import net.sourceforge.stripes.validation.ValidationMethod;
 import net.sourceforge.stripes.validation.ValidationState;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.PageContext;
 import java.lang.reflect.Method;
 import java.lang.ref.WeakReference;
@@ -45,7 +46,6 @@ import java.util.MissingResourceException;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.WeakHashMap;
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * Helper class that contains much of the logic used when dispatching requests
@@ -647,12 +647,8 @@ public class DispatcherHelper {
                 // ExceptionHandler class.
                 final Object returnValue;
                 if (NameBasedActionResolver.isAsyncEventHandler(handler)) {
-                    returnValue = new AsyncResolution(
-                        ctx.getActionBeanContext().getRequest(),
-                        ctx.getActionBeanContext().getResponse(),
-                        bean,
-                        handler
-                    );
+                    ActionBeanContext abc = ctx.getActionBeanContext();
+                    returnValue = AsyncResolution.newInstance(abc.getRequest(), abc.getResponse(), bean, handler);
                 } else {
                     returnValue = handler.invoke(bean);
                 }
