@@ -44,7 +44,6 @@ import java.util.Stack;
  *
  * @author Tim Fennell
  */
-//@WebServlet(asyncSupported = true)
 public class DispatcherServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 

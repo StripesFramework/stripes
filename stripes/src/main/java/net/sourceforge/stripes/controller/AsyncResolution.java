@@ -2,6 +2,8 @@ package net.sourceforge.stripes.controller;
 
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.action.Resolution;
+import net.sourceforge.stripes.exception.StripesRuntimeException;
+import net.sourceforge.stripes.util.Log;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -11,11 +13,35 @@ import java.lang.reflect.Method;
 
 public abstract class AsyncResolution implements Resolution {
 
+	private static final Log log = Log.getInstance(AsyncResolution.class);
+
 	private static final String REQ_ATTR_NAME = "__Stripes_Async_Resolution";
 	private final HttpServletRequest request;
 	private final HttpServletResponse response;
 	private final ActionBean bean;
 	private final Method handler;
+
+	private static Constructor<?> ctor = null;
+
+	static {
+		try {
+			HttpServletRequest.class.getMethod("startAsync");
+			Class<?> impl = Class.forName("net.sourceforge.stripes.controller.AsyncResolutionServlet3");
+			ctor = impl.getDeclaredConstructor(
+				HttpServletRequest.class,
+				HttpServletResponse.class,
+				ActionBean.class,
+				Method.class);
+		} catch (NoSuchMethodException e) {
+			// servlet3 not available
+			log.info("Container is not using Servlet3 : Async event handlers will throw runtime exceptions.");
+		} catch (Exception e) {
+			// should not happen unless we break internals (bad refactor etc).
+			log.error("Exception while initializing AsyncResolution implementation class.", e);
+			throw new RuntimeException(e);
+		}
+
+	}
 
 	private Runnable cleanupCallback;
 	private long timeout;
@@ -67,23 +93,12 @@ public abstract class AsyncResolution implements Resolution {
 	public abstract void setTimeout(long timeout);
 
 	public static AsyncResolution newInstance(HttpServletRequest request, HttpServletResponse response, ActionBean bean, Method handler) {
-		// check wether or not we're using servlet3
+		if (ctor == null) {
+			throw new StripesRuntimeException("Async events are not available in your container (requires Servlet3+).");
+		}
 		try {
-			HttpServletRequest.class.getMethod("startAsync");
-			Class<?> impl = Class.forName("net.sourceforge.stripes.controller.AsyncResolutionServlet3");
-			Constructor<?> ctor = impl.getDeclaredConstructor(
-				HttpServletRequest.class,
-				HttpServletResponse.class,
-				ActionBean.class,
-				Method.class);
 			Object o = ctor.newInstance(request, response, bean, handler);
 			return (AsyncResolution)o;
-		} catch (NoSuchMethodException e) {
-			// not using servlet 3, throw exception for the moment
-			throw new UnsupportedOperationException("Async action beans require Servlet3+");
-		} catch (ClassNotFoundException e) {
-			// should never happen unless bad refactor
-			throw new RuntimeException(e);
 		} catch (IllegalAccessException e) {
 			throw new RuntimeException(e);
 		} catch (InstantiationException e) {
