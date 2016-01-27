@@ -141,7 +141,6 @@
                             <goal>jar</goal>
                         </goals>
                         <configuration>
-                            <additionalparam>-Xdoclint:none</additionalparam>
                             <groups>
                                 <group>
                                     <title>Core API</title>

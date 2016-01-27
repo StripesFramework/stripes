@@ -94,7 +94,7 @@
 	</build>
 	<profiles>
 		<profile>
-			<id>jetty9</id>
+			<id>jetty92</id>
 			<activation>
 				<activeByDefault>true</activeByDefault>
 			</activation>
@@ -131,7 +131,7 @@
 					<plugin>
 						<groupId>org.eclipse.jetty</groupId>
 						<artifactId>jetty-maven-plugin</artifactId>
-						<version>9.3.6.v20151106</version>
+						<version>9.2.14.v20151106</version>
 						<configuration>
 							<httpConnector>
 								<port>9999</port>

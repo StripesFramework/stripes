@@ -257,7 +257,6 @@
                                 <goal>jar</goal>
                             </goals>
                             <configuration>
-                                <additionalparam>-Xdoclint:none</additionalparam>
                                 <overview>${basedir}/src/main/resources/overview.html</overview>
                                 <bottom>© Copyright 2005-2015, Stripes Development Team.</bottom>
                                 <author>true</author>
