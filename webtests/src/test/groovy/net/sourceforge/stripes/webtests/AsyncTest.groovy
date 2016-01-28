@@ -15,7 +15,7 @@ class AsyncTest extends ManagedDriverJunit4TestBase {
         use(WebDriverCategory, FindrCategory, ListFindrCategory, DollrCategory) {
 
             // open page
-            webDriver.get('http://localhost:9999/webtests/async')
+            webDriver.get("${BaseUrl.get()}/async")
 
             // click link to trigger async resolution
             $$('a') + textEquals("I'm an async event") + at(0) >> click()

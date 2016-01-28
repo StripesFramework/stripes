@@ -17,7 +17,7 @@ class CalcHelper {
     CalcHelper(Findr findr, boolean ajax) {
         this.findr = findr
         this.ajax = ajax
-        this.homeUrl = ajax ? 'http://localhost:9999/webtests/ajax/index.jsp' : 'http://localhost:9999/webtests/quickstart/index.jsp'
+        this.homeUrl = ajax ? "${BaseUrl.get()}/ajax/index.jsp" : "${BaseUrl.get()}/quickstart/index.jsp"
     }
 
     void openPage() {

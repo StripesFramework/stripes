@@ -13,7 +13,7 @@ import static com.pojosontheweb.selenium.Findrs.*
 
 class BugzookyTest extends ManagedDriverJunit4TestBase {
 
-    def homeUrl = 'http://localhost:9999/webtests/bugzooky'
+    def homeUrl = "${BaseUrl.get()}/bugzooky"
 
     int count = System.currentTimeMillis()
 
