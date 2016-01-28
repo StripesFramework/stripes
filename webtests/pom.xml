@@ -295,9 +295,6 @@
 						<groupId>org.jboss.as.plugins</groupId>
 						<artifactId>jboss-as-maven-plugin</artifactId>
 						<version>7.7.Final</version>
-						<!--<configuration>-->
-							<!--<port>9999</port>-->
-						<!--</configuration>-->
 						<executions>
 							<execution>
 								<id>start-container</id>
@@ -316,6 +313,55 @@
 									<groupId>net.sourceforge.stripes</groupId>
 									<artifactId>stripes-examples</artifactId>
 									<version>${project.version}</version>
+									<name>webtests.war</name>
+								</configuration>
+							</execution>
+							<execution>
+								<id>stop-container</id>
+								<phase>post-integration-test</phase>
+								<goals>
+									<goal>shutdown</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<artifactId>maven-surefire-plugin</artifactId>
+						<version>2.18.1</version>
+						<configuration>
+							<systemProperties>
+								<webtests.base.url>http://localhost:8080/webtests</webtests.base.url>
+							</systemProperties>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>wildfly102</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.wildfly.plugins</groupId>
+						<artifactId>wildfly-maven-plugin</artifactId>
+						<version>1.0.2.Final</version>
+						<executions>
+							<execution>
+								<id>start-container</id>
+								<phase>pre-integration-test</phase>
+								<goals>
+									<goal>start</goal>
+								</goals>
+							</execution>
+							<execution>
+								<id>deploy-examples-app</id>
+								<phase>pre-integration-test</phase>
+								<goals>
+									<goal>deploy-artifact</goal>
+								</goals>
+								<configuration>
+									<groupId>net.sourceforge.stripes</groupId>
+									<artifactId>stripes-examples</artifactId>
 									<name>webtests.war</name>
 								</configuration>
 							</execution>
