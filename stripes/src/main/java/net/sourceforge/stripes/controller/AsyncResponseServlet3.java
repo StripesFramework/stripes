@@ -51,7 +51,7 @@ public class AsyncResponseServlet3 extends AsyncResponse {
 			}
 
 			public void onTimeout(AsyncEvent event) throws IOException {
-				log.error("Async context timeout after ", event.getAsyncContext().getTimeout(), "ms, ctx=", event.getAsyncContext());
+				log.warn("Async context timeout after ", event.getAsyncContext().getTimeout(), "ms, ctx=", event.getAsyncContext());
 				HttpServletResponse response = (HttpServletResponse) event.getSuppliedResponse();
 				notifyListenersTimeout();
 				response.sendError(500, "Operation timed out");

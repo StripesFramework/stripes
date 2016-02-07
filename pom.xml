@@ -16,7 +16,6 @@
         <module>stripes</module>
         <module>examples</module>
         <module>dist</module>
-        <module>chatdemo</module>
     </modules>
 
     <name>Stripes Parent</name>
