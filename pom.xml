@@ -269,6 +269,7 @@
                                     <link>http://docs.spring.io/spring/docs/1.2.x/api/</link>
                                     <link>http://commons.apache.org/proper/commons-logging/apidocs/</link>
                                 </links>
+                                <additionalparam>${javadoc.opts}</additionalparam>
                             </configuration>
                         </execution>
                     </executions>
@@ -295,6 +296,15 @@
             <modules>
                 <module>webtests</module>
             </modules>
+        </profile>
+        <profile>
+            <id>doclint-java8-disable</id>
+            <activation>
+                <jdk>[1.8,)</jdk>
+            </activation>
+            <properties>
+                <javadoc.opts>-Xdoclint:none</javadoc.opts>
+            </properties>
         </profile>
     </profiles>
 </project>
