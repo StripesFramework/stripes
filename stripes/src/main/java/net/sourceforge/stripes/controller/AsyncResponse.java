@@ -10,6 +10,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Base class for Servlet3-style asynchronous processing. Instances of
@@ -29,6 +31,8 @@ public abstract class AsyncResponse implements Resolution {
 	private final HttpServletResponse response;
 	private final ActionBean bean;
 	private final Method handler;
+
+	private final List<AsyncListener> listeners = new ArrayList<AsyncListener>();
 
 	// store static reference to impl constructor
 	// in order to avoid useless lookups
@@ -104,6 +108,58 @@ public abstract class AsyncResponse implements Resolution {
 		}
 		handlerInvoked = true;
 		handler.invoke(bean, this);
+	}
+
+	/**
+	 * Adds a listener to this async response.
+	 * @param listener the listener to add.
+	 */
+	public void addListener(AsyncListener listener) {
+		listeners.add(listener);
+	}
+
+	protected void notifyListenersComplete() {
+		AsyncEvent event = new AsyncEvent(this, null);
+		for (AsyncListener listener : listeners) {
+			try {
+				listener.onComplete(event);
+			} catch (Exception e) {
+				log.error("Error notifying listener " + listener, e);
+			}
+		}
+	}
+
+	protected void notifyListenersStartAsync() {
+		AsyncEvent event = new AsyncEvent(this, null);
+		for (AsyncListener listener : listeners) {
+			try {
+				listener.onStartAsync(event);
+			} catch (Exception e) {
+				log.error("Error notifying listener " + listener, e);
+			}
+		}
+	}
+
+	protected void notifyListenersError(Throwable error) {
+		AsyncEvent event = new AsyncEvent(this, error);
+		for (AsyncListener listener : listeners) {
+			try {
+				listener.onError(event);
+			} catch (Exception e) {
+				log.error("Error notifying listener " + listener, e);
+			}
+		}
+	}
+
+	protected void notifyListenersTimeout() {
+		AsyncEvent event = new AsyncEvent(this, null);
+		for (AsyncListener listener : listeners) {
+			try {
+				listener.onTimeout(event);
+			} catch (Exception e) {
+				log.error("Error notifying listener " + listener, e);
+			}
+		}
 	}
 
 	/**

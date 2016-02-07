@@ -5,7 +5,7 @@
 <html>
 <head>
     <title>Stripes Async demo</title>
-    <script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+    <script src="${pageContext.request.contextPath}/rockandroll/js/libs/jquery-1.9.1.js"></script>
 </head>
 <body>
 <h1>
@@ -48,5 +48,27 @@
         });
     </script>
 </c:if>
+<hr/>
+<a href="#" id="asyncWrites">
+    I trigger async writes to the response
+</a>
+<div id="asyncResponses"></div>
+<script type="text/javascript">
+    $('#asyncWrites').click(function(e) {
+        e.preventDefault();
+        var asyncResponses = $('#asyncResponses');
+        asyncResponses.empty();
+        var xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function(){
+            console.log("readyState=" + xhr.readyState);
+            if((xhr.readyState == 3 || xhr.readyState == 4) && xhr.status == 200){
+                console.log("responseText=" + xhr.responseText);
+                asyncResponses.html(xhr.responseText);
+            }
+        };
+        xhr.open("GET", "${pageContext.request.contextPath}/async?asyncWrites=true", true);
+        xhr.send();
+    })
+</script>
 </body>
 </html>

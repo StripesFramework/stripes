@@ -8,6 +8,8 @@ import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
 
 @Public
 @UrlBinding("/async")
@@ -104,6 +106,40 @@ public class AsyncActionBean implements ActionBean {
 	@DontValidate
 	public void asyncEventThatThrows(AsyncResponse r) {
 		throw new RuntimeException("BOOM");
+	}
+
+	@DontValidate
+	public void asyncWrites(final AsyncResponse r) {
+		final String[] parts = new String[]{
+			"This", "is", "asynchronously", "written", "!",
+			"We", "use", "readystatechange", "in",
+			"order", "to", "be", "notified", "when", "the",
+			"server", "pushes", "some", "data"
+		};
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				boolean error = false;
+				try {
+					PrintWriter w = r.getResponse().getWriter();
+					for (int i = 0; i < parts.length; i++) {
+						w.println("<div class=\"asyncWrite\">" + parts[i] + "</div>");
+						w.flush();
+						try {
+							Thread.sleep(200);
+						} catch (InterruptedException e) {
+							// don't care
+						}
+					}
+				} catch (IOException e) {
+					error = true;
+					r.complete(new ErrorResolution(500, e.getMessage()));
+				}
+				if (!error) {
+					r.complete(new StreamingResolution("text/plain", "<em>Bye</em>"));
+				}
+			}
+		}).start();
 	}
 
 	// getters for instance fields that have been set by event method

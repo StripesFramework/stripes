@@ -46,21 +46,23 @@ public class AsyncResponseServlet3 extends AsyncResponse {
 
 			public void onComplete(AsyncEvent event) throws IOException {
 				log.debug("Async context completed=", event.getAsyncContext());
+				notifyListenersComplete();
 				doComplete();
 			}
 
-			// TODO i18n, use stripes exception handlers
 			public void onTimeout(AsyncEvent event) throws IOException {
 				log.error("Async context timeout after ", event.getAsyncContext().getTimeout(), "ms, ctx=", event.getAsyncContext());
 				HttpServletResponse response = (HttpServletResponse) event.getSuppliedResponse();
+				notifyListenersTimeout();
 				response.sendError(500, "Operation timed out");
 				doComplete();
 			}
 
 			public void onError(AsyncEvent event) throws IOException {
 				log.error("Async context error=", event.getAsyncContext());
-				HttpServletResponse response = (HttpServletResponse) event.getSuppliedResponse();
 				Throwable err = event.getThrowable();
+				notifyListenersError(err);
+				HttpServletResponse response = (HttpServletResponse) event.getSuppliedResponse();
 				String msg = err != null ? err.getMessage() : "";
 				response.sendError(500, msg);
 				doComplete();
@@ -71,6 +73,7 @@ public class AsyncResponseServlet3 extends AsyncResponse {
 				log.debug("Async context started=", event.getAsyncContext(),
 					"request=", event.getSuppliedRequest(),
 					"response=", event.getSuppliedResponse());
+				notifyListenersStartAsync();
 			}
 		});
 

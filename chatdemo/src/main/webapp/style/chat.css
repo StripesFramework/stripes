@@ -1,0 +1,61 @@
+body {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    padding: 0;
+    margin: 0;
+}
+
+.main-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.main-container .header {
+    display: flex;
+}
+
+.main-container .header .brand {
+    flex-grow: 1;
+}
+
+.main-container .body {
+    display: flex;
+    flex-direction: row;
+    flex-grow: 1;
+}
+
+.main-container .body .chat-win {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.main-container .body .chat-win .discussion {
+    flex-grow: 1;
+}
+
+.main-container .body .chat-win .footer {
+    display: flex;
+    flex-direction: row;
+}
+
+.main-container .body .chat-win .footer .message {
+    flex-grow: 1;
+}
+
+.main-container .body .chat-win .footer .message input {
+    width: 100%;
+}
+
+
+
