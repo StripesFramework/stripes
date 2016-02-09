@@ -93,11 +93,10 @@ public class SpringHelper {
 
         if (ac == null) {
             final String name = ctx.getServletContextName();
-            throw new IllegalStateException(
-                    "No Spring application context was found in servlet context \"" + name + "\"");
+            log.warn( "No Spring application context was found in servlet context \"" + name + "\"" );
+        } else {
+            injectBeans(bean, ac);
         }
-
-        injectBeans(bean, ac);
     }
 
     /**

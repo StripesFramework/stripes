@@ -25,6 +25,7 @@ import java.util.concurrent.Executors;
 import javax.servlet.Filter;
 
 import net.sourceforge.stripes.action.ActionBean;
+import net.sourceforge.stripes.action.Message;
 import net.sourceforge.stripes.controller.ActionResolver;
 import net.sourceforge.stripes.controller.AnnotatedClassActionResolver;
 import net.sourceforge.stripes.controller.StripesConstants;
@@ -286,6 +287,23 @@ public class MockRoundtrip {
     public ValidationErrors getValidationErrors() {
         ActionBean bean = (ActionBean) this.request.getAttribute(StripesConstants.REQ_ATTR_ACTION_BEAN);
         return bean.getContext().getValidationErrors();
+    }
+
+    /**
+     * Gets the {@link List} of {@link Message}s that were produced by the request.
+     * This should be used instead of obtaining the messages from the
+     * {@link net.sourceforge.stripes.action.ActionBeanContext} as the context is bound to the
+     * {@link net.sourceforge.stripes.controller.FlashScope}.
+     *
+     * @return
+     */
+    public List<Message> getMessages() {
+        Object attribute = this.request.getAttribute(StripesConstants.REQ_ATTR_MESSAGES);
+        if (attribute == null) {
+            return null;
+        }
+
+        return (List<Message>) attribute;
     }
 
     /**
