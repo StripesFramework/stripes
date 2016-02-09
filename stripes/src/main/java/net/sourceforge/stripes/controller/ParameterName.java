@@ -91,7 +91,7 @@ public class ParameterName implements Comparable<ParameterName> {
      *         parameter passed in sorts first.
      */
     public int compareTo(ParameterName that) {
-        int result = new Integer(this.name.length()).compareTo(that.name.length());
+        int result = Integer.valueOf(this.name.length()).compareTo(that.name.length());
         if (result == 0) {
             result = this.name.compareTo(that.name);
         }
