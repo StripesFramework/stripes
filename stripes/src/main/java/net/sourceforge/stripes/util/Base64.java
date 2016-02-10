@@ -908,9 +908,9 @@ public class Base64
         
         byte[] b4        = new byte[4];
         int    b4Posn    = 0;
-        int    i         = 0;
-        byte   sbiCrop   = 0;
-        byte   sbiDecode = 0;
+        int    i;
+        byte   sbiCrop;
+        byte   sbiDecode;
         for( i = off; i < off+len; i++ )
         {
             sbiCrop = (byte)(source[i] & 0x7f); // Only the low seven bits
@@ -1001,7 +1001,7 @@ public class Base64
                 java.util.zip.GZIPInputStream gzis = null;
                 java.io.ByteArrayOutputStream baos = null;
                 byte[] buffer = new byte[2048];
-                int    length = 0;
+                int    length;
 
                 try
                 {
@@ -1169,9 +1169,9 @@ public class Base64
         {
             // Set up some useful variables
             java.io.File file = new java.io.File( filename );
-            byte[] buffer = null;
+            byte[] buffer;
             int length   = 0;
-            int numBytes = 0;
+            int numBytes;
             
             // Check for size of file
             if( file.length() > Integer.MAX_VALUE )
@@ -1228,7 +1228,7 @@ public class Base64
             java.io.File file = new java.io.File( filename );
             byte[] buffer = new byte[ Math.max((int)(file.length() * 1.4),40) ]; // Need max() for math on small files (v2.2.1)
             int length   = 0;
-            int numBytes = 0;
+            int numBytes;
             
             // Open a stream
             bis = new Base64.InputStream( 
@@ -1278,7 +1278,7 @@ public class Base64
                       Base64.ENCODE );
             out = new java.io.BufferedOutputStream( new java.io.FileOutputStream( outfile ) );
             byte[] buffer = new byte[65536]; // 64K
-            int read = -1;
+            int read;
             while( ( read = in.read(buffer) ) >= 0 ){
                 out.write( buffer,0,read );
             }   // end while: through file
@@ -1315,7 +1315,7 @@ public class Base64
                       Base64.DECODE );
             out = new java.io.BufferedOutputStream( new java.io.FileOutputStream( outfile ) );
             byte[] buffer = new byte[65536]; // 64K
-            int read = -1;
+            int read;
             while( ( read = in.read(buffer) ) >= 0 ){
                 out.write( buffer,0,read );
             }   // end while: through file
@@ -1461,11 +1461,11 @@ public class Base64
                 else
                 {
                     byte[] b4 = new byte[4];
-                    int i = 0;
+                    int i;
                     for( i = 0; i < 4; i++ )
                     {
                         // Read four "meaningful" bytes:
-                        int b = 0;
+                        int b;
                         do{ b = in.read(); }
                         while( b >= 0 && decodabet[ b & 0x7f ] <= WHITE_SPACE_ENC );
                         

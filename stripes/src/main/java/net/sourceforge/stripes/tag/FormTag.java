@@ -393,7 +393,7 @@ public class FormTag extends HtmlTagSupport implements BodyTag, TryCatchFinally,
      */
     protected boolean isWizard() {
         ActionBean bean = getActionBean();
-        Class<? extends ActionBean> clazz = null;
+        Class<? extends ActionBean> clazz;
         if (bean == null) {
             clazz = getActionBeanClass();
 

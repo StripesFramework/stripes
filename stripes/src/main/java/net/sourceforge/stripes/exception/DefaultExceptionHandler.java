@@ -344,7 +344,7 @@ public class DefaultExceptionHandler implements ExceptionHandler {
      */
     protected String getFileUploadExceededExceptionPath(HttpServletRequest request) {
         // Get the referer URL so we can bounce back to it
-        URL referer = null;
+        URL referer;
         try {
             referer = new URL(request.getHeader("referer"));
         }

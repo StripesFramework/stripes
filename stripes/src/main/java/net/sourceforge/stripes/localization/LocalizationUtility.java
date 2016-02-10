@@ -60,7 +60,7 @@ public class LocalizationUtility {
         ParameterName parameterName = new ParameterName(fieldName);
         String strippedName = parameterName.getStrippedName();
         String localizedValue = null;
-        ResourceBundle bundle = null;
+        ResourceBundle bundle;
 
         try {
             bundle = StripesFilter.getConfiguration().getLocalizationBundleFactory()
