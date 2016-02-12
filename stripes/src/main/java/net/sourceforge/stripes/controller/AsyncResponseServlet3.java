@@ -15,6 +15,7 @@ import java.lang.reflect.Method;
 /**
  * Concrete implementation for AsyncResponse in Servlet3 containers.
  * Handles cleanup on completion, and delegates to servlet's AsyncContext methods.
+ * This class is loaded via reflection and should not be linked to, for compat reasons.
  */
 public class AsyncResponseServlet3 extends AsyncResponse {
 
@@ -73,7 +74,6 @@ public class AsyncResponseServlet3 extends AsyncResponse {
 				log.debug("Async context started=", event.getAsyncContext(),
 					"request=", event.getSuppliedRequest(),
 					"response=", event.getSuppliedResponse());
-				notifyListenersStartAsync();
 			}
 		});
 

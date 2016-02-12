@@ -14,8 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Base class for Servlet3-style asynchronous processing. Instances of
- * this class are passed by Stripes to asynchronous event handlers,
+ * Used by asynchrounous event handlers.
+ * Instances of this class are passed by Stripes to asynchronous event handlers,
  * and allow to complete the asynchronous processing.
  *
  * Needs an abstract + concrete implementation because we
@@ -92,14 +92,29 @@ public abstract class AsyncResponse implements Resolution {
 		}
 	}
 
+	/**
+	 * Return the request associated to asychronous processing.
+	 * @return the http request
+	 */
 	public HttpServletRequest getRequest() {
 		return request;
 	}
 
+	/**
+	 * Return the response associated to asynchronous processing.
+	 * @return the http response
+	 */
 	public HttpServletResponse getResponse() {
 		return response;
 	}
 
+	/**
+	 * Called by Stripes internally in order to execute the asynchonous event.
+	 * You should neved need to invoke this method yourself.
+	 * @param request the current HttpServletRequest
+	 * @param response the current HttpServletResponse
+	 * @throws Exception if the event handler throws an Exception
+	 */
 	@Override
 	public final void execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		// invoke the handler (start async has been done already) and let it complete...
@@ -111,14 +126,15 @@ public abstract class AsyncResponse implements Resolution {
 	}
 
 	/**
-	 * Adds a listener to this async response.
+	 * Adds a listener to this async response. Listeners can be used to
+	 * be notified of async lifecycle events.
 	 * @param listener the listener to add.
 	 */
 	public void addListener(AsyncListener listener) {
 		listeners.add(listener);
 	}
 
-	protected void notifyListenersComplete() {
+	void notifyListenersComplete() {
 		AsyncEvent event = new AsyncEvent(this, null);
 		for (AsyncListener listener : listeners) {
 			try {
@@ -129,18 +145,18 @@ public abstract class AsyncResponse implements Resolution {
 		}
 	}
 
-	protected void notifyListenersStartAsync() {
-		AsyncEvent event = new AsyncEvent(this, null);
-		for (AsyncListener listener : listeners) {
-			try {
-				listener.onStartAsync(event);
-			} catch (Exception e) {
-				log.error("Error notifying listener " + listener, e);
-			}
-		}
-	}
+//	void notifyListenersStartAsync() {
+//		AsyncEvent event = new AsyncEvent(this, null);
+//		for (AsyncListener listener : listeners) {
+//			try {
+//				listener.onStartAsync(event);
+//			} catch (Exception e) {
+//				log.error("Error notifying listener " + listener, e);
+//			}
+//		}
+//	}
 
-	protected void notifyListenersError(Throwable error) {
+	void notifyListenersError(Throwable error) {
 		AsyncEvent event = new AsyncEvent(this, error);
 		for (AsyncListener listener : listeners) {
 			try {
@@ -151,7 +167,7 @@ public abstract class AsyncResponse implements Resolution {
 		}
 	}
 
-	protected void notifyListenersTimeout() {
+	void notifyListenersTimeout() {
 		AsyncEvent event = new AsyncEvent(this, null);
 		for (AsyncListener listener : listeners) {
 			try {
@@ -168,12 +184,12 @@ public abstract class AsyncResponse implements Resolution {
 	public abstract void complete();
 
 	/**
-	 * Completes asynchronous processing and executes passed resolution.
+	 * Executes passed resolution, and completes asynchronous processing.
 	 */
 	public abstract void complete(Resolution resolution);
 
 	/**
-	 * Dispatches to a webappo resource
+	 * Dispatches to a web application resource
 	 * @param path the path to dispatch to
 	 */
 	public abstract void dispatch(String path);

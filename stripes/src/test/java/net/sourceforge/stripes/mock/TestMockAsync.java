@@ -4,11 +4,14 @@ import net.sourceforge.stripes.FilterEnabledTestBase;
 import net.sourceforge.stripes.action.*;
 import static org.testng.Assert.*;
 
+import net.sourceforge.stripes.controller.AsyncEvent;
+import net.sourceforge.stripes.controller.AsyncListener;
 import net.sourceforge.stripes.controller.AsyncResponse;
 import org.testng.annotations.Test;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
 
 public class TestMockAsync extends FilterEnabledTestBase {
 
@@ -86,8 +89,13 @@ public class TestMockAsync extends FilterEnabledTestBase {
 	}
 
 	@Test
-	public void testAsyncClassy() throws Exception {
-		execute("doAsyncClassy");
+	public void doAsyncInThread() throws Exception {
+		execute("doAsyncInThread");
+	}
+
+	@Test
+	public void doAsyncInThreadWithListener() throws Exception {
+		execute("doAsyncInThreadWithListener");
 	}
 
 	@UrlBinding("/async")
@@ -122,8 +130,7 @@ public class TestMockAsync extends FilterEnabledTestBase {
 						completed = true;
 						r.complete();
 					} catch (IOException e) {
-						// will timeout...
-						e.printStackTrace();
+						e.printStackTrace(); // we let it timeout...
 					}
 				}
 			}).start();
@@ -148,12 +155,51 @@ public class TestMockAsync extends FilterEnabledTestBase {
 			r.complete(new ForwardResolution("/foo/bar.jsp"));
 		}
 
-		public void doAsyncClassy(final AsyncResponse callback) {
+		public void doAsyncInThread(final AsyncResponse callback) {
 			new Thread(new Runnable() {
 				@Override
 				public void run() {
+					System.out.println("hiya, I'm inside a separate thread");
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
 					completed = true;
 					callback.complete(new ForwardResolution("/foo/bar"));
+				}
+			}).start();
+		}
+
+		public void doAsyncInThreadWithListener(final AsyncResponse response) {
+			// set the completed flag with a listener
+			response.addListener(new AsyncListener() {
+				@Override
+				public void onComplete(AsyncEvent event) {
+					completed = true;
+				}
+
+				@Override
+				public void onError(AsyncEvent event) {
+				}
+
+				@Override
+				public void onTimeout(AsyncEvent event) {
+				}
+			});
+			new Thread(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						for (int i = 0 ; i < 10 ; i++) {
+							response.getResponse().getWriter().write("i=" + i);
+							Thread.sleep(100);
+						}
+						System.out.println("hiya, I'm inside a separate thread and I use listeners");
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+					response.complete();
 				}
 			}).start();
 		}
