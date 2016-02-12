@@ -156,16 +156,18 @@ public class TestMockAsync extends FilterEnabledTestBase {
 		}
 
 		public void doAsyncInThread(final AsyncResponse response) {
+			response.setTimeout(5000);
 			new Thread(new Runnable() {
 				@Override
 				public void run() {
 					System.out.println("hiya, I'm inside a separate thread");
 					try {
-						Thread.sleep(1000);
+						Thread.sleep(100);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
 					completed = true;
+					System.out.println("Completing");
 					response.complete(new ForwardResolution("/foo/bar"));
 				}
 			}).start();

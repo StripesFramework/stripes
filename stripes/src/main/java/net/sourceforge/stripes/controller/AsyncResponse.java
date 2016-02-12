@@ -122,6 +122,7 @@ public abstract class AsyncResponse implements Resolution {
 			throw new StripesRuntimeException("Handler already invoked.");
 		}
 		handlerInvoked = true;
+		log.debug("Invoking async event ", handler.getName(), " on bean ", bean);
 		handler.invoke(bean, this);
 	}
 

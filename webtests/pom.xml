@@ -281,7 +281,7 @@
 			</build>
 		</profile>
 		<profile>
-			<id>jboss77</id>
+			<id>jboss711</id>
 			<dependencies>
 				<dependency>
 					<groupId>${project.groupId}</groupId>
@@ -297,6 +297,9 @@
 						<groupId>org.jboss.as.plugins</groupId>
 						<artifactId>jboss-as-maven-plugin</artifactId>
 						<version>7.7.Final</version>
+						<configuration>
+							<!--<serverConfig>stripes-standalone.xml</serverConfig>-->
+						</configuration>
 						<executions>
 							<execution>
 								<id>start-container</id>

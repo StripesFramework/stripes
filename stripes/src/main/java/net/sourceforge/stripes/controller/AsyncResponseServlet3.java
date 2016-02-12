@@ -84,10 +84,12 @@ public class AsyncResponseServlet3 extends AsyncResponse {
 	}
 
 	public void complete() {
+		log.debug("Completing AsyncResponse ", this);
 		getAsyncContext().complete();
 	}
 
 	public void complete(Resolution resolution) {
+		log.debug("Completing AsyncResponse ", this, " with Resolution ", resolution);
 		try {
 			resolution.execute(getRequest(), getResponse());
 		} catch (Exception e) {
@@ -97,6 +99,8 @@ public class AsyncResponseServlet3 extends AsyncResponse {
 
 	@Override
 	public void dispatch(String path) {
+		log.debug("Dispatching AsyncResponse ", this, " to path ", path);
+
 		getAsyncContext().dispatch(path);
 	}
 

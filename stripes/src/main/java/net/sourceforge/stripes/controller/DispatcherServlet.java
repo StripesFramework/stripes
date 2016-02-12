@@ -178,9 +178,11 @@ public class DispatcherServlet extends HttpServlet {
                     // so that Stripes still works with Servlet2.x containers.)
                     async = true;
                     final PageContext pc = pageContext;
-                    ((AsyncResponse)resolution).setCleanupCallback(new Runnable() {
+                    final AsyncResponse asyncResponse = (AsyncResponse)resolution;
+                    asyncResponse.setCleanupCallback(new Runnable() {
                         @Override
                         public void run() {
+                            log.debug("Cleaning up AsyncResponse ", asyncResponse);
                             if (pc != null) {
                                 JspFactory.getDefaultFactory().releasePageContext(pc);
                                 DispatcherHelper.setPageContext(null);
