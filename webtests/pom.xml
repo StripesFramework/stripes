@@ -75,6 +75,8 @@
 						<webtests.findr.verbose>true</webtests.findr.verbose>
 						<webtests.browser>${webtests.browser}</webtests.browser>
 						<webdriver.chrome.driver>${webdriver.chrome.driver}</webdriver.chrome.driver>
+						<webtests.video.enabled>true</webtests.video.enabled>
+						<webtests.video.dir>${project.build.directory}/selenium-videos</webtests.video.dir>
 					</systemProperties>
 				</configuration>
 				<executions>

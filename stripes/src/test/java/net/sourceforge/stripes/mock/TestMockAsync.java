@@ -155,7 +155,7 @@ public class TestMockAsync extends FilterEnabledTestBase {
 			r.complete(new ForwardResolution("/foo/bar.jsp"));
 		}
 
-		public void doAsyncInThread(final AsyncResponse callback) {
+		public void doAsyncInThread(final AsyncResponse response) {
 			new Thread(new Runnable() {
 				@Override
 				public void run() {
@@ -166,7 +166,7 @@ public class TestMockAsync extends FilterEnabledTestBase {
 						e.printStackTrace();
 					}
 					completed = true;
-					callback.complete(new ForwardResolution("/foo/bar"));
+					response.complete(new ForwardResolution("/foo/bar"));
 				}
 			}).start();
 		}

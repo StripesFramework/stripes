@@ -17,7 +17,7 @@ public class MockAsyncContext implements AsyncContext {
 
 	private boolean completed = false;
 	private boolean timedOut = false;
-	private long timeout = 5000;
+	private long timeout = 10000;
 	private long startedOn;
 
 	public MockAsyncContext(ServletRequest request, ServletResponse response) {
