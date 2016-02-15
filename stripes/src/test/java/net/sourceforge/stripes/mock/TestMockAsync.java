@@ -9,6 +9,7 @@ import net.sourceforge.stripes.controller.AsyncListener;
 import net.sourceforge.stripes.controller.AsyncResponse;
 import org.testng.annotations.Test;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
@@ -156,7 +157,6 @@ public class TestMockAsync extends FilterEnabledTestBase {
 		}
 
 		public void doAsyncInThread(final AsyncResponse response) {
-			response.setTimeout(5000);
 			new Thread(new Runnable() {
 				@Override
 				public void run() {
@@ -168,7 +168,7 @@ public class TestMockAsync extends FilterEnabledTestBase {
 					}
 					completed = true;
 					System.out.println("Completing");
-					response.complete(new ForwardResolution("/foo/bar"));
+					response.complete(new ForwardResolution("/foo/bar.jsp"));
 				}
 			}).start();
 		}
@@ -211,7 +211,6 @@ public class TestMockAsync extends FilterEnabledTestBase {
 		}
 
 	}
-
 
 }
 
