@@ -56,6 +56,7 @@ public class AsyncResponseServlet3 extends AsyncResponse {
 				HttpServletResponse response = (HttpServletResponse) event.getSuppliedResponse();
 				notifyListenersTimeout();
 				response.sendError(500, "Operation timed out");
+				getAsyncContext().complete();
 				doComplete();
 			}
 
