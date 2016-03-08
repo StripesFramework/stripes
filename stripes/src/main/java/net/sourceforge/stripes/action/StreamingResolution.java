@@ -425,7 +425,7 @@ public class StreamingResolution implements Resolution {
      * @throws Exception if any problems arise when streaming data
      */
     protected void stream(HttpServletResponse response) throws Exception {
-        int length = 0;
+        int length;
         if (this.reader != null) {
             char[] buffer = new char[512];
             try {

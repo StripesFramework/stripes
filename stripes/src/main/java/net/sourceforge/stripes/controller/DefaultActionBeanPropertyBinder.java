@@ -572,7 +572,7 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
 
         // Firstly if the post is a multipart request, check to see if a file was
         // sent under that parameter name
-        FileBean file = null;
+        FileBean file;
         if (req.isMultipart() && (file = req.getFileParameterValue(name)) != null) {
             if (file.getSize() <= 0) {
                 errors.add(name, new ScopedLocalizableError("validation.required",
@@ -754,7 +754,7 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
             throws Exception {
 
         List<Object> returns = new ArrayList<Object>();
-        Class returnType = null;
+        Class returnType;
 
         // Dig up the type converter.  This gets a bit tricky because we need to handle
         // the following cases:
@@ -762,7 +762,7 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
         // 2. We need to find a converter for the element type in a list/array/map
         // 3. We have a domain model object that implements List/Map and has a converter itself!
         TypeConverterFactory factory = this.configuration.getTypeConverterFactory();
-        TypeConverter<?> converter = null;
+        TypeConverter<?> converter;
         Locale locale = bean.getContext().getRequest().getLocale();
 
         converter = factory.getTypeConverter(declaredType, locale);

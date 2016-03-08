@@ -44,7 +44,7 @@ public class IntegerTypeConverter extends NumberTypeConverterSupport implements 
                                                        Integer.MIN_VALUE, Integer.MAX_VALUE) );
             }
             else {
-                retval = new Integer((int) output);
+                retval = Integer.valueOf((int) output);
             }
         }
 

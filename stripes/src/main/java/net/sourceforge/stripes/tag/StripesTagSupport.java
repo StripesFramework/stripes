@@ -183,7 +183,7 @@ public abstract class StripesTagSupport implements Tag {
      */
     @SuppressWarnings("unchecked")
 	protected Class<? extends ActionBean> getActionBeanType(Object nameOrClass) {
-        Class result = null;
+        Class result;
 
         // Figure out if it's a String of Class (or something else?) and act appropriately
         if (nameOrClass instanceof String) {

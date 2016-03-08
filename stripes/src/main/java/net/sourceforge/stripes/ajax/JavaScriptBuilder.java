@@ -146,7 +146,7 @@ public class JavaScriptBuilder extends ObjectOutputBuilder<JavaScriptBuilder> {
             return "\"\"";
         }
 
-        char c = 0;
+        char c ;
         int len = string.length();
         StringBuilder sb = new StringBuilder(len + 10);
 
