@@ -44,7 +44,7 @@ public class ShortTypeConverter extends NumberTypeConverterSupport implements Ty
                                                        Short.MIN_VALUE, Short.MAX_VALUE) );
             }
             else {
-                retval = new Short((short) output);
+                retval = Short.valueOf((short) output);
             }
         }
 

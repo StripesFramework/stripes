@@ -322,7 +322,7 @@ public class FlashScope extends HashMap<String,Object> {
         }
         else {
             try {
-                Integer id = new Integer(keyString);
+                Integer id = Integer.valueOf(keyString);
                 Map<Integer, FlashScope> scopes = getContainer(req, false);
                 return scopes == null ? null : scopes.remove(id);
             }

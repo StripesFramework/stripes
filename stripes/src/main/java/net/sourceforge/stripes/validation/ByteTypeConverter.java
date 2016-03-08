@@ -44,7 +44,7 @@ public class ByteTypeConverter extends NumberTypeConverterSupport implements Typ
                                                        Byte.MIN_VALUE, Byte.MAX_VALUE) );
             }
             else {
-                retval = new Byte((byte) output);
+                retval = Byte.valueOf((byte) output);
             }
         }
 

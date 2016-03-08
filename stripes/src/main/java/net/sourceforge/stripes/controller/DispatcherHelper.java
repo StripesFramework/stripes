@@ -393,7 +393,7 @@ public class DispatcherHelper {
 
                     ValidationMethod ann1 = o1.getAnnotation(ValidationMethod.class);
                     ValidationMethod ann2 = o2.getAnnotation(ValidationMethod.class);
-                    int returnValue = new Integer(ann1.priority()).compareTo(ann2.priority());
+                    int returnValue = Integer.valueOf(ann1.priority()).compareTo(ann2.priority());
 
                     if (returnValue == 0) {
                         returnValue = o1.getName().compareTo(o2.getName());
