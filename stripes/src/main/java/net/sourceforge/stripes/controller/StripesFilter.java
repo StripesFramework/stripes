@@ -57,28 +57,11 @@ public class StripesFilter implements Filter {
     private static final Log log = Log.getInstance(StripesFilter.class);
 
     /** The configuration instance for Stripes. */
-    private Configuration configuration;
+    private static Configuration configuration;
 
     /** The servlet context */
     private ServletContext servletContext;
-
-    /**
-     * A place to stash the Configuration object so that other classes in Stripes can access it
-     * without resorting to ferrying it, or the request, to every class that needs access to the
-     * Configuration.  Doing this allows multiple Stripes Configurations to exist in a single
-     * Classloader since the Configuration is not located statically.
-     */
-    private static final ThreadLocal<Configuration> configurationStash = new ThreadLocal<Configuration>();
-
-    /**
-     * A set of weak references to all the Configuration objects that this class has ever
-     * seen. Uses weak references to allow garbage collection to reap these objects if this
-     * is the only reference left.  Used to determine if there is only one active Configuration
-     * for the VM, and if so return it even when the Configuration isn't set in the thread local.
-     */
-    private static final Set<WeakReference<Configuration>> configurations =
-            new HashSet<WeakReference<Configuration>>(); 
-
+    
     /**
      * Some operations should only be done if the current invocation of
      * {@link #doFilter(ServletRequest, ServletResponse, FilterChain)} is the
@@ -100,8 +83,7 @@ public class StripesFilter implements Filter {
      * @throws ServletException thrown if a problem is encountered initializing Stripes
      */
     public void init(FilterConfig filterConfig) throws ServletException {
-        this.configuration = createConfiguration(filterConfig);
-        StripesFilter.configurations.add(new WeakReference<Configuration>(this.configuration));
+        configuration = createConfiguration(filterConfig);
 
         this.servletContext = filterConfig.getServletContext();
         this.servletContext.setAttribute(StripesFilter.class.getName(), this);
@@ -147,41 +129,9 @@ public class StripesFilter implements Filter {
     }
 
     /**
-     * Returns the Configuration that is being used to process the current request.
+     * Returns the Configuration for the webapp.
      */
     public static Configuration getConfiguration() {
-        Configuration configuration = StripesFilter.configurationStash.get();
-
-        // If the configuration wasn't available in thread local, check to see if we only
-        // know about one configuration in total, and if so use that one
-        if (configuration == null) {
-            synchronized (StripesFilter.configurations) {
-                // Remove any references from the set that have been cleared
-                Iterator<WeakReference<Configuration>> iterator = StripesFilter.configurations.iterator();
-                while (iterator.hasNext()) {
-                    WeakReference<Configuration> ref = iterator.next();
-                    if (ref.get() == null) iterator.remove();
-                }
-
-                // If there is one and only one Configuration active, take it
-                if (StripesFilter.configurations.size() == 1) {
-                    configuration = StripesFilter.configurations.iterator().next().get();
-                }
-            }
-        }
-
-        if (configuration == null) {
-            StripesRuntimeException sre = new StripesRuntimeException(
-                    "Something is trying to access the current Stripes configuration but the " +
-                    "current request was never routed through the StripesFilter! As a result " +
-                    "the appropriate Configuration object cannot be located. Please take a look " +
-                    "at the exact URL in your browser's address bar and ensure that any " +
-                    "requests to that URL will be filtered through the StripesFilter according " +
-                    "to the filter mappings in your web.xml."
-            );
-            log.error(sre);  // log through an exception so that users get a stracktrace
-        }
-
         return configuration;
     }
 
@@ -193,7 +143,7 @@ public class StripesFilter implements Filter {
      * @return the Configuration of this instance of the StripesFilter
      */
     public Configuration getInstanceConfiguration() {
-        return this.configuration;
+        return configuration;
     }
 
     /**
@@ -220,17 +170,15 @@ public class StripesFilter implements Filter {
             log.trace("Intercepting request to URL: ", HttpUtil.getRequestedPath(httpRequest));
 
             if (initial) {
-                // Pop the configuration into thread local
-                StripesFilter.configurationStash.set(this.configuration);
 
                 // Figure out the locale and character encoding to use. The ordering of things here
                 // is very important!! We pick the locale first since picking the encoding is
                 // locale dependent, but the encoding *must* be set on the request before any
                 // parameters or parts are accessed, and wrapping the request accesses stuff.
-                Locale locale = this.configuration.getLocalePicker().pickLocale(httpRequest);
+                Locale locale = configuration.getLocalePicker().pickLocale(httpRequest);
                 log.debug("LocalePicker selected locale: ", locale);
 
-                String encoding = this.configuration.getLocalePicker().pickCharacterEncoding(
+                String encoding = configuration.getLocalePicker().pickCharacterEncoding(
                         httpRequest, locale);
                 if (encoding != null) {
                     httpRequest.setCharacterEncoding(encoding);
@@ -267,7 +215,6 @@ public class StripesFilter implements Filter {
             if (initial) {
                 // Once the request is processed, clean up thread locals
                 StripesFilter.initialInvocation.remove();
-                StripesFilter.configurationStash.remove();
 
                 flashOutbound(httpRequest);
             }
@@ -328,6 +275,5 @@ public class StripesFilter implements Filter {
         this.servletContext.removeAttribute(StripesFilter.class.getName());
         Log.cleanup();
         Introspector.flushCaches(); // Not 100% sure this is necessary, but it doesn't  hurt
-        StripesFilter.configurations.clear();
     }
 }

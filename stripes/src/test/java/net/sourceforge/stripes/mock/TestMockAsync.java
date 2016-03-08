@@ -7,16 +7,21 @@ import static org.testng.Assert.*;
 import net.sourceforge.stripes.controller.AsyncEvent;
 import net.sourceforge.stripes.controller.AsyncListener;
 import net.sourceforge.stripes.controller.AsyncResponse;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class TestMockAsync extends FilterEnabledTestBase {
 
 	private AsyncActionBean execute(String eventName) throws Exception {
+		System.out.println("==> Executing : " + eventName);
 		MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), AsyncActionBean.class);
 		trip.execute(eventName);
 		AsyncActionBean bean = trip.getActionBean(AsyncActionBean.class);
@@ -24,9 +29,10 @@ public class TestMockAsync extends FilterEnabledTestBase {
 		assertEquals(eventName, bean.getContext().getEventName());
 		assertTrue(bean.completed);
 		assertTrue(trip.getRequest().getAsyncContext().isCompleted());
+		System.out.println("==> done with : " + eventName);
 		return bean;
 	}
-
+	
 	@Test
 	public void testSuccess() throws Exception {
 		AsyncActionBean bean = execute("doAsync");
@@ -98,8 +104,8 @@ public class TestMockAsync extends FilterEnabledTestBase {
 	}
 
 	@Test
-	public void doAsyncInThread() throws Exception {
-		execute("doAsyncInThread");
+	public void doAsyncInThreadAndCompleteWithForwardResolution() throws Exception {
+		execute("doAsyncInThreadAndCompleteWithForwardResolution");
 	}
 
 	@Test
@@ -180,16 +186,11 @@ public class TestMockAsync extends FilterEnabledTestBase {
 			r.complete(new ForwardResolution("/foo/bar.jsp"));
 		}
 
-		public void doAsyncInThread(final AsyncResponse response) {
+		public void doAsyncInThreadAndCompleteWithForwardResolution(final AsyncResponse response) {
 			new Thread(new Runnable() {
 				@Override
 				public void run() {
 					System.out.println("hiya, I'm inside a separate thread");
-					try {
-						Thread.sleep(100);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
 					completed = true;
 					System.out.println("Completing");
 					response.complete(new ForwardResolution("/foo/bar.jsp"));
