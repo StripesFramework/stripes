@@ -244,7 +244,7 @@ public class TypeHandlerCache<T> {
      * @return The first applicable handler found or null if no match could be found
      */
     protected T findInInterfaces(Class<?> targetType, Class<?>... ifaces) {
-        T handler = null;
+        T handler;
         for (Class<?> iface : ifaces) {
             if ((handler = handlers.get(iface)) != null) {
                 return cacheHandler(targetType, handler);

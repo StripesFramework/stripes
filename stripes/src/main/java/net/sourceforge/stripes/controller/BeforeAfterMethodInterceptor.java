@@ -90,7 +90,7 @@ public class BeforeAfterMethodInterceptor implements Interceptor {
 		LifecycleStage stage = context.getLifecycleStage();
         ActionBeanContext abc = context.getActionBeanContext();
         String event = abc == null ? null : abc.getEventName();
-        Resolution resolution = null;
+        Resolution resolution;
 
 		// Run @Before methods, as long as there's a bean to run them on
 		if (context.getActionBean() != null) {
@@ -122,7 +122,7 @@ public class BeforeAfterMethodInterceptor implements Interceptor {
             // in which case the name will have been null before, and non-null now
             event = abc == null ? null : abc.getEventName();
 
-            Resolution overrideResolution = null;
+            Resolution overrideResolution;
             for (Method method : afterMethods) {
                 String[] on = method.getAnnotation(After.class).on();
                 if (event == null || CollectionUtil.applies(on, event)) {

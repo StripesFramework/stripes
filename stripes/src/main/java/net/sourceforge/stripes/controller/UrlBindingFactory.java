@@ -675,7 +675,7 @@ public class UrlBindingFactory {
     public static UrlBindingParameter parseUrlBindingParameter(
             Class<? extends ActionBean> beanClass, String string) {
         char[] chars = string.toCharArray();
-        char c = 0;
+        char c;
         boolean escape = false;
         StringBuilder name = new StringBuilder();
         StringBuilder defaultValue = new StringBuilder();

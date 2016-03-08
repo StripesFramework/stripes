@@ -94,7 +94,7 @@ public class ScopedLocalizableError extends LocalizableError {
      */
     @Override
     protected String getMessageTemplate(Locale locale) {
-        String name1=null, name2=null, name3=null, name4=null, name5=null, name6=null,
+        String name1, name2=null, name3=null, name4=null, name5=null, name6=null,
                name7=null, name8=null, name9=null, name10=null, name11=null;
 
         final String actionPath = getActionPath();
