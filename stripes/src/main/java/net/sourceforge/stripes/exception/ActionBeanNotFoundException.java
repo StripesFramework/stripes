@@ -55,7 +55,7 @@ public class ActionBeanNotFoundException extends StripesServletException {
     private static String buildMessage(String requestedUrl,
             Map<String, Class<? extends ActionBean>> registeredBeans) {
         return "Could not locate an ActionBean that is bound to the URL [" + requestedUrl
-                + "]. Commons reasons for this include mis-matched URLs and forgetting "
+                + "]. Common reasons for this include mis-matched URLs and forgetting "
                 + "to implement ActionBean in your class. Registered ActionBeans are: "
                 + registeredBeans;
     }
