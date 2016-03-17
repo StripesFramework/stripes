@@ -98,7 +98,7 @@
             checkbox&quot;/&gt;.
             Since a single checkbox widget on a HTML page can have only a single value, the value tag
             attribute must always resolve to a scalar value which will be converted to a String using
-            the Stripes Formatting system, or by caling toString() if an appropriate Formatter is
+            the Stripes Formatting system, or by calling toString() if an appropriate Formatter is
             not found.</p>
 
             <p>Checkboxes are commonly used in two ways.  The first and simplest case uses a single
@@ -249,7 +249,7 @@
             </ul>
 
             <p>If the <tt>fieldErrors</tt> resources cannot be found, the tag will default to using the
-            sames resources and defaults as when displaying for all fields.</p>
+            same resources and defaults as when displaying for all fields.</p>
 
             <p>Similar to the above, field specific, manner of display the errors tag can also be used
             to output only errors not associated with a field, i.e. global errors.  This is done by setting
@@ -1044,7 +1044,7 @@
             represented by a single option tag on the page.  Uses the label and value attributes
             on the tag to name the properties of the objects in the Collection that should be used
             to generate the body of the HTML option tag and the value attribute of the HTML option
-            tag respectively.  If either (or both) of the label or value properties are ommitted
+            tag respectively.  If either (or both) of the label or value properties are omitted
             the item itself will be used for the label/value instead - this is done to support
             collections of simple types like Strings and Numbers.</p>
 
@@ -1071,7 +1071,7 @@
 
             <p>For example for a class com.myco.Gender supplied to the options-collection tag with
             label="description" and value="key", when rendering for an instance
-            Gender[key="M", description="Male"] the following localized properites will be looked for:
+            Gender[key="M", description="Male"] the following localized properties will be looked for:
 
             <ul>
               <li>Gender.Male</li>
@@ -1195,7 +1195,7 @@
             option tag on the page.  Uses the label and value attributes on the tag to name the
             properties of the objects in the Map.Entry that should be used to generate the body of the
             HTML option tag and the value attribute of the HTML option tag respectively.  If either
-            (or both) of the label or value properties are ommitted the Map.Entry value or key will
+            (or both) of the label or value properties are omitted the Map.Entry value or key will
             be used respectively.</p>
 
             <p>E.g. a tag declaration that looks like:</p>
@@ -1355,7 +1355,7 @@
         </attribute>
         <attribute>
             <description>
-                The name of the property to be used at the label of each option. If not specifed,
+                The name of the property to be used at the label of each option. If not specified,
                 and no localized value can be found, the toString() method will be called on the
                 enumerated objects to supply the user-visible text.
             </description>
@@ -1456,7 +1456,7 @@
             non-null value attribute.</p>
 
             <p>Repopulation of values for password tags is optional, and by default is <b>not</b>
-            performed. To control this behaviour explicitly use the <tt>repopluate</tt> tag
+            performed. To control this behaviour explicitly use the <tt>repopulate</tt> tag
             attribute.</p>
 
         ]]></description>
@@ -1479,7 +1479,7 @@
         <attribute>
             <description>
                 Determines whether value repopulation will occur. If set to true the values will be repopulated
-                in a manner identical to regular text fields.  If set to false (the default) then repopluation
+                in a manner identical to regular text fields.  If set to false (the default) then repopulation
                 will not occur.
             </description>
             <name>repopulate</name>
@@ -2078,7 +2078,7 @@
             <p>Examines the request and include hidden fields for all parameters that have do
             not have form fields in the current form. Will include multiple values for
             parameters that have them.  Excludes 'special' parameters like the source
-            page parameter, and the paramter that conveyed the event name.</p>
+            page parameter, and the parameter that conveyed the event name.</p>
 
             <p>Very useful for implementing basic wizard flow without relying on session
             scoping of ActionBeans, and without having to name all the parameters that
@@ -2093,7 +2093,7 @@
                 If set to true, hidden fields will only be written if the form in which the tag
                 is nested was the same form (or more specifically has the same action) as the
                 form that was submitted in the request being processed. Can be used to ensure
-                that wizarding only occurs withing a specific form and does not spill-over into
+                that wizarding only occurs within a specific form and does not spill-over into
                 other forms if that is undesirable.
             ]]></description>
             <name>currentFormOnly</name>
