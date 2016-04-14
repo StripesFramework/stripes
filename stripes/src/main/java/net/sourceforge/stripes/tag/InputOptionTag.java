@@ -23,7 +23,7 @@ import java.io.IOException;
 
 /**
  * <p>Generates an {@literal <option value="foo">Fooey</option>} HTML tag.  Coordinates with an
- * enclosing select tag to determine it's state (i.e. whether or not it is selected.)  As a result
+ * enclosing select tag to determine its state (i.e. whether or not it is selected.)  As a result
  * some of the logic regarding state repopulation is a bit complex.</p>
  *
  * <p>Since options can have only a single value per option the value attribute of the tag

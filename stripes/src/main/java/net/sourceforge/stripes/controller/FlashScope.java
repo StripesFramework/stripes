@@ -66,7 +66,7 @@ import java.util.concurrent.TimeUnit;
  * {@code FlashScope.getCurrent(request, true)} is called.  When a request is completed, the
  * StripesFilter notifies the current FlashScope that the request is over, which causes it
  * to record the time when the request terminated.  On the subsequent request, if the flash
- * scope is referenced by a URL parameter, then it is removed from session and it's contents
+ * scope is referenced by a URL parameter, then it is removed from session and its contents
  * are pushed into request attributes for the current request.</p>
  *
  * <p>To ensure that orphaned FlashScopes do not consume increasing amounts of HttpSession memory,
@@ -133,7 +133,7 @@ public class FlashScope extends HashMap<String,Object> {
     /**
      * <p>Used by the StripesFilter to notify the flash scope that the request for which
      * it is used has been completed. The FlashScope uses this notification to start a
-     * timer, and also to null out it's reference to the request so that it can be
+     * timer, and also to null out its reference to the request so that it can be
      * garbage collected.</p>
      *
      * <p>The timer is used to determine if a flash scope has been orphaned (i.e. the subsequent
@@ -305,7 +305,7 @@ public class FlashScope extends HashMap<String,Object> {
     /**
      * <p>Fetch the flash scope that was populated during the previous request, if one exists.
      * This is only really intended for use by the StripesFilter and things which extend it,
-     * in order to grab a flash scope for a previous request and empty it's contents into request
+     * in order to grab a flash scope for a previous request and empty its contents into request
      * attributes.</p>
      *
      * <p>NOTE: calling this method has the side-affect of removing the flash scope from

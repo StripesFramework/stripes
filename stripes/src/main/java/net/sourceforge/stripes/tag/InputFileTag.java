@@ -45,7 +45,7 @@ public class InputFileTag extends InputTagSupport {
     public String getAccept() { return get("accept"); }
 
     /**
-     * Locates the parent tag and modifies it's method and enctype to be suitable for file upload.
+     * Locates the parent tag and modifies its method and enctype to be suitable for file upload.
      *
      * @return SKIP_BODY because the tag does not allow a body
      * @throws JspException if the enclosing form tag cannot be located

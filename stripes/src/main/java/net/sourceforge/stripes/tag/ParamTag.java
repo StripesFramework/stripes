@@ -71,7 +71,7 @@ public class ParamTag implements BodyTag {
         this.pageContext = pageContext;
     }
 
-    /** Used by the container to provide the tag with access to it's parent tag on the page. */
+    /** Used by the container to provide the tag with access to its parent tag on the page. */
     public void setParent(Tag tag) {
         this.parentTag = tag;
     }

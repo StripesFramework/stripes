@@ -62,10 +62,10 @@ import net.sourceforge.stripes.action.Resolution;
  *
  * <p>Optionally, Interceptor classes may implement the
  * {@link net.sourceforge.stripes.config.ConfigurableComponent} interface. If implemented,
- * the Interceptor will have it's {@code init(Configuration)} method called after instantiation
+ * the Interceptor will have its {@code init(Configuration)} method called after instantiation
  * and before being placed into service.</p>
  *
- * <p>Interceptors are located by Stripes through it's
+ * <p>Interceptors are located by Stripes through its
  * {@link net.sourceforge.stripes.config.Configuration}.  To configure interceptors you can either
  * implement your own Configuration (probably by subclassing
  * {@link net.sourceforge.stripes.config.RuntimeConfiguration}), or more likely by listing out

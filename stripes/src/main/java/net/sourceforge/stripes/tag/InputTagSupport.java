@@ -394,7 +394,7 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
 
     /**
      * Final implementation of the doStartTag() method that allows the base InputTagSupport class
-     * to insert functionality before and after the tag performs it's doStartTag equivalent
+     * to insert functionality before and after the tag performs its doStartTag equivalent
      * method. Finds errors related to this field and intercepts with a {@link TagErrorRenderer}
      * if appropriate.
      *
@@ -428,7 +428,7 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
 
     /**
      * Final implementation of the doEndTag() method that allows the base InputTagSupport class
-     * to insert functionality before and after the tag performs it's doEndTag equivalent
+     * to insert functionality before and after the tag performs its doEndTag equivalent
      * method.
      *
      * @return int the value returned by the child class from doStartInputTag()

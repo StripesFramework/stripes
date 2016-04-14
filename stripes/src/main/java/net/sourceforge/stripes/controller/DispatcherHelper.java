@@ -349,7 +349,7 @@ public class DispatcherHelper {
     }
 
     /**
-     * Finds and returns all methods in the ActionBean class and it's
+     * Finds and returns all methods in the ActionBean class and its
      * superclasses that are marked with the ValidationMethod annotation and
      * returns them ordered by priority (and alphabetically within priorities).
      * Looks first in an instance level cache, and if that does not contain

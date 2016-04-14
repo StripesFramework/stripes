@@ -38,7 +38,7 @@ import java.util.regex.Pattern;
  * An implementation of MultipartWrapper that uses Jakarta Commons FileUpload
  * (from apache) to parse the request parts. This implementation requires that
  * both commons-fileupload and commons-io be present in the classpath. While
- * this implementation does introduce additional dependencies, it's licensing
+ * this implementation does introduce additional dependencies, its licensing
  * (ASL 2.0) is significantly less restrictive than the licensing for COS - the
  * other alternative provided by Stripes.
  *

@@ -37,7 +37,7 @@ import java.util.Map;
  * against a particular bean or starting object.  When constructed the evaluation will examine
  * type information on the bean and nested properties to create a chain of type information for
  * the expression.  The evaluation can then be used (repeatedly) to determine the type of the
- * expression, retrieve it's value and set it's value - all against the supplied object.
+ * expression, retrieve its value and set its value - all against the supplied object.
  *
  * @author Tim Fennell
  * @since Stripes 1.4
@@ -410,7 +410,7 @@ public class PropertyExpressionEvaluation {
     /**
      * Scans backwards in the expression for the last node which contained a JavaBean type
      * and attempts to use the type arguments to that class to find a match for the
-     * TypeParameter provided.  On it's way also collects information from any parameterized
+     * TypeParameter provided.  On its way also collects information from any parameterized
      * types and their super-types.
      *
      * @param evaluation the current NodeEvaluation

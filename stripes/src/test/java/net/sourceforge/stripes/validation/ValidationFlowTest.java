@@ -166,7 +166,7 @@ public class ValidationFlowTest extends FilterEnabledTestBase implements ActionB
     }
 
     /**
-     * Straightforward test for event two that makes sure it's validations run.  This time
+     * Straightforward test for event two that makes sure its validations run.  This time
      * numberTwo should be required (and is supplied) and validateAlways and validateTwo should
      * run but not validateOne.
      */
