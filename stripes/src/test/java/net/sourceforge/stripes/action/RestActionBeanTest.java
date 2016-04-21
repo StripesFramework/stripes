@@ -219,14 +219,32 @@ public class RestActionBeanTest extends FilterEnabledTestBase implements ActionB
         favoriteFoods.add( "Scotch" );
         favoriteFoods.add( "Pizza" );
         Assert.assertEquals( bean.getPerson().getFavoriteFoods(), favoriteFoods );
-        
+
+        logTripResponse(trip);
+    }
+
+    @Test(groups = "fast")
+    public void testThereIsNoJsonBindingWithoutRequestBody() throws Exception {
+        MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), "/test/1" );
+        trip.getRequest().addHeader("Content-Type", "application/json");
+        trip.getRequest().setMethod("POST");
+        String emptyBody = "";
+        trip.getRequest().setRequestBody(emptyBody);
+        trip.execute("boundPersonEvent");
+        RestActionBeanTest bean = trip.getActionBean( getClass() );
+        Assert.assertEquals( bean.getPerson().getId(), "1" );
+        Assert.assertEquals( bean.getPerson().getFirstName(), "John" );
+        Assert.assertEquals( bean.getPerson().getLastName(), "Doe" );
+        Assert.assertEquals( bean.getPerson().getChildren().size(), 0);
+        Assert.assertEquals( bean.getPerson().getFavoriteFoods().size(), 0 );
+
         logTripResponse(trip);
     }
 
     @Test(groups = "fast")
     /**
      * This tests to make sure that a JSON request that is bound to an event
-     * has its validation handled properly.  In this case, the person.id is 
+     * has its validation handled properly.  In this case, the person.id is
      * a required field and is not bound.
      */
     public void testJsonBindingFromRequestBodyWithValidationError() throws Exception {
@@ -237,10 +255,10 @@ public class RestActionBeanTest extends FilterEnabledTestBase implements ActionB
         trip.getRequest().setRequestBody(json);
         trip.execute("boundPersonEvent");
         Assert.assertTrue( trip.getValidationErrors().hasFieldErrors() );
-        
+
         logTripResponse(trip);
     }
-    
+
     private void logTripResponse(MockRoundtrip trip) {
         log.debug("TRIP RESPONSE: [Event=" + trip.getActionBean(getClass()).getContext().getEventName() + "] [Status=" + trip.getResponse().getStatus()
                 + "] [Message=" + trip.getResponse().getOutputString() + "] [Error Message="
@@ -254,19 +272,19 @@ public class RestActionBeanTest extends FilterEnabledTestBase implements ActionB
         String lastName = "Doe";
         List< String> favoriteFoods = new ArrayList< String>();
         List< Person> children = new ArrayList<Person>();
-        
+
         public void setChildren( List< Person > children ) {
             this.children = children;
         }
-        
+
         public List< Person > getChildren() {
             return this.children;
         }
-        
+
         public void setId( String id ) {
             this.id = id;
         }
-        
+
         public String getId() {
             return this.id;
         }
@@ -300,7 +318,7 @@ public class RestActionBeanTest extends FilterEnabledTestBase implements ActionB
 
         public void setLocale(Locale locale) {
         }
-        
+
         public Locale getLocale() {
             return Locale.getDefault();
         }
