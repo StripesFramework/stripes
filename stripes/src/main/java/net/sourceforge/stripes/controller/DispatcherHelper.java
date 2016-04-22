@@ -176,8 +176,8 @@ public class DispatcherHelper {
                         handler = resolver.getHandler(bean.getClass(), eventName);
                     } else {
                         // If there is no event name given and this is a RestActionBean, then
-                        // attempt to find the handler method by using the HTTP 
-                        // request method itself as the event name.  
+                        // attempt to find the handler method by using the HTTP
+                        // request method itself as the event name.
                         if (bean.getClass().isAnnotationPresent(RestActionBean.class)) {
                             eventName = context.getRequest().getMethod().toLowerCase();
                             handler = resolver.getHandler(bean.getClass(), eventName);
@@ -285,7 +285,7 @@ public class DispatcherHelper {
         Configuration config = StripesFilter.getConfiguration();
 
         // Run the bean's methods annotated with @ValidateMethod if the following conditions are met:
-        //   l. This event is not marked to bypass binding 
+        //   l. This event is not marked to bypass binding
         //   2. This event is not marked to bypass validation (doValidate == true)
         //   3. We have no errors so far OR alwaysInvokeValidate is true
         if (doValidate) {
@@ -582,13 +582,13 @@ public class DispatcherHelper {
                 // It is assumed that an event name that is the same as the HTTP
                 // request method supports that request method.
                 String requestMethod = ctx.getActionBeanContext().getRequest().getMethod();
-                
+
                 if (!handler.getName().equalsIgnoreCase(requestMethod)) {
                     // Check the HTTP request method and ensure that the target handler
                     // method supports it.
                     Collection<HttpRequestMethod> supportedRequestMethods = new ArrayList<HttpRequestMethod>();
 
-                    // First, get the supported HTTP request methods for the target 
+                    // First, get the supported HTTP request methods for the target
                     // event handler method.  If none are explictly declared, then
                     // all HTTP request methods are considered to be supported.
                     for (Annotation annotation : handler.getAnnotations()) {
@@ -602,11 +602,19 @@ public class DispatcherHelper {
                             supportedRequestMethods.add(HttpRequestMethod.DELETE);
                         } else if (annotation instanceof PUT) {
                             supportedRequestMethods.add(HttpRequestMethod.PUT);
+                        } else if (annotation instanceof OPTIONS) {
+                            supportedRequestMethods.add(HttpRequestMethod.OPTIONS);
+                        } else if (annotation instanceof TRACE) {
+                            supportedRequestMethods.add(HttpRequestMethod.TRACE);
+                        } else if (annotation instanceof CONNECT) {
+                            supportedRequestMethods.add(HttpRequestMethod.CONNECT);
+                        } else if (annotation instanceof PATCH) {
+                            supportedRequestMethods.add(HttpRequestMethod.PATCH);
                         }
                     }
 
                     // If no request methods are declared to be supported, then
-                    // add all of them.  
+                    // add all of them.
                     if (supportedRequestMethods.isEmpty()) {
                         supportedRequestMethods.addAll(HttpRequestMethod.all());
                     }
