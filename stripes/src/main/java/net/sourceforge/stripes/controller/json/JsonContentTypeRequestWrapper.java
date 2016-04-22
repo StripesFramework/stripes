@@ -17,7 +17,6 @@ package net.sourceforge.stripes.controller.json;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -47,7 +46,7 @@ public class JsonContentTypeRequestWrapper implements ContentTypeRequestWrapper 
         log.debug("build() called.");
 
         ObjectMapper mapper = new ObjectMapper();
-        JsonNode rootNode = mapper.readTree(new BufferedInputStream(request.getInputStream()));
+        JsonNode rootNode = mapper.readTree(request.getReader());
 
         if (rootNode.isArray()) {
             throw new StripesRuntimeException("The JSON requests bodies must start with an object brace and not an array.");
