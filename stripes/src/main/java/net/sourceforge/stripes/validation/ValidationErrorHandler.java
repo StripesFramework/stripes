@@ -34,7 +34,7 @@ import net.sourceforge.stripes.action.Resolution;
  * {@link net.sourceforge.stripes.action.ActionBean} may do one or more of the following:</p>
  *
  * <ul>
- *   <li>Modify it's own internal state, e.g. unwind changes made by complex setter methods</li>
+ *   <li>Modify its own internal state, e.g. unwind changes made by complex setter methods</li>
  *   <li>Remove validation errors from the ValidationErrors object</li>
  *   <li>Add new validation errors to the ValidationErrors object</li>
  *   <li>Modify errors in the ValidationErrors object</li>

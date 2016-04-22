@@ -89,7 +89,7 @@ public class SimpleMessage implements Message {
     /**
      * Uses the String message passed in as the message template and combines it
      * with any replacement parameters provided to construct a message for
-     * display to the user. Although SimpleMessage does not localize it's
+     * display to the user. Although SimpleMessage does not localize its
      * message string, any formatters invoked as a result of using replacement
      * parameters will be in the correct locale.
      *

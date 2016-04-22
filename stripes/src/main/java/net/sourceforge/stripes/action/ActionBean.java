@@ -54,7 +54,7 @@ import net.sourceforge.stripes.validation.ValidationErrorHandler;
  * </pre>
  *
  * <p>Event names specified in the HandlesEvent annotation should be unique within a given
- * ActionBean (and it's superclasses), but can be re-used across ActionBeans.  For example, a given
+ * ActionBean (and its superclasses), but can be re-used across ActionBeans.  For example, a given
  * ActionBean should not have two methods with the annotation <em>&#064;HandlesEvent("Update")</em>,
  * but it would be perfectly reasonable to have two different ActionBeans handle events, from
  * different forms, called Update.</p>

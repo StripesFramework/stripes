@@ -66,7 +66,7 @@ import net.sourceforge.stripes.validation.ValidationMetadataProvider;
  * not lookup configuration information anywhere!  It returns hard-coded defaults that will result
  * in a working system without any user intervention.</p>
  *
- * <p>Despite it's name the DefaultConfiguration is not in fact the default Configuration
+ * <p>Despite its name the DefaultConfiguration is not in fact the default Configuration
  * implementation in Stripes!  Instead it is the retainer of default configuration values. The
  * Configuration implementation that is used when no alternative is configured is the
  * {@link RuntimeConfiguration}, which is a direct subclass of DefaultConfiguration, and when no

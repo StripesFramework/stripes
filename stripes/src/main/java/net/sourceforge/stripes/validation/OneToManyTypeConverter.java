@@ -50,7 +50,7 @@ import java.util.Locale;
  * a {@code TypeConverter} has been registered.  If a usable {@code TypeConverter} cannot be
  * discovered then an Exception will be thrown!  However, if you wish to use the
  * {@code OneToManyTypeConverter} with a {@code TypeConverter} which is not registered as the
- * default converter for it's type you can override this behaviour by subclassing
+ * default converter for its type you can override this behaviour by subclassing
  * this class and overriding {@link #getSingleItemTypeConverter(Class)}.</p>
  *
  * <p>Strictly speaking the {@code OneToManyTypeConverter} returns a {@link java.util.Collection}

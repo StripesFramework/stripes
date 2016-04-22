@@ -22,7 +22,7 @@ import javax.servlet.jsp.JspException;
  * Primarily used to contain identical functionality between submit, reset and button input types.
  * The only capability offered above and beyond a pure html tag is the ability to lookup the value
  * of the button (i.e. the text on the button that the user sees) from a localized resource bundle.
- * The tag will set it's value using the first non-null result from the following list:</p>
+ * The tag will set its value using the first non-null result from the following list:</p>
  *
  * <ul>
  *   <li>formName.buttonName from the localized resource bundle</li>

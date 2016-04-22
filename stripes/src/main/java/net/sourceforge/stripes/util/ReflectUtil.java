@@ -122,14 +122,14 @@ public class ReflectUtil {
      * following differences:</p>
      *
      * <ul>
-     *   <li>Uses the classes simple name instead of it's fully qualified name.</li>
+     *   <li>Uses the classes simple name instead of its fully qualified name.</li>
      *   <li>Only outputs attributes that are set to non-default values.</li>
      *
      * <p>If, for some unforseen reason, an exception is thrown within this method it will be
      * caught and the return value will be {@code ann.toString()}.
      *
      * @param ann the annotation to convert to a human readable String
-     * @return a human readable String form of the annotation and it's attributes
+     * @return a human readable String form of the annotation and its attributes
      */
     public static String toString(Annotation ann) {
         try {

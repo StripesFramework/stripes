@@ -254,8 +254,8 @@ public class AnnotatedClassActionResolver implements ActionResolver {
     }
 
     /**
-     * Helper method that examines a class, starting at it's highest super class
-     * and working it's way down again, to find method annotations and ensure
+     * Helper method that examines a class, starting at its highest super class
+     * and working its way down again, to find method annotations and ensure
      * that child class annotations take precedence.
      */
     protected void processMethods(Class<?> clazz, Map<String, Method> classMappings) {
@@ -299,7 +299,7 @@ public class AnnotatedClassActionResolver implements ActionResolver {
     /**
      * Responsible for determining the name of the event handled by this method,
      * if indeed it handles one at all. By default looks for the HandlesEvent
-     * annotations and returns it's value if present.
+     * annotations and returns its value if present.
      *
      * @param handler a method that might or might not be a handler method
      * @return the name of the event handled, or null

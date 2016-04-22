@@ -90,7 +90,7 @@ public class SimpleError extends SimpleMessage implements ValidationError {
 
     /**
      * Looks up the field name in the resource bundle (if it exists) so that it can be used
-     * in the message, and then defers to it's super class to combine the message template
+     * in the message, and then defers to its super class to combine the message template
      * with the replacement parameters provided.
      *
      * @param locale the locale of the current request

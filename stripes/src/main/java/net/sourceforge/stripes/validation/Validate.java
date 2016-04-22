@@ -97,14 +97,14 @@ public @interface Validate {
 
     /**
      * Specifies the minimum numeric value acceptable for a numeric field. This validation is
-     * performed after the field has been converted to it's java type. This validation is only
+     * performed after the field has been converted to its java type. This validation is only
      * valid on numeric types (including BigInteger and BigDecimal).
      */
     double minvalue() default Double.MIN_VALUE;
 
     /**
      * Specifies the maximum numeric value acceptable for a numeric field. This validation is
-     * performed after the field has been converted to it's java type. This validation is only
+     * performed after the field has been converted to its java type. This validation is only
      * valid on numeric types (including BigInteger and BigDecimal).
      */
     double maxvalue() default Double.MAX_VALUE;
@@ -131,7 +131,7 @@ public @interface Validate {
     String expression() default "";
 
     /**
-     * A type converter to use to convert this field from String to it's rich object type. If none
+     * A type converter to use to convert this field from String to its rich object type. If none
      * is specified (which should be very common) then the default converter for the target type of
      * object will be used.
      */
