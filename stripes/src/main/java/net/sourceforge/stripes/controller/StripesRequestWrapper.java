@@ -117,24 +117,13 @@ public class StripesRequestWrapper extends HttpServletRequestWrapper {
 
         String contentType = request.getContentType();
         boolean isPost = "POST".equalsIgnoreCase(request.getMethod());
-        boolean containsBody = false;
-        try {
-            // peek request reader to see if there's request body
-            BufferedReader br = request.getReader();
-            br.mark( 1 );
-            int byte1 = br.read();
-            br.reset();
-            containsBody = byte1 > -1;
-        } catch( IOException ioe ) {
-            throw new StripesServletException("Could not read request body.", ioe);
-        }
 
         // Based on the content-type, decide if we need to create content-type
         // sensitive request wrappers for parameter handling
         if (contentType != null) {
             if (isPost && contentType.startsWith("multipart/form-data")) {
                 constructMultipartWrapper(request);
-            } else if (containsBody && contentType.toLowerCase().contains("json")) {
+            } else if (contentType.toLowerCase().contains("json") && request.getContentLength() > 0) {
                 this.contentTypeRequestWrapper = new JsonContentTypeRequestWrapper();
                 try {
                     this.contentTypeRequestWrapper.build(request);
