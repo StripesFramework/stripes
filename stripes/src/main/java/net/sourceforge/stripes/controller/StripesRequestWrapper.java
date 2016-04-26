@@ -294,7 +294,7 @@ public class StripesRequestWrapper extends HttpServletRequestWrapper {
         if (this.contentTypeRequestWrapper != null && MultipartWrapper.class.isAssignableFrom(this.contentTypeRequestWrapper.getClass())) {
             return ((MultipartWrapper) this.contentTypeRequestWrapper).getFileParameterNames();
         } else {
-            return Collections.emptyEnumeration();
+            return Collections.enumeration(Collections.<String>emptyList());
         }
     }
 
