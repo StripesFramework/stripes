@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>net.sourceforge.stripes</groupId>
 		<artifactId>stripes-parent</artifactId>
-		<version>1.7.0-beta3</version>
+		<version>1.7.0-SNAPSHOT</version>
 		<relativePath>..</relativePath>
 	</parent>
 	<artifactId>stripes-webtests</artifactId>
