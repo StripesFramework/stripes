@@ -77,7 +77,7 @@ public class HtmlTagSupportBeanInfo extends SimpleBeanInfo {
         }
         catch (Exception e) {
             // This is crazy talk, we're only doing things that should always succeed
-            log.fatal(e, "Could not contruct bean info for HtmlTagSupport. This is very bad.");
+            log.fatal(e, "Could not construct bean info for HtmlTagSupport. This is very bad.");
             return null;
         }
     }
