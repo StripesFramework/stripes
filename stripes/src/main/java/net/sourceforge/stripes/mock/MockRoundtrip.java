@@ -101,7 +101,7 @@ public class MockRoundtrip {
 
     /**
      * Constructor that will create a request suitable for the provided servlet context and
-     * URL. Note that in general the contructors that take an ActionBean Class object are preferred
+     * URL. Note that in general the constructors that take an ActionBean Class object are preferred
      * over those that take a URL.  Constructs a new session for the request.
      *
      * @param context the MockServletContext that will receive this request
