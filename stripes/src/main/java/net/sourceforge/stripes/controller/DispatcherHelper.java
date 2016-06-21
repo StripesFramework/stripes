@@ -445,6 +445,9 @@ public class DispatcherHelper {
             // For RestActionBean objects, we need to package up all of the validation errors
             // and return them to the caller in an ErrorResolution
             if (bean.getClass().isAnnotationPresent(RestActionBean.class)) {
+                if( resolution != null ) { // the bean wanted to handle the errors itself
+                    return resolution;
+                }
                 ValidationErrors validationErrors = ctx.getActionBeanContext().getValidationErrors();
 
                 log.debug("(", ctx.getActionBean().getClass(), ") Checking for validation errors : ", ctx.getLifecycleStage().name());
