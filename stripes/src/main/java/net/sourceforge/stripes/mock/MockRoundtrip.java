@@ -274,9 +274,12 @@ public class MockRoundtrip {
      */
     @SuppressWarnings("unchecked")
 	public <A extends ActionBean> A getActionBean(Class<A> type) {
-        A bean = (A) this.request.getAttribute(getUrlBinding(type, this.context));
+        final String bindingPath = getUrlBinding(type, this.context);
+        final String contextPath = context.getContextPath() != null ? context.getContextPath() : "";
+        final String attribName = contextPath + bindingPath;
+        A bean = (A) this.request.getAttribute(attribName);
         if (bean == null) {
-            bean = (A) this.request.getSession().getAttribute(getUrlBinding(type, this.context));
+            bean = (A) this.request.getSession().getAttribute(attribName);
         }
         return bean;
     }

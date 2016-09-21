@@ -340,10 +340,10 @@ public class DispatcherServlet extends HttpServlet {
      * @return the Stack if present, or if creation is requested
      */
     @SuppressWarnings("unchecked")
-	protected Stack<ActionBean> getActionBeanStack(HttpServletRequest request, boolean create) {
-        Stack<ActionBean> stack = (Stack<ActionBean>) request.getAttribute(StripesConstants.REQ_ATTR_ACTION_BEAN_STACK);
+	protected Stack<Object> getActionBeanStack(HttpServletRequest request, boolean create) {
+        Stack<Object> stack = (Stack<Object>) request.getAttribute(StripesConstants.REQ_ATTR_ACTION_BEAN_STACK);
         if (stack == null && create) {
-            stack = new Stack<ActionBean>();
+            stack = new Stack<Object>();
             request.setAttribute(StripesConstants.REQ_ATTR_ACTION_BEAN_STACK, stack);
         }
 
@@ -359,8 +359,8 @@ public class DispatcherServlet extends HttpServlet {
      */
     protected void saveActionBean(HttpServletRequest request) {
         if (request.getAttribute(StripesConstants.REQ_ATTR_ACTION_BEAN) != null) {
-            Stack<ActionBean> stack = getActionBeanStack(request, true);
-            stack.push((ActionBean) request.getAttribute(StripesConstants.REQ_ATTR_ACTION_BEAN));
+            Stack<Object> stack = getActionBeanStack(request, true);
+            stack.push(request.getAttribute(StripesConstants.REQ_ATTR_ACTION_BEAN));
         }
     }
 
@@ -372,7 +372,7 @@ public class DispatcherServlet extends HttpServlet {
      * @param request the current HttpServletRequest
      */
     protected void restoreActionBean(HttpServletRequest request) {
-        Stack<ActionBean> stack = getActionBeanStack(request, false);
+        Stack<Object> stack = getActionBeanStack(request, false);
         if (stack != null && !stack.empty()) {
             request.setAttribute(StripesConstants.REQ_ATTR_ACTION_BEAN, stack.pop());
         }
