@@ -285,7 +285,7 @@ public class MockRoundtrip {
      * Gets the (potentially empty) set of Validation Errors that were produced by the request.
      */
     public ValidationErrors getValidationErrors() {
-        ActionBean bean = (ActionBean) this.request.getAttribute(StripesConstants.REQ_ATTR_ACTION_BEAN);
+        ActionBean bean = (ActionBean) this.request.getAttribute(StripesConstants.REQ_ATTR_LAST_ACTION_BEAN);
         return bean.getContext().getValidationErrors();
     }
 

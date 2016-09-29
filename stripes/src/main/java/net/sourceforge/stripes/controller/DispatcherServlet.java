@@ -375,6 +375,8 @@ public class DispatcherServlet extends HttpServlet {
         Stack<ActionBean> stack = getActionBeanStack(request, false);
         if (stack != null && !stack.empty()) {
             request.setAttribute(StripesConstants.REQ_ATTR_ACTION_BEAN, stack.pop());
+        } else {
+            request.removeAttribute(StripesConstants.REQ_ATTR_ACTION_BEAN);
         }
     }
 }

@@ -66,6 +66,12 @@ public interface StripesConstants {
     String REQ_ATTR_ACTION_BEAN = "actionBean";
 
     /**
+     * The name under which the last ActionBean for a request is stored before restoring from
+     * the stack.
+     */
+    String REQ_ATTR_LAST_ACTION_BEAN = "lastActionBean";
+
+    /**
      * The name of a request attribute in which a Stack of action beans is some times stored
      * when a single request involves includes of action beans.
      */
