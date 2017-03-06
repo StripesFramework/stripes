@@ -3,9 +3,6 @@ package net.sourceforge.stripes.tag.layout;
 import javax.servlet.jsp.JspWriter;
 import java.io.IOException;
 
-/**
- * Created by hst92 on 24.02.2017.
- */
 public class DummyJspWriter extends JspWriter {
 
     private StringBuffer buffer = new StringBuffer();
