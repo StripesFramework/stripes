@@ -51,7 +51,7 @@ public class EmailTypeConverter implements TypeConverter<String> {
      * @param input the String input, always a non-null non-empty String
      * @param targetType realistically always String since java.lang.String is final
      * @param errors a non-null collection of errors to populate in case of error
-     * @return the parsed address, or null if there are no errors. Note that the parsed address
+     * @return the parsed address, or null if there are errors. Note that the parsed address
      *         may be different from the input if extraneous characters were removed.
      */
     public String convert(String input,
