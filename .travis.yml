@@ -3,4 +3,4 @@ language: java
 jdk:
   - oraclejdk7
 
-script: mvn -Pwebtests verify
+script: mvn -Pwebtests clean install javadoc:aggregate verify
