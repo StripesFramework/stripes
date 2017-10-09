@@ -1,6 +1,6 @@
 language: java
 
 jdk:
-  - oraclejdk8
+  - openjdk7
 
 script: mvn -Pwebtests clean install javadoc:aggregate verify
