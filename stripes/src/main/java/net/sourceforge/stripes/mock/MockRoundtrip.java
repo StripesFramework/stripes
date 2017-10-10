@@ -274,9 +274,12 @@ public class MockRoundtrip {
      */
     @SuppressWarnings("unchecked")
 	public <A extends ActionBean> A getActionBean(Class<A> type) {
-        A bean = (A) this.request.getAttribute(getUrlBinding(type, this.context));
+        final String bindingPath = getUrlBinding(type, this.context);
+        final String contextPath = context.getContextPath() != null ? context.getContextPath() : "";
+        final String attribName = contextPath + bindingPath;
+        A bean = (A) this.request.getAttribute(attribName);
         if (bean == null) {
-            bean = (A) this.request.getSession().getAttribute(getUrlBinding(type, this.context));
+            bean = (A) this.request.getSession().getAttribute(attribName);
         }
         return bean;
     }
@@ -285,7 +288,7 @@ public class MockRoundtrip {
      * Gets the (potentially empty) set of Validation Errors that were produced by the request.
      */
     public ValidationErrors getValidationErrors() {
-        ActionBean bean = (ActionBean) this.request.getAttribute(StripesConstants.REQ_ATTR_ACTION_BEAN);
+        ActionBean bean = (ActionBean) this.request.getAttribute(StripesConstants.REQ_ATTR_LAST_ACTION_BEAN);
         return bean.getContext().getValidationErrors();
     }
 

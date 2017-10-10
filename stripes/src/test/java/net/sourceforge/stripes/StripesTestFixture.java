@@ -55,6 +55,7 @@ public class StripesTestFixture {
     public static Map<String, String> getDefaultFilterParams() {
         Map<String, String> map = new HashMap<String, String>();
         map.put("ActionResolver.Packages", "net.sourceforge.stripes");
+        map.put("Interceptor.Classes", "net.sourceforge.stripes.test.RecordLastActionBeanInterceptor");
         map.put("LocalePicker.Class", "net.sourceforge.stripes.localization.MockLocalePicker");
         return map;
     }
