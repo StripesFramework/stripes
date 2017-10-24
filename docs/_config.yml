@@ -1,2 +1,16 @@
-
 theme: jekyll-theme-slate
+
+title: Stripes
+description: [Generic Site Template for Java EE related projects]
+
+# sidebar links url
+links:
+  download: https://github.com/StripesFramework/stripes/releases
+  source: https://github.com/StripesFramework/stripes/
+  #mailinglist:
+  #javadocs:
+  #docs:
+  #faq:
+  #mailinglist:
+  #hide_issuetracker: true #set explicitly to 'true' if you don't want to have the issue tracker link displayed
+
