@@ -21,61 +21,74 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * A set based on {@link ConcurrentHashMap}. The Javadoc for the constructors in this class were
- * copied from the Java 1.5 Javadoc for {@link ConcurrentHashMap} and changed to reflect that this
- * is a Set and not a Map. See the Javadoc for {@link ConcurrentHashMap} for information on
+ * A set based on {@link ConcurrentHashMap}. The Javadoc for the constructors in
+ * this class were copied from the Java 1.5 Javadoc for
+ * {@link ConcurrentHashMap} and changed to reflect that this is a Set and not a
+ * Map. See the Javadoc for {@link ConcurrentHashMap} for information on
  * performance characteristics, etc.
- * 
+ *
  * @author Ben Gunter
+ * @param <T>
  */
 public class ConcurrentHashSet<T> implements Set<T> {
-    /** The value object that will be put in the map since it does not accept null values. */
+
+    /**
+     * The value object that will be put in the map since it does not accept
+     * null values.
+     */
     private static final Object VALUE = new Object();
 
-    /** The map that backs this set. */
+    /**
+     * The map that backs this set.
+     */
     private ConcurrentMap<T, Object> map;
 
     /**
-     * Creates a new, empty map with a default initial capacity, load factor, and concurrencyLevel.
+     * Creates a new, empty map with a default initial capacity, load factor,
+     * and concurrencyLevel.
      */
     public ConcurrentHashSet() {
         map = new ConcurrentHashMap<T, Object>();
     }
 
     /**
-     * Creates a new, empty map with the specified initial capacity, and with default load factor
-     * and concurrencyLevel.
-     * 
-     * @param initialCapacity the initial capacity. The implementation performs internal sizing to
-     *            accommodate this many elements.
-     * @throws IllegalArgumentException if the initial capacity of elements is negative.
+     * Creates a new, empty map with the specified initial capacity, and with
+     * default load factor and concurrencyLevel.
+     *
+     * @param initialCapacity the initial capacity. The implementation performs
+     * internal sizing to accommodate this many elements.
+     * @throws IllegalArgumentException if the initial capacity of elements is
+     * negative.
      */
     public ConcurrentHashSet(int initialCapacity) {
         map = new ConcurrentHashMap<T, Object>(initialCapacity);
     }
 
     /**
-     * Creates a new, empty map with the specified initial capacity, load factor, and concurrency
-     * level.
-     * 
-     * @param initialCapacity the initial capacity. The implementation performs internal sizing to
-     *            accommodate this many elements.
-     * @param loadFactor the load factor threshold, used to control resizing. Resizing may be
-     *            performed when the average number of elements per bin exceeds this threshold.
-     * @param concurrencyLevel - the estimated number of concurrently updating threads. The
-     *            implementation performs internal sizing to try to accommodate this many threads.
-     * @throws IllegalArgumentException if the initial capacity is negative or the load factor or
-     *             concurrencyLevel are nonpositive.
+     * Creates a new, empty map with the specified initial capacity, load
+     * factor, and concurrency level.
+     *
+     * @param initialCapacity the initial capacity. The implementation performs
+     * internal sizing to accommodate this many elements.
+     * @param loadFactor the load factor threshold, used to control resizing.
+     * Resizing may be performed when the average number of elements per bin
+     * exceeds this threshold.
+     * @param concurrencyLevel - the estimated number of concurrently updating
+     * threads. The implementation performs internal sizing to try to
+     * accommodate this many threads.
+     * @throws IllegalArgumentException if the initial capacity is negative or
+     * the load factor or concurrencyLevel are nonpositive.
      */
     public ConcurrentHashSet(int initialCapacity, float loadFactor, int concurrencyLevel) {
         map = new ConcurrentHashMap<T, Object>(initialCapacity, loadFactor, concurrencyLevel);
     }
 
     /**
-     * Creates a new set with the same elements as the given set. The set is created with a capacity
-     * of twice the number of elements in the given set or 11 (whichever is greater), and a default
-     * load factor and concurrencyLevel.
-     * 
+     * Creates a new set with the same elements as the given set. The set is
+     * created with a capacity of twice the number of elements in the given set
+     * or 11 (whichever is greater), and a default load factor and
+     * concurrencyLevel.
+     *
      * @param set The set
      */
     public ConcurrentHashSet(Set<? extends T> set) {

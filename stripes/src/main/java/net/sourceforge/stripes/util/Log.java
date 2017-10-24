@@ -17,43 +17,53 @@ package net.sourceforge.stripes.util;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * <p>A <em>wafer thin</em> wrapper around Commons logging that uses var-args to make it
- * much more efficient to call the logging methods in commons logging without having to
- * surround every call site with calls to Log.isXXXEnabled().  All the methods on this
- * class take a variable length list of arguments and, only if logging is enabled for
- * the level and channel being logged to, will those arguments be toString()'d and
- * appended together.</p>
+ * <p>
+ * A <em>wafer thin</em> wrapper around Commons logging that uses var-args to
+ * make it much more efficient to call the logging methods in commons logging
+ * without having to surround every call site with calls to Log.isXXXEnabled().
+ * All the methods on this class take a variable length list of arguments and,
+ * only if logging is enabled for the level and channel being logged to, will
+ * those arguments be toString()'d and appended together.</p>
  *
  * @author Tim Fennell
  */
 public final class Log {
+
     private org.apache.commons.logging.Log realLog;
 
+    /**
+     *
+     * @return
+     */
     public org.apache.commons.logging.Log getRealLog() {
         return realLog;
     }
 
     /**
-     * Get a Log instance to perform logging within the Class specified.  Returns an instance
-     * of this class which wraps an instance of the commons logging Log class.
+     * Get a Log instance to perform logging within the Class specified. Returns
+     * an instance of this class which wraps an instance of the commons logging
+     * Log class.
+     *
      * @param clazz the Class which is going to be doing the logging
      * @return a Log instance with which to log
      */
     public static Log getInstance(Class<?> clazz) {
-        return new Log( LogFactory.getLog(clazz) );
+        return new Log(LogFactory.getLog(clazz));
     }
 
     /**
-     * Forces Log to cleanup any cached resources. This is called by the StripesFilter when
-     * it is destroyed, but can be called from user code as well if necessary.
+     * Forces Log to cleanup any cached resources. This is called by the
+     * StripesFilter when it is destroyed, but can be called from user code as
+     * well if necessary.
      */
     public static void cleanup() {
         LogFactory.release(Thread.currentThread().getContextClassLoader());
     }
 
     /**
-     * Private constructor which creates a new Log instance wrapping the commons Log instance
-     * provided.  Only used by the static getInstance() method on this class.
+     * Private constructor which creates a new Log instance wrapping the commons
+     * Log instance provided. Only used by the static getInstance() method on
+     * this class.
      */
     private Log(org.apache.commons.logging.Log realLog) {
         this.realLog = realLog;
@@ -61,9 +71,11 @@ public final class Log {
 
     /**
      * Logs a Throwable and optional message parts at level fatal.
-     * @param throwable an instance of Throwable that should be logged with stack trace
-     * @param messageParts zero or more objects which should be combined, by calling toString()
-     *        to form the log message.
+     *
+     * @param throwable an instance of Throwable that should be logged with
+     * stack trace
+     * @param messageParts zero or more objects which should be combined, by
+     * calling toString() to form the log message.
      */
     public final void fatal(Throwable throwable, Object... messageParts) {
         if (this.realLog.isFatalEnabled()) {
@@ -73,9 +85,11 @@ public final class Log {
 
     /**
      * Logs a Throwable and optional message parts at level error.
-     * @param throwable an instance of Throwable that should be logged with stack trace
-     * @param messageParts zero or more objects which should be combined, by calling toString()
-     *        to form the log message.
+     *
+     * @param throwable an instance of Throwable that should be logged with
+     * stack trace
+     * @param messageParts zero or more objects which should be combined, by
+     * calling toString() to form the log message.
      */
     public final void error(Throwable throwable, Object... messageParts) {
         if (this.realLog.isErrorEnabled()) {
@@ -85,9 +99,11 @@ public final class Log {
 
     /**
      * Logs a Throwable and optional message parts at level warn.
-     * @param throwable an instance of Throwable that should be logged with stack trace
-     * @param messageParts zero or more objects which should be combined, by calling toString()
-     *        to form the log message.
+     *
+     * @param throwable an instance of Throwable that should be logged with
+     * stack trace
+     * @param messageParts zero or more objects which should be combined, by
+     * calling toString() to form the log message.
      */
     public final void warn(Throwable throwable, Object... messageParts) {
         if (this.realLog.isWarnEnabled()) {
@@ -97,9 +113,11 @@ public final class Log {
 
     /**
      * Logs a Throwable and optional message parts at level info.
-     * @param throwable an instance of Throwable that should be logged with stack trace
-     * @param messageParts zero or more objects which should be combined, by calling toString()
-     *        to form the log message.
+     *
+     * @param throwable an instance of Throwable that should be logged with
+     * stack trace
+     * @param messageParts zero or more objects which should be combined, by
+     * calling toString() to form the log message.
      */
     public final void info(Throwable throwable, Object... messageParts) {
         if (this.realLog.isInfoEnabled()) {
@@ -109,9 +127,11 @@ public final class Log {
 
     /**
      * Logs a Throwable and optional message parts at level debug.
-     * @param throwable an instance of Throwable that should be logged with stack trace
-     * @param messageParts zero or more objects which should be combined, by calling toString()
-     *        to form the log message.
+     *
+     * @param throwable an instance of Throwable that should be logged with
+     * stack trace
+     * @param messageParts zero or more objects which should be combined, by
+     * calling toString() to form the log message.
      */
     public final void debug(Throwable throwable, Object... messageParts) {
         if (this.realLog.isDebugEnabled()) {
@@ -121,9 +141,11 @@ public final class Log {
 
     /**
      * Logs a Throwable and optional message parts at level trace.
-     * @param throwable an instance of Throwable that should be logged with stack trace
-     * @param messageParts zero or more objects which should be combined, by calling toString()
-     *        to form the log message.
+     *
+     * @param throwable an instance of Throwable that should be logged with
+     * stack trace
+     * @param messageParts zero or more objects which should be combined, by
+     * calling toString() to form the log message.
      */
     public final void trace(Throwable throwable, Object... messageParts) {
         if (this.realLog.isTraceEnabled()) {
@@ -132,11 +154,11 @@ public final class Log {
     }
 
     // Similar methods, but without Throwables, follow
-
     /**
      * Logs one or more message parts at level fatal.
-     * @param messageParts one or more objects which should be combined, by calling toString()
-     *        to form the log message.
+     *
+     * @param messageParts one or more objects which should be combined, by
+     * calling toString() to form the log message.
      */
     public final void fatal(Object... messageParts) {
         if (this.realLog.isFatalEnabled()) {
@@ -146,8 +168,9 @@ public final class Log {
 
     /**
      * Logs one or more message parts at level error.
-     * @param messageParts one or more objects which should be combined, by calling toString()
-     *        to form the log message.
+     *
+     * @param messageParts one or more objects which should be combined, by
+     * calling toString() to form the log message.
      */
     public final void error(Object... messageParts) {
         if (this.realLog.isErrorEnabled()) {
@@ -157,8 +180,9 @@ public final class Log {
 
     /**
      * Logs one or more message parts at level warn.
-     * @param messageParts one or more objects which should be combined, by calling toString()
-     *        to form the log message.
+     *
+     * @param messageParts one or more objects which should be combined, by
+     * calling toString() to form the log message.
      */
     public final void warn(Object... messageParts) {
         if (this.realLog.isWarnEnabled()) {
@@ -168,8 +192,9 @@ public final class Log {
 
     /**
      * Logs one or more message parts at level info.
-     * @param messageParts one or more objects which should be combined, by calling toString()
-     *        to form the log message.
+     *
+     * @param messageParts one or more objects which should be combined, by
+     * calling toString() to form the log message.
      */
     public final void info(Object... messageParts) {
         if (this.realLog.isInfoEnabled()) {
@@ -179,8 +204,9 @@ public final class Log {
 
     /**
      * Logs one or more message parts at level debug.
-     * @param messageParts one or more objects which should be combined, by calling toString()
-     *        to form the log message.
+     *
+     * @param messageParts one or more objects which should be combined, by
+     * calling toString() to form the log message.
      */
     public final void debug(Object... messageParts) {
         if (this.realLog.isDebugEnabled()) {
@@ -190,8 +216,9 @@ public final class Log {
 
     /**
      * Logs one or more message parts at level trace.
-     * @param messageParts one or more objects which should be combined, by calling toString()
-     *        to form the log message.
+     *
+     * @param messageParts one or more objects which should be combined, by
+     * calling toString() to form the log message.
      */
     public final void trace(Object... messageParts) {
         if (this.realLog.isTraceEnabled()) {

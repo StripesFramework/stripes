@@ -18,6 +18,7 @@ import net.sourceforge.stripes.mock.MockServletContext;
  * @author Tim Fennell
  */
 public class StripesTestFixture {
+
     private static Configuration configuration;
 
     /**
@@ -31,7 +32,10 @@ public class StripesTestFixture {
                 .setServlet(DispatcherServlet.class, "StripesDispatcher", null);
     }
 
-    /** Gets a reference to the default configuration, which can be used for simple testing. */
+    /**
+     * Gets a reference to the default configuration, which can be used for
+     * simple testing.
+     */
     public static synchronized Configuration getDefaultConfiguration() {
         if (configuration == null) {
             Configuration configuration = new DefaultConfiguration();
@@ -51,7 +55,10 @@ public class StripesTestFixture {
         return configuration;
     }
 
-    /** Gets a map containing the default initialization parameters for StripesFilter */
+    /**
+     * Gets a map containing the default initialization parameters for
+     * StripesFilter
+     */
     public static Map<String, String> getDefaultFilterParams() {
         Map<String, String> map = new HashMap<String, String>();
         map.put("ActionResolver.Packages", "net.sourceforge.stripes");

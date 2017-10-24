@@ -20,52 +20,68 @@ import javax.servlet.http.HttpServletRequest;
  * Provides support for tags that allow assigning a value in a named scope. The
  * "var" and "scope" properties are provided, as is an {@link #export(Object)}
  * method that assigns a value to the given name in the given scope.
- * 
+ *
  * @author Ben Gunter
  */
 public abstract class VarTagSupport extends StripesTagSupport {
+
+    /**
+     *
+     */
     protected String var;
+
+    /**
+     *
+     */
     protected String scope;
 
-    /** Get the scope in which the value will be stored */
+    /**
+     * Get the scope in which the value will be stored
+     * @return 
+     */
     public String getScope() {
         return scope;
     }
 
-    /** Set the scope in which the value will be stored */
+    /**
+     * Set the scope in which the value will be stored
+     * @param scope
+     */
     public void setScope(String scope) {
         this.scope = scope;
     }
 
-    /** Get the name of the variable to which the value will be assigned */
+    /**
+     * Get the name of the variable to which the value will be assigned
+     * @return 
+     */
     public String getVar() {
         return var;
     }
 
-    /** Set the name of the variable to which the value will be assigned */
+    /**
+     * Set the name of the variable to which the value will be assigned
+     * @param var
+     */
     public void setVar(String var) {
         this.var = var;
     }
 
     /**
-     * Assigns the <code>value</code> to an attribute named by
-     * <code>var</code> in the named <code>scope</code>.
-     * 
-     * @param value
-     *            the object to be exported
+     * Assigns the <code>value</code> to an attribute named by <code>var</code>
+     * in the named <code>scope</code>.
+     *
+     * @param value the object to be exported
      */
     protected void export(Object value) {
         if ("request".equals(scope)) {
             pageContext.getRequest().setAttribute(var, value);
-        }
-        else if ("session".equals(scope)) {
+        } else if ("session".equals(scope)) {
             ((HttpServletRequest) pageContext.getRequest()).getSession()
                     .setAttribute(var, value);
-        }
-        else if ("application".equals(scope)) {
+        } else if ("application".equals(scope)) {
             pageContext.getServletContext().setAttribute(var, value);
-        }
-        else {
+        } else {
             pageContext.setAttribute(var, value);
         }
     }

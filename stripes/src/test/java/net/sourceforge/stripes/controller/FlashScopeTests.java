@@ -30,40 +30,51 @@ import java.util.regex.Matcher;
  */
 @UrlBinding("/FlashScopeTests.action")
 public class FlashScopeTests implements ActionBean {
-    static final Pattern FLASH_ID_REGEX =
-            Pattern.compile(".*" + StripesConstants.URL_KEY_FLASH_SCOPE_ID + "=(-?\\d+).*");
+
+    static final Pattern FLASH_ID_REGEX
+            = Pattern.compile(".*" + StripesConstants.URL_KEY_FLASH_SCOPE_ID + "=(-?\\d+).*");
 
     private ActionBeanContext context;
-    public ActionBeanContext getContext() { return context; }
-    public void setContext(ActionBeanContext context) { this.context = context; }
 
-    /** A test handler that moves all request parameters into a flash scope. */
+    public ActionBeanContext getContext() {
+        return context;
+    }
+
+    public void setContext(ActionBeanContext context) {
+        this.context = context;
+    }
+
+    /**
+     * A test handler that moves all request parameters into a flash scope.
+     */
     @SuppressWarnings("unchecked")
     @DefaultHandler
     public Resolution flash() {
         HttpServletRequest req = getContext().getRequest();
-        Map<String,String[]> params = req.getParameterMap();
-        
-        for (Map.Entry<String,String[]> entry : params.entrySet()) {
+        Map<String, String[]> params = req.getParameterMap();
+
+        for (Map.Entry<String, String[]> entry : params.entrySet()) {
             FlashScope flash = FlashScope.getCurrent(getContext().getRequest(), true);
             flash.put(entry.getKey(), entry.getValue()[0]);
         }
 
         return new RedirectResolution("/FlashScopeTests.action");
     }
-    
+
     @HandlesEvent("FlashBean")
     public Resolution flashBean() {
         return new RedirectResolution("/FlashScopeTests.action").flash(this);
     }
 
-    /** A do-nothing test handler. */
+    /**
+     * A do-nothing test handler.
+     */
     @HandlesEvent("DoNothing")
     public Resolution doNothing() {
         return null;
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void positiveCase() throws Exception {
         MockServletContext ctx = StripesTestFixture.createServletContext();
         try {
@@ -74,27 +85,26 @@ public class FlashScopeTests implements ActionBean {
             String url = trip.getDestination();
             Matcher matcher = FLASH_ID_REGEX.matcher(url);
             Assert.assertTrue(matcher.matches(),
-                              "Redirect URL should contain request parameter for flash scope id.");
+                    "Redirect URL should contain request parameter for flash scope id.");
 
             Assert.assertEquals("foo123", trip.getRequest().getAttribute("foo"),
-                                "FlashScope should have inserted 'foo' into a request attribute.");
+                    "FlashScope should have inserted 'foo' into a request attribute.");
 
-            MockRoundtrip trip2 = new MockRoundtrip
-                    (ctx, FlashScopeTests.class, (MockHttpSession) trip.getRequest().getSession());
+            MockRoundtrip trip2 = new MockRoundtrip(ctx, FlashScopeTests.class, (MockHttpSession) trip.getRequest().getSession());
 
             // Get the flash scope ID from the redirect URL and add it back as a parameter
             String id = matcher.group(1);
             trip2.addParameter(StripesConstants.URL_KEY_FLASH_SCOPE_ID, id);
 
             Assert.assertNull(trip2.getRequest().getAttribute("foo"),
-                              "Request attribute 'foo' should not exist prior to request.");
+                    "Request attribute 'foo' should not exist prior to request.");
 
             trip2.execute("DoNothing");
             Assert.assertEquals("foo123", trip2.getRequest().getAttribute("foo"),
-                                "Request attribute 'foo' should have been set by FlashScope.");
+                    "Request attribute 'foo' should have been set by FlashScope.");
 
             Assert.assertEquals(FlashScope.getAllFlashScopes(trip2.getRequest()).size(), 0,
-                                "FlashScope should have been removed from session after use.");
+                    "FlashScope should have been removed from session after use.");
 
             // Test flashing an ActionBean
             MockRoundtrip trip3 = new MockRoundtrip(ctx, FlashScopeTests.class, (MockHttpSession) trip
@@ -115,8 +125,7 @@ public class FlashScopeTests implements ActionBean {
                 response.isCommitted();
                 Assert.fail(
                         "Response should have thrown IllegalStateException after request cycle complete");
-            }
-            catch (IllegalStateException e) {
+            } catch (IllegalStateException e) {
             }
         } finally {
             ctx.close();

@@ -18,7 +18,7 @@ public class TestSts725Sts494 {
     @Test
     public void testSts725() {
         int count = 2;
-            for (int i = 0; i < count; i++) {
+        for (int i = 0; i < count; i++) {
             Map<String, String> params = new HashMap<String, String>();
             params.put("ActionResolver.Packages", "foo.bar");
             MockServletContext mockServletContext = StripesTestFixture.createServletContext();

@@ -21,16 +21,31 @@ package net.sourceforge.stripes.exception;
  * @author Tim Fennell
  */
 public class StripesRuntimeException extends RuntimeException {
-	private static final long serialVersionUID = 1L;
 
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * Constructs an exception withe passed message.
+     * 
+     * @param message - Error message
+     */
     public StripesRuntimeException(String message) {
         super(message);
     }
 
+    /**
+     * Constructs an exception with the passed message and cause
+     * @param message - Error message
+     * @param cause - Cause of error
+     */
     public StripesRuntimeException(String message, Throwable cause) {
         super(message, cause);
     }
 
+    /**
+     * Constructs an exception with the passed cause
+     * @param cause - Cause of exception
+     */
     public StripesRuntimeException(Throwable cause) {
         super(cause);
     }

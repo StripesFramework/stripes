@@ -19,64 +19,79 @@ import org.testng.annotations.Test;
 import org.testng.Assert;
 
 /**
- * Tests that when one ActionBean extends another that the results are predictable
- * and that subclass annotations override those in the superclass.
+ * Tests that when one ActionBean extends another that the results are
+ * predictable and that subclass annotations override those in the superclass.
  *
  * @author Tim Fennell
  */
 @UrlBinding("/InheritanceTests.action")
 public class InheritanceTests extends SuperclassActionBean {
-    /** A new handler method, that is now the default. */
-    @DefaultHandler @DontValidate
-    public Resolution different() { return new RedirectResolution("/child.jsp"); }
 
-    /** Another handler method that will cause validation to run. */
+    /**
+     * A new handler method, that is now the default.
+     */
+    @DefaultHandler
+    @DontValidate
+    public Resolution different() {
+        return new RedirectResolution("/child.jsp");
+    }
+
+    /**
+     * Another handler method that will cause validation to run.
+     */
     @HandlesEvent("/Validate.action")
-    public Resolution another() { return new RedirectResolution("/child.jsp"); }
+    public Resolution another() {
+        return new RedirectResolution("/child.jsp");
+    }
 
     private MockServletContext ctx;
 
     @BeforeClass
-    public void setupServletContext(){
+    public void setupServletContext() {
         ctx = StripesTestFixture.createServletContext();
     }
 
     @AfterClass
-    public void closeServletContext(){
+    public void closeServletContext() {
         ctx.close();
     }
 
     /**
-     * When we invoke the action without an event it should get routed to the default
-     * handler in this class, not the one in the super class!
+     * When we invoke the action without an event it should get routed to the
+     * default handler in this class, not the one in the super class!
      */
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void invokeDefault() throws Exception {
         MockRoundtrip trip = new MockRoundtrip(ctx,
-                                               InheritanceTests.class);
+                InheritanceTests.class);
         trip.execute();
         Assert.assertEquals(trip.getDestination(), "/child.jsp", "Wrong default handler called!");
     }
 
     // Overridden getter methods that simply allow additional validations to be added
+    @Override
+    @Validate(required = false) // override validation on the Field
+    public String getOne() {
+        return super.getOne();
+    }
 
     @Override
-    @Validate(required=false) // override validation on the Field
-    public String getOne() { return super.getOne(); }
+    @Validate(required = true, minlength = 25) // override and add validation on the Method
+    public String getTwo() {
+        return super.getTwo();
+    }
 
     @Override
-    @Validate(required=true,minlength=25) // override and add validation on the Method
-    public String getTwo() { return super.getTwo(); }
-
-    @Override
-    @Validate(mask="\\d+") // add valiations where there were none
-    public String getFour() { return super.getFour(); }
+    @Validate(mask = "\\d+") // add valiations where there were none
+    public String getFour() {
+        return super.getFour();
+    }
 
     /**
      * Check that the validations from the superclass are active, except where
      * overridden by this class.
      */
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void testInheritedValidations() throws Exception {
         MockServletContext ctx = StripesTestFixture.createServletContext();
         try {
@@ -101,28 +116,56 @@ public class InheritanceTests extends SuperclassActionBean {
  * A super class that can be extended by the test class.
  */
 class SuperclassActionBean implements ActionBean {
-    private ActionBeanContext context;
-    public ActionBeanContext getContext() { return context; }
-    public void setContext(ActionBeanContext context) { this.context = context; }
 
-    @Validate(required=true) private String one;
+    private ActionBeanContext context;
+
+    public ActionBeanContext getContext() {
+        return context;
+    }
+
+    public void setContext(ActionBeanContext context) {
+        this.context = context;
+    }
+
+    @Validate(required = true)
+    private String one;
     private String two;
     private String three;
     private String four;
 
-    public String getOne() { return one; }
-    public void setOne(String one) { this.one = one; }
+    public String getOne() {
+        return one;
+    }
 
-    @Validate(required=true)
-    public String getTwo() { return two; }
-    public void setTwo(String two) { this.two = two; }
+    public void setOne(String one) {
+        this.one = one;
+    }
 
-    @Validate(minlength=3)
-    public String getThree() { return three; }
-    public void setThree(String three) { this.three = three; }
+    @Validate(required = true)
+    public String getTwo() {
+        return two;
+    }
 
-    public String getFour() { return four; }
-    public void setFour(String four) { this.four = four;}
+    public void setTwo(String two) {
+        this.two = two;
+    }
+
+    @Validate(minlength = 3)
+    public String getThree() {
+        return three;
+    }
+
+    public void setThree(String three) {
+        this.three = three;
+    }
+
+    public String getFour() {
+        return four;
+    }
+
+    public void setFour(String four) {
+        this.four = four;
+    }
 
     @DefaultHandler
     public Resolution index() {

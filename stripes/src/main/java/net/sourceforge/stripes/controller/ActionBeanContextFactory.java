@@ -29,15 +29,15 @@ import javax.servlet.http.HttpServletRequest;
  */
 public interface ActionBeanContextFactory extends ConfigurableComponent {
 
-
     /**
      * Creates and returns a new instance of ActionBeanContext or a subclass.
      *
      * @param request the current HttpServletRequest
      * @param response the current HttpServletResponse
      * @return a new instance of ActionBeanContext
-     * @throws ServletException if the ActionBeanContext class configured cannot be instantiated
+     * @throws ServletException if the ActionBeanContext class configured cannot
+     * be instantiated
      */
     ActionBeanContext getContextInstance(HttpServletRequest request,
-                                         HttpServletResponse response) throws ServletException;
+            HttpServletResponse response) throws ServletException;
 }

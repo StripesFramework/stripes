@@ -32,26 +32,44 @@ import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.validation.ValidationError;
 
 /**
- * A resolution that streams a simple HTML response to the client detailing the validation errors
- * that apply for an {@link ActionBeanContext}.
- * 
+ * A resolution that streams a simple HTML response to the client detailing the
+ * validation errors that apply for an {@link ActionBeanContext}.
+ *
  * @author Ben Gunter
  * @since Stripes 1.5.5
  */
 public class ValidationErrorReportResolution implements Resolution {
+
     private static final Log log = Log.getInstance(ValidationErrorReportResolution.class);
     private ActionBeanContext context;
 
-    /** Construct a new instance to report validation errors in the specified context. */
+    /**
+     * Construct a new instance to report validation errors in the specified
+     * context.
+     *
+     * @param context The action bean context
+     */
     public ValidationErrorReportResolution(ActionBeanContext context) {
         this.context = context;
     }
 
-    /** Get the action bean context on which the validation errors occurred. */
+    /**
+     * Get the action bean context on which the validation errors occurred.
+     *
+     * @return the action bean context object for this resolution
+     */
     public ActionBeanContext getContext() {
         return context;
     }
 
+    /**
+     * Executes the request for this resolution.
+     *
+     * @param request HTTP servlet request object
+     * @param response HTTP servlet response object
+     * @throws Exception If an error occurs while executing this resolution
+     */
+    @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
         // log an exception for the stack trace
         SourcePageNotFoundException exception = new SourcePageNotFoundException(getContext());
@@ -75,12 +93,14 @@ public class ValidationErrorReportResolution implements Resolution {
     }
 
     /**
-     * Called by {@link #execute(HttpServletRequest, HttpServletResponse)} to write the actual
-     * validation errors to the client. The {@code header}, {@code footer}, {@code beforeError} and
-     * {@code afterError} resources are used by this method.
-     * 
+     * Called by {@link #execute(HttpServletRequest, HttpServletResponse)} to
+     * write the actual validation errors to the client. The {@code header},
+     * {@code footer}, {@code beforeError} and {@code afterError} resources are
+     * used by this method.
+     *
      * @param request The servlet request.
      * @param response The servlet response.
+     * @throws java.lang.Exception If an error occurs send the error response
      */
     protected void sendErrors(HttpServletRequest request, HttpServletResponse response)
             throws Exception {
@@ -91,8 +111,7 @@ public class ValidationErrorReportResolution implements Resolution {
         try {
             bundle = StripesFilter.getConfiguration().getLocalizationBundleFactory()
                     .getErrorMessageBundle(locale);
-        }
-        catch (MissingResourceException mre) {
+        } catch (MissingResourceException mre) {
             log.warn(getClass().getName(), " could not find the error messages resource bundle. ",
                     "As a result default headers/footers etc. will be used. Check that ",
                     "you have a StripesResources.properties in your classpath (unless ",
@@ -121,9 +140,9 @@ public class ValidationErrorReportResolution implements Resolution {
     }
 
     /**
-     * Utility method that is used to lookup the resources used for the error header, footer, and
-     * the strings that go before and after each error.
-     * 
+     * Utility method that is used to lookup the resources used for the error
+     * header, footer, and the strings that go before and after each error.
+     *
      * @param bundle the bundle to look up the resource from
      * @param name the name of the resource to lookup (prefixes will be added)
      * @param fallback a value to return if no resource can be found
@@ -137,8 +156,7 @@ public class ValidationErrorReportResolution implements Resolution {
         String resource;
         try {
             resource = bundle.getString("stripes.errors." + name);
-        }
-        catch (MissingResourceException mre) {
+        } catch (MissingResourceException mre) {
             resource = fallback;
         }
 

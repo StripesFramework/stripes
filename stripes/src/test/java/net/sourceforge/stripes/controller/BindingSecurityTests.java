@@ -26,15 +26,17 @@ import org.testng.annotations.Test;
  * Tests binding security.
  */
 public class BindingSecurityTests extends FilterEnabledTestBase {
+
     public static class NoAnnotation implements ActionBean {
+
         private ActionBeanContext context;
 
         public String[] getTestProperties() {
-            return new String[] { "foo", "bar", "baz" };
+            return new String[]{"foo", "bar", "baz"};
         }
 
         public boolean[] getExpectSuccess() {
-            return new boolean[] { true, true, true };
+            return new boolean[]{true, true, true};
         }
 
         public ActionBeanContext getContext() {
@@ -79,37 +81,42 @@ public class BindingSecurityTests extends FilterEnabledTestBase {
 
     @StrictBinding
     public static class DefaultAnnotation extends BindingSecurityTests.NoAnnotation {
+
         @Override
         public boolean[] getExpectSuccess() {
-            return new boolean[] { false, false, false };
+            return new boolean[]{false, false, false};
         }
     }
 
     @StrictBinding(allow = "foo,bar")
     public static class ImplicitDeny extends BindingSecurityTests.NoAnnotation {
+
         @Override
         public boolean[] getExpectSuccess() {
-            return new boolean[] { true, true, false };
+            return new boolean[]{true, true, false};
         }
     }
 
     @StrictBinding(allow = "foo,bar,baz", deny = "baz,baz.**")
     public static class ExplicitDeny extends BindingSecurityTests.NoAnnotation {
+
         @Override
         public boolean[] getExpectSuccess() {
-            return new boolean[] { true, true, false };
+            return new boolean[]{true, true, false};
         }
     }
 
     @StrictBinding(defaultPolicy = Policy.ALLOW)
     public static class ImplicitAllow extends BindingSecurityTests.NoAnnotation {
+
         @Override
         public boolean[] getExpectSuccess() {
-            return new boolean[] { true, true, true };
+            return new boolean[]{true, true, true};
         }
     }
 
     public static class Blah {
+
         private String name;
 
         public String getName() {
@@ -123,21 +130,23 @@ public class BindingSecurityTests extends FilterEnabledTestBase {
 
     @StrictBinding
     public static class HonorValidateAnnotations extends BindingSecurityTests.NoAnnotation {
+
         @Override
         public boolean[] getExpectSuccess() {
-            return new boolean[] { true, true, true, true, true };
+            return new boolean[]{true, true, true, true, true};
         }
 
         @Override
         public String[] getTestProperties() {
-            return new String[] { "foo", "bar", "baz", "blah", "blah.name" };
+            return new String[]{"foo", "bar", "baz", "blah", "blah.name"};
         }
 
         @Validate
         private String foo;
         private String bar;
         private String baz;
-        @ValidateNestedProperties(@Validate(field = "name"))
+        @ValidateNestedProperties(
+                @Validate(field = "name"))
         private Blah blah;
 
         @Override
@@ -184,9 +193,10 @@ public class BindingSecurityTests extends FilterEnabledTestBase {
     @StrictBinding(deny = "**")
     public static class OverrideValidateAnnotations extends
             BindingSecurityTests.HonorValidateAnnotations {
+
         @Override
         public boolean[] getExpectSuccess() {
-            return new boolean[] { false, false, false, false, false };
+            return new boolean[]{false, false, false, false, false};
         }
     }
 
@@ -202,8 +212,7 @@ public class BindingSecurityTests extends FilterEnabledTestBase {
             evaluate(new ImplicitAllow());
             evaluate(new HonorValidateAnnotations());
             evaluate(new OverrideValidateAnnotations());
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             StripesRuntimeException re = new StripesRuntimeException(e.getMessage(), e);
             re.setStackTrace(e.getStackTrace());
             throw re;
@@ -216,8 +225,9 @@ public class BindingSecurityTests extends FilterEnabledTestBase {
 
         Class<? extends NoAnnotation> beanType = bean.getClass();
         MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), beanType);
-        for (String p : properties)
+        for (String p : properties) {
             trip.addParameter(p, p + "Value");
+        }
         trip.execute();
 
         bean = trip.getActionBean(beanType);
@@ -236,6 +246,7 @@ public class BindingSecurityTests extends FilterEnabledTestBase {
     @SuppressWarnings("unused")
     public void protectedClasses() {
         class TestBean implements ActionBean {
+
             public void setContext(ActionBeanContext context) {
             }
 
@@ -265,27 +276,24 @@ public class BindingSecurityTests extends FilterEnabledTestBase {
         }
 
         final String[] expressions = {
-                // Direct, single node
-                "class",
-                "classLoader",
-                "context",
-                "request",
-                "response",
-                "session",
-
-                // Indirect, last node
-                "other.class",
-                "other.classLoader",
-                "other.context",
-                "other.request",
-                "other.response",
-                "other.session",
-
-                // Indirect, not first node, not last node
-                "other.class.name",
-                "other.request.cookies",
-                "other.session.id",
-        };
+            // Direct, single node
+            "class",
+            "classLoader",
+            "context",
+            "request",
+            "response",
+            "session",
+            // Indirect, last node
+            "other.class",
+            "other.classLoader",
+            "other.context",
+            "other.request",
+            "other.response",
+            "other.session",
+            // Indirect, not first node, not last node
+            "other.class.name",
+            "other.request.cookies",
+            "other.session.id",};
 
         final TestBean bean = new TestBean();
         final BindingPolicyManager bpm = new BindingPolicyManager(TestBean.class);

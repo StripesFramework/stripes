@@ -21,8 +21,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.ElementType;
 
 /**
- * Marker annotation to specify that a method within an ActionBean is the default handler for
- * events if a specific event cannot be identified.
+ * Marker annotation to specify that a method within an ActionBean is the
+ * default handler for events if a specific event cannot be identified.
  *
  * @author Tim Fennell
  */

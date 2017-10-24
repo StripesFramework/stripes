@@ -162,7 +162,8 @@ public abstract class ObjectOutputBuilder< T extends ObjectOutputBuilder> {
      *
      * @return String a fragment of JavaScript that will define and return the
      * JavaScript equivalent of the Java object supplied to the builder.
-     * @throws java.lang.Exception
+     * @throws java.lang.Exception If something goes wrong when creating the
+     * javascript object.
      */
     public String build() throws Exception {
         Writer writer = new StringWriter();
@@ -177,7 +178,8 @@ public abstract class ObjectOutputBuilder< T extends ObjectOutputBuilder> {
      *
      * @param writer Instance of the writer that the converted object should be
      * written to.
-     * @throws java.lang.Exception
+     * @throws java.lang.Exception If something goes wrong when creating the
+     * javascript object.
      */
     public abstract void build(Writer writer) throws Exception;
 
@@ -231,11 +233,10 @@ public abstract class ObjectOutputBuilder< T extends ObjectOutputBuilder> {
     public Object getRootObject() {
         return this.rootObject;
     }
-    
+
     /**
-     * Returns the properties that should be excluded from this 
-     * object out.
-     * 
+     * Returns the properties that should be excluded from this object out.
+     *
      * @return Set of excluded properties
      */
     public Set<String> getExcludedProperties() {

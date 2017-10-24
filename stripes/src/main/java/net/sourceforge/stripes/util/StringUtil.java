@@ -16,24 +16,26 @@ import net.sourceforge.stripes.exception.StripesRuntimeException;
  * @since Stripes 1.4.2
  */
 public class StringUtil {
+
     /**
-     * A regular expression for splitting apart a String where individual parts are
-     * separated by any whitespace (including new lines) and/or a comma.
+     * A regular expression for splitting apart a String where individual parts
+     * are separated by any whitespace (including new lines) and/or a comma.
      */
     private static final Pattern STANDARD_SPLIT = Pattern.compile("[\\s,]+");
 
     /**
-     * A regular expression that matches characters that are not explicitly allowed in the fragment
-     * part of a URI according to RFC 3986. This does not include the percent sign (%), which is
-     * actually allowed but only as an escape character for percent-encoded characters.
+     * A regular expression that matches characters that are not explicitly
+     * allowed in the fragment part of a URI according to RFC 3986. This does
+     * not include the percent sign (%), which is actually allowed but only as
+     * an escape character for percent-encoded characters.
      */
     private static final Pattern URI_FRAGMENT_DISALLOWED_CHARACTERS = Pattern
             .compile("[^\\p{Alnum}._~!$&'()*+,;=:@/?-]");
 
     /**
-     * Splits apart the input String on any whitespace and/or commas. Leading and trailing
-     * whitespace are ignored. If a null String is provided as input a zero length array
-     * will be returned.
+     * Splits apart the input String on any whitespace and/or commas. Leading
+     * and trailing whitespace are ignored. If a null String is provided as
+     * input a zero length array will be returned.
      *
      * @param input the String to split apart
      * @return an array of substrings of the input String based on the split
@@ -41,22 +43,23 @@ public class StringUtil {
     public static String[] standardSplit(String input) {
         if (input == null) {
             return new String[0];
-        }
-        else {
+        } else {
             return STANDARD_SPLIT.split(input.trim());
         }
     }
-    
+
     /**
-     * Combines a bunch of objects into a single String. Array contents get converted nicely.
+     * Combines a bunch of objects into a single String. Array contents get
+     * converted nicely.
+     * @param messageParts
+     * @return 
      */
     public static String combineParts(Object... messageParts) {
         StringBuilder builder = new StringBuilder(128);
         for (Object part : messageParts) {
             if (part != null && part.getClass().isArray()) {
-                builder.append( Arrays.toString(CollectionUtil.asObjectArray(part) ));
-            }
-            else {
+                builder.append(Arrays.toString(CollectionUtil.asObjectArray(part)));
+            } else {
                 builder.append(part);
             }
         }
@@ -65,40 +68,42 @@ public class StringUtil {
     }
 
     /**
-     * URL-encodes {@code value} using the UTF-8 charset. Using this method eliminates the need for
-     * a try/catch since UTF-8 is guaranteed to exist.
-     * 
+     * URL-encodes {@code value} using the UTF-8 charset. Using this method
+     * eliminates the need for a try/catch since UTF-8 is guaranteed to exist.
+     *
+     * @param value
+     * @return 
      * @see URLEncoder#encode(String, String)
      */
     public static String urlEncode(String value) {
         try {
             return URLEncoder.encode(value, "UTF-8");
-        }
-        catch (UnsupportedEncodingException e) {
+        } catch (UnsupportedEncodingException e) {
             throw new StripesRuntimeException("Unsupported encoding?  UTF-8?  That's unpossible.");
         }
     }
 
     /**
-     * URL-decodes {@code value} using the UTF-8 charset. Using this method eliminates the need for
-     * a try/catch since UTF-8 is guaranteed to exist.
-     * 
+     * URL-decodes {@code value} using the UTF-8 charset. Using this method
+     * eliminates the need for a try/catch since UTF-8 is guaranteed to exist.
+     *
+     * @param value
+     * @return 
      * @see URLDecoder#decode(String, String)
      */
     public static String urlDecode(String value) {
         try {
             return URLDecoder.decode(value, "UTF-8");
-        }
-        catch (UnsupportedEncodingException e) {
+        } catch (UnsupportedEncodingException e) {
             throw new StripesRuntimeException("Unsupported encoding?  UTF-8?  That's unpossible.");
         }
     }
 
     /**
-     * Encode a URI fragment as required by RFC 3986. The fragment is allowed to contain a different
-     * set of characters than other parts of the URI, and characters that are allowed in the
-     * fragment must not be encoded.
-     * 
+     * Encode a URI fragment as required by RFC 3986. The fragment is allowed to
+     * contain a different set of characters than other parts of the URI, and
+     * characters that are allowed in the fragment must not be encoded.
+     *
      * @param value The string to encode
      * @return The encoded string
      */
@@ -118,31 +123,36 @@ public class StringUtil {
         }
 
         // No match, return input unchanged
-        if (buf == null)
+        if (buf == null) {
             return value;
+        }
 
         // Append tail
-        if (end < value.length())
+        if (end < value.length()) {
             buf.append(value.substring(end));
+        }
 
         return buf.toString();
     }
 
     /**
-     * Return the specified URL or path string with the fragment part removed. If the string does
-     * not contain a fragment then return the string unchanged.
-     * 
+     * Return the specified URL or path string with the fragment part removed.
+     * If the string does not contain a fragment then return the string
+     * unchanged.
+     *
      * @param url The URL or path
      * @return The URL or path without the fragment
      */
     public static String trimFragment(String url) {
-        if (url == null || url.length() < 1)
+        if (url == null || url.length() < 1) {
             return url;
+        }
 
         int index = url.indexOf('#');
-        if (index >= 0)
+        if (index >= 0) {
             return url.substring(0, index);
-        else
+        } else {
             return url;
+        }
     }
 }

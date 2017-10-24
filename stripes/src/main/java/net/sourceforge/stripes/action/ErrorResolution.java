@@ -68,7 +68,7 @@ public class ErrorResolution implements Resolution {
 
     /**
      * Accessor for the HTTP status code.
-     * 
+     *
      * @return the HTTP status code associated with this error resolution.
      */
     public int getErrorCode() {
@@ -77,7 +77,7 @@ public class ErrorResolution implements Resolution {
 
     /**
      * Setter for the HTTP status code.
-     * 
+     *
      * @param errorCode - The HTTP status code associated with this resolution.
      */
     public void setErrorCode(int errorCode) {
@@ -86,7 +86,7 @@ public class ErrorResolution implements Resolution {
 
     /**
      * Accessor for the descriptive error message.
-     * 
+     *
      * @return Descriptive error message associated with this error resolution.
      */
     public String getErrorMessage() {
@@ -95,7 +95,7 @@ public class ErrorResolution implements Resolution {
 
     /**
      * Setter for the descriptive error message.
-     * 
+     *
      * @param errorMessage Descriptive error message for this resolution.
      */
     public void setErrorMessage(String errorMessage) {

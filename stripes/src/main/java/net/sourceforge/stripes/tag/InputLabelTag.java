@@ -22,23 +22,28 @@ import java.io.IOException;
 import net.sourceforge.stripes.localization.LocalizationUtility;
 
 /**
- * <p>Tag handler for a tag that produces an HTML label tag which is capable of looking up
- * localized field names and formatting the label when validation errors exist.  The field being
- * labeled is identified using either the {@code name} attribute (preferred) or the
- * {@code for} attribute.  If the {@code name} attribute is supplied this will always be used as
- * the lookup key (optionally pre-pended with the form's action path).  If the {@code name} field
- * is not supplied, the tag will fall back to using the value supplied for the {@code for}
- * attribute.  This is done because the {@code for} attribute is used by HTML as a reference to the
- * {@code id} of the input being labeled.  In the case where the id is equal to the field name
- * it is unnecessary to specify a {@code name} attribute for the label tag.  In cases where the
- * field name (or other localized resource name) does not match an HTML ID, the {@code name}
+ * <p>
+ * Tag handler for a tag that produces an HTML label tag which is capable of
+ * looking up localized field names and formatting the label when validation
+ * errors exist. The field being labeled is identified using either the
+ * {@code name} attribute (preferred) or the {@code for} attribute. If the
+ * {@code name} attribute is supplied this will always be used as the lookup key
+ * (optionally pre-pended with the form's action path). If the {@code name}
+ * field is not supplied, the tag will fall back to using the value supplied for
+ * the {@code for} attribute. This is done because the {@code for} attribute is
+ * used by HTML as a reference to the {@code id} of the input being labeled. In
+ * the case where the id is equal to the field name it is unnecessary to specify
+ * a {@code name} attribute for the label tag. In cases where the field name (or
+ * other localized resource name) does not match an HTML ID, the {@code name}
  * attribute must be used.</p>
  *
- * <p>The value used for the label is the localized field name if one exists.  Localized field
- * names are looked up in the field name resource bundle first using {@code formActionPath.fieldName},
- * and then (if no value is found) using just {@code fieldName}. If no localized String can be found
- * then the body of the label tag is used. If no body is supplied then a warning String will be used
- * instead!</p>
+ * <p>
+ * The value used for the label is the localized field name if one exists.
+ * Localized field names are looked up in the field name resource bundle first
+ * using {@code formActionPath.fieldName}, and then (if no value is found) using
+ * just {@code fieldName}. If no localized String can be found then the body of
+ * the label tag is used. If no body is supplied then a warning String will be
+ * used instead!</p>
  *
  * @author Tim Fennell
  * @since Stripes 1.1
@@ -47,7 +52,10 @@ public class InputLabelTag extends InputTagSupport implements BodyTag {
 
     private boolean nameSet;
 
-    /** Sets the HTML ID of the field for which this is a label. */
+    /**
+     * Sets the HTML ID of the field for which this is a label.
+     * @param forId
+     */
     public void setFor(String forId) {
         set("for", forId);
 
@@ -57,13 +65,19 @@ public class InputLabelTag extends InputTagSupport implements BodyTag {
         }
     }
 
-    /** Gets the HTML ID of the field for which this is a label. */
-    public String getFor() { return get("for"); }
+    /**
+     * Gets the HTML ID of the field for which this is a label.
+     * @return 
+     */
+    public String getFor() {
+        return get("for");
+    }
 
     /**
-     * Sets the name of the form element/label to be rendered. Should only be invoked by
-     * the JSP container as it also tracks whether or not the container has set the name, in
-     * order to correctly handle pooling.
+     * Sets the name of the form element/label to be rendered. Should only be
+     * invoked by the JSP container as it also tracks whether or not the
+     * container has set the name, in order to correctly handle pooling.
+     * @param name
      */
     @Override
     public void setName(String name) {
@@ -73,28 +87,42 @@ public class InputLabelTag extends InputTagSupport implements BodyTag {
 
     /**
      * Does nothing.
+     *
      * @return EVAL_BODY_BUFFERED in all cases.
+     * @throws javax.servlet.jsp.JspException
      */
     @Override
     public int doStartInputTag() throws JspException {
         return EVAL_BODY_BUFFERED;
     }
 
-    /** Does nothing. */
-    public void doInitBody() throws JspException { /** Do Nothing */ }
+    /**
+     * Does nothing.
+     * @throws javax.servlet.jsp.JspException
+     */
+    public void doInitBody() throws JspException {
+        /**
+         * Do Nothing
+         */
+    }
 
     /**
      * Does nothing.
+     *
      * @return SKIP_BODY in all cases.
+     * @throws javax.servlet.jsp.JspException
      */
     public int doAfterBody() throws JspException {
         return SKIP_BODY;
     }
 
     /**
-     * Performs the main work of the tag as described in the class level javadoc.
+     * Performs the main work of the tag as described in the class level
+     * javadoc.
+     *
      * @return EVAL_PAGE in all cases.
-     * @throws JspException if an IOException is encountered writing to the output stream.
+     * @throws JspException if an IOException is encountered writing to the
+     * output stream.
      */
     @Override
     public int doEndInputTag() throws JspException {
@@ -109,8 +137,7 @@ public class InputLabelTag extends InputTagSupport implements BodyTag {
             if (label == null) {
                 if (fieldName != null) {
                     label = LocalizationUtility.makePseudoFriendlyName(fieldName);
-                }
-                else {
+                } else {
                     label = "Label could not find localized field name and had no body nor name attribute.";
                 }
             }
@@ -126,27 +153,29 @@ public class InputLabelTag extends InputTagSupport implements BodyTag {
             }
 
             return EVAL_PAGE;
-        }
-        catch (IOException ioe) {
-            throw new StripesJspException("Encountered an exception while trying to write to " +
-                "the output from the stripes:label tag handler class, InputLabelTag.", ioe);
+        } catch (IOException ioe) {
+            throw new StripesJspException("Encountered an exception while trying to write to "
+                    + "the output from the stripes:label tag handler class, InputLabelTag.", ioe);
         }
     }
 
-    /** Overridden to do nothing, since a label isn't really a form field. */
+    /**
+     * Overridden to do nothing, since a label isn't really a form field.
+     * @throws net.sourceforge.stripes.exception.StripesJspException
+     */
     @Override
-    protected void registerWithParentForm() throws StripesJspException { }
+    protected void registerWithParentForm() throws StripesJspException {
+    }
 
     /**
-     * Wraps the parent loadErrors() to suppress exceptions when the label is outside of a
-     * stripes form tag.
+     * Wraps the parent loadErrors() to suppress exceptions when the label is
+     * outside of a stripes form tag.
      */
     @Override
     protected void loadErrors() {
         try {
             super.loadErrors();
-        }
-        catch (StripesJspException sje) {
+        } catch (StripesJspException sje) {
             // Do nothing, we're suppressing this error
         }
     }

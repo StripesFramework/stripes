@@ -74,8 +74,9 @@ public @interface After {
 
     /**
      * One or more lifecycle stages after which the method should be called.
-     * 
-     * @return Array of lifecycle stages after which the method should be called.
+     *
+     * @return Array of lifecycle stages after which the method should be
+     * called.
      */
     LifecycleStage[] stages() default LifecycleStage.EventHandling;
 

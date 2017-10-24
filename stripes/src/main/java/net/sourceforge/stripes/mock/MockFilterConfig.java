@@ -23,11 +23,22 @@ import javax.servlet.FilterConfig;
  * @since Stripes 1.1.1
  */
 public class MockFilterConfig extends MockBaseConfig implements FilterConfig {
+
     private String filterName;
 
-    /** Sets the filter name that will be retrieved by getFilterName(). */
-    public void setFilterName(String filterName) { this.filterName = filterName; }
+    /**
+     * Sets the filter name that will be retrieved by getFilterName().
+     * @param filterName
+     */
+    public void setFilterName(String filterName) {
+        this.filterName = filterName;
+    }
 
-    /** Returns the name of the filter for which this is the config. */
-    public String getFilterName() { return this.filterName; }
+    /**
+     * Returns the name of the filter for which this is the config.
+     * @return 
+     */
+    public String getFilterName() {
+        return this.filterName;
+    }
 }

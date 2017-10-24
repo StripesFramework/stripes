@@ -23,10 +23,10 @@ import java.io.IOException;
 import java.util.Locale;
 
 /**
- * The individual-error tag works in concert with a parent errors tag to control the
- * output of each iteration of an error. Placed within a parent errors tag,
- * the body output of the parent will be displayed for each matching error
- * to output iterate the body of that parent displaying each error in turn.
+ * The individual-error tag works in concert with a parent errors tag to control
+ * the output of each iteration of an error. Placed within a parent errors tag,
+ * the body output of the parent will be displayed for each matching error to
+ * output iterate the body of that parent displaying each error in turn.
  *
  * @author Greg Hinkle
  */
@@ -36,6 +36,7 @@ public class IndividualErrorTag extends HtmlTagSupport {
 
     /**
      * Does nothing
+     *
      * @return SKIP_BODY always
      * @throws JspException
      */
@@ -48,6 +49,7 @@ public class IndividualErrorTag extends HtmlTagSupport {
      * Outputs the error for the current iteration of the parent ErrorsTag.
      *
      * @return EVAL_PAGE in all circumstances
+     * @throws javax.servlet.jsp.JspException
      */
     @Override
     public int doEndTag() throws JspException {
@@ -60,11 +62,10 @@ public class IndividualErrorTag extends HtmlTagSupport {
             // Mode: sub-tag inside an errors tag
             try {
                 ValidationError error = parentErrorsTag.getCurrentError();
-                writer.write( error.getMessage(locale) );
-            }
-            catch (IOException ioe) {
-                JspException jspe = new JspException("IOException encountered while writing " +
-                    "error tag to the JspWriter.", ioe);
+                writer.write(error.getMessage(locale));
+            } catch (IOException ioe) {
+                JspException jspe = new JspException("IOException encountered while writing "
+                        + "error tag to the JspWriter.", ioe);
                 log.warn(jspe);
                 throw jspe;
             }

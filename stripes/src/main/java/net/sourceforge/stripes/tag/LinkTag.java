@@ -21,11 +21,12 @@ import javax.servlet.jsp.tagext.BodyTag;
 import java.io.IOException;
 
 /**
- * Tag for generating links to pages or ActionBeans within a Stripes application. Provides
- * basic services such as including the context path at the start of the href URL (only
- * when the URL starts with a '/' and does not contain the context path already), and
- * including a parameter to name the source page from which the link came. Also provides the
- * ability to add complex parameters to the URL through the use of nested Param tags.
+ * Tag for generating links to pages or ActionBeans within a Stripes
+ * application. Provides basic services such as including the context path at
+ * the start of the href URL (only when the URL starts with a '/' and does not
+ * contain the context path already), and including a parameter to name the
+ * source page from which the link came. Also provides the ability to add
+ * complex parameters to the URL through the use of nested Param tags.
  *
  * @see ParamTag
  * @author Tim Fennell
@@ -34,27 +35,35 @@ public class LinkTag extends LinkTagSupport implements BodyTag {
 
     /**
      * Does nothing.
+     *
      * @return EVAL_BODY_BUFFERED in all cases
+     * @throws javax.servlet.jsp.JspException
      */
     @Override
     public int doStartTag() throws JspException {
         return EVAL_BODY_BUFFERED;
     }
 
-    /** Does nothing. */
-    public void doInitBody() throws JspException { /* Do Nothing. */ }
+    /**
+     * Does nothing.
+     * @throws javax.servlet.jsp.JspException
+     */
+    public void doInitBody() throws JspException {
+        /* Do Nothing. */ }
 
     /**
      * Does nothing.
+     *
      * @return SKIP_BODY in all cases
+     * @throws javax.servlet.jsp.JspException
      */
     public int doAfterBody() throws JspException {
         return SKIP_BODY;
     }
 
     /**
-     * Prepends the context to the href attribute if necessary, and then folds all the
-     * registered parameters into the URL.
+     * Prepends the context to the href attribute if necessary, and then folds
+     * all the registered parameters into the URL.
      *
      * @return EVAL_PAGE in all cases
      * @throws JspException
@@ -72,8 +81,7 @@ public class LinkTag extends LinkTagSupport implements BodyTag {
                 getPageContext().getOut().write(body.trim());
             }
             writeCloseTag(getPageContext().getOut(), "a");
-        }
-        catch (IOException ioe) {
+        } catch (IOException ioe) {
             throw new StripesJspException("IOException while writing output in LinkTag.", ioe);
         }
 
@@ -83,39 +91,167 @@ public class LinkTag extends LinkTagSupport implements BodyTag {
         return EVAL_PAGE;
     }
 
-    /** Pass through to {@link LinkTagSupport#setUrl(String)}. */
-    public void   setHref(String href) { setUrl(href); }
-    /** Pass through to {@link LinkTagSupport#getUrl()}. */
-    public String getHref() { return getUrl(); }
+    /**
+     * Pass through to {@link LinkTagSupport#setUrl(String)}.
+     * @param href
+     */
+    public void setHref(String href) {
+        setUrl(href);
+    }
 
+    /**
+     * Pass through to {@link LinkTagSupport#getUrl()}.
+     * @return 
+     */
+    public String getHref() {
+        return getUrl();
+    }
 
     ///////////////////////////////////////////////////////////////////////////
     // Additional HTML Attributes supported by the tag
     ///////////////////////////////////////////////////////////////////////////
-    public void   setCharset(String charset) { set("charset", charset); }
-    public String getCharset() { return get("charset"); }
 
-    public void   setCoords(String coords) { set("coords", coords); }
-    public String getCoords() { return get("coords"); }
+    /**
+     *
+     * @param charset
+     */
+    public void setCharset(String charset) {
+        set("charset", charset);
+    }
 
-    public void   setHreflang(String hreflang) { set("hreflang", hreflang); }
-    public String getHreflang() { return get("hreflang"); }
+    /**
+     *
+     * @return
+     */
+    public String getCharset() {
+        return get("charset");
+    }
 
-    public void   setName(String name) { set("name", name); }
-    public String getName() { return get("name"); }
+    /**
+     *
+     * @param coords
+     */
+    public void setCoords(String coords) {
+        set("coords", coords);
+    }
 
-    public void   setRel(String rel) { set("rel", rel); }
-    public String getRel() { return get("rel"); }
+    /**
+     *
+     * @return
+     */
+    public String getCoords() {
+        return get("coords");
+    }
 
-    public void   setRev(String rev) { set("rev", rev); }
-    public String getRev() { return get("rev"); }
+    /**
+     *
+     * @param hreflang
+     */
+    public void setHreflang(String hreflang) {
+        set("hreflang", hreflang);
+    }
 
-    public void   setShape(String shape) { set("shape", shape); }
-    public String getShape() { return get("shape"); }
+    /**
+     *
+     * @return
+     */
+    public String getHreflang() {
+        return get("hreflang");
+    }
 
-    public void   setTarget(String target) { set("target", target); }
-    public String getTarget() { return get("target"); }
+    /**
+     *
+     * @param name
+     */
+    public void setName(String name) {
+        set("name", name);
+    }
 
-    public void   setType(String type) { set("type", type); }
-    public String getType() { return get("type"); }
+    /**
+     *
+     * @return
+     */
+    public String getName() {
+        return get("name");
+    }
+
+    /**
+     *
+     * @param rel
+     */
+    public void setRel(String rel) {
+        set("rel", rel);
+    }
+
+    /**
+     *
+     * @return
+     */
+    public String getRel() {
+        return get("rel");
+    }
+
+    /**
+     *
+     * @param rev
+     */
+    public void setRev(String rev) {
+        set("rev", rev);
+    }
+
+    /**
+     *
+     * @return
+     */
+    public String getRev() {
+        return get("rev");
+    }
+
+    /**
+     *
+     * @param shape
+     */
+    public void setShape(String shape) {
+        set("shape", shape);
+    }
+
+    /**
+     *
+     * @return
+     */
+    public String getShape() {
+        return get("shape");
+    }
+
+    /**
+     *
+     * @param target
+     */
+    public void setTarget(String target) {
+        set("target", target);
+    }
+
+    /**
+     *
+     * @return
+     */
+    public String getTarget() {
+        return get("target");
+    }
+
+    /**
+     *
+     * @param type
+     */
+    public void setType(String type) {
+        set("type", type);
+    }
+
+    /**
+     *
+     * @return
+     */
+    public String getType() {
+        return get("type");
+    }
 }

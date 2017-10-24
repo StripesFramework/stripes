@@ -24,22 +24,29 @@ import java.util.Iterator;
 import java.lang.reflect.Method;
 
 /**
- * <p>Holds the execution context for processing a single request. The ExecutionContext is made
- * available to {@link Interceptor} classes that are interleaved with the regular request
- * processing lifecycle.</p>
+ * <p>
+ * Holds the execution context for processing a single request. The
+ * ExecutionContext is made available to {@link Interceptor} classes that are
+ * interleaved with the regular request processing lifecycle.</p>
  *
- * <p>The ExecutionContext is not populated all at once, but in pieces as the request progresses.
- * Check the accessor method for each item for information on when that item becomes available
- * in the request processing lifecycle.</p>
+ * <p>
+ * The ExecutionContext is not populated all at once, but in pieces as the
+ * request progresses. Check the accessor method for each item for information
+ * on when that item becomes available in the request processing lifecycle.</p>
  *
  * @author Tim Fennell
  * @since Stripes 1.3
  */
 public class ExecutionContext {
+
     private static final Log log = Log.getInstance(ExecutionContext.class);
     private static final ThreadLocal<ExecutionContext> currentContext = new ThreadLocal<ExecutionContext>();
 
-    /** Get the execution context for the current thread. */
+    /**
+     * Get the execution context for the current thread.
+     *
+     * @return Execution context for the current thread.
+     */
     public static final ExecutionContext currentContext() {
         return currentContext.get();
     }
@@ -55,40 +62,44 @@ public class ExecutionContext {
     private boolean resolutionFromHandler = false;
 
     /**
-     * Used by the {@link DispatcherServlet} to initialize and/or swap out the list of
-     * {@link Interceptor} instances which should wrap the current {@link LifecycleStage}.
+     * Used by the {@link DispatcherServlet} to initialize and/or swap out the
+     * list of {@link Interceptor} instances which should wrap the current
+     * {@link LifecycleStage}.
      *
-     * @param stack a non-null (though possibly empty) ordered collection of interceptors
+     * @param stack a non-null (though possibly empty) ordered collection of
+     * interceptors
      */
     public void setInterceptors(Collection<Interceptor> stack) {
         this.interceptors = stack;
     }
 
     /**
-     * Used by the {@link DispatcherServlet} to wrap a block of lifecycle code in
-     * {@link Interceptor} calls.
+     * Used by the {@link DispatcherServlet} to wrap a block of lifecycle code
+     * in {@link Interceptor} calls.
      *
-     * @param target a block of lifecycle/request processing code that is contained inside
-     *        a class that implements Interceptor
-     * @return a Resolution instance or null depending on what is returned by the lifecycle
-     *         code and any interceptors which intercept the execution
-     * @throws Exception if the lifecycle code or an interceptor throws an Exception
+     * @param target a block of lifecycle/request processing code that is
+     * contained inside a class that implements Interceptor
+     * @return a Resolution instance or null depending on what is returned by
+     * the lifecycle code and any interceptors which intercept the execution
+     * @throws Exception if the lifecycle code or an interceptor throws an
+     * Exception
      */
     public Resolution wrap(Interceptor target) throws Exception {
         this.target = target;
         this.iterator = null;
 
         // Before executing RequestInit, set this as the current execution context
-        if (lifecycleStage == LifecycleStage.RequestInit)
+        if (lifecycleStage == LifecycleStage.RequestInit) {
             currentContext.set(this);
+        }
 
         try {
             return proceed();
-        }
-        finally {
+        } finally {
             // Make sure the current execution context gets cleared after RequestComplete
-            if (LifecycleStage.RequestComplete == getLifecycleStage())
+            if (LifecycleStage.RequestComplete == getLifecycleStage()) {
                 clearContextThreadLocal();
+            }
         }
     }
 
@@ -97,8 +108,8 @@ public class ExecutionContext {
     }
 
     /**
-     * Retrieves the ActionBeanContext associated with the current request. Available to all
-     * interceptors regardless of {@link LifecycleStage}.
+     * Retrieves the ActionBeanContext associated with the current request.
+     * Available to all interceptors regardless of {@link LifecycleStage}.
      *
      * @return the current ActionBeanContext
      */
@@ -106,66 +117,108 @@ public class ExecutionContext {
         return actionBeanContext;
     }
 
-    /** Sets the ActionBeanContext for the current request. */
+    /**
+     * Sets the ActionBeanContext for the current request.
+     *
+     * @param actionBeanContext The action bean context associated with this
+     * execution context.
+     */
     public void setActionBeanContext(ActionBeanContext actionBeanContext) {
         this.actionBeanContext = actionBeanContext;
     }
 
     /**
-     * Retrieves the ActionBean instance that is associated with the current request. Available
-     * to interceptors only after {@link LifecycleStage#ActionBeanResolution} has occurred.
+     * Retrieves the ActionBean instance that is associated with the current
+     * request. Available to interceptors only after
+     * {@link LifecycleStage#ActionBeanResolution} has occurred.
      *
      * @return the current ActionBean instance, or null if not yet resolved
      */
-    public ActionBean getActionBean() { return actionBean; }
-
-    /** Sets the ActionBean associated with the current request. */
-    public void setActionBean(ActionBean actionBean) { this.actionBean = actionBean; }
+    public ActionBean getActionBean() {
+        return actionBean;
+    }
 
     /**
-     * Retrieves the handler Method that is targeted by the current request. Available
-     * to interceptors only after {@link LifecycleStage#HandlerResolution} has occurred.
+     * Sets the ActionBean associated with the current request.
+     *
+     * @param actionBean The action bean associated with this execution context.
+     */
+    public void setActionBean(ActionBean actionBean) {
+        this.actionBean = actionBean;
+    }
+
+    /**
+     * Retrieves the handler Method that is targeted by the current request.
+     * Available to interceptors only after
+     * {@link LifecycleStage#HandlerResolution} has occurred.
      *
      * @return the current handler method, or null if not yet resolved
      */
-    public Method getHandler() { return handler; }
-
-    /** Sets the handler method that will be invoked to process the current request. */
-    public void setHandler(Method handler) { this.handler = handler; }
+    public Method getHandler() {
+        return handler;
+    }
 
     /**
-     * Gets the Resolution that will be executed at the end of the execution. This value
-     * is generally not populated until just prior to {@link LifecycleStage#ResolutionExecution}.
+     * Sets the handler method that will be invoked to process the current
+     * request.
+     *
+     * @param handler Sets the handler for this execution context
+     */
+    public void setHandler(Method handler) {
+        this.handler = handler;
+    }
+
+    /**
+     * Gets the Resolution that will be executed at the end of the execution.
+     * This value is generally not populated until just prior to
+     * {@link LifecycleStage#ResolutionExecution}.
      *
      * @return the Resolution associated with this execution
      */
-    public Resolution getResolution() { return resolution; }
-
-    /** Sets the Resolution that will be executed to terminate this execution. */
-    public void setResolution(Resolution resolution) { this.resolution = resolution; }
+    public Resolution getResolution() {
+        return resolution;
+    }
 
     /**
-     * Gets the current LifecycleStage being processed. This is always set to the appropriate
-     * lifecycle stage before invoking any interceptors or lifecycle code, so that interceptors
-     * that intercept at multiple lifecycle stages can be aware of which stage is being
-     * intercepted.
+     * Sets the Resolution that will be executed to terminate this execution.
+     *
+     * @param resolution The resolution for this execution context
+     */
+    public void setResolution(Resolution resolution) {
+        this.resolution = resolution;
+    }
+
+    /**
+     * Gets the current LifecycleStage being processed. This is always set to
+     * the appropriate lifecycle stage before invoking any interceptors or
+     * lifecycle code, so that interceptors that intercept at multiple lifecycle
+     * stages can be aware of which stage is being intercepted.
      *
      * @return the LifecycleStage currently being processed/intercepted
      */
-    public LifecycleStage getLifecycleStage() { return lifecycleStage; }
+    public LifecycleStage getLifecycleStage() {
+        return lifecycleStage;
+    }
 
-    /** Sets the current stage in the request processing lifecycle. */
+    /**
+     * Sets the current stage in the request processing lifecycle.
+     *
+     * @param lifecycleStage The current stage of this request lifecycle
+     */
     public void setLifecycleStage(LifecycleStage lifecycleStage) {
         this.lifecycleStage = lifecycleStage;
     }
 
     /**
-     * Continues the flow of execution. If there are more interceptors in the stack intercepting
-     * the current lifecycle stage then the flow continues by calling the next interceptor. If
-     * there are no more interceptors then the lifecycle code is invoked.
+     * Continues the flow of execution. If there are more interceptors in the
+     * stack intercepting the current lifecycle stage then the flow continues by
+     * calling the next interceptor. If there are no more interceptors then the
+     * lifecycle code is invoked.
      *
-     * @return a Resolution if the lifecycle code or one of the interceptors returns one
-     * @throws Exception if the lifecycle code or one of the interceptors throws one
+     * @return a Resolution if the lifecycle code or one of the interceptors
+     * returns one
+     * @throws Exception if the lifecycle code or one of the interceptors throws
+     * one
      */
     public Resolution proceed() throws Exception {
         if (this.iterator == null) {
@@ -175,16 +228,23 @@ public class ExecutionContext {
 
         if (this.iterator.hasNext()) {
             return this.iterator.next().intercept(this);
-        }
-        else {
+        } else {
             return this.target.intercept(this);
         }
     }
 
+    /**
+     * Returns whether or not the resolution is from the handler.
+     * @return whether or not the resolution is from the handler.
+     */
     public boolean isResolutionFromHandler() {
         return resolutionFromHandler;
     }
 
+    /**
+     * Sets whether or not the resolution is from the handler.
+     * @param resolutionFromHandler - Whether or not the resolution is from the handler.
+     */
     public void setResolutionFromHandler(boolean resolutionFromHandler) {
         this.resolutionFromHandler = resolutionFromHandler;
     }

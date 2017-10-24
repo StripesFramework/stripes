@@ -31,7 +31,7 @@ import java.lang.annotation.Target;
  * {@link ActionBean} class turns off client-side caching for all events except
  * those that are annotated with {@code @HttpCache(allow=true)}.
  * </p>
- * <p>
+ *
  * Some examples:
  * <ul>
  * <li>{@code @HttpCache} - Same behavior as if the annotation were not present.
@@ -42,7 +42,6 @@ import java.lang.annotation.Target;
  * <li>{@code @HttpCache(expires=600)} - Caching is allowed. The document
  * expires in 10 minutes.</li>
  * </ul>
- * </p>
  *
  * @author Ben Gunter
  * @since Stripes 1.5
@@ -60,7 +59,7 @@ public @interface HttpCache {
 
     /**
      * Indicates whether the response should be cached by the client.
-     * 
+     *
      * @return Whether the response should be cached by the client.
      */
     boolean allow() default true;
@@ -70,7 +69,7 @@ public @interface HttpCache {
      * {@link #allow()} is false, then this value is ignored and zero is used.
      * If {@link #allow()} is true and this value is less than zero, then no
      * Expires header is sent.
-     * 
+     *
      * @return The number of seconds that the response should expire.
      */
     int expires() default DEFAULT_EXPIRES;

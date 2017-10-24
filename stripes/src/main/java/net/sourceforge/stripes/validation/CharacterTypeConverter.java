@@ -18,29 +18,39 @@ import java.util.Locale;
 import java.util.Collection;
 
 /**
- * Simple type converter that converts the input String to a Character by returning
- * the first character in the String.
+ * Simple type converter that converts the input String to a Character by
+ * returning the first character in the String.
  *
  * @author Tim Fennell
  * @since Stripes 1.4
  */
-public class CharacterTypeConverter implements TypeConverter<Character> {
-    /** Does nothing. */
-    public void setLocale(Locale locale) { }
+public class CharacterTypeConverter implements TypeConverter<Character>
+{
 
     /**
-     * Converts the input String to a Character by taking the first character in the
-     * String and returning it. If the String is null or empty (this should never happen)
-     * then it will return the Character represented by ordinal 0, aka the null character.
+     * Does nothing.
+     */
+    public void setLocale( Locale locale )
+    {
+    }
+
+    /**
+     * Converts the input String to a Character by taking the first character in
+     * the String and returning it. If the String is null or empty (this should
+     * never happen) then it will return the Character represented by ordinal 0,
+     * aka the null character.
      *
      * @param input the String to convert into a single Character
      * @param targetType the type to convert to
      */
-    public Character convert(String input, Class<? extends Character> targetType, Collection<ValidationError> errors) {
-        if (input != null && !"".equals(input)) {
-            return input.charAt(0);
+    public Character convert( String input, Class<? extends Character> targetType, Collection<ValidationError> errors )
+    {
+        if ( input != null && !"".equals( input ) )
+        {
+            return input.charAt( 0 );
         }
-        else {
+        else
+        {
             return '\0';
         }
     }

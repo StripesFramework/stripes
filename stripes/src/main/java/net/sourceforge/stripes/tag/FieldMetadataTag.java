@@ -27,35 +27,54 @@ import net.sourceforge.stripes.validation.ValidationMetadata;
 import net.sourceforge.stripes.validation.ValidationMetadataProvider;
 
 /**
- * <p>Field metadata tag for use with the Stripes framework. Exposes field properties via JavaScript to
- * allow client side validation. If this tag has a body it will be wrapped with JavaScript tags for
- * convenience.</p>
- * 
+ * <p>
+ * Field metadata tag for use with the Stripes framework. Exposes field
+ * properties via JavaScript to allow client side validation. If this tag has a
+ * body it will be wrapped with JavaScript tags for convenience.</p>
+ *
  * @author Aaron Porter
- * 
+ *
  */
 public class FieldMetadataTag extends HtmlTagSupport implements BodyTag {
-    /** Log used to log error and debugging information for this class. */
+
+    /**
+     * Log used to log error and debugging information for this class.
+     */
     private static final Log log = Log.getInstance(FormTag.class);
 
-    /** Name of variable to hold metadata. */
+    /**
+     * Name of variable to hold metadata.
+     */
     private String var;
-    /** Optional comma separated list of additional fields to expose. */
+    /**
+     * Optional comma separated list of additional fields to expose.
+     */
     private String fields;
-    /** Set to true to include type information for all fields. */
+    /**
+     * Set to true to include type information for all fields.
+     */
     private boolean includeType = false;
-    /** Set to true to include the fully qualified class name for all fields. */
+    /**
+     * Set to true to include the fully qualified class name for all fields.
+     */
     private boolean fqn = false;
-    /** Stores the value of the action attribute before the context gets appended. */
+    /**
+     * Stores the value of the action attribute before the context gets
+     * appended.
+     */
     private String actionWithoutContext;
-    
+
+    /**
+     *
+     * @return
+     */
     public FormTag getForm() {
         return getParentTag(FormTag.class);
     }
 
     /**
      * Builds a string that contains field metadata in a JavaScript object.
-     * 
+     *
      * @return JavaScript object containing field metadata
      */
     private String getMetadata() {
@@ -66,26 +85,27 @@ public class FieldMetadataTag extends HtmlTagSupport implements BodyTag {
         FormTag form = getForm();
 
         if (form != null) {
-            if (action != null)
+            if (action != null) {
                 log.warn("Parameters action and/or beanclass specified but field-metadata tag is inside of a Stripes form tag. The bean will be pulled from the form tag.");
-            
+            }
+
             action = form.getAction();
         }
 
-        if (form != null)
+        if (form != null) {
             bean = form.getActionBean();
+        }
 
         Class<? extends ActionBean> beanClass = null;
 
-        if (bean != null)
+        if (bean != null) {
             beanClass = bean.getClass();
-        else if (action != null) {
+        } else if (action != null) {
             beanClass = StripesFilter.getConfiguration().getActionResolver().getActionBeanType(action);
             if (beanClass != null) {
                 try {
                     bean = StripesFilter.getConfiguration().getObjectFactory().newInstance(beanClass);
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     log.error(e);
                     return null;
                 }
@@ -94,9 +114,9 @@ public class FieldMetadataTag extends HtmlTagSupport implements BodyTag {
 
         if (beanClass == null) {
             log.error("Couldn't determine ActionBean class from FormTag! One of the following conditions must be met:\r\n\t",
-                        "1. Include this tag inside of a stripes:form tag\r\n\t",
-                        "2. Use the action parameter\r\n\t",
-                        "3. Use the beanclass parameter");
+                    "1. Include this tag inside of a stripes:form tag\r\n\t",
+                    "2. Use the action parameter\r\n\t",
+                    "3. Use the beanclass parameter");
             return null;
         }
 
@@ -114,32 +134,31 @@ public class FieldMetadataTag extends HtmlTagSupport implements BodyTag {
         StringBuilder sb = new StringBuilder("{\r\n\t\t");
 
         Set<String> fields = new HashSet<String>();
-        
+
         if (form != null) {
             for (String field : form.getRegisteredFields()) {
                 fields.add(new ParameterName(field).getStrippedName());
             }
         }
 
-        if ((this.fields != null) && (this.fields.trim().length() > 0))
+        if ((this.fields != null) && (this.fields.trim().length() > 0)) {
             fields.addAll(Arrays.asList(this.fields.split(",")));
-        else if (form == null) {
+        } else if (form == null) {
             log.error("Fields attribute is required when field-metadata tag isn't inside of a Stripes form tag.");
             return null;
         }
 
         boolean first = true;
-        
+
         Locale locale = getPageContext().getRequest().getLocale();
 
         for (String field : fields) {
 
             PropertyExpressionEvaluation eval;
-            
+
             try {
                 eval = new PropertyExpressionEvaluation(PropertyExpression.getExpression(field), bean);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 continue;
             }
 
@@ -155,12 +174,13 @@ public class FieldMetadataTag extends HtmlTagSupport implements BodyTag {
                         JavaScriptBuilder.quote(fqn ? fieldType.getName() : fieldType
                                 .getSimpleName()));
             }
-            
+
             Class<?> typeConverterClass = null;
-            
+
             if (data != null) {
-                if (fieldInfo.length() > 0)
+                if (fieldInfo.length() > 0) {
                     fieldInfo.append(',');
+                }
 
                 fieldInfo.append("required:").append(data.required())
                         .append(",ignore:").append(data.ignore())
@@ -172,23 +192,29 @@ public class FieldMetadataTag extends HtmlTagSupport implements BodyTag {
                     Iterator<String> it = data.on().iterator();
                     while (it.hasNext()) {
                         fieldInfo.append(JavaScriptBuilder.quote(it.next()));
-                        if (it.hasNext())
+                        if (it.hasNext()) {
                             fieldInfo.append(",");
+                        }
                     }
                     fieldInfo.append("]");
                 }
-                if (data.mask() != null)
+                if (data.mask() != null) {
                     fieldInfo.append(",mask:").append("new RegExp(")
                             .append(JavaScriptBuilder.quote("^" + data.mask().toString() + "$"))
                             .append(")");
-                if (data.minlength() != null)
+                }
+                if (data.minlength() != null) {
                     fieldInfo.append(",minlength:").append(data.minlength());
-                if (data.maxlength() != null)
+                }
+                if (data.maxlength() != null) {
                     fieldInfo.append(",maxlength:").append(data.maxlength());
-                if (data.minvalue() != null)
+                }
+                if (data.minvalue() != null) {
                     fieldInfo.append(",minvalue:").append(data.minvalue());
-                if (data.maxvalue() != null)
+                }
+                if (data.maxvalue() != null) {
                     fieldInfo.append(",maxvalue:").append(data.maxvalue());
+                }
 
                 String label = data.label();
                 if (data.label() == null) {
@@ -196,8 +222,9 @@ public class FieldMetadataTag extends HtmlTagSupport implements BodyTag {
                             : form.getAction(), form == null ? null : form.getActionBeanClass(),
                             locale);
                 }
-                if (label != null)
+                if (label != null) {
                     fieldInfo.append(",label:").append(JavaScriptBuilder.quote(label));
+                }
 
                 typeConverterClass = data.converter();
             }
@@ -209,8 +236,7 @@ public class FieldMetadataTag extends HtmlTagSupport implements BodyTag {
                     typeConverterClass = StripesFilter.getConfiguration().getTypeConverterFactory()
                             .getTypeConverter(fieldType, pageContext.getRequest().getLocale())
                             .getClass();
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     // Just ignore it
                 }
             }
@@ -222,12 +248,12 @@ public class FieldMetadataTag extends HtmlTagSupport implements BodyTag {
                                         : typeConverterClass.getSimpleName()));
             }
 
-
             if (fieldInfo.length() > 0) {
-                if (first)
+                if (first) {
                     first = false;
-                else
+                } else {
                     sb.append(",\r\n\t\t");
+                }
 
                 sb.append(JavaScriptBuilder.quote(field)).append(":{");
 
@@ -242,13 +268,25 @@ public class FieldMetadataTag extends HtmlTagSupport implements BodyTag {
         return sb.toString();
     }
 
+    /**
+     *
+     */
     public FieldMetadataTag() {
         getAttributes().put("type", "text/javascript");
     }
 
+    /**
+     *
+     * @throws JspException
+     */
     public void doInitBody() throws JspException {
     }
 
+    /**
+     *
+     * @return
+     * @throws JspException
+     */
     public int doAfterBody() throws JspException {
         return SKIP_BODY;
     }
@@ -268,10 +306,10 @@ public class FieldMetadataTag extends HtmlTagSupport implements BodyTag {
         if (body != null) {
             try {
                 String contentType = getPageContext().getResponse().getContentType();
-                
+
                 // Catches application/x-javascript, text/javascript, and text/ecmascript
                 boolean pageIsScript = contentType != null && contentType.toLowerCase().contains("ascript");
-                
+
                 // Don't write the script tags if this page is a script
                 if (!pageIsScript) {
                     writeOpenTag(writer, "script");
@@ -284,12 +322,11 @@ public class FieldMetadataTag extends HtmlTagSupport implements BodyTag {
                     writer.write("\r\n//]]>");
                     writeCloseTag(writer, "script");
                 }
-            }
-            catch (IOException ioe) {
+            } catch (IOException ioe) {
                 throw new StripesJspException("IOException while writing output in LinkTag.", ioe);
             }
         }
-        
+
         // Only keep the type attribute between uses
         String type = getAttributes().get("type");
         getAttributes().clear();
@@ -298,54 +335,71 @@ public class FieldMetadataTag extends HtmlTagSupport implements BodyTag {
         return SKIP_BODY;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getVar() {
         return var;
     }
 
     /**
      * Sets the name of the variable to hold metadata.
-     * 
+     *
      * @param var the name of the attribute that will contain field metadata
      */
     public void setVar(String var) {
         this.var = var;
     }
 
+    /**
+     *
+     * @return
+     */
     public String getFields() {
         return fields;
     }
 
     /**
-     * Optional comma separated list of additional fields to expose. Any fields that have
-     * already been added to the Stripes form tag will automatically be included.
-     * 
+     * Optional comma separated list of additional fields to expose. Any fields
+     * that have already been added to the Stripes form tag will automatically
+     * be included.
+     *
      * @param fields comma separated list of field names
      */
     public void setFields(String fields) {
         this.fields = fields;
     }
 
+    /**
+     *
+     * @return
+     */
     public boolean isIncludeType() {
         return includeType;
     }
 
     /**
-     * Set to true to include type information for all fields. By default, type information is only
-     * included for primitives, numbers, and dates.
-     * 
+     * Set to true to include type information for all fields. By default, type
+     * information is only included for primitives, numbers, and dates.
+     *
      * @param includeType include type info for all fields
      */
     public void setIncludeType(boolean includeType) {
         this.includeType = includeType;
     }
 
+    /**
+     *
+     * @return
+     */
     public boolean isFqn() {
         return fqn;
     }
 
     /**
      * Set to true to include the fully qualified class name for all fields.
-     * 
+     *
      * @param fqn include fully qualified class name for all fields
      */
     public void setFqn(boolean fqn) {
@@ -353,13 +407,15 @@ public class FieldMetadataTag extends HtmlTagSupport implements BodyTag {
     }
 
     /**
-     * Sets the action for the form. If the form action begins with a slash, and does not already
-     * contain the context path, then the context path of the web application will get prepended to
-     * the action before it is set. In general actions should be specified as &quot;absolute&quot;
-     * paths within the web application, therefore allowing them to function correctly regardless of
-     * the address currently shown in the browser&apos;s address bar.
-     * 
-     * @param action the action path, relative to the root of the web application
+     * Sets the action for the form. If the form action begins with a slash, and
+     * does not already contain the context path, then the context path of the
+     * web application will get prepended to the action before it is set. In
+     * general actions should be specified as &quot;absolute&quot; paths within
+     * the web application, therefore allowing them to function correctly
+     * regardless of the address currently shown in the browser address bar.
+     *
+     * @param action the action path, relative to the root of the web
+     * application
      */
     public void setAction(String action) {
         // Use the action resolver to figure out what the appropriate URL binding if for
@@ -368,57 +424,67 @@ public class FieldMetadataTag extends HtmlTagSupport implements BodyTag {
                 .getUrlBindingFromPath(action);
         if (binding != null) {
             this.actionWithoutContext = binding;
-        }
-        else {
+        } else {
             this.actionWithoutContext = action;
         }
     }
 
+    /**
+     *
+     * @return
+     */
     public String getAction() {
         return this.actionWithoutContext;
     }
 
     /**
-     * Sets the 'action' attribute by inspecting the bean class provided and asking the current
-     * ActionResolver what the appropriate URL is.
-     * 
-     * @param beanclass the String FQN of the class, or a Class representing the class
-     * @throws StripesJspException if the URL cannot be determined for any reason, most likely
-     *             because of a mis-spelled class name, or a class that's not an ActionBean
+     * Sets the 'action' attribute by inspecting the bean class provided and
+     * asking the current ActionResolver what the appropriate URL is.
+     *
+     * @param beanclass the String FQN of the class, or a Class representing the
+     * class
+     * @throws StripesJspException if the URL cannot be determined for any
+     * reason, most likely because of a mis-spelled class name, or a class
+     * that's not an ActionBean
      */
     public void setBeanclass(Object beanclass) throws StripesJspException {
         String url = getActionBeanUrl(beanclass);
         if (url == null) {
             throw new StripesJspException(
                     "Could not determine action from 'beanclass' supplied. "
-                            + "The value supplied was '"
-                            + beanclass
-                            + "'. Please ensure that this bean type "
-                            + "exists and is in the classpath. If you are developing a page and the ActionBean "
-                            + "does not yet exist, consider using the 'action' attribute instead for now.");
-        }
-        else {
+                    + "The value supplied was '"
+                    + beanclass
+                    + "'. Please ensure that this bean type "
+                    + "exists and is in the classpath. If you are developing a page and the ActionBean "
+                    + "does not yet exist, consider using the 'action' attribute instead for now.");
+        } else {
             setAction(url);
         }
     }
 
-    /** Corresponding getter for 'beanclass', will always return null. */
+    /**
+     * Corresponding getter for 'beanclass', will always return null.
+     * @return 
+     */
     public Object getBeanclass() {
         return null;
     }
+
     /**
-     * This is what is placed into the request attribute. It allows us to
-     * get the field metadata as well as the form id.
+     * This is what is placed into the request attribute. It allows us to get
+     * the field metadata as well as the form id.
      */
     public class Var {
+
         private String fieldMetadata, formId;
 
         private Var(String fieldMetadata) {
             this.fieldMetadata = fieldMetadata;
             FormTag form = getForm();
             if (form != null) {
-                if (form.getId() == null)
+                if (form.getId() == null) {
                     form.setId("stripes-" + new Random().nextInt());
+                }
                 this.formId = form.getId();
             }
         }
@@ -428,6 +494,10 @@ public class FieldMetadataTag extends HtmlTagSupport implements BodyTag {
             return fieldMetadata;
         }
 
+        /**
+         *
+         * @return
+         */
         public String getFormId() {
             return formId;
         }

@@ -24,23 +24,29 @@ import net.sourceforge.stripes.util.HttpUtil;
 
 /**
  * Abstract base class for the tags that handle rendering of layouts.
- * 
+ *
  * @author Ben Gunter
  * @since Stripes 1.5.4
  */
 public abstract class LayoutTag extends StripesTagSupport {
-    /** Get the context-relative path of the page that invoked this tag. */
+
+    /**
+     * Get the context-relative path of the page that invoked this tag.
+     * @return 
+     */
     public String getCurrentPagePath() {
         HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
         String path = (String) request.getAttribute(StripesConstants.REQ_ATTR_INCLUDE_PATH);
-        if (path == null)
+        if (path == null) {
             path = HttpUtil.getRequestedPath(request);
+        }
         return path;
     }
 
     /**
-     * True if the nearest ancestor of this tag that is an instance of {@link LayoutTag} is also an
-     * instance of {@link LayoutRenderTag}.
+     * True if the nearest ancestor of this tag that is an instance of
+     * {@link LayoutTag} is also an instance of {@link LayoutRenderTag}.
+     * @return 
      */
     public boolean isChildOfRender() {
         LayoutTag parent = getLayoutParent();
@@ -48,8 +54,9 @@ public abstract class LayoutTag extends StripesTagSupport {
     }
 
     /**
-     * True if the nearest ancestor of this tag that is an instance of {@link LayoutTag} is also an
-     * instance of {@link LayoutDefinitionTag}.
+     * True if the nearest ancestor of this tag that is an instance of
+     * {@link LayoutTag} is also an instance of {@link LayoutDefinitionTag}.
+     * @return 
      */
     public boolean isChildOfDefinition() {
         LayoutTag parent = getLayoutParent();
@@ -57,8 +64,9 @@ public abstract class LayoutTag extends StripesTagSupport {
     }
 
     /**
-     * True if the nearest ancestor of this tag that is an instance of {@link LayoutTag} is also an
-     * instance of {@link LayoutComponentTag}.
+     * True if the nearest ancestor of this tag that is an instance of
+     * {@link LayoutTag} is also an instance of {@link LayoutComponentTag}.
+     * @return 
      */
     public boolean isChildOfComponent() {
         LayoutTag parent = getLayoutParent();
@@ -66,8 +74,10 @@ public abstract class LayoutTag extends StripesTagSupport {
     }
 
     /**
-     * Get the nearest ancestor of this tag that is an instance of {@link LayoutTag}. If no ancestor
-     * of that type is found then null.
+     * Get the nearest ancestor of this tag that is an instance of
+     * {@link LayoutTag}. If no ancestor of that type is found then null.
+     * @param <T>
+     * @return 
      */
     @SuppressWarnings("unchecked")
     public <T extends LayoutTag> T getLayoutParent() {
@@ -75,10 +85,12 @@ public abstract class LayoutTag extends StripesTagSupport {
     }
 
     /**
-     * Starting from the outer-most context and working up the stack, put a reference to each
-     * component renderer by name into the page context and push this tag's page context onto the
-     * renderer's page context stack. Working from the bottom of the stack up ensures that newly
-     * defined components override any that might have been defined previously by the same name.
+     * Starting from the outer-most context and working up the stack, put a
+     * reference to each component renderer by name into the page context and
+     * push this tag's page context onto the renderer's page context stack.
+     * Working from the bottom of the stack up ensures that newly defined
+     * components override any that might have been defined previously by the
+     * same name.
      */
     public void exportComponentRenderers() {
         for (LayoutContext c = LayoutContext.lookup(pageContext).getFirst(); c != null; c = c.getNext()) {
@@ -89,7 +101,10 @@ public abstract class LayoutTag extends StripesTagSupport {
         }
     }
 
-    /** Pop this tag's page context off each of the component renderers' page context stacks. */
+    /**
+     * Pop this tag's page context off each of the component renderers' page
+     * context stacks.
+     */
     public void cleanUpComponentRenderers() {
         for (LayoutContext c = LayoutContext.lookup(pageContext).getLast(); c != null; c = c.getPrevious()) {
             for (LayoutComponentRenderer renderer : c.getComponents().values()) {

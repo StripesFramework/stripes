@@ -22,66 +22,135 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
- * Tests all reasonable variations of binding involving Maps. String keys, numeric keys,
- * enum keys, date keys (!).  Maps as terminal values (foo[bar]) and maps in the middle
- * of property chains (foo[bar].splat).
+ * Tests all reasonable variations of binding involving Maps. String keys,
+ * numeric keys, enum keys, date keys (!). Maps as terminal values (foo[bar])
+ * and maps in the middle of property chains (foo[bar].splat).
  *
  * @author Tim Fennell
  */
 public class MapBindingTests extends FilterEnabledTestBase implements ActionBean {
-    public enum Color { red, green, blue }
+
+    public enum Color {
+        red, green, blue
+    }
 
     // Boilerplate ActionBean methods
     private ActionBeanContext context;
-    public void setContext(ActionBeanContext context) { this.context = context; }
-    public ActionBeanContext getContext() { return this.context; }
-    public Resolution doNothing() { return null; }
 
-    /** Map of String keys and Long values. */
-    private Map<String,Long> mapStringLong;
-    public Map<String, Long> getMapStringLong() { return mapStringLong; }
-    public void setMapStringLong(Map<String, Long> mapStringLong) { this.mapStringLong = mapStringLong; }
+    public void setContext(ActionBeanContext context) {
+        this.context = context;
+    }
 
-    /** Map of Short keys to Integer values. */
-    private Map<Short,Integer> mapShortInteger;
-    public Map<Short, Integer> getMapShortInteger() { return mapShortInteger; }
-    public void setMapShortInteger(Map<Short, Integer> mapShortInteger) { this.mapShortInteger = mapShortInteger; }
+    public ActionBeanContext getContext() {
+        return this.context;
+    }
 
-    /** Map of enum (Color) to String values. */
-    private Map<Color,String> mapEnumString;
-    public Map<Color, String> getMapEnumString() { return mapEnumString; }
-    public void setMapEnumString(Map<Color, String> mapEnumString) { this.mapEnumString = mapEnumString; }
+    public Resolution doNothing() {
+        return null;
+    }
 
-    /** A TestBean which contains various Maps. */
+    /**
+     * Map of String keys and Long values.
+     */
+    private Map<String, Long> mapStringLong;
+
+    public Map<String, Long> getMapStringLong() {
+        return mapStringLong;
+    }
+
+    public void setMapStringLong(Map<String, Long> mapStringLong) {
+        this.mapStringLong = mapStringLong;
+    }
+
+    /**
+     * Map of Short keys to Integer values.
+     */
+    private Map<Short, Integer> mapShortInteger;
+
+    public Map<Short, Integer> getMapShortInteger() {
+        return mapShortInteger;
+    }
+
+    public void setMapShortInteger(Map<Short, Integer> mapShortInteger) {
+        this.mapShortInteger = mapShortInteger;
+    }
+
+    /**
+     * Map of enum (Color) to String values.
+     */
+    private Map<Color, String> mapEnumString;
+
+    public Map<Color, String> getMapEnumString() {
+        return mapEnumString;
+    }
+
+    public void setMapEnumString(Map<Color, String> mapEnumString) {
+        this.mapEnumString = mapEnumString;
+    }
+
+    /**
+     * A TestBean which contains various Maps.
+     */
     private TestBean testBean;
-    public TestBean getTestBean() { return testBean; }
-    public void setTestBean(TestBean testBean) { this.testBean = testBean; }
 
-    /** A map of Enum to TestBean, to test read-through expressions. */
-    private Map<Color,TestBean> mapEnumTestBean;
-    public Map<Color, TestBean> getMapEnumTestBean() { return mapEnumTestBean; }
-    public void setMapEnumTestBean(Map<Color, TestBean> mapEnumTestBean) { this.mapEnumTestBean = mapEnumTestBean; }
+    public TestBean getTestBean() {
+        return testBean;
+    }
 
-    /** A map of Date to Date. */
-    private Map<Date,Date> mapDateDate;
-    public Map<Date, Date> getMapDateDate() { return mapDateDate; }
-    public void setMapDateDate(Map<Date, Date> mapDateDate) { this.mapDateDate = mapDateDate; }
+    public void setTestBean(TestBean testBean) {
+        this.testBean = testBean;
+    }
 
-    /** A map completely lacking in type information!!. */
+    /**
+     * A map of Enum to TestBean, to test read-through expressions.
+     */
+    private Map<Color, TestBean> mapEnumTestBean;
+
+    public Map<Color, TestBean> getMapEnumTestBean() {
+        return mapEnumTestBean;
+    }
+
+    public void setMapEnumTestBean(Map<Color, TestBean> mapEnumTestBean) {
+        this.mapEnumTestBean = mapEnumTestBean;
+    }
+
+    /**
+     * A map of Date to Date.
+     */
+    private Map<Date, Date> mapDateDate;
+
+    public Map<Date, Date> getMapDateDate() {
+        return mapDateDate;
+    }
+
+    public void setMapDateDate(Map<Date, Date> mapDateDate) {
+        this.mapDateDate = mapDateDate;
+    }
+
+    /**
+     * A map completely lacking in type information!!.
+     */
     @SuppressWarnings("rawtypes")
     private Map typelessMap;
-    @SuppressWarnings("rawtypes")
-	public Map getTypelessMap() { return typelessMap; }
-    @SuppressWarnings("rawtypes")
-	public void setTypelessMap(Map typelessMap) { this.typelessMap = typelessMap; }
 
+    @SuppressWarnings("rawtypes")
+    public Map getTypelessMap() {
+        return typelessMap;
+    }
 
-    /** Helper method to create a roundtrip with the TestActionBean class. */
+    @SuppressWarnings("rawtypes")
+    public void setTypelessMap(Map typelessMap) {
+        this.typelessMap = typelessMap;
+    }
+
+    /**
+     * Helper method to create a roundtrip with the TestActionBean class.
+     */
     protected MockRoundtrip getRoundtrip() {
         return new MockRoundtrip(getMockServletContext(), MapBindingTests.class);
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void bindSingleQuotedStringKey() throws Exception {
         MockRoundtrip trip = getRoundtrip();
         trip.addParameter("mapStringLong['one']", "1");
@@ -95,7 +164,7 @@ public class MapBindingTests extends FilterEnabledTestBase implements ActionBean
         Assert.assertEquals(bean.getMapStringLong().get("three"), new Long(3));
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void bindDoubleQuotedStringKey() throws Exception {
         MockRoundtrip trip = getRoundtrip();
         trip.addParameter("mapStringLong[\"one\"]", "1");
@@ -109,7 +178,7 @@ public class MapBindingTests extends FilterEnabledTestBase implements ActionBean
         Assert.assertEquals(bean.getMapStringLong().get("three"), new Long(3));
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void bindSingleLetterStringKey() throws Exception {
         MockRoundtrip trip = getRoundtrip();
         trip.addParameter("mapStringLong['a']", "1");
@@ -123,54 +192,54 @@ public class MapBindingTests extends FilterEnabledTestBase implements ActionBean
         Assert.assertEquals(bean.getMapStringLong().get("c"), new Long(3));
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void bindUnquotedShortKey() throws Exception {
         MockRoundtrip trip = getRoundtrip();
-        trip.addParameter("mapShortInteger[1]",    "1");
-        trip.addParameter("mapShortInteger[200]",  "2");
+        trip.addParameter("mapShortInteger[1]", "1");
+        trip.addParameter("mapShortInteger[200]", "2");
         trip.addParameter("mapShortInteger[3000]", "3");
         trip.execute();
 
         MapBindingTests bean = trip.getActionBean(MapBindingTests.class);
-        Assert.assertEquals(bean.getMapShortInteger().get( (short) 1 ), new Integer(1));
-        Assert.assertEquals(bean.getMapShortInteger().get( (short) 200), new Integer(2));
-        Assert.assertEquals(bean.getMapShortInteger().get( (short) 3000), new Integer(3));
+        Assert.assertEquals(bean.getMapShortInteger().get((short) 1), new Integer(1));
+        Assert.assertEquals(bean.getMapShortInteger().get((short) 200), new Integer(2));
+        Assert.assertEquals(bean.getMapShortInteger().get((short) 3000), new Integer(3));
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void bindSingleQuotedShortKey() throws Exception {
         MockRoundtrip trip = getRoundtrip();
-        trip.addParameter("mapShortInteger['1']",    "1");
-        trip.addParameter("mapShortInteger['200']",  "2");
+        trip.addParameter("mapShortInteger['1']", "1");
+        trip.addParameter("mapShortInteger['200']", "2");
         trip.addParameter("mapShortInteger['3000']", "3");
         trip.execute();
 
         MapBindingTests bean = trip.getActionBean(MapBindingTests.class);
-        Assert.assertEquals(bean.getMapShortInteger().get( (short) 1 ), new Integer(1));
-        Assert.assertEquals(bean.getMapShortInteger().get( (short) 200), new Integer(2));
-        Assert.assertEquals(bean.getMapShortInteger().get( (short) 3000), new Integer(3));
+        Assert.assertEquals(bean.getMapShortInteger().get((short) 1), new Integer(1));
+        Assert.assertEquals(bean.getMapShortInteger().get((short) 200), new Integer(2));
+        Assert.assertEquals(bean.getMapShortInteger().get((short) 3000), new Integer(3));
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void bindDoubleQuotedShortKey() throws Exception {
         MockRoundtrip trip = getRoundtrip();
-        trip.addParameter("mapShortInteger[\"1\"]",    "1");
-        trip.addParameter("mapShortInteger[\"200\"]",  "2");
+        trip.addParameter("mapShortInteger[\"1\"]", "1");
+        trip.addParameter("mapShortInteger[\"200\"]", "2");
         trip.addParameter("mapShortInteger[\"3000\"]", "3");
         trip.execute();
 
         MapBindingTests bean = trip.getActionBean(MapBindingTests.class);
-        Assert.assertEquals(bean.getMapShortInteger().get( (short) 1 ), new Integer(1));
-        Assert.assertEquals(bean.getMapShortInteger().get( (short) 200), new Integer(2));
-        Assert.assertEquals(bean.getMapShortInteger().get( (short) 3000), new Integer(3));
+        Assert.assertEquals(bean.getMapShortInteger().get((short) 1), new Integer(1));
+        Assert.assertEquals(bean.getMapShortInteger().get((short) 200), new Integer(2));
+        Assert.assertEquals(bean.getMapShortInteger().get((short) 3000), new Integer(3));
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void bindSingleQuotedEnumKey() throws Exception {
         MockRoundtrip trip = getRoundtrip();
-        trip.addParameter("mapEnumString['red']",    "Red");
-        trip.addParameter("mapEnumString['green']",  "Green");
-        trip.addParameter("mapEnumString['blue']",   "Blue");
+        trip.addParameter("mapEnumString['red']", "Red");
+        trip.addParameter("mapEnumString['green']", "Green");
+        trip.addParameter("mapEnumString['blue']", "Blue");
         trip.execute();
 
         MapBindingTests bean = trip.getActionBean(MapBindingTests.class);
@@ -179,7 +248,7 @@ public class MapBindingTests extends FilterEnabledTestBase implements ActionBean
         Assert.assertEquals(bean.getMapEnumString().get(Color.blue), "Blue");
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void bindNestedMap() throws Exception {
         MockRoundtrip trip = getRoundtrip();
         trip.addParameter("testBean.longMap[1]", "1");
@@ -193,7 +262,7 @@ public class MapBindingTests extends FilterEnabledTestBase implements ActionBean
         Assert.assertEquals(bean.getTestBean().getLongMap().get(3l), new Long(3));
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void bindKeyGreaterThanMaxInt() throws Exception {
         MockRoundtrip trip = getRoundtrip();
         trip.addParameter("testBean.longMap[9999999999l]", "1");
@@ -203,7 +272,7 @@ public class MapBindingTests extends FilterEnabledTestBase implements ActionBean
         Assert.assertEquals(bean.getTestBean().getLongMap().get(9999999999l), new Long(1));
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void bindKeyGreaterThanMaxIntII() throws Exception {
         MockRoundtrip trip = getRoundtrip();
         trip.addParameter("testBean.longMap['9999999999']", "1");
@@ -213,7 +282,7 @@ public class MapBindingTests extends FilterEnabledTestBase implements ActionBean
         Assert.assertEquals(bean.getTestBean().getLongMap().get(9999999999l), new Long(1));
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void writeThroughBeanInMap() throws Exception {
         MockRoundtrip trip = getRoundtrip();
         trip.addParameter("mapEnumTestBean['red'].longProperty", "1");
@@ -231,7 +300,7 @@ public class MapBindingTests extends FilterEnabledTestBase implements ActionBean
         Assert.assertEquals(bean.getMapEnumTestBean().get(Color.green).getIntProperty(), 4);
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void bindDateKeysInMap() throws Exception {
         MockRoundtrip trip = getRoundtrip();
         trip.getRequest().addLocale(Locale.ENGLISH);
@@ -240,15 +309,15 @@ public class MapBindingTests extends FilterEnabledTestBase implements ActionBean
 
         Calendar cal = Calendar.getInstance();
         cal.clear();
-        cal.set(1999,Calendar.DECEMBER,31);
+        cal.set(1999, Calendar.DECEMBER, 31);
         Date key = cal.getTime();
 
         MapBindingTests bean = trip.getActionBean(MapBindingTests.class);
         Assert.assertNotNull(bean.getMapDateDate().get(key));
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    @Before(stages=LifecycleStage.BindingAndValidation)
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    @Before(stages = LifecycleStage.BindingAndValidation)
     public void populateTypelessMap() {
         this.typelessMap = new HashMap();
         this.typelessMap.put(1, new TestBean());
@@ -256,7 +325,7 @@ public class MapBindingTests extends FilterEnabledTestBase implements ActionBean
         this.typelessMap.put("foo", new TestBean());
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void bindThroughTypelessMap() throws Exception {
         MockRoundtrip trip = getRoundtrip();
         trip.addParameter("typelessMap[1].longProperty", "1234");
@@ -265,8 +334,8 @@ public class MapBindingTests extends FilterEnabledTestBase implements ActionBean
         trip.execute();
 
         MapBindingTests bean = trip.getActionBean(MapBindingTests.class);
-        Assert.assertEquals( ((TestBean) bean.getTypelessMap().get(1)).getLongProperty(), new Long(1234));
-        Assert.assertEquals( ((TestBean) bean.getTypelessMap().get(2l)).getNestedBean().getLongProperty(), new Long(4321));
-        Assert.assertEquals( ((TestBean) bean.getTypelessMap().get("foo")).getEnumProperty(), TestEnum.Sixth);
+        Assert.assertEquals(((TestBean) bean.getTypelessMap().get(1)).getLongProperty(), new Long(1234));
+        Assert.assertEquals(((TestBean) bean.getTypelessMap().get(2l)).getNestedBean().getLongProperty(), new Long(4321));
+        Assert.assertEquals(((TestBean) bean.getTypelessMap().get("foo")).getEnumProperty(), TestEnum.Sixth);
     }
 }

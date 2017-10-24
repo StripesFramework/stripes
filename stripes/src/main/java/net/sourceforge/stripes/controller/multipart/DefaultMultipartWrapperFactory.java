@@ -26,24 +26,35 @@ import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
 /**
- * <p>Default implementation of a factory for MultipartWrappers. Looks up a class name in
- * Configuration under the key specified by {@link #WRAPPER_CLASS_NAME}. If no class
- * name is configured, defaults to the {@link CosMultipartWrapper}. An additional configuration
- * parameter is supported to specify the maximum post size allowable.</p>
- * 
+ * <p>
+ * Default implementation of a factory for MultipartWrappers. Looks up a class
+ * name in Configuration under the key specified by {@link #WRAPPER_CLASS_NAME}.
+ * If no class name is configured, defaults to the {@link CosMultipartWrapper}.
+ * An additional configuration parameter is supported to specify the maximum
+ * post size allowable.</p>
+ *
  * @author Tim Fennell
  * @since Stripes 1.4
  */
 public class DefaultMultipartWrapperFactory implements MultipartWrapperFactory {
-    /** The configuration key used to lookup the implementation of MultipartWrapper. */
+
+    /**
+     * The configuration key used to lookup the implementation of
+     * MultipartWrapper.
+     */
     public static final String WRAPPER_CLASS_NAME = "MultipartWrapper.Class";
 
-    /** The names of the MultipartWrapper classes that will be tried if no other is specified. */
+    /**
+     * The names of the MultipartWrapper classes that will be tried if no other
+     * is specified.
+     */
     public static final String[] BUNDLED_IMPLEMENTATIONS = {
-            "net.sourceforge.stripes.controller.multipart.CommonsMultipartWrapper",
-            "net.sourceforge.stripes.controller.multipart.CosMultipartWrapper" };
+        "net.sourceforge.stripes.controller.multipart.CommonsMultipartWrapper",
+        "net.sourceforge.stripes.controller.multipart.CosMultipartWrapper"};
 
-    /** Key used to lookup the name of the maximum post size. */
+    /**
+     * Key used to lookup the name of the maximum post size.
+     */
     public static final String MAX_POST = "FileUpload.MaximumPostSize";
 
     private static final Log log = Log.getInstance(DefaultMultipartWrapperFactory.class);
@@ -54,26 +65,32 @@ public class DefaultMultipartWrapperFactory implements MultipartWrapperFactory {
     private long maxPostSizeInBytes = 1024 * 1024 * 10; // Defaults to 10MB
     private File temporaryDirectory;
 
-    /** Get the configuration object that was passed into {@link #init(Configuration)}. */
+    /**
+     * Get the configuration object that was passed into
+     * {@link #init(Configuration)}.
+     *
+     * @return The configuration object associated with this wrapper factory.
+     */
     protected Configuration getConfiguration() {
         return configuration;
     }
 
     /**
-     * Invoked directly after instantiation to allow the configured component to perform one time
-     * initialization.  Components are expected to fail loudly if they are not going to be in a
-     * valid state after initialization.
+     * Invoked directly after instantiation to allow the configured component to
+     * perform one time initialization. Components are expected to fail loudly
+     * if they are not going to be in a valid state after initialization.
      *
      * @param config the Configuration object being used by Stripes
-     * @throws Exception should be thrown if the component cannot be configured well enough to use.
+     * @throws Exception should be thrown if the component cannot be configured
+     * well enough to use.
      */
     @SuppressWarnings("unchecked")
-	public void init(Configuration config) throws Exception {
+    public void init(Configuration config) throws Exception {
         this.configuration = config;
 
         // Determine which class we're using
         this.multipartClass = config.getBootstrapPropertyResolver().getClassProperty(WRAPPER_CLASS_NAME, MultipartWrapper.class);
-        
+
         if (this.multipartClass == null) {
             // It wasn't defined in web.xml so we'll try the bundled MultipartWrappers
             for (String className : BUNDLED_IMPLEMENTATIONS) {
@@ -81,8 +98,7 @@ public class DefaultMultipartWrapperFactory implements MultipartWrapperFactory {
                     this.multipartClass = ((Class<? extends MultipartWrapper>) Class
                             .forName(className));
                     break;
-                }
-                catch (Throwable t) {
+                } catch (Throwable t) {
                     log.debug(getClass().getSimpleName(), " not using ", className,
                             " because it failed to load. This likely means the supporting ",
                             "file upload library is not present on the classpath.");
@@ -94,8 +110,7 @@ public class DefaultMultipartWrapperFactory implements MultipartWrapperFactory {
         if (this.multipartClass == null) {
             log.warn("No ", MultipartWrapper.class.getSimpleName(),
                     " implementation could be loaded");
-        }
-        else {
+        } else {
             log.info("Using ", this.multipartClass.getName(), " as ", MultipartWrapper.class
                     .getSimpleName(), " implementation.");
         }
@@ -104,17 +119,15 @@ public class DefaultMultipartWrapperFactory implements MultipartWrapperFactory {
         File tempDir = (File) config.getServletContext().getAttribute("javax.servlet.context.tempdir");
         if (tempDir != null) {
             this.temporaryDirectory = tempDir;
-        }
-        else {
+        } else {
             String tmpDir = System.getProperty("java.io.tmpdir");
-            
+
             if (tmpDir != null) {
                 this.temporaryDirectory = new File(tmpDir).getAbsoluteFile();
-            }
-            else {
+            } else {
                 log.warn("The tmpdir system property was null! File uploads will probably fail. ",
-                         "This is normal if you are running on Google App Engine as it doesn't allow ",
-                         "file system write access.");
+                        "This is normal if you are running on Google App Engine as it doesn't allow ",
+                        "file system write access.");
             }
         }
 
@@ -125,18 +138,21 @@ public class DefaultMultipartWrapperFactory implements MultipartWrapperFactory {
             Matcher matcher = pattern.matcher(limit);
             if (!matcher.matches()) {
                 log.error("Did not understand value of configuration parameter ", MAX_POST,
-                         " You supplied: ", limit, ". Valid values are any string of numbers ",
-                         "optionally followed by (case insensitive) [k|kb|m|mb|g|gb]. ",
-                         "Default value of ", this.maxPostSizeInBytes, " bytes will be used instead.");
-            }
-            else {
+                        " You supplied: ", limit, ". Valid values are any string of numbers ",
+                        "optionally followed by (case insensitive) [k|kb|m|mb|g|gb]. ",
+                        "Default value of ", this.maxPostSizeInBytes, " bytes will be used instead.");
+            } else {
                 String digits = matcher.group(1);
                 String suffix = matcher.group(2).toLowerCase();
                 long number = Long.parseLong(digits);
 
-                if ("k".equals(suffix)) { number = number * 1024; }
-                else if ("m".equals(suffix)) {  number = number * 1024 * 1024; }
-                else if ("g".equals(suffix)) { number = number * 1024 * 1024 * 1024; }
+                if ("k".equals(suffix)) {
+                    number = number * 1024;
+                } else if ("m".equals(suffix)) {
+                    number = number * 1024 * 1024;
+                } else if ("g".equals(suffix)) {
+                    number = number * 1024 * 1024 * 1024;
+                }
 
                 this.maxPostSizeInBytes = number;
                 log.info("Configured file upload post size limit: ", number, " bytes.");
@@ -145,14 +161,16 @@ public class DefaultMultipartWrapperFactory implements MultipartWrapperFactory {
     }
 
     /**
-     * Wraps the request in an appropriate implementation of MultipartWrapper that is capable of
-     * providing access to request parameters and any file parts contained within the request.
+     * Wraps the request in an appropriate implementation of MultipartWrapper
+     * that is capable of providing access to request parameters and any file
+     * parts contained within the request.
      *
      * @param request an active HttpServletRequest
      * @return an implementation of the appropriate wrapper
-     * @throws IOException if encountered when consuming the contents of the request
-     * @throws FileUploadLimitExceededException if the post size of the request exceeds any
-     *          configured limits
+     * @throws IOException if encountered when consuming the contents of the
+     * request
+     * @throws FileUploadLimitExceededException if the post size of the request
+     * exceeds any configured limits
      */
     public MultipartWrapper wrap(HttpServletRequest request) throws IOException, FileUploadLimitExceededException {
         try {
@@ -160,12 +178,12 @@ public class DefaultMultipartWrapperFactory implements MultipartWrapperFactory {
                     this.multipartClass);
             wrapper.build(request, this.temporaryDirectory, this.maxPostSizeInBytes);
             return wrapper;
-        }
-        catch (IOException ioe) { throw ioe; }
-        catch (FileUploadLimitExceededException fulee) { throw fulee; }
-        catch (Exception e) {
-            throw new StripesRuntimeException
-                    ("Could not construct a MultipartWrapper for the current request.", e);
+        } catch (IOException ioe) {
+            throw ioe;
+        } catch (FileUploadLimitExceededException fulee) {
+            throw fulee;
+        } catch (Exception e) {
+            throw new StripesRuntimeException("Could not construct a MultipartWrapper for the current request.", e);
         }
     }
 }

@@ -36,29 +36,35 @@ import net.sourceforge.stripes.exception.StripesRuntimeException;
 import net.sourceforge.stripes.util.Log;
 
 /**
- * Used to move contextual information about a layout rendering between a LayoutRenderTag and
- * a LayoutDefinitionTag. Holds the set of overridden components and any parameters provided
- * to the render tag.
+ * Used to move contextual information about a layout rendering between a
+ * LayoutRenderTag and a LayoutDefinitionTag. Holds the set of overridden
+ * components and any parameters provided to the render tag.
  *
  * @author Tim Fennell, Ben Gunter
  * @since Stripes 1.1
  */
 public class LayoutContext {
+
     private static final Log log = Log.getInstance(LayoutContext.class);
 
-    /** The attribute name by which the stack of layout contexts can be found in the request. */
+    /**
+     * The attribute name by which the stack of layout contexts can be found in
+     * the request.
+     */
     public static final String LAYOUT_CONTEXT_KEY = LayoutContext.class.getName() + "#Context";
 
     /**
-     * The attribute name by which the indicator of broken include functionality in the application
-     * server can be found in the application scope.
+     * The attribute name by which the indicator of broken include functionality
+     * in the application server can be found in the application scope.
      */
     public static final String BROKEN_INCLUDE_KEY = LayoutContext.class.getName()
             + "#BROKEN_INCLUDE";
 
     /**
-     * Create a new layout context for the given render tag and push it onto the stack of layout
-     * contexts in a JSP page context.
+     * Create a new layout context for the given render tag and push it onto the
+     * stack of layout contexts in a JSP page context.
+     * @param renderTag
+     * @return 
      */
     public static LayoutContext push(LayoutRenderTag renderTag) {
         LayoutContext context = new LayoutContext(renderTag);
@@ -70,8 +76,7 @@ public class LayoutContext {
             // Create a new layout writer and push a new body
             context.out = new LayoutWriter(pageContext.getOut());
             pageContext.pushBody(context.out);
-        }
-        else {
+        } else {
             // Sanity check
             if (previous.next != null) {
                 throw new StripesRuntimeException(
@@ -90,8 +95,10 @@ public class LayoutContext {
 
     /**
      * Look up the current layout context in a JSP page context.
-     * 
-     * @param pageContext The JSP page context to search for the layout context stack.
+     *
+     * @param pageContext The JSP page context to search for the layout context
+     * stack.
+     * @return 
      */
     public static LayoutContext lookup(PageContext pageContext) {
         LayoutContext context = (LayoutContext) pageContext.getAttribute(LAYOUT_CONTEXT_KEY);
@@ -113,10 +120,11 @@ public class LayoutContext {
 
     /**
      * Remove the current layout context from the stack of layout contexts.
-     * 
-     * @param pageContext The JSP page context to search for the layout context stack.
-     * @return The layout context that was popped off the stack, or null if the stack was not found
-     *         or was empty.
+     *
+     * @param pageContext The JSP page context to search for the layout context
+     * stack.
+     * @return The layout context that was popped off the stack, or null if the
+     * stack was not found or was empty.
      */
     public static LayoutContext pop(PageContext pageContext) {
         LayoutContext context = lookup(pageContext);
@@ -126,8 +134,7 @@ public class LayoutContext {
 
         if (context.previous == null) {
             pageContext.popBody();
-        }
-        else {
+        } else {
             context.previous.next = null;
             context.previous = null;
         }
@@ -138,16 +145,16 @@ public class LayoutContext {
     private LayoutContext previous, next;
     private LayoutRenderTag renderTag;
     private LayoutWriter out;
-    private Map<String,LayoutComponentRenderer> components = new HashMap<String,LayoutComponentRenderer>();
-    private Map<String,Object> parameters = new HashMap<String,Object>();
+    private Map<String, LayoutComponentRenderer> components = new HashMap<String, LayoutComponentRenderer>();
+    private Map<String, Object> parameters = new HashMap<String, Object>();
     private String renderPage, component;
     private LayoutRenderTagPath componentPath;
     private boolean componentRenderPhase, rendered;
 
     /**
-     * A new context may be created only by a {@link LayoutRenderTag}. The tag provides all the
-     * information necessary to initialize the context.
-     * 
+     * A new context may be created only by a {@link LayoutRenderTag}. The tag
+     * provides all the information necessary to initialize the context.
+     *
      * @param renderTag The tag that is beginning a new layout render process.
      */
     public LayoutContext(LayoutRenderTag renderTag) {
@@ -157,60 +164,92 @@ public class LayoutContext {
         log.debug("Path is ", this.componentPath);
     }
 
-    /** Get the previous layout context from the stack. */
-    public LayoutContext getPrevious() { return previous; }
+    /**
+     * Get the previous layout context from the stack.
+     * @return 
+     */
+    public LayoutContext getPrevious() {
+        return previous;
+    }
 
-    /** Get the next layout context from the stack. */
-    public LayoutContext getNext() { return next; }
+    /**
+     * Get the next layout context from the stack.
+     * @return 
+     */
+    public LayoutContext getNext() {
+        return next;
+    }
 
-    /** Set the next layout context in the stack. */
-    public void setNext(LayoutContext next) { this.next = next; }
+    /**
+     * Set the next layout context in the stack.
+     * @param next
+     */
+    public void setNext(LayoutContext next) {
+        this.next = next;
+    }
 
-    /** Get the first context in the list. */
+    /**
+     * Get the first context in the list.
+     * @return 
+     */
     public LayoutContext getFirst() {
         for (LayoutContext c = this;; c = c.getPrevious()) {
-            if (c.getPrevious() == null)
+            if (c.getPrevious() == null) {
                 return c;
+            }
         }
     }
 
-    /** Get the last context in the list. */
+    /**
+     * Get the last context in the list.
+     * @return 
+     */
     public LayoutContext getLast() {
         for (LayoutContext c = this;; c = c.getNext()) {
-            if (c.getNext() == null)
+            if (c.getNext() == null) {
                 return c;
+            }
         }
     }
 
     /**
      * <p>
-     * Called when a layout tag needs to execute a page in order to execute another layout tag.
-     * Special handling is implemented to ensure the included page is aware of the current layout
-     * context while also ensuring that pages included by other means (e.g., {@code jsp:include} or
+     * Called when a layout tag needs to execute a page in order to execute
+     * another layout tag. Special handling is implemented to ensure the
+     * included page is aware of the current layout context while also ensuring
+     * that pages included by other means (e.g., {@code jsp:include} or
      * {@code c:import}) are <em>not</em> aware of the current layout context.
      * </p>
      * <p>
-     * This method calls {@link PageContext#include(String, boolean)} with {@code false} as the
-     * second parameter so that the response is not flushed before the include request executes.
+     * This method calls {@link PageContext#include(String, boolean)} with
+     * {@code false} as the second parameter so that the response is not flushed
+     * before the include request executes.
      * </p>
+     * @param pageContext
+     * @param relativeUrlPath
+     * @throws javax.servlet.ServletException
+     * @throws java.io.IOException
      */
     public void doInclude(PageContext pageContext, String relativeUrlPath) throws ServletException,
             IOException {
         try {
             pageContext.getRequest().setAttribute(LAYOUT_CONTEXT_KEY, this);
-            if (isIncludeBroken(pageContext))
+            if (isIncludeBroken(pageContext)) {
                 doIncludeHack(pageContext, relativeUrlPath);
-            else
+            } else {
                 pageContext.include(relativeUrlPath, false);
-        }
-        finally {
+            }
+        } finally {
             pageContext.getRequest().removeAttribute(LAYOUT_CONTEXT_KEY);
         }
     }
 
     /**
-     * Returns true if the current thread is executing in an application server that is known to
-     * have issues with doing normal includes using {@link PageContext#include(String, boolean)}.
+     * Returns true if the current thread is executing in an application server
+     * that is known to have issues with doing normal includes using
+     * {@link PageContext#include(String, boolean)}.
+     * @param pageContext
+     * @return 
      */
     protected boolean isIncludeBroken(PageContext pageContext) {
         Boolean b = (Boolean) pageContext.getServletContext().getAttribute(BROKEN_INCLUDE_KEY);
@@ -226,18 +265,23 @@ public class LayoutContext {
     }
 
     /**
-     * An alternative to {@link PageContext#include(String, boolean)} that works around broken
-     * include functionality in certain application servers, including several current and recent
-     * releases of WebLogic.
+     * An alternative to {@link PageContext#include(String, boolean)} that works
+     * around broken include functionality in certain application servers,
+     * including several current and recent releases of WebLogic.
+     * @param pageContext
+     * @param relativeUrlPath
+     * @throws javax.servlet.ServletException
+     * @throws java.io.IOException
      */
     protected void doIncludeHack(PageContext pageContext, String relativeUrlPath)
             throws ServletException, IOException {
 
         /**
-         * A servlet output stream implementation that decodes bytes to characters and writes the
-         * characters to an underlying writer.
+         * A servlet output stream implementation that decodes bytes to
+         * characters and writes the characters to an underlying writer.
          */
         class MyServletOutputStream extends ServletOutputStream {
+
             static final String DEFAULT_CHARSET = "UTF-8";
             static final int BUFFER_SIZE = 1024;
 
@@ -247,61 +291,75 @@ public class LayoutContext {
             ByteBuffer bbuf;
             CharBuffer cbuf;
 
-            /** Construct a new instance that sends output to the specified writer. */
+            /**
+             * Construct a new instance that sends output to the specified
+             * writer.
+             */
             MyServletOutputStream(Writer out) {
                 this.out = out;
             }
 
-            /** Get the character set to which bytes will be decoded. */
+            /**
+             * Get the character set to which bytes will be decoded.
+             */
             String getCharset() {
                 return charset;
             }
 
-            /** Set the character set to which bytes will be decoded. */
+            /**
+             * Set the character set to which bytes will be decoded.
+             */
             void setCharset(String charset) {
-                if (charset == null)
+                if (charset == null) {
                     charset = DEFAULT_CHARSET;
+                }
 
                 // Create a new decoder only if the charset has changed
-                if (!charset.equals(this.charset))
+                if (!charset.equals(this.charset)) {
                     decoder = null;
+                }
 
                 this.charset = charset;
             }
 
-            /** Initialize the character decoder, byte buffer and character buffer. */
+            /**
+             * Initialize the character decoder, byte buffer and character
+             * buffer.
+             */
             void initDecoder() {
                 if (decoder == null) {
                     decoder = Charset.forName(getCharset()).newDecoder();
 
-                    if (bbuf == null)
+                    if (bbuf == null) {
                         bbuf = ByteBuffer.allocate(BUFFER_SIZE);
+                    }
 
                     int size = (int) Math.ceil(BUFFER_SIZE * decoder.maxCharsPerByte());
-                    if (cbuf == null || cbuf.capacity() != size)
+                    if (cbuf == null || cbuf.capacity() != size) {
                         cbuf = CharBuffer.allocate(size);
+                    }
                 }
             }
 
             /**
-             * Clear the byte buffer. If the byte buffer has any data remaining to be read, then
-             * those bytes are shifted to the front of the buffer and the buffer's position is
-             * updated accordingly.
+             * Clear the byte buffer. If the byte buffer has any data remaining
+             * to be read, then those bytes are shifted to the front of the
+             * buffer and the buffer's position is updated accordingly.
              */
             void resetBuffer() {
                 if (bbuf.hasRemaining()) {
                     ByteBuffer slice = bbuf.slice();
                     bbuf.clear();
                     bbuf.put(slice);
-                }
-                else {
+                } else {
                     bbuf.clear();
                 }
             }
 
             /**
-             * Decode the contents of the byte buffer to the character buffer and then write the
-             * contents of the character buffer to the underlying writer.
+             * Decode the contents of the byte buffer to the character buffer
+             * and then write the contents of the character buffer to the
+             * underlying writer.
              */
             void decodeBuffer() throws IOException {
                 bbuf.flip();
@@ -335,8 +393,9 @@ public class LayoutContext {
 
                 for (int i = 0; i < len; i += bbuf.remaining()) {
                     int n = len - i;
-                    if (n > bbuf.remaining())
+                    if (n > bbuf.remaining()) {
                         n = bbuf.remaining();
+                    }
 
                     bbuf.put(buf, i, n);
                     decodeBuffer();
@@ -388,57 +447,129 @@ public class LayoutContext {
                 .include(pageContext.getRequest(), response);
     }
 
-    /** Get the render tag that created this context. */
-    public LayoutRenderTag getRenderTag() { return renderTag; }
+    /**
+     * Get the render tag that created this context.
+     * @return 
+     */
+    public LayoutRenderTag getRenderTag() {
+        return renderTag;
+    }
 
     /**
-     * Gets the Map of overridden components. Will return an empty Map if no components were
-     * overridden.
+     * Gets the Map of overridden components. Will return an empty Map if no
+     * components were overridden.
+     * @return 
      */
-    public Map<String,LayoutComponentRenderer> getComponents() { return components; }
-
-    /** Gets the Map of parameters.  Will return an empty Map if none were provided. */
-    public Map<String,Object> getParameters() { return parameters; }
-
-    /** Returns true if the layout has been rendered, false otherwise. */
-    public boolean isRendered() { return rendered; }
-
-    /** False initially, should be set to true when the layout is actually rendered. */
-    public void setRendered(final boolean rendered) { this.rendered = rendered; }
-
-    /** Get the path to the page that contains the {@link LayoutRenderTag} that created this context. */
-    public String getRenderPage() { return renderPage; }
-
-    /** Get the path to the page that contains the {@link LayoutDefinitionTag} referenced by the render tag. */
-    public String getDefinitionPage() { return getRenderTag().getName(); }
-
-    /** True if the intention of the current page execution is solely to render a component. */
-    public boolean isComponentRenderPhase() { return componentRenderPhase; }
-
-    /** Set the flag that indicates that the coming execution phase is solely to render a component. */ 
-    public void setComponentRenderPhase(boolean b) { this.componentRenderPhase = b; } 
-
-    /** Get the name of the component to be rendered during the current phase of execution. */
-    public String getComponent() { return component; }
-
-    /** Set the name of the component to be rendered during the current phase of execution. */
-    public void setComponent(String component) { this.component = component; }
+    public Map<String, LayoutComponentRenderer> getComponents() {
+        return components;
+    }
 
     /**
-     * Get the list of components in the render page that must execute so that the render tag that
-     * created this context can execute.
+     * Gets the Map of parameters. Will return an empty Map if none were
+     * provided.
+     * @return 
      */
-    public LayoutRenderTagPath getComponentPath() { return componentPath; }
+    public Map<String, Object> getParameters() {
+        return parameters;
+    }
 
-    /** Get the layout writer to which the layout is rendered. */
-    public LayoutWriter getOut() { return out; }
+    /**
+     * Returns true if the layout has been rendered, false otherwise.
+     * @return 
+     */
+    public boolean isRendered() {
+        return rendered;
+    }
 
-    /** To String implementation the parameters, and the component names. */
+    /**
+     * False initially, should be set to true when the layout is actually
+     * rendered.
+     * @param rendered
+     */
+    public void setRendered(final boolean rendered) {
+        this.rendered = rendered;
+    }
+
+    /**
+     * Get the path to the page that contains the {@link LayoutRenderTag} that
+     * created this context.
+     * @return 
+     */
+    public String getRenderPage() {
+        return renderPage;
+    }
+
+    /**
+     * Get the path to the page that contains the {@link LayoutDefinitionTag}
+     * referenced by the render tag.
+     * @return 
+     */
+    public String getDefinitionPage() {
+        return getRenderTag().getName();
+    }
+
+    /**
+     * True if the intention of the current page execution is solely to render a
+     * component.
+     * @return 
+     */
+    public boolean isComponentRenderPhase() {
+        return componentRenderPhase;
+    }
+
+    /**
+     * Set the flag that indicates that the coming execution phase is solely to
+     * render a component.
+     * @param b
+     */
+    public void setComponentRenderPhase(boolean b) {
+        this.componentRenderPhase = b;
+    }
+
+    /**
+     * Get the name of the component to be rendered during the current phase of
+     * execution.
+     * @return 
+     */
+    public String getComponent() {
+        return component;
+    }
+
+    /**
+     * Set the name of the component to be rendered during the current phase of
+     * execution.
+     * @param component
+     */
+    public void setComponent(String component) {
+        this.component = component;
+    }
+
+    /**
+     * Get the list of components in the render page that must execute so that
+     * the render tag that created this context can execute.
+     * @return 
+     */
+    public LayoutRenderTagPath getComponentPath() {
+        return componentPath;
+    }
+
+    /**
+     * Get the layout writer to which the layout is rendered.
+     * @return 
+     */
+    public LayoutWriter getOut() {
+        return out;
+    }
+
+    /**
+     * To String implementation the parameters, and the component names.
+     * @return 
+     */
     @Override
     public String toString() {
-        return "LayoutContext{" +
-                "component names=" + components.keySet() +
-                ", parameters=" + parameters +
-                '}';
+        return "LayoutContext{"
+                + "component names=" + components.keySet()
+                + ", parameters=" + parameters
+                + '}';
     }
 }

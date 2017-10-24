@@ -21,19 +21,25 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Documented;
 
 /**
- * <p>Annotation used for injecting Spring managed beans into objects within Stripes
- * (usually ActionBeans).  The value of the annotation  represents the name of the bean
- * in the Spring application context to inject. If the value is omitted then Stripes
- * will attempt to auto-wire first by property/field name and then by type.</p>
+ * <p>
+ * Annotation used for injecting Spring managed beans into objects within
+ * Stripes (usually ActionBeans). The value of the annotation represents the
+ * name of the bean in the Spring application context to inject. If the value is
+ * omitted then Stripes will attempt to auto-wire first by property/field name
+ * and then by type.</p>
  *
- * <p>Both methods and fields can be annotated.  If a field is annotated Stripes will use
- * field access to attempt to inject the bean into the field.  If a method is annotated Stripes
- * will attempt to invoke the method and supply it the value to inject.  In both cases
- * non-public fields/methods are supported (i.e. values can be injected into private fields
- * and through private methods).</p>
+ * <p>
+ * Both methods and fields can be annotated. If a field is annotated Stripes
+ * will use field access to attempt to inject the bean into the field. If a
+ * method is annotated Stripes will attempt to invoke the method and supply it
+ * the value to inject. In both cases non-public fields/methods are supported
+ * (i.e. values can be injected into private fields and through private
+ * methods).</p>
  *
- * <p>For a more details description of the injection process and how auto-wiring occurs
- * when explicit bean names are omitted see the {@link SpringHelper} class.</p>
+ * <p>
+ * For a more details description of the injection process and how auto-wiring
+ * occurs when explicit bean names are omitted see the {@link SpringHelper}
+ * class.</p>
  *
  * @author Dan Hayes
  */
@@ -41,5 +47,10 @@ import java.lang.annotation.Documented;
 @Target({ElementType.METHOD, ElementType.FIELD})
 @Documented
 public @interface SpringBean {
+
+    /**
+     *
+     * @return
+     */
     String value() default "";
 }

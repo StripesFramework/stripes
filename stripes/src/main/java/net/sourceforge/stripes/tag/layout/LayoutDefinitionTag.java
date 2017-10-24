@@ -23,14 +23,16 @@ import javax.servlet.jsp.PageContext;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
 
 /**
- * On the surface, allows a developer to define a layout using a custom tag - but is actually
- * the tag responsible for generating the output of the layout.  A layout can have zero or more
- * nested components, as well as regular text and other custom tags nested within it.
+ * On the surface, allows a developer to define a layout using a custom tag -
+ * but is actually the tag responsible for generating the output of the layout.
+ * A layout can have zero or more nested components, as well as regular text and
+ * other custom tags nested within it.
  *
  * @author Tim Fennell, Ben Gunter
  * @since Stripes 1.1
  */
 public class LayoutDefinitionTag extends LayoutTag {
+
     private LayoutContext context;
     private boolean renderPhase, silent;
 
@@ -38,7 +40,7 @@ public class LayoutDefinitionTag extends LayoutTag {
     public void setPageContext(PageContext pageContext) {
         // Call super method
         super.setPageContext(pageContext);
-        
+
         // Initialize layout context and related fields
         context = LayoutContext.lookup(pageContext);
 
@@ -54,11 +56,13 @@ public class LayoutDefinitionTag extends LayoutTag {
     }
 
     /**
-     * Looks up the layout context that has been setup by a {@link LayoutRenderTag}. Uses the
-     * context to push any dynamic attributes supplied to the render tag in to the page context
-     * available during the body of the {@link LayoutDefinitionTag}.
-     * 
+     * Looks up the layout context that has been setup by a
+     * {@link LayoutRenderTag}. Uses the context to push any dynamic attributes
+     * supplied to the render tag in to the page context available during the
+     * body of the {@link LayoutDefinitionTag}.
+     *
      * @return {@code EVAL_BODY_INCLUDE} in all cases.
+     * @throws javax.servlet.jsp.JspException
      */
     @Override
     public int doStartTag() throws JspException {
@@ -80,15 +84,17 @@ public class LayoutDefinitionTag extends LayoutTag {
             context.getOut().setSilent(renderPhase, pageContext);
 
             return EVAL_BODY_INCLUDE;
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new JspException(e);
         }
     }
 
     /**
-     * Causes page evaluation to end once the end of the layout definition is reached.
+     * Causes page evaluation to end once the end of the layout definition is
+     * reached.
+     *
      * @return SKIP_PAGE in all cases
+     * @throws javax.servlet.jsp.JspException
      */
     @Override
     public int doEndTag() throws JspException {
@@ -96,11 +102,9 @@ public class LayoutDefinitionTag extends LayoutTag {
             cleanUpComponentRenderers();
             context.getOut().setSilent(silent, pageContext);
             return SKIP_PAGE;
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new JspException(e);
-        }
-        finally {
+        } finally {
             this.context = null;
             this.renderPhase = false;
             this.silent = false;

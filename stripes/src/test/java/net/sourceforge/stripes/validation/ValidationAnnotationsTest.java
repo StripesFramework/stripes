@@ -25,24 +25,39 @@ import org.testng.annotations.Test;
  * @author Freddy Daoud
  */
 public class ValidationAnnotationsTest extends FilterEnabledTestBase implements ActionBean {
+
     private ActionBeanContext context;
-    public ActionBeanContext getContext() { return context; }
-    public void setContext(ActionBeanContext context) { this.context = context;}
 
-    @Validate(required=true, on="validateRequiredAndIgnored", ignore=true)
+    public ActionBeanContext getContext() {
+        return context;
+    }
+
+    public void setContext(ActionBeanContext context) {
+        this.context = context;
+    }
+
+    @Validate(required = true, on = "validateRequiredAndIgnored", ignore = true)
     private String first;
-    public String getFirst() { return first; }
-    public void setFirst(String first) { this.first = first; }
 
-    public Resolution validateRequiredAndIgnored() { return null; }
+    public String getFirst() {
+        return first;
+    }
+
+    public void setFirst(String first) {
+        this.first = first;
+    }
+
+    public Resolution validateRequiredAndIgnored() {
+        return null;
+    }
 
     /**
-     * Tests that a required field that is also ignored, should be ignored and should not produce
-     * a validation error.
+     * Tests that a required field that is also ignored, should be ignored and
+     * should not produce a validation error.
      *
      * @see http://www.stripesframework.org/jira/browse/STS-600
      */
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void testValidateRequiredAndIgnored() throws Exception {
         MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
         trip.execute("validateRequiredAndIgnored");
@@ -50,17 +65,19 @@ public class ValidationAnnotationsTest extends FilterEnabledTestBase implements 
         Assert.assertEquals(actionBean.getContext().getValidationErrors().size(), 0);
     }
 
-    @Validate(required=true, on="validatePublicField")
+    @Validate(required = true, on = "validatePublicField")
     public String publicField;
 
-    public Resolution validatePublicField() { return null; }
+    public Resolution validatePublicField() {
+        return null;
+    }
 
     /**
      * Tests that a validation annotation works on a public field.
      *
      * @see http://www.stripesframework.org/jira/browse/STS-604
      */
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void testValidatePublicField() throws Exception {
         MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
         trip.execute("validatePublicField");
@@ -69,22 +86,26 @@ public class ValidationAnnotationsTest extends FilterEnabledTestBase implements 
     }
 
     public Integer shouldBeDoubled;
-    @Validate(converter=IntegerTypeConverter.class) public Integer shouldNotBeDoubled;
+    @Validate(converter = IntegerTypeConverter.class)
+    public Integer shouldNotBeDoubled;
 
     public String shouldBeUpperCased;
-    @Validate(converter=StringTypeConverter.class) public String shouldNotBeUpperCased;
+    @Validate(converter = StringTypeConverter.class)
+    public String shouldNotBeUpperCased;
 
-    public Resolution validateTypeConverters() { return null; }
+    public Resolution validateTypeConverters() {
+        return null;
+    }
 
     /**
-     * Tests the use of an auto-loaded type converter versus a type converter explicitly configured
-     * via {@code @Validate(converter)}, where the auto-loaded type converter extends the stock
-     * type converter.
+     * Tests the use of an auto-loaded type converter versus a type converter
+     * explicitly configured via {@code @Validate(converter)}, where the
+     * auto-loaded type converter extends the stock type converter.
      *
      * @see http://www.stripesframework.org/jira/browse/STS-610
      */
-    @Test(groups="extensions")
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @Test(groups = "extensions")
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public void testValidateTypeConverterExtendsStock() throws Exception {
         MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
         Locale locale = trip.getRequest().getLocale();
@@ -98,22 +119,21 @@ public class ValidationAnnotationsTest extends FilterEnabledTestBase implements 
             ValidationAnnotationsTest actionBean = trip.getActionBean(getClass());
             Assert.assertEquals(actionBean.shouldBeDoubled, new Integer(84));
             Assert.assertEquals(actionBean.shouldNotBeDoubled, new Integer(42));
-        }
-        finally {
+        } finally {
             Class<? extends TypeConverter> tcType = tc == null ? null : tc.getClass();
             factory.add(Integer.class, (Class<? extends TypeConverter<?>>) tcType);
         }
     }
 
     /**
-     * Tests the use of an auto-loaded type converter versus a type converter explicitly configured
-     * via {@code @Validate(converter)}, where the auto-loaded type converter does not extend the
-     * stock type converter.
+     * Tests the use of an auto-loaded type converter versus a type converter
+     * explicitly configured via {@code @Validate(converter)}, where the
+     * auto-loaded type converter does not extend the stock type converter.
      *
      * @see http://www.stripesframework.org/jira/browse/STS-610
      */
     @SuppressWarnings("unchecked")
-    @Test(groups="extensions")
+    @Test(groups = "extensions")
     public void testValidateTypeConverterDoesNotExtendStock() throws Exception {
         TypeConverterFactory factory = StripesFilter.getConfiguration().getTypeConverterFactory();
         Class<? extends TypeConverter> oldtc = factory.getTypeConverter(//
@@ -127,23 +147,24 @@ public class ValidationAnnotationsTest extends FilterEnabledTestBase implements 
             ValidationAnnotationsTest actionBean = trip.getActionBean(getClass());
             Assert.assertEquals(actionBean.shouldBeUpperCased, "TEST");
             Assert.assertEquals(actionBean.shouldNotBeUpperCased, "test");
-        }
-        finally {
+        } finally {
             factory.add(String.class, (Class<? extends TypeConverter<?>>) oldtc);
         }
     }
 
-    @Validate(encrypted=true)
+    @Validate(encrypted = true)
     public String encryptedParam;
 
-    public Resolution validateEncrypted() { return null; }
+    public Resolution validateEncrypted() {
+        return null;
+    }
 
     /**
      * Tests that an empty string encrypted value is bound as null.
      *
      * @see http://www.stripesframework.org/jira/browse/STS-521
      */
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void testValidateEncryptedEmptyString() throws Exception {
         MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
         trip.addParameter("encryptedParam", CryptoUtil.encrypt(""));

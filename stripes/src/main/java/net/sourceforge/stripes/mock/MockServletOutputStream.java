@@ -20,34 +20,56 @@ import java.io.IOException;
 import java.io.ByteArrayOutputStream;
 
 /**
- * Mock implementation of a ServletOutputStream that just uses a byte array output stream to
- * capture any output and make it available after the test is done.
+ * Mock implementation of a ServletOutputStream that just uses a byte array
+ * output stream to capture any output and make it available after the test is
+ * done.
  *
  * @author Tim Fennell
  * @since Stripes 1.1
  */
 public class MockServletOutputStream extends ServletOutputStream {
+
     private ByteArrayOutputStream out = new ByteArrayOutputStream();
 
-    /** Pass through method calls ByteArrayOutputStream.write(int b). */
+    /**
+     * Pass through method calls ByteArrayOutputStream.write(int b).
+     * @throws java.io.IOException
+     */
     @Override
-    public void write(int b) throws IOException { out.write(b); }
+    public void write(int b) throws IOException {
+        out.write(b);
+    }
 
-    /** Returns the array of bytes that have been written to the output stream. */
+    /**
+     * Returns the array of bytes that have been written to the output stream.
+     * @return 
+     */
     public byte[] getBytes() {
         return out.toByteArray();
     }
 
-    /** Returns, as a character string, the output that was written to the output stream. */
+    /**
+     * Returns, as a character string, the output that was written to the output
+     * stream.
+     * @return 
+     */
     public String getString() {
         return out.toString();
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     public boolean isReady() {
         return true;
     }
 
+    /**
+     *
+     * @param writeListener
+     */
     @Override
     public void setWriteListener(WriteListener writeListener) {
 

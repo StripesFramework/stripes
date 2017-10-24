@@ -47,8 +47,8 @@ public class RestActionBeanTest extends FilterEnabledTestBase implements ActionB
     @Validate(on = "head", required = true)
     private String id;
 
-    @ValidateNestedProperties( {
-        @Validate( field = "id", required = true, on = "boundPersonEvent" )
+    @ValidateNestedProperties({
+        @Validate(field = "id", required = true, on = "boundPersonEvent")
     })
     @Validate(converter = PersonTypeConverter.class)
     private Person person;
@@ -203,58 +203,58 @@ public class RestActionBeanTest extends FilterEnabledTestBase implements ActionB
 
     @Test(groups = "fast")
     public void testJsonBindingFromRequestBody() throws Exception {
-        MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), "/test/1" );
+        MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), "/test/1");
         trip.getRequest().addHeader("Content-Type", "application/json");
         trip.getRequest().setMethod("POST");
         String json = "{ \"person\" : { \"firstName\":\"Jane\", \"lastName\":\"Johnson\", \"favoriteFoods\" : [\"Snickers\",\"Scotch\",\"Pizza\"], \"children\" : [{ \"firstName\": \"Jackie\"},{\"firstName\":\"Janie\"}]}}";
         trip.getRequest().setRequestBody(json);
         trip.execute("boundPersonEvent");
-        RestActionBeanTest bean = trip.getActionBean( getClass() );
-        Assert.assertEquals( bean.getPerson().getId(), "1" );
-        Assert.assertEquals( bean.getPerson().getFirstName(), "Jane" );
-        Assert.assertEquals( bean.getPerson().getLastName(), "Johnson" );
-        Assert.assertEquals( bean.getPerson().getChildren().size(), 2);
-        List< String > favoriteFoods = new ArrayList< String >();
-        favoriteFoods.add( "Snickers" );
-        favoriteFoods.add( "Scotch" );
-        favoriteFoods.add( "Pizza" );
-        Assert.assertEquals( bean.getPerson().getFavoriteFoods(), favoriteFoods );
+        RestActionBeanTest bean = trip.getActionBean(getClass());
+        Assert.assertEquals(bean.getPerson().getId(), "1");
+        Assert.assertEquals(bean.getPerson().getFirstName(), "Jane");
+        Assert.assertEquals(bean.getPerson().getLastName(), "Johnson");
+        Assert.assertEquals(bean.getPerson().getChildren().size(), 2);
+        List< String> favoriteFoods = new ArrayList< String>();
+        favoriteFoods.add("Snickers");
+        favoriteFoods.add("Scotch");
+        favoriteFoods.add("Pizza");
+        Assert.assertEquals(bean.getPerson().getFavoriteFoods(), favoriteFoods);
 
         logTripResponse(trip);
     }
 
     @Test(groups = "fast")
     public void testThereIsNoJsonBindingWithoutRequestBody() throws Exception {
-        MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), "/test/1" );
+        MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), "/test/1");
         trip.getRequest().addHeader("Content-Type", "application/json");
         trip.getRequest().setMethod("POST");
         String emptyBody = "";
         trip.getRequest().setRequestBody(emptyBody);
         trip.execute("boundPersonEvent");
-        RestActionBeanTest bean = trip.getActionBean( getClass() );
-        Assert.assertEquals( bean.getPerson().getId(), "1" );
-        Assert.assertEquals( bean.getPerson().getFirstName(), "John" );
-        Assert.assertEquals( bean.getPerson().getLastName(), "Doe" );
-        Assert.assertEquals( bean.getPerson().getChildren().size(), 0);
-        Assert.assertEquals( bean.getPerson().getFavoriteFoods().size(), 0 );
+        RestActionBeanTest bean = trip.getActionBean(getClass());
+        Assert.assertEquals(bean.getPerson().getId(), "1");
+        Assert.assertEquals(bean.getPerson().getFirstName(), "John");
+        Assert.assertEquals(bean.getPerson().getLastName(), "Doe");
+        Assert.assertEquals(bean.getPerson().getChildren().size(), 0);
+        Assert.assertEquals(bean.getPerson().getFavoriteFoods().size(), 0);
 
         logTripResponse(trip);
     }
 
     @Test(groups = "fast")
     /**
-     * This tests to make sure that a JSON request that is bound to an event
-     * has its validation handled properly.  In this case, the person.id is
-     * a required field and is not bound.
+     * This tests to make sure that a JSON request that is bound to an event has
+     * its validation handled properly. In this case, the person.id is a
+     * required field and is not bound.
      */
     public void testJsonBindingFromRequestBodyWithValidationError() throws Exception {
-        MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), "/test" );
+        MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), "/test");
         trip.getRequest().addHeader("Content-Type", "application/json");
         trip.getRequest().setMethod("POST");
         String json = "{ \"person\" : { \"firstName\":\"Jane\", \"lastName\":\"Johnson\", \"favoriteFoods\" : [\"Snickers\",\"Scotch\",\"Pizza\"], \"children\" : [{ \"firstName\": \"Jackie\"},{\"firstName\":\"Janie\"}]}}";
         trip.getRequest().setRequestBody(json);
         trip.execute("boundPersonEvent");
-        Assert.assertTrue( trip.getValidationErrors().hasFieldErrors() );
+        Assert.assertTrue(trip.getValidationErrors().hasFieldErrors());
 
         logTripResponse(trip);
     }
@@ -273,15 +273,15 @@ public class RestActionBeanTest extends FilterEnabledTestBase implements ActionB
         List< String> favoriteFoods = new ArrayList< String>();
         List< Person> children = new ArrayList<Person>();
 
-        public void setChildren( List< Person > children ) {
+        public void setChildren(List< Person> children) {
             this.children = children;
         }
 
-        public List< Person > getChildren() {
+        public List< Person> getChildren() {
             return this.children;
         }
 
-        public void setId( String id ) {
+        public void setId(String id) {
             this.id = id;
         }
 

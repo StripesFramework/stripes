@@ -37,7 +37,7 @@ import java.util.Locale;
  * <p>
  * At runtime this might get replaced out to result in a message for the user
  * that looks like &quot;Welcome back <em>Johnnie</em>, your last login was on
- *  <em>01/01/2006</em>&quot;.</p>
+ * <em>01/01/2006</em>&quot;.</p>
  *
  * <p>
  * {@link java.text.MessageFormat} is used to merge the parameters in to the
@@ -68,7 +68,7 @@ public class SimpleMessage implements Message {
      *
      * @param message the String message to display to the user, optionally with
      * placeholders for replacement parameters
-     * @param parameters
+     * @param parameters Any string replacement parameters
      */
     public SimpleMessage(String message, Object... parameters) {
         this.replacementParameters = parameters;
@@ -89,8 +89,8 @@ public class SimpleMessage implements Message {
     /**
      * Uses the String message passed in as the message template and combines it
      * with any replacement parameters provided to construct a message for
-     * display to the user. Although SimpleMessage does not localize its
-     * message string, any formatters invoked as a result of using replacement
+     * display to the user. Although SimpleMessage does not localize its message
+     * string, any formatters invoked as a result of using replacement
      * parameters will be in the correct locale.
      *
      * @param locale the locale of the current request
@@ -133,7 +133,7 @@ public class SimpleMessage implements Message {
 
     /**
      * Allows subclasses to access the replacement parameters for this message.
-     * 
+     *
      * @return Array of replacement parameters for this message
      */
     public Object[] getReplacementParameters() {

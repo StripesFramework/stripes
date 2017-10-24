@@ -24,40 +24,47 @@ import java.util.Enumeration;
 import net.sourceforge.stripes.controller.ContentTypeRequestWrapper;
 
 /**
- * Interface which must be implemented by classes which provide the ability to parse
- * the POST content when it is of type multipart/form-data. Provides a single, pluggable
- * wrapper interface around third party libraries which provide this capability.
+ * Interface which must be implemented by classes which provide the ability to
+ * parse the POST content when it is of type multipart/form-data. Provides a
+ * single, pluggable wrapper interface around third party libraries which
+ * provide this capability.
  *
  * @author Tim Fennell
  * @since Stripes 1.4
  */
 public interface MultipartWrapper extends ContentTypeRequestWrapper {
+
     /**
-     * Pseudo-constructor that allows the class to perform any initialization necessary.
+     * Pseudo-constructor that allows the class to perform any initialization
+     * necessary.
      *
-     * @param request an HttpServletRequest that has a content-type of multipart.
-     * @param tempDir a File representing the temporary directory that can be used to store
-     *        file parts as they are uploaded if this is desirable
-     * @param maxPostSize the size in bytes beyond which the request should not be read,
-     *        and a FileUploadLimitExceeded exception should be thrown
-     * @throws IOException if a problem occurs processing the request of storing temporary files
-     * @throws FileUploadLimitExceededException if the POST content is longer than the maxPostSize
-     *         supplied.
+     * @param request an HttpServletRequest that has a content-type of
+     * multipart.
+     * @param tempDir a File representing the temporary directory that can be
+     * used to store file parts as they are uploaded if this is desirable
+     * @param maxPostSize the size in bytes beyond which the request should not
+     * be read, and a FileUploadLimitExceeded exception should be thrown
+     * @throws IOException if a problem occurs processing the request of storing
+     * temporary files
+     * @throws FileUploadLimitExceededException if the POST content is longer
+     * than the maxPostSize supplied.
      */
     void build(HttpServletRequest request, File tempDir, long maxPostSize)
             throws IOException, FileUploadLimitExceededException;
 
     /**
-     * Fetches the names of all file parameters in the request. Note that these are not the
-     * file names, but the names given to the form fields in which the files are specified.
+     * Fetches the names of all file parameters in the request. Note that these
+     * are not the file names, but the names given to the form fields in which
+     * the files are specified.
      *
      * @return the names of all file parameters in the request.
      */
     Enumeration<String> getFileParameterNames();
 
     /**
-     * Responsible for constructing a FileBean object for the named file parameter. If there is
-     * no file parameter with the specified name this method should return null.
+     * Responsible for constructing a FileBean object for the named file
+     * parameter. If there is no file parameter with the specified name this
+     * method should return null.
      *
      * @param name the name of the file parameter
      * @return a FileBean object wrapping the uploaded file

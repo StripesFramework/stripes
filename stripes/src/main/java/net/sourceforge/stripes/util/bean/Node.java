@@ -15,22 +15,29 @@
 package net.sourceforge.stripes.util.bean;
 
 /**
- * Represents a single node in a {@link PropertyExpression}. Note that Nodes are static
- * and are tied to an expression, <b>not</b> an expression evaluation. Each node stores
- * the original String value of the node as well as a typed value which can also be a String
- * or one of the built in types such as Integer, Long, Boolean.
+ * Represents a single node in a {@link PropertyExpression}. Note that Nodes are
+ * static and are tied to an expression, <b>not</b> an expression evaluation.
+ * Each node stores the original String value of the node as well as a typed
+ * value which can also be a String or one of the built in types such as
+ * Integer, Long, Boolean.
  *
  * @author Tim Fennell
  * @since Stripes 1.4
  */
 public class Node {
+
     private String stringValue;
     private Object typedValue;
     private boolean bracketed;
     private Node next;
     private Node previous;
 
-    /** Constructs a new node with the String value and typed value provided. */
+    /**
+     * Constructs a new node with the String value and typed value provided.
+     * @param value
+     * @param typedValue
+     * @param bracketed
+     */
     public Node(String value, Object typedValue, boolean bracketed) {
         this.stringValue = value;
         this.typedValue = typedValue;
@@ -38,9 +45,11 @@ public class Node {
     }
 
     /**
-     * Returns the Java type of this node in the expression.  Specifically this is the
-     * type determined for the text in this node, not the type of the property/sub-property
-     * represented by this node in an evaluation against a specific bean.
+     * Returns the Java type of this node in the expression. Specifically this
+     * is the type determined for the text in this node, not the type of the
+     * property/sub-property represented by this node in an evaluation against a
+     * specific bean.
+     * @return 
      */
     public Class<? extends Object> getExpresssionNodeType() {
         return typedValue.getClass();
@@ -48,33 +57,72 @@ public class Node {
 
     /**
      * Returns the original String value of this expression node.
+     *
      * @return the original String value
      */
-    public String getStringValue() { return stringValue; }
+    public String getStringValue() {
+        return stringValue;
+    }
 
     /**
-     * Returns the typed value for this node as determined when parsing the expression
+     * Returns the typed value for this node as determined when parsing the
+     * expression
+     *
      * @return the typed value (may also be a String)
      */
-    public Object getTypedValue() { return typedValue; }
+    public Object getTypedValue() {
+        return typedValue;
+    }
 
-    /** True if the expression that generated this node was inside square brackets. */
-    public boolean isBracketed() { return bracketed; }
+    /**
+     * True if the expression that generated this node was inside square
+     * brackets.
+     * @return 
+     */
+    public boolean isBracketed() {
+        return bracketed;
+    }
 
-    /** Gets the next node in the expression. Returns null if this is the terminal node. */
-    public Node getNext() { return next; }
+    /**
+     * Gets the next node in the expression. Returns null if this is the
+     * terminal node.
+     * @return 
+     */
+    public Node getNext() {
+        return next;
+    }
 
-    /** Sets the next node in the expression. */
-    protected void setNext(Node next) { this.next = next; }
+    /**
+     * Sets the next node in the expression.
+     * @param next
+     */
+    protected void setNext(Node next) {
+        this.next = next;
+    }
 
-    /** Gets the previous node in the expression. Returns null if this is the first node. */
-    public Node getPrevious() { return previous; }
+    /**
+     * Gets the previous node in the expression. Returns null if this is the
+     * first node.
+     * @return 
+     */
+    public Node getPrevious() {
+        return previous;
+    }
 
-    /** Sets the previous node in the expression. */
-    protected void setPrevious(Node previous) { this.previous = previous; }
+    /**
+     * Sets the previous node in the expression.
+     * @param previous
+     */
+    protected void setPrevious(Node previous) {
+        this.previous = previous;
+    }
 
-
-    /** Simple toString that returns the text that constructed this node. */
+    /**
+     * Simple toString that returns the text that constructed this node.
+     * @return 
+     */
     @Override
-    public String toString() { return stringValue; }
+    public String toString() {
+        return stringValue;
+    }
 }

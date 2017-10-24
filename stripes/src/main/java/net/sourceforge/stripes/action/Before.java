@@ -75,8 +75,9 @@ public @interface Before {
 
     /**
      * One or more lifecycle stages before which the method should be called.
-     * 
-     * @return One or more lifecycle stages before which the method should be called.
+     *
+     * @return One or more lifecycle stages before which the method should be
+     * called.
      */
     LifecycleStage[] stages() default LifecycleStage.EventHandling;
 
@@ -85,7 +86,7 @@ public @interface Before {
      * method will be executed on all events. Can be used to specify one or more
      * events to apply the method to (e.g. on={"save", "update"}), or to specify
      * one or more events <i>not</i> to apply the method to (e.g. on="!delete").
-     * 
+     *
      * @return the list of event names before which the method should be called.
      */
     String[] on() default {};

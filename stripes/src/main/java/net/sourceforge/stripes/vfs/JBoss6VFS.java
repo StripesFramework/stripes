@@ -25,14 +25,18 @@ import net.sourceforge.stripes.util.Log;
 
 /**
  * A {@link VFS} implementation that works with the VFS API provided by JBoss 6.
- * 
+ *
  * @author Ben Gunter
  */
 public class JBoss6VFS extends net.sourceforge.stripes.vfs.VFS {
+
     private static final Log log = Log.getInstance(JBoss6VFS.class);
 
-    /** A class that mimics a tiny subset of the JBoss VirtualFile class. */
+    /**
+     * A class that mimics a tiny subset of the JBoss VirtualFile class.
+     */
     static class VirtualFile {
+
         static Class<?> VirtualFile;
         static Method getPathNameRelativeTo, getChildrenRecursively;
 
@@ -45,8 +49,7 @@ public class JBoss6VFS extends net.sourceforge.stripes.vfs.VFS {
         String getPathNameRelativeTo(VirtualFile parent) {
             try {
                 return invoke(getPathNameRelativeTo, virtualFile, parent.virtualFile);
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 // This exception is not thrown by the called method
                 log.error("This should not be possible. VirtualFile.getPathNameRelativeTo() threw IOException.");
                 return null;
@@ -63,8 +66,11 @@ public class JBoss6VFS extends net.sourceforge.stripes.vfs.VFS {
         }
     }
 
-    /** A class that mimics a tiny subset of the JBoss VFS class. */
+    /**
+     * A class that mimics a tiny subset of the JBoss VFS class.
+     */
     static class VFS {
+
         static Class<?> VFS;
         static Method getChild;
 
@@ -74,10 +80,15 @@ public class JBoss6VFS extends net.sourceforge.stripes.vfs.VFS {
         }
     }
 
-    /** Flag that indicates if this VFS is valid for the current environment. */
+    /**
+     * Flag that indicates if this VFS is valid for the current environment.
+     */
     private static Boolean valid;
 
-    /** Find all the classes and methods that are required to access the JBoss 6 VFS. */
+    /**
+     * Find all the classes and methods that are required to access the JBoss 6
+     * VFS.
+     */
     protected static synchronized void initialize() {
         if (valid == null) {
             // Assume valid. It will get flipped later if something goes wrong.
@@ -102,23 +113,28 @@ public class JBoss6VFS extends net.sourceforge.stripes.vfs.VFS {
     }
 
     /**
-     * Verifies that the provided object reference is null. If it is null, then this VFS is marked
-     * as invalid for the current environment.
-     * 
+     * Verifies that the provided object reference is null. If it is null, then
+     * this VFS is marked as invalid for the current environment.
+     *
+     * @param <T>
      * @param object The object reference to check for null.
+     * @return 
      */
     protected static <T> T checkNotNull(T object) {
-        if (object == null)
+        if (object == null) {
             setInvalid();
+        }
         return object;
     }
 
     /**
-     * Verifies that the return type of a method is what it is expected to be. If it is not, then
-     * this VFS is marked as invalid for the current environment.
-     * 
+     * Verifies that the return type of a method is what it is expected to be.
+     * If it is not, then this VFS is marked as invalid for the current
+     * environment.
+     *
      * @param method The method whose return type is to be checked.
-     * @param expected A type to which the method's return type must be assignable.
+     * @param expected A type to which the method's return type must be
+     * assignable.
      * @see Class#isAssignableFrom(Class)
      */
     protected static void checkReturnType(Method method, Class<?> expected) {
@@ -130,7 +146,9 @@ public class JBoss6VFS extends net.sourceforge.stripes.vfs.VFS {
         }
     }
 
-    /** Mark this {@link VFS} as invalid for the current environment. */
+    /**
+     * Mark this {@link VFS} as invalid for the current environment.
+     */
     protected static void setInvalid() {
         if (JBoss6VFS.valid != null && JBoss6VFS.valid) {
             log.debug("JBoss 6 VFS API is not available in this environment.");
@@ -151,11 +169,13 @@ public class JBoss6VFS extends net.sourceforge.stripes.vfs.VFS {
     public List<String> list(URL url, String path) throws IOException {
         VirtualFile directory;
         directory = VFS.getChild(url);
-        if (directory == null)
+        if (directory == null) {
             return Collections.emptyList();
+        }
 
-        if (!path.endsWith("/"))
+        if (!path.endsWith("/")) {
             path += "/";
+        }
 
         List<VirtualFile> children = directory.getChildren();
         List<String> names = new ArrayList<String>(children.size());

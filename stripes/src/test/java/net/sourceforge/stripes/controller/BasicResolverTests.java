@@ -21,22 +21,35 @@ import org.testng.annotations.Test;
 import org.testng.Assert;
 
 /**
- * Tests that make sure the basic functions of the ActionResolver work as expected.
+ * Tests that make sure the basic functions of the ActionResolver work as
+ * expected.
  *
  * @author Tim Fennell
  */
 @UrlBinding("/BasicResolverTests.action")
 public class BasicResolverTests extends FilterEnabledTestBase implements ActionBean {
+
     private ActionBeanContext context;
     private int number;
 
-    public ActionBeanContext getContext() { return context; }
-    public void setContext(ActionBeanContext context) { this.context = context; }
+    public ActionBeanContext getContext() {
+        return context;
+    }
 
-    public int getNumber() { return number; }
-    public void setNumber(int number) { this.number = number; }
+    public void setContext(ActionBeanContext context) {
+        this.context = context;
+    }
 
-    @DefaultHandler @HandlesEvent("one")
+    public int getNumber() {
+        return number;
+    }
+
+    public void setNumber(int number) {
+        this.number = number;
+    }
+
+    @DefaultHandler
+    @HandlesEvent("one")
     public Resolution one() {
         this.number = 1;
         return null;
@@ -53,63 +66,63 @@ public class BasicResolverTests extends FilterEnabledTestBase implements ActionB
     }
 
     // Start of Test Methods
-
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void testDefaultResolution() throws Exception {
         MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
         trip.execute();
 
-        BasicResolverTests bean = trip.getActionBean( getClass() );
+        BasicResolverTests bean = trip.getActionBean(getClass());
         Assert.assertEquals(bean.getNumber(), 1);
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void testNonDefaultResolution() throws Exception {
         MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
         trip.execute("two");
 
-        BasicResolverTests bean = trip.getActionBean( getClass() );
+        BasicResolverTests bean = trip.getActionBean(getClass());
         Assert.assertEquals(bean.getNumber(), 2);
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void testImageStyleResolution() throws Exception {
         MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
         trip.execute("two.x");
 
-        BasicResolverTests bean = trip.getActionBean( getClass() );
+        BasicResolverTests bean = trip.getActionBean(getClass());
         Assert.assertEquals(bean.getNumber(), 2);
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void testImageStyleResolution2() throws Exception {
         MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
         trip.addParameter("two.x", "381");
         trip.execute();
 
-        BasicResolverTests bean = trip.getActionBean( getClass() );
+        BasicResolverTests bean = trip.getActionBean(getClass());
         Assert.assertEquals(bean.getNumber(), 2);
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void testEventNameParameterResolution() throws Exception {
         MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
         trip.addParameter(StripesConstants.URL_KEY_EVENT_NAME, "two");
         trip.execute();
 
-        BasicResolverTests bean = trip.getActionBean( getClass() );
+        BasicResolverTests bean = trip.getActionBean(getClass());
         Assert.assertEquals(bean.getNumber(), 2);
         Assert.assertEquals(bean.getContext().getEventName(), "two");
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void testOverrideHandlerMethodReturnsSubtype() throws SecurityException, NoSuchMethodException {
         NameBasedActionResolver resolver = new NameBasedActionResolver();
         Map<String, Method> classMappings = new HashMap<String, Method>();
-        resolver.processMethods(ExtendedBaseAction.class, classMappings);        
+        resolver.processMethods(ExtendedBaseAction.class, classMappings);
     }
-    
+
     public static class ExtendedBaseAction extends BasicResolverTests {
+
         @Override
         public ForwardResolution process() {
             return null;

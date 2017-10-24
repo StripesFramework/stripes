@@ -14,18 +14,19 @@ import java.beans.PropertyDescriptor;
  * @author Tim Fennell
  */
 public class ReflectUtilTest {
-    @Test(groups="fast")
+
+    @Test(groups = "fast")
     public void testAccessibleMethodBaseCase() throws Exception {
         Method m = Object.class.getMethod("getClass");
         Method m2 = ReflectUtil.findAccessibleMethod(m);
         Assert.assertSame(m, m2);
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void testAccessibleMethodWithMapEntry() throws Exception {
-        Map<String,String> map = new HashMap<String,String>();
+        Map<String, String> map = new HashMap<String, String>();
         map.put("foo", "bar");
-        Map.Entry<String,String> entry = map.entrySet().iterator().next();
+        Map.Entry<String, String> entry = map.entrySet().iterator().next();
         PropertyDescriptor pd = ReflectUtil.getPropertyDescriptor(entry.getClass(), "value");
         Method m = pd.getReadMethod();
         m = ReflectUtil.findAccessibleMethod(m);
@@ -36,10 +37,12 @@ public class ReflectUtilTest {
     @Test(groups = "fast")
     public void testCovariantProperty() {
         abstract class Base {
+
             abstract Object getId();
         }
 
         class ROSub extends Base {
+
             protected String id;
 
             @Override
@@ -49,6 +52,7 @@ public class ReflectUtilTest {
         }
 
         class RWSub extends ROSub {
+
             @SuppressWarnings("unused")
             public void setId(String id) {
                 this.id = id;

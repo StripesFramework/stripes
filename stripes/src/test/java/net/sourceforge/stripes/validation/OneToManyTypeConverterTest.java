@@ -23,18 +23,21 @@ import java.text.SimpleDateFormat;
 import java.util.Locale;
 
 /**
- * Unit tests that ensure that the OneToManyTypeConverter works in the context of the
- * regular binding and type conversion process.
+ * Unit tests that ensure that the OneToManyTypeConverter works in the context
+ * of the regular binding and type conversion process.
  *
  * @author Tim Fennell
  */
 @UrlBinding("/test/OneToMany.action")
 public class OneToManyTypeConverterTest extends FilterEnabledTestBase implements ActionBean {
-    private ActionBeanContext context;
-    @Validate(converter=OneToManyTypeConverter.class) private List<Long> numbers;
-    @Validate(converter=OneToManyTypeConverter.class) private List<Date> dates;
 
-    @Test(groups="fast")
+    private ActionBeanContext context;
+    @Validate(converter = OneToManyTypeConverter.class)
+    private List<Long> numbers;
+    @Validate(converter = OneToManyTypeConverter.class)
+    private List<Date> dates;
+
+    @Test(groups = "fast")
     public void testListOfLong() throws Exception {
         MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
         trip.addParameter("numbers", "123 456 789");
@@ -44,7 +47,7 @@ public class OneToManyTypeConverterTest extends FilterEnabledTestBase implements
         Assert.assertEquals(numbers, Literal.list(123l, 456l, 789l));
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void testListOfDate() throws Exception {
         MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
         trip.getRequest().addLocale(Locale.ENGLISH);
@@ -55,12 +58,12 @@ public class OneToManyTypeConverterTest extends FilterEnabledTestBase implements
 
         DateFormat format = new SimpleDateFormat("MM/dd/yyyy");
         Assert.assertEquals(dates, Literal.list(format.parse("12/31/2005"),
-                                                format.parse("1/1/2006"),
-                                                format.parse("6/15/2008"),
-                                                format.parse("7/7/2007")));
+                format.parse("1/1/2006"),
+                format.parse("6/15/2008"),
+                format.parse("7/7/2007")));
     }
-    
-    @Test(groups="fast")
+
+    @Test(groups = "fast")
     public void testListOfDateWithCommasAndNoSpaces() throws Exception {
         MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
         trip.getRequest().addLocale(Locale.ENGLISH);
@@ -71,12 +74,12 @@ public class OneToManyTypeConverterTest extends FilterEnabledTestBase implements
 
         DateFormat format = new SimpleDateFormat("MM/dd/yyyy");
         Assert.assertEquals(dates, Literal.list(format.parse("12/31/2005"),
-                                                format.parse("1/1/2006"),
-                                                format.parse("6/15/2008"),
-                                                format.parse("7/7/2007")));
+                format.parse("1/1/2006"),
+                format.parse("6/15/2008"),
+                format.parse("7/7/2007")));
     }
-    
-    @Test(groups="fast")
+
+    @Test(groups = "fast")
     public void testListOfLongWithCommasAndNoSpaces() throws Exception {
         MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
         trip.addParameter("numbers", "123,456,789");
@@ -86,7 +89,7 @@ public class OneToManyTypeConverterTest extends FilterEnabledTestBase implements
         Assert.assertEquals(numbers, Literal.list(123l, 456l, 789l));
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void testListOfLongWithCommasAndSpaces() throws Exception {
         MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
         trip.addParameter("numbers", "123, 456,789 999");
@@ -96,7 +99,7 @@ public class OneToManyTypeConverterTest extends FilterEnabledTestBase implements
         Assert.assertEquals(numbers, Literal.list(123l, 456l, 789l, 999l));
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void testWithErrors() throws Exception {
         MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
         trip.addParameter("numbers", "123 456 abc 789 def");
@@ -112,15 +115,32 @@ public class OneToManyTypeConverterTest extends FilterEnabledTestBase implements
 
     // Dummy action method
     @DefaultHandler
-    public Resolution doNothing() { return null; }
+    public Resolution doNothing() {
+        return null;
+    }
 
     // Getter/setter methods belows
-    public ActionBeanContext getContext() { return context; }
-    public void setContext(ActionBeanContext context) { this.context = context; }
+    public ActionBeanContext getContext() {
+        return context;
+    }
 
-    public List<Long> getNumbers() { return numbers; }
-    public void setNumbers(List<Long> numbers) { this.numbers = numbers; }
+    public void setContext(ActionBeanContext context) {
+        this.context = context;
+    }
 
-    public List<Date> getDates() { return dates; }
-    public void setDates(List<Date> dates) { this.dates = dates; }
+    public List<Long> getNumbers() {
+        return numbers;
+    }
+
+    public void setNumbers(List<Long> numbers) {
+        this.numbers = numbers;
+    }
+
+    public List<Date> getDates() {
+        return dates;
+    }
+
+    public void setDates(List<Date> dates) {
+        this.dates = dates;
+    }
 }

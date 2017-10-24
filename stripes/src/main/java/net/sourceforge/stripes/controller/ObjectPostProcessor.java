@@ -15,33 +15,38 @@
 package net.sourceforge.stripes.controller;
 
 /**
- * Allows for post-processing of objects created by {@link DefaultObjectFactory}. To register a
- * post-processor with the {@link ObjectFactory}, you must pass it to $$$. Implementations of this
+ * Allows for post-processing of objects created by
+ * {@link DefaultObjectFactory}. To register a post-processor with the
+ * {@link ObjectFactory}, you must pass it to $$$. Implementations of this
  * interface must be thread-safe, as instances will be reused.
- * 
+ *
  * @author Ben Gunter
+ * @param <T> Generic instance type of this post processor
  */
 public interface ObjectPostProcessor<T> {
+
     /**
      * <p>
-     * Accept a reference to a {@link DefaultObjectFactory} instance that is using this
-     * post-processor. This method is called by the object factory when the post-processor is passed
-     * to {@link DefaultObjectFactory#addPostProcessor(ObjectPostProcessor)}.
+     * Accept a reference to a {@link DefaultObjectFactory} instance that is
+     * using this post-processor. This method is called by the object factory
+     * when the post-processor is passed to
+     * {@link DefaultObjectFactory#addPostProcessor(ObjectPostProcessor)}.
      * </p>
      * <p>
-     * In normal usage, this method will never be called more than once. However, implementations
-     * should guard against multiple calls if that would cause a problem.
+     * In normal usage, this method will never be called more than once.
+     * However, implementations should guard against multiple calls if that
+     * would cause a problem.
      * </p>
-     * 
+     *
      * @param factory The object factory that is now using this post-processor.
      */
     void setObjectFactory(DefaultObjectFactory factory);
 
     /**
-     * Do whatever post-processing is necessary on the object and return it. It is not absolutely
-     * required that this method return exactly the same object that was passed to it, but it is
-     * strongly recommended.
-     * 
+     * Do whatever post-processing is necessary on the object and return it. It
+     * is not absolutely required that this method return exactly the same
+     * object that was passed to it, but it is strongly recommended.
+     *
      * @param object The object to be processed.
      * @return The object that was passed in.
      */

@@ -24,24 +24,32 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * Implements an ActionBeanContextFactory that allows for instantiation of application specific
- * ActionBeanContext classes. Looks for a configuration parameters called "ActionBeanContext.Class".
- * If the property is present, the named class with be instantiated and returned from the
- * getContextInstance() method.  If no class is named, then the default class, ActionBeanContext
- * will be instantiated.
+ * Implements an ActionBeanContextFactory that allows for instantiation of
+ * application specific ActionBeanContext classes. Looks for a configuration
+ * parameters called "ActionBeanContext.Class". If the property is present, the
+ * named class with be instantiated and returned from the getContextInstance()
+ * method. If no class is named, then the default class, ActionBeanContext will
+ * be instantiated.
  *
  * @author Tim Fennell
  */
 public class DefaultActionBeanContextFactory implements ActionBeanContextFactory {
+
     private static final Log log = Log.getInstance(DefaultActionBeanContextFactory.class);
 
-    /** The name of the configuration property used for the context class name. */
+    /**
+     * The name of the configuration property used for the context class name.
+     */
     public static final String CONTEXT_CLASS_NAME = "ActionBeanContext.Class";
 
     private Configuration configuration;
     private Class<? extends ActionBeanContext> contextClass;
 
-    /** Stores the configuration, and looks up the ActionBeanContext class specified. */
+    /**
+     * Stores the configuration, and looks up the ActionBeanContext class
+     * specified.
+     * @throws java.lang.Exception If an error occurs initializing this action bean context
+     */
     public void init(Configuration configuration) throws Exception {
         setConfiguration(configuration);
 
@@ -49,8 +57,7 @@ public class DefaultActionBeanContextFactory implements ActionBeanContextFactory
                 .getClassProperty(CONTEXT_CLASS_NAME, ActionBeanContext.class);
         if (clazz == null) {
             clazz = ActionBeanContext.class;
-        }
-        else {
+        } else {
             log.info(DefaultActionBeanContextFactory.class.getSimpleName(), " will use ",
                     ActionBeanContext.class.getSimpleName(), " subclass ", clazz.getName());
         }
@@ -58,31 +65,38 @@ public class DefaultActionBeanContextFactory implements ActionBeanContextFactory
     }
 
     /**
-     * Returns a new instance of the configured class, or ActionBeanContext if a class is
-     * not specified.
+     * Returns a new instance of the configured class, or ActionBeanContext if a
+     * class is not specified.
      */
     public ActionBeanContext getContextInstance(HttpServletRequest request,
-                                                HttpServletResponse response) throws ServletException {
+            HttpServletResponse response) throws ServletException {
         try {
             ActionBeanContext context = getConfiguration().getObjectFactory().newInstance(
                     this.contextClass);
             context.setRequest(request);
             context.setResponse(response);
             return context;
-        }
-        catch (Exception e) {
-            throw new StripesServletException("Could not instantiate configured " +
-            "ActionBeanContext class: " + this.contextClass, e);
+        } catch (Exception e) {
+            throw new StripesServletException("Could not instantiate configured "
+                    + "ActionBeanContext class: " + this.contextClass, e);
         }
     }
 
-	protected Configuration getConfiguration()
-	{
-		return configuration;
-	}
+    /**
+     * The configuration object associated with this action bean context factory.
+     * 
+     * @return The configuration object associated with this action bean context factory.
+     */
+    protected Configuration getConfiguration() {
+        return configuration;
+    }
 
-	protected void setConfiguration(Configuration configuration)
-	{
-		this.configuration = configuration;
-	}
+    /**
+     * Sets the configuration object for this action bean context factory.
+     * 
+     * @param configuration - Configuration object
+     */
+    protected void setConfiguration(Configuration configuration) {
+        this.configuration = configuration;
+    }
 }

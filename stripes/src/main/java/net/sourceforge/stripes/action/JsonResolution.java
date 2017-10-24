@@ -37,13 +37,16 @@ public class JsonResolution implements Resolution {
      * @param propertiesToExclude - Properties to exclude from marshaling
      */
     public JsonResolution(Object objectToSerialize, String... propertiesToExclude) {
-        builder = new JsonBuilder( objectToSerialize, propertiesToExclude );
+        builder = new JsonBuilder(objectToSerialize, propertiesToExclude);
     }
 
     /**
      * Converts the object passed in to JSON and streams it back to the client.
-     * @throws java.lang.Exception
+     *
+     * @throws java.lang.Exception If anything occurs while sending back the
+     * JSON response.
      */
+    @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
         response.setContentType("application/json");
         builder.build(response.getWriter());

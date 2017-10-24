@@ -17,7 +17,9 @@ import java.util.Map;
  */
 public class InvalidDateKeyBreaksInvariant_STS_651 extends FilterEnabledTestBase {
 
-    /** Helper method to create a roundtrip with the TestActionBean class. */
+    /**
+     * Helper method to create a roundtrip with the TestActionBean class.
+     */
     protected MockRoundtrip getRoundtrip() {
         return new MockRoundtrip(getMockServletContext(), MapBindingTests.class);
     }
@@ -38,8 +40,7 @@ public class InvalidDateKeyBreaksInvariant_STS_651 extends FilterEnabledTestBase
                 Date dateValue = mapDateDate.get(dateKey);
                 Assert.assertNotNull(dateValue);
             }
-        }
-        catch (ClassCastException e) {
+        } catch (ClassCastException e) {
             Assert.fail("bad ! Map<Date,Date> contains a <String,?> entry, the map's invariant has been violated", e);
         }
     }
