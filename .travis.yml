@@ -10,4 +10,6 @@ notifications:
     on_success: always
     on_failure: always
 
-script: mvn clean install javadoc:aggregate
+install: true
+script: 
+  - mvn clean install javadoc:aggregate
