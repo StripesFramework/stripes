@@ -2,5 +2,12 @@ language: java
 
 jdk:
   - openjdk8
+  
+notifications:
+  irc:
+    channels:
+      - "chat.freenode.net#stripes"
+    on_success: always
+    on_failure: always
 
 script: mvn clean install javadoc:aggregate
