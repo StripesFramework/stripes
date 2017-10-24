@@ -7,4 +7,3 @@ target
 *.iml
 .idea
 webtests/tomcat6x
-docs
