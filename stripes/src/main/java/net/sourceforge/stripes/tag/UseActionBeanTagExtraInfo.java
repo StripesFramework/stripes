@@ -22,23 +22,28 @@ import java.util.Collection;
 import java.util.ArrayList;
 
 /**
- * Validates that the mutually exclusive attribute pairs of the tag are provided correctly
- * and attempts to provide type information to the container for the bean assigned
- * to the variable named by the {@code var} or {@code id} attribute. The latter can only be done
- * when the {@code beanclass} attribute is used instead of the {@code binding} attribute
- * because runtime information is needed to translate {@code binding} into a class name.
+ * Validates that the mutually exclusive attribute pairs of the tag are provided
+ * correctly and attempts to provide type information to the container for the
+ * bean assigned to the variable named by the {@code var} or {@code id}
+ * attribute. The latter can only be done when the {@code beanclass} attribute
+ * is used instead of the {@code binding} attribute because runtime information
+ * is needed to translate {@code binding} into a class name.
  *
  * @author tfenne
  * @since Stripes 1.5
  */
 public class UseActionBeanTagExtraInfo extends TagExtraInfo {
+
     private static final VariableInfo[] NO_INFO = new VariableInfo[0];
 
     /**
      * Attempts to return type information so that the container can create a
      * named variable for the action bean.
+     * @param tag
+     * @return 
      */
-    @Override public VariableInfo[] getVariableInfo(final TagData tag) {
+    @Override
+    public VariableInfo[] getVariableInfo(final TagData tag) {
         // We can only provide the type of 'var' if beanclass was used because
         // if binding was used we need runtime information!
         Object beanclass = tag.getAttribute("beanclass");
@@ -46,16 +51,20 @@ public class UseActionBeanTagExtraInfo extends TagExtraInfo {
         // Turns out beanclass="${...}" does NOT return TagData.REQUEST_TIME_VALUE; only beanclass="<%= ... %>".
         if (beanclass != null && !beanclass.equals(TagData.REQUEST_TIME_VALUE)) {
             String var = tag.getAttributeString("var");
-            if (var == null) var = tag.getAttributeString("id");
+            if (var == null) {
+                var = tag.getAttributeString("id");
+            }
 
             // Make sure we have the class name, not the class
-            if (beanclass instanceof Class<?>) beanclass = ((Class<?>) beanclass).getName();
+            if (beanclass instanceof Class<?>) {
+                beanclass = ((Class<?>) beanclass).getName();
+            }
 
             // Return the variable info
             if (beanclass instanceof String) {
                 String string = (String) beanclass;
                 if (!string.startsWith("${")) {
-                    return new VariableInfo[] { new VariableInfo(var, string, true, VariableInfo.AT_BEGIN) };
+                    return new VariableInfo[]{new VariableInfo(var, string, true, VariableInfo.AT_BEGIN)};
                 }
             }
         }
@@ -63,20 +72,23 @@ public class UseActionBeanTagExtraInfo extends TagExtraInfo {
     }
 
     /**
-     * Checks to ensure that where the tag supports providing one of two attributes
-     * that one and only one is provided.
+     * Checks to ensure that where the tag supports providing one of two
+     * attributes that one and only one is provided.
+     * @param tag
+     * @return 
      */
-    @Override public ValidationMessage[] validate(final TagData tag) {
+    @Override
+    public ValidationMessage[] validate(final TagData tag) {
         Collection<ValidationMessage> errors = new ArrayList<ValidationMessage>();
 
         Object beanclass = tag.getAttribute("beanclass");
-        Object binding   = tag.getAttribute("binding");
+        Object binding = tag.getAttribute("binding");
         if (!(beanclass != null ^ binding != null)) {
             errors.add(new ValidationMessage(tag.getId(), "Exactly one of 'beanclass' or 'binding' must be supplied."));
         }
 
         String var = tag.getAttributeString("var");
-        String id  = tag.getAttributeString("id");
+        String id = tag.getAttributeString("id");
         if (!(var != null ^ id != null)) {
             errors.add(new ValidationMessage(tag.getId(), "Exactly one of 'var' or 'id' must be supplied."));
         }

@@ -43,61 +43,88 @@ import java.util.Random;
 import java.util.Stack;
 
 /**
- * Parent class for all input tags in stripes.  Provides support methods for retrieving all the
- * attributes that are shared across form input tags.  Also provides accessors for finding the
- * specified &quot;override&quot; value and for finding the enclosing support tag.
+ * Parent class for all input tags in stripes. Provides support methods for
+ * retrieving all the attributes that are shared across form input tags. Also
+ * provides accessors for finding the specified &quot;override&quot; value and
+ * for finding the enclosing support tag.
  *
  * @author Tim Fennell
  */
 public abstract class InputTagSupport extends HtmlTagSupport implements TryCatchFinally {
+
     private String formatType;
     private String formatPattern;
     private boolean focus;
     private boolean syntheticId;
 
-    /** A list of the errors related to this input tag instance */
+    /**
+     * A list of the errors related to this input tag instance
+     */
     protected List<ValidationError> fieldErrors;
     private boolean fieldErrorsLoaded = false; // used to track if fieldErrors is loaded yet
 
-    /** The error renderer to be utilized for error output of this input tag */
+    /**
+     * The error renderer to be utilized for error output of this input tag
+     */
     protected TagErrorRenderer errorRenderer;
 
-    /** Sets the type of output to format, e.g. date or time. */
-    public void setFormatType(String formatType) { this.formatType = formatType; }
-
-    /** Returns the value set with setFormatAs() */
-    public String getFormatType() { return this.formatType; }
-
-    /** Sets the named format pattern, or a custom format pattern. */
-    public void setFormatPattern(String formatPattern) { this.formatPattern = formatPattern; }
-
-    /** Returns the value set with setFormatPattern() */
-    public String getFormatPattern() { return this.formatPattern; }
-
+    /**
+     * Sets the type of output to format, e.g. date or time.
+     * @param formatType
+     */
+    public void setFormatType(String formatType) {
+        this.formatType = formatType;
+    }
 
     /**
-     * Gets the value for this tag based on the current population strategy.  The value returned
-     * could be a scalar value, or it could be an array or collection depending on what the
-     * population strategy finds.  For example, if the user submitted multiple values for a
-     * checkbox, the default population strategy would return a String[] containing all submitted
+     * Returns the value set with setFormatAs()
+     * @return 
+     */
+    public String getFormatType() {
+        return this.formatType;
+    }
+
+    /**
+     * Sets the named format pattern, or a custom format pattern.
+     * @param formatPattern
+     */
+    public void setFormatPattern(String formatPattern) {
+        this.formatPattern = formatPattern;
+    }
+
+    /**
+     * Returns the value set with setFormatPattern()
+     * @return 
+     */
+    public String getFormatPattern() {
+        return this.formatPattern;
+    }
+
+    /**
+     * Gets the value for this tag based on the current population strategy. The
+     * value returned could be a scalar value, or it could be an array or
+     * collection depending on what the population strategy finds. For example,
+     * if the user submitted multiple values for a checkbox, the default
+     * population strategy would return a String[] containing all submitted
      * values.
      *
      * @return Object either a value/values for this tag or null
-     * @throws StripesJspException if the enclosing form tag (which is required at all times, and
-     *         necessary to perform repopulation) cannot be located
+     * @throws StripesJspException if the enclosing form tag (which is required
+     * at all times, and necessary to perform repopulation) cannot be located
      */
     protected Object getOverrideValueOrValues() throws StripesJspException {
         return StripesFilter.getConfiguration().getPopulationStrategy().getValue(this);
     }
 
     /**
-     * Returns a single value for the the value of this field.  This can be used to ensure that
-     * only a single value is returned by the population strategy, which is useful in the case
-     * of text inputs etc. which can have only a single value.
+     * Returns a single value for the the value of this field. This can be used
+     * to ensure that only a single value is returned by the population
+     * strategy, which is useful in the case of text inputs etc. which can have
+     * only a single value.
      *
      * @return Object either a single value or null
-     * @throws StripesJspException if the enclosing form tag (which is required at all times, and
-     *         necessary to perform repopulation) cannot be located
+     * @throws StripesJspException if the enclosing form tag (which is required
+     * at all times, and necessary to perform repopulation) cannot be located
      */
     protected Object getSingleOverrideValue() throws StripesJspException {
         Object unknown = getOverrideValueOrValues();
@@ -107,14 +134,12 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
             if (Array.getLength(unknown) > 0) {
                 returnValue = Array.get(unknown, 0);
             }
-        }
-        else if (unknown != null && unknown instanceof Collection<?>) {
+        } else if (unknown != null && unknown instanceof Collection<?>) {
             Collection<?> collection = (Collection<?>) unknown;
             if (collection.size() > 0) {
                 returnValue = collection.iterator().next();
             }
-        }
-        else {
+        } else {
             returnValue = unknown;
         }
 
@@ -122,9 +147,9 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
     }
 
     /**
-     * Used during repopulation to query the tag for a value of values provided to the tag
-     * on the JSP.  This allows the PopulationStrategy to encapsulate all decisions about
-     * which source to use when repopulating tags.
+     * Used during repopulation to query the tag for a value of values provided
+     * to the tag on the JSP. This allows the PopulationStrategy to encapsulate
+     * all decisions about which source to use when repopulating tags.
      *
      * @return May return any of String[], Collection or Object
      */
@@ -135,8 +160,7 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
             try {
                 Method getValue = getClass().getMethod("getValue");
                 value = getValue.invoke(this);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 // Not a lot we can do about this.  It's either because the subclass in question
                 // doesn't have a getValue() method (which is ok), or it threw an exception.
             }
@@ -146,8 +170,10 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
     }
 
     /**
-     * <p>Locates the enclosing stripes form tag. If no form tag can be found, because the tag
-     * was not enclosed in one on the JSP, an exception is thrown.</p>
+     * <p>
+     * Locates the enclosing stripes form tag. If no form tag can be found,
+     * because the tag was not enclosed in one on the JSP, an exception is
+     * thrown.</p>
      *
      * @return FormTag the enclosing form tag on the JSP
      * @throws StripesJspException if an enclosing form tag cannot be found
@@ -169,26 +195,26 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
         }
 
         if (parent == null) {
-            throw new StripesJspException
-                ("InputTag of type [" + getClass().getName() + "] must be enclosed inside a " +
-                 "stripes form tag. If, for some reason, you do not wish to render a complete " +
-                 "form you may surround stripes input tags with <s:form partial=\"true\" ...> " +
-                 "which will provide support to the input tags but not render the <form> tag.");
+            throw new StripesJspException("InputTag of type [" + getClass().getName() + "] must be enclosed inside a "
+                    + "stripes form tag. If, for some reason, you do not wish to render a complete "
+                    + "form you may surround stripes input tags with <s:form partial=\"true\" ...> "
+                    + "which will provide support to the input tags but not render the <form> tag.");
         }
 
         return parent;
     }
 
     /**
-     * Utility method for determining if a String value is contained within an Object, where the
-     * object may be either a String, String[], Object, Object[] or Collection.  Used primarily
-     * by the InputCheckBoxTag and InputSelectTag to determine if specific check boxes or
-     * options should be selected based on the values contained in the JSP, HttpServletRequest and
+     * Utility method for determining if a String value is contained within an
+     * Object, where the object may be either a String, String[], Object,
+     * Object[] or Collection. Used primarily by the InputCheckBoxTag and
+     * InputSelectTag to determine if specific check boxes or options should be
+     * selected based on the values contained in the JSP, HttpServletRequest and
      * the ActionBean.
      *
      * @param value the value that we are searching for
-     * @param selected a String, String[], Object, Object[] or Collection (of scalars) denoting the
-     *        selected items
+     * @param selected a String, String[], Object, Object[] or Collection (of
+     * scalars) denoting the selected items
      * @return boolean true if the String can be found, false otherwise
      */
     protected boolean isItemSelected(Object value, Object selected) {
@@ -199,23 +225,21 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
 
             if (selected.getClass().isArray()) {
                 int length = Array.getLength(selected);
-                for (int i=0; i<length; ++i) {
+                for (int i = 0; i < length; ++i) {
                     Object item = Array.get(selected, i);
-                    if ( (format(item, false).equals(stringValue)) ) {
+                    if ((format(item, false).equals(stringValue))) {
                         return true;
                     }
                 }
-            }
-            else if (selected instanceof Collection<?>) {
+            } else if (selected instanceof Collection<?>) {
                 Collection<?> selectedIf = (Collection<?>) selected;
                 for (Object item : selectedIf) {
-                    if ( (format(item, false).equals(stringValue)) ) {
+                    if ((format(item, false).equals(stringValue))) {
                         return true;
                     }
                 }
-            }
-            else {
-                if( format(selected, false).equals(stringValue) ) {
+            } else {
+                if (format(selected, false).equals(stringValue)) {
                     return true;
                 }
             }
@@ -226,12 +250,15 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
     }
 
     /**
-     * Fetches the localized name for this field if one exists in the resource bundle. Relies on
-     * there being a "name" attribute on the tag, and the pageContext being set on the tag. First
-     * checks for a value of {actionBean FQN}.{fieldName} in the specified bundle, then
-     * {actionPath}.{fieldName} then just "fieldName".
+     * Fetches the localized name for this field if one exists in the resource
+     * bundle. Relies on there being a "name" attribute on the tag, and the
+     * pageContext being set on the tag. First checks for a value of {actionBean
+     * FQN}.{fieldName} in the specified bundle, then {actionPath}.{fieldName}
+     * then just "fieldName".
      *
-     * @return a localized field name if one can be found, or null if one cannot be found.
+     * @return a localized field name if one can be found, or null if one cannot
+     * be found.
+     * @throws net.sourceforge.stripes.exception.StripesJspException
      */
     public String getLocalizedFieldName() throws StripesJspException {
         String name = getAttributes().get("name");
@@ -239,8 +266,9 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
     }
 
     /**
-     * Attempts to fetch a "field name" resource from the localization bundle. Delegates
-     * to {@link LocalizationUtility#getLocalizedFieldName(String, String, Class, java.util.Locale)}
+     * Attempts to fetch a "field name" resource from the localization bundle.
+     * Delegates to
+     * {@link LocalizationUtility#getLocalizedFieldName(String, String, Class, java.util.Locale)}
      *
      * @param name the field name or resource to look up
      * @return the localized String corresponding to the name provided
@@ -250,8 +278,11 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
         Locale locale = getPageContext().getRequest().getLocale();
         FormTag form = null;
 
-        try { form = getParentFormTag(); }
-        catch (StripesJspException sje) { /* Do nothing. */}
+        try {
+            form = getParentFormTag();
+        } catch (StripesJspException sje) {
+            /* Do nothing. */
+        }
 
         String actionPath = null;
         Class<? extends ActionBean> beanClass = null;
@@ -259,8 +290,7 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
         if (form != null) {
             actionPath = form.getAction();
             beanClass = form.getActionBeanClass();
-        }
-        else {
+        } else {
             ActionBean mainBean = (ActionBean) getPageContext().getRequest().getAttribute(StripesConstants.REQ_ATTR_ACTION_BEAN);
             if (mainBean != null) {
                 beanClass = mainBean.getClass();
@@ -268,7 +298,12 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
         }
         return LocalizationUtility.getLocalizedFieldName(name, actionPath, beanClass, locale);
     }
-    
+
+    /**
+     *
+     * @return
+     * @throws StripesJspException
+     */
     protected ValidationMetadata getValidationMetadata() throws StripesJspException {
         // find the action bean class we're dealing with
         Class<? extends ActionBean> beanClass = getParentFormTag().getActionBeanClass();
@@ -287,16 +322,17 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
             // check validation for encryption flag
             return StripesFilter.getConfiguration().getValidationMetadataProvider()
                     .getValidationMetadata(beanClass, new ParameterName(name));
-        }
-        else {
+        } else {
             return null;
         }
     }
 
     /**
-     * Calls {@link #format(Object, boolean)} with {@code forOutput} set to true.
-     * 
+     * Calls {@link #format(Object, boolean)} with {@code forOutput} set to
+     * true.
+     *
      * @param input The object to be formatted
+     * @return 
      * @see #format(Object, boolean)
      */
     protected String format(Object input) {
@@ -304,14 +340,17 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
     }
 
     /**
-     * Attempts to format an object using the Stripes formatting system.  If no formatter can
-     * be found, then a simple String.valueOf(input) will be returned.  If the value passed in
-     * is null, then the empty string will be returned.
-     * 
+     * Attempts to format an object using the Stripes formatting system. If no
+     * formatter can be found, then a simple String.valueOf(input) will be
+     * returned. If the value passed in is null, then the empty string will be
+     * returned.
+     *
      * @param input The object to be formatted
-     * @param forOutput If true, then the object will be formatted for output to the JSP. Currently,
-     *            that means that if encryption is enabled for the ActionBean property with the same
-     *            name as this tag then the formatted value will be encrypted before it is returned.
+     * @param forOutput If true, then the object will be formatted for output to
+     * the JSP. Currently, that means that if encryption is enabled for the
+     * ActionBean property with the same name as this tag then the formatted
+     * value will be encrypted before it is returned.
+     * @return 
      */
     @SuppressWarnings("unchecked")
     protected String format(Object input, boolean forOutput) {
@@ -322,19 +361,19 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
         // format the value
         FormatterFactory factory = StripesFilter.getConfiguration().getFormatterFactory();
         Formatter formatter = factory.getFormatter(input.getClass(),
-                                                   getPageContext().getRequest().getLocale(),
-                                                   this.formatType,
-                                                   this.formatPattern);
+                getPageContext().getRequest().getLocale(),
+                this.formatType,
+                this.formatPattern);
         String formatted = (formatter == null) ? String.valueOf(input) : formatter.format(input);
 
         // encrypt the formatted value if required
         if (forOutput && formatted != null) {
             try {
                 ValidationMetadata validate = getValidationMetadata();
-                if (validate != null && validate.encrypted())
+                if (validate != null && validate.encrypted()) {
                     formatted = CryptoUtil.encrypt(formatted);
-            }
-            catch (JspException e) {
+                }
+            } catch (JspException e) {
                 throw new StripesRuntimeException(e);
             }
         }
@@ -343,8 +382,9 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
     }
 
     /**
-     * Find errors that are related to the form field this input tag represents and place
-     * them in an instance variable to use during error rendering.
+     * Find errors that are related to the form field this input tag represents
+     * and place them in an instance variable to use during error rendering.
+     * @throws net.sourceforge.stripes.exception.StripesJspException
      */
     protected void loadErrors() throws StripesJspException {
         ActionBean actionBean = getActionBean();
@@ -358,8 +398,12 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
     }
 
     /**
-     * Access for the field errors that occurred on the form input this tag represents
-     * @return List<ValidationError> the list of validation errors for this field
+     * Access for the field errors that occurred on the form input this tag
+     * represents
+     *
+     * @return list of validation errors for this field
+     * @throws net.sourceforge.stripes.exception.StripesJspException If an error
+     * occurs retrieving field errors for this tag.
      */
     public List<ValidationError> getFieldErrors() throws StripesJspException {
         if (!fieldErrorsLoaded) {
@@ -371,8 +415,10 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
     }
 
     /**
-     * Returns true if one or more validation errors exist for the field represented by
-     * this input tag.
+     * Returns true if one or more validation errors exist for the field
+     * represented by this input tag.
+     * @return 
+     * @throws net.sourceforge.stripes.exception.StripesJspException
      */
     public boolean hasErrors() throws StripesJspException {
         List<ValidationError> errors = getFieldErrors();
@@ -380,25 +426,28 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
     }
 
     /**
-     * Fetches the ActionBean associated with the form if one is present.  An ActionBean will not
-     * be created (and hence not present) by default.  An ActionBean will only be present if the
-     * current request got bound to the same ActionBean as the current form uses.  E.g. if we are
-     * re-showing the page as the result of an error, or the same ActionBean is used for a
+     * Fetches the ActionBean associated with the form if one is present. An
+     * ActionBean will not be created (and hence not present) by default. An
+     * ActionBean will only be present if the current request got bound to the
+     * same ActionBean as the current form uses. E.g. if we are re-showing the
+     * page as the result of an error, or the same ActionBean is used for a
      * &quot;pre-Action&quot; and the &quot;post-action&quot;.
      *
      * @return ActionBean the ActionBean bound to the form if there is one
+     * @throws net.sourceforge.stripes.exception.StripesJspException
      */
     public ActionBean getActionBean() throws StripesJspException {
         return getParentFormTag().getActionBean();
     }
 
     /**
-     * Final implementation of the doStartTag() method that allows the base InputTagSupport class
-     * to insert functionality before and after the tag performs its doStartTag equivalent
-     * method. Finds errors related to this field and intercepts with a {@link TagErrorRenderer}
-     * if appropriate.
+     * Final implementation of the doStartTag() method that allows the base
+     * InputTagSupport class to insert functionality before and after the tag
+     * performs its doStartTag equivalent method. Finds errors related to this
+     * field and intercepts with a {@link TagErrorRenderer} if appropriate.
      *
      * @return int the value returned by the child class from doStartInputTag()
+     * @throws javax.servlet.jsp.JspException
      */
     @Override
     public final int doStartTag() throws JspException {
@@ -416,22 +465,29 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
     }
 
     /**
-     * Registers the field with the parent form within which it must be enclosed.
+     * Registers the field with the parent form within which it must be
+     * enclosed.
+     *
      * @throws StripesJspException if the parent form tag is not found
      */
     protected void registerWithParentForm() throws StripesJspException {
         getParentFormTag().registerField(this);
     }
 
-    /** Abstract method implemented in child classes instead of doStartTag(). */
+    /**
+     * Abstract method implemented in child classes instead of doStartTag().
+     * @return 
+     * @throws javax.servlet.jsp.JspException
+     */
     public abstract int doStartInputTag() throws JspException;
 
     /**
-     * Final implementation of the doEndTag() method that allows the base InputTagSupport class
-     * to insert functionality before and after the tag performs its doEndTag equivalent
-     * method.
+     * Final implementation of the doEndTag() method that allows the base
+     * InputTagSupport class to insert functionality before and after the tag
+     * performs its doEndTag equivalent method.
      *
      * @return int the value returned by the child class from doStartInputTag()
+     * @throws javax.servlet.jsp.JspException
      */
     @Override
     public final int doEndTag() throws JspException {
@@ -450,46 +506,57 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
             }
 
             return result;
-        }
-        finally {
+        } finally {
             this.errorRenderer = null;
             this.fieldErrors = null;
             this.fieldErrorsLoaded = false;
             this.focus = false;
         }
     }
-    
-    /** Rethrows the passed in throwable in all cases. */
-    public void doCatch(Throwable throwable) throws Throwable { throw throwable; }
 
     /**
-     * Used to ensure that the input tag is always removed from the tag stack so that there is
-     * never any confusion about tag-parent hierarchies.
+     * Rethrows the passed in throwable in all cases.
+     * @param throwable
+     * @throws java.lang.Throwable
+     */
+    public void doCatch(Throwable throwable) throws Throwable {
+        throw throwable;
+    }
+
+    /**
+     * Used to ensure that the input tag is always removed from the tag stack so
+     * that there is never any confusion about tag-parent hierarchies.
      */
     public void doFinally() {
-        try { getTagStack().pop(); }
-        catch (Throwable t) {
+        try {
+            getTagStack().pop();
+        } catch (Throwable t) {
             /* Suppress anything, because otherwise this might mask any causal exception. */
         }
     }
 
     /**
-     * Informs the tag that it should render JavaScript to ensure that it is focused
-     * when the page is loaded. If the tag does not have an 'id' attribute a random
-     * one will be created and set so that the tag can be located easily.
+     * Informs the tag that it should render JavaScript to ensure that it is
+     * focused when the page is loaded. If the tag does not have an 'id'
+     * attribute a random one will be created and set so that the tag can be
+     * located easily.
      *
      * @param focus true if focus is desired, false otherwise
      */
     public void setFocus(boolean focus) {
         this.focus = focus;
 
-        if ( getId() == null ) {
+        if (getId() == null) {
             this.syntheticId = true;
             setId("stripes-" + new Random().nextInt());
         }
     }
 
-    /** Writes out a JavaScript string to set focus on the field as it is rendered. */
+    /**
+     * Writes out a JavaScript string to set focus on the field as it is
+     * rendered.
+     * @throws javax.servlet.jsp.JspException
+     */
     protected void makeFocused() throws JspException {
         try {
             JspWriter out = getPageContext().getOut();
@@ -503,23 +570,28 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
 
             // Clean up tag state involved with focus
             this.focus = false;
-            if (this.syntheticId) getAttributes().remove("id");
+            if (this.syntheticId) {
+                getAttributes().remove("id");
+            }
             this.syntheticId = false;
-        }
-        catch (IOException ioe) {
+        } catch (IOException ioe) {
             throw new StripesJspException("Could not write javascript focus code to jsp writer.", ioe);
         }
     }
 
-    /** Abstract method implemented in child classes instead of doEndTag(). */
+    /**
+     * Abstract method implemented in child classes instead of doEndTag().
+     * @return 
+     * @throws javax.servlet.jsp.JspException 
+     */
     public abstract int doEndInputTag() throws JspException;
 
     // Getters and setters only below this point.
-
     /**
-     * Checks to see if the value provided is either 'disabled' or a value that the
-     * {@link BooleanTypeConverter} believes it true. If so, adds a disabled attribute
-     * to the tag, otherwise does not.
+     * Checks to see if the value provided is either 'disabled' or a value that
+     * the {@link BooleanTypeConverter} believes it true. If so, adds a disabled
+     * attribute to the tag, otherwise does not.
+     * @param disabled
      */
     public void setDisabled(String disabled) {
         boolean isDisabled = "disabled".equalsIgnoreCase(disabled);
@@ -530,20 +602,30 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
 
         if (isDisabled) {
             set("disabled", "disabled");
-        }
-        else {
+        } else {
             getAttributes().remove("disabled");
         }
     }
-    public String getDisabled() { return get("disabled"); }
 
     /**
-     * <p>Sets the value of the readonly attribute to "readonly" but only when the value passed
-     * in is either "readonly" itself, or is converted to true by the
-     * {@link net.sourceforge.stripes.validation.BooleanTypeConverter}.</p>
      *
-     * <p>Although not all input tags support the readonly attribute, the method is located here
-     * because it is not a simple one-liner and is used by more than one tag.</p>
+     * @return
+     */
+    public String getDisabled() {
+        return get("disabled");
+    }
+
+    /**
+     * <p>
+     * Sets the value of the readonly attribute to "readonly" but only when the
+     * value passed in is either "readonly" itself, or is converted to true by
+     * the {@link net.sourceforge.stripes.validation.BooleanTypeConverter}.</p>
+     *
+     * <p>
+     * Although not all input tags support the readonly attribute, the method is
+     * located here because it is not a simple one-liner and is used by more
+     * than one tag.</p>
+     * @param readonly
      */
     public void setReadonly(String readonly) {
         boolean isReadOnly = "readonly".equalsIgnoreCase(readonly);
@@ -554,20 +636,49 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
 
         if (isReadOnly) {
             set("readonly", "readonly");
-        }
-        else {
+        } else {
             getAttributes().remove("readonly");
         }
     }
 
-    /** Gets the HTML attribute of the same name. */
-    public String getReadonly() { return get("readonly"); }
+    /**
+     * Gets the HTML attribute of the same name.
+     * @return 
+     */
+    public String getReadonly() {
+        return get("readonly");
+    }
 
-    public void setName(String name) { set("name", name); }
-    public String getName() { return get("name"); }
+    /**
+     *
+     * @param name
+     */
+    public void setName(String name) {
+        set("name", name);
+    }
 
-    public void setSize(String size) { set("size", size); }
-    public String getSize() { return get("size"); }
+    /**
+     *
+     * @return
+     */
+    public String getName() {
+        return get("name");
+    }
 
+    /**
+     *
+     * @param size
+     */
+    public void setSize(String size) {
+        set("size", size);
+    }
+
+    /**
+     *
+     * @return
+     */
+    public String getSize() {
+        return get("size");
+    }
 
 }

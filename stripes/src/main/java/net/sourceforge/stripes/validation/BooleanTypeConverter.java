@@ -19,24 +19,27 @@ import java.util.HashSet;
 import java.util.Locale;
 
 /**
- * Performs a fairly aggressive conversion of a String to a boolean. The String will be deemed to be
- * equivalent to true if it meets any of the following conditions:
+ * Performs a fairly aggressive conversion of a String to a boolean. The String
+ * will be deemed to be equivalent to true if it meets any of the following
+ * conditions:
  *
  * <ul>
- *   <li>Equals, ignoring case, true</li>
- *   <li>Equals, ignoring case, t</li>
- *   <li>Equals, ignoring case, yes</li>
- *   <li>Equals, ignoring case, y</li>
- *   <li>Equals, ignoring case, on</li>
- *   <li>Is parseable as a number and yields a number greater than zero</li>
+ * <li>Equals, ignoring case, true</li>
+ * <li>Equals, ignoring case, t</li>
+ * <li>Equals, ignoring case, yes</li>
+ * <li>Equals, ignoring case, y</li>
+ * <li>Equals, ignoring case, on</li>
+ * <li>Is parseable as a number and yields a number greater than zero</li>
  * </ul>
  *
- * If none of the above conditions are met, the return value is false.  This type converter does
- * not produce any validation errors - it always returns either true or false.
+ * If none of the above conditions are met, the return value is false. This type
+ * converter does not produce any validation errors - it always returns either
+ * true or false.
  *
  * @author Tim Fennell
  */
 public class BooleanTypeConverter implements TypeConverter<Boolean> {
+
     private static final Collection<String> truths = new HashSet<String>();
 
     static {
@@ -48,20 +51,20 @@ public class BooleanTypeConverter implements TypeConverter<Boolean> {
     }
 
     /**
-     * Does nothing currently due to the fact that there is no localization support for
-     * Booleans in Java.
+     * Does nothing currently due to the fact that there is no localization
+     * support for Booleans in Java.
      */
     public void setLocale(Locale locale) {
         // Do nothing
     }
 
     /**
-     * Converts a String to a Boolean in accordance with the specification laid out in the
-     * class level javadoc.
+     * Converts a String to a Boolean in accordance with the specification laid
+     * out in the class level javadoc.
      */
     public Boolean convert(String input,
-                           Class<? extends Boolean> targetType,
-                           Collection<ValidationError> errors) {
+            Class<? extends Boolean> targetType,
+            Collection<ValidationError> errors) {
 
         boolean retval = false;
 
@@ -72,9 +75,8 @@ public class BooleanTypeConverter implements TypeConverter<Boolean> {
         if (retval == false) {
             try {
                 long number = Long.parseLong(input);
-                retval =  (number > 0);
-            }
-            catch (NumberFormatException nfe) {/* Ignore the exception */ }
+                retval = (number > 0);
+            } catch (NumberFormatException nfe) {/* Ignore the exception */ }
         }
 
         return retval;

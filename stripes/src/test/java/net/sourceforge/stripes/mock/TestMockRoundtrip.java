@@ -19,62 +19,94 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /**
- * Unit test that is designed to do some fairly simple testing of the mock engine to ensure that
- * it works correctly.
+ * Unit test that is designed to do some fairly simple testing of the mock
+ * engine to ensure that it works correctly.
  *
  * @author Tim Fennell
  */
 @UrlBinding("/mock/MockRoundtrip.test")
 public class TestMockRoundtrip extends FilterEnabledTestBase implements ActionBean {
+
     private ActionBeanContext context;
     private double lhs;
     private double rhs;
     private double result;
 
-    public void setContext(ActionBeanContext context) { this.context = context; }
-    public ActionBeanContext getContext() { return this.context; }
+    public void setContext(ActionBeanContext context) {
+        this.context = context;
+    }
 
-    @Validate(required=true)
-    public void setLhs(double lhs) { this.lhs = lhs; }
-    public double getLhs() { return lhs; }
+    public ActionBeanContext getContext() {
+        return this.context;
+    }
 
-    @Validate(required=true)
-    public void setRhs(double rhs) { this.rhs = rhs; }
-    public double getRhs() { return rhs; }
+    @Validate(required = true)
+    public void setLhs(double lhs) {
+        this.lhs = lhs;
+    }
 
-    @Validate(ignore=true)
-    public void setResult(double result) { this.result = result; }
-    public double getResult() { return result; }
+    public double getLhs() {
+        return lhs;
+    }
 
-    /** A very simple add event that returns a Forward reslution. */
-    @DefaultHandler @HandlesEvent("add")
+    @Validate(required = true)
+    public void setRhs(double rhs) {
+        this.rhs = rhs;
+    }
+
+    public double getRhs() {
+        return rhs;
+    }
+
+    @Validate(ignore = true)
+    public void setResult(double result) {
+        this.result = result;
+    }
+
+    public double getResult() {
+        return result;
+    }
+
+    /**
+     * A very simple add event that returns a Forward reslution.
+     */
+    @DefaultHandler
+    @HandlesEvent("add")
     public Resolution add() {
         this.result = lhs + rhs;
         return new ForwardResolution("/mock/success.jsp");
     }
 
-    /** A very simple add event that returns a Redirect reslution. */
+    /**
+     * A very simple add event that returns a Redirect reslution.
+     */
     @HandlesEvent("addAndRedirect")
     public Resolution addAndRedirect() {
         this.result = lhs + rhs;
         return new RedirectResolution("/mock/success.jsp");
     }
 
-    /** A very simple add event that returns the result in the response stream. */
+    /**
+     * A very simple add event that returns the result in the response stream.
+     */
     @HandlesEvent("addAndStream")
     public Resolution addAndStream() {
         this.result = lhs + rhs;
         return new StreamingResolution("text/plain", new StringReader(String.valueOf(this.result)));
     }
 
-    /** A very simple multiplication event. */
+    /**
+     * A very simple multiplication event.
+     */
     @HandlesEvent("multiply")
     public Resolution multiply() {
         this.result = lhs * rhs;
         return new ForwardResolution("/mock/success.jsp");
     }
 
-    /** A divide event that validates that we're not dividing by zero. */
+    /**
+     * A divide event that validates that we're not dividing by zero.
+     */
     @HandlesEvent("divide")
     public Resolution divide() {
         if (rhs == 0) {
@@ -91,9 +123,7 @@ public class TestMockRoundtrip extends FilterEnabledTestBase implements ActionBe
     // End of ActionBean methods and beginning of test methods. Everything
     // below this line is a test!
     ///////////////////////////////////////////////////////////////////////////
-
-
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void testDefaultEvent() throws Exception {
         MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), TestMockRoundtrip.class);
         trip.setParameter("lhs", "2");
@@ -106,7 +136,7 @@ public class TestMockRoundtrip extends FilterEnabledTestBase implements ActionBe
         Assert.assertEquals(trip.getDestination(), "/mock/success.jsp");
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void testWithNamedEvent() throws Exception {
         MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), TestMockRoundtrip.class);
         trip.setParameter("lhs", "2");
@@ -119,7 +149,7 @@ public class TestMockRoundtrip extends FilterEnabledTestBase implements ActionBe
         Assert.assertEquals(trip.getDestination(), "/mock/success.jsp");
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void testWithRedirect() throws Exception {
         MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), TestMockRoundtrip.class);
         trip.setParameter("lhs", "2");
@@ -133,7 +163,7 @@ public class TestMockRoundtrip extends FilterEnabledTestBase implements ActionBe
         Assert.assertNull(trip.getRequest().getForwardUrl());
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void testWithStreamingOutput() throws Exception {
         MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), TestMockRoundtrip.class);
         trip.setParameter("lhs", "2");
@@ -147,7 +177,7 @@ public class TestMockRoundtrip extends FilterEnabledTestBase implements ActionBe
         Assert.assertEquals(trip.getOutputString(), "4.0");
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void testWithValidationErrors() throws Exception {
         MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), TestMockRoundtrip.class);
         trip.setParameter("lhs", "");
@@ -158,7 +188,7 @@ public class TestMockRoundtrip extends FilterEnabledTestBase implements ActionBe
         Assert.assertEquals(trip.getDestination(), MockRoundtrip.DEFAULT_SOURCE_PAGE);
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void testWithDifferentNamedEvent() throws Exception {
         MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), TestMockRoundtrip.class);
         trip.setParameter("lhs", "4");
@@ -171,7 +201,7 @@ public class TestMockRoundtrip extends FilterEnabledTestBase implements ActionBe
         Assert.assertEquals(trip.getDestination(), "/mock/success.jsp");
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void testWithCustomValidationErrors() throws Exception {
         MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), TestMockRoundtrip.class);
         trip.setParameter("lhs", "2");
@@ -182,7 +212,7 @@ public class TestMockRoundtrip extends FilterEnabledTestBase implements ActionBe
         Assert.assertEquals(trip.getDestination(), MockRoundtrip.DEFAULT_SOURCE_PAGE);
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void testFetchingRequestAttributes() throws Exception {
         MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), TestMockRoundtrip.class);
         trip.setParameter("lhs", "10");
@@ -195,15 +225,15 @@ public class TestMockRoundtrip extends FilterEnabledTestBase implements ActionBe
         Assert.assertEquals(trip.getDestination(), "/mock/success.jsp");
         Assert.assertEquals(trip.getRequest().getAttribute("integerResult"), new Integer(2));
     }
-    
-    @Test(groups="fast")
+
+    @Test(groups = "fast")
     public void testRequestCaseInsensitive() {
         final MockHttpServletRequest request = new MockHttpServletRequest("", "");
 
         String headerName = "User-Agent";
         Object value = "Netscape/6.0";
         request.addHeader(headerName, value);
-        String[] variants = { headerName, headerName.toLowerCase(), headerName.toUpperCase() };
+        String[] variants = {headerName, headerName.toLowerCase(), headerName.toUpperCase()};
         for (String v : variants) {
             Assert.assertEquals(request.getHeader(v), value,
                     "MockHttpServletRequest.addHeader/getHeader are case sensitive");
@@ -212,14 +242,14 @@ public class TestMockRoundtrip extends FilterEnabledTestBase implements ActionBe
         headerName = "Content-Length";
         value = 1024;
         request.addHeader(headerName, value);
-        variants = new String[] { headerName, headerName.toLowerCase(), headerName.toUpperCase() };
+        variants = new String[]{headerName, headerName.toLowerCase(), headerName.toUpperCase()};
         for (String v : variants) {
             Assert.assertEquals(request.getIntHeader(v), value,
                     "MockHttpServletRequest.addHeader/getIntHeader are case sensitive");
         }
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void testAddParameter() throws Exception {
         // Setup the servlet engine
         MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), TestMockRoundtrip.class);
@@ -230,6 +260,6 @@ public class TestMockRoundtrip extends FilterEnabledTestBase implements ActionBe
         TestMockRoundtrip bean = trip.getActionBean(TestMockRoundtrip.class);
         String[] params = bean.getContext().getRequest().getParameterValues("param");
         Assert.assertEquals(2, params.length);
-        Assert.assertEquals(new String[] {"a", "b"}, params);
+        Assert.assertEquals(new String[]{"a", "b"}, params);
     }
 }

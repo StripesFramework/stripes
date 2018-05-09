@@ -21,17 +21,22 @@ import java.util.Locale;
 import java.util.Currency;
 
 /**
- * Provides the basic support for converting Strings to non-floating point numbers (i.e. shorts,
- * integers, and longs).
+ * Provides the basic support for converting Strings to non-floating point
+ * numbers (i.e. shorts, integers, and longs).
  *
  * @author Tim Fennell
  */
 public class NumberTypeConverterSupport {
+
     private Locale locale;
     private NumberFormat[] formats;
     private String currencySymbol;
 
-    /** Used by Stripes to tell the converter what locale the incoming text is in. */
+    /**
+     * Used by Stripes to tell the converter what locale the incoming text is
+     * in.
+     * @param locale
+     */
     public void setLocale(Locale locale) {
         this.locale = locale;
         this.formats = getNumberFormats();
@@ -40,34 +45,40 @@ public class NumberTypeConverterSupport {
         this.currencySymbol = "$";
         if (locale.getCountry() != null && !"".equals(locale.getCountry())) {
             try {
-              this.currencySymbol = Currency.getInstance(locale).getSymbol(locale);
-            }
-            catch (IllegalArgumentException exc) {
-              // use dollar sign as default value
+                this.currencySymbol = Currency.getInstance(locale).getSymbol(locale);
+            } catch (IllegalArgumentException exc) {
+                // use dollar sign as default value
             }
         }
     }
 
-    /** Returns the Locale set on the object using setLocale(). */
+    /**
+     * Returns the Locale set on the object using setLocale().
+     * @return 
+     */
     public Locale getLocale() {
         return locale;
     }
 
-
     /**
-     * Fetches one or more NumberFormat instances that can be used to parse numbers
-     * for the current locale. The default implementation returns two instances, one
-     * regular NumberFormat and a currency instance of NumberFormat.
+     * Fetches one or more NumberFormat instances that can be used to parse
+     * numbers for the current locale. The default implementation returns two
+     * instances, one regular NumberFormat and a currency instance of
+     * NumberFormat.
      *
      * @return one or more NumberFormats to use in parsing numbers
      */
     protected NumberFormat[] getNumberFormats() {
-        return new NumberFormat[] { NumberFormat.getInstance(this.locale) };
+        return new NumberFormat[]{NumberFormat.getInstance(this.locale)};
     }
 
     /**
-     * Parse the input using a NumberFormatter.  If the number cannot be parsed, the error key
+     * Parse the input using a NumberFormatter. If the number cannot be parsed,
+     * the error key
      * <em>number.invalidNumber</em> will be added to the errors.
+     * @param input
+     * @param errors
+     * @return 
      */
     protected Number parse(String input, Collection<ValidationError> errors) {
         input = preprocess(input);
@@ -76,20 +87,23 @@ public class NumberTypeConverterSupport {
         for (NumberFormat format : this.formats) {
             pp.setIndex(0);
             Number number = format.parse(input, pp);
-            if (number != null && input.length() == pp.getIndex()) return number;
+            if (number != null && input.length() == pp.getIndex()) {
+                return number;
+            }
         }
 
         // If we've gotten here we could not parse the number
-        errors.add( new ScopedLocalizableError("converter.number", "invalidNumber"));
+        errors.add(new ScopedLocalizableError("converter.number", "invalidNumber"));
         return null;
     }
 
     /**
-     * Pre-processes the String to give the NumberFormats a better shot at parsing the
-     * input. The default implementation trims the String for whitespace and then looks to
-     * see if the number is surrounded by parentheses, e.g. (800), and if so removes the
-     * parentheses and prepends a minus sign.  Lastly it will remove the currency symbol
-     * from the String so that we don't have to use too many NumberFormats!
+     * Pre-processes the String to give the NumberFormats a better shot at
+     * parsing the input. The default implementation trims the String for
+     * whitespace and then looks to see if the number is surrounded by
+     * parentheses, e.g. (800), and if so removes the parentheses and prepends a
+     * minus sign. Lastly it will remove the currency symbol from the String so
+     * that we don't have to use too many NumberFormats!
      *
      * @param input the String as input by the user
      * @return the result of preprocessing the String

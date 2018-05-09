@@ -23,16 +23,31 @@ import javax.servlet.jsp.JspException;
  * @author Tim Fennell
  */
 public class StripesJspException extends JspException {
-	private static final long serialVersionUID = 1L;
 
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * Constructs exception with the passed message.
+     * 
+     * @param string Message of exception
+     */
     public StripesJspException(String string) {
         super(string);
     }
 
+    /**
+     * Constructs exception with passed message and cause
+     * @param string Error message
+     * @param throwable Cause of exception
+     */
     public StripesJspException(String string, Throwable throwable) {
         super(string, throwable);
     }
 
+    /**
+     * Constructs exception with the passed cause
+     * @param throwable Cause of the exception
+     */
     public StripesJspException(Throwable throwable) {
         super(throwable);
     }

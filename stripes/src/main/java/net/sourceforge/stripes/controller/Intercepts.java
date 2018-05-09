@@ -21,9 +21,10 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Documented;
 
 /**
- * Annotation that declares the lifecycle stages that an interceptor should intercept. In
- * most cases this will probably be a single stage, but an array of stages can be specified.
- * Only valid for annotating classes that implement {@link Interceptor}.
+ * Annotation that declares the lifecycle stages that an interceptor should
+ * intercept. In most cases this will probably be a single stage, but an array
+ * of stages can be specified. Only valid for annotating classes that implement
+ * {@link Interceptor}.
  *
  * @author Tim Fennell
  * @since Stripes 1.3
@@ -32,8 +33,11 @@ import java.lang.annotation.Documented;
 @Target({ElementType.TYPE})
 @Documented
 public @interface Intercepts {
+
     /**
      * One or more lifecycle stages at which interception should occur.
+     *
+     * @return Returns the value of this lifecycle stage enum.
      */
     LifecycleStage[] value();
 }

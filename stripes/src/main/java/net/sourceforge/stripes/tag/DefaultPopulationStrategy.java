@@ -27,40 +27,59 @@ import net.sourceforge.stripes.validation.ValidationErrors;
 import net.sourceforge.stripes.validation.ValidationMetadata;
 
 /**
- * <p>Default implementation of the form input tag population strategy. First looks to see if there
- * is a parameter with the same name as the tag submitted in the current request.  If there is,
- * it will be returned as a String[] in order to support multiple-value parameters.</p>
+ * <p>
+ * Default implementation of the form input tag population strategy. First looks
+ * to see if there is a parameter with the same name as the tag submitted in the
+ * current request. If there is, it will be returned as a String[] in order to
+ * support multiple-value parameters.</p>
  *
- * <p>If there is no value in the request then an ActionBean bound to the current form will be
- * looked for.  If the ActionBean is found and the value is non-null it will be returned.
- * If no value can be found in either place, null will returned.
+ * <p>
+ * If there is no value in the request then an ActionBean bound to the current
+ * form will be looked for. If the ActionBean is found and the value is non-null
+ * it will be returned. If no value can be found in either place, null will
+ * returned.
  *
  * @author Tim Fennell
  */
 public class DefaultPopulationStrategy implements PopulationStrategy {
-    /** Configuration object handed to the class at init time. */
+
+    /**
+     * Configuration object handed to the class at init time.
+     */
     private Configuration config;
 
-    /** Log used to log any errors that occur. */
+    /**
+     * Log used to log any errors that occur.
+     */
     private static final Log log = Log.getInstance(DefaultPopulationStrategy.class);
 
-    /** Called by the Configuration to configure the component. */
+    /**
+     * Called by the Configuration to configure the component.
+     * @throws java.lang.Exception
+     */
     public void init(Configuration configuration) throws Exception {
         this.config = configuration;
     }
 
-    /** Accessor for the configuration supplied when the population strategy is initialized. */
+    /**
+     * Accessor for the configuration supplied when the population strategy is
+     * initialized.
+     * @return 
+     */
     protected Configuration getConfiguration() {
         return this.config;
     }
 
     /**
-     * Implementation of the interface method that will follow the search described in the class
-     * level JavaDoc and attempt to find a value for this tag.
+     * Implementation of the interface method that will follow the search
+     * described in the class level JavaDoc and attempt to find a value for this
+     * tag.
      *
      * @param tag the form input tag whose value to populate
-     * @return Object will be one of null, a single Object or an Array of Objects depending upon
-     *         what was submitted in the prior request, and what is declared on the ActionBean
+     * @return Object will be one of null, a single Object or an Array of
+     * Objects depending upon what was submitted in the prior request, and what
+     * is declared on the ActionBean
+     * @throws net.sourceforge.stripes.exception.StripesJspException
      */
     public Object getValue(InputTagSupport tag) throws StripesJspException {
         // Look first for something that the user submitted in the current request
@@ -80,11 +99,13 @@ public class DefaultPopulationStrategy implements PopulationStrategy {
     }
 
     /**
-     * Helper method that will check the current request for user submitted values for the
-     * tag supplied and return them as a String[] if there is one or more present.
+     * Helper method that will check the current request for user submitted
+     * values for the tag supplied and return them as a String[] if there is one
+     * or more present.
      *
      * @param tag the tag whose values to look for
      * @return a String[] if values are found, null otherwise
+     * @throws net.sourceforge.stripes.exception.StripesJspException
      */
     protected String[] getValuesFromRequest(InputTagSupport tag) throws StripesJspException {
         String[] value = tag.getPageContext().getRequest().getParameterValues(tag.getName());
@@ -113,11 +134,13 @@ public class DefaultPopulationStrategy implements PopulationStrategy {
     }
 
     /**
-     * Helper method that will check to see if there is an ActionBean present in the request,
-     * and if so, retrieve the value for this tag from the ActionBean.
+     * Helper method that will check to see if there is an ActionBean present in
+     * the request, and if so, retrieve the value for this tag from the
+     * ActionBean.
      *
      * @param tag the tag whose values to look for
      * @return an Object, possibly null, representing the tag's value
+     * @throws net.sourceforge.stripes.exception.StripesJspException
      */
     protected Object getValueFromActionBean(InputTagSupport tag) throws StripesJspException {
         ActionBean actionBean = tag.getParentFormTag().getActionBean();
@@ -126,8 +149,7 @@ public class DefaultPopulationStrategy implements PopulationStrategy {
         if (actionBean != null) {
             try {
                 value = BeanUtil.getPropertyValue(tag.getName(), actionBean);
-            }
-            catch (ExpressionException ee) {
+            } catch (ExpressionException ee) {
                 if (!StripesConstants.SPECIAL_URL_KEYS.contains(tag.getName())) {
                     log.info("Could not find property [", tag.getName(), "] on ActionBean.", ee);
                 }
@@ -138,9 +160,10 @@ public class DefaultPopulationStrategy implements PopulationStrategy {
     }
 
     /**
-     * Helper method that will retrieve the preferred value set on the tag in the JSP. For
-     * most tags this is usually the body if it is present, or the value attribute.  In some
-     * cases tags implement this differently, notably the radio and checkbox tags.
+     * Helper method that will retrieve the preferred value set on the tag in
+     * the JSP. For most tags this is usually the body if it is present, or the
+     * value attribute. In some cases tags implement this differently, notably
+     * the radio and checkbox tags.
      *
      * @param tag the tag that is being repopulated
      * @return a value for the tag if one is specified on the JSP
@@ -150,20 +173,21 @@ public class DefaultPopulationStrategy implements PopulationStrategy {
     }
 
     /**
-     * Helper method that will check to see if the form containing this tag is being rendered
-     * as a result of validation errors.  This is not actually used by the default strategy,
-     * but is here to help subclasses provide different behaviour for when the form is rendering
-     * normally vs. in error.
+     * Helper method that will check to see if the form containing this tag is
+     * being rendered as a result of validation errors. This is not actually
+     * used by the default strategy, but is here to help subclasses provide
+     * different behaviour for when the form is rendering normally vs. in error.
      *
      * @param tag the tag that is being repopulated
      * @return boolean true if the form is in error, false otherwise
+     * @throws net.sourceforge.stripes.exception.StripesJspException
      */
     protected boolean isFormInError(InputTagSupport tag) throws StripesJspException {
         boolean inError = false;
 
         ActionBean actionBean = tag.getParentFormTag().getActionBean();
         if (actionBean != null) {
-            ValidationErrors errors = actionBean.getContext().getValidationErrors(); 
+            ValidationErrors errors = actionBean.getContext().getValidationErrors();
             inError = (errors != null && errors.size() > 0);
         }
 

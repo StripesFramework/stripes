@@ -18,20 +18,22 @@ import java.util.Collection;
 import java.text.NumberFormat;
 
 /**
- * Basic type converter for converting strings to bytes.  Will produce one error if the String
- * supplied is not a parsable number, and another error if the number is parseable but outside of
- * the range Byte.MIN_VALUE =< X =< Byte.MAX_VALUE.
+ * Basic type converter for converting strings to bytes. Will produce one error
+ * if the String supplied is not a parsable number, and another error if the
+ * number is parseable but outside of the range Byte.MIN_VALUE &lt;= X &lt;=
+ * Byte.MAX_VALUE.
  *
  * @author Tim Fennell
  */
 public class ByteTypeConverter extends NumberTypeConverterSupport implements TypeConverter<Byte> {
 
     /**
-     * Converts a String to a Byte in accordance with the rules laid out in the class level javadoc.
+     * Converts a String to a Byte in accordance with the rules laid out in the
+     * class level javadoc.
      */
     public Byte convert(String input,
-                        Class<? extends Byte> targetType,
-                        Collection<ValidationError> errors) {
+            Class<? extends Byte> targetType,
+            Collection<ValidationError> errors) {
 
         Number number = parse(input, errors);
         Byte retval = null;
@@ -40,10 +42,9 @@ public class ByteTypeConverter extends NumberTypeConverterSupport implements Typ
             long output = number.longValue();
 
             if (output < Byte.MIN_VALUE || output > Byte.MAX_VALUE) {
-                errors.add( new ScopedLocalizableError("converter.byte", "outOfRange",
-                                                       Byte.MIN_VALUE, Byte.MAX_VALUE) );
-            }
-            else {
+                errors.add(new ScopedLocalizableError("converter.byte", "outOfRange",
+                        Byte.MIN_VALUE, Byte.MAX_VALUE));
+            } else {
                 retval = Byte.valueOf((byte) output);
             }
         }
@@ -51,9 +52,12 @@ public class ByteTypeConverter extends NumberTypeConverterSupport implements Typ
         return retval;
     }
 
-    /** Overridden to return integer instances instead. */
+    /**
+     * Overridden to return integer instances instead.
+     * @return 
+     */
     @Override
     protected NumberFormat[] getNumberFormats() {
-        return new NumberFormat[] { NumberFormat.getIntegerInstance(this.getLocale()) };
+        return new NumberFormat[]{NumberFormat.getIntegerInstance(this.getLocale())};
     }
 }

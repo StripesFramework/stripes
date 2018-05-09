@@ -8,6 +8,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 public class DefaultFormatterFactoryTest {
+
     @Test(groups = "fast")
     public void testFormatterSuperclass() throws Exception {
         DefaultFormatterFactory factory = new DefaultFormatterFactory();
@@ -171,6 +172,7 @@ public class DefaultFormatterFactoryTest {
     }
 
     public static class DummyFormatter<T> implements Formatter<T> {
+
         public String format(T input) {
             return null;
         }

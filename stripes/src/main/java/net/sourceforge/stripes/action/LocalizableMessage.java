@@ -20,24 +20,27 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 /**
- * A non-error message class that can localize (or at least externalize) the message String
- * in a resource bundle.  The bundle used is the Stripes error message bundle, which can be
- * configured but by default is called 'StripesResources.properties'.  In all other ways
- * this class behaves like its parent {@link SimpleMessage}.
+ * A non-error message class that can localize (or at least externalize) the
+ * message String in a resource bundle. The bundle used is the Stripes error
+ * message bundle, which can be configured but by default is called
+ * 'StripesResources.properties'. In all other ways this class behaves like its
+ * parent {@link SimpleMessage}.
  *
- * @author Tim Fennell 
+ * @author Tim Fennell
  */
 public class LocalizableMessage extends SimpleMessage {
-	private static final long serialVersionUID = 1L;
+
+    private static final long serialVersionUID = 1L;
 
     private String messageKey;
 
     /**
-     * Creates a new LocalizableMessage with the message key provided, and optionally zero or more
-     * replacement parameters to use in the message.
+     * Creates a new LocalizableMessage with the message key provided, and
+     * optionally zero or more replacement parameters to use in the message.
      *
      * @param messageKey a key to lookup a message in the resource bundle
-     * @param parameter one or more replacement parameters to insert into the message
+     * @param parameter one or more replacement parameters to insert into the
+     * message
      */
     public LocalizableMessage(String messageKey, Object... parameter) {
         super((String) null, parameter);
@@ -45,9 +48,11 @@ public class LocalizableMessage extends SimpleMessage {
     }
 
     /**
-     * Method responsible for using the information supplied to the message object to find a
-     * message template. In this class this is done simply by looking up the resource
-     * corresponding to the messageKey supplied in the constructor.
+     * Method responsible for using the information supplied to the message
+     * object to find a message template. In this class this is done simply by
+     * looking up the resource corresponding to the messageKey supplied in the
+     * constructor.
+     * @return Returns the message template associate with this locale and message key.
      */
     @Override
     protected String getMessageTemplate(Locale locale) {
@@ -58,11 +63,12 @@ public class LocalizableMessage extends SimpleMessage {
     }
 
     /**
-     * Generated equals method which will return true if the other object is of the same
-     * type as this instance, and would produce the same user message.
+     * Generated equals method which will return true if the other object is of
+     * the same type as this instance, and would produce the same user message.
      *
      * @param o an instance of LocalizableMessage or subclass thereof
-     * @return true if the two messages would produce the same user message, false otherwise
+     * @return true if the two messages would produce the same user message,
+     * false otherwise
      */
     @Override
     public boolean equals(Object o) {
@@ -85,7 +91,10 @@ public class LocalizableMessage extends SimpleMessage {
         return true;
     }
 
-    /** Generated hashCode method. */
+    /**
+     * Generated hashCode method.
+     * @return Hashcode of this object.
+     */
     @Override
     public int hashCode() {
         int result = super.hashCode();
@@ -93,6 +102,10 @@ public class LocalizableMessage extends SimpleMessage {
         return result;
     }
 
+    /**
+     * Message key for this localizable message.
+     * @return Message key for this localizable message.
+     */
     public String getMessageKey() {
         return messageKey;
     }

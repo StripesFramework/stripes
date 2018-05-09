@@ -31,92 +31,118 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * <p>An ActionResolver that uses the names of classes and methods to generate sensible default
- * URL bindings and event names respectively. Extends the default
- * {@link AnnotatedClassActionResolver}, and is fully backward compatible.  Any classes and
- * methods that are annotated with {@link net.sourceforge.stripes.action.UrlBinding} and
- * {@link net.sourceforge.stripes.action.HandlesEvent} will retain the bindings specified in
- * those annotations.  In the case when an annotation is absent then a default binding is
- * generated.</p>
+ * <p>
+ * An ActionResolver that uses the names of classes and methods to generate
+ * sensible default URL bindings and event names respectively. Extends the
+ * default {@link AnnotatedClassActionResolver}, and is fully backward
+ * compatible. Any classes and methods that are annotated with
+ * {@link net.sourceforge.stripes.action.UrlBinding} and
+ * {@link net.sourceforge.stripes.action.HandlesEvent} will retain the bindings
+ * specified in those annotations. In the case when an annotation is absent then
+ * a default binding is generated.</p>
  *
- * <p>The generation of ActionBean URL bindings is done by taking the class name and removing
- * any extraneous packages at the front of the name, removing the strings "Action" and "Bean"
- * from the end of the name, substituting slashes for periods and appending a suffix (.action by
- * default).  The set of packages that are trimmed is specified by the
- * {@code getBasePackages()} method.  By default this method returns the set
- * [web, www, stripes, action].  These packages (and their parents) are removed from the
- * class name. E.g. {@code com.myco.web.foo.BarActionBean} would become {@code foo.BarActionBean}.
- * Continuing on, the list of Action Bean suffixes, specified by the {@code getActionBeanSuffixes()}
- * method, are trimmed from the end of the Action Bean class name.  With the defaults,
- * [Bean, Action], we would trim {@code foo.BarActionBean} further to {@code foo.Bar}, and then
- * translate it to {@code /foo/Bar}.  Lastly the suffix returned by {@code getBindingSuffix()}
- * is appended, giving the binding {@code /foo/Bar.action}.</p>
+ * <p>
+ * The generation of ActionBean URL bindings is done by taking the class name
+ * and removing any extraneous packages at the front of the name, removing the
+ * strings "Action" and "Bean" from the end of the name, substituting slashes
+ * for periods and appending a suffix (.action by default). The set of packages
+ * that are trimmed is specified by the {@code getBasePackages()} method. By
+ * default this method returns the set [web, www, stripes, action]. These
+ * packages (and their parents) are removed from the class name. E.g.
+ * {@code com.myco.web.foo.BarActionBean} would become
+ * {@code foo.BarActionBean}. Continuing on, the list of Action Bean suffixes,
+ * specified by the {@code getActionBeanSuffixes()} method, are trimmed from the
+ * end of the Action Bean class name. With the defaults, [Bean, Action], we
+ * would trim {@code foo.BarActionBean} further to {@code foo.Bar}, and then
+ * translate it to {@code /foo/Bar}. Lastly the suffix returned by
+ * {@code getBindingSuffix()} is appended, giving the binding
+ * {@code /foo/Bar.action}.</p>
  *
- * <p>The translation of class names into URL bindings is designed to be easy to override and
- * customize.  To that end you can easily change how this translation is done by overriding
- * {@code getBasePackages()} and/or {@code getBindingSuffix()}, or completely customize the
- * behaviour by overriding {@code getUrlBinding(String)}.</p>
+ * <p>
+ * The translation of class names into URL bindings is designed to be easy to
+ * override and customize. To that end you can easily change how this
+ * translation is done by overriding {@code getBasePackages()} and/or
+ * {@code getBindingSuffix()}, or completely customize the behaviour by
+ * overriding {@code getUrlBinding(String)}.</p>
  *
- * <p>Mapping of method names to event names is simpler.  Again the parent class is delegated to
- * in case the method is annotated. If it is not, and the method is a concrete public method that
- * returns a Resolution (or subclass thereof) it is mapped to an event of the same name as the
- * method.  So an un-annotated method "{@code public Resolution view()}" is mapped to an event
- * called "view".  It should be noted that there is no special method name that signifies the
- * default handler.  If there is more than one handler and you require a default handler you
- * must still mark the default method with {@code @DefaultHandler}.</p>
+ * <p>
+ * Mapping of method names to event names is simpler. Again the parent class is
+ * delegated to in case the method is annotated. If it is not, and the method is
+ * a concrete public method that returns a Resolution (or subclass thereof) it
+ * is mapped to an event of the same name as the method. So an un-annotated
+ * method "{@code public Resolution view()}" is mapped to an event called
+ * "view". It should be noted that there is no special method name that
+ * signifies the default handler. If there is more than one handler and you
+ * require a default handler you must still mark the default method with
+ * {@code @DefaultHandler}.</p>
  *
- * <p>Another useful feature of the NameBasedActionResolver is that when a request arrives for a
- * URL that is not bound to an ActionBean the resolver will attempt to map the request to a view
- * and return a 'dummy' ActionBean that will take the user to the view.  The exact behaviour is
- * modifiable by overriding one or more of
- * {@link #handleActionBeanNotFound(ActionBeanContext, String)}, {@link #findView(String)} or
- * {@link #getFindViewAttempts(String)}. The default behaviour is to map the URL being requested
- * to three potential JSP names/paths, check for the existence of a JSP at those locations and if
- * one exists then to return an ActionBean that will render the view.  For example if a user
- * requested '/account/ViewAccount.action' but an ActionBean does not yet exist bound to that URL,
- * the resolver will check for JSPs in the following order:</p>
+ * <p>
+ * Another useful feature of the NameBasedActionResolver is that when a request
+ * arrives for a URL that is not bound to an ActionBean the resolver will
+ * attempt to map the request to a view and return a 'dummy' ActionBean that
+ * will take the user to the view. The exact behaviour is modifiable by
+ * overriding one or more of
+ * {@link #handleActionBeanNotFound(ActionBeanContext, String)}, {@link #findView(String)}
+ * or {@link #getFindViewAttempts(String)}. The default behaviour is to map the
+ * URL being requested to three potential JSP names/paths, check for the
+ * existence of a JSP at those locations and if one exists then to return an
+ * ActionBean that will render the view. For example if a user requested
+ * '/account/ViewAccount.action' but an ActionBean does not yet exist bound to
+ * that URL, the resolver will check for JSPs in the following order:</p>
  *
  * <ul>
- *   <li>/account/ViewAccount.jsp</li>
- *   <li>/account/viewAccount.jsp</li>
- *   <li>/account/view_account.jsp</li>
+ * <li>/account/ViewAccount.jsp</li>
+ * <li>/account/viewAccount.jsp</li>
+ * <li>/account/view_account.jsp</li>
  * </ul>
  *
- * <p>The value of this approach comes from the fact that by default all pages can appear to have
- * a pre-action whether they actually have one or not.  In the above can you might chose to link
- * to {@code /account/ViewAccount.action} even though you know that no action exists and you want
- * to navigate directly to a page. This way, if you later decide you do need a pre-action for any
- * reason you can simply code the ActionBean and be done.  No URLs or links need to be modified
- * and all requests to {@code /account/ViewAccount.action} will flow through the ActionBean.</p>
+ * <p>
+ * The value of this approach comes from the fact that by default all pages can
+ * appear to have a pre-action whether they actually have one or not. In the
+ * above can you might chose to link to {@code /account/ViewAccount.action} even
+ * though you know that no action exists and you want to navigate directly to a
+ * page. This way, if you later decide you do need a pre-action for any reason
+ * you can simply code the ActionBean and be done. No URLs or links need to be
+ * modified and all requests to {@code /account/ViewAccount.action} will flow
+ * through the ActionBean.</p>
  *
  * @author Tim Fennell
  * @since Stripes 1.2
  */
 public class NameBasedActionResolver extends AnnotatedClassActionResolver {
-    /**
-     * Default set of packages (web, www, stripes, action) to be removed from the front
-     * of class names when translating them to URL bindings.
-     */
-    public static final Set<String> BASE_PACKAGES =
-        Collections.unmodifiableSet(Literal.set("web", "www", "stripes", "action"));
 
-    /** Default suffix (.action) to add to URL bindings.*/
+    /**
+     * Default set of packages (web, www, stripes, action) to be removed from
+     * the front of class names when translating them to URL bindings.
+     */
+    public static final Set<String> BASE_PACKAGES
+            = Collections.unmodifiableSet(Literal.set("web", "www", "stripes", "action"));
+
+    /**
+     * Default suffix (.action) to add to URL bindings.
+     */
     public static final String DEFAULT_BINDING_SUFFIX = ".action";
 
     /**
-     * Default list of suffixes (Bean, Action) to remove to the end of the Action Bean class name.
+     * Default list of suffixes (Bean, Action) to remove to the end of the
+     * Action Bean class name.
      */
-    public static final List<String> DEFAULT_ACTION_BEAN_SUFFIXES =
-        Collections.unmodifiableList(Literal.list("Bean", "Action"));
+    public static final List<String> DEFAULT_ACTION_BEAN_SUFFIXES
+            = Collections.unmodifiableList(Literal.list("Bean", "Action"));
 
-    /** Log instance used to log information from this class. */
+    /**
+     * Log instance used to log information from this class.
+     */
     private static final Log log = Log.getInstance(NameBasedActionResolver.class);
 
     /**
-     * First invokes the parent classes init() method and then quietly adds a specialized
-     * ActionBean to the set of ActionBeans the resolver is managing.  The "specialized" bean
-     * is one that is used when a bean is not bound to a URL, to then forward the user to
-     * an appropriate view if one exists.
+     * First invokes the parent classes init() method and then quietly adds a
+     * specialized ActionBean to the set of ActionBeans the resolver is
+     * managing. The "specialized" bean is one that is used when a bean is not
+     * bound to a URL, to then forward the user to an appropriate view if one
+     * exists.
+     * @param configuration - Configuration object for this action resolver
+     * @throws java.lang.Exception If an error occurs during initialization
      */
     @Override
     public void init(Configuration configuration) throws Exception {
@@ -125,9 +151,11 @@ public class NameBasedActionResolver extends AnnotatedClassActionResolver {
     }
 
     /**
-     * <p>Finds or generates the URL binding for the class supplied. First delegates to the parent
-     * class to see if an annotated url binding is present. If not, the class name is taken
-     * and translated into a URL binding using {@code getUrlBinding(String name)}.</p>
+     * <p>
+     * Finds or generates the URL binding for the class supplied. First
+     * delegates to the parent class to see if an annotated url binding is
+     * present. If not, the class name is taken and translated into a URL
+     * binding using {@code getUrlBinding(String name)}.</p>
      *
      * @param clazz a Class representing an ActionBean
      * @return the String URL binding for the ActionBean
@@ -145,15 +173,19 @@ public class NameBasedActionResolver extends AnnotatedClassActionResolver {
     }
 
     /**
-     * Takes a class name and translates it into a URL binding by removing extraneous package names,
-     * removing Action, Bean, or ActionBean from the end of the class name if present, replacing
-     * periods with slashes, and appending a standard suffix as supplied by
+     * <p>
+     * Takes a class name and translates it into a URL binding by removing
+     * extraneous package names, removing Action, Bean, or ActionBean from the
+     * end of the class name if present, replacing periods with slashes, and
+     * appending a standard suffix as supplied by
      * {@link net.sourceforge.stripes.controller.NameBasedActionResolver#getBindingSuffix()}.</p>
      *
-     * <p>For example the class {@code com.myco.web.action.user.RegisterActionBean} would be
-     * translated to {@code /user/Register.action}.  The behaviour of this method can be
-     * overridden either directly or by overriding the methods {@code getBindingSuffix()} and
-     * {@code getBasePackages()} which are used by this method.</p>
+     * <p>
+     * For example the class {@code com.myco.web.action.user.RegisterActionBean}
+     * would be translated to {@code /user/Register.action}. The behaviour of
+     * this method can be overridden either directly or by overriding the
+     * methods {@code getBindingSuffix()} and {@code getBasePackages()} which
+     * are used by this method.</p>
      *
      * @param name the name of the class to create a binding for
      * @return a String URL binding for the class
@@ -165,8 +197,7 @@ public class NameBasedActionResolver extends AnnotatedClassActionResolver {
             int i = name.indexOf("." + base + ".");
             if (i != -1) {
                 name = name.substring(i + base.length() + 1);
-            }
-            else if (name.startsWith(base + ".")) {
+            } else if (name.startsWith(base + ".")) {
                 name = name.substring(base.length());
             }
         }
@@ -190,9 +221,9 @@ public class NameBasedActionResolver extends AnnotatedClassActionResolver {
     }
 
     /**
-     * Returns a set of package names (fully qualified or not) that should be removed
-     * from the start of a classname before translating the name into a URL Binding. By default
-     * returns "web", "www", "stripes" and "action".
+     * Returns a set of package names (fully qualified or not) that should be
+     * removed from the start of a classname before translating the name into a
+     * URL Binding. By default returns "web", "www", "stripes" and "action".
      *
      * @return a non-null set of String package names.
      */
@@ -201,17 +232,21 @@ public class NameBasedActionResolver extends AnnotatedClassActionResolver {
     }
 
     /**
-     * Returns a non-null String suffix to be used when constructing URL bindings. The
-     * default is ".action".
+     * Returns a non-null String suffix to be used when constructing URL
+     * bindings. The default is ".action".
+     *
+     * @return The binding suffix for URL bindings
      */
     protected String getBindingSuffix() {
         return DEFAULT_BINDING_SUFFIX;
     }
 
     /**
-     * Returns a list of suffixes to be removed from the end of the Action Bean class name, if present.
-     * The defaults are ["Bean", "Action"].
+     * Returns a list of suffixes to be removed from the end of the Action Bean
+     * class name, if present. The defaults are ["Bean", "Action"].
      *
+     * @return The list of suffixes to be removed from the end of action bean
+     * class name
      * @since Stripes 1.5
      */
     protected List<String> getActionBeanSuffixes() {
@@ -219,9 +254,10 @@ public class NameBasedActionResolver extends AnnotatedClassActionResolver {
     }
 
     /**
-     * First checks with the super class to see if an annotated event name is present, and if
-     * not then returns the name of the handler method itself.  Will return null for methods
-     * that do not return a resolution or are non-public or abstract.
+     * First checks with the super class to see if an annotated event name is
+     * present, and if not then returns the name of the handler method itself.
+     * Will return null for methods that do not return a resolution or are
+     * non-public or abstract.
      *
      * @param handler a method which may or may not be a handler method
      * @return the name of the event handled, or null
@@ -232,10 +268,10 @@ public class NameBasedActionResolver extends AnnotatedClassActionResolver {
 
         // If the method isn't annotated, but does return a resolution and is
         // not abstract (we already know it's public) then use the method name
-        if ( name == null
+        if (name == null
                 && !Modifier.isAbstract(handler.getModifiers())
-                    && Resolution.class.isAssignableFrom(handler.getReturnType())
-                        && handler.getParameterTypes().length == 0) {
+                && Resolution.class.isAssignableFrom(handler.getReturnType())
+                && handler.getParameterTypes().length == 0) {
 
             name = handler.getName();
         }
@@ -247,10 +283,16 @@ public class NameBasedActionResolver extends AnnotatedClassActionResolver {
         return name;
     }
 
+    /**
+     * Returns whether or not the passed handler is an async handler.
+     * 
+     * @param handler - Handler to determine if it is async or not
+     * @return whether or not the passed handler is an async handler.
+     */
     public static boolean isAsyncEventHandler(Method handler) {
         if (!Modifier.isAbstract(handler.getModifiers())
-            && handler.getReturnType().equals(Void.TYPE)
-            && handler.getParameterTypes().length == 1) {
+                && handler.getReturnType().equals(Void.TYPE)
+                && handler.getParameterTypes().length == 1) {
             // look at arg type
             Class<?> pType = handler.getParameterTypes()[0];
             return AsyncResponse.class.isAssignableFrom(pType);
@@ -259,41 +301,44 @@ public class NameBasedActionResolver extends AnnotatedClassActionResolver {
     }
 
     /**
-     * <p>Overridden to trap the exception that is thrown when a URL cannot be mapped to an
-     * ActionBean and then attempt to construct a dummy ActionBean that will forward the
-     * user to an appropriate view.  In an exception is caught then the method
-     * {@link #handleActionBeanNotFound(ActionBeanContext, String)} is invoked to handle
-     * the exception.</p>
+     * <p>
+     * Overridden to trap the exception that is thrown when a URL cannot be
+     * mapped to an ActionBean and then attempt to construct a dummy ActionBean
+     * that will forward the user to an appropriate view. In an exception is
+     * caught then the method
+     * {@link #handleActionBeanNotFound(ActionBeanContext, String)} is invoked
+     * to handle the exception.</p>
      *
      * @param context the ActionBeanContext of the current request
      * @param urlBinding the urlBinding determined for the current request
-     * @return an ActionBean if there is an appropriate way to handle the request
-     * @throws StripesServletException if no ActionBean or alternate strategy can be found
+     * @return an ActionBean if there is an appropriate way to handle the
+     * request
+     * @throws StripesServletException if no ActionBean or alternate strategy
+     * can be found
      */
     @Override
     public ActionBean getActionBean(ActionBeanContext context,
-                                    String urlBinding) throws StripesServletException {
+            String urlBinding) throws StripesServletException {
         try {
             return super.getActionBean(context, urlBinding);
-        }
-        catch (StripesServletException sse) {
+        } catch (StripesServletException sse) {
             ActionBean bean = handleActionBeanNotFound(context, urlBinding);
             if (bean != null) {
                 setActionBeanContext(bean, context);
                 assertGetContextWorks(bean);
                 return bean;
-            }
-            else {
+            } else {
                 throw sse;
             }
         }
     }
 
     /**
-     * Invoked when no appropriate ActionBean can be located. Attempts to locate a view that is
-     * appropriate for this request by calling {@link #findView(String)}.  If a view is found
-     * then a dummy ActionBean is constructed that will send the user to the view. If no appropriate
-     * view is found then null is returned.
+     * Invoked when no appropriate ActionBean can be located. Attempts to locate
+     * a view that is appropriate for this request by calling
+     * {@link #findView(String)}. If a view is found then a dummy ActionBean is
+     * constructed that will send the user to the view. If no appropriate view
+     * is found then null is returned.
      *
      * @param context the ActionBeanContext of the current request
      * @param urlBinding the urlBinding determined for the current request
@@ -306,7 +351,7 @@ public class NameBasedActionResolver extends AnnotatedClassActionResolver {
 
         if (view != null) {
             log.debug("Could not find an ActionBean bound to '", urlBinding, "', but found a view ",
-                      "at '", view, "'. Forwarding the user there instead.");
+                    "at '", view, "'. Forwarding the user there instead.");
             bean = new DefaultViewActionBean(view);
         }
 
@@ -314,19 +359,26 @@ public class NameBasedActionResolver extends AnnotatedClassActionResolver {
     }
 
     /**
-     * <p>Attempts to locate a default view for the urlBinding provided and return a
-     * ForwardResolution that will take the user to the view.  Looks for views by using the
-     * list of attempts returned by {@link #getFindViewAttempts(String)}.
+     * <p>
+     * Attempts to locate a default view for the urlBinding provided and return
+     * a ForwardResolution that will take the user to the view. Looks for views
+     * by using the list of attempts returned by
+     * {@link #getFindViewAttempts(String)}.
      *
-     * <p>For each view name derived a check is performed using
-     * {@link ServletContext#getResource(String)} to see if there is a file located at that URL.
-     * Only if a file actually exists will a Resolution be returned.</p>
+     * <p>
+     * For each view name derived a check is performed using
+     * {@link ServletContext#getResource(String)} to see if there is a file
+     * located at that URL. Only if a file actually exists will a Resolution be
+     * returned.</p>
      *
-     * <p>Can be overridden to provide a different kind of resolution.  It is strongly recommended
-     * when overriding this method to check for the actual existence of views prior to manufacturing
-     * a resolution in order not to cause confusion when URLs are mistyped.</p>
+     * <p>
+     * Can be overridden to provide a different kind of resolution. It is
+     * strongly recommended when overriding this method to check for the actual
+     * existence of views prior to manufacturing a resolution in order not to
+     * cause confusion when URLs are mistyped.</p>
      *
-     * @param urlBinding the url being accessed by the client in the current request
+     * @param urlBinding the url being accessed by the client in the current
+     * request
      * @return a Resolution if a default view can be found, or null otherwise
      * @since Stripes 1.3
      */
@@ -342,28 +394,33 @@ public class NameBasedActionResolver extends AnnotatedClassActionResolver {
                 if (ctx.getResource(jsp) != null) {
                     return new ForwardResolution(jsp);
                 }
-            }
-            catch (MalformedURLException mue) {
+            } catch (MalformedURLException mue) {
             }
         }
         return null;
     }
 
     /**
-     * <p>Returns the list of attempts to locate a default view for the urlBinding provided.
-     * Generates attempts for views by converting the incoming urlBinding with the following rules.
-     * For example if the urlBinding is '/account/ViewAccount.action' the following views will be
-     * returned in order:</p>
+     * <p>
+     * Returns the list of attempts to locate a default view for the urlBinding
+     * provided. Generates attempts for views by converting the incoming
+     * urlBinding with the following rules. For example if the urlBinding is
+     * '/account/ViewAccount.action' the following views will be returned in
+     * order:</p>
      *
      * <ul>
-     *   <li>/account/ViewAccount.jsp</li>
-     *   <li>/account/viewAccount.jsp</li>
-     *   <li>/account/view_account.jsp</li>
+     * <li>/account/ViewAccount.jsp</li>
+     * <li>/account/viewAccount.jsp</li>
+     * <li>/account/view_account.jsp</li>
      * </ul>
      *
-     * <p>Can be overridden to look for views with a different pattern.</p>
+     * <p>
+     * Can be overridden to look for views with a different pattern.</p>
      *
-     * @param urlBinding the url being accessed by the client in the current request
+     * @param urlBinding the url being accessed by the client in the current
+     * request
+     * @return List of attempts to locate a default view for the UrlBinding
+     * passed in.
      * @since Stripes 1.5
      */
     protected List<String> getFindViewAttempts(String urlBinding) {
@@ -372,7 +429,7 @@ public class NameBasedActionResolver extends AnnotatedClassActionResolver {
         int lastPeriod = urlBinding.lastIndexOf('.');
         String path = urlBinding.substring(0, urlBinding.lastIndexOf("/") + 1);
         String name = (lastPeriod >= path.length()) ? urlBinding.substring(path.length(), lastPeriod)
-                                                    : urlBinding.substring(path.length());
+                : urlBinding.substring(path.length());
 
         if (name.length() > 0) {
             // This will try /account/ViewAccount.jsp
@@ -389,8 +446,7 @@ public class NameBasedActionResolver extends AnnotatedClassActionResolver {
                 if (Character.isUpperCase(ch)) {
                     builder.append("_");
                     builder.append(Character.toLowerCase(ch));
-                }
-                else {
+                } else {
                     builder.append(ch);
                 }
             }
@@ -401,12 +457,13 @@ public class NameBasedActionResolver extends AnnotatedClassActionResolver {
     }
 
     /**
-     * In addition to the {@link net.sourceforge.stripes.action.ActionBean} class simple name, also add aliases for
-     * short hand names. For instance, ManageUsersActionBean would get:
+     * In addition to the {@link net.sourceforge.stripes.action.ActionBean}
+     * class simple name, also add aliases for short hand names. For instance,
+     * ManageUsersActionBean would get:
      * <ul>
-     *     <li>ManageUsersActionBean (simple name)</li>
-     *     <li>ManageUsersAction</li>
-     *     <li>ManageUsers</li>
+     * <li>ManageUsersActionBean (simple name)</li>
+     * <li>ManageUsersAction</li>
+     * <li>ManageUsers</li>
      * </ul>
      */
     @Override
@@ -415,14 +472,14 @@ public class NameBasedActionResolver extends AnnotatedClassActionResolver {
 
         Set<String> generatedAliases = new HashSet<String>();
         Set<String> duplicateAliases = new HashSet<String>();
-        for(Class<? extends ActionBean> clazz : getActionBeanClasses()) {
+        for (Class<? extends ActionBean> clazz : getActionBeanClasses()) {
             String name = clazz.getSimpleName();
             for (String suffix : getActionBeanSuffixes()) {
                 if (name.endsWith(suffix)) {
                     name = name.substring(0, name.length() - suffix.length());
                     if (generatedAliases.contains(name)) {
-                        log.warn("Found multiple action beans with same bean name ", name, ". You will need to " +
-                                "reference these action beans by their fully qualified names");
+                        log.warn("Found multiple action beans with same bean name ", name, ". You will need to "
+                                + "reference these action beans by their fully qualified names");
                         duplicateAliases.add(name);
                         continue;
                     }
@@ -432,10 +489,9 @@ public class NameBasedActionResolver extends AnnotatedClassActionResolver {
                 }
             }
         }
-        
+
         // Remove any duplicate aliases that were found
-        for(String duplicateAlias : duplicateAliases)
-        {
+        for (String duplicateAlias : duplicateAliases) {
             actionBeansByName.remove(duplicateAlias);
         }
     }

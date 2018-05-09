@@ -25,24 +25,27 @@ import net.sourceforge.stripes.util.Log;
 
 /**
  * <p>
- * An object that can be stuffed into a scope (page, request, application, etc.) and render a layout
- * component to a string. This allows for use of EL expressions to output a component (as described
- * in the book <em>Stripes ... and web development is fun again</em>) without requiring that all
- * components be evaluated and buffered just in case a string representation is needed. The
+ * An object that can be stuffed into a scope (page, request, application, etc.)
+ * and render a layout component to a string. This allows for use of EL
+ * expressions to output a component (as described in the book <em>Stripes ...
+ * and web development is fun again</em>) without requiring that all components
+ * be evaluated and buffered just in case a string representation is needed. The
  * evaluation happens only when necessary, saving cycles and memory.
  * </p>
  * <p>
- * When {@link #toString()} is called, the component renderer will evaluate the body of any
- * {@link LayoutComponentTag} found in the stack of {@link LayoutContext}s maintained in the JSP
- * {@link PageContext} having the same name as that passed to the constructor. The page context must
- * be provided with a call to {@link #pushPageContext(PageContext)} for the renderer to work
- * correctly.
+ * When {@link #toString()} is called, the component renderer will evaluate the
+ * body of any {@link LayoutComponentTag} found in the stack of
+ * {@link LayoutContext}s maintained in the JSP {@link PageContext} having the
+ * same name as that passed to the constructor. The page context must be
+ * provided with a call to {@link #pushPageContext(PageContext)} for the
+ * renderer to work correctly.
  * </p>
- * 
+ *
  * @author Ben Gunter
  * @since Stripes 1.5.4
  */
 public class LayoutComponentRenderer {
+
     private static final Log log = Log.getInstance(LayoutComponentRenderer.class);
 
     private LinkedList<PageContext> pageContext;
@@ -51,7 +54,7 @@ public class LayoutComponentRenderer {
 
     /**
      * Create a new instance to render the named component to a string.
-     * 
+     *
      * @param component The name of the component to render.
      */
     public LayoutComponentRenderer(String component) {
@@ -59,8 +62,10 @@ public class LayoutComponentRenderer {
     }
 
     /**
-     * Push a new page context onto the page context stack. The last page context pushed onto the
-     * stack is the one that will be used to evaluate the component tag's body.
+     * Push a new page context onto the page context stack. The last page
+     * context pushed onto the stack is the one that will be used to evaluate
+     * the component tag's body.
+     * @param pageContext
      */
     public void pushPageContext(PageContext pageContext) {
         if (this.pageContext == null) {
@@ -70,29 +75,41 @@ public class LayoutComponentRenderer {
         this.pageContext.addFirst(pageContext);
     }
 
-    /** Pop the last page context off the stack and return it. */
+    /**
+     * Pop the last page context off the stack and return it.
+     * @return 
+     */
     public PageContext popPageContext() {
         return pageContext == null ? null : pageContext.poll();
     }
 
-    /** Get the last page context that was pushed onto the stack. */
+    /**
+     * Get the last page context that was pushed onto the stack.
+     * @return 
+     */
     public PageContext getPageContext() {
         return pageContext == null ? null : pageContext.peek();
     }
 
-    /** Get the path to the currently executing JSP. */
+    /**
+     * Get the path to the currently executing JSP.
+     * @return 
+     */
     public String getCurrentPage() {
         return (String) getPageContext().getRequest().getAttribute(
                 StripesConstants.REQ_ATTR_INCLUDE_PATH);
     }
 
     /**
-     * Write the component to the page context's writer, optionally buffering the output.
-     * 
-     * @return True if the named component was found and it indicated that it successfully rendered;
-     *         otherwise, false.
-     * @throws IOException If thrown by {@link LayoutContext#doInclude(PageContext, String)}
-     * @throws ServletException If thrown by {@link LayoutContext#doInclude(PageContext, String)}
+     * Write the component to the page context's writer, optionally buffering
+     * the output.
+     *
+     * @return True if the named component was found and it indicated that it
+     * successfully rendered; otherwise, false.
+     * @throws IOException If thrown by
+     * {@link LayoutContext#doInclude(PageContext, String)}
+     * @throws ServletException If thrown by
+     * {@link LayoutContext#doInclude(PageContext, String)}
      */
     public boolean write() throws ServletException, IOException {
         final PageContext pageContext = getPageContext();
@@ -140,10 +157,10 @@ public class LayoutComponentRenderer {
                         " from ", context.getRenderPage(), " -> ", context.getDefinitionPage());
 
                 // If the component name has been cleared then the component rendered
-                if (context.getComponent() == null)
+                if (context.getComponent() == null) {
                     return true;
-            }
-            finally {
+                }
+            } finally {
                 // Restore the context state
                 context.setNext(savedNext);
                 context.setComponent(savedComponent);
@@ -161,8 +178,9 @@ public class LayoutComponentRenderer {
     }
 
     /**
-     * Open a buffer in {@link LayoutWriter}, call {@link #write()} to render the component and then
-     * return the buffer contents.
+     * Open a buffer in {@link LayoutWriter}, call {@link #write()} to render
+     * the component and then return the buffer contents.
+     * @return 
      */
     @Override
     public String toString() {
@@ -180,14 +198,12 @@ public class LayoutComponentRenderer {
             log.debug("Start stringify \"", this.component, "\" in ", context.getRenderPage(),
                     " -> ", context.getDefinitionPage());
             write();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             log.error(e, "Unhandled exception trying to render component \"", this.component,
                     "\" to a string in context ", context.getRenderPage(), //
                     " -> ", context.getDefinitionPage());
             return "[Failed to render \"" + this.component + "\". See log for details.]";
-        }
-        finally {
+        } finally {
             log.debug("End stringify \"", this.component, "\" in ", context.getRenderPage(),
                     " -> ", context.getDefinitionPage());
             contents = context.getOut().closeBuffer(pageContext);

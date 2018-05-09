@@ -28,30 +28,41 @@ import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.util.ReflectUtil;
 
 /**
- * Provides a very simple API for accessing resources within an application server.
- * 
+ * Provides a very simple API for accessing resources within an application
+ * server.
+ *
  * @author Ben Gunter
  */
 public abstract class VFS {
+
     private static final Log log = Log.getInstance(VFS.class);
 
-    /** The built-in implementations. */
-    public static final Class<?>[] IMPLEMENTATIONS = { JBoss6VFS.class, DefaultVFS.class };
+    /**
+     * The built-in implementations.
+     */
+    public static final Class<?>[] IMPLEMENTATIONS = {JBoss6VFS.class, DefaultVFS.class};
 
-    /** The list to which implementations are added by {@link #addImplClass(Class)}. */
+    /**
+     * The list to which implementations are added by
+     * {@link #addImplClass(Class)}.
+     */
     public static final List<Class<? extends VFS>> USER_IMPLEMENTATIONS = new ArrayList<Class<? extends VFS>>();
 
-    /** Singleton instance. */
+    /**
+     * Singleton instance.
+     */
     private static VFS instance;
 
     /**
-     * Get the singleton {@link VFS} instance. If no {@link VFS} implementation can be found for the
-     * current environment, then this method returns null.
+     * Get the singleton {@link VFS} instance. If no {@link VFS} implementation
+     * can be found for the current environment, then this method returns null.
+     * @return 
      */
     @SuppressWarnings("unchecked")
     public static VFS getInstance() {
-        if (instance != null)
+        if (instance != null) {
             return instance;
+        }
 
         // Try the user implementations first, then the built-ins
         List<Class<? extends VFS>> impls = new ArrayList<Class<? extends VFS>>();
@@ -68,12 +79,10 @@ public abstract class VFS {
                     log.debug("VFS implementation ", impl.getName(),
                             " is not valid in this environment.");
                 }
-            }
-            catch (InstantiationException e) {
+            } catch (InstantiationException e) {
                 log.error(e, "Failed to instantiate ", impl);
                 return null;
-            }
-            catch (IllegalAccessException e) {
+            } catch (IllegalAccessException e) {
                 log.error(e, "Failed to instantiate ", impl);
                 return null;
             }
@@ -84,46 +93,52 @@ public abstract class VFS {
     }
 
     /**
-     * Adds the specified class to the list of {@link VFS} implementations. Classes added in this
-     * manner are tried in the order they are added and before any of the built-in implementations.
-     * 
+     * Adds the specified class to the list of {@link VFS} implementations.
+     * Classes added in this manner are tried in the order they are added and
+     * before any of the built-in implementations.
+     *
      * @param clazz The {@link VFS} implementation class to add.
      */
     public static void addImplClass(Class<? extends VFS> clazz) {
-        if (clazz != null)
+        if (clazz != null) {
             USER_IMPLEMENTATIONS.add(clazz);
+        }
     }
 
-    /** Get a class by name. If the class is not found then return null. */
+    /**
+     * Get a class by name. If the class is not found then return null.
+     * @param className
+     * @return 
+     */
     protected static Class<?> getClass(String className) {
         try {
             return ReflectUtil.findClass(className);
-        }
-        catch (ClassNotFoundException e) {
+        } catch (ClassNotFoundException e) {
             log.debug("Class not found: ", className);
             return null;
         }
     }
 
     /**
-     * Get a method by name and parameter types. If the method is not found then return null.
-     * 
+     * Get a method by name and parameter types. If the method is not found then
+     * return null.
+     *
      * @param clazz The class to which the method belongs.
      * @param methodName The name of the method.
      * @param parameterTypes The types of the parameters accepted by the method.
+     * @return 
      */
     protected static Method getMethod(Class<?> clazz, String methodName, Class<?>... parameterTypes) {
         try {
-            if (clazz == null)
+            if (clazz == null) {
                 return null;
-            else
+            } else {
                 return clazz.getMethod(methodName, parameterTypes);
-        }
-        catch (SecurityException e) {
+            }
+        } catch (SecurityException e) {
             log.debug(e, "Security exception looking for method ", clazz.getName(), ".", methodName);
             return null;
-        }
-        catch (NoSuchMethodException e) {
+        } catch (NoSuchMethodException e) {
             log.debug(e, "Method not found ", clazz.getName(), ".", methodName);
             return null;
         }
@@ -131,9 +146,11 @@ public abstract class VFS {
 
     /**
      * Invoke a method on an object and return whatever it returns.
-     * 
+     *
+     * @param <T>
      * @param method The method to invoke.
-     * @param object The instance or class (for static methods) on which to invoke the method.
+     * @param object The instance or class (for static methods) on which to
+     * invoke the method.
      * @param parameters The parameters to pass to the method.
      * @return Whatever the method returns.
      * @throws IOException If I/O errors occur
@@ -144,52 +161,56 @@ public abstract class VFS {
             throws IOException, StripesRuntimeException {
         try {
             return (T) method.invoke(object, parameters);
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             throw new StripesRuntimeException(e);
-        }
-        catch (IllegalAccessException e) {
+        } catch (IllegalAccessException e) {
             throw new StripesRuntimeException(e);
-        }
-        catch (InvocationTargetException e) {
-            if (e.getTargetException() instanceof IOException)
+        } catch (InvocationTargetException e) {
+            if (e.getTargetException() instanceof IOException) {
                 throw (IOException) e.getTargetException();
-            else
+            } else {
                 throw new StripesRuntimeException(e);
+            }
         }
     }
 
     /**
-     * Get a list of {@link URL}s from the context classloader for all the resources found at the
-     * specified path.
-     * 
+     * Get a list of {@link URL}s from the context classloader for all the
+     * resources found at the specified path.
+     *
      * @param path The resource path.
-     * @return A list of {@link URL}s, as returned by {@link ClassLoader#getResources(String)}.
+     * @return A list of {@link URL}s, as returned by
+     * {@link ClassLoader#getResources(String)}.
      * @throws IOException If I/O errors occur
      */
     protected static List<URL> getResources(String path) throws IOException {
         return Collections.list(Thread.currentThread().getContextClassLoader().getResources(path));
     }
 
-    /** Return true if the {@link VFS} implementation is valid for the current environment. */
+    /**
+     * Return true if the {@link VFS} implementation is valid for the current
+     * environment.
+     * @return 
+     */
     public abstract boolean isValid();
 
     /**
-     * Recursively list the full resource path of all the resources that are children of the
-     * resource identified by a URL.
-     * 
+     * Recursively list the full resource path of all the resources that are
+     * children of the resource identified by a URL.
+     *
      * @param url The URL that identifies the resource to list.
-     * @param forPath The path to the resource that is identified by the URL. Generally, this is the
-     *            value passed to {@link #getResources(String)} to get the resource URL.
+     * @param forPath The path to the resource that is identified by the URL.
+     * Generally, this is the value passed to {@link #getResources(String)} to
+     * get the resource URL.
      * @return A list containing the names of the child resources.
      * @throws IOException If I/O errors occur
      */
     protected abstract List<String> list(URL url, String forPath) throws IOException;
 
     /**
-     * Recursively list the full resource path of all the resources that are children of all the
-     * resources found at the specified path.
-     * 
+     * Recursively list the full resource path of all the resources that are
+     * children of all the resources found at the specified path.
+     *
      * @param path The path of the resource(s) to list.
      * @return A list containing the names of the child resources.
      * @throws IOException If I/O errors occur

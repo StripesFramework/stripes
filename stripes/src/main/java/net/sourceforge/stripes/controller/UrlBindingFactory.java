@@ -37,76 +37,93 @@ import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.util.bean.ParseException;
 
 /**
- * <p>
- * Provides access to {@link UrlBinding} objects. Bindings are used in two contexts:
+ * Provides access to {@link UrlBinding} objects. Bindings are used in two
+ * contexts:
  * <ul>
- * <li><strong>As a prototype:</strong> Binding prototypes provide static information about the
- * binding, such as the URI path, string literals, parameter names and default values. However, the
- * parameters associated with a prototype do not have a value since they are not evaluated against a
- * live request.</li>
- * <li><strong>"Live":</strong> Bindings that have been evaluated against a live servlet request
- * or request URI are exactly like their prototypes except that the parameter values associated with
- * them contain the values (if any) that were extracted from the URI.</li>
+ * <li><strong>As a prototype:</strong> Binding prototypes provide static
+ * information about the binding, such as the URI path, string literals,
+ * parameter names and default values. However, the parameters associated with a
+ * prototype do not have a value since they are not evaluated against a live
+ * request.</li>
+ * <li><strong>"Live":</strong> Bindings that have been evaluated against a live
+ * servlet request or request URI are exactly like their prototypes except that
+ * the parameter values associated with them contain the values (if any) that
+ * were extracted from the URI.</li>
  * </ul>
- * </p>
- * 
+ *
  * @author Ben Gunter
  * @since Stripes 1.5
  * @see UrlBinding
  * @see UrlBindingParameter
  */
 public class UrlBindingFactory {
+
     private static final Log log = Log.getInstance(UrlBindingFactory.class);
 
-    /** Maps {@link ActionBean} classes to {@link UrlBinding}s */
+    /**
+     * Maps {@link ActionBean} classes to {@link UrlBinding}s
+     */
     private final Map<Class<? extends ActionBean>, UrlBinding> classCache = new HashMap<Class<? extends ActionBean>, UrlBinding>();
 
-    /** Maps simple paths to {@link UrlBinding}s */
+    /**
+     * Maps simple paths to {@link UrlBinding}s
+     */
     private final Map<String, UrlBinding> pathCache = new HashMap<String, UrlBinding>();
 
-    /** Keeps a list of all the paths that could not be cached due to conflicts between URL bindings */
+    /**
+     * Keeps a list of all the paths that could not be cached due to conflicts
+     * between URL bindings
+     */
     private final Map<String, List<UrlBinding>> pathConflicts = new HashMap<String, List<UrlBinding>>();
 
-    /** Holds the set of paths that are cached, sorted from longest to shortest */
+    /**
+     * Holds the set of paths that are cached, sorted from longest to shortest
+     */
     private final Map<String, Set<UrlBinding>> prefixCache = new TreeMap<String, Set<UrlBinding>>(
             new Comparator<String>() {
-                public int compare(String a, String b) {
-                    int cmp = b.length() - a.length();
-                    return cmp == 0 ? a.compareTo(b) : cmp;
-                }
-            });
+        public int compare(String a, String b) {
+            int cmp = b.length() - a.length();
+            return cmp == 0 ? a.compareTo(b) : cmp;
+        }
+    });
 
     /**
      * Get all the classes implementing {@link ActionBean}
+     *
+     * @return Returns all of the classes implementing ActionBean
      */
     public Collection<Class<? extends ActionBean>> getActionBeanClasses() {
         return Collections.unmodifiableSet(classCache.keySet());
     }
 
     /**
-     * Get the {@link UrlBinding} prototype associated with the given {@link ActionBean} type. This
-     * method may return null if no binding is associated with the given type.
-     * 
+     * Get the {@link UrlBinding} prototype associated with the given
+     * {@link ActionBean} type. This method may return null if no binding is
+     * associated with the given type.
+     *
      * @param type a class that implements {@link ActionBean}
      * @return a binding object if one is defined or null if not
      */
     public UrlBinding getBindingPrototype(Class<? extends ActionBean> type) {
         UrlBinding binding = classCache.get(type);
-        if (binding != null)
+        if (binding != null) {
             return binding;
+        }
 
         binding = parseUrlBinding(type);
-        if (binding != null)
+        if (binding != null) {
             addBinding(type, binding);
+        }
         return binding;
     }
 
     /**
-     * Examines a URI (as returned by {@link HttpUtil#getRequestedPath(HttpServletRequest)}) and
-     * returns the associated binding prototype, if any. No attempt is made to extract parameter
-     * values from the URI. This is intended as a fast means to get static information associated
-     * with a given request URI.
-     * 
+     * Examines a URI (as returned by
+     * {@link HttpUtil#getRequestedPath(HttpServletRequest)}) and returns the
+     * associated binding prototype, if any. No attempt is made to extract
+     * parameter values from the URI. This is intended as a fast means to get
+     * static information associated with a given request URI.
+     *
      * @param uri a request URI
      * @return a binding prototype, or null if the URI does not match
      */
@@ -116,11 +133,11 @@ public class UrlBindingFactory {
         if (prototype != null) {
             log.debug("Matched ", uri, " to ", prototype);
             return prototype;
-        }
-        else if (pathConflicts.containsKey(uri)) {
+        } else if (pathConflicts.containsKey(uri)) {
             List<String> strings = new ArrayList<String>();
-            for (UrlBinding conflict : pathConflicts.get(uri))
+            for (UrlBinding conflict : pathConflicts.get(uri)) {
                 strings.add(conflict.toString());
+            }
             throw new UrlBindingConflictException(uri, strings);
         }
 
@@ -137,8 +154,7 @@ public class UrlBindingFactory {
         if (candidates == null) {
             log.debug("No URL binding matches ", uri);
             return null;
-        }
-        else if (candidates.size() == 1) {
+        } else if (candidates.size() == 1) {
             log.debug("Matched ", uri, " to ", candidates);
             return candidates.iterator().next();
         }
@@ -152,16 +168,16 @@ public class UrlBindingFactory {
             int componentCount = components.size(), componentMatch = 0;
 
             for (Object component : components) {
-                if (!(component instanceof String))
+                if (!(component instanceof String)) {
                     continue;
+                }
 
                 String string = (String) component;
                 int at = uri.indexOf(string, idx);
                 if (at >= 0) {
                     idx = at + string.length();
                     ++componentMatch;
-                }
-                else if (binding.getSuffix() != null) {
+                } else if (binding.getSuffix() != null) {
                     // Prefer suffix matches
                     string = binding.getSuffix();
                     at = uri.indexOf(string, idx);
@@ -170,8 +186,7 @@ public class UrlBindingFactory {
                         ++componentMatch;
                     }
                     break;
-                }
-                else {
+                } else {
                     break;
                 }
             }
@@ -180,14 +195,14 @@ public class UrlBindingFactory {
                     || (idx == maxIndex && (componentCount < minComponentCount || componentMatch > maxComponentMatch));
 
             if (betterMatch) {
-                if (conflicts != null)
+                if (conflicts != null) {
                     conflicts.clear();
+                }
                 prototype = binding;
                 maxIndex = idx;
                 minComponentCount = componentCount;
                 maxComponentMatch = componentMatch;
-            }
-            else if (idx == maxIndex && componentCount == minComponentCount) {
+            } else if (idx == maxIndex && componentCount == minComponentCount) {
                 if (conflicts == null) {
                     conflicts = new ArrayList<String>(candidates.size());
                     conflicts.add(prototype.toString());
@@ -206,10 +221,11 @@ public class UrlBindingFactory {
     }
 
     /**
-     * Examines a servlet request and returns the associated binding prototype, if any. No attempt
-     * is made to extract parameter values from the URI. This is intended as a fast means to get
-     * static information associated with a given request.
-     * 
+     * Examines a servlet request and returns the associated binding prototype,
+     * if any. No attempt is made to extract parameter values from the URI. This
+     * is intended as a fast means to get static information associated with a
+     * given request.
+     *
      * @param request a servlet request
      * @return a binding prototype, or null if the request URI does not match
      */
@@ -218,18 +234,21 @@ public class UrlBindingFactory {
     }
 
     /**
-     * Examines a URI (as returned by {@link HttpUtil#getRequestedPath(HttpServletRequest)}) and
-     * returns the associated binding, if any. Parameters will be extracted from the URI, and the
-     * {@link UrlBindingParameter} objects returned by {@link UrlBinding#getParameters()} will
-     * contain the values that are present in the URI.
-     * 
+     * Examines a URI (as returned by
+     * {@link HttpUtil#getRequestedPath(HttpServletRequest)}) and returns the
+     * associated binding, if any. Parameters will be extracted from the URI,
+     * and the {@link UrlBindingParameter} objects returned by
+     * {@link UrlBinding#getParameters()} will contain the values that are
+     * present in the URI.
+     *
      * @param uri a request URI
      * @return a binding prototype, or null if the URI does not match
      */
     public UrlBinding getBinding(String uri) {
         UrlBinding prototype = getBindingPrototype(uri);
-        if (prototype == null)
+        if (prototype == null) {
             return null;
+        }
 
         // check for literal suffix in prototype and ignore it if found
         int length = uri.length();
@@ -239,8 +258,9 @@ public class UrlBindingFactory {
         }
 
         // ignore trailing slashes in the URI
-        while (length > 0 && uri.charAt(length - 1) == '/')
+        while (length > 0 && uri.charAt(length - 1) == '/') {
             --length;
+        }
 
         // extract the request parameters and add to new binding object
         ArrayList<Object> components = new ArrayList<Object>(prototype.getComponents().size());
@@ -257,8 +277,7 @@ public class UrlBindingFactory {
                 if (end >= 0) {
                     value = uri.substring(index, end);
                     index = end + literal.length();
-                }
-                else {
+                } else {
                     value = uri.substring(index, length);
                     index = length;
                 }
@@ -270,8 +289,7 @@ public class UrlBindingFactory {
                     current = null;
                     value = null;
                 }
-            }
-            else if (component instanceof UrlBindingParameter) {
+            } else if (component instanceof UrlBindingParameter) {
                 current = (UrlBindingParameter) component;
             }
         }
@@ -291,8 +309,7 @@ public class UrlBindingFactory {
             Object component = iter.next();
             if (component instanceof UrlBindingParameter) {
                 components.add(new UrlBindingParameter((UrlBindingParameter) component));
-            }
-            else {
+            } else {
                 components.add(component);
             }
         }
@@ -301,13 +318,15 @@ public class UrlBindingFactory {
     }
 
     /**
-     * Examines a servlet request and returns the associated binding, if any. Parameters will be
-     * extracted from the request, and the {@link UrlBindingParameter} objects returned by
-     * {@link UrlBinding#getParameters()} will contain the values that are present in the request.
-     * 
+     * Examines a servlet request and returns the associated binding, if any.
+     * Parameters will be extracted from the request, and the
+     * {@link UrlBindingParameter} objects returned by
+     * {@link UrlBinding#getParameters()} will contain the values that are
+     * present in the request.
+     *
      * @param request a servlet request
-     * @return if the request matches a defined binding, then this method should return that
-     *         binding. Otherwise, this method should return null.
+     * @return if the request matches a defined binding, then this method should
+     * return that binding. Otherwise, this method should return null.
      */
     public UrlBinding getBinding(HttpServletRequest request) {
         return getBinding(HttpUtil.getRequestedPath(request));
@@ -315,7 +334,7 @@ public class UrlBindingFactory {
 
     /**
      * Get all the {@link ActionBean}s classes that have been found.
-     * 
+     *
      * @return an immutable collection of {@link ActionBean} classes
      */
     public HashMap<String, Class<? extends ActionBean>> getPathMap() {
@@ -330,7 +349,7 @@ public class UrlBindingFactory {
 
     /**
      * Map an {@link ActionBean} to a URL.
-     * 
+     *
      * @param beanType the {@link ActionBean} class
      * @param binding the URL binding
      */
@@ -349,8 +368,9 @@ public class UrlBindingFactory {
                 break;
             }
         }
-        if (existing != null)
+        if (existing != null) {
             removeBinding(existing);
+        }
 
         // And now we can safely add the class
         for (String path : getCachedPaths(binding)) {
@@ -364,13 +384,14 @@ public class UrlBindingFactory {
 
     /**
      * Removes an {@link ActionBean}'s URL binding.
-     * 
+     *
      * @param beanType the {@link ActionBean} class
      */
     public synchronized void removeBinding(Class<? extends ActionBean> beanType) {
         UrlBinding binding = classCache.get(beanType);
-        if (binding == null)
+        if (binding == null) {
             return;
+        }
 
         Set<UrlBinding> resolvedConflicts = null;
         for (String path : getCachedPaths(binding)) {
@@ -391,8 +412,9 @@ public class UrlBindingFactory {
                     conflicts.clear();
                 }
 
-                if (conflicts.isEmpty())
+                if (conflicts.isEmpty()) {
                     pathConflicts.remove(path);
+                }
             }
         }
 
@@ -401,8 +423,9 @@ public class UrlBindingFactory {
             if (bindings != null) {
                 log.debug("Clearing cached prefix ", prefix, " for ", binding);
                 bindings.remove(binding);
-                if (bindings.isEmpty())
+                if (bindings.isEmpty()) {
                     prefixCache.remove(prefix);
+                }
             }
         }
 
@@ -419,9 +442,13 @@ public class UrlBindingFactory {
     }
 
     /**
-     * Get a list of the request paths that will be wired directly to an ActionBean. In some cases,
-     * a single path might be valid for more than one ActionBean. In such a case, a warning will be
-     * logged at startup and an exception will be thrown if the conflicting path is requested.
+     * Get a list of the request paths that will be wired directly to an
+     * ActionBean. In some cases, a single path might be valid for more than one
+     * ActionBean. In such a case, a warning will be logged at startup and an
+     * exception will be thrown if the conflicting path is requested.
+     *
+     * @param binding The URL binding
+     * @return The paths which can be wired to the passed binding.
      */
     protected Set<String> getCachedPaths(UrlBinding binding) {
         Set<String> paths = new TreeSet<String>();
@@ -429,29 +456,37 @@ public class UrlBindingFactory {
         // Wire some paths directly to the ActionBean (path, path + /, path + suffix, etc.)
         paths.add(binding.getPath());
         paths.add(binding.toString());
-        if (!binding.getPath().endsWith("/"))
+        if (!binding.getPath().endsWith("/")) {
             paths.add(binding.getPath() + '/');
-        if (binding.getSuffix() != null)
+        }
+        if (binding.getSuffix() != null) {
             paths.add(binding.getPath() + binding.getSuffix());
+        }
 
         return paths;
     }
 
     /**
-     * Get a list of the request path prefixes that <em>could</em> map to an ActionBean. A single
-     * prefix may map to multiple ActionBeans. In such a case, we attempt to determine the best
-     * match based on the literal strings and parameters defined in the ActionBeans' URL bindings.
-     * If no single ActionBean is determined to be a best match, then an exception is thrown to
-     * report the conflict.
+     * Get a list of the request path prefixes that <em>could</em> map to an
+     * ActionBean. A single prefix may map to multiple ActionBeans. In such a
+     * case, we attempt to determine the best match based on the literal strings
+     * and parameters defined in the ActionBeans' URL bindings. If no single
+     * ActionBean is determined to be a best match, then an exception is thrown
+     * to report the conflict.
+     *
+     * @param binding The URL binding to get prefixes for
+     * @return The list of prefixes which can be associated to the passed
+     * binding.
      */
     protected Set<String> getCachedPrefixes(UrlBinding binding) {
         Set<String> prefixes = new TreeSet<String>();
 
         // Add binding as a candidate for some prefixes (path + /, path + leading literal, etc.)
-        if (binding.getPath().endsWith("/"))
+        if (binding.getPath().endsWith("/")) {
             prefixes.add(binding.getPath());
-        else
+        } else {
             prefixes.add(binding.getPath() + '/');
+        }
 
         List<Object> components = binding.getComponents();
         if (components != null && !components.isEmpty() && components.get(0) instanceof String) {
@@ -462,9 +497,10 @@ public class UrlBindingFactory {
     }
 
     /**
-     * Map a path directly to a binding. If the path matches more than one binding, then a warning
-     * will be logged indicating such a condition, and the path will not be cached for any binding.
-     * 
+     * Map a path directly to a binding. If the path matches more than one
+     * binding, then a warning will be logged indicating such a condition, and
+     * the path will not be cached for any binding.
+     *
      * @param path The path to cache
      * @param binding The binding to which the path should map
      */
@@ -490,8 +526,7 @@ public class UrlBindingFactory {
                     if (ub.getParameters().isEmpty()) {
                         if (statik == null) {
                             statik = ub;
-                        }
-                        else {
+                        } else {
                             statik = null;
                             break;
                         }
@@ -503,14 +538,12 @@ public class UrlBindingFactory {
             if (statik == null) {
                 log.debug("The path ", path, " for ", binding.getBeanType().getName(), " @ ",
                         binding, " conflicts with ", conflicts);
-            }
-            else {
+            } else {
                 log.debug("For path ", path, ", static binding ", statik,
                         " supersedes conflicting bindings ", conflicts);
                 pathCache.put(path, statik);
             }
-        }
-        else {
+        } else {
             log.debug("Wiring path ", path, " to ", binding.getBeanType().getName(), " @ ", binding);
             pathCache.put(path, binding);
         }
@@ -518,7 +551,7 @@ public class UrlBindingFactory {
 
     /**
      * Add a binding to the set of bindings associated with a prefix.
-     * 
+     *
      * @param prefix The prefix to cache
      * @param binding The binding to map to the prefix
      */
@@ -533,8 +566,9 @@ public class UrlBindingFactory {
             bindings = new TreeSet<UrlBinding>(new Comparator<UrlBinding>() {
                 public int compare(UrlBinding o1, UrlBinding o2) {
                     int cmp = o1.getComponents().size() - o2.getComponents().size();
-                    if (cmp == 0)
+                    if (cmp == 0) {
                         cmp = o1.toString().compareTo(o2.toString());
+                    }
                     return cmp;
                 }
             });
@@ -546,10 +580,11 @@ public class UrlBindingFactory {
     }
 
     /**
-     * Look for a binding pattern for the given {@link ActionBean} class, specified by the
-     * {@link net.sourceforge.stripes.action.UrlBinding} annotation. If the annotation is found,
-     * create and return a {@link UrlBinding} object for the class. Otherwise, return null.
-     * 
+     * Look for a binding pattern for the given {@link ActionBean} class,
+     * specified by the {@link net.sourceforge.stripes.action.UrlBinding}
+     * annotation. If the annotation is found, create and return a
+     * {@link UrlBinding} object for the class. Otherwise, return null.
+     *
      * @param beanType The {@link ActionBean} type whose binding is to be parsed
      * @return A {@link UrlBinding} if one is specified, or null if not.
      * @throws ParseException If the pattern cannot be parsed
@@ -558,16 +593,17 @@ public class UrlBindingFactory {
         // check that class is annotated
         net.sourceforge.stripes.action.UrlBinding annotation = beanType
                 .getAnnotation(net.sourceforge.stripes.action.UrlBinding.class);
-        if (annotation == null)
+        if (annotation == null) {
             return null;
-        else
+        } else {
             return parseUrlBinding(beanType, annotation.value());
+        }
     }
 
     /**
-     * Parse the binding pattern and create a {@link UrlBinding} object for the {@link ActionBean}
-     * class. If pattern is null, then return null.
-     * 
+     * Parse the binding pattern and create a {@link UrlBinding} object for the
+     * {@link ActionBean} class. If pattern is null, then return null.
+     *
      * @param beanType The {@link ActionBean} type to be mapped to the pattern.
      * @param pattern The URL binding pattern to parse.
      * @return A {@link UrlBinding} or null if the pattern is null
@@ -575,8 +611,9 @@ public class UrlBindingFactory {
      */
     public static UrlBinding parseUrlBinding(Class<? extends ActionBean> beanType, String pattern) {
         // check that value is not null
-        if (pattern == null)
+        if (pattern == null) {
             return null;
+        }
 
         // make sure it starts with /
         if (!pattern.startsWith("/")) {
@@ -594,47 +631,46 @@ public class UrlBindingFactory {
             c = chars[i];
             if (!escape) {
                 switch (c) {
-                case '{':
-                    if (!brace) {
-                        brace = true;
-                        if (path == null) {
-                            // extract trailing non-alphanum chars as a literal to trim the path
-                            int end = buf.length() - 1;
-                            while (end >= 0 && !Character.isJavaIdentifierPart(buf.charAt(end)))
-                                --end;
-                            if (end < 0) {
-                                path = buf.toString();
+                    case '{':
+                        if (!brace) {
+                            brace = true;
+                            if (path == null) {
+                                // extract trailing non-alphanum chars as a literal to trim the path
+                                int end = buf.length() - 1;
+                                while (end >= 0 && !Character.isJavaIdentifierPart(buf.charAt(end))) {
+                                    --end;
+                                }
+                                if (end < 0) {
+                                    path = buf.toString();
+                                } else {
+                                    ++end;
+                                    path = buf.substring(0, end);
+                                    components.add(buf.substring(end));
+                                }
+                            } else {
+                                components.add(buf.toString());
                             }
-                            else {
-                                ++end;
-                                path = buf.substring(0, end);
-                                components.add(buf.substring(end));
-                            }
+                            buf.setLength(0);
+                            continue;
                         }
-                        else {
-                            components.add(buf.toString());
+                        break;
+                    case '}':
+                        if (brace) {
+                            brace = false;
+                            components.add(parseUrlBindingParameter(beanType, buf.toString()));
+                            buf.setLength(0);
+                            continue;
                         }
-                        buf.setLength(0);
-                        continue;
-                    }
-                    break;
-                case '}':
-                    if (brace) {
-                        brace = false;
-                        components.add(parseUrlBindingParameter(beanType, buf.toString()));
-                        buf.setLength(0);
-                        continue;
-                    }
-                    break;
-                case '\\':
-                    escape = true;
+                        break;
+                    case '\\':
+                        escape = true;
 
-                    // Preserve escape characters for parameter name parser
-                    if (brace) {
-                        buf.append(c);
-                    }
+                        // Preserve escape characters for parameter name parser
+                        if (brace) {
+                            buf.append(c);
+                        }
 
-                    continue;
+                        continue;
                 }
             }
 
@@ -644,29 +680,31 @@ public class UrlBindingFactory {
         }
 
         // Were we led to expect more characters?
-        if (escape)
+        if (escape) {
             throw new ParseException(pattern, "Expression must not end with escape character");
-        else if (brace)
+        } else if (brace) {
             throw new ParseException(pattern, "Unterminated left brace ('{') in expression");
+        }
 
         // handle whatever is left
         if (buf.length() > 0) {
-            if (path == null)
+            if (path == null) {
                 path = buf.toString();
-            else if (c == '}')
+            } else if (c == '}') {
                 components.add(parseUrlBindingParameter(beanType, buf.toString()));
-            else
+            } else {
                 components.add(buf.toString());
+            }
         }
 
         return new UrlBinding(beanType, path, components);
     }
 
     /**
-     * Parses a parameter specification into name and default value and returns a
-     * {@link UrlBindingParameter} with the corresponding name and default value properties set
-     * accordingly.
-     * 
+     * Parses a parameter specification into name and default value and returns
+     * a {@link UrlBindingParameter} with the corresponding name and default
+     * value properties set accordingly.
+     *
      * @param beanClass the bean class to which the binding applies
      * @param string the parameter string
      * @return a parameter object
@@ -684,12 +722,12 @@ public class UrlBindingFactory {
             c = chars[i];
             if (!escape) {
                 switch (c) {
-                case '\\':
-                    escape = true;
-                    continue;
-                case '=':
-                    current = defaultValue;
-                    continue;
+                    case '\\':
+                        escape = true;
+                        continue;
+                    case '=':
+                        current = defaultValue;
+                        continue;
                 }
             }
 

@@ -24,19 +24,22 @@ import net.sourceforge.stripes.util.Log;
 /**
  * <p>
  * An implementation of {@link ObjectPostProcessor} that calls {@link
- * SpringHelper#injectBeans((Object, ServletContext))} to inject dependencies marked with
- * {@link SpringBean} in every type of object created by Stripes (Action Beans, Interceptors, Type
- * Converters, Formatters, etc.).
+ * SpringHelper#injectBeans(Object, ServletContext)} to inject dependencies
+ * marked with {@link SpringBean} in every type of object created by Stripes
+ * (Action Beans, Interceptors, Type Converters, Formatters, etc.).
  * </p>
- * 
+ *
  * @author Freddy Daoud, Ben Gunter
  * @since Stripes 1.6
  */
 public class SpringInjectionPostProcessor implements ObjectPostProcessor<Object> {
+
     private static final Log log = Log.getInstance(SpringInjectionPostProcessor.class);
     private ServletContext servletContext;
 
-    /** Get the servlet context from the object factory's configuration. */
+    /**
+     * Get the servlet context from the object factory's configuration.
+     */
     public void setObjectFactory(DefaultObjectFactory factory) {
         Configuration configuration = factory.getConfiguration();
         if (configuration == null) {
@@ -58,8 +61,9 @@ public class SpringInjectionPostProcessor implements ObjectPostProcessor<Object>
     }
 
     /**
-     * Calls {@link SpringHelper#injectBeans((Object, ServletContext))} to inject dependencies
-     * marked with {@link SpringBean} into the object before returning it.
+     * Calls {@link SpringHelper#injectBeans(Object, ServletContext)} to inject
+     * dependencies marked with {@link SpringBean} into the object before
+     * returning it.
      */
     public Object postProcess(Object object) {
         log.debug("Running Spring dependency injection for instance of ", object.getClass()

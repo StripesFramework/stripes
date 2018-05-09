@@ -21,13 +21,17 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Documented;
 
 /**
- * <p>Annotation that marks an ActionBean as representing a wizard user interface (i.e. one logical
- * form or operation spread across several pages/request cycles). ActionBeans that are marked
- * as Wizards are treated differently in the following ways:</p>
+ * <p>
+ * Annotation that marks an ActionBean as representing a wizard user interface
+ * (i.e. one logical form or operation spread across several pages/request
+ * cycles). ActionBeans that are marked as Wizards are treated differently in
+ * the following ways:</p>
  *
  * <ul>
- *   <li>Data from previous request cycles is maintained automatically through hidden fields</li>
- *   <li>Required field validation is performed only on those fields present on the page</li>
+ * <li>Data from previous request cycles is maintained automatically through
+ * hidden fields</li>
+ * <li>Required field validation is performed only on those fields present on
+ * the page</li>
  * </ul>
  *
  * @author Tim Fennell
@@ -37,6 +41,7 @@ import java.lang.annotation.Documented;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface Wizard {
+
     /**
      * An optional list of events which mark the start of the wizard flow. An event is a
      * start event if it is executed <i>before</i> the first page in the wizard flow is
@@ -44,6 +49,8 @@ public @interface Wizard {
      * The list is used by Stripes to disable security validation of the 'fields present'
      * field in the request, as it is not necessary for start events in a wizard flow, and
      * can cause problems.
+     * 
+     * @return List of events which mark the start of a wizard's flow.
      */
     String[] startEvents() default {};
 }

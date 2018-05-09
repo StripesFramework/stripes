@@ -34,11 +34,13 @@ import org.testng.annotations.Test;
 
 /**
  * Unit tests for {@link ObjectFactory} and {@link DefaultObjectFactory}.
- * 
+ *
  * @author Ben Gunter
  */
 public class ObjectFactoryTests extends StripesTestFixture {
+
     public static final class Adder {
+
         private int a;
         private int b;
 
@@ -53,6 +55,7 @@ public class ObjectFactoryTests extends StripesTestFixture {
     }
 
     public static class MyRunnable implements Runnable {
+
         public void run() {
         }
     }
@@ -78,7 +81,9 @@ public class ObjectFactoryTests extends StripesTestFixture {
         }
     }
 
-    /** Test basic instantiation of classes. */
+    /**
+     * Test basic instantiation of classes.
+     */
     @Test(groups = "fast")
     public void basic() {
         ObjectFactory factory = super.getDefaultConfiguration().getObjectFactory();
@@ -86,7 +91,9 @@ public class ObjectFactoryTests extends StripesTestFixture {
                 StringBuilder.class);
     }
 
-    /** Test instantiation of interfaces. */
+    /**
+     * Test instantiation of interfaces.
+     */
     @Test(groups = "fast")
     public void interfaces() {
         ObjectFactory factory = getDefaultConfiguration().getObjectFactory();
@@ -94,7 +101,9 @@ public class ObjectFactoryTests extends StripesTestFixture {
                 Queue.class, Map.class, SortedMap.class);
     }
 
-    /** Test instantiation via constructor. */
+    /**
+     * Test instantiation via constructor.
+     */
     @Test(groups = "fast")
     public void constructor() {
         log.info("Instantiating ", Adder.class, " via constructor call");
@@ -108,14 +117,16 @@ public class ObjectFactoryTests extends StripesTestFixture {
         Assert.assertEquals(adder.sum(), a + b);
     }
 
-    /** Attempt to instantiate an interface that does not have a known implementing class. */
+    /**
+     * Attempt to instantiate an interface that does not have a known
+     * implementing class.
+     */
     @Test(groups = "fast", expectedExceptions = InstantiationException.class)
     public void missingInterfaceImpl() throws Throwable {
         try {
             log.debug("Attempting to instantiate ", Runnable.class, " expecting failure");
             getDefaultConfiguration().getObjectFactory().newInstance(Runnable.class);
-        }
-        catch (StripesRuntimeException e) {
+        } catch (StripesRuntimeException e) {
             throw e.getCause();
         }
     }
@@ -130,19 +141,22 @@ public class ObjectFactoryTests extends StripesTestFixture {
         Assert.assertSame(factory.newInstance(List.class).getClass(), LinkedList.class);
     }
 
-    /** Attempt to instantiate a class that does not have a no-arg constructor. */
+    /**
+     * Attempt to instantiate a class that does not have a no-arg constructor.
+     */
     @Test(groups = "fast", expectedExceptions = InstantiationException.class)
     public void missingNoArgsConstructor() throws Throwable {
         try {
             log.debug("Attempting to instantiate ", Adder.class, " expecting failure");
             getDefaultConfiguration().getObjectFactory().newInstance(Adder.class);
-        }
-        catch (StripesRuntimeException e) {
+        } catch (StripesRuntimeException e) {
             throw e.getCause();
         }
     }
 
-    /** Alter an instance via {@link DefaultObjectFactory#postProcess(Object)}. */
+    /**
+     * Alter an instance via {@link DefaultObjectFactory#postProcess(Object)}.
+     */
     @Test(groups = "fast")
     public void postProcessMethod() {
         final String prefix = "Stripey!";
@@ -150,8 +164,9 @@ public class ObjectFactoryTests extends StripesTestFixture {
             @SuppressWarnings("unchecked")
             @Override
             protected <T> T postProcess(T object) {
-                if (object instanceof String)
+                if (object instanceof String) {
                     object = (T) (prefix + object);
+                }
 
                 return object;
             }
@@ -177,12 +192,16 @@ public class ObjectFactoryTests extends StripesTestFixture {
         Assert.assertEquals(string, prefix + expect);
     }
 
-    /** Alter an instance via {@link DefaultObjectFactory#postProcess(Object)}. */
+    /**
+     * Alter an instance via {@link DefaultObjectFactory#postProcess(Object)}.
+     */
     @Test(groups = "fast")
     public void classPostProcessor() {
         final String prefix = "Stripey!";
         class MyObjectPostProcessor implements ObjectPostProcessor<String> {
-            public void setObjectFactory(DefaultObjectFactory factory) {}
+
+            public void setObjectFactory(DefaultObjectFactory factory) {
+            }
 
             public String postProcess(String object) {
                 log.debug("Altering '", object, "'");
@@ -213,12 +232,16 @@ public class ObjectFactoryTests extends StripesTestFixture {
         Assert.assertEquals(string, prefix + expect);
     }
 
-    /** Alter an instance via {@link DefaultObjectFactory#postProcess(Object)}. */
+    /**
+     * Alter an instance via {@link DefaultObjectFactory#postProcess(Object)}.
+     */
     @Test(groups = "fast")
     public void interfacePostProcessor() {
         final String prefix = "Stripey!";
         class MyObjectPostProcessor implements ObjectPostProcessor<CharSequence> {
-            public void setObjectFactory(DefaultObjectFactory factory) {}
+
+            public void setObjectFactory(DefaultObjectFactory factory) {
+            }
 
             public CharSequence postProcess(CharSequence object) {
                 log.debug("Altering '", object, "'");
@@ -259,7 +282,9 @@ public class ObjectFactoryTests extends StripesTestFixture {
     public void multipleSequentialPostProcessors() {
         final AtomicInteger counter = new AtomicInteger(0);
         class MyObjectPostProcessor implements ObjectPostProcessor<StringBuilder> {
-            public void setObjectFactory(DefaultObjectFactory factory) {}
+
+            public void setObjectFactory(DefaultObjectFactory factory) {
+            }
 
             public StringBuilder postProcess(StringBuilder object) {
                 log.debug("Altering '", object, "'");

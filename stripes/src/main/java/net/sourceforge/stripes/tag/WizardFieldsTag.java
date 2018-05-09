@@ -33,30 +33,46 @@ import net.sourceforge.stripes.util.CryptoUtil;
 import net.sourceforge.stripes.util.HtmlUtil;
 
 /**
- * <p>Examines the request and include hidden fields for all parameters that have do
- * not have form fields in the current form. Will include multiple values for
- * parameters that have them.  Excludes 'special' parameters like the source
- * page parameter, and the parameter that conveyed the event name.</p>
+ * <p>
+ * Examines the request and include hidden fields for all parameters that have
+ * do not have form fields in the current form. Will include multiple values for
+ * parameters that have them. Excludes 'special' parameters like the source page
+ * parameter, and the parameter that conveyed the event name.</p>
  *
- * <p>Very useful for implementing basic wizard flow without relying on session
+ * <p>
+ * Very useful for implementing basic wizard flow without relying on session
  * scoping of ActionBeans, and without having to name all the parameters that
  * should be carried forward in the form.</p>
  *
  * @author Tim Fennell
  */
 public class WizardFieldsTag extends StripesTagSupport implements TryCatchFinally {
+
     private boolean currentFormOnly = false;
 
     /**
-     * Sets whether or not the parameters should be output only if the form matches the current
-     * request.  Defaults to false.
+     * Sets whether or not the parameters should be output only if the form
+     * matches the current request. Defaults to false.
+     * @param currentFormOnly
      */
-    public void setCurrentFormOnly(boolean currentFormOnly) { this.currentFormOnly = currentFormOnly; }
+    public void setCurrentFormOnly(boolean currentFormOnly) {
+        this.currentFormOnly = currentFormOnly;
+    }
 
-    /** Gets whether the tag will output fields for the current form only, or in all cases. */
-    public boolean isCurrentFormOnly() { return currentFormOnly; }
+    /**
+     * Gets whether the tag will output fields for the current form only, or in
+     * all cases.
+     * @return 
+     */
+    public boolean isCurrentFormOnly() {
+        return currentFormOnly;
+    }
 
-    /** Skips over the body because there shouldn't be one. */
+    /**
+     * Skips over the body because there shouldn't be one.
+     * @return 
+     * @throws javax.servlet.jsp.JspException
+     */
     @Override
     public int doStartTag() throws JspException {
         getTagStack().push(this);
@@ -64,11 +80,14 @@ public class WizardFieldsTag extends StripesTagSupport implements TryCatchFinall
     }
 
     /**
-     * Performs the main work of the tag, as described in the class level javadoc.
+     * Performs the main work of the tag, as described in the class level
+     * javadoc.
+     *
      * @return EVAL_PAGE in all cases.
+     * @throws javax.servlet.jsp.JspException
      */
     @Override
-	public int doEndTag() throws JspException {
+    public int doEndTag() throws JspException {
         // Get the current form.
         FormTag form = getParentTag(FormTag.class);
 
@@ -85,23 +104,33 @@ public class WizardFieldsTag extends StripesTagSupport implements TryCatchFinall
         return EVAL_PAGE;
     }
 
-    /** Rethrows the passed in throwable in all cases. */
-    public void doCatch(Throwable throwable) throws Throwable { throw throwable; }
+    /**
+     * Rethrows the passed in throwable in all cases.
+     * @param throwable
+     * @throws java.lang.Throwable
+     */
+    public void doCatch(Throwable throwable) throws Throwable {
+        throw throwable;
+    }
 
     /**
-     * Used to ensure that the input tag is always removed from the tag stack so that there is
-     * never any confusion about tag-parent hierarchies.
+     * Used to ensure that the input tag is always removed from the tag stack so
+     * that there is never any confusion about tag-parent hierarchies.
      */
     public void doFinally() {
-        try { getTagStack().pop(); }
-        catch (Throwable t) {
+        try {
+            getTagStack().pop();
+        } catch (Throwable t) {
             /* Suppress anything, because otherwise this might mask any causal exception. */
         }
     }
 
     /**
-     * Write out a hidden field which contains parameters that should be sent along with the actual
-     * form fields.
+     * Write out a hidden field which contains parameters that should be sent
+     * along with the actual form fields.
+     * @param form
+     * @throws javax.servlet.jsp.JspException
+     * @throws net.sourceforge.stripes.exception.StripesJspException
      */
     protected void writeWizardFields(FormTag form) throws JspException, StripesJspException {
         // Set up a hidden tag to do the writing for us
@@ -123,29 +152,35 @@ public class WizardFieldsTag extends StripesTagSupport implements TryCatchFinall
                     hidden.doStartTag();
                     hidden.doAfterBody();
                     hidden.doEndTag();
-                }
-                catch (Throwable t) {
-                    /** Catch whatever comes back out of the doCatch() method and deal with it */
+                } catch (Throwable t) {
+                    /**
+                     * Catch whatever comes back out of the doCatch() method and
+                     * deal with it
+                     */
                     try {
                         hidden.doCatch(t);
-                    }
-                    catch (Throwable t2) {
-                        if (t2 instanceof JspException)
+                    } catch (Throwable t2) {
+                        if (t2 instanceof JspException) {
                             throw (JspException) t2;
-                        if (t2 instanceof RuntimeException)
+                        }
+                        if (t2 instanceof RuntimeException) {
                             throw (RuntimeException) t2;
-                        else
+                        } else {
                             throw new StripesJspException(t2);
+                        }
                     }
-                }
-                finally {
+                } finally {
                     hidden.doFinally();
                 }
             }
         }
     }
 
-    /** Returns all the submitted parameters in the current or the former requests. */
+    /**
+     * Returns all the submitted parameters in the current or the former
+     * requests.
+     * @return 
+     */
     @SuppressWarnings("unchecked")
     protected Set<String> getParamNames() {
         // Combine actual parameter names with input names from the form, which might not be
@@ -160,7 +195,12 @@ public class WizardFieldsTag extends StripesTagSupport implements TryCatchFinall
         return paramNames;
     }
 
-    /** Returns the list of parameters that should be excluded from the hidden tag. */
+    /**
+     * Returns the list of parameters that should be excluded from the hidden
+     * tag.
+     * @param form
+     * @return 
+     */
     protected Set<String> getExcludes(FormTag form) {
         Set<String> excludes = new HashSet<String>();
         excludes.addAll(form.getRegisteredFields());
@@ -186,21 +226,22 @@ public class WizardFieldsTag extends StripesTagSupport implements TryCatchFinall
     }
 
     /**
-     * Returns true if {@code name} is the name of an event handled by {@link ActionBean}s of type
-     * {@code beanType}.
-     * 
+     * Returns true if {@code name} is the name of an event handled by
+     * {@link ActionBean}s of type {@code beanType}.
+     *
      * @param beanType An {@link ActionBean} class
      * @param name The name to look up
+     * @return 
      */
     protected boolean isEventName(Class<? extends ActionBean> beanType, String name) {
-        if (beanType == null || name == null)
+        if (beanType == null || name == null) {
             return false;
+        }
 
         try {
             ActionResolver actionResolver = StripesFilter.getConfiguration().getActionResolver();
             return actionResolver.getHandler(beanType, name) != null;
-        }
-        catch (StripesServletException e) {
+        } catch (StripesServletException e) {
             // Ignore the exception and assume the name is not an event
             return false;
         }

@@ -20,36 +20,52 @@ import javax.servlet.annotation.HandlesTypes;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ *
+ * @author rgras_000
+ */
 @HandlesTypes({
-	ConfigurableComponent.class,
-	Configuration.class,
-	ObjectPostProcessor.class,
-	ActionBean.class,
-	AutoExceptionHandler.class,
-	ActionBeanContext.class,
-	TagErrorRenderer.class,
-	ContentTypeRequestWrapper.class,
-	Interceptor.class,
-	Formatter.class,
-	TypeConverter.class
+    ConfigurableComponent.class,
+    Configuration.class,
+    ObjectPostProcessor.class,
+    ActionBean.class,
+    AutoExceptionHandler.class,
+    ActionBeanContext.class,
+    TagErrorRenderer.class,
+    ContentTypeRequestWrapper.class,
+    Interceptor.class,
+    Formatter.class,
+    TypeConverter.class
 })
 public class StripesContainerInitializer implements ServletContainerInitializer {
 
-	private static final Log log = Log.getInstance(StripesContainerInitializer.class);
+    private static final Log log = Log.getInstance(StripesContainerInitializer.class);
 
-	public static Set<Class<?>> LOADED_CLASSES = null;
+    /**
+     *
+     */
+    public static Set<Class<?>> LOADED_CLASSES = null;
 
-	public static StripesContainerInitializer INSTANCE = null;
+    /**
+     *
+     */
+    public static StripesContainerInitializer INSTANCE = null;
 
-	public void onStartup(Set<Class<?>> c, ServletContext ctx) throws ServletException {
-		LOADED_CLASSES = new HashSet<Class<?>>(c);
-		INSTANCE = this;
-		log.info(LOADED_CLASSES.size() + " classes loaded.");
-		if (log.getRealLog().isDebugEnabled()) {
-			for (Class<?> clazz : LOADED_CLASSES) {
-				log.debug("  * " + clazz.getName());
-			}
-		}
-	}
+    /**
+     *
+     * @param c
+     * @param ctx
+     * @throws ServletException
+     */
+    public void onStartup(Set<Class<?>> c, ServletContext ctx) throws ServletException {
+        LOADED_CLASSES = new HashSet<Class<?>>(c);
+        INSTANCE = this;
+        log.info(LOADED_CLASSES.size() + " classes loaded.");
+        if (log.getRealLog().isDebugEnabled()) {
+            for (Class<?> clazz : LOADED_CLASSES) {
+                log.debug("  * " + clazz.getName());
+            }
+        }
+    }
 
 }

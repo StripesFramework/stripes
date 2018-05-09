@@ -23,23 +23,43 @@ import net.sourceforge.stripes.exception.StripesServletException;
 
 /**
  * A parameter to a clean URL.
- * 
+ *
  * @author Ben Gunter
  * @since Stripes 1.5
  */
 public class UrlBindingParameter {
-    /** The special parameter name for the event to execute */
+
+    /**
+     * The special parameter name for the event to execute
+     */
     public static final String PARAMETER_NAME_EVENT = "$event";
 
+    /**
+     *
+     */
     protected Class<? extends ActionBean> beanClass;
+
+    /**
+     *
+     */
     protected String name;
+
+    /**
+     *
+     */
     protected String value;
+
+    /**
+     *
+     */
     protected String defaultValue;
 
     /**
-     * Create a new {@link UrlBindingParameter} with the given name and value. The
-     * {@link #defaultValue} will be null.
-     * 
+     * Create a new {@link UrlBindingParameter} with the given name and value.
+     * The {@link #defaultValue} will be null.
+     *
+     * @param beanClass The action bean class that the URL binding is associated
+     * with.
      * @param name parameter name
      * @param value parameter value
      */
@@ -48,8 +68,11 @@ public class UrlBindingParameter {
     }
 
     /**
-     * Create a new {@link UrlBindingParameter} with the given name, value and default value.
-     * 
+     * Create a new {@link UrlBindingParameter} with the given name, value and
+     * default value.
+     *
+     * @param beanClass The action bean class that the URL binding is associated
+     * with.
      * @param name parameter name
      * @param value parameter value
      * @param defaultValue default value to use if value is null
@@ -63,7 +86,7 @@ public class UrlBindingParameter {
 
     /**
      * Make an exact copy of the given {@link UrlBindingParameter}.
-     * 
+     *
      * @param prototype a parameter
      */
     public UrlBindingParameter(UrlBindingParameter prototype) {
@@ -71,9 +94,9 @@ public class UrlBindingParameter {
     }
 
     /**
-     * Make a copy of the given {@link UrlBindingParameter} except that the parameter's value will
-     * be set to <code>value</code>.
-     * 
+     * Make a copy of the given {@link UrlBindingParameter} except that the
+     * parameter's value will be set to <code>value</code>.
+     *
      * @param prototype a parameter
      * @param value the new parameter value
      */
@@ -81,14 +104,18 @@ public class UrlBindingParameter {
         this(prototype.beanClass, prototype.name, value, prototype.defaultValue);
     }
 
-    /** Get the {@link ActionBean} class to which the {@link UrlBinding} applies. */
+    /**
+     * Get the {@link ActionBean} class to which the {@link UrlBinding} applies.
+     *
+     * @return The action bean class that the URL is bound to.
+     */
     public Class<? extends ActionBean> getBeanClass() {
         return beanClass;
     }
 
     /**
      * Get the parameter's default value, which may be null.
-     * 
+     *
      * @return the default value
      */
     public String getDefaultValue() {
@@ -96,9 +123,9 @@ public class UrlBindingParameter {
     }
 
     /**
-     * Ensure the default event name is set if the binding uses the $event parameter.
-     * Can only be done safely after the event mappings have been processed.
-     * see http://www.stripesframework.org/jira/browse/STS-803
+     * Ensure the default event name is set if the binding uses the $event
+     * parameter. Can only be done safely after the event mappings have been
+     * processed. see http://www.stripesframework.org/jira/browse/STS-803
      */
     void initDefaultValueWithDefaultHandlerIfNeeded(ActionResolver actionResolver) {
         if (PARAMETER_NAME_EVENT.equals(name)) {
@@ -106,8 +133,8 @@ public class UrlBindingParameter {
             try {
                 defaultHandler = actionResolver.getDefaultHandler(beanClass);
             } catch (StripesServletException e) {
-                throw new StripesRuntimeException("Caught an exception trying to get default handler for ActionBean '" + beanClass.getName() +
-                        "'. Make sure this ActionBean has a default handler.", e);
+                throw new StripesRuntimeException("Caught an exception trying to get default handler for ActionBean '" + beanClass.getName()
+                        + "'. Make sure this ActionBean has a default handler.", e);
             }
             HandlesEvent annotation = defaultHandler.getAnnotation(HandlesEvent.class);
             if (annotation != null) {
@@ -120,7 +147,7 @@ public class UrlBindingParameter {
 
     /**
      * Get the parameter name.
-     * 
+     *
      * @return parameter name
      */
     public String getName() {
@@ -129,7 +156,7 @@ public class UrlBindingParameter {
 
     /**
      * Return the parameter value that was extracted from a URI.
-     * 
+     *
      * @return parameter value
      */
     public String getValue() {
@@ -138,8 +165,9 @@ public class UrlBindingParameter {
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof UrlBindingParameter))
+        if (!(o instanceof UrlBindingParameter)) {
             return false;
+        }
 
         UrlBindingParameter that = (UrlBindingParameter) o;
         return this.value == null ? that.value == null : this.value.equals(that.value);
@@ -152,9 +180,10 @@ public class UrlBindingParameter {
 
     @Override
     public String toString() {
-        if (defaultValue == null)
+        if (defaultValue == null) {
             return name;
-        else
+        } else {
             return name + "=" + defaultValue;
+        }
     }
 }

@@ -19,19 +19,23 @@ import java.util.HashSet;
 import java.util.regex.Pattern;
 
 /**
- * <p>Encapsulates the validation metadata for a single property of a single class. Structure
- * is purposely very similar to the @Validate annotation. This class is used internally
- * to store and manipulate validation metadata, the source of which is often validation
- * annotations.</p>
+ * <p>
+ * Encapsulates the validation metadata for a single property of a single class.
+ * Structure is purposely very similar to the @Validate annotation. This class
+ * is used internally to store and manipulate validation metadata, the source of
+ * which is often validation annotations.</p>
  *
- * <p>However, since this class is not an annotation it has the added benefits of being
- * able to contain behaviour, being subclassable, and of being able to be instantiated at
- * runtime - i.e. it can contain non-static validation information.</p>
+ * <p>
+ * However, since this class is not an annotation it has the added benefits of
+ * being able to contain behaviour, being subclassable, and of being able to be
+ * instantiated at runtime - i.e. it can contain non-static validation
+ * information.</p>
  *
  * @author Tim Fennell
  * @since Stripes 1.5
  */
 public class ValidationMetadata {
+
     private String property;
     private boolean encrypted;
     private boolean required;
@@ -48,21 +52,23 @@ public class ValidationMetadata {
     private String label;
 
     /**
-     * Constructs a ValidationMetadata object for the specified property. Further constraints
-     * can be specified by calling individual methods, e.g.
+     * Constructs a ValidationMetadata object for the specified property.
+     * Further constraints can be specified by calling individual methods, e.g.
      * {@code  new ValidationMetadata("username").minlength(5).maxlength(10);}
      *
-     * @param property the name of the property to be validated. If the property is a nested
-     *        property then the fully path should be included, e.g. {@code user.address.city}
+     * @param property the name of the property to be validated. If the property
+     * is a nested property then the fully path should be included, e.g.
+     * {@code user.address.city}
      */
     public ValidationMetadata(String property) {
         this.property = property;
     }
 
     /**
-     * Essentially a copy constructor that constructs a ValidationMetadata object from
-     * an @Validate annotation declared on a property.
+     * Essentially a copy constructor that constructs a ValidationMetadata
+     * object from an @Validate annotation declared on a property.
      *
+     * @param property
      * @param validate
      */
     public ValidationMetadata(String property, Validate validate) {
@@ -72,139 +78,277 @@ public class ValidationMetadata {
         required(validate.required());
         trim(validate.trim());
         ignore(validate.ignore());
-        if (validate.minlength() != -1) minlength(validate.minlength());
-        if (validate.maxlength() != -1) maxlength(validate.maxlength());
-        if (validate.minvalue() != Double.MIN_VALUE) minvalue(validate.minvalue());
-        if (validate.maxvalue() != Double.MAX_VALUE) maxvalue(validate.maxvalue());
-        if (!"".equals(validate.mask())) mask(validate.mask());
-        if (validate.converter() != TypeConverter.class) converter(validate.converter());
-        if (!"".equals(validate.expression())) expression(validate.expression());
-        if (validate.on().length > 0) on(validate.on());
-        if (!"".equals(validate.label())) this.label = validate.label();
+        if (validate.minlength() != -1) {
+            minlength(validate.minlength());
+        }
+        if (validate.maxlength() != -1) {
+            maxlength(validate.maxlength());
+        }
+        if (validate.minvalue() != Double.MIN_VALUE) {
+            minvalue(validate.minvalue());
+        }
+        if (validate.maxvalue() != Double.MAX_VALUE) {
+            maxvalue(validate.maxvalue());
+        }
+        if (!"".equals(validate.mask())) {
+            mask(validate.mask());
+        }
+        if (validate.converter() != TypeConverter.class) {
+            converter(validate.converter());
+        }
+        if (!"".equals(validate.expression())) {
+            expression(validate.expression());
+        }
+        if (validate.on().length > 0) {
+            on(validate.on());
+        }
+        if (!"".equals(validate.label())) {
+            this.label = validate.label();
+        }
     }
 
-    /** Returns the name of the property this validation metadata represents. */
+    /**
+     * Returns the name of the property this validation metadata represents.
+     * @return 
+     */
     public String getProperty() {
         return this.property;
     }
 
-    /** Sets the encrypted flag for this field. True = encrypted, false = plain text. */
+    /**
+     * Sets the encrypted flag for this field. True = encrypted, false = plain
+     * text.
+     * @param encrypted
+     * @return 
+     */
     public ValidationMetadata encrypted(boolean encrypted) {
         this.encrypted = encrypted;
         return this;
     }
 
-    /** Returns true if the field in question is encrypted. */
-    public boolean encrypted() { return encrypted; }
+    /**
+     * Returns true if the field in question is encrypted.
+     * @return 
+     */
+    public boolean encrypted() {
+        return encrypted;
+    }
 
-    /** Sets the required-ness of this field. True = required, false = not required. */
+    /**
+     * Sets the required-ness of this field. True = required, false = not
+     * required.
+     * @param required
+     * @return 
+     */
     public ValidationMetadata required(boolean required) {
         this.required = required;
         return this;
     }
 
-    /** Returns true if the field in question is required. */
-    public boolean required() { return this.required; }
+    /**
+     * Returns true if the field in question is required.
+     * @return 
+     */
+    public boolean required() {
+        return this.required;
+    }
 
-    /** Sets the trim flag of this field. True = trim, false = don't trim. */
+    /**
+     * Sets the trim flag of this field. True = trim, false = don't trim.
+     * @param trim
+     * @return 
+     */
     public ValidationMetadata trim(boolean trim) {
         this.trim = trim;
         return this;
     }
 
-    /** Returns true if the field should be trimmed before validation or type conversion. */
-    public boolean trim() { return this.trim; }
-
-    /** Returns true if the field is required when processing the specified event. */
-    public boolean requiredOn(String event) {
-        return this.required && !this.ignore && (
-                (this.on == null) ||
-                (this.onIsPositive && this.on.contains(event)) ||
-                (!this.onIsPositive && !this.on.contains(event))
-            );
+    /**
+     * Returns true if the field should be trimmed before validation or type
+     * conversion.
+     * @return 
+     */
+    public boolean trim() {
+        return this.trim;
     }
 
-    /** Sets whether or not this field should be ignored during binding and validation. */
+    /**
+     * Returns true if the field is required when processing the specified
+     * event.
+     * @param event
+     * @return 
+     */
+    public boolean requiredOn(String event) {
+        return this.required && !this.ignore && ((this.on == null)
+                || (this.onIsPositive && this.on.contains(event))
+                || (!this.onIsPositive && !this.on.contains(event)));
+    }
+
+    /**
+     * Sets whether or not this field should be ignored during binding and
+     * validation.
+     * @param ignore
+     * @return 
+     */
     public ValidationMetadata ignore(boolean ignore) {
         this.ignore = ignore;
         return this;
     }
 
-    /** Returns true if this field should be ignored in binding and validation. */
-    public boolean ignore() { return this.ignore; }
+    /**
+     * Returns true if this field should be ignored in binding and validation.
+     * @return 
+     */
+    public boolean ignore() {
+        return this.ignore;
+    }
 
-    /** Sets the minimum acceptable length for property values. */
+    /**
+     * Sets the minimum acceptable length for property values.
+     * @param minlength
+     * @return 
+     */
     public ValidationMetadata minlength(Integer minlength) {
         this.minlength = minlength;
         return this;
     }
 
-    /** Returns the minimum acceptable length for values, or null if there is none. */
-    public Integer minlength() { return this.minlength; }
+    /**
+     * Returns the minimum acceptable length for values, or null if there is
+     * none.
+     * @return 
+     */
+    public Integer minlength() {
+        return this.minlength;
+    }
 
-    /** Sets the maximum acceptable length for property values. */
+    /**
+     * Sets the maximum acceptable length for property values.
+     * @param maxlength
+     * @return 
+     */
     public ValidationMetadata maxlength(Integer maxlength) {
         this.maxlength = maxlength;
         return this;
     }
 
-    /** Returns the maximum acceptable length for values, or null if there is none. */
-    public Integer maxlength() { return this.maxlength; }
+    /**
+     * Returns the maximum acceptable length for values, or null if there is
+     * none.
+     * @return 
+     */
+    public Integer maxlength() {
+        return this.maxlength;
+    }
 
-    /** Sets the minimum acceptable <b>value</b> for numeric property values. */
+    /**
+     * Sets the minimum acceptable <b>value</b> for numeric property values.
+     * @param minvalue
+     * @return 
+     */
     public ValidationMetadata minvalue(Double minvalue) {
         this.minvalue = minvalue;
         return this;
     }
 
-    /** Returns the minimum acceptable value for numeric properties, or null if there is none. */
-    public Double minvalue() { return this.minvalue; }
+    /**
+     * Returns the minimum acceptable value for numeric properties, or null if
+     * there is none.
+     * @return 
+     */
+    public Double minvalue() {
+        return this.minvalue;
+    }
 
-    /** Sets the maximum acceptable <b>value</b> for numeric property values. */
+    /**
+     * Sets the maximum acceptable <b>value</b> for numeric property values.
+     * @param maxvalue
+     * @return 
+     */
     public ValidationMetadata maxvalue(Double maxvalue) {
         this.maxvalue = maxvalue;
         return this;
     }
 
-    /** Returns the maximum acceptable value for numeric properties, or null if there is none. */
-    public Double maxvalue() { return this.maxvalue; }
+    /**
+     * Returns the maximum acceptable value for numeric properties, or null if
+     * there is none.
+     * @return 
+     */
+    public Double maxvalue() {
+        return this.maxvalue;
+    }
 
-    /** Sets the mask which the String form of the property must match. */
+    /**
+     * Sets the mask which the String form of the property must match.
+     * @param mask
+     * @return 
+     */
     public ValidationMetadata mask(String mask) {
         this.mask = Pattern.compile(mask);
         return this;
     }
 
-    /** Returns the mask Pattern property values must match, or null if there is none. */
-    public Pattern mask() { return this.mask; }
+    /**
+     * Returns the mask Pattern property values must match, or null if there is
+     * none.
+     * @return 
+     */
+    public Pattern mask() {
+        return this.mask;
+    }
 
-    /** Sets the overridden TypeConveter to use to convert values. */
-	@SuppressWarnings("rawtypes")
+    /**
+     * Sets the overridden TypeConveter to use to convert values.
+     * @param converter
+     * @return 
+     */
+    @SuppressWarnings("rawtypes")
     public ValidationMetadata converter(Class<? extends TypeConverter> converter) {
         this.converter = converter;
         return this;
     }
 
-    /** Returns the overridden TypeConverter if there is one, or null. */
-	@SuppressWarnings("rawtypes")
-    public Class<? extends TypeConverter> converter() { return this.converter; }
+    /**
+     * Returns the overridden TypeConverter if there is one, or null.
+     * @return 
+     */
+    @SuppressWarnings("rawtypes")
+    public Class<? extends TypeConverter> converter() {
+        return this.converter;
+    }
 
-    /** Sets the expression that should be used to validate values. */
+    /**
+     * Sets the expression that should be used to validate values.
+     * @param expression
+     * @return 
+     */
     public ValidationMetadata expression(String expression) {
         this.expression = expression;
-        if (!this.expression.startsWith("${")) this.expression = "${" + this.expression + "}";
+        if (!this.expression.startsWith("${")) {
+            this.expression = "${" + this.expression + "}";
+        }
         return this;
     }
 
-    /** Returns the overridden TypeConverter if there is one, or null. */
-    public String expression() { return this.expression; }
+    /**
+     * Returns the overridden TypeConverter if there is one, or null.
+     * @return 
+     */
+    public String expression() {
+        return this.expression;
+    }
 
-    /** Sets the set of events for which the field in question is required, if it is at all. */
+    /**
+     * Sets the set of events for which the field in question is required, if it
+     * is at all.
+     * @param on
+     * @return 
+     */
     public ValidationMetadata on(String... on) {
         if (on.length == 0) {
             this.on = null;
-        }
-        else {
+        } else {
             // Check for empty strings in the "on" element
             for (String s : on) {
                 if (s.length() == 0 || "!".equals(s)) {
@@ -218,8 +362,7 @@ public class ValidationMetadata {
             for (String s : on) {
                 if (this.onIsPositive) {
                     this.on.add(s);
-                }
-                else {
+                } else {
                     this.on.add(s.substring(1));
                 }
             }
@@ -228,36 +371,51 @@ public class ValidationMetadata {
         return this;
     }
 
-    /** Returns the set of events for which the field in question is required. May return null. */
-    public Set<String> on() { return this.on; }
-
-    /** Set the field label. */
-    public void label(String label) { this.label = label;}
-
-    /** Get the field label. */
-    public String label() { return label; }
+    /**
+     * Returns the set of events for which the field in question is required.
+     * May return null.
+     * @return 
+     */
+    public Set<String> on() {
+        return this.on;
+    }
 
     /**
-     * Overidden toString() that only outputs the constraints that are specified by
-     * the instance of validation metadata (i.e. omits nulls, defaults etc.)
+     * Set the field label.
+     * @param label
+     */
+    public void label(String label) {
+        this.label = label;
+    }
+
+    /**
+     * Get the field label.
+     * @return 
+     */
+    public String label() {
+        return label;
+    }
+
+    /**
+     * Overidden toString() that only outputs the constraints that are specified
+     * by the instance of validation metadata (i.e. omits nulls, defaults etc.)
      *
      * @return a human readable string form of the metadata
      */
     @Override
     public String toString() {
-        return "ValidationMetadata{" +
-                (required ? "required=" + required : "") +
-                (encrypted ? "encrypted=" + encrypted : "") +
-                (ignore   ? ", ignore=" + ignore : "" ) +
-                (minlength != null ? ", minlength=" + minlength : "") +
-                (maxlength != null ? ", maxlength=" + maxlength : "") +
-                (minvalue != null ? ", minvalue=" + minvalue : "") +
-                (maxvalue != null ? ", maxvalue=" + maxvalue : "") +
-                (mask != null ? ", mask=" + mask : "" ) +
-                (expression != null ? ", expression='" + expression + '\'' : "") +
-                (converter != null ? ", converter=" + converter.getSimpleName() : "") +
-                (label != null ? ", label='" + label + '\'' : "") +
-                '}';
+        return "ValidationMetadata{"
+                + (required ? "required=" + required : "")
+                + (encrypted ? "encrypted=" + encrypted : "")
+                + (ignore ? ", ignore=" + ignore : "")
+                + (minlength != null ? ", minlength=" + minlength : "")
+                + (maxlength != null ? ", maxlength=" + maxlength : "")
+                + (minvalue != null ? ", minvalue=" + minvalue : "")
+                + (maxvalue != null ? ", maxvalue=" + maxvalue : "")
+                + (mask != null ? ", mask=" + mask : "")
+                + (expression != null ? ", expression='" + expression + '\'' : "")
+                + (converter != null ? ", converter=" + converter.getSimpleName() : "")
+                + (label != null ? ", label='" + label + '\'' : "")
+                + '}';
     }
 }
-

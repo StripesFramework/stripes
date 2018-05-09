@@ -22,41 +22,42 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * <p>One or more An HTTP request method annotations can be placed on an event 
+ * <p>
+ * One or more An HTTP request method annotations can be placed on an event
  * handler method to specify exactly what types of request methods it services.
- * If no HTTP request methods are specified on an event handling method, then @GET is
- * presumed by default.  A StripesRuntimeException will be thrown if a caller attempts
- * to execute an event method on a RestActionBean which does not support the HTTP
- * request method specified by the caller.</p>
- * 
- * <p>For example:</p>
+ * If no HTTP request methods are specified on an event handling method, then
+ * GET is presumed by default. A StripesRuntimeException will be thrown if a
+ * caller attempts to execute an event method on a RestActionBean which does not
+ * support the HTTP request method specified by the caller.</p>
+ *
+ * <p>
+ * For example:</p>
  * <pre>
  * {@literal @}RestActionBean
  * {@literal @}UrlBinding( "/person" )
  * public class PersonActionBean implements ActionBean {
- * 
+ *
  *   {@literal @}GET
- *   {@literal @}HandlesEvent( "retrieve" ) 
+ *   {@literal @}HandlesEvent( "retrieve" )
  *   public Resolution getPerson() {
  *     ...
  *   }
- * 
+ *
  *   {@literal @}PUT
  *   {@literal @}HandlesEvent( "update" )
  *   public Resolution updatePerson() {
  *     ...
  *   }
- * 
+ *
  *   ...
- * 
+ *
  * }
  * </pre>
- * 
+ *
  * @author Rick Grashel
  */
-@Target( ElementType.METHOD )
-@Retention( RetentionPolicy.RUNTIME )
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface DELETE
-{
+public @interface DELETE {
 }

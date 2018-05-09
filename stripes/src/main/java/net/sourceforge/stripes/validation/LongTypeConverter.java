@@ -23,6 +23,7 @@ import java.text.NumberFormat;
  * @author Tim Fennell
  */
 public class LongTypeConverter extends NumberTypeConverterSupport implements TypeConverter<Long> {
+
     /**
      *
      * @param input
@@ -30,8 +31,8 @@ public class LongTypeConverter extends NumberTypeConverterSupport implements Typ
      * @return Integer an Integer object if one can be parsed from the input
      */
     public Long convert(String input,
-                        Class<? extends Long> targetType,
-                        Collection<ValidationError> errors) {
+            Class<? extends Long> targetType,
+            Collection<ValidationError> errors) {
 
         Number number = parse(input, errors);
         Long retval = null;
@@ -42,9 +43,12 @@ public class LongTypeConverter extends NumberTypeConverterSupport implements Typ
         return retval;
     }
 
-    /** Overridden to return integer instances instead. */
+    /**
+     * Overridden to return integer instances instead.
+     * @return 
+     */
     @Override
     protected NumberFormat[] getNumberFormats() {
-        return new NumberFormat[] { NumberFormat.getIntegerInstance(this.getLocale()) };
+        return new NumberFormat[]{NumberFormat.getIntegerInstance(this.getLocale())};
     }
 }

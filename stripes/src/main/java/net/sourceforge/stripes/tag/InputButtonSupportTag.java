@@ -18,53 +18,76 @@ import javax.servlet.jsp.tagext.BodyTag;
 import javax.servlet.jsp.JspException;
 
 /**
- * <p>Support tag class that can generate HTML form fields with localized value attributes.
- * Primarily used to contain identical functionality between submit, reset and button input types.
- * The only capability offered above and beyond a pure html tag is the ability to lookup the value
- * of the button (i.e. the text on the button that the user sees) from a localized resource bundle.
- * The tag will set its value using the first non-null result from the following list:</p>
+ * <p>
+ * Support tag class that can generate HTML form fields with localized value
+ * attributes. Primarily used to contain identical functionality between submit,
+ * reset and button input types. The only capability offered above and beyond a
+ * pure html tag is the ability to lookup the value of the button (i.e. the text
+ * on the button that the user sees) from a localized resource bundle. The tag
+ * will set its value using the first non-null result from the following
+ * list:</p>
  *
  * <ul>
- *   <li>formName.buttonName from the localized resource bundle</li>
- *   <li>buttonName from the localized resource bundle</li>
- *   <li>the trimmed body of the tag</li>
- *   <li>the value attribute of the tag</li>
+ * <li>formName.buttonName from the localized resource bundle</li>
+ * <li>buttonName from the localized resource bundle</li>
+ * <li>the trimmed body of the tag</li>
+ * <li>the value attribute of the tag</li>
  * </ul>
  *
  * @author Tim Fennell
  */
 public class InputButtonSupportTag extends InputTagSupport implements BodyTag {
+
     private String value;
 
-    /** Sets the value to use for the submit button if all other strategies fail. */
-    public void setValue(String value) { this.value = value; }
+    /**
+     * Sets the value to use for the submit button if all other strategies fail.
+     * @param value
+     */
+    public void setValue(String value) {
+        this.value = value;
+    }
 
-    /** Returns the value set with setValue(). */
-    public String getValue() { return this.value; }
+    /**
+     * Returns the value set with setValue().
+     * @return 
+     */
+    public String getValue() {
+        return this.value;
+    }
 
     /**
      * Does nothing.
+     *
      * @return EVAL_BODY_BUFFERED in all cases.
+     * @throws javax.servlet.jsp.JspException
      */
     @Override
     public int doStartInputTag() throws JspException {
         return EVAL_BODY_BUFFERED;
     }
 
-    /** Does nothing. */
-    public void doInitBody() throws JspException { }
+    /**
+     * Does nothing.
+     * @throws javax.servlet.jsp.JspException
+     */
+    public void doInitBody() throws JspException {
+    }
 
     /**
      * Does nothing.
+     *
      * @return SKIP_BODY in all cases.
+     * @throws javax.servlet.jsp.JspException
      */
     public int doAfterBody() throws JspException {
         return SKIP_BODY;
     }
 
     /**
-     * Looks up the appropriate value to use for the submit button and then writes the tag
-     * out to the page.
+     * Looks up the appropriate value to use for the submit button and then
+     * writes the tag out to the page.
+     *
      * @return EVAL_PAGE in all cases.
      * @throws javax.servlet.jsp.JspException if output cannot be written.
      */
@@ -77,11 +100,9 @@ public class InputButtonSupportTag extends InputTagSupport implements BodyTag {
         // Figure out where to pull the value from
         if (localizedValue != null) {
             getAttributes().put("value", localizedValue);
-        }
-        else if (body != null) {
+        } else if (body != null) {
             getAttributes().put("value", body.trim());
-        }
-        else if (this.value != null) {
+        } else if (this.value != null) {
             getAttributes().put("value", this.value);
         }
 

@@ -23,86 +23,174 @@ import java.util.Map;
 import java.util.Random;
 
 /**
- * Simple mock implementation of HttpSession that implements most basic operations.
+ * Simple mock implementation of HttpSession that implements most basic
+ * operations.
  *
  * @author Tim Fennell
  * @since Stripes 1.1.1
  */
 @SuppressWarnings("deprecation")
 public class MockHttpSession implements HttpSession {
+
     private long creationTime = System.currentTimeMillis();
     private String sessionId = String.valueOf(new Random().nextLong());
     private ServletContext context;
-    private Map<String,Object> attributes = new HashMap<String,Object>();
+    private Map<String, Object> attributes = new HashMap<String, Object>();
 
-    /** Default constructor which provides the session with access to the context. */
+    /**
+     * Default constructor which provides the session with access to the
+     * context.
+     * @param context
+     */
     public MockHttpSession(ServletContext context) {
         this.context = context;
     }
 
-    /** Returns the time in milliseconds when the session was created. */
-    public long getCreationTime() { return this.creationTime; }
+    /**
+     * Returns the time in milliseconds when the session was created.
+     * @return 
+     */
+    public long getCreationTime() {
+        return this.creationTime;
+    }
 
-    /** Returns an ID that was randomly generated when the session was created. */
-    public String getId() { return this.sessionId; }
+    /**
+     * Returns an ID that was randomly generated when the session was created.
+     * @return 
+     */
+    public String getId() {
+        return this.sessionId;
+    }
 
-    /** Always returns the current time. */
-    public long getLastAccessedTime() { return System.currentTimeMillis(); }
+    /**
+     * Always returns the current time.
+     * @return 
+     */
+    public long getLastAccessedTime() {
+        return System.currentTimeMillis();
+    }
 
-    /** Provides access to the servlet context within which the session exists. */
-    public ServletContext getServletContext() { return this.context; }
+    /**
+     * Provides access to the servlet context within which the session exists.
+     * @return 
+     */
+    public ServletContext getServletContext() {
+        return this.context;
+    }
 
-    /** Sets the servlet context within which the session exists. */
-    public void setServletContext(ServletContext context) { this.context = context; }
+    /**
+     * Sets the servlet context within which the session exists.
+     * @param context
+     */
+    public void setServletContext(ServletContext context) {
+        this.context = context;
+    }
 
-    /** Has no effect. */
-    public void setMaxInactiveInterval(int i) { }
+    /**
+     * Has no effect.
+     * @param i
+     */
+    public void setMaxInactiveInterval(int i) {
+    }
 
-    /** Always returns Integer.MAX_VALUE. */
-    public int getMaxInactiveInterval() { return Integer.MAX_VALUE; }
+    /**
+     * Always returns Integer.MAX_VALUE.
+     * @return 
+     */
+    public int getMaxInactiveInterval() {
+        return Integer.MAX_VALUE;
+    }
 
-    /** Deprecated method always returns null. */
-    public javax.servlet.http.HttpSessionContext getSessionContext() { return null; }
+    /**
+     * Deprecated method always returns null.
+     * @return 
+     */
+    public javax.servlet.http.HttpSessionContext getSessionContext() {
+        return null;
+    }
 
-    /** Returns the value of the named attribute from an internal Map. */
-    public Object getAttribute(String key) { return this.attributes.get(key); }
+    /**
+     * Returns the value of the named attribute from an internal Map.
+     * @param key
+     * @return 
+     */
+    public Object getAttribute(String key) {
+        return this.attributes.get(key);
+    }
 
-    /** Deprecated method. Use getAttribute() instead. */
-    public Object getValue(String key) { return getAttribute(key); }
+    /**
+     * Deprecated method. Use getAttribute() instead.
+     * @param key
+     * @return 
+     */
+    public Object getValue(String key) {
+        return getAttribute(key);
+    }
 
-    /** Returns an enumeration of all the attribute names in the session. */
+    /**
+     * Returns an enumeration of all the attribute names in the session.
+     * @return 
+     */
     public Enumeration<String> getAttributeNames() {
         return Collections.enumeration(this.attributes.keySet());
     }
 
-    /** Returns a String[] of all the attribute names in session. Deprecated. */
+    /**
+     * Returns a String[] of all the attribute names in session. Deprecated.
+     * @return 
+     */
     public String[] getValueNames() {
         return this.attributes.keySet().toArray(new String[this.attributes.size()]);
     }
 
-    /** Stores the value in session, replacing any existing value with the same key. */
+    /**
+     * Stores the value in session, replacing any existing value with the same
+     * key.
+     * @param key
+     * @param value
+     */
     public void setAttribute(String key, Object value) {
         this.attributes.put(key, value);
     }
 
-    /** Stores the value in session, replacing any existing value with the same key. */
+    /**
+     * Stores the value in session, replacing any existing value with the same
+     * key.
+     * @param key
+     * @param value
+     */
     public void putValue(String key, Object value) {
         setAttribute(key, value);
     }
 
-    /** Removes any value stored in session with the key supplied. */
+    /**
+     * Removes any value stored in session with the key supplied.
+     * @param key
+     */
     public void removeAttribute(String key) {
         this.attributes.remove(key);
     }
 
-    /** Removes any value stored in session with the key supplied. */
+    /**
+     * Removes any value stored in session with the key supplied.
+     * @param key
+     */
     public void removeValue(String key) {
         removeAttribute(key);
     }
 
-    /** Clears the set of attributes, but has no other effect. */
-    public void invalidate() { this.attributes.clear(); }
+    /**
+     * Clears the set of attributes, but has no other effect.
+     */
+    public void invalidate() {
+        this.attributes.clear();
+    }
 
-    /** Always returns false. */
-    public boolean isNew() { return false; }
+    /**
+     * Always returns false.
+     * @return 
+     */
+    public boolean isNew() {
+        return false;
+    }
 }

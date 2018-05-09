@@ -24,9 +24,9 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import java.io.Writer;
 
 /**
- * This class converts an object to JSON. This implementation initially
- * uses Jackson.  In the future, this will be a pluggable implementation for
- * building JSON.
+ * This class converts an object to JSON. This implementation initially uses
+ * Jackson. In the future, this will be a pluggable implementation for building
+ * JSON.
  *
  * @author Rick Grashel
  */
@@ -34,12 +34,12 @@ public class JsonBuilder extends ObjectOutputBuilder<JsonBuilder> {
 
     /**
      * Constructs a new JsonBuilder object which is used to convert the passed
-     * Java object into JSON.  The optional list of properties will be excluded
+     * Java object into JSON. The optional list of properties will be excluded
      * from serialization.
      *
      * @param root - Root object to convert to JSON
-     * @param propertiesToExclude - List of property names to exclude from serialization
-     * marshaling
+     * @param propertiesToExclude - List of property names to exclude from
+     * serialization marshaling
      */
     public JsonBuilder(Object root, String... propertiesToExclude) {
         super(root);

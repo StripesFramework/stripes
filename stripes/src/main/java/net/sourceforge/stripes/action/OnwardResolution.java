@@ -38,6 +38,7 @@ import net.sourceforge.stripes.util.UrlBuilder;
  * reference of type RedirectResolution instead of OnwardResolution.</p>
  *
  * @author Tim Fennell
+ * @param <T> - The type of resolution
  */
 public abstract class OnwardResolution<T extends OnwardResolution<T>> implements Resolution {
 
@@ -89,7 +90,7 @@ public abstract class OnwardResolution<T extends OnwardResolution<T>> implements
 
     /**
      * Get the event name that was specified in one of the constructor calls.
-     * 
+     *
      * @return Event name specified within this resolution
      */
     public String getEvent() {
@@ -99,7 +100,7 @@ public abstract class OnwardResolution<T extends OnwardResolution<T>> implements
     /**
      * Return true if an event name was specified when this instance was
      * constructed.
-     * 
+     *
      * @return Whether or not an event was specified for this resolution.
      */
     public boolean isEventSpecified() {
@@ -108,7 +109,7 @@ public abstract class OnwardResolution<T extends OnwardResolution<T>> implements
 
     /**
      * Accessor for the path that the user should be sent to.
-     * 
+     *
      * @return Path that the user should be sent to by this resolution.
      */
     public String getPath() {
@@ -117,7 +118,7 @@ public abstract class OnwardResolution<T extends OnwardResolution<T>> implements
 
     /**
      * Setter for the path that the user should be sent to.
-     * 
+     *
      * @param path - Path that the user should be sent to by this resolution.
      */
     public void setPath(String path) {
@@ -126,7 +127,7 @@ public abstract class OnwardResolution<T extends OnwardResolution<T>> implements
 
     /**
      * Get the name of the anchor to be appended to the URL.
-     * 
+     *
      * @return Name of the anchor to be appended to the URL by this resolution.
      */
     protected String getAnchor() {
@@ -135,6 +136,9 @@ public abstract class OnwardResolution<T extends OnwardResolution<T>> implements
 
     /**
      * Set the name of the anchor to be appended to the URL.
+     *
+     * @param anchor - Anchor name to be appended
+     * @return This instance of the resolution
      */
     @SuppressWarnings("unchecked")
     protected T setAnchor(String anchor) {

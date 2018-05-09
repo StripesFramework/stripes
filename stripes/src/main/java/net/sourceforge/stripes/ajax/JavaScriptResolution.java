@@ -21,32 +21,38 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * <p>Resolution that will convert a Java object web to a web of JavaScript objects and arrays, and
- * stream the JavaScript back to the client.  The output of this resolution can be evaluated in
- * JavaScript using the eval() function, and will return a reference to the top level JavaScript
- * object.  For more information see {@link JavaScriptBuilder}</p>
+ * <p>
+ * Resolution that will convert a Java object web to a web of JavaScript objects
+ * and arrays, and stream the JavaScript back to the client. The output of this
+ * resolution can be evaluated in JavaScript using the eval() function, and will
+ * return a reference to the top level JavaScript object. For more information
+ * see {@link JavaScriptBuilder}</p>
  *
  * @author Tim Fennell
  * @since Stripes 1.1
  */
 public class JavaScriptResolution implements Resolution {
+
     private JavaScriptBuilder builder;
 
     /**
-     * Constructs a new JavaScriptResolution that will convert the supplied object to JavaScript.
+     * Constructs a new JavaScriptResolution that will convert the supplied
+     * object to JavaScript.
      *
-     * @param rootObject an Object of any type supported by {@link JavaScriptBuilder}. In most cases
-     *        this will either be a JavaBean, Map, Collection or Array, but may also be any one of
-     *        the basic Java types including String, Date, Number etc.
-     * @param objectsToExclude Classes and/or property names to exclude from the output.
+     * @param rootObject an Object of any type supported by
+     * {@link JavaScriptBuilder}. In most cases this will either be a JavaBean,
+     * Map, Collection or Array, but may also be any one of the basic Java types
+     * including String, Date, Number etc.
+     * @param objectsToExclude Classes and/or property names to exclude from the
+     * output.
      */
     public JavaScriptResolution(Object rootObject, Object... objectsToExclude) {
         this.builder = new JavaScriptBuilder(rootObject, objectsToExclude);
     }
 
     /**
-     * Adds one or more properties to the list of types to exclude when translating
-     * to JavaScript.
+     * Adds one or more properties to the list of types to exclude when
+     * translating to JavaScript.
      *
      * @param property one or more property names to exclude
      * @return the JavaScripResolution instance to simplify method chaining
@@ -69,8 +75,13 @@ public class JavaScriptResolution implements Resolution {
     }
 
     /**
-     * Converts the object passed in to JavaScript and streams it back to the client.
+     * Converts the object passed in to JavaScript and streams it back to the
+     * client.
+     * @param request HTTP servlet request
+     * @param response HTTP servlet response
+     * @throws java.lang.Exception If something goes wrong executing this request.
      */
+    @Override
     public void execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
         response.setContentType("text/javascript");
         this.builder.build(response.getWriter());

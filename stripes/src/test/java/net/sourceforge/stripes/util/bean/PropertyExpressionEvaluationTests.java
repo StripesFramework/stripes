@@ -16,11 +16,11 @@ import java.util.Map;
 import java.util.HashMap;
 
 /**
- * 
+ *
  */
 public class PropertyExpressionEvaluationTests extends FilterEnabledTestBase {
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void testGetBasicPropertyType() {
         PropertyExpression expr = PropertyExpression.getExpression("singleLong");
         PropertyExpressionEvaluation eval = new PropertyExpressionEvaluation(expr, new TestActionBean());
@@ -28,7 +28,7 @@ public class PropertyExpressionEvaluationTests extends FilterEnabledTestBase {
         Assert.assertEquals(type, Long.class);
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void testGetPropertyTypeWithPropertyAccess() {
         PropertyExpression expr = PropertyExpression.getExpression("publicLong");
         PropertyExpressionEvaluation eval = new PropertyExpressionEvaluation(expr, new TestActionBean());
@@ -36,7 +36,7 @@ public class PropertyExpressionEvaluationTests extends FilterEnabledTestBase {
         Assert.assertEquals(type, Long.class);
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void testGetPropertyTypeForListOfLongs() {
         PropertyExpression expr = PropertyExpression.getExpression("listOfLongs[17]");
         PropertyExpressionEvaluation eval = new PropertyExpressionEvaluation(expr, new TestActionBean());
@@ -44,7 +44,7 @@ public class PropertyExpressionEvaluationTests extends FilterEnabledTestBase {
         Assert.assertEquals(type, Long.class);
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void testGetPropertyTypeForReadThroughList() {
         PropertyExpression expr = PropertyExpression.getExpression("listOfBeans[3].enumProperty");
         PropertyExpressionEvaluation eval = new PropertyExpressionEvaluation(expr, new TestActionBean());
@@ -52,7 +52,7 @@ public class PropertyExpressionEvaluationTests extends FilterEnabledTestBase {
         Assert.assertEquals(type, TestEnum.class);
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void testGetPropertyTypeWithBackToBackMapIndexing() {
         PropertyExpression expr = PropertyExpression.getExpression("nestedMap['foo']['bar']");
         PropertyExpressionEvaluation eval = new PropertyExpressionEvaluation(expr, new TestBean());
@@ -60,7 +60,7 @@ public class PropertyExpressionEvaluationTests extends FilterEnabledTestBase {
         Assert.assertEquals(type, Boolean.class);
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void testGetPropertyTypeWithBackToBackListArrayIndexing() {
         PropertyExpression expr = PropertyExpression.getExpression("genericArray[1][0]");
         PropertyExpressionEvaluation eval = new PropertyExpressionEvaluation(expr, new TestBean());
@@ -69,8 +69,7 @@ public class PropertyExpressionEvaluationTests extends FilterEnabledTestBase {
     }
 
     //////////////////////////////////////////////////////////////////////////////////////
-
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void testGetSimpleProperties() throws Exception {
         TestBean root = new TestBean();
         root.setStringProperty("testValue");
@@ -84,7 +83,7 @@ public class PropertyExpressionEvaluationTests extends FilterEnabledTestBase {
         Assert.assertEquals(TestEnum.Seventh, BeanUtil.getPropertyValue("enumProperty", root));
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void testGetNestedProperties() throws Exception {
         TestBean root = new TestBean();
         TestBean nested = new TestBean();
@@ -100,33 +99,33 @@ public class PropertyExpressionEvaluationTests extends FilterEnabledTestBase {
         Assert.assertEquals(TestEnum.Seventh, BeanUtil.getPropertyValue("nestedBean.enumProperty", root));
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void testGetNullProperties() throws Exception {
         TestBean root = new TestBean();
 
         // Test simple and nested props, leaving out primitives
-        Assert.assertNull( BeanUtil.getPropertyValue("stringProperty" , root) );
-        Assert.assertNull( BeanUtil.getPropertyValue("longProperty" , root) );
-        Assert.assertNull( BeanUtil.getPropertyValue("enumProperty" , root) );
-        Assert.assertNull( BeanUtil.getPropertyValue("nestedBean.stringProperty" , root) );
-        Assert.assertNull( BeanUtil.getPropertyValue("nestedBean.longProperty" , root) );
-        Assert.assertNull( BeanUtil.getPropertyValue("nestedBean.enumProperty" , root) );
+        Assert.assertNull(BeanUtil.getPropertyValue("stringProperty", root));
+        Assert.assertNull(BeanUtil.getPropertyValue("longProperty", root));
+        Assert.assertNull(BeanUtil.getPropertyValue("enumProperty", root));
+        Assert.assertNull(BeanUtil.getPropertyValue("nestedBean.stringProperty", root));
+        Assert.assertNull(BeanUtil.getPropertyValue("nestedBean.longProperty", root));
+        Assert.assertNull(BeanUtil.getPropertyValue("nestedBean.enumProperty", root));
 
-        Assert.assertNull( BeanUtil.getPropertyValue("stringArray", root));
-        Assert.assertNull( BeanUtil.getPropertyValue("stringList[7]", root));
-        Assert.assertNull( BeanUtil.getPropertyValue("stringList", root));
-        Assert.assertNull( BeanUtil.getPropertyValue("stringMap['seven']", root));
-        Assert.assertNull( BeanUtil.getPropertyValue("stringMap", root));
+        Assert.assertNull(BeanUtil.getPropertyValue("stringArray", root));
+        Assert.assertNull(BeanUtil.getPropertyValue("stringList[7]", root));
+        Assert.assertNull(BeanUtil.getPropertyValue("stringList", root));
+        Assert.assertNull(BeanUtil.getPropertyValue("stringMap['seven']", root));
+        Assert.assertNull(BeanUtil.getPropertyValue("stringMap", root));
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void testSetThenGetSimpleProperties() throws Exception {
         TestBean root = new TestBean();
 
         BeanUtil.setPropertyValue("stringProperty", root, "testValue");
-        BeanUtil.setPropertyValue("intProperty",    root, 77);
-        BeanUtil.setPropertyValue("longProperty",   root, 777l);
-        BeanUtil.setPropertyValue("enumProperty",   root, TestEnum.Seventh);
+        BeanUtil.setPropertyValue("intProperty", root, 77);
+        BeanUtil.setPropertyValue("longProperty", root, 777l);
+        BeanUtil.setPropertyValue("enumProperty", root, TestEnum.Seventh);
 
         Assert.assertEquals("testValue", root.getStringProperty());
         Assert.assertEquals("testValue", BeanUtil.getPropertyValue("stringProperty", root));
@@ -142,14 +141,14 @@ public class PropertyExpressionEvaluationTests extends FilterEnabledTestBase {
 
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void testSetThenGetNestedProperties() throws Exception {
         TestBean root = new TestBean();
 
         BeanUtil.setPropertyValue("nestedBean.stringProperty", root, "testValue");
-        BeanUtil.setPropertyValue("nestedBean.intProperty",    root, 77);
-        BeanUtil.setPropertyValue("nestedBean.longProperty",   root, 777l);
-        BeanUtil.setPropertyValue("nestedBean.enumProperty",   root, TestEnum.Seventh);
+        BeanUtil.setPropertyValue("nestedBean.intProperty", root, 77);
+        BeanUtil.setPropertyValue("nestedBean.longProperty", root, 777l);
+        BeanUtil.setPropertyValue("nestedBean.enumProperty", root, TestEnum.Seventh);
 
         Assert.assertEquals("testValue", root.getNestedBean().getStringProperty());
         Assert.assertEquals("testValue", BeanUtil.getPropertyValue("nestedBean.stringProperty", root));
@@ -166,16 +165,16 @@ public class PropertyExpressionEvaluationTests extends FilterEnabledTestBase {
         Assert.assertTrue(root.getNestedBean() == BeanUtil.getPropertyValue("nestedBean", root));
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void testListProperties() throws Exception {
         TestBean root = new TestBean();
 
         BeanUtil.setPropertyValue("beanList[3]", root, new TestBean());
-        Assert.assertNull( BeanUtil.getPropertyValue("beanList[0]", root) );
-        Assert.assertNull( BeanUtil.getPropertyValue("beanList[1]", root) );
-        Assert.assertNull( BeanUtil.getPropertyValue("beanList[2]", root) );
-        Assert.assertNotNull( BeanUtil.getPropertyValue("beanList[3]", root) );
-        Assert.assertNull( BeanUtil.getPropertyValue("beanList[4]", root) );
+        Assert.assertNull(BeanUtil.getPropertyValue("beanList[0]", root));
+        Assert.assertNull(BeanUtil.getPropertyValue("beanList[1]", root));
+        Assert.assertNull(BeanUtil.getPropertyValue("beanList[2]", root));
+        Assert.assertNotNull(BeanUtil.getPropertyValue("beanList[3]", root));
+        Assert.assertNull(BeanUtil.getPropertyValue("beanList[4]", root));
 
         BeanUtil.setPropertyValue("beanList[3].stringProperty", root, "testValue");
         Assert.assertEquals("testValue", root.getBeanList().get(3).getStringProperty());
@@ -186,33 +185,32 @@ public class PropertyExpressionEvaluationTests extends FilterEnabledTestBase {
         BeanUtil.setPropertyValue("stringList[7]", root, "testValue");
         BeanUtil.setPropertyValue("stringList[3]", root, "testValue");
 
-        for (int i=0; i<10; ++i) {
-            if (i%2 == 0) {
+        for (int i = 0; i < 10; ++i) {
+            if (i % 2 == 0) {
                 Assert.assertNull(root.getStringList().get(i),
-                                  "String list index " + i + " should be null.");
-            }
-            else {
+                        "String list index " + i + " should be null.");
+            } else {
                 Assert.assertEquals("testValue", root.getStringList().get(i),
-                                    "String list index " + i + " should be 'testValue'.");
+                        "String list index " + i + " should be 'testValue'.");
             }
         }
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void testMapProperties() throws Exception {
         TestBean root = new TestBean();
 
-        Assert.assertNull( BeanUtil.getPropertyValue("stringMap['foo']", root) );
-        Assert.assertNull( BeanUtil.getPropertyValue("stringMap['bar']", root) );
-        Assert.assertNull( BeanUtil.getPropertyValue("stringMap['testValue']", root) );
+        Assert.assertNull(BeanUtil.getPropertyValue("stringMap['foo']", root));
+        Assert.assertNull(BeanUtil.getPropertyValue("stringMap['bar']", root));
+        Assert.assertNull(BeanUtil.getPropertyValue("stringMap['testValue']", root));
 
-        Assert.assertNull( BeanUtil.getPropertyValue("beanMap['foo']", root) );
-        Assert.assertNull( BeanUtil.getPropertyValue("beanMap['bar']", root) );
-        Assert.assertNull( BeanUtil.getPropertyValue("beanMap['testValue']", root) );
+        Assert.assertNull(BeanUtil.getPropertyValue("beanMap['foo']", root));
+        Assert.assertNull(BeanUtil.getPropertyValue("beanMap['bar']", root));
+        Assert.assertNull(BeanUtil.getPropertyValue("beanMap['testValue']", root));
 
-        Assert.assertNull( BeanUtil.getPropertyValue("beanMap['foo'].longProperty", root) );
-        Assert.assertNull( BeanUtil.getPropertyValue("beanMap['bar'].stringProperty", root) );
-        Assert.assertNull( BeanUtil.getPropertyValue("beanMap['testValue'].enumProperty", root) );
+        Assert.assertNull(BeanUtil.getPropertyValue("beanMap['foo'].longProperty", root));
+        Assert.assertNull(BeanUtil.getPropertyValue("beanMap['bar'].stringProperty", root));
+        Assert.assertNull(BeanUtil.getPropertyValue("beanMap['testValue'].enumProperty", root));
 
         BeanUtil.setPropertyValue("stringMap['testKey']", root, "testValue");
         Assert.assertEquals("testValue", root.getStringMap().get("testKey"));
@@ -223,7 +221,7 @@ public class PropertyExpressionEvaluationTests extends FilterEnabledTestBase {
         Assert.assertEquals(TestEnum.Fifth, root.getBeanMap().get("testKey").getEnumProperty());
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void testSetNull() throws Exception {
         TestBean root = new TestBean();
 
@@ -234,7 +232,7 @@ public class PropertyExpressionEvaluationTests extends FilterEnabledTestBase {
         Assert.assertNull(root.getNestedBean());
 
         // Now set the property set the nest bean and do it again
-        root.setNestedBean( new TestBean() );
+        root.setNestedBean(new TestBean());
         BeanUtil.setPropertyToNull("nestedBean.stringProperty", root);
         Assert.assertNotNull(root.getNestedBean());
         Assert.assertNull(root.getNestedBean().getStringProperty());
@@ -260,7 +258,7 @@ public class PropertyExpressionEvaluationTests extends FilterEnabledTestBase {
         Assert.assertNull(root.getStringList().get(1));
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void testSetNullPrimitives() throws Exception {
         TestBean root = new TestBean();
         root.setBooleanProperty(true);
@@ -277,48 +275,80 @@ public class PropertyExpressionEvaluationTests extends FilterEnabledTestBase {
     }
 
     /**
-     * Tests a bug whereby the Introspector/PropertyDescriptor returns inaccessible
-     * methods for getKey() and getValue() on all the JDK implementations of Map. A general
-     * fix has been implmented to work up the chain and find an accessible method to invoke.
+     * Tests a bug whereby the Introspector/PropertyDescriptor returns
+     * inaccessible methods for getKey() and getValue() on all the JDK
+     * implementations of Map. A general fix has been implmented to work up the
+     * chain and find an accessible method to invoke.
      */
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void testMapEntryPropertyDescriptorBug() throws Exception {
-        Map<String,String> map = new HashMap<String,String>();
+        Map<String, String> map = new HashMap<String, String>();
         map.put("key", "value");
-        Map.Entry<String,String> entry = map.entrySet().iterator().next();
+        Map.Entry<String, String> entry = map.entrySet().iterator().next();
         String value = (String) BeanUtil.getPropertyValue("value", entry);
         Assert.assertEquals(value, "value");
     }
 
     /**
-     * Fix for a problem whereby in certain circumstances the PropertyExpressionEvaluation
-     * would not fall back to looking at instance information to figure out the type info.
+     * Fix for a problem whereby in certain circumstances the
+     * PropertyExpressionEvaluation would not fall back to looking at instance
+     * information to figure out the type info.
      */
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void testFallBackToInstanceInfo() throws Exception {
-        Map<String,TestBean> map = new HashMap<String,TestBean>();
+        Map<String, TestBean> map = new HashMap<String, TestBean>();
         map.put("foo", new TestBean());
         map.get("foo").setStringProperty("bar");
-        Map.Entry<String,TestBean> entry = map.entrySet().iterator().next();
+        Map.Entry<String, TestBean> entry = map.entrySet().iterator().next();
         String value = (String) BeanUtil.getPropertyValue("value.stringProperty", entry);
         Assert.assertEquals(value, "bar");
     }
 
-    /** Following classes are part of an inheritance torture test! */
-    public static class Wombat { public String getName() { return "Wombat"; } }
-    public static class SubWombat extends Wombat { @Override public String getName() { return "SubWombat"; } }
-    public static class Foo<P extends Wombat> {
-        private P wombat;
-        public P getWombat() { return this.wombat; }
-        public void setWombat(P wombat) { this.wombat = wombat; }
-    }
-    public static class Owner {
-        private Foo<SubWombat> foo;
-        public Foo<SubWombat> getFoo() { return foo; }
-        public void setFoo(final Foo<SubWombat> foo) { this.foo = foo; }
+    /**
+     * Following classes are part of an inheritance torture test!
+     */
+    public static class Wombat {
+
+        public String getName() {
+            return "Wombat";
+        }
     }
 
-    @Test(groups="fast")
+    public static class SubWombat extends Wombat {
+
+        @Override
+        public String getName() {
+            return "SubWombat";
+        }
+    }
+
+    public static class Foo<P extends Wombat> {
+
+        private P wombat;
+
+        public P getWombat() {
+            return this.wombat;
+        }
+
+        public void setWombat(P wombat) {
+            this.wombat = wombat;
+        }
+    }
+
+    public static class Owner {
+
+        private Foo<SubWombat> foo;
+
+        public Foo<SubWombat> getFoo() {
+            return foo;
+        }
+
+        public void setFoo(final Foo<SubWombat> foo) {
+            this.foo = foo;
+        }
+    }
+
+    @Test(groups = "fast")
     public void testGnarlyInheritanceAndGenerics() throws Exception {
         Owner owner = new Owner();
         Foo<SubWombat> foo = new Foo<SubWombat>();
@@ -327,6 +357,5 @@ public class PropertyExpressionEvaluationTests extends FilterEnabledTestBase {
         String value = (String) BeanUtil.getPropertyValue("foo.wombat.name", owner);
         Assert.assertEquals(value, "SubWombat");
     }
-
 
 }

@@ -12,12 +12,16 @@ import org.testng.annotations.Test;
  */
 public class PercentageTypeConverterTest {
 
-    /** Returns an empty collection of validation errors. */
+    /**
+     * Returns an empty collection of validation errors.
+     */
     public Collection<ValidationError> errors() {
         return new ArrayList<ValidationError>();
     }
 
-    /** Returns the type converter being tested. */
+    /**
+     * Returns the type converter being tested.
+     */
     public TypeConverter<Number> getConverter() {
         TypeConverter<Number> converter = new PercentageTypeConverter();
         converter.setLocale(Locale.US);

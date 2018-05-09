@@ -28,7 +28,7 @@ import java.util.List;
  */
 public class HtmlUtilTest {
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void testJoinAndSplit() throws Exception {
         String[] input = {"foo", "bar", "foobar"};
         List<String> listInput = Arrays.asList(input);
@@ -42,16 +42,16 @@ public class HtmlUtilTest {
         Assert.assertTrue(output.contains("foobar"));
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void testJoinWithNoStrings() throws Exception {
         String combined = HtmlUtil.combineValues(null);
         Assert.assertEquals(combined, "");
 
-        combined = HtmlUtil.combineValues( new HashSet<String>() );
+        combined = HtmlUtil.combineValues(new HashSet<String>());
         Assert.assertEquals(combined, "");
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void testSplitWithNoValues() throws Exception {
         Collection<String> values = HtmlUtil.splitValues(null);
         Assert.assertNotNull(values);

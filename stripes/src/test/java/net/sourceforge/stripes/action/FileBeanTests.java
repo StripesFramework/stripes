@@ -14,10 +14,11 @@ import java.nio.charset.Charset;
  * @author Tim Fennell
  */
 public class FileBeanTests {
+
     public static final String[] LINES = {"Hello World!", "How have you been?"};
     File from, to;
 
-    @BeforeMethod(alwaysRun=true)
+    @BeforeMethod(alwaysRun = true)
     public void setupFiles() throws IOException {
         // The from file
         this.from = File.createTempFile("foo", "bar");
@@ -26,22 +27,30 @@ public class FileBeanTests {
             out = new PrintWriter(this.from);
             out.println(LINES[0]);
             out.println(LINES[1]);
-        }
-        finally {
-            try { out.close(); } catch (Exception e) {}
+        } finally {
+            try {
+                out.close();
+            } catch (Exception e) {
+            }
         }
 
         // A to file
         this.to = new File(System.getProperty("java.io.tmpdir"), "foo-" + System.currentTimeMillis());
     }
 
-    @AfterMethod(alwaysRun=true)
+    @AfterMethod(alwaysRun = true)
     public void cleanupFiles() {
-        if (this.from != null && this.from.exists()) this.from.delete();
-        if (this.to != null && this.to.exists()) this.to.delete();
+        if (this.from != null && this.from.exists()) {
+            this.from.delete();
+        }
+        if (this.to != null && this.to.exists()) {
+            this.to.delete();
+        }
     }
 
-    /** Helper method to assert contents of post-copy file. */
+    /**
+     * Helper method to assert contents of post-copy file.
+     */
     private void assertContents(File toFile) throws IOException {
         BufferedReader in = null;
         try {
@@ -49,39 +58,43 @@ public class FileBeanTests {
             Assert.assertEquals(in.readLine(), LINES[0]);
             Assert.assertEquals(in.readLine(), LINES[1]);
             Assert.assertNull(in.readLine());
-        }
-        finally {
-            try { in.close(); } catch (Exception e) {}
+        } finally {
+            try {
+                in.close();
+            } catch (Exception e) {
+            }
         }
     }
 
-    /** Helper method that copies a reader into a writer. */
+    /**
+     * Helper method that copies a reader into a writer.
+     */
     private void copyReaderOut(Reader in) throws IOException {
         Writer out = null;
         try {
             out = new FileWriter(this.to);
             char[] buf = new char[1024];
-            for (int count; (count = in.read(buf)) > 0;)
+            for (int count; (count = in.read(buf)) > 0;) {
                 out.write(buf, 0, count);
-        }
-        finally {
+            }
+        } finally {
             try {
-                if (in != null)
+                if (in != null) {
                     in.close();
-            }
-            catch (Exception e) {
+                }
+            } catch (Exception e) {
             }
             try {
-                if (out != null)
+                if (out != null) {
                     out.close();
-            }
-            catch (Exception e) {
+                }
+            } catch (Exception e) {
             }
             this.from.delete();
         }
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void testBasicSave() throws Exception {
         FileBean bean = new FileBean(from, "text/plain", "somefile.txt");
 
@@ -126,7 +139,7 @@ public class FileBeanTests {
         assertContents(this.to);
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void testSaveByCopy() throws Exception {
         FileBean bean = new FileBean(from, "text/plain", "somefile.txt");
 
@@ -136,7 +149,7 @@ public class FileBeanTests {
         assertContents(this.to);
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void testSaveOverExistingFile() throws Exception {
         FileBean bean = new FileBean(from, "text/plain", "somefile.txt");
 
@@ -147,7 +160,7 @@ public class FileBeanTests {
         assertContents(this.to);
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void testSaveOverExistingFileWithContents() throws Exception {
         FileBean bean = new FileBean(from, "text/plain", "somefile.txt");
 
@@ -157,9 +170,11 @@ public class FileBeanTests {
             out = new PrintWriter(this.to);
             out.println("This is not what we should read back after the save!");
             out.println("If we get this text back we're in trouble!");
-        }
-        finally {
-            try { out.close(); } catch (Exception e) {}
+        } finally {
+            try {
+                out.close();
+            } catch (Exception e) {
+            }
         }
 
         bean.save(this.to);
@@ -168,7 +183,7 @@ public class FileBeanTests {
         assertContents(this.to);
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void testIntoDirectoryThatDoesNotExistYet() throws Exception {
         FileBean bean = new FileBean(from, "text/plain", "somefile.txt");
         File realTo = this.to;
@@ -178,8 +193,7 @@ public class FileBeanTests {
             Assert.assertTrue(this.to.exists());
             Assert.assertFalse(this.from.exists());
             assertContents(this.to);
-        }
-        finally {
+        } finally {
             this.to.delete();
             this.to = realTo;
         }

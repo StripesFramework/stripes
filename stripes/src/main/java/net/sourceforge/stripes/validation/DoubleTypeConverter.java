@@ -27,8 +27,8 @@ public class DoubleTypeConverter extends NumberTypeConverterSupport implements T
      * Converts the input to an object of type Double.
      */
     public Double convert(String input,
-                          Class<? extends Double> targetType,
-                          Collection<ValidationError> errors) {
+            Class<? extends Double> targetType,
+            Collection<ValidationError> errors) {
 
         Number number = parse(input, errors);
         Double retval = null;

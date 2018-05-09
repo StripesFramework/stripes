@@ -42,16 +42,20 @@ import net.sourceforge.stripes.validation.ValidationMetadata;
 import net.sourceforge.stripes.validation.ValidationMetadataProvider;
 
 /**
- * Manages the policies observed by {@link DefaultActionBeanPropertyBinder} when binding properties
- * to an {@link ActionBean}.
- * 
+ * Manages the policies observed by {@link DefaultActionBeanPropertyBinder} when
+ * binding properties to an {@link ActionBean}.
+ *
  * @author Ben Gunter
  * @see StrictBinding
  */
 @StrictBinding(defaultPolicy = Policy.ALLOW)
 public class BindingPolicyManager {
-    /** List of classes that, for security reasons, are not allowed as a {@link NodeEvaluation} value type. */
-    private static final List<Class<?>> ILLEGAL_NODE_VALUE_TYPES = Arrays.<Class<?>> asList(
+
+    /**
+     * List of classes that, for security reasons, are not allowed as a
+     * {@link NodeEvaluation} value type.
+     */
+    private static final List<Class<?>> ILLEGAL_NODE_VALUE_TYPES = Arrays.<Class<?>>asList(
             ActionBeanContext.class,
             Class.class,
             ClassLoader.class,
@@ -59,33 +63,41 @@ public class BindingPolicyManager {
             ServletRequest.class,
             ServletResponse.class);
 
-    /** The regular expression that a property name must match */
+    /**
+     * The regular expression that a property name must match
+     */
     private static final String PROPERTY_REGEX = "\\p{javaJavaIdentifierStart}\\p{javaJavaIdentifierPart}*";
 
-    /** The compiled form of {@link #PROPERTY_REGEX} */
+    /**
+     * The compiled form of {@link #PROPERTY_REGEX}
+     */
     private static final Pattern PROPERTY_PATTERN = Pattern.compile(PROPERTY_REGEX);
 
-    /** Log */
+    /**
+     * Log
+     */
     private static final Log log = Log.getInstance(BindingPolicyManager.class);
 
-    /** Cached instances */
+    /**
+     * Cached instances
+     */
     private static final Map<Class<?>, BindingPolicyManager> instances = new ConcurrentHashMap<Class<?>, BindingPolicyManager>();
 
     /**
-     * Get the policy manager for the given class. Instances are cached and returned on subsequent
-     * calls.
-     * 
+     * Get the policy manager for the given class. Instances are cached and
+     * returned on subsequent calls.
+     *
      * @param beanType the class whose policy manager is to be retrieved
      * @return a policy manager
      */
     public static BindingPolicyManager getInstance(Class<?> beanType) {
         BindingPolicyManager oldInstance = instances.get(beanType);
-        if(oldInstance != null) {
+        if (oldInstance != null) {
             return oldInstance;
         } else {
             BindingPolicyManager newInstance = new BindingPolicyManager(beanType);
             oldInstance = instances.put(beanType, newInstance);
-            if(oldInstance != null) {
+            if (oldInstance != null) {
                 newInstance = oldInstance;
             }
 
@@ -93,24 +105,34 @@ public class BindingPolicyManager {
         }
     }
 
-    /** The class to which the binding policy applies */
+    /**
+     * The class to which the binding policy applies
+     */
     private Class<?> beanClass;
 
-    /** The default policy to honor, in case of conflicts */
+    /**
+     * The default policy to honor, in case of conflicts
+     */
     private Policy defaultPolicy;
 
-    /** The regular expression that allowed properties must match */
+    /**
+     * The regular expression that allowed properties must match
+     */
     private Pattern allowPattern;
 
-    /** The regular expression that denied properties must match */
+    /**
+     * The regular expression that denied properties must match
+     */
     private Pattern denyPattern;
 
-    /** The regular expression that matches properties with {@literal @Validate} */
+    /**
+     * The regular expression that matches properties with {@literal @Validate}
+     */
     private Pattern validatePattern;
 
     /**
      * Create a new instance to handle binding security for the given type.
-     * 
+     *
      * @param beanClass the class to which the binding policy applies
      */
     protected BindingPolicyManager(Class<?> beanClass) {
@@ -134,8 +156,7 @@ public class BindingPolicyManager {
                 // construct the validated properties pattern
                 this.validatePattern = globToPattern(getValidatedProperties(beanClass));
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             log.error(e, "%%% Failure instantiating ", getClass().getName());
             StripesRuntimeException sre = new StripesRuntimeException(e.getMessage(), e);
             sre.setStackTrace(e.getStackTrace());
@@ -145,8 +166,9 @@ public class BindingPolicyManager {
 
     /**
      * Indicates if binding is allowed for the given expression.
-     * 
-     * @param eval a property expression that has been evaluated against an {@link ActionBean}
+     *
+     * @param eval a property expression that has been evaluated against an
+     * {@link ActionBean}
      * @return true if binding is allowed; false if not
      */
     public boolean isBindingAllowed(PropertyExpressionEvaluation eval) {
@@ -165,26 +187,31 @@ public class BindingPolicyManager {
          * if path appears on neither or both lists ( i.e. !(allow ^ deny) ) and default policy is
          * to deny access, then fail
          */
-        if (defaultPolicy == Policy.DENY && !(allow ^ deny))
+        if (defaultPolicy == Policy.DENY && !(allow ^ deny)) {
             return false;
+        }
 
         /*
          * regardless of default policy, if it's in the deny list but not in the allow list, then
          * fail
          */
-        if (!allow && deny)
+        if (!allow && deny) {
             return false;
+        }
 
         // any other conditions pass the test
         return true;
     }
 
     /**
-     * Indicates if any node in the given {@link PropertyExpressionEvaluation} has a value type that is assignable from
-     * any of the classes listed in {@link #ILLEGAL_NODE_VALUE_TYPES}.
-     * 
-     * @param eval a property expression that has been evaluated against an {@link ActionBean}
-     * @return true if the expression uses an illegal node value type; false otherwise
+     * Indicates if any node in the given {@link PropertyExpressionEvaluation}
+     * has a value type that is assignable from any of the classes listed in
+     * {@link #ILLEGAL_NODE_VALUE_TYPES}.
+     *
+     * @param eval a property expression that has been evaluated against an
+     * {@link ActionBean}
+     * @return true if the expression uses an illegal node value type; false
+     * otherwise
      */
     protected boolean usesIllegalNodeValueType(PropertyExpressionEvaluation eval) {
         for (NodeEvaluation node = eval.getRootNode(); node != null; node = node.getNext()) {
@@ -205,10 +232,10 @@ public class BindingPolicyManager {
     }
 
     /**
-     * Get the {@link StrictBinding} annotation for a class, checking all its superclasses if
-     * necessary. If no annotation is found, then one will be returned whose default policy is to
-     * allow binding to all properties.
-     * 
+     * Get the {@link StrictBinding} annotation for a class, checking all its
+     * superclasses if necessary. If no annotation is found, then one will be
+     * returned whose default policy is to allow binding to all properties.
+     *
      * @param beanType the class to get the {@link StrictBinding} annotation for
      * @return An annotation. This method never returns null.
      */
@@ -224,14 +251,15 @@ public class BindingPolicyManager {
     }
 
     /**
-     * Get all the properties and nested properties of the given class for which there is a
-     * corresponding {@link ValidationMetadata}, as returned by
-     * {@link ValidationMetadataProvider#getValidationMetadata(Class, ParameterName)}. The idea
-     * here is that if the bean property must be validated, then it is expected that the property
-     * may be bound to the bean.
-     * 
+     * Get all the properties and nested properties of the given class for which
+     * there is a corresponding {@link ValidationMetadata}, as returned by
+     * {@link ValidationMetadataProvider#getValidationMetadata(Class, ParameterName)}.
+     * The idea here is that if the bean property must be validated, then it is
+     * expected that the property may be bound to the bean.
+     *
      * @param beanClass a class
-     * @return The validated properties. If no properties are annotated then null.
+     * @return The validated properties. If no properties are annotated then
+     * null.
      * @see ValidationMetadataProvider#getValidationMetadata(Class)
      */
     protected String[] getValidatedProperties(Class<?> beanClass) {
@@ -242,7 +270,7 @@ public class BindingPolicyManager {
 
     /**
      * Get the bean class.
-     * 
+     *
      * @return the bean class
      */
     public Class<?> getBeanClass() {
@@ -251,7 +279,7 @@ public class BindingPolicyManager {
 
     /**
      * Get the default policy.
-     * 
+     *
      * @return the policy
      */
     public Policy getDefaultPolicy() {
@@ -260,14 +288,15 @@ public class BindingPolicyManager {
 
     /**
      * Converts a glob to a regex {@link Pattern}.
-     * 
-     * @param globArray an array of property name globs, each of which may be a comma separated list
-     *            of globs
+     *
+     * @param globArray an array of property name globs, each of which may be a
+     * comma separated list of globs
      * @return the pattern
      */
     protected Pattern globToPattern(String... globArray) {
-        if (globArray == null || globArray.length == 0)
+        if (globArray == null || globArray.length == 0) {
             return null;
+        }
 
         // things are much easier if we convert to a single list
         List<String> globs = new ArrayList<String>();
@@ -287,29 +316,28 @@ public class BindingPolicyManager {
                 String property = properties[i];
                 if ("*".equals(property)) {
                     buf.append(PROPERTY_REGEX);
-                }
-                else if ("**".equals(property)) {
+                } else if ("**".equals(property)) {
                     buf.append(PROPERTY_REGEX).append("(\\.").append(PROPERTY_REGEX).append(")*");
-                }
-                else if (property.length() > 0) {
+                } else if (property.length() > 0) {
                     Matcher matcher = PROPERTY_PATTERN.matcher(property);
                     if (matcher.matches()) {
                         buf.append(property);
-                    }
-                    else {
+                    } else {
                         log.warn("Invalid property name: " + property);
                         return null;
                     }
                 }
 
                 // add a literal dot after all but the last
-                if (i < properties.length - 1)
+                if (i < properties.length - 1) {
                     buf.append("\\.");
+                }
             }
 
             // add to the list of subs
-            if (buf.length() != 0)
+            if (buf.length() != 0) {
                 subs.add(buf.toString());
+            }
         }
 
         // join subs together with pipes and compile
@@ -317,14 +345,16 @@ public class BindingPolicyManager {
         for (String sub : subs) {
             buf.append(sub).append('|');
         }
-        if (buf.length() > 0)
+        if (buf.length() > 0) {
             buf.setLength(buf.length() - 1);
+        }
         log.debug("Translated globs ", Arrays.toString(globArray), " to regex ", buf);
 
         // return null if pattern is empty
-        if (buf.length() == 0)
+        if (buf.length() == 0) {
             return null;
-        else
+        } else {
             return Pattern.compile(buf.toString());
+        }
     }
 }

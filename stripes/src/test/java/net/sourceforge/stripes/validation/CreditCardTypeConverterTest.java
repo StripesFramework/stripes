@@ -6,6 +6,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 public class CreditCardTypeConverterTest {
+
     @Test(groups = "fast")
     public void validNumber() {
         CreditCardTypeConverter c = new CreditCardTypeConverter();

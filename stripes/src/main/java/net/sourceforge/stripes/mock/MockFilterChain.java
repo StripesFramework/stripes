@@ -27,33 +27,50 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Mock implementation of a filter chain that allows a number of filters to be called
- * before finally invoking the servlet that is the target of the request.
+ * Mock implementation of a filter chain that allows a number of filters to be
+ * called before finally invoking the servlet that is the target of the request.
  *
  * @author Tim Fennell
  * @since Stripes 1.1.1
  */
 public class MockFilterChain implements FilterChain {
+
     private List<Filter> filters = new ArrayList<Filter>();
     private Iterator<Filter> iterator;
     private Servlet servlet;
 
-    /** Adds a filter to the set of filters to be run. */
+    /**
+     * Adds a filter to the set of filters to be run.
+     * @param filter
+     */
     public void addFilter(Filter filter) {
         this.filters.add(filter);
     }
 
-    /** Adds an ordered list of filters to the filter chain. */
+    /**
+     * Adds an ordered list of filters to the filter chain.
+     * @param filters
+     */
     public void addFilters(Collection<Filter> filters) {
         this.filters.addAll(filters);
     }
 
-    /** Sets the servlet that will receive the request after all filters are processed. */
+    /**
+     * Sets the servlet that will receive the request after all filters are
+     * processed.
+     * @param servlet
+     */
     public void setServlet(Servlet servlet) {
         this.servlet = servlet;
     }
 
-    /** Used to coordinate the execution of the filters. */
+    /**
+     * Used to coordinate the execution of the filters.
+     * @param request
+     * @param response
+     * @throws java.io.IOException
+     * @throws javax.servlet.ServletException
+     */
     public void doFilter(ServletRequest request, ServletResponse response) throws IOException, ServletException {
         if (this.iterator == null) {
             this.iterator = this.filters.iterator();
@@ -61,8 +78,7 @@ public class MockFilterChain implements FilterChain {
 
         if (this.iterator.hasNext()) {
             this.iterator.next().doFilter(request, response, this);
-        }
-        else {
+        } else {
             this.servlet.service(request, response);
         }
     }

@@ -20,24 +20,34 @@ import net.sourceforge.stripes.action.ActionBean;
 
 /**
  * <p>
- * This exception indicates that a URL does not contain enough information to map it to a single
- * {@link ActionBean} class. In some cases, a URL may match more than one URL binding.
+ * This exception indicates that a URL does not contain enough information to
+ * map it to a single {@link ActionBean} class. In some cases, a URL may match
+ * more than one URL binding.
  * </p>
  * <p>
- * For example, suppose you have two ActionBeans with the URL bindings <code>/foo/{param}/bar</code>
- * and <code>/foo/{param}/blah</code>. The paths {@code /foo} and {@code /foo/X} -- while legal,
- * since any number of parameters or literals may be omitted from the end of a clean URL -- match
- * both of the URL bindings. Since Stripes cannot determine from the URL the ActionBean to which to
- * dispatch the request, it throws this exception to indicate the conflict.
+ * For example, suppose you have two ActionBeans with the URL bindings
+ * <code>/foo/{param}/bar</code> and <code>/foo/{param}/blah</code>. The paths
+ * {@code /foo} and {@code /foo/X} -- while legal, since any number of
+ * parameters or literals may be omitted from the end of a clean URL -- match
+ * both of the URL bindings. Since Stripes cannot determine from the URL the
+ * ActionBean to which to dispatch the request, it throws this exception to
+ * indicate the conflict.
  * </p>
- * 
+ *
  * @author Ben Gunter
  * @since Stripes 1.5.1
  */
 public class UrlBindingConflictException extends StripesRuntimeException {
+
     private static final long serialVersionUID = 1L;
 
-    /** Generate the message to pass to the superclass constructor */
+    /**
+     * Generate the message to pass to the superclass constructor
+     * @param targetClass - Class of the action bean
+     * @param matches - String of matching URL bindings
+     * @param path - Path requested
+     * @return The error message for this binding conflict exception
+     */
     protected static String getMessage(Class<? extends ActionBean> targetClass, String path,
             Collection<String> matches) {
         return (targetClass == null ? "" : "Failure generating URL for " + targetClass + ". ")
@@ -55,9 +65,10 @@ public class UrlBindingConflictException extends StripesRuntimeException {
     private Class<? extends ActionBean> targetClass;
 
     /**
-     * New exception indicating that the {@code path} does not map to a single ActionBean because it
-     * potentially matches all the URL bindings in the {@code matches} collection.
-     * 
+     * New exception indicating that the {@code path} does not map to a single
+     * ActionBean because it potentially matches all the URL bindings in the
+     * {@code matches} collection.
+     *
      * @param message An informative message about what went wrong
      * @param targetClass The class for which a URL could not be generated.
      * @param path The offending path
@@ -72,9 +83,10 @@ public class UrlBindingConflictException extends StripesRuntimeException {
     }
 
     /**
-     * New exception indicating that the {@code path} does not map to a single ActionBean because it
-     * potentially matches all the URL bindings in the {@code matches} collection.
-     * 
+     * New exception indicating that the {@code path} does not map to a single
+     * ActionBean because it potentially matches all the URL bindings in the
+     * {@code matches} collection.
+     *
      * @param targetClass The class for which a URL could not be generated.
      * @param path The offending path
      * @param matches A collection of all the potentially matching URL bindings
@@ -85,9 +97,10 @@ public class UrlBindingConflictException extends StripesRuntimeException {
     }
 
     /**
-     * New exception indicating that the {@code path} does not map to a single ActionBean because it
-     * potentially matches all the URL bindings in the {@code matches} collection.
-     * 
+     * New exception indicating that the {@code path} does not map to a single
+     * ActionBean because it potentially matches all the URL bindings in the
+     * {@code matches} collection.
+     *
      * @param message An informative message about what went wrong
      * @param path The offending path
      * @param matches A collection of all the potentially matching URL bindings
@@ -97,9 +110,10 @@ public class UrlBindingConflictException extends StripesRuntimeException {
     }
 
     /**
-     * New exception indicating that the {@code path} does not map to a single ActionBean because it
-     * potentially matches all the URL bindings in the {@code matches} collection.
-     * 
+     * New exception indicating that the {@code path} does not map to a single
+     * ActionBean because it potentially matches all the URL bindings in the
+     * {@code matches} collection.
+     *
      * @param path The offending path
      * @param matches A collection of all the potentially matching URL bindings
      */
@@ -107,22 +121,30 @@ public class UrlBindingConflictException extends StripesRuntimeException {
         this(getMessage(null, path, matches), path, matches);
     }
 
-    /** Get the path that failed to map to a single ActionBean */
+    /**
+     * Get the path that failed to map to a single ActionBean
+     * @return The path that failed to map to an actionbean
+     */
     public String getPath() {
         return path;
     }
 
-    /** Get all the URL bindings on existing ActionBeans that match the path */
+    /**
+     * Get all the URL bindings on existing ActionBeans that match the path
+     * @return All of the URL bindings which match the path requested
+     */
     public Collection<String> getMatches() {
         return matches;
     }
 
     /**
-     * Get the {@link ActionBean} class for which a URL was being generated when this exception was
-     * thrown. If the exception occurred while dispatching a request, then this property will be
-     * null since the path cannot be associated with an ActionBean class. However, if it is thrown
-     * while generating a URL that is intended to point to an ActionBean, then this property will
-     * indicate the class that was being targeted.
+     * Get the {@link ActionBean} class for which a URL was being generated when
+     * this exception was thrown. If the exception occurred while dispatching a
+     * request, then this property will be null since the path cannot be
+     * associated with an ActionBean class. However, if it is thrown while
+     * generating a URL that is intended to point to an ActionBean, then this
+     * property will indicate the class that was being targeted.
+     * @return The target class associated with this URL binding conflict
      */
     public Class<? extends ActionBean> getTargetClass() {
         return targetClass;

@@ -28,6 +28,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 public class TestStreamingResolution {
+
     @Test
     public void testContentDisposition() throws Exception {
         doTestContentDisposition(true, UUID.randomUUID().toString());
@@ -57,18 +58,15 @@ public class TestStreamingResolution {
                 Assert.assertNotNull(disposition);
                 Assert.assertEquals("attachment", disposition.getDisposition());
                 Assert.assertNull(disposition.getParameter("filename"));
-            }
-            else {
+            } else {
                 Assert.assertNotNull(disposition);
                 Assert.assertEquals("attachment", disposition.getDisposition());
                 Assert.assertNotNull(disposition.getParameter("filename"));
             }
-        }
-        else {
+        } else {
             if (filename == null) {
                 Assert.assertNull(disposition);
-            }
-            else {
+            } else {
                 Assert.assertNotNull(disposition);
                 Assert.assertEquals("attachment", disposition.getDisposition());
                 Assert.assertNotNull(disposition.getParameter("filename"));
@@ -79,9 +77,10 @@ public class TestStreamingResolution {
     private ContentDisposition getContentDisposition(MockHttpServletResponse response)
             throws ParseException {
         final List<Object> list = response.getHeaderMap().get("Content-Disposition");
-        if (list == null || list.isEmpty())
+        if (list == null || list.isEmpty()) {
             return null;
-        else
+        } else {
             return new ContentDisposition(list.get(0).toString());
+        }
     }
 }
