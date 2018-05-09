@@ -105,7 +105,7 @@ public class NumberFormatter implements Formatter<Number> {
 
     /**
      * Sets the locale that output String should be in.
-     * @param locale
+     * @param locale - Locale to set for this formatter
      */
     public void setLocale(Locale locale) {
         this.locale = locale;
@@ -113,7 +113,7 @@ public class NumberFormatter implements Formatter<Number> {
 
     /**
      * Gets the locale that output String should be in.
-     * @return 
+     * @return The locale set for this formatter
      */
     public Locale getLocale() {
         return locale;

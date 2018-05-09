@@ -31,6 +31,7 @@ public class ObjectFormatter implements Formatter<Object> {
      * @param input an object of a type that the formatter knows how to format
      * @return String.valueOf(input)
      */
+    @Override
     public String format(Object input) {
         return String.valueOf(input);
     }
@@ -38,13 +39,15 @@ public class ObjectFormatter implements Formatter<Object> {
     /**
      * Does nothing.
      */
+    @Override
     public void init() {
         /* unused */ }
 
     /**
      * Does nothing.
-     * @param formatPattern
+     * @param formatPattern - Format pattern
      */
+    @Override
     public void setFormatPattern(String formatPattern) {
         /* unused */ }
 
@@ -52,6 +55,7 @@ public class ObjectFormatter implements Formatter<Object> {
      * Does nothing.
      * @param formatType
      */
+    @Override
     public void setFormatType(String formatType) {
         /* unused */ }
 
@@ -59,6 +63,7 @@ public class ObjectFormatter implements Formatter<Object> {
      * Does nothing.
      * @param locale
      */
+    @Override
     public void setLocale(Locale locale) {
         /* unused */ }
 }

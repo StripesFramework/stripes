@@ -54,7 +54,7 @@ import net.sourceforge.stripes.util.ReflectUtil;
  *
  * <p>
  * Individual methods on ActionBean classes are expected to be annotated with
- * @HandlesEvent annotations, and potentially a @DefaultHandler annotation.
+ * HandlesEvent annotations, and potentially a DefaultHandler annotation.
  * Using these annotations the Resolver will determine which method should be
  * executed for the current request.</p>
  *
@@ -94,7 +94,7 @@ public class AnnotatedClassActionResolver implements ActionResolver {
     private UrlBindingFactory urlBindingFactory = new UrlBindingFactory();
 
     /**
-     * Maps action bean classes simple name -> action bean class
+     * Maps action bean classes simple name to action bean class
      */
     protected final Map<String, Class<? extends ActionBean>> actionBeansByName
             = new ConcurrentHashMap<String, Class<? extends ActionBean>>();
@@ -380,7 +380,7 @@ public class AnnotatedClassActionResolver implements ActionResolver {
      * @param path a URL to which an ActionBean is bound, or a path starting
      * with the URL to which an ActionBean has been bound.
      * @param context the current ActionBeanContext
-     * @return a Class<ActionBean> for the ActionBean requested
+     * @return an action bean class for the ActionBean requested
      * @throws StripesServletException if the UrlBinding does not match an
      * ActionBean binding
      */
