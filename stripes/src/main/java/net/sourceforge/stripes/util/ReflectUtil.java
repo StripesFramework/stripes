@@ -200,19 +200,6 @@ public class ReflectUtil {
             return ann.toString();
         }
     }
-    
-    /**
-     * This method will return whether or not the passed method is a Java 8
-     * default method. This method allows for JDKs less than Java 8 to be supported
-     * by Stripes.
-     * 
-     * @param method - Method to check to see if it is default.
-     */
-    public static isDefault(Method method) {
-        // Default methods are public non-abstract instance methods
-        // declared in an interface.
-        return ((method.getModifiers() & (Modifier.ABSTRACT | Modifier.PUBLIC | Modifier.STATIC)) == Modifier.PUBLIC) && method.getDeclaringClass().isInterface();
-    }        
 
     /**
      * Fetches all methods of all access types from the supplied class and super
