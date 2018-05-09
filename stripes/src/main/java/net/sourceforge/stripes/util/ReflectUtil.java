@@ -107,6 +107,19 @@ public class ReflectUtil {
     private static final Set<String> INHERITED_ANNOTATION_METHODS
             = Literal.set("toString", "equals", "hashCode", "annotationType");
 
+   /**
+     * This method will return whether or not the passed method is a Java 8
+     * default method. This method allows for JDKs less than Java 8 to be supported
+     * by Stripes.
+     * 
+     * @param method - Method to check to see if it is default.
+     */
+    public static isDefault(Method method) {
+        // Default methods are public non-abstract instance methods
+        // declared in an interface.
+        return ((method.getModifiers() & (Modifier.ABSTRACT | Modifier.PUBLIC | Modifier.STATIC)) == Modifier.PUBLIC) && method.getDeclaringClass().isInterface();
+    }        
+
     /**
      * Utility method used to load a class. Any time that Stripes needs to load
      * of find a class by name it uses this method. As a result any time the
