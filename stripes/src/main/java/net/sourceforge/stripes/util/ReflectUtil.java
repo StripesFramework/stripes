@@ -39,6 +39,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 
 import static java.lang.reflect.Modifier.isPublic;
 import java.beans.PropertyDescriptor;
@@ -427,32 +428,68 @@ public class ReflectUtil {
      * @return an array of Type objects or null
      */
     public static Type[] getActualTypeArguments(Class<?> clazz, Class<?> targetType) {
-        Set<Class<?>> classes = new HashSet<Class<?>>();
-        classes.add(clazz);
+        return getActualTypeArguments(clazz, targetType, null);
+    }
 
-        if (targetType.isInterface()) {
-            classes.addAll(getImplementedInterfaces(clazz));
+    private static Type[] getActualTypeArguments(Type type, Class<?> targetType,
+            Type[] typeArgs) {
+        Class<?> clazz = null;
+        if (type instanceof Class) {
+            clazz = (Class<?>) type;
+        } else if (type instanceof ParameterizedType) {
+            clazz = (Class<?>) ((ParameterizedType)type).getRawType();
         }
 
-        Class<?> superClass = clazz.getSuperclass();
-        while (superClass != null) {
-            classes.add(superClass);
-            superClass = superClass.getSuperclass();
+        Type[] ifaces = clazz.getGenericInterfaces();
+        for (Type iface : ifaces) {
+            if (iface instanceof Class && targetType.isAssignableFrom((Class<?>) iface)) {
+                return getActualTypeArguments((Class<?>) iface, targetType, typeArgs);
+            }
+            else if (iface instanceof ParameterizedType) {
+                ParameterizedType superType = (ParameterizedType) iface;
+                Class<?> superClass = (Class<?>) superType.getRawType();
+                if (targetType == superClass) {
+                    return resolvedTypeArguments(clazz, superType, typeArgs);
+                }
+                else if (targetType.isAssignableFrom(superClass)) {
+                    return getActualTypeArguments(superType, targetType,
+                            resolvedTypeArguments(clazz, superType, typeArgs));
+                }
+            }
         }
+        Type genericSuperClass = clazz.getGenericSuperclass();
+        if (genericSuperClass instanceof Class
+                && targetType.isAssignableFrom((Class<?>) genericSuperClass)) {
+            return getActualTypeArguments((Class<?>) genericSuperClass, targetType, typeArgs);
+        }
+        else if (genericSuperClass instanceof ParameterizedType) {
+            ParameterizedType superType = (ParameterizedType) genericSuperClass;
+            Class<?> superClass = (Class<?>) superType.getRawType();
+            if (targetType == superClass) {
+                return resolvedTypeArguments(clazz, superType, typeArgs);
+            }
+            else if (targetType.isAssignableFrom(superClass)) {
+                return getActualTypeArguments(superType, targetType,
+                        resolvedTypeArguments(clazz, superType, typeArgs));
+            }
+        }
+        return null;
+    }
 
-        for (Class<?> search : classes) {
-            for (Type type : (targetType.isInterface() ? search.getGenericInterfaces()
-                    : new Type[]{search.getGenericSuperclass()})) {
-                if (type instanceof ParameterizedType) {
-                    ParameterizedType parameterizedType = (ParameterizedType) type;
-                    if (targetType.equals(parameterizedType.getRawType())) {
-                        return parameterizedType.getActualTypeArguments();
+    private static Type[] resolvedTypeArguments(Class<?> clazz, ParameterizedType parent,
+            Type[] raisedTypeArgs) {
+        TypeVariable<?>[] declaredTypeVars = clazz.getTypeParameters();
+        Type[] parentTypeArgs = parent.getActualTypeArguments();
+        for (int i = 0; i < parentTypeArgs.length; i++) {
+            if (parentTypeArgs[i] instanceof TypeVariable) {
+                for (int j = 0; j < declaredTypeVars.length; j++) {
+                    if (declaredTypeVars[j] == parentTypeArgs[i]) {
+                        parentTypeArgs[i] = raisedTypeArgs[j];
                     }
                 }
             }
         }
-
-        return null;
+        return parentTypeArgs;
     }
 
     /**
