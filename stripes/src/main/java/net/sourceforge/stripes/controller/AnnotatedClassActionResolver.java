@@ -274,10 +274,25 @@ public class AnnotatedClassActionResolver implements ActionResolver {
         if (superclass != null) {
             processMethods(superclass, classMappings);
         }
+        
+        Class<?>[] clazzes = clazz.getInterfaces();
+        for(Class<?> interfaceClazz : clazzes){
+            Method[] methods = interfaceClazz.getDeclaredMethods();
+            for (Method method : methods) {
+                if(method.isDefault()){
+                    processMethod(clazz, classMappings, method);
+                }
+            }
+        }
 
         Method[] methods = clazz.getDeclaredMethods();
         for (Method method : methods) {
-            if (Modifier.isPublic(method.getModifiers()) && !method.isBridge()) {
+            processMethod(clazz, classMappings, method);
+        }
+    }
+    
+    protected void processMethod(Class<?> clazz, Map<String, Method> classMappings, Method method) {
+        if (Modifier.isPublic(method.getModifiers()) && !method.isBridge()) {
                 String eventName = getHandledEvent(method);
 
                 // look for duplicate event names within the current class
@@ -302,7 +317,6 @@ public class AnnotatedClassActionResolver implements ActionResolver {
                     // Makes sure we catch the default handler
                     classMappings.put(DEFAULT_HANDLER_KEY, method);
                 }
-            }
         }
     }
 
