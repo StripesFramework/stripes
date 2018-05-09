@@ -113,8 +113,9 @@ public class ReflectUtil {
      * by Stripes.
      * 
      * @param method - Method to check to see if it is default.
+     * @return Whether or not the method is a Java 8 default method
      */
-    public static isDefault(Method method) {
+    public static boolean isDefault(Method method) {
         // Default methods are public non-abstract instance methods
         // declared in an interface.
         return ((method.getModifiers() & (Modifier.ABSTRACT | Modifier.PUBLIC | Modifier.STATIC)) == Modifier.PUBLIC) && method.getDeclaringClass().isInterface();

@@ -43,6 +43,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import net.sourceforge.stripes.util.ReflectUtil;
 
 /**
  * <p>
@@ -53,9 +54,9 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * <p>
  * Individual methods on ActionBean classes are expected to be annotated with
- * HandlesEvent annotations, and potentially a @DefaultHandler annotation. Using
- * these annotations the Resolver will determine which method should be executed
- * for the current request.</p>
+ * @HandlesEvent annotations, and potentially a @DefaultHandler annotation.
+ * Using these annotations the Resolver will determine which method should be
+ * executed for the current request.</p>
  *
  * @see net.sourceforge.stripes.action.UrlBinding
  * @author Tim Fennell
@@ -93,7 +94,7 @@ public class AnnotatedClassActionResolver implements ActionResolver {
     private UrlBindingFactory urlBindingFactory = new UrlBindingFactory();
 
     /**
-     * Maps action bean classes simple name to action bean class
+     * Maps action bean classes simple name -> action bean class
      */
     protected final Map<String, Class<? extends ActionBean>> actionBeansByName
             = new ConcurrentHashMap<String, Class<? extends ActionBean>>();
@@ -105,18 +106,18 @@ public class AnnotatedClassActionResolver implements ActionResolver {
      */
     private Map<Class<? extends ActionBean>, Map<String, Method>> eventMappings
             = new HashMap<Class<? extends ActionBean>, Map<String, Method>>() {
-        private static final long serialVersionUID = 1L;
+                private static final long serialVersionUID = 1L;
 
-        @Override
-        public Map<String, Method> get(Object key) {
-            Map<String, Method> value = super.get(key);
-            if (value == null) {
-                return Collections.emptyMap();
-            } else {
-                return value;
-            }
-        }
-    };
+                @Override
+                public Map<String, Method> get(Object key) {
+                    Map<String, Method> value = super.get(key);
+                    if (value == null) {
+                        return Collections.emptyMap();
+                    } else {
+                        return value;
+                    }
+                }
+            };
 
     /**
      * Scans the classpath of the current classloader (not including parents) to
@@ -138,9 +139,6 @@ public class AnnotatedClassActionResolver implements ActionResolver {
         addBeanNameMappings();
     }
 
-    /**
-     *
-     */
     protected void addBeanNameMappings() {
         Set<String> foundBeanNames = new HashSet<String>();
         for (Class<? extends ActionBean> clazz : getActionBeanClasses()) {
@@ -274,10 +272,25 @@ public class AnnotatedClassActionResolver implements ActionResolver {
         if (superclass != null) {
             processMethods(superclass, classMappings);
         }
+        
+        Class<?>[] clazzes = clazz.getInterfaces();
+        for(Class<?> interfaceClazz : clazzes){
+            Method[] methods = interfaceClazz.getDeclaredMethods();
+            for (Method method : methods) {
+                if(ReflectUtil.isDefault(method)){
+                    processMethod(clazz, classMappings, method);
+                }
+            }
+        }
 
         Method[] methods = clazz.getDeclaredMethods();
         for (Method method : methods) {
-            if (Modifier.isPublic(method.getModifiers()) && !method.isBridge()) {
+            processMethod(clazz, classMappings, method);
+        }
+    }
+    
+    protected void processMethod(Class<?> clazz, Map<String, Method> classMappings, Method method) {
+        if (Modifier.isPublic(method.getModifiers()) && !method.isBridge()) {
                 String eventName = getHandledEvent(method);
 
                 // look for duplicate event names within the current class
@@ -302,7 +315,6 @@ public class AnnotatedClassActionResolver implements ActionResolver {
                     // Makes sure we catch the default handler
                     classMappings.put(DEFAULT_HANDLER_KEY, method);
                 }
-            }
         }
     }
 
@@ -368,7 +380,7 @@ public class AnnotatedClassActionResolver implements ActionResolver {
      * @param path a URL to which an ActionBean is bound, or a path starting
      * with the URL to which an ActionBean has been bound.
      * @param context the current ActionBeanContext
-     * @return Action bean class for the ActionBean requested
+     * @return a Class<ActionBean> for the ActionBean requested
      * @throws StripesServletException if the UrlBinding does not match an
      * ActionBean binding
      */
@@ -679,7 +691,7 @@ public class AnnotatedClassActionResolver implements ActionResolver {
                         + " to make sure they match. [eventNameRequested=" + eventName
                         + "] [ActionBean=" + bean.getName() + "]");
             }
-
+            
         }
 
         // If we could not find a handler then we should blow up quickly
@@ -722,7 +734,7 @@ public class AnnotatedClassActionResolver implements ActionResolver {
     /**
      * Provides subclasses with access to the configuration object.
      *
-     * @return The configuraiton object associated with this resolver.
+     * @return The configuration object associated with this resolver.
      */
     protected Configuration getConfiguration() {
         return this.configuration;
