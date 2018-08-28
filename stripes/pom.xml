@@ -36,7 +36,7 @@
         </dependency>
         <dependency>
             <groupId>javax.mail</groupId>
-            <artifactId>mail</artifactId>
+            <artifactId>javax.mail-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.testng</groupId>
@@ -65,12 +65,10 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
-            <version>2.0.1</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>2.0.1</version>
         </dependency>
     </dependencies>
 
