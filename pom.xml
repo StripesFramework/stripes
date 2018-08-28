@@ -187,9 +187,13 @@
         <pluginManagement>
             <plugins>
                 <plugin>
+                    <artifactId>maven-antrun-plugin</artifactId>
+                    <version>1.8</version>
+                </plugin>
+                <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.1</version>
+                    <version>3.8.0</version>
                     <configuration>
                         <source>1.7</source>
                         <target>1.7</target>
@@ -198,17 +202,17 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>2.17</version>
+                    <version>2.22.1</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
-                    <version>2.1</version>
+                    <version>3.1.1</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-assembly-plugin</artifactId>
-                    <version>2.4</version>
+                    <version>3.1.0</version>
                 </plugin>
                 <plugin>
                     <groupId>net.sourceforge.maven-taglib</groupId>
@@ -218,17 +222,17 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-source-plugin</artifactId>
-                    <version>2.1.2</version>
+                    <version>3.0.1</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-war-plugin</artifactId>
-                    <version>2.4</version>
+                    <version>3.2.2</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-deploy-plugin</artifactId>
-                    <version>2.8.1</version>
+                    <version>2.8.2</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.tomcat.maven</groupId>
@@ -238,17 +242,17 @@
                 <plugin>
                     <groupId>org.codehaus.gmaven</groupId>
                     <artifactId>gmaven-plugin</artifactId>
-                    <version>1.5</version>
+                    <version>2.1</version>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.cargo</groupId>
                     <artifactId>cargo-maven2-plugin</artifactId>
-                    <version>1.4.7</version>
+                    <version>1.7.1</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>2.9.1</version>
+                    <version>3.0.1</version>
                     <executions>
                         <execution>
                             <id>generate-javadoc</id>
@@ -277,7 +281,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>cobertura-maven-plugin</artifactId>
-                    <version>2.6</version>
+                    <version>2.7</version>
                     <configuration>
                         <formats>
                             <format>html</format>
@@ -285,6 +289,10 @@
                         </formats>
                         <check/>
                     </configuration>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-gpg-plugin</artifactId>
+                    <version>1.6</version>
                 </plugin>
             </plugins>
         </pluginManagement>
