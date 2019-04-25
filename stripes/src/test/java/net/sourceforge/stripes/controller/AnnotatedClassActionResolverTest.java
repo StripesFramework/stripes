@@ -25,6 +25,7 @@ public class AnnotatedClassActionResolverTest {
 
     @UrlBinding("/Simple.action")
     static class SimpleActionBean implements ActionBean {
+
         public void setContext(ActionBeanContext context) {
         }
 
@@ -35,6 +36,7 @@ public class AnnotatedClassActionResolverTest {
 
     @UrlBinding("/Overloaded.action")
     static class OverloadedActionBean implements ActionBean {
+
         public void setContext(ActionBeanContext context) {
         }
 
@@ -44,8 +46,10 @@ public class AnnotatedClassActionResolverTest {
     }
 
     static class Container1 {
+
         @UrlBinding("/container1/Overloaded.action")
         static class OverloadedActionBean implements ActionBean {
+
             public void setContext(ActionBeanContext context) {
             }
 
@@ -56,8 +60,10 @@ public class AnnotatedClassActionResolverTest {
     }
 
     static class Container2 {
+
         @UrlBinding("/container2/Overloaded.action")
         static class OverloadedActionBean implements ActionBean {
+
             public void setContext(ActionBeanContext context) {
             }
 

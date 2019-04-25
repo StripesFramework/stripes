@@ -43,43 +43,54 @@ import java.beans.FeatureDescriptor;
 import java.lang.reflect.Method;
 
 /**
- * An implementation of {@link ExpressionExecutor} that uses the new EL API available in Java
- * EE 5 in the {@link javax.el} package. While more complicated that the JSP 2.0 API it has
- * one advantage which is that it can be used without the need to allocate a PageContext
- * object and without any other libraries being available.
+ * An implementation of {@link ExpressionExecutor} that uses the new EL API
+ * available in Java EE 5 in the {@link javax.el} package. While more
+ * complicated that the JSP 2.0 API it has one advantage which is that it can be
+ * used without the need to allocate a PageContext object and without any other
+ * libraries being available.
  *
  * @author tfenne
  * @since Stripes 1.5
  */
 public class Jsp21ExpressionExecutor implements ExpressionExecutor {
+
     private static final Log log = Log.getInstance(Jsp21ExpressionExecutor.class);
 
     /**
-     * Implementation of the EL interface to resolve variables. Resolves variables by
-     * checking two special names ("this" and "actionBean") and then falling back to
-     * retrieving property values from the ActionBean passed in to the constructor.
+     * Implementation of the EL interface to resolve variables. Resolves
+     * variables by checking two special names ("this" and "actionBean") and
+     * then falling back to retrieving property values from the ActionBean
+     * passed in to the constructor.
      *
      * @author Tim Fennell
      * @since Stripes 1.5
      */
     protected static class StripesELResolver extends ELResolver {
+
         private ActionBean bean;
         private Object currentValue;
 
-        /** Constructs a resolver based on the action bean . */
+        /**
+         * Constructs a resolver based on the action bean .
+         */
         StripesELResolver(ActionBean bean) {
             this.bean = bean;
         }
 
-        /** Sets the value that the 'this' variable will point at. */
+        /**
+         * Sets the value that the 'this' variable will point at.
+         */
         void setCurrentValue(Object value) {
             this.currentValue = value;
         }
 
         /**
-         * Attempts to resolve the value as described in the class level javadoc.
+         * Attempts to resolve the value as described in the class level
+         * javadoc.
+         *
          * @param ctx the ELContext for the expression
-         * @param base the object on which the property resides (null == root property)
+         * @param base the object on which the property resides (null == root
+         * property)
          * @param prop the name of the property being looked for
          * @return the value of the property or null if one can't be found
          */
@@ -88,69 +99,106 @@ public class Jsp21ExpressionExecutor implements ExpressionExecutor {
             if (ExpressionExecutorSupport.isSelfKeyword(this.bean, prop)) {
                 ctx.setPropertyResolved(true);
                 return this.currentValue;
-            }
-            else if (StripesConstants.REQ_ATTR_ACTION_BEAN.equals(prop)) {
+            } else if (StripesConstants.REQ_ATTR_ACTION_BEAN.equals(prop)) {
                 ctx.setPropertyResolved(true);
                 return this.bean;
-            }
-            else {
+            } else {
                 try {
                     base = base == null ? this.bean : base;
                     Object retval = BeanUtil.getPropertyValue(String.valueOf(prop), base);
                     ctx.setPropertyResolved(true);
                     return retval;
+                } catch (Exception e) {
+                    return null;
                 }
-                catch (Exception e) { return null; }
             }
         }
 
-        /** Does nothing. Always returns Object.class. */
+        /**
+         * Does nothing. Always returns Object.class.
+         * @param ctx
+         * @param base
+         * @param prop
+         * @return 
+         */
         @Override
         public Class<?> getType(final ELContext ctx, final Object base, final Object prop) {
             ctx.setPropertyResolved(true);
             return Object.class;
         }
 
-        /** Does nothing. Always throws PropertyNotWritableException. */
+        /**
+         * Does nothing. Always throws PropertyNotWritableException.
+         * @param elContext
+         * @param o
+         * @param o2
+         * @param o1
+         */
         @Override
         public void setValue(ELContext elContext, Object o, Object o1, Object o2) throws PropertyNotWritableException {
             throw new PropertyNotWritableException("Unsupported Op");
         }
 
-        /** Always returns true. */
+        /**
+         * Always returns true.
+         * @param elContext
+         * @param o
+         * @param o1
+         * @return 
+         */
         @Override
-        public boolean isReadOnly(final ELContext elContext, final Object o, final Object o1) { return true; }
+        public boolean isReadOnly(final ELContext elContext, final Object o, final Object o1) {
+            return true;
+        }
 
-        /** Always returns null. */
+        /**
+         * Always returns null.
+         * @param elContext
+         * @param o
+         * @return 
+         */
         @Override
-        public Iterator<FeatureDescriptor> getFeatureDescriptors(final ELContext elContext, final Object o) { return null; }
+        public Iterator<FeatureDescriptor> getFeatureDescriptors(final ELContext elContext, final Object o) {
+            return null;
+        }
 
-        /** Always returns Object.class. */
+        /**
+         * Always returns Object.class.
+         * @param elContext
+         * @param o
+         * @return 
+         */
         @Override
-        public Class<?> getCommonPropertyType(final ELContext elContext, final Object o) { return Object.class; }
+        public Class<?> getCommonPropertyType(final ELContext elContext, final Object o) {
+            return Object.class;
+        }
     }
 
     /**
-     * Implementation of the EL interface for managing expression context. Resolves variables
-     * using the StripesELResolver above.  Both the FunctionMapper and VariableResolver are
-     * essentially no-op implementations.
+     * Implementation of the EL interface for managing expression context.
+     * Resolves variables using the StripesELResolver above. Both the
+     * FunctionMapper and VariableResolver are essentially no-op
+     * implementations.
      *
      * @author Tim Fennell
      * @since Stripes 1.5
      */
     protected static class StripesELContext extends ELContext {
+
         @SuppressWarnings("unused")
         private ActionBean bean;
         private StripesELResolver resolver;
         private VariableMapper vmapper;
         private static final FunctionMapper fmapper = new FunctionMapper() {
             @Override
-            public Method resolveFunction(final String s, final String s1) { return null; }
+            public Method resolveFunction(final String s, final String s1) {
+                return null;
+            }
         };
 
         /**
-         * Constructs a new instance using the ActionBean provided as the source for most
-         * property resolutions.
+         * Constructs a new instance using the ActionBean provided as the source
+         * for most property resolutions.
          *
          * @param bean the ActionBean to resolve properties against
          */
@@ -171,23 +219,46 @@ public class Jsp21ExpressionExecutor implements ExpressionExecutor {
             };
         }
 
-        /** Sets the current value of the 'this' special variable. */
-        public void setCurrentValue(final Object value) {resolver.setCurrentValue(value);}
+        /**
+         * Sets the current value of the 'this' special variable.
+         * @param value
+         */
+        public void setCurrentValue(final Object value) {
+            resolver.setCurrentValue(value);
+        }
 
-        /** Returns the StripesELResovler. */
+        /**
+         * Returns the StripesELResovler.
+         * @return 
+         */
         @Override
-        public StripesELResolver getELResolver() { return this.resolver; }
+        public StripesELResolver getELResolver() {
+            return this.resolver;
+        }
 
-        /** Returns a no-op implementation of FunctionMapper. */
+        /**
+         * Returns a no-op implementation of FunctionMapper.
+         * @return 
+         */
         @Override
-        public FunctionMapper getFunctionMapper() { return fmapper; }
+        public FunctionMapper getFunctionMapper() {
+            return fmapper;
+        }
 
-        /** Returns a no-op implementation of VariableMapper. */
+        /**
+         * Returns a no-op implementation of VariableMapper.
+         * @return 
+         */
         @Override
-        public VariableMapper getVariableMapper() { return vmapper; }
+        public VariableMapper getVariableMapper() {
+            return vmapper;
+        }
     }
 
-    /** Default constructor that throws an exception if the JSP2.1 APIs are not available. */
+    /**
+     * Default constructor that throws an exception if the JSP2.1 APIs are not
+     * available.
+     */
     public Jsp21ExpressionExecutor() {
         if (getExpressionFactory() == null) {
             throw new StripesRuntimeException("Could not create a JSP2.1 ExpressionFactory.");
@@ -196,7 +267,7 @@ public class Jsp21ExpressionExecutor implements ExpressionExecutor {
 
     // See interface for javadoc.  
     public void evaluate(final ActionBean bean, final ParameterName name, final List<Object> values,
-                         final ValidationMetadata validationInfo, final ValidationErrors errors) {
+            final ValidationMetadata validationInfo, final ValidationErrors errors) {
 
         StripesELContext ctx = null;
         String expressionString = validationInfo.expression();
@@ -206,20 +277,21 @@ public class Jsp21ExpressionExecutor implements ExpressionExecutor {
             if (expressionString != null) {
                 // Make sure we can get an factory
                 ExpressionFactory factory = getExpressionFactory();
-                if (factory == null) return;
+                if (factory == null) {
+                    return;
+                }
 
                 ctx = new StripesELContext(bean);
 
                 // If this turns out to be slow we could probably cache the parsed expression
                 expression = factory.createValueExpression(ctx, expressionString, Boolean.class);
             }
-        }
-        catch (ELException ele) {
+        } catch (ELException ele) {
             throw new StripesRuntimeException(
-                    "Could not parse the EL expression being used to validate field " +
-                    name.getName() + ". This is not a transient error. Please double " +
-                    "check the following expression for errors: " +
-                    validationInfo.expression(), ele);
+                    "Could not parse the EL expression being used to validate field "
+                    + name.getName() + ". This is not a transient error. Please double "
+                    + "check the following expression for errors: "
+                    + validationInfo.expression(), ele);
         }
 
         for (Object value : values) {
@@ -233,17 +305,19 @@ public class Jsp21ExpressionExecutor implements ExpressionExecutor {
                         error.setFieldValue(String.valueOf(value));
                         errors.add(name.getName(), error);
                     }
-                }
-                catch (ELException ele) {
+                } catch (ELException ele) {
                     log.error("Error evaluating expression for property ", name.getName(),
-                              " of class ", bean.getClass().getSimpleName(), ". Expression: ",
-                              validationInfo.expression());
+                            " of class ", bean.getClass().getSimpleName(), ". Expression: ",
+                            validationInfo.expression());
                 }
             }
         }
     }
 
-    /** Creates an ExpressionFactory using the JspApplicationContext. */
+    /**
+     * Creates an ExpressionFactory using the JspApplicationContext.
+     * @return 
+     */
     protected ExpressionFactory getExpressionFactory() {
         ServletContext ctx = StripesFilter.getConfiguration().getServletContext();
         JspApplicationContext jspCtx = JspFactory.getDefaultFactory().getJspApplicationContext(ctx);

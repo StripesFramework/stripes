@@ -15,17 +15,21 @@
 package net.sourceforge.stripes.util;
 
 /**
- * Utility class for working with ranges, ranging from start to end (both inclusive).
- * 
+ * Utility class for working with ranges, ranging from start to end (both
+ * inclusive).
+ *
  * @author Ward van Wanrooij
+ * @param <T>
  * @since Stripes 1.6
  */
 public class Range<T extends Comparable<T>> implements Comparable<Range<T>> {
+
     private T start, end;
 
     /**
-     * Constructor for range from start to end (both inclusive). Start and end may not be null.
-     * 
+     * Constructor for range from start to end (both inclusive). Start and end
+     * may not be null.
+     *
      * @param start Start of the range
      * @param end End of the range
      */
@@ -36,7 +40,7 @@ public class Range<T extends Comparable<T>> implements Comparable<Range<T>> {
 
     /**
      * Retrieves start of the range.
-     * 
+     *
      * @return Start of the range
      */
     public T getStart() {
@@ -45,18 +49,19 @@ public class Range<T extends Comparable<T>> implements Comparable<Range<T>> {
 
     /**
      * Sets start of the range. Start may not be null.
-     * 
+     *
      * @param start Start of the range
      */
     public void setStart(T start) {
-        if (start == null)
+        if (start == null) {
             throw new NullPointerException();
+        }
         this.start = start;
     }
 
     /**
      * Retrieves end of the range.
-     * 
+     *
      * @return End of the range
      */
     public T getEnd() {
@@ -65,18 +70,19 @@ public class Range<T extends Comparable<T>> implements Comparable<Range<T>> {
 
     /**
      * Sets end of the range. End may not be null.
-     * 
+     *
      * @param end End of the range
      */
     public void setEnd(T end) {
-        if (end == null)
+        if (end == null) {
             throw new NullPointerException();
+        }
         this.end = end;
     }
 
     /**
      * Checks whether an item is contained in this range.
-     * 
+     *
      * @param item Item to check
      * @return True if item is in range
      */
@@ -87,8 +93,9 @@ public class Range<T extends Comparable<T>> implements Comparable<Range<T>> {
     public int compareTo(Range<T> o) {
         int res;
 
-        if ((res = start.compareTo(o.getStart())) == 0)
+        if ((res = start.compareTo(o.getStart())) == 0) {
             res = end.compareTo(o.getEnd());
+        }
         return res;
     }
 

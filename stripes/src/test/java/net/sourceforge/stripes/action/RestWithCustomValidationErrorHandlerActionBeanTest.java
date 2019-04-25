@@ -52,15 +52,15 @@ public class RestWithCustomValidationErrorHandlerActionBeanTest extends FilterEn
     @Validate(on = "head", required = true)
     private String id;
 
-    @ValidateNestedProperties( {
-        @Validate( field = "id", required = true, on = "boundPersonEvent" )
+    @ValidateNestedProperties({
+        @Validate(field = "id", required = true, on = "boundPersonEvent")
     })
     @Validate(converter = PersonTypeConverter.class)
     private Person person;
 
     @Override
-    public Resolution handleValidationErrors( ValidationErrors errors ) throws Exception {
-        return new ErrorResolution( HttpServletResponse.SC_BAD_REQUEST, "yay! custom error validation handler" );
+    public Resolution handleValidationErrors(ValidationErrors errors) throws Exception {
+        return new ErrorResolution(HttpServletResponse.SC_BAD_REQUEST, "yay! custom error validation handler");
     }
 
     public Resolution customHttpVerb() {
@@ -160,15 +160,15 @@ public class RestWithCustomValidationErrorHandlerActionBeanTest extends FilterEn
         List< String> favoriteFoods = new ArrayList< String>();
         List< Person> children = new ArrayList<Person>();
 
-        public void setChildren( List< Person > children ) {
+        public void setChildren(List< Person> children) {
             this.children = children;
         }
 
-        public List< Person > getChildren() {
+        public List< Person> getChildren() {
             return this.children;
         }
 
-        public void setId( String id ) {
+        public void setId(String id) {
             this.id = id;
         }
 

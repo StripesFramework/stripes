@@ -26,24 +26,30 @@ import net.sourceforge.stripes.action.Resolution;
 import net.sourceforge.stripes.util.Log;
 
 /**
- * Looks for an {@link HttpCache} annotation on the event handler method, the {@link ActionBean}
- * class or the {@link ActionBean}'s superclasses. If an {@link HttpCache} is found, then the
- * appropriate response headers are set to control client-side caching.
- * 
+ * Looks for an {@link HttpCache} annotation on the event handler method, the
+ * {@link ActionBean} class or the {@link ActionBean}'s superclasses. If an
+ * {@link HttpCache} is found, then the appropriate response headers are set to
+ * control client-side caching.
+ *
  * @author Ben Gunter
  * @since Stripes 1.5
  */
 @Intercepts(LifecycleStage.ResolutionExecution)
 public class HttpCacheInterceptor implements Interceptor {
+
     private static final Log logger = Log.getInstance(HttpCacheInterceptor.class);
 
     @HttpCache
     private static final class CacheKey {
+
         final Method method;
         final Class<?> beanClass;
         final int hashCode;
 
-        /** Create a cache key for the given event handler method and {@link ActionBean} class. */
+        /**
+         * Create a cache key for the given event handler method and
+         * {@link ActionBean} class.
+         */
         public CacheKey(Method method, Class<? extends ActionBean> beanClass) {
             this.method = method;
             this.beanClass = beanClass;
@@ -69,7 +75,10 @@ public class HttpCacheInterceptor implements Interceptor {
 
     private Map<CacheKey, HttpCache> cache = new ConcurrentHashMap<CacheKey, HttpCache>(128);
 
-    /** Null values are not allowed by {@link ConcurrentHashMap} so use this reference instead. */
+    /**
+     * Null values are not allowed by {@link ConcurrentHashMap} so use this
+     * reference instead.
+     */
     private static final HttpCache NULL_CACHE = CacheKey.class.getAnnotation(HttpCache.class);
 
     public Resolution intercept(ExecutionContext ctx) throws Exception {
@@ -90,8 +99,7 @@ public class HttpCacheInterceptor implements Interceptor {
                         expires = expires * 1000 + System.currentTimeMillis();
                         response.setDateHeader("Expires", expires);
                     }
-                }
-                else {
+                } else {
                     logger.debug("Disabling client-side caching for response");
                     response.setDateHeader("Expires", 0);
                     response.setHeader("Cache-control", "no-store, no-cache, must-revalidate");
@@ -104,12 +112,14 @@ public class HttpCacheInterceptor implements Interceptor {
     }
 
     /**
-     * Look for a {@link HttpCache} annotation on the method first and then on the class and its
-     * superclasses.
-     * 
+     * Look for a {@link HttpCache} annotation on the method first and then on
+     * the class and its superclasses.
+     *
      * @param method an event handler method
-     * @param beanClass the class to inspect for annotations if none is found on the method
-     * @return The first {@link HttpCache} annotation found. If none is found then null.
+     * @param beanClass the class to inspect for annotations if none is found on
+     * the method
+     * @return The first {@link HttpCache} annotation found. If none is found
+     * then null.
      */
     protected HttpCache getAnnotation(Method method, Class<? extends ActionBean> beanClass) {
         // check cache first
@@ -138,13 +148,11 @@ public class HttpCacheInterceptor implements Interceptor {
             if (annotation.allow() && expires != HttpCache.DEFAULT_EXPIRES && expires < 0) {
                 logger.warn(HttpCache.class.getSimpleName(), " for ", beanClass.getName(), ".",
                         method.getName(), "() allows caching but expires in the past");
-            }
-            else if (!annotation.allow() && expires != HttpCache.DEFAULT_EXPIRES) {
+            } else if (!annotation.allow() && expires != HttpCache.DEFAULT_EXPIRES) {
                 logger.warn(HttpCache.class.getSimpleName(), " for ", beanClass.getName(), ".",
                         method.getName(), "() disables caching but explicitly sets expires");
             }
-        }
-        else {
+        } else {
             annotation = NULL_CACHE;
         }
 

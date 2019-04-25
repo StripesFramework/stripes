@@ -31,63 +31,85 @@ import net.sourceforge.stripes.util.StringUtil;
 import net.sourceforge.stripes.vfs.VFS;
 
 /**
- * <p>Resolves configuration properties that are used to bootstrap the system.  Essentially this boils
- * down to a handful of properties that are needed to figure out which configuration class should
- * be instantiated, and any values needed by that configuration class to locate configuration
- * information.</p>
+ * <p>
+ * Resolves configuration properties that are used to bootstrap the system.
+ * Essentially this boils down to a handful of properties that are needed to
+ * figure out which configuration class should be instantiated, and any values
+ * needed by that configuration class to locate configuration information.</p>
  *
- * <p>Properties are looked for in the following order:
- *  <ul>
- *      <li>Initialization Parameters for the Dispatcher servlet</li>
- *      <li>Initialization Parameters for the Servlet Context</li>
- *      <li>Java System Properties</li>
- *  </ul>
- * </p>
+ * <ul>
+ * <li>Initialization Parameters for the Dispatcher servlet</li>
+ * <li>Initialization Parameters for the Servlet Context</li>
+ * <li>Java System Properties</li>
+ * </ul>
  *
  * @author Tim Fennell
  */
 public class BootstrapPropertyResolver {
+
     private static final Log log = Log.getInstance(BootstrapPropertyResolver.class);
-    
+
     private FilterConfig filterConfig;
 
-    /** The Configuration Key for looking up the comma separated list of VFS classes. */
+    /**
+     * The Configuration Key for looking up the comma separated list of VFS
+     * classes.
+     */
     public static final String VFS_CLASSES = "VFS.Classes";
 
-    /** The Configuration Key for looking up the comma separated list of extension packages. */
+    /**
+     * The Configuration Key for looking up the comma separated list of
+     * extension packages.
+     */
     public static final String PACKAGES = "Extension.Packages";
 
-    /** Constructs a new BootstrapPropertyResolver with the given ServletConfig. */
+    /**
+     * Constructs a new BootstrapPropertyResolver with the given ServletConfig.
+     *
+     * @param filterConfig - Filter configuration object
+     */
     public BootstrapPropertyResolver(FilterConfig filterConfig) {
         setFilterConfig(filterConfig);
         initVFS();
     }
 
-    /** Stores a reference to the filter's FilterConfig object. */
+    /**
+     * Stores a reference to the filter's FilterConfig object.
+     *
+     * @param filterConfig - Filter configuration object
+     */
     public void setFilterConfig(FilterConfig filterConfig) {
         this.filterConfig = filterConfig;
     }
 
-    /** Returns a reference to the StripesFilter's FilterConfig object. */
+    /**
+     * Returns a reference to the StripesFilter's FilterConfig object.
+     *
+     * @return the filter configuration object associated with this resolver.
+     */
     public FilterConfig getFilterConfig() {
         return this.filterConfig;
     }
 
-    /** Add {@link VFS} implementations that are specified in the filter configuration. */
+    /**
+     * Add {@link VFS} implementations that are specified in the filter
+     * configuration.
+     */
     @SuppressWarnings("unchecked")
     protected void initVFS() {
         List<Class<?>> vfsImpls = getClassPropertyList(VFS_CLASSES);
         for (Class<?> clazz : vfsImpls) {
-            if (!VFS.class.isAssignableFrom(clazz))
+            if (!VFS.class.isAssignableFrom(clazz)) {
                 log.warn("Class ", clazz.getName(), " does not extend ", VFS.class.getName());
-            else
+            } else {
                 VFS.addImplClass((Class<? extends VFS>) clazz);
+            }
         }
     }
 
     /**
-     * Fetches a configuration property in the manner described in the class level javadoc for
-     * this class.
+     * Fetches a configuration property in the manner described in the class
+     * level javadoc for this class.
      *
      * @param key the String name of the configuration value to be looked up
      * @return String the value of the configuration item or null
@@ -97,8 +119,7 @@ public class BootstrapPropertyResolver {
 
         try {
             value = this.filterConfig.getInitParameter(key);
-        }
-        catch (AccessControlException e) {
+        } catch (AccessControlException e) {
             log.debug("Security manager prevented " + getClass().getName()
                     + " from reading filter init-param" + key);
         }
@@ -106,8 +127,7 @@ public class BootstrapPropertyResolver {
         if (value == null) {
             try {
                 value = this.filterConfig.getServletContext().getInitParameter(key);
-            }
-            catch (AccessControlException e) {
+            } catch (AccessControlException e) {
                 log.debug("Security manager prevented " + getClass().getName()
                         + " from reading servlet context init-param" + key);
             }
@@ -116,8 +136,7 @@ public class BootstrapPropertyResolver {
         if (value == null) {
             try {
                 value = System.getProperty(key);
-            }
-            catch (AccessControlException e) {
+            } catch (AccessControlException e) {
                 log.debug("Security manager prevented " + getClass().getName()
                         + " from reading system property " + key);
             }
@@ -125,18 +144,19 @@ public class BootstrapPropertyResolver {
 
         return value;
     }
-    
+
     /**
-     * Attempts to find a class the user has specified in web.xml or by auto-discovery in packages
-     * listed in web.xml under Extension.Packages. Classes specified in web.xml take precedence.
-     * 
+     * Attempts to find a class the user has specified in web.xml or by
+     * auto-discovery in packages listed in web.xml under Extension.Packages.
+     * Classes specified in web.xml take precedence.
+     *
+     * @param <T> Target type of class property
      * @param paramName the parameter to look for in web.xml
      * @param targetType the type that we're looking for
      * @return the Class that was found
      */
     @SuppressWarnings("unchecked")
-    public <T> Class<? extends T> getClassProperty(String paramName, Class<T> targetType)
-    {
+    public <T> Class<? extends T> getClassProperty(String paramName, Class<T> targetType) {
         Class<? extends T> clazz = null;
 
         String className = getProperty(paramName);
@@ -147,13 +167,11 @@ public class BootstrapPropertyResolver {
                 clazz = ReflectUtil.findClass(className);
                 log.info("Class implementing/extending ", targetType.getSimpleName(),
                         " found in web.xml: ", className);
-            }
-            catch (ClassNotFoundException e) {
+            } catch (ClassNotFoundException e) {
                 log.error("Couldn't find class specified in web.xml under param ", paramName, ": ",
                         className);
             }
-        }
-        else {
+        } else {
             // we didn't find it in web.xml so now we check any extension packages
             ResolverUtil<T> resolver = new ResolverUtil<T>();
             String[] packages = StringUtil.standardSplit(getProperty(PACKAGES));
@@ -166,8 +184,7 @@ public class BootstrapPropertyResolver {
                 className = clazz.getName();
                 log.info("Class implementing/extending ", targetType.getSimpleName(),
                         " found via auto-discovery: ", className);
-            }
-            else if (classes.size() > 1) {
+            } else if (classes.size() > 1) {
                 throw new StripesRuntimeException(StringUtil.combineParts(
                         "Found too many classes implementing/extending ", targetType
                                 .getSimpleName(), ": ", classes));
@@ -176,15 +193,14 @@ public class BootstrapPropertyResolver {
 
         return clazz;
     }
-    
+
     /**
      * Attempts to find all classes the user has specified in web.xml.
-     * 
+     *
      * @param paramName the parameter to look for in web.xml
      * @return a List of classes found
      */
-    public List<Class<?>> getClassPropertyList(String paramName)
-    {
+    public List<Class<?>> getClassPropertyList(String paramName) {
         List<Class<?>> classes = new ArrayList<Class<?>>();
 
         String classList = getProperty(paramName);
@@ -195,8 +211,7 @@ public class BootstrapPropertyResolver {
                 className = className.trim();
                 try {
                     classes.add(ReflectUtil.findClass(className));
-                }
-                catch (ClassNotFoundException e) {
+                } catch (ClassNotFoundException e) {
                     throw new StripesRuntimeException("Could not find class [" + className
                             + "] specified by the configuration parameter [" + paramName
                             + "]. This value must contain fully qualified class names separated "
@@ -207,16 +222,16 @@ public class BootstrapPropertyResolver {
 
         return classes;
     }
-    
+
     /**
-     * Attempts to find classes by auto-discovery in packages listed in web.xml under
-     * Extension.Packages.
-     * 
+     * Attempts to find classes by auto-discovery in packages listed in web.xml
+     * under Extension.Packages.
+     *
+     * @param <T> Target class type of extension class
      * @param targetType the type that we're looking for
      * @return a List of classes found
      */
-    public <T> List<Class<? extends T>> getClassPropertyList(Class<T> targetType)
-    {
+    public <T> List<Class<? extends T>> getClassPropertyList(Class<T> targetType) {
         ResolverUtil<T> resolver = new ResolverUtil<T>();
         String[] packages = StringUtil.standardSplit(getProperty(PACKAGES));
         resolver.findImplementations(targetType, packages);
@@ -227,16 +242,17 @@ public class BootstrapPropertyResolver {
     }
 
     /**
-     * Attempts to find all matching classes the user has specified in web.xml or by auto-discovery
-     * in packages listed in web.xml under Extension.Packages.
-     * 
+     * Attempts to find all matching classes the user has specified in web.xml
+     * or by auto-discovery in packages listed in web.xml under
+     * Extension.Packages.
+     *
+     * @param <T> Target type of property
      * @param paramName the parameter to look for in web.xml
      * @param targetType the type that we're looking for
      * @return the Class that was found
      */
     @SuppressWarnings("unchecked")
-    public <T> List<Class<? extends T>> getClassPropertyList(String paramName, Class<T> targetType)
-    {
+    public <T> List<Class<? extends T>> getClassPropertyList(String paramName, Class<T> targetType) {
         List<Class<? extends T>> classes = new ArrayList<Class<? extends T>>();
 
         for (Class<?> clazz : getClassPropertyList(paramName)) {
@@ -249,7 +265,13 @@ public class BootstrapPropertyResolver {
         return classes;
     }
 
-    /** Removes any classes from the collection that are marked with {@link DontAutoLoad}. */
+    /**
+     * Removes any classes from the collection that are marked with
+     * {@link DontAutoLoad}.
+     *
+     * @param <T> Type of classes to remove DontAutoLoad for
+     * @param classes - Collection of classes to remove DontAutoLoadFor
+     */
     protected <T> void removeDontAutoloadClasses(Collection<Class<? extends T>> classes) {
         Iterator<Class<? extends T>> iterator = classes.iterator();
         while (iterator.hasNext()) {
@@ -260,8 +282,13 @@ public class BootstrapPropertyResolver {
             }
         }
     }
-    
-    /** Removes any classes from the collection that are abstract or interfaces. */
+
+    /**
+     * Removes any classes from the collection that are abstract or interfaces.
+     *
+     * @param <T> - Types of classes to analyze
+     * @param classes - Listing of classes remove abstract or interfaces
+     */
     protected <T> void removeAbstractClasses(Collection<Class<? extends T>> classes) {
         Iterator<Class<? extends T>> iterator = classes.iterator();
         while (iterator.hasNext()) {
@@ -269,8 +296,7 @@ public class BootstrapPropertyResolver {
             if (clazz.isInterface()) {
                 log.trace("Ignoring ", clazz, " because it is an interface.");
                 iterator.remove();
-            }
-            else if ((clazz.getModifiers() & Modifier.ABSTRACT) == Modifier.ABSTRACT) {
+            } else if ((clazz.getModifiers() & Modifier.ABSTRACT) == Modifier.ABSTRACT) {
                 log.trace("Ignoring ", clazz, " because it is abstract.");
                 iterator.remove();
             }

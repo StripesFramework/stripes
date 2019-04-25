@@ -13,17 +13,18 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
 /**
- * Tests that ensure that the DateTypeConverter does the right thing given
- * an appropriate input locale.
+ * Tests that ensure that the DateTypeConverter does the right thing given an
+ * appropriate input locale.
  *
  * @author Tim Fennell
  */
 public class DateTypeConverterTest {
+
     // Used to format back to dates for equality checking :)
     private DateFormat format = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
 
     private DateTypeConverter getConverter(Locale locale) {
-        DateTypeConverter converter = new DateTypeConverter(){
+        DateTypeConverter converter = new DateTypeConverter() {
             @Override
             protected String getResourceString(final String key) throws MissingResourceException {
                 throw new MissingResourceException("Bundle not available to unit tests.", "", key);
@@ -34,7 +35,7 @@ public class DateTypeConverterTest {
         return converter;
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void testBasicUsLocaleDates() {
         Collection<ValidationError> errors = new ArrayList<ValidationError>();
         DateTypeConverter converter = getConverter(Locale.US);
@@ -54,7 +55,7 @@ public class DateTypeConverterTest {
         Assert.assertEquals(format.format(date), "03/01/2007");
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void testVariantUsLocaleDates() {
         Collection<ValidationError> errors = new ArrayList<ValidationError>();
         DateTypeConverter converter = getConverter(Locale.US);
@@ -74,7 +75,7 @@ public class DateTypeConverterTest {
         Assert.assertEquals(format.format(date), "03/01/2007");
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void testAlternateSeparatorsDates() {
         Collection<ValidationError> errors = new ArrayList<ValidationError>();
         DateTypeConverter converter = getConverter(Locale.US);
@@ -94,7 +95,7 @@ public class DateTypeConverterTest {
         Assert.assertEquals(format.format(date), "03/01/2007");
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void testUkLocaleDates() {
         Collection<ValidationError> errors = new ArrayList<ValidationError>();
         DateTypeConverter converter = getConverter(Locale.UK);
@@ -114,7 +115,7 @@ public class DateTypeConverterTest {
         Assert.assertEquals(format.format(date), "03/01/2007");
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void testWhackySeparators() {
         Collection<ValidationError> errors = new ArrayList<ValidationError>();
         DateTypeConverter converter = getConverter(Locale.US);
@@ -134,7 +135,7 @@ public class DateTypeConverterTest {
         Assert.assertEquals(format.format(date), "03/01/2007");
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void testNonStandardFormats() {
         Collection<ValidationError> errors = new ArrayList<ValidationError>();
         DateTypeConverter converter = getConverter(Locale.US);
@@ -154,7 +155,7 @@ public class DateTypeConverterTest {
         Assert.assertEquals(format.format(date), "03/01/2007");
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void testPartialInputFormats() {
         Collection<ValidationError> errors = new ArrayList<ValidationError>();
         DateTypeConverter converter = getConverter(Locale.US);
@@ -162,22 +163,22 @@ public class DateTypeConverterTest {
         Assert.assertNotNull(date);
         Assert.assertEquals(0, errors.size());
         Assert.assertEquals(format.format(date), "01/31/"
-                + Calendar.getInstance().get( Calendar.YEAR ));
+                + Calendar.getInstance().get(Calendar.YEAR));
 
         date = converter.convert("February 28", Date.class, errors);
         Assert.assertNotNull(date);
         Assert.assertEquals(0, errors.size());
         Assert.assertEquals(format.format(date), "02/28/"
-                + Calendar.getInstance().get( Calendar.YEAR ));
+                + Calendar.getInstance().get(Calendar.YEAR));
 
         date = converter.convert("03/01", Date.class, errors);
         Assert.assertNotNull(date);
         Assert.assertEquals(0, errors.size());
         Assert.assertEquals(format.format(date), "03/01/"
-                + Calendar.getInstance().get( Calendar.YEAR ));
+                + Calendar.getInstance().get(Calendar.YEAR));
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void testDateToStringFormat() {
         Collection<ValidationError> errors = new ArrayList<ValidationError>();
         DateTypeConverter converter = getConverter(Locale.US);

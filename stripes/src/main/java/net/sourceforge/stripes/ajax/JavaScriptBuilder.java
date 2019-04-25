@@ -146,7 +146,7 @@ public class JavaScriptBuilder extends ObjectOutputBuilder<JavaScriptBuilder> {
             return "\"\"";
         }
 
-        char c ;
+        char c;
         int len = string.length();
         StringBuilder sb = new StringBuilder(len + 10);
 
@@ -382,6 +382,9 @@ public class JavaScriptBuilder extends ObjectOutputBuilder<JavaScriptBuilder> {
      * Fetches the value of a scalar type as a String. The input to this method
      * may not be null, and must be a of a type that will return true when
      * supplied to isScalarType().
+     *
+     * @param in - Scalar type of object
+     * @return The object scalar as a string
      */
     public String getScalarAsString(Object in) {
         if (in == null) {

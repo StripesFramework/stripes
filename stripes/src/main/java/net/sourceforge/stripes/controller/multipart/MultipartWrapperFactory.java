@@ -17,11 +17,12 @@ package net.sourceforge.stripes.controller.multipart;
 import net.sourceforge.stripes.controller.ContentTypeRequestWrapperFactory;
 
 /**
- * Factory for classes that implement {@link MultipartWrapper}. The factory may chose to
- * always supply the same kind of wrapper, or vary the implementation request by request
- * as it sees fit.
+ * Factory for classes that implement {@link MultipartWrapper}. The factory may
+ * chose to always supply the same kind of wrapper, or vary the implementation
+ * request by request as it sees fit.
  *
  * @author Tim Fennell
  * @since Stripes 1.4
  */
-public interface MultipartWrapperFactory extends ContentTypeRequestWrapperFactory {}
+public interface MultipartWrapperFactory extends ContentTypeRequestWrapperFactory {
+}

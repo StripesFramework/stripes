@@ -27,45 +27,56 @@ import net.sourceforge.stripes.controller.StripesFilter;
  * <code>Stripes.HtmlMode</code>.
  * </p>
  * <p>
- * <code>htmlMode</code> accepts any string value, however any value not equal to <code>html</code>,
- * case-insensitive, puts Stripes into its default mode of XHTML-compatible output.
+ * <code>htmlMode</code> accepts any string value, however any value not equal
+ * to <code>html</code>, case-insensitive, puts Stripes into its default mode of
+ * XHTML-compatible output.
  * </p>
  * <p>
  * Examples of the tag's use then might be:
  * </p>
  * <ul>
- * <li>&lt;s:options htmlMode="html" /&gt; produces HTML4 and HTML5 form elements, e.g., &lt;img src
- * &#8230; &gt;</li>
- * <li>&lt;s:options htmlMode="xhtml" /&gt; produces XHTML-compatible form elements, e.g., &lt;img
- * src &#8230; /&gt;</li>
+ * <li>&lt;s:options htmlMode="html" /&gt; produces HTML4 and HTML5 form
+ * elements, e.g., &lt;img src &#8230; &gt;</li>
+ * <li>&lt;s:options htmlMode="xhtml" /&gt; produces XHTML-compatible form
+ * elements, e.g., &lt;img src &#8230; /&gt;</li>
  * <li>&lt;s:options htmlMode="default" /&gt; produces XHTML form elements</li>
  * </ul>
  * <p>
  * Typical use of the tag in context of a Stripes application follows:
  * </p>
  * <p>
- * Deployer will set the application RuntimeConfiguration of <code>Stripes.HtmlMode</code>. A
- * deployer choosing not to set this option, defaults the Stripes application to its
- * XHTML-compatible format.
+ * Deployer will set the application RuntimeConfiguration of
+ * <code>Stripes.HtmlMode</code>. A deployer choosing not to set this option,
+ * defaults the Stripes application to its XHTML-compatible format.
  * </p>
- * <code>Stripes.HtmlMode</code> will set the default X/HTML output for the <strong>entire</strong>
- * application. Individual views of the application wishing to alter the application default will
- * provide this tag, at or near the beginning of the view, or JSP.</p>
- * 
+ * <p>
+ * <code>Stripes.HtmlMode</code> will set the default X/HTML output for the
+ * <strong>entire</strong>
+ * application. Individual views of the application wishing to alter the
+ * application default will provide this tag, at or near the beginning of the
+ * view, or JSP.</p>
+ *
  * @author Timothy Stone
  * @since 1.5.5
  */
 public class PageOptionsTag extends StripesTagSupport {
-    /** Configuration key that sets the default HTML mode for the application. */
+
+    /**
+     * Configuration key that sets the default HTML mode for the application.
+     */
     public static String CFG_KEY_HTML_MODE = "Stripes.HtmlMode";
 
-    /** Request attribute that affects how HTML is rendered by other tags. */
+    /**
+     * Request attribute that affects how HTML is rendered by other tags.
+     */
     public static String REQ_ATTR_HTML_MODE = "__stripes_html_mode";
 
     /**
      * Get the HTML mode for the given page context. If the request attribute
-     * {@link #REQ_ATTR_HTML_MODE} is present then use that value. Otherwise, use the global
-     * configuration property {@link #CFG_KEY_HTML_MODE}.
+     * {@link #REQ_ATTR_HTML_MODE} is present then use that value. Otherwise,
+     * use the global configuration property {@link #CFG_KEY_HTML_MODE}.
+     * @param pageContext
+     * @return 
      */
     public static String getHtmlMode(PageContext pageContext) {
         String htmlMode = (String) pageContext.getAttribute(REQ_ATTR_HTML_MODE,
@@ -80,9 +91,10 @@ public class PageOptionsTag extends StripesTagSupport {
     }
 
     /**
-     * This field is not initialized to null because null is a valid value that may be passed to
-     * {@link #setHtmlMode(String)}. Initializing to a constant differentiates between a field that
-     * was never changed after initialization and a field that was set to null.
+     * This field is not initialized to null because null is a valid value that
+     * may be passed to {@link #setHtmlMode(String)}. Initializing to a constant
+     * differentiates between a field that was never changed after
+     * initialization and a field that was set to null.
      */
     private String htmlMode = REQ_ATTR_HTML_MODE;
 
@@ -101,7 +113,10 @@ public class PageOptionsTag extends StripesTagSupport {
         return EVAL_PAGE;
     }
 
-    /** Set the HTML mode string. */
+    /**
+     * Set the HTML mode string.
+     * @param htmlMode
+     */
     public void setHtmlMode(String htmlMode) {
         this.htmlMode = htmlMode;
     }

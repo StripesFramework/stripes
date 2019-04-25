@@ -162,6 +162,8 @@ public class StripesRequestWrapper extends HttpServletRequestWrapper {
     /**
      * Returns true if this request is wrapping a multipart request, false
      * otherwise.
+     *
+     * @return Whether or not this request is wrapping a multipart request.
      */
     public boolean isMultipart() {
         return (this.contentTypeRequestWrapper != null && MultipartWrapper.class.isAssignableFrom(this.contentTypeRequestWrapper.getClass()));
@@ -172,6 +174,7 @@ public class StripesRequestWrapper extends HttpServletRequestWrapper {
      * upload parameters. If the request is multipart then the information is
      * sourced from the parsed multipart object otherwise it is just pulled out
      * of the request in the usual manner.
+     * @return Enumeration of parameter names for this request.
      */
     @Override
     public Enumeration<String> getParameterNames() {
@@ -186,6 +189,8 @@ public class StripesRequestWrapper extends HttpServletRequestWrapper {
      * HttpServletRequest.getParameterValues(String). Values for file uploads
      * cannot be retrieved in this way (though parameters sent along with file
      * uploads can).
+     * @param name - The name of the parameter
+     * @return List of parameter values for the passed name
      */
     @Override
     public String[] getParameterValues(String name) {
@@ -211,6 +216,8 @@ public class StripesRequestWrapper extends HttpServletRequestWrapper {
     /**
      * Retrieves the first value of the specified parameter from the request. If
      * the parameter was not sent, null will be returned.
+     * @param name - Name of the parameter
+     * @return The first parameter value for the passed name or null if none.
      */
     @Override
     public String getParameter(String name) {
@@ -225,6 +232,7 @@ public class StripesRequestWrapper extends HttpServletRequestWrapper {
     /**
      * If the request is a clean URL, then extract the parameters from the URI
      * and merge with the parameters from the query string and/or request body.
+     * @return The merged parameter map for this request.
      */
     @Override
     public MergedParameterMap getParameterMap() {
@@ -234,6 +242,8 @@ public class StripesRequestWrapper extends HttpServletRequestWrapper {
     /**
      * Extract new URI parameters from the URI of the given {@code request} and
      * merge them with the previous URI parameters.
+     *
+     * @param request Http servlet request object to push parameters onto.
      */
     public void pushUriParameters(HttpServletRequestWrapper request) {
         getParameterMap().pushUriParameters(request);
@@ -262,6 +272,7 @@ public class StripesRequestWrapper extends HttpServletRequestWrapper {
      * Returns a single element enumeration containing the selected Locale for
      * this request.
      *
+     * @return An enumeration of locales for this request.
      * @see net.sourceforge.stripes.localization.LocalePicker
      */
     @Override
@@ -278,6 +289,9 @@ public class StripesRequestWrapper extends HttpServletRequestWrapper {
     /**
      * Used by the dispatcher to set the Locale chosen by the configured
      * LocalePicker.
+     *
+     * @param locale The locale to set on the request wrapper by the locale
+     * picker.
      */
     protected void setLocale(Locale locale) {
         this.locale = locale;
@@ -484,7 +498,7 @@ class MergedParameterMap implements Map<String, String[]> {
      */
     @SuppressWarnings("unchecked")
     Map<String, String[]> getParameterMap() {
-        return request == null ? Collections.<String,String[]>emptyMap() : request.getRequest().getParameterMap();
+        return request == null ? Collections.<String, String[]>emptyMap() : request.getRequest().getParameterMap();
     }
 
     /**

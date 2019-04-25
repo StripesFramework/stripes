@@ -21,20 +21,24 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * Container class for ValidationErrors that are tied to form fields.  All of the regular Map
- * methods are available and can be used.  In addition there are a number of utility methods which
- * are design to make it easier to interact with the data.
+ * Container class for ValidationErrors that are tied to form fields. All of the
+ * regular Map methods are available and can be used. In addition there are a
+ * number of utility methods which are design to make it easier to interact with
+ * the data.
  *
  * @author Tim Fennell
  */
 public class ValidationErrors extends HashMap<String, List<ValidationError>> {
-	private static final long serialVersionUID = 1L;
 
-    /** Key that is used to store global (i.e. non-field specific) errors. */
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * Key that is used to store global (i.e. non-field specific) errors.
+     */
     public static final String GLOBAL_ERROR = "__stripes_global_error";
 
     /**
-     * Adds an error message for the field specified.  Will lazily instantiate a
+     * Adds an error message for the field specified. Will lazily instantiate a
      * List&lt;ValidationError&gt; and insert it into the map if necessary.
      *
      * @param field the name of the field in error
@@ -47,29 +51,30 @@ public class ValidationErrors extends HashMap<String, List<ValidationError>> {
             put(field, errors);
         }
 
-        error.setFieldName( new ParameterName(field).getStrippedName() );
+        error.setFieldName(new ParameterName(field).getStrippedName());
         errors.add(error);
     }
 
     /**
-     * Synonym for put(String field, ValidationError error). Adds an error message for the field
-     * specified.  Will lazily instantiate a List&lt;ValidationError&gt; and insert it into the
-     * map if necessary.
+     * Synonym for put(String field, ValidationError error). Adds an error
+     * message for the field specified. Will lazily instantiate a
+     * List&lt;ValidationError&gt; and insert it into the map if necessary.
      *
      * @param field the name of the field in error
      * @param error a ValidationError to add to that field
      */
     public void add(String field, ValidationError error) {
-        if (field == null || field.length() == 0)
+        if (field == null || field.length() == 0) {
             throw new IllegalArgumentException("field must not be empty or null");
+        }
         put(field, error);
     }
 
-
     /**
-     * Add multiple errors for a particular field. Does not destroy or override any existing errors.
-     * Purely a convenience method to avoid having to check and possibly instantiate the collection
-     * of errors for a field if it does not already exist.
+     * Add multiple errors for a particular field. Does not destroy or override
+     * any existing errors. Purely a convenience method to avoid having to check
+     * and possibly instantiate the collection of errors for a field if it does
+     * not already exist.
      *
      * @param field the name of the field in error
      * @param errors a non-null list of errors to add for the field
@@ -81,10 +86,10 @@ public class ValidationErrors extends HashMap<String, List<ValidationError>> {
     }
 
     /**
-     * Synonym for putAll().  Add multiple errors for a particular field. Does not destroy or
-     * override any existing errors.
-     * Purely a convenience method to avoid having to check and possibly instantiate the collection
-     * of errors for a field if it does not already exist.
+     * Synonym for putAll(). Add multiple errors for a particular field. Does
+     * not destroy or override any existing errors. Purely a convenience method
+     * to avoid having to check and possibly instantiate the collection of
+     * errors for a field if it does not already exist.
      *
      * @param field the name of the field in error
      * @param errors a non-null list of errors to add for the field
@@ -94,9 +99,10 @@ public class ValidationErrors extends HashMap<String, List<ValidationError>> {
     }
 
     /**
-     * Allows for the addition of errors that are not tied to a specific field. Errors added in
-     * this way will only be displayed as part of the complete list of errors, and never when
-     * showing errors for a specific field.
+     * Allows for the addition of errors that are not tied to a specific field.
+     * Errors added in this way will only be displayed as part of the complete
+     * list of errors, and never when showing errors for a specific field.
+     * @param error
      */
     public void addGlobalError(ValidationError error) {
         add(GLOBAL_ERROR, error);
@@ -121,16 +127,15 @@ public class ValidationErrors extends HashMap<String, List<ValidationError>> {
     }
 
     /**
-     * Returns true if there are field-specific errors present, and false if there are
-     * only global errors, or no errors at all.
+     * Returns true if there are field-specific errors present, and false if
+     * there are only global errors, or no errors at all.
      *
      * @return true if field errors exist, false otherwise
      */
     public boolean hasFieldErrors() {
-        if ( keySet().contains(GLOBAL_ERROR) ) {
+        if (keySet().contains(GLOBAL_ERROR)) {
             return size() > 1;
-        }
-        else {
+        } else {
             return size() > 0;
         }
     }

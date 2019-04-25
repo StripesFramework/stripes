@@ -23,6 +23,7 @@ import java.text.NumberFormat;
  * @author Tim Fennell
  */
 public class ShortTypeConverter extends NumberTypeConverterSupport implements TypeConverter<Short> {
+
     /**
      *
      * @param input
@@ -30,8 +31,8 @@ public class ShortTypeConverter extends NumberTypeConverterSupport implements Ty
      * @return Integer an Integer object if one can be parsed from the input
      */
     public Short convert(String input,
-                         Class<? extends Short> targetType,
-                         Collection<ValidationError> errors) {
+            Class<? extends Short> targetType,
+            Collection<ValidationError> errors) {
 
         Number number = parse(input, errors);
         Short retval = null;
@@ -40,10 +41,9 @@ public class ShortTypeConverter extends NumberTypeConverterSupport implements Ty
             long output = number.longValue();
 
             if (output < Short.MIN_VALUE || output > Short.MAX_VALUE) {
-                errors.add( new ScopedLocalizableError("converter.short", "outOfRange",
-                                                       Short.MIN_VALUE, Short.MAX_VALUE) );
-            }
-            else {
+                errors.add(new ScopedLocalizableError("converter.short", "outOfRange",
+                        Short.MIN_VALUE, Short.MAX_VALUE));
+            } else {
                 retval = Short.valueOf((short) output);
             }
         }
@@ -51,9 +51,12 @@ public class ShortTypeConverter extends NumberTypeConverterSupport implements Ty
         return retval;
     }
 
-    /** Overridden to return integer instances instead. */
+    /**
+     * Overridden to return integer instances instead.
+     * @return 
+     */
     @Override
     protected NumberFormat[] getNumberFormats() {
-        return new NumberFormat[] { NumberFormat.getIntegerInstance(this.getLocale()) };
+        return new NumberFormat[]{NumberFormat.getIntegerInstance(this.getLocale())};
     }
 }

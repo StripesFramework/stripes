@@ -41,29 +41,33 @@ import net.sourceforge.stripes.util.TypeHandlerCache;
 
 /**
  * <p>
- * An implementation of {@link ObjectFactory} that simply calls {@link Class#newInstance()} to
- * obtain a new instance.
+ * An implementation of {@link ObjectFactory} that simply calls
+ * {@link Class#newInstance()} to obtain a new instance.
  * </p>
- * 
+ *
  * @author Ben Gunter
  * @since Stripes 1.5.1
  */
 @SuppressWarnings("unchecked")
 public class DefaultObjectFactory implements ObjectFactory {
+
     /**
      * An implementation of {@link ConstructorWrapper} that calls back to
-     * {@link DefaultObjectFactory#newInstance(Constructor, Object...)} to instantiate a class.
+     * {@link DefaultObjectFactory#newInstance(Constructor, Object...)} to
+     * instantiate a class.
+     * @param <T> The type of default constructor wrapper 
      */
     public static class DefaultConstructorWrapper<T> implements ConstructorWrapper<T> {
+
         private ObjectFactory factory;
         private Constructor<T> constructor;
 
         /**
          * Wrap the given constructor.
-         * 
+         *
          * @param factory The object factory whose
-         *            {@link ObjectFactory#newInstance(Constructor, Object...)} method will be
-         *            called when invoking the constructor.
+         * {@link ObjectFactory#newInstance(Constructor, Object...)} method will
+         * be called when invoking the constructor.
          * @param constructor The constructor to wrap.
          */
         public DefaultConstructorWrapper(ObjectFactory factory, Constructor<T> constructor) {
@@ -71,12 +75,17 @@ public class DefaultObjectFactory implements ObjectFactory {
             this.constructor = constructor;
         }
 
-        /** Get the {@link Constructor} object wrapped by this instance. */
+        /**
+         * Get the {@link Constructor} object wrapped by this instance.
+         */
         public Constructor<T> getConstructor() {
             return constructor;
         }
 
-        /** Invoke the constructor with the specified arguments and return the new object. */
+        /**
+         * Invoke the constructor with the specified arguments and return the
+         * new object.
+         */
         public T newInstance(Object... args) {
             return factory.newInstance(constructor, args);
         }
@@ -85,41 +94,52 @@ public class DefaultObjectFactory implements ObjectFactory {
     private static final Log log = Log.getInstance(DefaultObjectFactory.class);
 
     /**
-     * Holds a map of commonly used interface types (mostly collections) to a class that implements
-     * the interface and will, by default, be instantiated when an instance of the interface is
-     * needed.
+     * Holds a map of commonly used interface types (mostly collections) to a
+     * class that implements the interface and will, by default, be instantiated
+     * when an instance of the interface is needed.
      */
     protected final Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<Class<?>, Class<?>>();
+
     {
         interfaceImplementations.put(Collection.class, ArrayList.class);
-        interfaceImplementations.put(List.class,       ArrayList.class);
-        interfaceImplementations.put(Set.class,        HashSet.class);
-        interfaceImplementations.put(SortedSet.class,  TreeSet.class);
-        interfaceImplementations.put(Queue.class,      LinkedList.class);
-        interfaceImplementations.put(Map.class,        HashMap.class);
-        interfaceImplementations.put(SortedMap.class,  TreeMap.class);
+        interfaceImplementations.put(List.class, ArrayList.class);
+        interfaceImplementations.put(Set.class, HashSet.class);
+        interfaceImplementations.put(SortedSet.class, TreeSet.class);
+        interfaceImplementations.put(Queue.class, LinkedList.class);
+        interfaceImplementations.put(Map.class, HashMap.class);
+        interfaceImplementations.put(SortedMap.class, TreeMap.class);
     }
 
     private Configuration configuration;
     private TypeHandlerCache<List<ObjectPostProcessor>> postProcessors;
 
-    /** Does nothing. */
+    /**
+     * Sets the configuration object associated with this object factory.
+     * 
+     * @throws java.lang.Exception If something goes wrong initializing this object factory.
+     */
     public void init(Configuration configuration) throws Exception {
         this.configuration = configuration;
     }
 
-    /** Get the {@link Configuration} that was passed into {@link #init(Configuration)}. */
+    /**
+     * Get the {@link Configuration} that was passed into
+     * {@link #init(Configuration)}.
+     *
+     * @return Configuration object associated with this object factory.
+     */
     public Configuration getConfiguration() {
         return configuration;
     }
 
     /**
-     * Register a post-processor that will be allowed to manipulate instances of {@code targetType}
-     * after they are created and before they are returned. The types to which the post-processor
-     * will apply are determined by the value of the {@link TargetTypes} annotation on the class. If
-     * there is no such annotation, then the post-processor will process all instances created by
-     * the object factory.
-     * 
+     * Register a post-processor that will be allowed to manipulate instances of
+     * {@code targetType} after they are created and before they are returned.
+     * The types to which the post-processor will apply are determined by the
+     * value of the {@link TargetTypes} annotation on the class. If there is no
+     * such annotation, then the post-processor will process all instances
+     * created by the object factory.
+     *
      * @param postProcessor The post-processor to use.
      */
     public synchronized void addPostProcessor(ObjectPostProcessor postProcessor) {
@@ -136,8 +156,7 @@ public class DefaultObjectFactory implements ObjectFactory {
                 && !typeArguments[0].equals(Object.class)) {
             if (typeArguments[0] instanceof Class) {
                 targetTypes.add((Class<?>) typeArguments[0]);
-            }
-            else {
+            } else {
                 log.warn("Type parameter for non-abstract post-processor [", postProcessor
                         .getClass().getName(), "] is not a class.");
             }
@@ -145,12 +164,14 @@ public class DefaultObjectFactory implements ObjectFactory {
 
         // Determine target types from annotation; if no annotation then process everything
         TargetTypes annotation = postProcessor.getClass().getAnnotation(TargetTypes.class);
-        if (annotation != null)
+        if (annotation != null) {
             targetTypes.addAll(Arrays.asList(annotation.value()));
+        }
 
         // Default to Object
-        if (targetTypes.isEmpty())
+        if (targetTypes.isEmpty()) {
             targetTypes.add(Object.class);
+        }
 
         // Register post-processor for each target type
         for (Class<?> targetType : targetTypes) {
@@ -169,90 +190,99 @@ public class DefaultObjectFactory implements ObjectFactory {
 
     /**
      * Calls {@link Class#newInstance()} and returns the newly created object.
-     * 
+     *
+     * @param <T> The type object class to create
      * @param clazz The class to instantiate.
      * @return The new object
      */
+    @Override
     public <T> T newInstance(Class<T> clazz) {
         try {
-            if (clazz.isInterface())
+            if (clazz.isInterface()) {
                 return postProcess(newInterfaceInstance(clazz));
-            else
+            } else {
                 return postProcess(clazz.newInstance());
-        }
-        catch (InstantiationException e) {
+            }
+        } catch (InstantiationException e) {
             throw new StripesRuntimeException("Could not instantiate " + clazz, e);
-        }
-        catch (IllegalAccessException e) {
+        } catch (IllegalAccessException e) {
             throw new StripesRuntimeException("Could not instantiate " + clazz, e);
         }
     }
 
     /**
-     * Attempts to determine an implementing class for the interface provided and instantiate it
-     * using a default constructor.
-     * 
-     * @param interfaceType an interface (or abstract class) to make an instance of
+     * Attempts to determine an implementing class for the interface provided
+     * and instantiate it using a default constructor.
+     *
+     * @param <T> The type of interface to cast to.
+     * @param interfaceType an interface (or abstract class) to make an instance
+     * of
      * @return an instance of the interface type supplied
-     * @throws InstantiationException if no implementation type has been configured
-     * @throws IllegalAccessException if thrown by the JVM during class instantiation
+     * @throws InstantiationException if no implementation type has been
+     * configured
+     * @throws IllegalAccessException if thrown by the JVM during class
+     * instantiation
      */
     public <T> T newInterfaceInstance(Class<T> interfaceType) throws InstantiationException,
             IllegalAccessException {
         Class impl = getImplementingClass(interfaceType);
         if (impl == null) {
             throw new InstantiationException(
-                    "Stripes needed to instantiate a property who's declared type as an " +
-                    "interface (which obviously cannot be instantiated. The interface is not " +
-                    "one that Stripes is aware of, so no implementing class was known. The " +
-                    "interface type was: '" + interfaceType.getName() + "'. To fix this " +
-                    "you'll need to do one of three things. 1) Change the getter/setter methods " +
-                    "to use a concrete type so that Stripes can instantiate it. 2) in the bean's " +
-                    "setContext() method pre-instantiate the property so Stripes doesn't have to. " +
-                    "3) Bug the Stripes author ;)  If the interface is a JDK type it can easily be " +
-                    "fixed. If not, if enough people ask, a generic way to handle the problem " +
-                    "might get implemented.");
-        }
-        else {
+                    "Stripes needed to instantiate a property who's declared type as an "
+                    + "interface (which obviously cannot be instantiated. The interface is not "
+                    + "one that Stripes is aware of, so no implementing class was known. The "
+                    + "interface type was: '" + interfaceType.getName() + "'. To fix this "
+                    + "you'll need to do one of three things. 1) Change the getter/setter methods "
+                    + "to use a concrete type so that Stripes can instantiate it. 2) in the bean's "
+                    + "setContext() method pre-instantiate the property so Stripes doesn't have to. "
+                    + "3) Bug the Stripes author ;)  If the interface is a JDK type it can easily be "
+                    + "fixed. If not, if enough people ask, a generic way to handle the problem "
+                    + "might get implemented.");
+        } else {
             return newInstance((Class<T>) impl);
         }
     }
 
     /**
-     * Looks up the default implementing type for the supplied interface. This is done based on a
-     * static map of known common interface types and implementing classes.
-     * 
+     * Looks up the default implementing type for the supplied interface. This
+     * is done based on a static map of known common interface types and
+     * implementing classes.
+     *
      * @param iface an interface for which an implementing class is needed
-     * @return a Class object representing the implementing type, or null if one is not found
+     * @return a Class object representing the implementing type, or null if one
+     * is not found
      */
     public Class<?> getImplementingClass(Class<?> iface) {
         return interfaceImplementations.get(iface);
     }
 
     /**
-     * Register a class as the default implementation of an interface. The implementation class will
-     * be returned from future calls to {@link #getImplementingClass(Class)} when the argument is
-     * {@code iface}.
-     * 
+     * Register a class as the default implementation of an interface. The
+     * implementation class will be returned from future calls to
+     * {@link #getImplementingClass(Class)} when the argument is {@code iface}.
+     *
+     * @param <T> Type of implementation class to add
      * @param iface The interface class
      * @param impl The implementation class
      */
     public <T> void addImplementingClass(Class<T> iface, Class<? extends T> impl) {
-        if (!iface.isInterface())
+        if (!iface.isInterface()) {
             throw new IllegalArgumentException("Class " + iface.getName() + " is not an interface");
-        else
+        } else {
             interfaceImplementations.put(iface, impl);
+        }
     }
 
     /**
-     * Create a new instance of {@code clazz} by looking up the specified constructor and passing it
-     * and its parameters to {@link #newInstance(Constructor, Object...)}.
-     * 
+     * Create a new instance of {@code clazz} by looking up the specified
+     * constructor and passing it and its parameters to
+     * {@link #newInstance(Constructor, Object...)}.
+     *
      * @param clazz The class to instantiate.
-     * @param constructorArgTypes The type parameters of the constructor to be invoked. (See
-     *            {@link Class#getConstructor(Class...)}.)
+     * @param constructorArgTypes The type parameters of the constructor to be
+     * invoked. (See {@link Class#getConstructor(Class...)}.)
      * @param constructorArgs The parameters to pass to the constructor. (See
-     *            {@link Constructor#newInstance(Object...)}.)
+     * {@link Constructor#newInstance(Object...)}.)
      * @return A new instance of the class.
      */
     public <T> T newInstance(Class<T> clazz, Class<?>[] constructorArgTypes,
@@ -260,65 +290,60 @@ public class DefaultObjectFactory implements ObjectFactory {
         try {
             Constructor<T> constructor = clazz.getConstructor(constructorArgTypes);
             return postProcess(newInstance(constructor, constructorArgs));
-        }
-        catch (SecurityException e) {
+        } catch (SecurityException e) {
             throw new StripesRuntimeException("Could not instantiate " + clazz, e);
-        }
-        catch (NoSuchMethodException e) {
+        } catch (NoSuchMethodException e) {
             throw new StripesRuntimeException("Could not instantiate " + clazz, e);
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             throw new StripesRuntimeException("Could not instantiate " + clazz, e);
         }
     }
 
     /**
-     * Calls {@link Constructor#newInstance(Object...)} with the given parameters, passes the new
-     * object to {@link #postProcess(Object)} and returns it.
-     * 
+     * Calls {@link Constructor#newInstance(Object...)} with the given
+     * parameters, passes the new object to {@link #postProcess(Object)} and
+     * returns it.
+     *
      * @param constructor The constructor to invoke.
      * @param params The parameters to pass to the constructor.
      */
     public <T> T newInstance(Constructor<T> constructor, Object... params) {
         try {
             return postProcess(constructor.newInstance(params));
-        }
-        catch (InstantiationException e) {
+        } catch (InstantiationException e) {
             throw new StripesRuntimeException("Could not invoke constructor " + constructor, e);
-        }
-        catch (IllegalAccessException e) {
+        } catch (IllegalAccessException e) {
             throw new StripesRuntimeException("Could not invoke constructor " + constructor, e);
-        }
-        catch (InvocationTargetException e) {
+        } catch (InvocationTargetException e) {
             throw new StripesRuntimeException("Could not invoke constructor " + constructor, e);
         }
     }
 
     /**
-     * Get a {@link ConstructorWrapper} that wraps the constructor for the given class that accepts
-     * parameters of the given types.
-     * 
+     * Get a {@link ConstructorWrapper} that wraps the constructor for the given
+     * class that accepts parameters of the given types.
+     *
      * @param clazz The class to look up the constructor in.
      * @param parameterTypes The parameter types that the constructor accepts.
      */
     public <T> DefaultConstructorWrapper<T> constructor(Class<T> clazz, Class<?>... parameterTypes) {
         try {
             return new DefaultConstructorWrapper<T>(this, clazz.getConstructor(parameterTypes));
-        }
-        catch (SecurityException e) {
+        } catch (SecurityException e) {
             throw new StripesRuntimeException("Could not instantiate " + clazz, e);
-        }
-        catch (NoSuchMethodException e) {
+        } catch (NoSuchMethodException e) {
             throw new StripesRuntimeException("Could not instantiate " + clazz, e);
         }
     }
 
     /**
-     * Perform post-processing on objects created by {@link #newInstance(Class)} or
-     * {@link #newInstance(Class, Class[], Object[])}. Subclasses that do not need to change the way
-     * objects are instantiated but do need to do something to the objects before returning them may
-     * override this method to achieve that.
-     * 
+     * Perform post-processing on objects created by {@link #newInstance(Class)}
+     * or {@link #newInstance(Class, Class[], Object[])}. Subclasses that do not
+     * need to change the way objects are instantiated but do need to do
+     * something to the objects before returning them may override this method
+     * to achieve that.
+     *
+     * @param <T> Generic type of object to do post-processing on
      * @param object A newly created object.
      * @return The given object, unchanged.
      */

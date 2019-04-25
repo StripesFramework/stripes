@@ -10,25 +10,26 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 /**
- * Test cases for the BeanComparator class that sorts lists of JavaBeans based on
- * their properties.
+ * Test cases for the BeanComparator class that sorts lists of JavaBeans based
+ * on their properties.
  *
  * @author Tim Fennell
  */
 public class BeanComparatorTest {
-    @Test(groups="fast")
+
+    @Test(groups = "fast")
     public void testSimplePropertySort() throws Exception {
         List<TestBean> beans = new ArrayList<TestBean>();
         beans.add(new TestBean());
-        beans.get(beans.size()-1).setStringProperty("hello");
+        beans.get(beans.size() - 1).setStringProperty("hello");
         beans.add(new TestBean());
-        beans.get(beans.size()-1).setStringProperty("goodbye");
+        beans.get(beans.size() - 1).setStringProperty("goodbye");
         beans.add(new TestBean());
-        beans.get(beans.size()-1).setStringProperty("whatever");
+        beans.get(beans.size() - 1).setStringProperty("whatever");
         beans.add(new TestBean());
-        beans.get(beans.size()-1).setStringProperty("huh?");
+        beans.get(beans.size() - 1).setStringProperty("huh?");
         beans.add(new TestBean());
-        beans.get(beans.size()-1).setStringProperty("no way!");
+        beans.get(beans.size() - 1).setStringProperty("no way!");
 
         Collections.sort(beans, new BeanComparator("stringProperty"));
         Assert.assertEquals(beans.get(0).getStringProperty(), "goodbye");
@@ -38,24 +39,24 @@ public class BeanComparatorTest {
         Assert.assertEquals(beans.get(4).getStringProperty(), "whatever");
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void testSimpleMultiPropertySort() throws Exception {
         List<TestBean> beans = new ArrayList<TestBean>();
         beans.add(new TestBean());
-        beans.get(beans.size()-1).setLongProperty(2l);
-        beans.get(beans.size()-1).setStringProperty("hello");
+        beans.get(beans.size() - 1).setLongProperty(2l);
+        beans.get(beans.size() - 1).setStringProperty("hello");
         beans.add(new TestBean());
-        beans.get(beans.size()-1).setLongProperty(2l);
-        beans.get(beans.size()-1).setStringProperty("goodbye");
+        beans.get(beans.size() - 1).setLongProperty(2l);
+        beans.get(beans.size() - 1).setStringProperty("goodbye");
         beans.add(new TestBean());
-        beans.get(beans.size()-1).setLongProperty(1l);
-        beans.get(beans.size()-1).setStringProperty("whatever");
+        beans.get(beans.size() - 1).setLongProperty(1l);
+        beans.get(beans.size() - 1).setStringProperty("whatever");
         beans.add(new TestBean());
-        beans.get(beans.size()-1).setLongProperty(1l);
-        beans.get(beans.size()-1).setStringProperty("huh?");
+        beans.get(beans.size() - 1).setLongProperty(1l);
+        beans.get(beans.size() - 1).setStringProperty("huh?");
         beans.add(new TestBean());
-        beans.get(beans.size()-1).setLongProperty(3l);
-        beans.get(beans.size()-1).setStringProperty("no way!");
+        beans.get(beans.size() - 1).setLongProperty(3l);
+        beans.get(beans.size() - 1).setStringProperty("no way!");
 
         Collections.sort(beans, new BeanComparator("longProperty", "stringProperty"));
         Assert.assertEquals(beans.get(0).getStringProperty(), "huh?");
@@ -65,15 +66,15 @@ public class BeanComparatorTest {
         Assert.assertEquals(beans.get(4).getStringProperty(), "no way!");
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void testNullPropertySort() throws Exception {
         List<TestBean> beans = new ArrayList<TestBean>();
         beans.add(new TestBean());
-        beans.get(beans.size()-1).setStringProperty("hello");
+        beans.get(beans.size() - 1).setStringProperty("hello");
         beans.add(new TestBean());
-        beans.get(beans.size()-1).setStringProperty(null);
+        beans.get(beans.size() - 1).setStringProperty(null);
         beans.add(new TestBean());
-        beans.get(beans.size()-1).setStringProperty("whatever");
+        beans.get(beans.size() - 1).setStringProperty("whatever");
 
         Collections.sort(beans, new BeanComparator("stringProperty"));
         Assert.assertEquals(beans.get(0).getStringProperty(), "hello");
@@ -81,15 +82,15 @@ public class BeanComparatorTest {
         Assert.assertEquals(beans.get(2).getStringProperty(), null);
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void testNullPropertySort2() throws Exception {
         List<TestBean> beans = new ArrayList<TestBean>();
         beans.add(new TestBean());
-        beans.get(beans.size()-1).setStringProperty(null);
+        beans.get(beans.size() - 1).setStringProperty(null);
         beans.add(new TestBean());
-        beans.get(beans.size()-1).setStringProperty(null);
+        beans.get(beans.size() - 1).setStringProperty(null);
         beans.add(new TestBean());
-        beans.get(beans.size()-1).setStringProperty("whatever");
+        beans.get(beans.size() - 1).setStringProperty("whatever");
 
         Collections.sort(beans, new BeanComparator("stringProperty"));
         Assert.assertEquals(beans.get(0).getStringProperty(), "whatever");
@@ -97,24 +98,24 @@ public class BeanComparatorTest {
         Assert.assertEquals(beans.get(2).getStringProperty(), null);
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void testNestedPropertySort() throws Exception {
         List<TestBean> beans = new ArrayList<TestBean>();
         beans.add(new TestBean());
-        beans.get(beans.size()-1).setNestedBean(new TestBean());
-        beans.get(beans.size()-1).getNestedBean().setEnumProperty(TestEnum.Fourth);
+        beans.get(beans.size() - 1).setNestedBean(new TestBean());
+        beans.get(beans.size() - 1).getNestedBean().setEnumProperty(TestEnum.Fourth);
         beans.add(new TestBean());
-        beans.get(beans.size()-1).setNestedBean(new TestBean());
-        beans.get(beans.size()-1).getNestedBean().setEnumProperty(TestEnum.Second);
+        beans.get(beans.size() - 1).setNestedBean(new TestBean());
+        beans.get(beans.size() - 1).getNestedBean().setEnumProperty(TestEnum.Second);
         beans.add(new TestBean());
-        beans.get(beans.size()-1).setNestedBean(new TestBean());
-        beans.get(beans.size()-1).getNestedBean().setEnumProperty(TestEnum.Ninth);
+        beans.get(beans.size() - 1).setNestedBean(new TestBean());
+        beans.get(beans.size() - 1).getNestedBean().setEnumProperty(TestEnum.Ninth);
         beans.add(new TestBean());
-        beans.get(beans.size()-1).setNestedBean(new TestBean());
-        beans.get(beans.size()-1).getNestedBean().setEnumProperty(TestEnum.Eight);
+        beans.get(beans.size() - 1).setNestedBean(new TestBean());
+        beans.get(beans.size() - 1).getNestedBean().setEnumProperty(TestEnum.Eight);
         beans.add(new TestBean());
-        beans.get(beans.size()-1).setNestedBean(new TestBean());
-        beans.get(beans.size()-1).getNestedBean().setEnumProperty(TestEnum.First);
+        beans.get(beans.size() - 1).setNestedBean(new TestBean());
+        beans.get(beans.size() - 1).getNestedBean().setEnumProperty(TestEnum.First);
 
         Collections.sort(beans, new BeanComparator("nestedBean.enumProperty"));
         Assert.assertEquals(beans.get(0).getNestedBean().getEnumProperty(), TestEnum.First);

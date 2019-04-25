@@ -20,37 +20,47 @@ import java.util.Locale;
 import java.util.MissingResourceException;
 
 /**
- * <p>Provides a slightly more customizable approach to error messages.  Where the LocalizedError
- * class looks for an error message in a single place based on the key provided,
- * ScopedLocalizableError performs a scoped search for an error message.</p>
+ * <p>
+ * Provides a slightly more customizable approach to error messages. Where the
+ * LocalizedError class looks for an error message in a single place based on
+ * the key provided, ScopedLocalizableError performs a scoped search for an
+ * error message.</p>
  *
- * <p>As an example, let's say that the IntegerConverter raises an error message with the values
- * defaultScope=<em>converter.integer</em> and key=<em>outOfRange</em>, for a field called
- * <em>age</em> on an ActionBean bound to <em>/cats/KittenDetail.action</em>.  Based on this information
- * an instance of ScopedLocalizableError would fetch the resource bundle and look for error message
- * templates in the following order:</p>
+ * <p>
+ * As an example, let's say that the IntegerConverter raises an error message
+ * with the values defaultScope=<em>converter.integer</em> and
+ * key=<em>outOfRange</em>, for a field called
+ * <em>age</em> on an ActionBean bound to <em>/cats/KittenDetail.action</em>.
+ * Based on this information an instance of ScopedLocalizableError would fetch
+ * the resource bundle and look for error message templates in the following
+ * order:</p>
  *
  * <ul>
- *   <li>com.myco.KittenDetailActionBean.age.outOfRange</li>
- *   <li>com.myco.KittenDetailActionBean.age.errorMessage</li>
- *   <li>age.outOfRange</li>
- *   <li>age.errorMessage</li>
- *   <li>com.myco.KittenDetailActionBean.outOfRange</li>
- *   <li>com.myco.KittenDetailActionBean.errorMessage</li>
- *   <li>converter.integer.outOfRange</li>
+ * <li>com.myco.KittenDetailActionBean.age.outOfRange</li>
+ * <li>com.myco.KittenDetailActionBean.age.errorMessage</li>
+ * <li>age.outOfRange</li>
+ * <li>age.errorMessage</li>
+ * <li>com.myco.KittenDetailActionBean.outOfRange</li>
+ * <li>com.myco.KittenDetailActionBean.errorMessage</li>
+ * <li>converter.integer.outOfRange</li>
  * </ul>
  *
- * <p>Using ScopingLocalizedErrors provides application developers with the flexibility to provide
- * as much or as little specificity in error messages as desired.  The scope and ordering of the
- * messages is designed to allow developers to specify default messages at several levels, and
- * then override those as needed for specific circumstances.</p>
+ * <p>
+ * Using ScopingLocalizedErrors provides application developers with the
+ * flexibility to provide as much or as little specificity in error messages as
+ * desired. The scope and ordering of the messages is designed to allow
+ * developers to specify default messages at several levels, and then override
+ * those as needed for specific circumstances.</p>
  *
  * @author Tim Fennell
  */
 public class ScopedLocalizableError extends LocalizableError {
-	private static final long serialVersionUID = 1L;
 
-    /** Default key that is used for looking up error messages. */
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * Default key that is used for looking up error messages.
+     */
     public static final String DEFAULT_NAME = "errorMessage";
 
     private String defaultScope;
@@ -59,10 +69,11 @@ public class ScopedLocalizableError extends LocalizableError {
     /**
      * Constructs a ScopedLocalizableError with the supplied information.
      *
-     * @param defaultScope the default scope under which to look for the error message should more
-     *        specifically scoped lookups fail
+     * @param defaultScope the default scope under which to look for the error
+     * message should more specifically scoped lookups fail
      * @param key the name of the message to lookup
-     * @param parameters an optional number of replacement parameters to be used in the message
+     * @param parameters an optional number of replacement parameters to be used
+     * in the message
      */
     public ScopedLocalizableError(String defaultScope, String key, Object... parameters) {
         super(defaultScope + "." + key, parameters);
@@ -72,7 +83,8 @@ public class ScopedLocalizableError extends LocalizableError {
 
     /**
      * Get the default scope that was passed into the constructor.
-     * 
+     *
+     * @return 
      * @see #ScopedLocalizableError(String, String, Object...)
      */
     public String getDefaultScope() {
@@ -81,7 +93,8 @@ public class ScopedLocalizableError extends LocalizableError {
 
     /**
      * Get the key that was passed into the constructor.
-     * 
+     *
+     * @return 
      * @see #ScopedLocalizableError(String, String, Object...)
      */
     public String getKey() {
@@ -89,13 +102,14 @@ public class ScopedLocalizableError extends LocalizableError {
     }
 
     /**
-     * Overrides getMessageTemplate to perform a scoped search for a message template as defined in
-     * the class level javadoc.
+     * Overrides getMessageTemplate to perform a scoped search for a message
+     * template as defined in the class level javadoc.
+     * @return 
      */
     @Override
     protected String getMessageTemplate(Locale locale) {
-        String name1, name2=null, name3=null, name4=null, name5=null, name6=null,
-               name7=null, name8=null, name9=null, name10=null, name11=null;
+        String name1, name2 = null, name3 = null, name4 = null, name5 = null, name6 = null,
+                name7 = null, name8 = null, name9 = null, name10 = null, name11 = null;
 
         final String actionPath = getActionPath();
         final String fqn = getBeanclass().getName();
@@ -158,17 +172,20 @@ public class ScopedLocalizableError extends LocalizableError {
 
         if (template == null) {
             throw new MissingResourceException(
-                    "Could not find an error message with any of the following keys: " +
-                    "'" + name1 + "', '" + name2 + "', '" + name3 + "', '" +
-                    name4 + "', '" + name5 + "', '" + name6 + "', '" + name7 + "'." +
-                    name8 + "', '" + name9 + "', '" + name10 + "', '" + name11 + "'.", null, null
+                    "Could not find an error message with any of the following keys: "
+                    + "'" + name1 + "', '" + name2 + "', '" + name3 + "', '"
+                    + name4 + "', '" + name5 + "', '" + name6 + "', '" + name7 + "'."
+                    + name8 + "', '" + name9 + "', '" + name10 + "', '" + name11 + "'.", null, null
             );
         }
 
         return template;
     }
 
-    /** Generated equals method that checks all fields and super.equals(). */
+    /**
+     * Generated equals method that checks all fields and super.equals().
+     * @return 
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -193,7 +210,10 @@ public class ScopedLocalizableError extends LocalizableError {
         return true;
     }
 
-    /** Generated hashCode() method. */
+    /**
+     * Generated hashCode() method.
+     * @return 
+     */
     @Override
     public int hashCode() {
         int result = super.hashCode();

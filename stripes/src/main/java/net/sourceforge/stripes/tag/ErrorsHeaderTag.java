@@ -28,10 +28,11 @@ public class ErrorsHeaderTag extends HtmlTagSupport {
     @Override
     public int doStartTag() throws JspException {
         ErrorsTag errorsTag = getParentTag(ErrorsTag.class);
-        if (errorsTag.isFirst())
+        if (errorsTag.isFirst()) {
             return EVAL_BODY_INCLUDE;
-        else
+        } else {
             return SKIP_BODY;
+        }
     }
 
     @Override

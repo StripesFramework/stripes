@@ -32,9 +32,10 @@ import javax.servlet.jsp.el.ExpressionEvaluator;
 import java.util.List;
 
 /**
- * A base class that provides the general plumbing for running expression validation
- * using the old JSP 2.0 style ExpressionEvaluator. Uses a custom VariableResolver
- * to make fields of the ActionBean available in the expression.
+ * A base class that provides the general plumbing for running expression
+ * validation using the old JSP 2.0 style ExpressionEvaluator. Uses a custom
+ * VariableResolver to make fields of the ActionBean available in the
+ * expression.
  *
  * @author Tim Fennell
  * @since Stripes 1.5
@@ -45,29 +46,36 @@ public abstract class ExpressionExecutorSupport implements ExpressionExecutor {
     private static final Log log = Log.getInstance(ExpressionExecutorSupport.class);
 
     /**
-     * A JSP EL VariableResolver that first attempts to look up the value of the variable as a first
-     * level property on the ActionBean, and if does not exist then delegates to the built in resolver.
+     * A JSP EL VariableResolver that first attempts to look up the value of the
+     * variable as a first level property on the ActionBean, and if does not
+     * exist then delegates to the built in resolver.
      *
      * @author Tim Fennell
      * @since Stripes 1.3
      */
     protected static class BeanVariableResolver implements VariableResolver {
+
         private ActionBean bean;
         private Object currentValue;
 
-        /** Constructs a resolver based on the action bean . */
+        /**
+         * Constructs a resolver based on the action bean .
+         */
         BeanVariableResolver(ActionBean bean) {
             this.bean = bean;
         }
 
-        /** Sets the value that the 'this' variable will point at. */
+        /**
+         * Sets the value that the 'this' variable will point at.
+         */
         void setCurrentValue(Object value) {
             this.currentValue = value;
         }
 
         /**
-         * Recognizes a couple of special variables, and if the property requested
-         * isn't one of them, just looks up a property on the action bean.
+         * Recognizes a couple of special variables, and if the property
+         * requested isn't one of them, just looks up a property on the action
+         * bean.
          *
          * @param property the name of the variable/property being looked for
          * @return the property value or null
@@ -76,20 +84,21 @@ public abstract class ExpressionExecutorSupport implements ExpressionExecutor {
         public Object resolveVariable(String property) throws ELException {
             if (isSelfKeyword(bean, property)) {
                 return this.currentValue;
-            }
-            else if (StripesConstants.REQ_ATTR_ACTION_BEAN.equals(property)) {
+            } else if (StripesConstants.REQ_ATTR_ACTION_BEAN.equals(property)) {
                 return this.bean;
-            }
-            else {
-                try { return BeanUtil.getPropertyValue(property, bean); }
-                catch (Exception e) { return null; }
+            } else {
+                try {
+                    return BeanUtil.getPropertyValue(property, bean);
+                } catch (Exception e) {
+                    return null;
+                }
             }
         }
     }
 
     // See interface for javadoc
     public void evaluate(final ActionBean bean, final ParameterName name, final List<Object> values,
-                         final ValidationMetadata validationInfo, final ValidationErrors errors) {
+            final ValidationMetadata validationInfo, final ValidationErrors errors) {
         Expression expr = null;
         BeanVariableResolver resolver = null;
 
@@ -97,19 +106,20 @@ public abstract class ExpressionExecutorSupport implements ExpressionExecutor {
             try {
                 // Make sure we can get an evaluator
                 ExpressionEvaluator evaluator = getEvaluator();
-                if (evaluator == null) return;
+                if (evaluator == null) {
+                    return;
+                }
 
                 // If this turns out to be slow we could probably cache the parsed expression
                 String expression = validationInfo.expression();
                 expr = evaluator.parseExpression(expression, Boolean.class, null);
                 resolver = new BeanVariableResolver(bean);
-            }
-            catch (ELException ele) {
+            } catch (ELException ele) {
                 throw new StripesRuntimeException(
-                        "Could not parse the EL expression being used to validate field " +
-                        name.getName() + ". This is not a transient error. Please double " +
-                        "check the following expression for errors: " +
-                        validationInfo.expression(), ele);
+                        "Could not parse the EL expression being used to validate field "
+                        + name.getName() + ". This is not a transient error. Please double "
+                        + "check the following expression for errors: "
+                        + validationInfo.expression(), ele);
             }
         }
 
@@ -122,32 +132,31 @@ public abstract class ExpressionExecutorSupport implements ExpressionExecutor {
                     Boolean result = (Boolean) expr.evaluate(resolver);
                     if (!Boolean.TRUE.equals(result)) {
                         ValidationError error = new ScopedLocalizableError(ERROR_DEFAULT_SCOPE,
-                                                                           ERROR_KEY);
+                                ERROR_KEY);
                         error.setFieldValue(String.valueOf(value));
                         errors.add(name.getName(), error);
                     }
-                }
-                catch (ELException ele) {
+                } catch (ELException ele) {
                     log.error("Error evaluating expression for property ", name.getName(),
-                              " of class ", bean.getClass().getSimpleName(), ". Expression: ",
-                              validationInfo.expression());
+                            " of class ", bean.getClass().getSimpleName(), ". Expression: ",
+                            validationInfo.expression());
                 }
             }
         }
     }
 
     /**
-     * Must be implemented by subclasses to return an instance of ExpressionEvaluator
-     * that can be used to execute expressions.
+     * Must be implemented by subclasses to return an instance of
+     * ExpressionEvaluator that can be used to execute expressions.
      *
      * @return a working ExpressionEvaluator implementation.
      */
-    protected abstract ExpressionEvaluator getEvaluator() ;
+    protected abstract ExpressionEvaluator getEvaluator();
 
     /**
-     * Utility method for checking deprecated use of 'this' in expressions. Checks if
-     * <code>prop</code> == 'this' and logs a Warning message inviting the user to
-     * update to the new keyword.
+     * Utility method for checking deprecated use of 'this' in expressions.
+     * Checks if <code>prop</code> == 'this' and logs a Warning message inviting
+     * the user to update to the new keyword.
      */
     static boolean isSelfKeyword(ActionBean bean, Object prop) {
         boolean isDeprecatedThis = THIS.equals(prop);
@@ -157,10 +166,10 @@ public abstract class ExpressionExecutorSupport implements ExpressionExecutor {
             // check.
             // this message encourages the user to update EL validation
             // expressions using the new keyword
-            log.warn("You are using the 'this' keyword in ActionBean class '" + bean.getClass().getName() +
-                    "'. It is a reserved keyword. Your application server doesn't seem to complain, but " +
-                    "the application could malfunction on other servers. " +
-                    "Please use the keyword '" + SELF + "' in replacement of 'this' in your EL expressions.");
+            log.warn("You are using the 'this' keyword in ActionBean class '" + bean.getClass().getName()
+                    + "'. It is a reserved keyword. Your application server doesn't seem to complain, but "
+                    + "the application could malfunction on other servers. "
+                    + "Please use the keyword '" + SELF + "' in replacement of 'this' in your EL expressions.");
         }
         return isDeprecatedThis || SELF.equals(prop);
     }

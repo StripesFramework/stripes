@@ -27,14 +27,16 @@ import net.sourceforge.stripes.exception.StripesRuntimeException;
 import net.sourceforge.stripes.util.Log;
 
 /**
- * Renders a named layout, optionally overriding one or more components in the layout. Any
- * attributes provided to the class other than 'name' will be placed into page context during
- * the evaluation of the layout, making them available to other tags, and in EL.
+ * Renders a named layout, optionally overriding one or more components in the
+ * layout. Any attributes provided to the class other than 'name' will be placed
+ * into page context during the evaluation of the layout, making them available
+ * to other tags, and in EL.
  *
  * @author Tim Fennell, Ben Gunter
  * @since Stripes 1.1
  */
 public class LayoutRenderTag extends LayoutTag implements BodyTag, DynamicAttributes {
+
     private static final Log log = Log.getInstance(LayoutRenderTag.class);
 
     private String name;
@@ -43,23 +45,39 @@ public class LayoutRenderTag extends LayoutTag implements BodyTag, DynamicAttrib
     private LayoutRenderTagPath path;
     private BodyContent bodyContent;
 
-    /** Gets the name of the layout to be used. */
-    public String getName() { return name; }
+    /**
+     * Gets the name of the layout to be used.
+     * @return 
+     */
+    public String getName() {
+        return name;
+    }
 
-    /** Sets the name of the layout to be used and then calls {@link #initialize()}. */
+    /**
+     * Sets the name of the layout to be used and then calls
+     * {@link #initialize()}.
+     * @param name
+     */
     public void setName(String name) {
         this.name = name;
         initialize();
     }
 
-    /** Get the {@link LayoutRenderTagPath} that identifies this tag within the current page. */
-    public LayoutRenderTagPath getPath( ) { return path; }
+    /**
+     * Get the {@link LayoutRenderTagPath} that identifies this tag within the
+     * current page.
+     * @return 
+     */
+    public LayoutRenderTagPath getPath() {
+        return path;
+    }
 
     /**
-     * Initialize fields before execution begins. Typically, this would be done by overriding
-     * {@link #setPageContext(javax.servlet.jsp.PageContext)}, but that isn't possible in this case
-     * because some of the logic depends on {@link #setName(String)} having been called, which does
-     * not happen until after {@link #setPageContext(javax.servlet.jsp.PageContext)} has been
+     * Initialize fields before execution begins. Typically, this would be done
+     * by overriding {@link #setPageContext(javax.servlet.jsp.PageContext)}, but
+     * that isn't possible in this case because some of the logic depends on
+     * {@link #setName(String)} having been called, which does not happen until
+     * after {@link #setPageContext(javax.servlet.jsp.PageContext)} has been
      * called.
      */
     protected void initialize() {
@@ -72,8 +90,7 @@ public class LayoutRenderTag extends LayoutTag implements BodyTag, DynamicAttrib
         if (create) {
             context = LayoutContext.push(this);
             path = context.getComponentPath();
-        }
-        else {
+        } else {
             path = new LayoutRenderTagPath(this);
         }
 
@@ -83,20 +100,28 @@ public class LayoutRenderTag extends LayoutTag implements BodyTag, DynamicAttrib
         this.silent = context.getOut().isSilent();
     }
 
-    /** Returns true if this tag is a child of the current component tag. */
+    /**
+     * Returns true if this tag is a child of the current component tag.
+     * @return 
+     */
     public boolean isChildOfCurrentComponent() {
         try {
             LayoutTag parent = getLayoutParent();
             return parent instanceof LayoutComponentTag
                     && ((LayoutComponentTag) parent).isCurrentComponent();
-        }
-        catch (StripesJspException e) {
+        } catch (StripesJspException e) {
             // This exception would have been thrown before this tag ever executed
             throw new StripesRuntimeException("Something has happened that should never happen", e);
         }
     }
 
-    /** Used by the JSP container to provide the tag with dynamic attributes. */
+    /**
+     * Used by the JSP container to provide the tag with dynamic attributes.
+     * @param uri
+     * @param localName
+     * @param value
+     * @throws javax.servlet.jsp.JspException
+     */
     public void setDynamicAttribute(String uri, String localName, Object value) throws JspException {
         context.getParameters().put(localName, value);
     }
@@ -104,13 +129,15 @@ public class LayoutRenderTag extends LayoutTag implements BodyTag, DynamicAttrib
     /**
      * On the first pass (see {@link LayoutContext#isComponentRenderPhase()}):
      * <ul>
-     * <li>Push the values of any dynamic attributes into page context attributes for the duration
-     * of the tag.</li>
+     * <li>Push the values of any dynamic attributes into page context
+     * attributes for the duration of the tag.</li>
      * <li>Create a new context and places it in request scope.</li>
-     * <li>Include the layout definition page named by the {@code name} attribute.</li>
+     * <li>Include the layout definition page named by the {@code name}
+     * attribute.</li>
      * </ul>
-     * 
+     *
      * @return EVAL_BODY_INCLUDE in all cases
+     * @throws javax.servlet.jsp.JspException
      */
     @Override
     public int doStartTag() throws JspException {
@@ -130,41 +157,52 @@ public class LayoutRenderTag extends LayoutTag implements BodyTag, DynamicAttrib
             context.getOut().setSilent(true, pageContext);
 
             return contextIsNew ? EVAL_BODY_BUFFERED : EVAL_BODY_INCLUDE;
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new JspException(e);
         }
     }
 
     /**
-     * Set the tag's body content. Called by the JSP engine during component registration phase,
-     * when {@link #doStartTag()} returns {@link BodyTag#EVAL_BODY_BUFFERED}
+     * Set the tag's body content. Called by the JSP engine during component
+     * registration phase, when {@link #doStartTag()} returns
+     * {@link BodyTag#EVAL_BODY_BUFFERED}
+     * @param bodyContent
      */
     public void setBodyContent(BodyContent bodyContent) {
         this.bodyContent = bodyContent;
     }
 
-    /** Does nothing. */
+    /**
+     * Does nothing.
+     * @throws javax.servlet.jsp.JspException
+     */
     public void doInitBody() throws JspException {
     }
 
-    /** Returns {@link Tag#SKIP_BODY}. */
+    /**
+     * Returns {@link Tag#SKIP_BODY}.
+     * @return 
+     * @throws javax.servlet.jsp.JspException
+     */
     public int doAfterBody() throws JspException {
         return SKIP_BODY;
     }
 
     /**
-     * After the first pass (see {@link LayoutContext#isComponentRenderPhase()}):
+     * After the first pass (see
+     * {@link LayoutContext#isComponentRenderPhase()}):
      * <ul>
-     * <li>Ensure the layout rendered successfully by checking {@link LayoutContext#isRendered()}.</li>
+     * <li>Ensure the layout rendered successfully by checking
+     * {@link LayoutContext#isRendered()}.</li>
      * <li>Remove the current layout context from request scope.</li>
      * <li>Restore previous page context attribute values.</li>
      * </ul>
-     * 
+     *
      * @return EVAL_PAGE in all cases.
+     * @throws javax.servlet.jsp.JspException
      */
     @Override
-	public int doEndTag() throws JspException {
+    public int doEndTag() throws JspException {
         try {
             if (contextIsNew) {
                 log.debug("End layout init in ", context.getRenderPage());
@@ -174,29 +212,27 @@ public class LayoutRenderTag extends LayoutTag implements BodyTag, DynamicAttrib
                     context.getOut().setSilent(true, pageContext);
                     context.doInclude(pageContext, getName());
                     log.debug("End layout exec in ", context.getDefinitionPage());
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     throw new StripesJspException(
-                        "An exception was raised while invoking a layout. The layout used was " +
-                        "'" + getName() + "'. The following information was supplied to the render " +
-                        "tag: " + context.toString(), e);
+                            "An exception was raised while invoking a layout. The layout used was "
+                            + "'" + getName() + "'. The following information was supplied to the render "
+                            + "tag: " + context.toString(), e);
                 }
 
                 // Check that the layout actually got rendered as some containers will
                 // just quietly ignore includes of non-existent pages!
                 if (!context.isRendered()) {
                     throw new StripesJspException(
-                            "Attempt made to render a layout that does not exist. The layout name " +
-                            "provided was '" + getName() + "'. Please check that a JSP/view exists at " +
-                            "that location within your web application."
-                        );
+                            "Attempt made to render a layout that does not exist. The layout name "
+                            + "provided was '" + getName() + "'. Please check that a JSP/view exists at "
+                            + "that location within your web application."
+                    );
                 }
 
                 context.getOut().setSilent(silent, pageContext);
                 LayoutContext.pop(pageContext);
                 popPageContextAttributes(); // remove any dynattrs from page scope
-            }
-            else {
+            } else {
                 context.getOut().setSilent(silent, pageContext);
             }
 
@@ -207,11 +243,9 @@ public class LayoutRenderTag extends LayoutTag implements BodyTag, DynamicAttrib
             }
 
             return EVAL_PAGE;
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new JspException(e);
-        }
-        finally {
+        } finally {
             this.context = null;
             this.contextIsNew = false;
             this.path = null;

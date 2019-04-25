@@ -29,10 +29,11 @@ public class ErrorsFooterTag extends HtmlTagSupport {
     public int doStartTag() throws JspException {
         ErrorsTag errorsTag = getParentTag(ErrorsTag.class);
 
-        if (errorsTag.isLast())
+        if (errorsTag.isLast()) {
             return EVAL_BODY_INCLUDE;
-        else
+        } else {
             return SKIP_BODY;
+        }
     }
 
     @Override

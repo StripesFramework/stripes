@@ -23,38 +23,48 @@ import java.util.Locale;
  * @author Tim Fennell
  */
 public class GenericsBindingTests
-     extends GenericsBindingTestsBaseClass<TestBean,Double,Boolean,Long,Date>
-  implements ActionBean {
+        extends GenericsBindingTestsBaseClass<TestBean, Double, Boolean, Long, Date>
+        implements ActionBean {
 
     // Stuff necessary to implement ActionBean!
     private ActionBeanContext context;
-    public ActionBeanContext getContext() { return context; }
-    public void setContext(ActionBeanContext context) { this.context = context; }
-    @DefaultHandler public Resolution execute() { return new RedirectResolution("/somewhere.jsp"); }
+
+    public ActionBeanContext getContext() {
+        return context;
+    }
+
+    public void setContext(ActionBeanContext context) {
+        this.context = context;
+    }
+
+    @DefaultHandler
+    public Resolution execute() {
+        return new RedirectResolution("/somewhere.jsp");
+    }
 
     ///////////////////////////////////////////////////////////////////////////
     // Test and Support Methods
     ///////////////////////////////////////////////////////////////////////////
-
     private MockServletContext ctx;
 
     @BeforeClass
-    public void setupServletContext(){
+    public void setupServletContext() {
         ctx = StripesTestFixture.createServletContext();
     }
 
     @AfterClass
-    public void closeServletContext(){
+    public void closeServletContext() {
         ctx.close();
     }
 
-
-    /** Makes a roundtrip using the current instances' type. */
+    /**
+     * Makes a roundtrip using the current instances' type.
+     */
     protected MockRoundtrip getRoundtrip() {
         return new MockRoundtrip(ctx, GenericsBindingTests.class);
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void testSimpleTypeVariable() throws Exception {
         MockRoundtrip trip = getRoundtrip();
         trip.getRequest().addLocale(Locale.ENGLISH);
@@ -66,7 +76,7 @@ public class GenericsBindingTests
         Assert.assertEquals(bean.getNumber(), new Double(123.4));
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void testGenericBean() throws Exception {
         MockRoundtrip trip = getRoundtrip();
         trip.getRequest().addLocale(Locale.ENGLISH);
@@ -81,7 +91,7 @@ public class GenericsBindingTests
         Assert.assertEquals(bean.getGenericBean().getGenericB(), Boolean.TRUE);
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void testTypeVariableLists() throws Exception {
         MockRoundtrip trip = getRoundtrip();
         trip.addParameter("list[0]", "true");
@@ -96,7 +106,7 @@ public class GenericsBindingTests
         Assert.assertEquals(bean.getList().get(2), Boolean.TRUE);
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void testTypeVariableMaps() throws Exception {
         MockRoundtrip trip = getRoundtrip();
         trip.addParameter("map[10]", "1/1/2010");
@@ -106,12 +116,12 @@ public class GenericsBindingTests
 
         GenericsBindingTests bean = trip.getActionBean(GenericsBindingTests.class);
         Assert.assertNotNull(bean.getMap());
-        Assert.assertEquals(bean.getMap().get(10l), makeDate(2010,1,1));
-        Assert.assertEquals(bean.getMap().get(20l), makeDate(2020,1,1));
-        Assert.assertEquals(bean.getMap().get(30l), makeDate(2030,1,1));
+        Assert.assertEquals(bean.getMap().get(10l), makeDate(2010, 1, 1));
+        Assert.assertEquals(bean.getMap().get(20l), makeDate(2020, 1, 1));
+        Assert.assertEquals(bean.getMap().get(30l), makeDate(2030, 1, 1));
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void testTypeVariableNestedProperties() throws Exception {
         MockRoundtrip trip = getRoundtrip();
         trip.addParameter("bean.longProperty", "1234");
@@ -125,13 +135,14 @@ public class GenericsBindingTests
     }
 
     /**
-     * Helper method to manufacture dates without time components. Months are 1 based unlike
-     * the retarded Calendar API that uses 1 based everything else and 0 based months. Sigh.
+     * Helper method to manufacture dates without time components. Months are 1
+     * based unlike the retarded Calendar API that uses 1 based everything else
+     * and 0 based months. Sigh.
      */
     private Date makeDate(int year, int month, int day) {
         Calendar cal = Calendar.getInstance();
         cal.clear();
-        cal.set(year, month-1, day);
+        cal.set(year, month - 1, day);
         return cal.getTime();
     }
 }

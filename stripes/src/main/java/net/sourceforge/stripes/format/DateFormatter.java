@@ -24,40 +24,48 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
 /**
- * <p>Implements a basic formatter for Date objects.  Accepts several known types and patterns, as
- * well as arbitrary patterns.  Under the covers uses DateFormat and SimpleDateFormat objects
- * from the java.text package - it is advised that you become familiar with these classes before
- * attempting to use custom patterns.</p>
+ * <p>
+ * Implements a basic formatter for Date objects. Accepts several known types
+ * and patterns, as well as arbitrary patterns. Under the covers uses DateFormat
+ * and SimpleDateFormat objects from the java.text package - it is advised that
+ * you become familiar with these classes before attempting to use custom
+ * patterns.</p>
  *
- * <p>Format types affect the kind of information that is output.  The supported format types
- * are (values are not case sensitive):</p>
+ * <p>
+ * Format types affect the kind of information that is output. The supported
+ * format types are (values are not case sensitive):</p>
  * <ul>
- *   <li>date</li>
- *   <li>time</li>
- *   <li>datetime</li>
+ * <li>date</li>
+ * <li>time</li>
+ * <li>datetime</li>
  * </ul>
  *
- * <p>Format strings affect the format of the selected output. One of the following known values
- * may be supplied as the format string (named values are not case sensitive). If the value is not
- * one of the following, it is passed to SimpleDateFormat as a pattern string.
+ * <p>
+ * Format strings affect the format of the selected output. One of the following
+ * known values may be supplied as the format string (named values are not case
+ * sensitive). If the value is not one of the following, it is passed to
+ * SimpleDateFormat as a pattern string.
  * <ul>
- *   <li>short</li>
- *   <li>medium</li>
- *   <li>long</li>
- *   <li>full</li>
+ * <li>short</li>
+ * <li>medium</li>
+ * <li>long</li>
+ * <li>full</li>
  * </ul>
  *
  * @author Tim Fennell
  */
 public class DateFormatter implements Formatter<Date> {
-    /** Maintains a map of named formats that can be used instead of patterns. */
-    protected static final Map<String,Integer> namedPatterns = new HashMap<String,Integer>();
+
+    /**
+     * Maintains a map of named formats that can be used instead of patterns.
+     */
+    protected static final Map<String, Integer> namedPatterns = new HashMap<String, Integer>();
 
     static {
-        namedPatterns.put("short",  DateFormat.SHORT );
+        namedPatterns.put("short", DateFormat.SHORT);
         namedPatterns.put("medium", DateFormat.MEDIUM);
-        namedPatterns.put("long",   DateFormat.LONG  );
-        namedPatterns.put("full",   DateFormat.FULL  );
+        namedPatterns.put("long", DateFormat.LONG);
+        namedPatterns.put("full", DateFormat.FULL);
     }
 
     private String formatType;
@@ -65,43 +73,63 @@ public class DateFormatter implements Formatter<Date> {
     private Locale locale;
     private DateFormat format;
 
-    /** Sets the format type to be used to render dates as Strings. */
+    /**
+     * Sets the format type to be used to render dates as Strings.
+     * @param formatType Sets the format type for this date formatter
+     */
     public void setFormatType(String formatType) {
         this.formatType = formatType;
     }
 
-    /** Gets the format type to be used to render dates as Strings. */
+    /**
+     * Gets the format type to be used to render dates as Strings.
+     * @return The format type to be used to render dates as Strings.
+     */
     public String getFormatType() {
         return formatType;
     }
 
-    /** Sets the named format string or date pattern to use to format the date. */
+    /**
+     * Sets the named format string or date pattern to use to format the date.
+     * @param formatPattern Format pattern for this formatter
+     */
     public void setFormatPattern(String formatPattern) {
         this.formatPattern = formatPattern;
     }
 
-    /** Gets the named format string or date pattern to use to format the date. */
+    /**
+     * Gets the named format string or date pattern to use to format the date.
+     * @return the named format string or date pattern to use to format the date.
+     */
     public String getFormatPattern() {
         return formatPattern;
     }
 
-    /** Sets the locale that output String should be in. */
+    /**
+     * Sets the locale that output String should be in.
+     * @param locale The locale to set on this formatter
+     */
     public void setLocale(Locale locale) {
         this.locale = locale;
     }
 
-    /** Gets the locale that output String should be in. */
+    /**
+     * Gets the locale that output String should be in.
+     * @return The locale for this date formatter
+     */
     public Locale getLocale() {
         return locale;
     }
 
     /**
-     * Constructs the DateFormat used for formatting, based on the values passed to the
-     * various setter methods on the class.  If the formatString is one of the named formats
-     * then a DateFormat instance is created of the specified type and format, otherwise
-     * a SimpleDateFormat is constructed using the pattern provided and the formatType is ignored.
+     * Constructs the DateFormat used for formatting, based on the values passed
+     * to the various setter methods on the class. If the formatString is one of
+     * the named formats then a DateFormat instance is created of the specified
+     * type and format, otherwise a SimpleDateFormat is constructed using the
+     * pattern provided and the formatType is ignored.
      *
-     * @throws StripesRuntimeException if the formatType is not one of 'date', 'time' or 'datetime'.
+     * @throws StripesRuntimeException if the formatType is not one of 'date',
+     * 'time' or 'datetime'.
      */
     public void init() {
         // Default these values if they were not supplied
@@ -114,49 +142,56 @@ public class DateFormatter implements Formatter<Date> {
         }
 
         String lcFormatString = formatPattern.toLowerCase();
-        String lcFormatType  = formatType.toLowerCase();
+        String lcFormatType = formatType.toLowerCase();
 
         // Now figure out how to construct our date format for our locale
-        if ( namedPatterns.containsKey(lcFormatString) ) {
+        if (namedPatterns.containsKey(lcFormatString)) {
 
             if (lcFormatType.equals("date")) {
                 format = DateFormat.getDateInstance(namedPatterns.get(lcFormatString), locale);
-            }
-            else if (lcFormatType.equals("datetime")) {
+            } else if (lcFormatType.equals("datetime")) {
                 format = DateFormat.getDateTimeInstance(namedPatterns.get(lcFormatString),
-                                                        namedPatterns.get(lcFormatString),
-                                                        locale);
-            }
-            else if (lcFormatType.equals("time")) {
+                        namedPatterns.get(lcFormatString),
+                        locale);
+            } else if (lcFormatType.equals("time")) {
                 format = DateFormat.getTimeInstance(namedPatterns.get(lcFormatString), locale);
+            } else {
+                throw new StripesRuntimeException("Invalid formatType for Date: " + formatType
+                        + ". Allowed types are 'date', 'time' and 'datetime'.");
             }
-            else {
-                throw new StripesRuntimeException("Invalid formatType for Date: " + formatType +
-                ". Allowed types are 'date', 'time' and 'datetime'.");
-            }
-        }
-        else {
+        } else {
             format = new SimpleDateFormat(formatPattern, locale);
         }
     }
 
     /**
-     * Gets the date format that will format the date. Subclasses that wish to alter the date format
-     * should override init(), call super.init(), and then obtain the date format object.
+     * Gets the date format that will format the date. Subclasses that wish to
+     * alter the date format should override init(), call super.init(), and then
+     * obtain the date format object.
+     * @return The date format object for this formatter.
      */
     public DateFormat getDateFormat() {
         return this.format;
     }
 
     /**
-     * Sets the date format that will format the date. Subclasses that wish to set the date format
-     * should override init() and then set the date format object.
+     * Sets the date format that will format the date. Subclasses that wish to
+     * set the date format should override init() and then set the date format
+     * object.
+     * @param dateFormat - The date format object to use within this formatter.
      */
     public void setDateFormat(DateFormat dateFormat) {
         this.format = dateFormat;
     }
 
-    /** Formats a Date as a String using the rules supplied when the formatter was built. */
+    /**
+     * Formats a Date as a String using the rules supplied when the formatter
+     * was built.
+     * 
+     * @param input - The date to format
+     * @return The resulting formatted date.
+     */
+    @Override
     public String format(Date input) {
         return this.format.format(input);
     }

@@ -35,7 +35,7 @@ public @interface HandlesEvent {
 
     /**
      * The name of the event that will be handled by the annotated method.
-     * 
+     *
      * @return The name of the event that will be handled by this method.
      */
     String value();

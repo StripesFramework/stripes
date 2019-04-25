@@ -43,6 +43,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import net.sourceforge.stripes.util.ReflectUtil;
 
 /**
  * <p>
@@ -53,7 +54,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * <p>
  * Individual methods on ActionBean classes are expected to be annotated with
- * @HandlesEvent annotations, and potentially a @DefaultHandler annotation.
+ * HandlesEvent annotations, and potentially a DefaultHandler annotation.
  * Using these annotations the Resolver will determine which method should be
  * executed for the current request.</p>
  *
@@ -93,7 +94,7 @@ public class AnnotatedClassActionResolver implements ActionResolver {
     private UrlBindingFactory urlBindingFactory = new UrlBindingFactory();
 
     /**
-     * Maps action bean classes simple name -> action bean class
+     * Maps action bean classes simple name to action bean class
      */
     protected final Map<String, Class<? extends ActionBean>> actionBeansByName
             = new ConcurrentHashMap<String, Class<? extends ActionBean>>();
@@ -124,7 +125,9 @@ public class AnnotatedClassActionResolver implements ActionResolver {
      * the classes found to determine what forms and events they map to, and
      * stores this information in a pair of maps for fast access during request
      * processing.
+     * @throws java.lang.Exception If an error occurs while initializing this action resolver.
      */
+    @Override
     public void init(Configuration configuration) throws Exception {
         this.configuration = configuration;
 
@@ -154,6 +157,8 @@ public class AnnotatedClassActionResolver implements ActionResolver {
     /**
      * Get the {@link UrlBindingFactory} that is being used by this action
      * resolver.
+     *
+     * @return URL binding factory associated with this resolver.
      */
     public UrlBindingFactory getUrlBindingFactory() {
         return urlBindingFactory;
@@ -257,6 +262,9 @@ public class AnnotatedClassActionResolver implements ActionResolver {
      * Helper method that examines a class, starting at its highest super class
      * and working its way down again, to find method annotations and ensure
      * that child class annotations take precedence.
+     *
+     * @param clazz - Class to examine methods for
+     * @param classMappings - Map of event method name to method object
      */
     protected void processMethods(Class<?> clazz, Map<String, Method> classMappings) {
         // Do the super class first if there is one
@@ -264,10 +272,25 @@ public class AnnotatedClassActionResolver implements ActionResolver {
         if (superclass != null) {
             processMethods(superclass, classMappings);
         }
+        
+        Class<?>[] clazzes = clazz.getInterfaces();
+        for(Class<?> interfaceClazz : clazzes){
+            Method[] methods = interfaceClazz.getDeclaredMethods();
+            for (Method method : methods) {
+                if(ReflectUtil.isDefault(method)){
+                    processMethod(clazz, classMappings, method);
+                }
+            }
+        }
 
         Method[] methods = clazz.getDeclaredMethods();
         for (Method method : methods) {
-            if (Modifier.isPublic(method.getModifiers()) && !method.isBridge()) {
+            processMethod(clazz, classMappings, method);
+        }
+    }
+    
+    protected void processMethod(Class<?> clazz, Map<String, Method> classMappings, Method method) {
+        if (Modifier.isPublic(method.getModifiers()) && !method.isBridge()) {
                 String eventName = getHandledEvent(method);
 
                 // look for duplicate event names within the current class
@@ -292,7 +315,6 @@ public class AnnotatedClassActionResolver implements ActionResolver {
                     // Makes sure we catch the default handler
                     classMappings.put(DEFAULT_HANDLER_KEY, method);
                 }
-            }
         }
     }
 
@@ -338,6 +360,7 @@ public class AnnotatedClassActionResolver implements ActionResolver {
      *
      * @param context the ActionBeanContext for the current request
      * @return the name of the form to be used for this request
+     * @throws net.sourceforge.stripes.exception.StripesServletException If an error occurs getting the action bean associated with this resolver.
      */
     public ActionBean getActionBean(ActionBeanContext context) throws StripesServletException {
         HttpServletRequest request = context.getRequest();
@@ -357,7 +380,7 @@ public class AnnotatedClassActionResolver implements ActionResolver {
      * @param path a URL to which an ActionBean is bound, or a path starting
      * with the URL to which an ActionBean has been bound.
      * @param context the current ActionBeanContext
-     * @return a Class<ActionBean> for the ActionBean requested
+     * @return an action bean class for the ActionBean requested
      * @throws StripesServletException if the UrlBinding does not match an
      * ActionBean binding
      */
@@ -710,6 +733,8 @@ public class AnnotatedClassActionResolver implements ActionResolver {
 
     /**
      * Provides subclasses with access to the configuration object.
+     *
+     * @return The configuration object associated with this resolver.
      */
     protected Configuration getConfiguration() {
         return this.configuration;

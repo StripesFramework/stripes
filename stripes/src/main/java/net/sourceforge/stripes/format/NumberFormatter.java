@@ -23,31 +23,39 @@ import java.util.Locale;
 import java.util.Set;
 
 /**
- * <p>Formats numbers into localized Strings for display.  This class relies heavily on the
- * NumberFormat and DecimalFormat classes in the java.text package, and it is suggested that you
- * become familiar with those classes before using custom formats.</p>
+ * <p>
+ * Formats numbers into localized Strings for display. This class relies heavily
+ * on the NumberFormat and DecimalFormat classes in the java.text package, and
+ * it is suggested that you become familiar with those classes before using
+ * custom formats.</p>
  *
- * <p>Accepts the following named formatTypes (not case sensitive):</p>
+ * <p>
+ * Accepts the following named formatTypes (not case sensitive):</p>
  * <ul>
- *   <li>number</li>
- *   <li>currency</li>
- *   <li>percentage</li>
+ * <li>number</li>
+ * <li>currency</li>
+ * <li>percentage</li>
  * </ul>
  *
- * <p>If a format type is not supplied the default value of "number" will be used. Format String
- * can be either a custom pattern as used by NumberFormat, or one of the following named formats
- * (not case sensitive):</p>
+ * <p>
+ * If a format type is not supplied the default value of "number" will be used.
+ * Format String can be either a custom pattern as used by NumberFormat, or one
+ * of the following named formats (not case sensitive):</p>
  * <ul>
- *   <li>plain - Outputs text in a manner similar to toString(), but appropriate to a locale.</li>
- *   <li>integer - Outputs text with grouping characters and no decimals.</li>
- *   <li>decimal - Outputs text with grouping characters and 2-6 decimal positions as needed.</li>
+ * <li>plain - Outputs text in a manner similar to toString(), but appropriate
+ * to a locale.</li>
+ * <li>integer - Outputs text with grouping characters and no decimals.</li>
+ * <li>decimal - Outputs text with grouping characters and 2-6 decimal positions
+ * as needed.</li>
  * </ul>
  *
  * @author Tim Fennell
  */
 public class NumberFormatter implements Formatter<Number> {
 
-    /** Maintains a set of named formats that can be used instead of patterns. */
+    /**
+     * Maintains a set of named formats that can be used instead of patterns.
+     */
     protected static final Set<String> namedPatterns = new HashSet<String>();
 
     static {
@@ -61,37 +69,60 @@ public class NumberFormatter implements Formatter<Number> {
     private Locale locale;
     private NumberFormat format;
 
-    /** Sets the format type to be used to render numbers as Strings. */
+    /**
+     * Sets the format type to be used to render numbers as Strings.
+     * @param formatType - Type of format to use
+     */
     public void setFormatType(String formatType) {
         this.formatType = formatType;
     }
 
-    /** Gets the format type to be used to render numbers as Strings. */
+    /**
+     * Gets the format type to be used to render numbers as Strings.
+     * @return Format type for this formatter
+     */
     public String getFormatType() {
         return formatType;
     }
 
-    /** Sets the named format string or number format pattern to use to format the number. */
+    /**
+     * Sets the named format string or number format pattern to use to format
+     * the number.
+     * @param formatPattern - Format pattern to use
+     */
     public void setFormatPattern(String formatPattern) {
         this.formatPattern = formatPattern;
     }
 
-    /** Gets the named format string or number format pattern to use to format the number. */
+    /**
+     * Gets the named format string or number format pattern to use to format
+     * the number.
+     * @return The format pattern used by this formatter
+     */
     public String getFormatPattern() {
         return formatPattern;
     }
 
-    /** Sets the locale that output String should be in. */
+    /**
+     * Sets the locale that output String should be in.
+     * @param locale - Locale to set for this formatter
+     */
     public void setLocale(Locale locale) {
         this.locale = locale;
     }
 
-    /** Gets the locale that output String should be in. */
+    /**
+     * Gets the locale that output String should be in.
+     * @return The locale set for this formatter
+     */
     public Locale getLocale() {
         return locale;
     }
 
-    /** Instantiates the NumberFormat based on the information provided through setter methods. */
+    /**
+     * Instantiates the NumberFormat based on the information provided through
+     * setter methods.
+     */
     public void init() {
         // Set some sensible defaults if things are null
         if (this.formatType == null) {
@@ -105,42 +136,37 @@ public class NumberFormatter implements Formatter<Number> {
 
         if (this.formatType.equalsIgnoreCase("number")) {
             this.format = NumberFormat.getInstance(locale);
-        }
-        else if (this.formatType.equalsIgnoreCase("currency")) {
+        } else if (this.formatType.equalsIgnoreCase("currency")) {
             this.format = NumberFormat.getCurrencyInstance(locale);
-        }
-        else if (this.formatType.equalsIgnoreCase("percentage")) {
+        } else if (this.formatType.equalsIgnoreCase("percentage")) {
             this.format = NumberFormat.getPercentInstance(locale);
-        }
-        else {
-            throw new StripesRuntimeException("Invalid format type supplied for formatting a " +
-                "number: " + this.formatType + ". Valid values are 'number', 'currency' " +
-                "and 'percentage'.");
+        } else {
+            throw new StripesRuntimeException("Invalid format type supplied for formatting a "
+                    + "number: " + this.formatType + ". Valid values are 'number', 'currency' "
+                    + "and 'percentage'.");
         }
 
         // Do any extra configuration
         if (this.formatPattern.equalsIgnoreCase("plain")) {
             this.format.setGroupingUsed(false);
-        }
-        else if (this.formatPattern.equalsIgnoreCase("integer")) {
+        } else if (this.formatPattern.equalsIgnoreCase("integer")) {
             this.format.setMaximumFractionDigits(0);
-        }
-        else if (this.formatPattern.equalsIgnoreCase(("decimal"))) {
+        } else if (this.formatPattern.equalsIgnoreCase(("decimal"))) {
             this.format.setMinimumFractionDigits(2);
             this.format.setMaximumFractionDigits(6);
-        }
-        else {
+        } else {
             try {
                 ((DecimalFormat) this.format).applyPattern(this.formatPattern);
-            }
-            catch (Exception e) {
-                throw new StripesRuntimeException("Custom pattern could not be applied to " +
-                    "NumberFormat instance.  Pattern was: " + this.formatPattern,  e);
+            } catch (Exception e) {
+                throw new StripesRuntimeException("Custom pattern could not be applied to "
+                        + "NumberFormat instance.  Pattern was: " + this.formatPattern, e);
             }
         }
     }
 
-    /** Formats the number supplied as a String. */
+    /**
+     * Formats the number supplied as a String.
+     */
     public String format(Number input) {
         return this.format.format(input);
     }

@@ -19,14 +19,57 @@ import java.util.Arrays;
 import java.util.Collection;
 
 /**
- * This is an enumeration of all of the valid HTTP request method types
- * which can be used for event handling within RestActionBean classes.
+ * This is an enumeration of all of the valid HTTP request method types which
+ * can be used for event handling within RestActionBean classes.
  *
  * @author Rick Grashel
  */
-public enum HttpRequestMethod
-{
-    GET, POST, HEAD, PUT, DELETE, OPTIONS, TRACE, CONNECT, PATCH;
+public enum HttpRequestMethod {
+
+    /**
+     *
+     */
+    GET,
+
+    /**
+     *
+     */
+    POST,
+
+    /**
+     *
+     */
+    HEAD,
+
+    /**
+     *
+     */
+    PUT,
+
+    /**
+     *
+     */
+    DELETE,
+
+    /**
+     *
+     */
+    OPTIONS,
+
+    /**
+     *
+     */
+    TRACE,
+
+    /**
+     *
+     */
+    CONNECT,
+
+    /**
+     *
+     */
+    PATCH;
 
     /**
      * Returns a collection of all of the values for this enumeration.

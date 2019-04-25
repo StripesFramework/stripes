@@ -117,7 +117,9 @@ public class RedirectResolution extends OnwardResolution<RedirectResolution> {
     }
 
     /**
-     * This method is overridden to make it public.
+     * Returns the anchor for this redirect resolution.
+     * 
+     * @return  Anchor for this redirect resolution.
      */
     @Override
     public String getAnchor() {
@@ -126,6 +128,9 @@ public class RedirectResolution extends OnwardResolution<RedirectResolution> {
 
     /**
      * This method is overridden to make it public.
+     * @param anchor - The anchor that this resolution should be set to.
+     * 
+     * @return This redirect resolution instance.
      */
     @Override
     public RedirectResolution setAnchor(String anchor) {
@@ -169,11 +174,14 @@ public class RedirectResolution extends OnwardResolution<RedirectResolution> {
     /**
      * Attempts to redirect the user to the specified URL.
      *
+     * @param request HTTP servlet request
+     * @param response HTTP servlet response
      * @throws ServletException thrown when the Servlet container encounters an
      * error
      * @throws IOException thrown when the Servlet container encounters an error
      */
     @SuppressWarnings("unchecked")
+    @Override
     public void execute(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -233,9 +241,11 @@ public class RedirectResolution extends OnwardResolution<RedirectResolution> {
 
     /**
      * Sets the redirect type to permanent (301) instead of temporary (302).
-     * 
-     * @param permanent - Whether or not this resolution should have the permanent HTTP status set on it.
-     * @return RedirectResolution with the permanent header status code set on it.
+     *
+     * @param permanent - Whether or not this resolution should have the
+     * permanent HTTP status set on it.
+     * @return RedirectResolution with the permanent header status code set on
+     * it.
      */
     public RedirectResolution setPermanent(boolean permanent) {
         this.permanent = permanent;

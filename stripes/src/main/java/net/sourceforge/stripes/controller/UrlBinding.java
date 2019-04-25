@@ -21,22 +21,46 @@ import java.util.List;
 import net.sourceforge.stripes.action.ActionBean;
 
 /**
- * Represents a URL binding as declared by a {@link net.sourceforge.stripes.action.UrlBinding}
- * annotation on an {@link ActionBean} class.
- * 
+ * Represents a URL binding as declared by a
+ * {@link net.sourceforge.stripes.action.UrlBinding} annotation on an
+ * {@link ActionBean} class.
+ *
  * @author Ben Gunter
  * @since Stripes 1.5
  */
 public class UrlBinding {
+
+    /**
+     *
+     */
     protected Class<? extends ActionBean> beanType;
-    protected String path, suffix;
+
+    /**
+     *
+     */
+    protected String path,
+
+    /**
+     *
+     */
+    suffix;
+
+    /**
+     *
+     */
     protected List<Object> components;
+
+    /**
+     *
+     */
     protected List<UrlBindingParameter> parameters;
 
     /**
-     * Create a new instance with all its members. Collections passed in will be made immutable.
-     * 
-     * @param beanType the {@link ActionBean} class to which this binding applies
+     * Create a new instance with all its members. Collections passed in will be
+     * made immutable.
+     *
+     * @param beanType the {@link ActionBean} class to which this binding
+     * applies
      * @param path the path to which the action is mapped
      * @param components list of literal strings that separate the parameters
      */
@@ -60,8 +84,7 @@ public class UrlBinding {
                     this.suffix = (String) last;
                 }
             }
-        }
-        else {
+        } else {
             this.components = Collections.emptyList();
             this.parameters = Collections.emptyList();
         }
@@ -69,9 +92,9 @@ public class UrlBinding {
 
     /**
      * Create a new instance that takes no parameters.
-     * 
-     * @param beanType
-     * @param path
+     *
+     * @param beanType Type of action bean to use with this binding
+     * @param path The path of this URL binding
      */
     public UrlBinding(Class<? extends ActionBean> beanType, String path) {
         this.beanType = beanType;
@@ -82,14 +105,18 @@ public class UrlBinding {
 
     /**
      * Get the {@link ActionBean} class to which this binding applies.
+     *
+     * @return The action bean class that this binding applies to.
      */
     public Class<? extends ActionBean> getBeanType() {
         return beanType;
     }
 
     /**
-     * Get the list of components that comprise this binding. The components are returned in the
-     * order in which they appear in the binding definition.
+     * Get the list of components that comprise this binding. The components are
+     * returned in the order in which they appear in the binding definition.
+     *
+     * @return The list of components which make up this binding.
      */
     public List<Object> getComponents() {
         return components;
@@ -97,22 +124,29 @@ public class UrlBinding {
 
     /**
      * Get the list of parameters for this binding.
+     *
+     * @return The list of parameters for this binding.
      */
     public List<UrlBindingParameter> getParameters() {
         return parameters;
     }
 
     /**
-     * Get the path for this binding. The path is the string of literal characters in the pattern up
-     * to the first parameter definition.
+     * Get the path for this binding. The path is the string of literal
+     * characters in the pattern up to the first parameter definition.
+     *
+     * @return The path for this binding.
      */
     public String getPath() {
         return path;
     }
 
     /**
-     * If this binding includes one or more parameters and the last component is a {@link String},
-     * then this method will return that last component. Otherwise, it returns null.
+     * If this binding includes one or more parameters and the last component is
+     * a {@link String}, then this method will return that last component.
+     * Otherwise, it returns null.
+     *
+     * @return Returns the last component of the binding
      */
     public String getSuffix() {
         return suffix;
@@ -120,8 +154,9 @@ public class UrlBinding {
 
     @Override
     public boolean equals(Object obj) {
-        if (!(obj instanceof UrlBinding))
+        if (!(obj instanceof UrlBinding)) {
             return false;
+        }
 
         UrlBinding that = (UrlBinding) obj;
         return this.getBeanType() == that.getBeanType()
@@ -139,8 +174,7 @@ public class UrlBinding {
         for (Object component : getComponents()) {
             if (component instanceof UrlBindingParameter) {
                 buf.append('{').append(component).append('}');
-            }
-            else {
+            } else {
                 buf.append(component);
             }
         }
@@ -148,12 +182,14 @@ public class UrlBinding {
     }
 
     /**
-     * Ensure the default event name is set if the binding uses the $event parameter.
-     * Can only be done safely after the event mappings have been processed.
-     * see http://www.stripesframework.org/jira/browse/STS-803
+     * Ensure the default event name is set if the binding uses the $event
+     * parameter. Can only be done safely after the event mappings have been
+     * processed. see http://www.stripesframework.org/jira/browse/STS-803
+     *
+     * @param actionResolver The action resolver to use with this binding.
      */
     public void initDefaultValueWithDefaultHandlerIfNeeded(ActionResolver actionResolver) {
-        for(UrlBindingParameter parameter : parameters) {
+        for (UrlBindingParameter parameter : parameters) {
             parameter.initDefaultValueWithDefaultHandlerIfNeeded(actionResolver);
         }
     }

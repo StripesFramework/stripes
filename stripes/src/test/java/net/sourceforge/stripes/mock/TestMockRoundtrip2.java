@@ -16,13 +16,15 @@ import org.testng.annotations.Test;
 
 /**
  * Submitted by Nathan Maves and Remi Vankeisbelck to test a specific failure in
- * {@link MockRoundtrip}. Unit test behavior differed when using an {@link ActionBean} class to
- * construct the {@link MockRoundtrip} and when using a string.
- * 
+ * {@link MockRoundtrip}. Unit test behavior differed when using an
+ * {@link ActionBean} class to construct the {@link MockRoundtrip} and when
+ * using a string.
+ *
  * @author Nathan Maves, Remi Vankeisbelck
  */
 @UrlBinding("/foo/{id}/{$event}")
 public class TestMockRoundtrip2 extends FilterEnabledTestBase implements ActionBean {
+
     ActionBeanContext context;
     Integer id;
 

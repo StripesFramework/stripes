@@ -23,16 +23,33 @@ import javax.servlet.ServletException;
  * @author Tim Fennell
  */
 public class StripesServletException extends ServletException {
-	private static final long serialVersionUID = 1L;
 
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * Constructs exception with the passed error message.
+     * 
+     * @param string Error message
+     */
     public StripesServletException(String string) {
         super(string);
     }
 
+    /**
+     * Constructs exception with the passed error message and cause.
+     * 
+     * @param string Error message
+     * @param throwable Cause of exception
+     */
     public StripesServletException(String string, Throwable throwable) {
         super(string, throwable);
     }
 
+    /**
+     * Constructs exception with the passed cause.
+     * 
+     * @param throwable Cause of exception
+     */
     public StripesServletException(Throwable throwable) {
         super(throwable);
     }

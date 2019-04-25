@@ -17,11 +17,13 @@ import org.testng.annotations.Test;
 
 /**
  * Tests for {@link UrlBindingFactory}.
- * 
+ *
  * @author Ben Gunter
  */
 public class UrlBindingFactoryTests {
+
     private static abstract class BaseActionBean implements ActionBean {
+
         public ActionBeanContext getContext() {
             return null;
         }
@@ -30,99 +32,204 @@ public class UrlBindingFactoryTests {
         }
     }
 
-    @DontAutoLoad @net.sourceforge.stripes.action.UrlBinding("/syntax/{")
-    public static class BadSyntaxActionBean1 extends BaseActionBean {}
-    @DontAutoLoad @net.sourceforge.stripes.action.UrlBinding("/syntax/\\")
-    public static class BadSyntaxActionBean2 extends BaseActionBean {}
-    @DontAutoLoad @net.sourceforge.stripes.action.UrlBinding("/syntax/{a")
-    public static class BadSyntaxActionBean3 extends BaseActionBean {}
-    @DontAutoLoad @net.sourceforge.stripes.action.UrlBinding("/syntax/{}")
-    public static class BadSyntaxActionBean4 extends BaseActionBean {}
-    @DontAutoLoad @net.sourceforge.stripes.action.UrlBinding("/syntax/{=value}")
-    public static class BadSyntaxActionBean5 extends BaseActionBean {}
-    @DontAutoLoad @net.sourceforge.stripes.action.UrlBinding("/syntax/{}}")
-    public static class BadSyntaxActionBean6 extends BaseActionBean {}
-    @DontAutoLoad @net.sourceforge.stripes.action.UrlBinding("{a}")
-    public static class BadSyntaxActionBean7 extends BaseActionBean {}
-    @DontAutoLoad @net.sourceforge.stripes.action.UrlBinding("")
-    public static class BadSyntaxActionBean8 extends BaseActionBean {}
+    @DontAutoLoad
+    @net.sourceforge.stripes.action.UrlBinding("/syntax/{")
+    public static class BadSyntaxActionBean1 extends BaseActionBean {
+    }
 
-    @DontAutoLoad @net.sourceforge.stripes.action.UrlBinding("/")
-    public static class GoodSyntaxActionBean1 extends BaseActionBean {}
-    @DontAutoLoad @net.sourceforge.stripes.action.UrlBinding("/foo")
-    public static class GoodSyntaxActionBean2 extends BaseActionBean {}
-    @DontAutoLoad @net.sourceforge.stripes.action.UrlBinding("/foo/{a}")
-    public static class GoodSyntaxActionBean3 extends BaseActionBean {}
-    @DontAutoLoad @net.sourceforge.stripes.action.UrlBinding("/foo/{a}.action")
-    public static class GoodSyntaxActionBean4 extends BaseActionBean {}
-    @DontAutoLoad @net.sourceforge.stripes.action.UrlBinding("/syntax/\\\\")
-    public static class GoodSyntaxActionBean5 extends BaseActionBean {}
-    @DontAutoLoad @net.sourceforge.stripes.action.UrlBinding("/syntax/\\{")
-    public static class GoodSyntaxActionBean6 extends BaseActionBean {}
-    @DontAutoLoad  @net.sourceforge.stripes.action.UrlBinding("/syntax/{{}")
-    public static class GoodSyntaxActionBean7 extends BaseActionBean {}
-    @DontAutoLoad @net.sourceforge.stripes.action.UrlBinding("/syntax/{\\}}")
-    public static class GoodSyntaxActionBean8 extends BaseActionBean {}
-    @DontAutoLoad @net.sourceforge.stripes.action.UrlBinding("/syntax/{{\\}}")
-    public static class GoodSyntaxActionBean9 extends BaseActionBean {}
-    @DontAutoLoad @net.sourceforge.stripes.action.UrlBinding("/syntax/{\\\\}")
-    public static class GoodSyntaxActionBean10 extends BaseActionBean {}
-    @DontAutoLoad @net.sourceforge.stripes.action.UrlBinding("/syntax/{a\\=b}")
-    public static class GoodSyntaxActionBean11 extends BaseActionBean {}
+    @DontAutoLoad
+    @net.sourceforge.stripes.action.UrlBinding("/syntax/\\")
+    public static class BadSyntaxActionBean2 extends BaseActionBean {
+    }
 
-    @DontAutoLoad @net.sourceforge.stripes.action.UrlBinding("/clash")
-    public static class ConflictActionBean1 extends BaseActionBean {}
-    @DontAutoLoad @net.sourceforge.stripes.action.UrlBinding("/clash")
-    public static class ConflictActionBean2 extends BaseActionBean {}
-    @DontAutoLoad @net.sourceforge.stripes.action.UrlBinding("/clash")
-    public static class ConflictActionBean3 extends BaseActionBean {}
-    @DontAutoLoad @net.sourceforge.stripes.action.UrlBinding("/clash/not")
-    public static class ConflictActionBean4 extends BaseActionBean {}
+    @DontAutoLoad
+    @net.sourceforge.stripes.action.UrlBinding("/syntax/{a")
+    public static class BadSyntaxActionBean3 extends BaseActionBean {
+    }
 
-    @DontAutoLoad @net.sourceforge.stripes.action.UrlBinding("/foo")
-    public static class FooActionBean extends BaseActionBean {}
-    @DontAutoLoad @net.sourceforge.stripes.action.UrlBinding("/foo/{a}")
-    public static class FooActionBean1 extends BaseActionBean {}
-    @DontAutoLoad @net.sourceforge.stripes.action.UrlBinding("/foo/{a}/{b}")
-    public static class FooActionBean2 extends BaseActionBean {}
-    @DontAutoLoad @net.sourceforge.stripes.action.UrlBinding("/foo/{a}/{b}/{c}")
-    public static class FooActionBean3 extends BaseActionBean {}
-    @DontAutoLoad @net.sourceforge.stripes.action.UrlBinding("/foo/{a}/{b}/{c}/{d}")
-    public static class FooActionBean4 extends BaseActionBean {}
-    @DontAutoLoad @net.sourceforge.stripes.action.UrlBinding("/foo/{a}/bar")
-    public static class FooActionBean5 extends BaseActionBean {}
-    @DontAutoLoad @net.sourceforge.stripes.action.UrlBinding("/foo/{a}/bar/{c}/baz")
-    public static class FooActionBean6 extends BaseActionBean {}
-    @DontAutoLoad @net.sourceforge.stripes.action.UrlBinding("/foo/{a}/{b}/{c}/{d}.action")
-    public static class FooActionBean7 extends BaseActionBean {}
-    @DontAutoLoad @net.sourceforge.stripes.action.UrlBinding("/foo/goo/{a}")
-    public static class FooActionBean8 extends BaseActionBean {}
+    @DontAutoLoad
+    @net.sourceforge.stripes.action.UrlBinding("/syntax/{}")
+    public static class BadSyntaxActionBean4 extends BaseActionBean {
+    }
 
-    @DontAutoLoad @net.sourceforge.stripes.action.UrlBinding("/suffix/{a}/{b}.action")
-    public static class SuffixActionBean1 extends BaseActionBean {}
-    @DontAutoLoad @net.sourceforge.stripes.action.UrlBinding("/suffix/{a}/{b}/{c}/{d}.action")
-    public static class SuffixActionBean2 extends BaseActionBean {}
+    @DontAutoLoad
+    @net.sourceforge.stripes.action.UrlBinding("/syntax/{=value}")
+    public static class BadSyntaxActionBean5 extends BaseActionBean {
+    }
 
-    @DontAutoLoad @net.sourceforge.stripes.action.UrlBinding("/sts731/{a}/")
-    public static class STS731ActionBean1 extends BaseActionBean {}
-    @DontAutoLoad @net.sourceforge.stripes.action.UrlBinding("/sts731/{a}/foo/")
-    public static class STS731ActionBean2 extends BaseActionBean {}
-    @DontAutoLoad @net.sourceforge.stripes.action.UrlBinding("/sts731/{a}/bar/")
-    public static class STS731ActionBean3 extends BaseActionBean {}
-    
+    @DontAutoLoad
+    @net.sourceforge.stripes.action.UrlBinding("/syntax/{}}")
+    public static class BadSyntaxActionBean6 extends BaseActionBean {
+    }
+
+    @DontAutoLoad
+    @net.sourceforge.stripes.action.UrlBinding("{a}")
+    public static class BadSyntaxActionBean7 extends BaseActionBean {
+    }
+
+    @DontAutoLoad
+    @net.sourceforge.stripes.action.UrlBinding("")
+    public static class BadSyntaxActionBean8 extends BaseActionBean {
+    }
+
+    @DontAutoLoad
+    @net.sourceforge.stripes.action.UrlBinding("/")
+    public static class GoodSyntaxActionBean1 extends BaseActionBean {
+    }
+
+    @DontAutoLoad
+    @net.sourceforge.stripes.action.UrlBinding("/foo")
+    public static class GoodSyntaxActionBean2 extends BaseActionBean {
+    }
+
+    @DontAutoLoad
+    @net.sourceforge.stripes.action.UrlBinding("/foo/{a}")
+    public static class GoodSyntaxActionBean3 extends BaseActionBean {
+    }
+
+    @DontAutoLoad
+    @net.sourceforge.stripes.action.UrlBinding("/foo/{a}.action")
+    public static class GoodSyntaxActionBean4 extends BaseActionBean {
+    }
+
+    @DontAutoLoad
+    @net.sourceforge.stripes.action.UrlBinding("/syntax/\\\\")
+    public static class GoodSyntaxActionBean5 extends BaseActionBean {
+    }
+
+    @DontAutoLoad
+    @net.sourceforge.stripes.action.UrlBinding("/syntax/\\{")
+    public static class GoodSyntaxActionBean6 extends BaseActionBean {
+    }
+
+    @DontAutoLoad
+    @net.sourceforge.stripes.action.UrlBinding("/syntax/{{}")
+    public static class GoodSyntaxActionBean7 extends BaseActionBean {
+    }
+
+    @DontAutoLoad
+    @net.sourceforge.stripes.action.UrlBinding("/syntax/{\\}}")
+    public static class GoodSyntaxActionBean8 extends BaseActionBean {
+    }
+
+    @DontAutoLoad
+    @net.sourceforge.stripes.action.UrlBinding("/syntax/{{\\}}")
+    public static class GoodSyntaxActionBean9 extends BaseActionBean {
+    }
+
+    @DontAutoLoad
+    @net.sourceforge.stripes.action.UrlBinding("/syntax/{\\\\}")
+    public static class GoodSyntaxActionBean10 extends BaseActionBean {
+    }
+
+    @DontAutoLoad
+    @net.sourceforge.stripes.action.UrlBinding("/syntax/{a\\=b}")
+    public static class GoodSyntaxActionBean11 extends BaseActionBean {
+    }
+
+    @DontAutoLoad
+    @net.sourceforge.stripes.action.UrlBinding("/clash")
+    public static class ConflictActionBean1 extends BaseActionBean {
+    }
+
+    @DontAutoLoad
+    @net.sourceforge.stripes.action.UrlBinding("/clash")
+    public static class ConflictActionBean2 extends BaseActionBean {
+    }
+
+    @DontAutoLoad
+    @net.sourceforge.stripes.action.UrlBinding("/clash")
+    public static class ConflictActionBean3 extends BaseActionBean {
+    }
+
+    @DontAutoLoad
+    @net.sourceforge.stripes.action.UrlBinding("/clash/not")
+    public static class ConflictActionBean4 extends BaseActionBean {
+    }
+
+    @DontAutoLoad
+    @net.sourceforge.stripes.action.UrlBinding("/foo")
+    public static class FooActionBean extends BaseActionBean {
+    }
+
+    @DontAutoLoad
+    @net.sourceforge.stripes.action.UrlBinding("/foo/{a}")
+    public static class FooActionBean1 extends BaseActionBean {
+    }
+
+    @DontAutoLoad
+    @net.sourceforge.stripes.action.UrlBinding("/foo/{a}/{b}")
+    public static class FooActionBean2 extends BaseActionBean {
+    }
+
+    @DontAutoLoad
+    @net.sourceforge.stripes.action.UrlBinding("/foo/{a}/{b}/{c}")
+    public static class FooActionBean3 extends BaseActionBean {
+    }
+
+    @DontAutoLoad
+    @net.sourceforge.stripes.action.UrlBinding("/foo/{a}/{b}/{c}/{d}")
+    public static class FooActionBean4 extends BaseActionBean {
+    }
+
+    @DontAutoLoad
+    @net.sourceforge.stripes.action.UrlBinding("/foo/{a}/bar")
+    public static class FooActionBean5 extends BaseActionBean {
+    }
+
+    @DontAutoLoad
+    @net.sourceforge.stripes.action.UrlBinding("/foo/{a}/bar/{c}/baz")
+    public static class FooActionBean6 extends BaseActionBean {
+    }
+
+    @DontAutoLoad
+    @net.sourceforge.stripes.action.UrlBinding("/foo/{a}/{b}/{c}/{d}.action")
+    public static class FooActionBean7 extends BaseActionBean {
+    }
+
+    @DontAutoLoad
+    @net.sourceforge.stripes.action.UrlBinding("/foo/goo/{a}")
+    public static class FooActionBean8 extends BaseActionBean {
+    }
+
+    @DontAutoLoad
+    @net.sourceforge.stripes.action.UrlBinding("/suffix/{a}/{b}.action")
+    public static class SuffixActionBean1 extends BaseActionBean {
+    }
+
+    @DontAutoLoad
+    @net.sourceforge.stripes.action.UrlBinding("/suffix/{a}/{b}/{c}/{d}.action")
+    public static class SuffixActionBean2 extends BaseActionBean {
+    }
+
+    @DontAutoLoad
+    @net.sourceforge.stripes.action.UrlBinding("/sts731/{a}/")
+    public static class STS731ActionBean1 extends BaseActionBean {
+    }
+
+    @DontAutoLoad
+    @net.sourceforge.stripes.action.UrlBinding("/sts731/{a}/foo/")
+    public static class STS731ActionBean2 extends BaseActionBean {
+    }
+
+    @DontAutoLoad
+    @net.sourceforge.stripes.action.UrlBinding("/sts731/{a}/bar/")
+    public static class STS731ActionBean3 extends BaseActionBean {
+    }
+
     private static final Log log = Log.getInstance(UrlBindingFactoryTests.class);
     private static UrlBindingFactory urlBindingFactory;
 
     @BeforeClass
     @SuppressWarnings("unchecked")
     public void setupClass() {
-        Class<? extends ActionBean>[] classes = new Class[] { ConflictActionBean1.class,
-                ConflictActionBean2.class, ConflictActionBean3.class, ConflictActionBean4.class,
-                FooActionBean.class, FooActionBean1.class, FooActionBean2.class,
-                FooActionBean3.class, FooActionBean4.class, FooActionBean5.class,
-                FooActionBean6.class, FooActionBean7.class, FooActionBean8.class,
-                SuffixActionBean1.class, SuffixActionBean2.class,
-                STS731ActionBean1.class, STS731ActionBean2.class, STS731ActionBean3.class
+        Class<? extends ActionBean>[] classes = new Class[]{ConflictActionBean1.class,
+            ConflictActionBean2.class, ConflictActionBean3.class, ConflictActionBean4.class,
+            FooActionBean.class, FooActionBean1.class, FooActionBean2.class,
+            FooActionBean3.class, FooActionBean4.class, FooActionBean5.class,
+            FooActionBean6.class, FooActionBean7.class, FooActionBean8.class,
+            SuffixActionBean1.class, SuffixActionBean2.class,
+            STS731ActionBean1.class, STS731ActionBean2.class, STS731ActionBean3.class
         };
 
         UrlBindingFactory factory = new UrlBindingFactory();
@@ -145,10 +252,10 @@ public class UrlBindingFactoryTests {
     @Test(groups = "fast")
     @SuppressWarnings("unchecked")
     public void testParser1() {
-        Class<? extends ActionBean>[] classes = new Class[] { BadSyntaxActionBean1.class,
-                BadSyntaxActionBean2.class, BadSyntaxActionBean3.class, BadSyntaxActionBean4.class,
-                BadSyntaxActionBean5.class, BadSyntaxActionBean6.class, BadSyntaxActionBean7.class,
-                BadSyntaxActionBean8.class };
+        Class<? extends ActionBean>[] classes = new Class[]{BadSyntaxActionBean1.class,
+            BadSyntaxActionBean2.class, BadSyntaxActionBean3.class, BadSyntaxActionBean4.class,
+            BadSyntaxActionBean5.class, BadSyntaxActionBean6.class, BadSyntaxActionBean7.class,
+            BadSyntaxActionBean8.class};
 
         for (Class<? extends ActionBean> clazz : classes) {
             net.sourceforge.stripes.action.UrlBinding annotation = clazz
@@ -157,8 +264,7 @@ public class UrlBindingFactoryTests {
             try {
                 UrlBindingFactory.parseUrlBinding(clazz);
                 Assert.assertTrue(false, "Expected parse exception but did not get one");
-            }
-            catch (ParseException e) {
+            } catch (ParseException e) {
                 log.debug("As expected: ", e.getMessage());
             }
         }
@@ -171,12 +277,12 @@ public class UrlBindingFactoryTests {
     @Test(groups = "fast")
     @SuppressWarnings("unchecked")
     public void testParser2() {
-        Class<? extends ActionBean>[] classes = new Class[] { GoodSyntaxActionBean1.class,
-                GoodSyntaxActionBean2.class, GoodSyntaxActionBean3.class,
-                GoodSyntaxActionBean4.class, GoodSyntaxActionBean5.class,
-                GoodSyntaxActionBean6.class, GoodSyntaxActionBean7.class,
-                GoodSyntaxActionBean8.class, GoodSyntaxActionBean9.class,
-                GoodSyntaxActionBean10.class, GoodSyntaxActionBean11.class };
+        Class<? extends ActionBean>[] classes = new Class[]{GoodSyntaxActionBean1.class,
+            GoodSyntaxActionBean2.class, GoodSyntaxActionBean3.class,
+            GoodSyntaxActionBean4.class, GoodSyntaxActionBean5.class,
+            GoodSyntaxActionBean6.class, GoodSyntaxActionBean7.class,
+            GoodSyntaxActionBean8.class, GoodSyntaxActionBean9.class,
+            GoodSyntaxActionBean10.class, GoodSyntaxActionBean11.class};
 
         for (Class<? extends ActionBean> clazz : classes) {
             net.sourceforge.stripes.action.UrlBinding annotation = clazz
@@ -190,9 +296,9 @@ public class UrlBindingFactoryTests {
         }
 
         // Check weird parameter names
-        classes = new Class[] { GoodSyntaxActionBean7.class, GoodSyntaxActionBean8.class,
-                GoodSyntaxActionBean9.class, GoodSyntaxActionBean10.class,
-                GoodSyntaxActionBean11.class };
+        classes = new Class[]{GoodSyntaxActionBean7.class, GoodSyntaxActionBean8.class,
+            GoodSyntaxActionBean9.class, GoodSyntaxActionBean10.class,
+            GoodSyntaxActionBean11.class};
         for (Class<? extends ActionBean> clazz : classes) {
             net.sourceforge.stripes.action.UrlBinding annotation = clazz
                     .getAnnotation(net.sourceforge.stripes.action.UrlBinding.class);
@@ -266,7 +372,7 @@ public class UrlBindingFactoryTests {
         checkBinding("/foo/goo/1/2", FooActionBean8.class);
 
         // Suffixes, as reported in STS-731
-        for (String value : new String[] { "really-long", "long", "XX", "X" }) {
+        for (String value : new String[]{"really-long", "long", "XX", "X"}) {
             List<UrlBindingParameter> param;
             param = checkBinding(format("/sts731/%s/", value), STS731ActionBean1.class);
             Assert.assertEquals(param.get(0).getValue(), value);
@@ -317,8 +423,7 @@ public class UrlBindingFactoryTests {
         try {
             factory.getBindingPrototype("/foo");
             Assert.assertTrue(false, "A URL binding conflict was expected but it didn't happen!");
-        }
-        catch (UrlBindingConflictException e) {
+        } catch (UrlBindingConflictException e) {
             log.debug("Got expected URL binding conflict");
         }
     }

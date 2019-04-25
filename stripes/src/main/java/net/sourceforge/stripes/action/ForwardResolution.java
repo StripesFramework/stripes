@@ -106,8 +106,9 @@ public class ForwardResolution extends OnwardResolution<ForwardResolution> {
 
     /**
      * Get the HTTP status, or <code>null</code> if none was explicitly set.
-     * 
-     * @return HTTP status code associated with this resolution or null if none was set.
+     *
+     * @return HTTP status code associated with this resolution or null if none
+     * was set.
      */
     public Integer getStatus() {
         return status;
@@ -117,7 +118,7 @@ public class ForwardResolution extends OnwardResolution<ForwardResolution> {
      * Explicitly sets an HTTP status code, in which case a call to
      * {@code response.setStatus(status)} will be made when executing the
      * resolution.
-     * 
+     *
      * @param status - HTTP status code to associated with this resolution.
      * @return Current resolution object
      */
@@ -129,6 +130,8 @@ public class ForwardResolution extends OnwardResolution<ForwardResolution> {
     /**
      * Attempts to forward the user to the specified path.
      *
+     * @param request - HTTP servlet request
+     * @param response - HTTP servlet response
      * @throws ServletException thrown when the Servlet container encounters an
      * error
      * @throws IOException thrown when the Servlet container encounters an error

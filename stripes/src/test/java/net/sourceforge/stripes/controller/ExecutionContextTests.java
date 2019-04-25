@@ -11,10 +11,11 @@ import org.testng.annotations.Test;
 
 /**
  * Tests for {@link ExecutionContext}.
- * 
+ *
  * @author Ben Gunter
  */
 public class ExecutionContextTests {
+
     private static final Log log = Log.getInstance(ExecutionContextTests.class);
 
     @Test

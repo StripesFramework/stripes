@@ -15,25 +15,34 @@
 package net.sourceforge.stripes.util.bean;
 
 /**
- * Exception used to designate that an expression was invalid and could not be parsed. The
- * exception will contain the offending expression (accessible via getExpression()) as well
- * as a String message explaining why it was not parseable.
+ * Exception used to designate that an expression was invalid and could not be
+ * parsed. The exception will contain the offending expression (accessible via
+ * getExpression()) as well as a String message explaining why it was not
+ * parseable.
  *
  * @author Tim Fennell
  * @since Stripes 1.4
  */
 public class ParseException extends ExpressionException {
-	private static final long serialVersionUID = 1L;
+
+    private static final long serialVersionUID = 1L;
 
     private String expression;
 
-    /** Constructs an exception with the supplied expression and message. */
+    /**
+     * Constructs an exception with the supplied expression and message.
+     * @param expression
+     * @param message
+     */
     public ParseException(String expression, String message) {
         super(message + " Expression: " + expression);
         this.expression = expression;
     }
 
-    /** Fetches the expression which caused the parsing failure. */
+    /**
+     * Fetches the expression which caused the parsing failure.
+     * @return 
+     */
     public String getExpression() {
         return expression;
     }

@@ -16,7 +16,7 @@ import org.testng.annotations.Test;
  */
 public class BeforeAfterMethodInterceptorTests {
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void testInterceptAtLifeCycleStage_ActionBeanResolution() throws Exception {
         ExecutionContext context = new TestExecutionContext();
         TestActionBean2 actionBean = new TestActionBean2();
@@ -45,7 +45,7 @@ public class BeforeAfterMethodInterceptorTests {
         Assert.assertEquals(actionBean.getHasCalledProtectedBeforeMethod(), 0);
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void testInterceptAtLifeCycleStage_BindingAndValidation() throws Exception {
         ExecutionContext context = new TestExecutionContext();
         TestActionBean2 actionBean = new TestActionBean2();
@@ -54,7 +54,6 @@ public class BeforeAfterMethodInterceptorTests {
 
         BeforeAfterMethodInterceptor interceptor = new BeforeAfterMethodInterceptor();
         Assert.assertNotNull(interceptor.intercept(context));
-
 
         Assert.assertEquals(actionBean.getHasCalledAfterDefaultStage(), 0);
         Assert.assertEquals(actionBean.getHasCalledAfterSpecificStage(), 0);
@@ -75,7 +74,7 @@ public class BeforeAfterMethodInterceptorTests {
         Assert.assertEquals(actionBean.getHasCalledProtectedBeforeMethod(), 0);
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void testInterceptAtLifeCycleStage_CustomValidation() throws Exception {
         ExecutionContext context = new TestExecutionContext();
         TestActionBean2 actionBean = new TestActionBean2();
@@ -84,7 +83,6 @@ public class BeforeAfterMethodInterceptorTests {
 
         BeforeAfterMethodInterceptor interceptor = new BeforeAfterMethodInterceptor();
         Assert.assertNotNull(interceptor.intercept(context));
-
 
         Assert.assertEquals(actionBean.getHasCalledAfterDefaultStage(), 0);
         Assert.assertEquals(actionBean.getHasCalledAfterSpecificStage(), 0);
@@ -105,7 +103,7 @@ public class BeforeAfterMethodInterceptorTests {
         Assert.assertEquals(actionBean.getHasCalledProtectedBeforeMethod(), 0);
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void testInterceptAtLifeCycleStage_EventHandling() throws Exception {
         ExecutionContext context = new TestExecutionContext();
         TestActionBean2 actionBean = new TestActionBean2();
@@ -114,7 +112,6 @@ public class BeforeAfterMethodInterceptorTests {
 
         BeforeAfterMethodInterceptor interceptor = new BeforeAfterMethodInterceptor();
         Assert.assertNotNull(interceptor.intercept(context));
-
 
         Assert.assertEquals(actionBean.getHasCalledAfterDefaultStage(), 1);
         Assert.assertEquals(actionBean.getHasCalledAfterSpecificStage(), 0);
@@ -136,7 +133,7 @@ public class BeforeAfterMethodInterceptorTests {
         Assert.assertEquals(actionBean.getHasCalledProtectedBeforeMethod(), 1);
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void testInterceptAtLifeCycleStage_HandlerResolution() throws Exception {
         ExecutionContext context = new TestExecutionContext();
         TestActionBean2 actionBean = new TestActionBean2();
@@ -145,7 +142,6 @@ public class BeforeAfterMethodInterceptorTests {
 
         BeforeAfterMethodInterceptor interceptor = new BeforeAfterMethodInterceptor();
         Assert.assertNotNull(interceptor.intercept(context));
-
 
         Assert.assertEquals(actionBean.getHasCalledAfterDefaultStage(), 0);
         Assert.assertEquals(actionBean.getHasCalledAfterSpecificStage(), 0);
@@ -166,7 +162,7 @@ public class BeforeAfterMethodInterceptorTests {
         Assert.assertEquals(actionBean.getHasCalledProtectedBeforeMethod(), 0);
     }
 
-    @Test(groups="fast")
+    @Test(groups = "fast")
     public void testIntercept_withEventSpecifier() throws Exception {
         ExecutionContext context = new TestExecutionContext();
         BeforeAfterMethodInterceptor interceptor = new BeforeAfterMethodInterceptor();
@@ -206,9 +202,11 @@ public class BeforeAfterMethodInterceptorTests {
 
     /**
      * Test ActionBean class
+     *
      * @author Jeppe Cramon
      */
     private static class TestActionBean2 implements ActionBean {
+
         private int hasCalledBeforeActionBeanResolutionWillNeverBeCalled;
         private int hasCalledBeforeDefaultStage;
         private int hasCalledBeforeSpecificStage;
@@ -238,7 +236,7 @@ public class BeforeAfterMethodInterceptorTests {
         }
 
         @SuppressWarnings("unused")
-        @Before(stages=LifecycleStage.ActionBeanResolution)
+        @Before(stages = LifecycleStage.ActionBeanResolution)
         public void beforeActionBeanResolutionWillNeverBeCalled() {
             hasCalledBeforeActionBeanResolutionWillNeverBeCalled++;
         }
@@ -250,13 +248,13 @@ public class BeforeAfterMethodInterceptorTests {
         }
 
         @SuppressWarnings("unused")
-        @Before(stages=LifecycleStage.HandlerResolution)
+        @Before(stages = LifecycleStage.HandlerResolution)
         public void beforeSpecificStage() {
             hasCalledBeforeSpecificStage++;
         }
 
         @SuppressWarnings("unused")
-        @Before(stages={LifecycleStage.BindingAndValidation, LifecycleStage.CustomValidation})
+        @Before(stages = {LifecycleStage.BindingAndValidation, LifecycleStage.CustomValidation})
         public void beforeTwoStages() {
             hasCalledBeforeTwoStages++;
         }
@@ -268,14 +266,18 @@ public class BeforeAfterMethodInterceptorTests {
             return null;
         }
 
-        /** Parameters are not allowed. */
+        /**
+         * Parameters are not allowed.
+         */
         @SuppressWarnings("unused")
         @Before
         public void beforeWithParameter(String var) {
             hasCalledBeforeWithParameter++;
         }
 
-        /** Parameters are not allowed. */
+        /**
+         * Parameters are not allowed.
+         */
         @SuppressWarnings("unused")
         @Before
         public String beforeWithReturnAndParameter(String var) {
@@ -283,14 +285,18 @@ public class BeforeAfterMethodInterceptorTests {
             return null;
         }
 
-        /** Should work just like a public method. */
+        /**
+         * Should work just like a public method.
+         */
         @SuppressWarnings("unused")
         @Before
         protected void protectedBeforeMethod() {
             hasCalledProtectedBeforeMethod++;
         }
 
-        /** Not annotated to be called by anyone */
+        /**
+         * Not annotated to be called by anyone
+         */
         @SuppressWarnings("unused")
         public void dummyMethod() {
             hasCalledDummyMethod++;
@@ -303,18 +309,20 @@ public class BeforeAfterMethodInterceptorTests {
         }
 
         @SuppressWarnings("unused")
-        @After(stages=LifecycleStage.ActionBeanResolution)
+        @After(stages = LifecycleStage.ActionBeanResolution)
         public void afterSpecificStage() {
             hasCalledAfterSpecificStage++;
         }
 
         @SuppressWarnings("unused")
-        @After(stages={LifecycleStage.HandlerResolution, LifecycleStage.CustomValidation})
+        @After(stages = {LifecycleStage.HandlerResolution, LifecycleStage.CustomValidation})
         public void afterTwoStages() {
             hasCalledAfterTwoStages++;
         }
 
-        /** Returns are ok, and will just be ignored if not Resolutions. */
+        /**
+         * Returns are ok, and will just be ignored if not Resolutions.
+         */
         @SuppressWarnings("unused")
         @After
         public String afterWithReturn() {
@@ -322,14 +330,18 @@ public class BeforeAfterMethodInterceptorTests {
             return null;
         }
 
-        /** Not invoked because parameters are not kosher. */
+        /**
+         * Not invoked because parameters are not kosher.
+         */
         @SuppressWarnings("unused")
         @After
         public void afterWithParameter(String var) {
             hasCalledAfterWithParameter++;
         }
 
-        /** Not invoked because parameters are not kosher. */
+        /**
+         * Not invoked because parameters are not kosher.
+         */
         @SuppressWarnings("unused")
         @After
         public String afterWithReturnAndParameter(String var) {
@@ -337,69 +349,141 @@ public class BeforeAfterMethodInterceptorTests {
             return null;
         }
 
-        /** Should work just like a public method. */
+        /**
+         * Should work just like a public method.
+         */
         @SuppressWarnings("unused")
         @After
         protected void protectedAfterMethod() {
             hasCalledProtectedAfterMethod++;
         }
 
-
-        /** Not invoked because parameters are not kosher. */
+        /**
+         * Not invoked because parameters are not kosher.
+         */
         @SuppressWarnings("unused")
-        @Before @After
+        @Before
+        @After
         public String beforeAfterWithParameter(String var) {
             hasCalledBeforeAfterWithParameter++;
             return null;
         }
 
-        /** Invoked only at those stages listed. */
+        /**
+         * Invoked only at those stages listed.
+         */
         @SuppressWarnings("unused")
-        @Before(stages=LifecycleStage.BindingAndValidation)
-        @After(stages=LifecycleStage.CustomValidation)
+        @Before(stages = LifecycleStage.BindingAndValidation)
+        @After(stages = LifecycleStage.CustomValidation)
         public void beforeAfterSpecificStage() {
             hasCalledBeforeAfterSpecificStage++;
         }
 
-        /** Invoked only at default EventHandling stage. */
+        /**
+         * Invoked only at default EventHandling stage.
+         */
         @SuppressWarnings("unused")
-        @Before @After
+        @Before
+        @After
         public void beforeAfterDefaultStage() {
             hasCalledBeforeAfterDefaultStage++;
         }
 
-        /** Invoked only at default EventHandling stage. */
+        /**
+         * Invoked only at default EventHandling stage.
+         */
         @SuppressWarnings("unused")
-        @Before(on="edit") @After(on="save")
+        @Before(on = "edit")
+        @After(on = "save")
         public void beforeAfterOnSingleEvent() {
             hasCalledBeforeAfterOnSingleEvent++;
         }
 
         // -- Unit test properties --
-        public int getHasCalledAfterDefaultStage() { return hasCalledAfterDefaultStage; }
-        public int getHasCalledAfterSpecificStage() { return hasCalledAfterSpecificStage; }
-        public int getHasCalledAfterTwoStages() { return hasCalledAfterTwoStages; }
-        public int getHasCalledAfterWithReturn() { return hasCalledAfterWithReturn; }
-        public int getHasCalledAfterWithParameter() { return hasCalledAfterWithParameter; }
-        public int getHasCalledAfterWithReturnAndParameter() { return hasCalledAfterWithReturnAndParameter; }
-        public int getHasCalledBeforeDefaultStage() { return hasCalledBeforeDefaultStage; }
-        public int getHasCalledBeforeSpecificStage() { return hasCalledBeforeSpecificStage; }
-        public int getHasCalledBeforeTwoStages() { return hasCalledBeforeTwoStages; }
-        public int getHasCalledBeforeAfterSpecificStage() { return hasCalledBeforeAfterSpecificStage; }
-        public int getHasCalledBeforeAfterWithParameter() { return hasCalledBeforeAfterWithParameter; }
+        public int getHasCalledAfterDefaultStage() {
+            return hasCalledAfterDefaultStage;
+        }
+
+        public int getHasCalledAfterSpecificStage() {
+            return hasCalledAfterSpecificStage;
+        }
+
+        public int getHasCalledAfterTwoStages() {
+            return hasCalledAfterTwoStages;
+        }
+
+        public int getHasCalledAfterWithReturn() {
+            return hasCalledAfterWithReturn;
+        }
+
+        public int getHasCalledAfterWithParameter() {
+            return hasCalledAfterWithParameter;
+        }
+
+        public int getHasCalledAfterWithReturnAndParameter() {
+            return hasCalledAfterWithReturnAndParameter;
+        }
+
+        public int getHasCalledBeforeDefaultStage() {
+            return hasCalledBeforeDefaultStage;
+        }
+
+        public int getHasCalledBeforeSpecificStage() {
+            return hasCalledBeforeSpecificStage;
+        }
+
+        public int getHasCalledBeforeTwoStages() {
+            return hasCalledBeforeTwoStages;
+        }
+
+        public int getHasCalledBeforeAfterSpecificStage() {
+            return hasCalledBeforeAfterSpecificStage;
+        }
+
+        public int getHasCalledBeforeAfterWithParameter() {
+            return hasCalledBeforeAfterWithParameter;
+        }
+
         @SuppressWarnings("unused")
-        public int getHasCalledBeforeActionBeanResolutionWillNeverBeCalled() { return hasCalledBeforeActionBeanResolutionWillNeverBeCalled; }
-        public int getHasCalledBeforeWithReturn() { return hasCalledBeforeWithReturn; }
-        public int getHasCalledBeforeWithParameter() { return hasCalledBeforeWithParameter; }
-        public int getHasCalledBeforeWithReturnAndParameter() { return hasCalledBeforeWithReturnAndParameter; }
-        public int getHasCalledDummyMethod() { return hasCalledDummyMethod; }
-        public int getHasCalledProtectedAfterMethod() { return hasCalledProtectedAfterMethod; }
-        public int getHasCalledProtectedBeforeMethod() { return hasCalledProtectedBeforeMethod; }
-        public int getHasCalledBeforeAfterDefaultStage() { return hasCalledBeforeAfterDefaultStage; }
-        public int getHasCalledBeforeAfterOnSingleEvent() { return hasCalledBeforeAfterOnSingleEvent; }
+        public int getHasCalledBeforeActionBeanResolutionWillNeverBeCalled() {
+            return hasCalledBeforeActionBeanResolutionWillNeverBeCalled;
+        }
+
+        public int getHasCalledBeforeWithReturn() {
+            return hasCalledBeforeWithReturn;
+        }
+
+        public int getHasCalledBeforeWithParameter() {
+            return hasCalledBeforeWithParameter;
+        }
+
+        public int getHasCalledBeforeWithReturnAndParameter() {
+            return hasCalledBeforeWithReturnAndParameter;
+        }
+
+        public int getHasCalledDummyMethod() {
+            return hasCalledDummyMethod;
+        }
+
+        public int getHasCalledProtectedAfterMethod() {
+            return hasCalledProtectedAfterMethod;
+        }
+
+        public int getHasCalledProtectedBeforeMethod() {
+            return hasCalledProtectedBeforeMethod;
+        }
+
+        public int getHasCalledBeforeAfterDefaultStage() {
+            return hasCalledBeforeAfterDefaultStage;
+        }
+
+        public int getHasCalledBeforeAfterOnSingleEvent() {
+            return hasCalledBeforeAfterOnSingleEvent;
+        }
     }
 
     private static class TestExecutionContext extends ExecutionContext {
+
         @Override
         public Resolution proceed() throws Exception {
             return new ForwardResolution("wakker");

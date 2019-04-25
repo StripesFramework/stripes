@@ -19,20 +19,22 @@ import net.sourceforge.stripes.config.ConfigurableComponent;
 import javax.servlet.http.HttpServletRequest;
 
 /**
- * Factory for classes that implement {@link ContentTypeRequestWrapper}. 
- * The factory may chose to always supply the same kind of wrapper, or vary the 
+ * Factory for classes that implement {@link ContentTypeRequestWrapper}. The
+ * factory may chose to always supply the same kind of wrapper, or vary the
  * implementation request by request as it sees fit.
  *
  * @author Rick Grashel
  */
 public interface ContentTypeRequestWrapperFactory extends ConfigurableComponent {
+
     /**
-     * Wraps the request in an appropriate implementation of ContentTypeWrapper that is capable
-     * of providing access to request parameters 
+     * Wraps the request in an appropriate implementation of ContentTypeWrapper
+     * that is capable of providing access to request parameters
      *
      * @param request an active HttpServletRequest
      * @return an implementation of the appropriate wrapper
-     * @throws java.lang.Exception If an error occurs while constructing the wrapper
+     * @throws java.lang.Exception If an error occurs while constructing the
+     * wrapper
      */
     ContentTypeRequestWrapper wrap(HttpServletRequest request) throws Exception;
 }

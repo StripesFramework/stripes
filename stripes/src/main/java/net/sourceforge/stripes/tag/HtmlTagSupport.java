@@ -27,68 +27,97 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Provides basic facilities for any tag that wishes to mimic a standard HTML/XHTML tag. Includes
- * getters and setters for all basic HTML attributes and JavaScript event attributes.  Also includes
- * several of the support methods from the Tag interface, but does not directly or indirectly
- * implement either Tag or BodyTag.
+ * Provides basic facilities for any tag that wishes to mimic a standard
+ * HTML/XHTML tag. Includes getters and setters for all basic HTML attributes
+ * and JavaScript event attributes. Also includes several of the support methods
+ * from the Tag interface, but does not directly or indirectly implement either
+ * Tag or BodyTag.
  *
  * @author Tim Fennell
  */
 public abstract class HtmlTagSupport extends StripesTagSupport implements DynamicAttributes {
-    /** Log implementation used to log errors during tag writing. */
+
+    /**
+     * Log implementation used to log errors during tag writing.
+     */
     private static final Log log = Log.getInstance(HtmlTagSupport.class);
 
-    /** Map containing all attributes of the tag. */
-    private final Map<String,String> attributes = new HashMap<String,String>();
+    /**
+     * Map containing all attributes of the tag.
+     */
+    private final Map<String, String> attributes = new HashMap<String, String>();
 
-    /** Storage for a BodyContent instance, should the eventual child class implement BodyTag. */
+    /**
+     * Storage for a BodyContent instance, should the eventual child class
+     * implement BodyTag.
+     */
     private BodyContent bodyContent;
 
-    /** Sets the named attribute to the supplied value. */
+    /**
+     * Sets the named attribute to the supplied value.
+     * @param name
+     * @param value
+     */
     protected final void set(String name, String value) {
         if (value == null) {
             this.attributes.remove(name);
-        }
-        else {
+        } else {
             this.attributes.put(name, value);
         }
     }
 
-    /** Gets the value of the named attribute, or null if it is not set. */
+    /**
+     * Gets the value of the named attribute, or null if it is not set.
+     * @param name
+     * @return 
+     */
     protected final String get(String name) {
         return this.attributes.get(name);
     }
 
-    /** Gets the map containing the attributes of the tag. */
-    protected final Map<String,String> getAttributes() {
+    /**
+     * Gets the map containing the attributes of the tag.
+     * @return 
+     */
+    protected final Map<String, String> getAttributes() {
         return this.attributes;
     }
 
     /**
-     * Accepts any dynamic attributes that are supplied to the tag and stored them
-     * in the map of attributes that get written back to the page.
+     * Accepts any dynamic attributes that are supplied to the tag and stored
+     * them in the map of attributes that get written back to the page.
      *
-     * @param uri the URI of the namespace of the attribute if it has one. Totally ignored!
+     * @param uri the URI of the namespace of the attribute if it has one.
+     * Totally ignored!
      * @param name the name of the attribute
      * @param value the value of the attribute
-     * @throws JspException not thrown from this class; included so that subclasses can
-     *         override the method and throw the interface exception
+     * @throws JspException not thrown from this class; included so that
+     * subclasses can override the method and throw the interface exception
      */
     public void setDynamicAttribute(String uri, String name, Object value) throws JspException {
         set(name, value == null ? "" : value.toString());
     }
 
-    /** Returns the BodyContent of the tag if one has been provided by the JSP container. */
+    /**
+     * Returns the BodyContent of the tag if one has been provided by the JSP
+     * container.
+     * @return 
+     */
     public BodyContent getBodyContent() {
         return bodyContent;
     }
 
-    /** Called by the JSP container to set the BodyContent on the tag. */
+    /**
+     * Called by the JSP container to set the BodyContent on the tag.
+     * @param bodyContent
+     */
     public void setBodyContent(BodyContent bodyContent) {
         this.bodyContent = bodyContent;
     }
 
-    /** Release method to clean up the state of the tag ready for re-use. */
+    /**
+     * Release method to clean up the state of the tag ready for re-use.
+     */
     @Override
     public void release() {
         this.pageContext = null;
@@ -98,9 +127,10 @@ public abstract class HtmlTagSupport extends StripesTagSupport implements Dynami
     }
 
     /**
-     * Checks to see if there is a body content for this tag, and if its value is non-null
-     * and non-zero-length.  If so, returns it as a String, otherwise returns null.
-
+     * Checks to see if there is a body content for this tag, and if its value
+     * is non-null and non-zero-length. If so, returns it as a String, otherwise
+     * returns null.
+     *
      * @return String the value of the body if one was set
      */
     protected String getBodyContentAsString() {
@@ -118,9 +148,11 @@ public abstract class HtmlTagSupport extends StripesTagSupport implements Dynami
     }
 
     /**
-     * Returns true if HTML tags that have no body should be closed like XML tags, with "/&gt;".
-     * False if such HTML tags should be closed in the style of HTML4, with just a "&gt;".
-     * 
+     * Returns true if HTML tags that have no body should be closed like XML
+     * tags, with "/&gt;". False if such HTML tags should be closed in the style
+     * of HTML4, with just a "&gt;".
+     *
+     * @return 
      * @see PageOptionsTag#setHtmlMode(String)
      */
     protected boolean isXmlTags() {
@@ -128,9 +160,9 @@ public abstract class HtmlTagSupport extends StripesTagSupport implements Dynami
     }
 
     /**
-     * Writes out an opening tag.  Uses the parameter "tag" to determine the name of the open tag
-     * and then uses the map of attributes assembled through various setter calls to fill in the
-     * tag attributes.
+     * Writes out an opening tag. Uses the parameter "tag" to determine the name
+     * of the open tag and then uses the map of attributes assembled through
+     * various setter calls to fill in the tag attributes.
      *
      * @param writer the JspWriter to write the open tag to
      * @param tag the name of the tag to use
@@ -142,10 +174,9 @@ public abstract class HtmlTagSupport extends StripesTagSupport implements Dynami
             writer.print(tag);
             writeAttributes(writer);
             writer.print(">");
-        }
-        catch (IOException ioe) {
-            JspException jspe = new JspException("IOException encountered while writing open tag <" +
-                tag + "> to the JspWriter.", ioe);
+        } catch (IOException ioe) {
+            JspException jspe = new JspException("IOException encountered while writing open tag <"
+                    + tag + "> to the JspWriter.", ioe);
             log.warn(jspe);
             throw jspe;
         }
@@ -163,161 +194,457 @@ public abstract class HtmlTagSupport extends StripesTagSupport implements Dynami
             writer.print("</");
             writer.print(tag);
             writer.print(">");
-        }
-        catch (IOException ioe) {
-            JspException jspe = new JspException("IOException encountered while writing close tag </" +
-                tag + "> to the JspWriter.", ioe);
+        } catch (IOException ioe) {
+            JspException jspe = new JspException("IOException encountered while writing close tag </"
+                    + tag + "> to the JspWriter.", ioe);
             log.warn(jspe);
             throw jspe;
         }
     }
 
     /**
-     * Writes out a singleton tag (aka a bodiless tag or self-closing tag).  Similar to
-     * writeOpenTag except that instead of leaving the tag open, it closes the tag.
+     * Writes out a singleton tag (aka a bodiless tag or self-closing tag).
+     * Similar to writeOpenTag except that instead of leaving the tag open, it
+     * closes the tag.
      *
      * @param writer the JspWriter to write the open tag to
      * @param tag the name of the tag to use
      * @throws JspException if the JspWriter causes an exception
      */
-    protected void writeSingletonTag(JspWriter writer, String tag) throws JspException{
+    protected void writeSingletonTag(JspWriter writer, String tag) throws JspException {
         try {
             writer.print("<");
             writer.print(tag);
             writeAttributes(writer);
             writer.print(isXmlTags() ? " />" : ">");
-        }
-        catch (IOException ioe) {
-            JspException jspe = new JspException("IOException encountered while writing singleton tag <" +
-                tag + "/> to the JspWriter.", ioe);
+        } catch (IOException ioe) {
+            JspException jspe = new JspException("IOException encountered while writing singleton tag <"
+                    + tag + "/> to the JspWriter.", ioe);
             log.warn(jspe);
             throw jspe;
         }
     }
 
     /**
-     * For every attribute stored in the attributes map for this tag, writes out the tag
-     * attributes in the form x="y".  All attributes are HTML encoded before being written
-     * to the page to ensure that HTML special characters are rendered properly.
+     * For every attribute stored in the attributes map for this tag, writes out
+     * the tag attributes in the form x="y". All attributes are HTML encoded
+     * before being written to the page to ensure that HTML special characters
+     * are rendered properly.
      *
      * @param writer the JspWriter to write the open tag to
      * @throws IOException if the JspWriter causes an exception
      */
     protected void writeAttributes(JspWriter writer) throws IOException {
-        for (Map.Entry<String,String> attr: getAttributes().entrySet() ) {
+        for (Map.Entry<String, String> attr : getAttributes().entrySet()) {
             // Skip the output of blank attributes!
             String value = attr.getValue();
-            if (value == null) continue;
+            if (value == null) {
+                continue;
+            }
 
             writer.print(" ");
             writer.print(attr.getKey());
             writer.print("=\"");
-            writer.print( HtmlUtil.encode(value) );
+            writer.print(HtmlUtil.encode(value));
             writer.print("\"");
         }
     }
 
-
     /**
-     * Evaluates a single expression and returns the result.  If the expression cannot be evaluated
-     * then an ELException is caught, wrapped in a JspException and re-thrown.
+     * Evaluates a single expression and returns the result. If the expression
+     * cannot be evaluated then an ELException is caught, wrapped in a
+     * JspException and re-thrown.
      *
+     * @param <R>
      * @param expression the expression to be evaluated
-     * @param resultType the Class representing the desired return type from the expression
-     * @throws StripesJspException when an ELException occurs trying to evaluate the expression
+     * @param resultType the Class representing the desired return type from the
+     * expression
+     * @return 
+     * @throws StripesJspException when an ELException occurs trying to evaluate
+     * the expression
      */
-    @SuppressWarnings({ "unchecked", "deprecation" })
-	protected <R> R evaluateExpression(String expression, Class<R> resultType) throws StripesJspException {
+    @SuppressWarnings({"unchecked", "deprecation"})
+    protected <R> R evaluateExpression(String expression, Class<R> resultType) throws StripesJspException {
         try {
             return (R) this.pageContext.getExpressionEvaluator().
-                evaluate(expression, resultType, this.pageContext.getVariableResolver(), null);
-        }
-        catch (javax.servlet.jsp.el.ELException ele) {
-            throw new StripesJspException
-                ("Could not evaluate EL expression  [" + expression + "] with result type [" +
-                    resultType.getName() + "] in tag class of type: " + getClass().getName(), ele);
+                    evaluate(expression, resultType, this.pageContext.getVariableResolver(), null);
+        } catch (javax.servlet.jsp.el.ELException ele) {
+            throw new StripesJspException("Could not evaluate EL expression  [" + expression + "] with result type ["
+                    + resultType.getName() + "] in tag class of type: " + getClass().getName(), ele);
         }
     }
 
-
     /**
-     * Returns a String representation of the class, including the map of attributes that
-     * are set on the tag, the toString of its parent tag, and the pageContext.
+     * Returns a String representation of the class, including the map of
+     * attributes that are set on the tag, the toString of its parent tag, and
+     * the pageContext.
      */
     @Override
     public String toString() {
-        return getClass().getSimpleName()+ "{" +
-            "attributes=" + attributes +
-            ", parentTag=" + parentTag +
-            ", pageContext=" + pageContext +
-            "}";
+        return getClass().getSimpleName() + "{"
+                + "attributes=" + attributes
+                + ", parentTag=" + parentTag
+                + ", pageContext=" + pageContext
+                + "}";
     }
 
+    /**
+     *
+     * @param id
+     */
+    public void setId(String id) {
+        set("id", id);
+    }
 
-    public void setId(String id) { set("id", id); }
-    public String getId() { return get("id"); }
+    /**
+     *
+     * @return
+     */
+    public String getId() {
+        return get("id");
+    }
 
-    public void setClass(String cssClass) { set("class", cssClass); }
-    public void setCssClass(String cssClass) { set("class", cssClass); }
-    public String getCssClass() { return get("class"); }
+    /**
+     *
+     * @param cssClass
+     */
+    public void setClass(String cssClass) {
+        set("class", cssClass);
+    }
 
-    public void setTitle(String  title) { set("title",  title); }
-    public String getTitle() { return get("title"); }
+    /**
+     *
+     * @param cssClass
+     */
+    public void setCssClass(String cssClass) {
+        set("class", cssClass);
+    }
 
-    public void setStyle(String  style) { set("style",  style); }
-    public String getStyle() { return get("style"); }
+    /**
+     *
+     * @return
+     */
+    public String getCssClass() {
+        return get("class");
+    }
 
-    public void setDir(String  dir) { set("dir",  dir); }
-    public String getDir() { return get("dir"); }
+    /**
+     *
+     * @param title
+     */
+    public void setTitle(String title) {
+        set("title", title);
+    }
 
-    public void setLang(String  lang) { set("lang",  lang); }
-    public String getLang() { return get("lang"); }
+    /**
+     *
+     * @return
+     */
+    public String getTitle() {
+        return get("title");
+    }
 
-    public void setTabindex(String  tabindex) { set("tabindex",  tabindex); }
-    public String getTabindex() { return get("tabindex"); }
+    /**
+     *
+     * @param style
+     */
+    public void setStyle(String style) {
+        set("style", style);
+    }
 
-    public void setAccesskey(String  accesskey) { set("accesskey",  accesskey); }
-    public String getAccesskey() { return get("accesskey"); }
+    /**
+     *
+     * @return
+     */
+    public String getStyle() {
+        return get("style");
+    }
 
-    public void setOnfocus(String  onfocus) { set("onfocus",  onfocus); }
-    public String getOnfocus() { return get("onfocus"); }
+    /**
+     *
+     * @param dir
+     */
+    public void setDir(String dir) {
+        set("dir", dir);
+    }
 
-    public void setOnblur(String  onblur) { set("onblur",  onblur); }
-    public String getOnblur() { return get("onblur"); }
+    /**
+     *
+     * @return
+     */
+    public String getDir() {
+        return get("dir");
+    }
 
-    public void setOnselect(String  onselect) { set("onselect",  onselect); }
-    public String getOnselect() { return get("onselect"); }
+    /**
+     *
+     * @param lang
+     */
+    public void setLang(String lang) {
+        set("lang", lang);
+    }
 
-    public void setOnchange(String  onchange) { set("onchange",  onchange); }
-    public String getOnchange() { return get("onchange"); }
+    /**
+     *
+     * @return
+     */
+    public String getLang() {
+        return get("lang");
+    }
 
-    public void setOnclick(String  onclick) { set("onclick",  onclick); }
-    public String getOnclick() { return get("onclick"); }
+    /**
+     *
+     * @param tabindex
+     */
+    public void setTabindex(String tabindex) {
+        set("tabindex", tabindex);
+    }
 
-    public void setOndblclick(String  ondblclick) { set("ondblclick",  ondblclick); }
-    public String getOndblclick() { return get("ondblclick"); }
+    /**
+     *
+     * @return
+     */
+    public String getTabindex() {
+        return get("tabindex");
+    }
 
-    public void setOnmousedown(String  onmousedown) { set("onmousedown",  onmousedown); }
-    public String getOnmousedown() { return get("onmousedown"); }
+    /**
+     *
+     * @param accesskey
+     */
+    public void setAccesskey(String accesskey) {
+        set("accesskey", accesskey);
+    }
 
-    public void setOnmouseup(String  onmouseup) { set("onmouseup",  onmouseup); }
-    public String getOnmouseup() { return get("onmouseup"); }
+    /**
+     *
+     * @return
+     */
+    public String getAccesskey() {
+        return get("accesskey");
+    }
 
-    public void setOnmouseover(String  onmouseover) { set("onmouseover",  onmouseover); }
-    public String getOnmouseover() { return get("onmouseover"); }
+    /**
+     *
+     * @param onfocus
+     */
+    public void setOnfocus(String onfocus) {
+        set("onfocus", onfocus);
+    }
 
-    public void setOnmousemove(String  onmousemove) { set("onmousemove",  onmousemove); }
-    public String getOnmousemove() { return get("onmousemove"); }
+    /**
+     *
+     * @return
+     */
+    public String getOnfocus() {
+        return get("onfocus");
+    }
 
-    public void setOnmouseout(String  onmouseout) { set("onmouseout",  onmouseout); }
-    public String getOnmouseout() { return get("onmouseout"); }
+    /**
+     *
+     * @param onblur
+     */
+    public void setOnblur(String onblur) {
+        set("onblur", onblur);
+    }
 
-    public void setOnkeypress(String  onkeypress) { set("onkeypress",  onkeypress); }
-    public String getOnkeypress() { return get("onkeypress"); }
+    /**
+     *
+     * @return
+     */
+    public String getOnblur() {
+        return get("onblur");
+    }
 
-    public void setOnkeydown(String  onkeydown) { set("onkeydown",  onkeydown); }
-    public String getOnkeydown() { return get("onkeydown"); }
+    /**
+     *
+     * @param onselect
+     */
+    public void setOnselect(String onselect) {
+        set("onselect", onselect);
+    }
 
-    public void setOnkeyup(String  onkeyup) { set("onkeyup",  onkeyup); }
-    public String getOnkeyup() { return get("onkeyup"); }
+    /**
+     *
+     * @return
+     */
+    public String getOnselect() {
+        return get("onselect");
+    }
+
+    /**
+     *
+     * @param onchange
+     */
+    public void setOnchange(String onchange) {
+        set("onchange", onchange);
+    }
+
+    /**
+     *
+     * @return
+     */
+    public String getOnchange() {
+        return get("onchange");
+    }
+
+    /**
+     *
+     * @param onclick
+     */
+    public void setOnclick(String onclick) {
+        set("onclick", onclick);
+    }
+
+    /**
+     *
+     * @return
+     */
+    public String getOnclick() {
+        return get("onclick");
+    }
+
+    /**
+     *
+     * @param ondblclick
+     */
+    public void setOndblclick(String ondblclick) {
+        set("ondblclick", ondblclick);
+    }
+
+    /**
+     *
+     * @return
+     */
+    public String getOndblclick() {
+        return get("ondblclick");
+    }
+
+    /**
+     *
+     * @param onmousedown
+     */
+    public void setOnmousedown(String onmousedown) {
+        set("onmousedown", onmousedown);
+    }
+
+    /**
+     *
+     * @return
+     */
+    public String getOnmousedown() {
+        return get("onmousedown");
+    }
+
+    /**
+     *
+     * @param onmouseup
+     */
+    public void setOnmouseup(String onmouseup) {
+        set("onmouseup", onmouseup);
+    }
+
+    /**
+     *
+     * @return
+     */
+    public String getOnmouseup() {
+        return get("onmouseup");
+    }
+
+    /**
+     *
+     * @param onmouseover
+     */
+    public void setOnmouseover(String onmouseover) {
+        set("onmouseover", onmouseover);
+    }
+
+    /**
+     *
+     * @return
+     */
+    public String getOnmouseover() {
+        return get("onmouseover");
+    }
+
+    /**
+     *
+     * @param onmousemove
+     */
+    public void setOnmousemove(String onmousemove) {
+        set("onmousemove", onmousemove);
+    }
+
+    /**
+     *
+     * @return
+     */
+    public String getOnmousemove() {
+        return get("onmousemove");
+    }
+
+    /**
+     *
+     * @param onmouseout
+     */
+    public void setOnmouseout(String onmouseout) {
+        set("onmouseout", onmouseout);
+    }
+
+    /**
+     *
+     * @return
+     */
+    public String getOnmouseout() {
+        return get("onmouseout");
+    }
+
+    /**
+     *
+     * @param onkeypress
+     */
+    public void setOnkeypress(String onkeypress) {
+        set("onkeypress", onkeypress);
+    }
+
+    /**
+     *
+     * @return
+     */
+    public String getOnkeypress() {
+        return get("onkeypress");
+    }
+
+    /**
+     *
+     * @param onkeydown
+     */
+    public void setOnkeydown(String onkeydown) {
+        set("onkeydown", onkeydown);
+    }
+
+    /**
+     *
+     * @return
+     */
+    public String getOnkeydown() {
+        return get("onkeydown");
+    }
+
+    /**
+     *
+     * @param onkeyup
+     */
+    public void setOnkeyup(String onkeyup) {
+        set("onkeyup", onkeyup);
+    }
+
+    /**
+     *
+     * @return
+     */
+    public String getOnkeyup() {
+        return get("onkeyup");
+    }
 }

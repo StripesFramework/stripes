@@ -108,6 +108,7 @@ public class DispatcherHelper {
      * @return a Resolution if any interceptor determines that the request
      * processing should be aborted in favor of another Resolution, null
      * otherwise.
+     * @throws java.lang.Exception If error occurs resolving action bean
      */
     public static Resolution resolveActionBean(final ExecutionContext ctx) throws Exception {
         final Configuration config = StripesFilter.getConfiguration();
@@ -150,6 +151,7 @@ public class DispatcherHelper {
      * @return a Resolution if any interceptor determines that the request
      * processing should be aborted in favor of another Resolution, null
      * otherwise.
+     * @throws java.lang.Exception If error occurs resolving handler
      */
     public static Resolution resolveHandler(final ExecutionContext ctx) throws Exception {
         final Configuration config = StripesFilter.getConfiguration();
@@ -237,9 +239,12 @@ public class DispatcherHelper {
      * not).
      *
      * @param ctx the ExecutionContext being used to process the current request
+     * @param validate Whether or not to validate
      * @return a Resolution if any interceptor determines that the request
      * processing should be aborted in favor of another Resolution, null
      * otherwise.
+     * @throws java.lang.Exception If error occurs during binding and/or
+     * validation
      */
     public static Resolution doBindingAndValidation(final ExecutionContext ctx,
             final boolean validate) throws Exception {
@@ -271,9 +276,11 @@ public class DispatcherHelper {
      * validate flag is set etc.).
      *
      * @param ctx the ExecutionContext being used to process the current request
+     * @param alwaysInvokeValidate Whether or not to always invoke validation
      * @return a Resolution if any interceptor determines that the request
      * processing should be aborted in favor of another Resolution, null
      * otherwise.
+     * @throws java.lang.Exception If something occurs during custom validation
      */
     public static Resolution doCustomValidation(final ExecutionContext ctx,
             final boolean alwaysInvokeValidate) throws Exception {
@@ -332,11 +339,11 @@ public class DispatcherHelper {
      * point</p>
      *
      * <ul>
-     * <li>info.on={}, event="save" => true</li>
-     * <li>info.on={"save", "update"}, event="save" => true</li>
-     * <li>info.on={"save", "update"}, event="delete" => false</li>
-     * <li>info.on={"!delete"}, event="save" => true</li>
-     * <li>info.on={"!delete"}, event="delete" => false</li>
+     * <li>info.on={}, event="save" =&gt; true</li>
+     * <li>info.on={"save", "update"}, event="save" =&gt; true</li>
+     * <li>info.on={"save", "update"}, event="delete" =&gt; false</li>
+     * <li>info.on={"!delete"}, event="save" =&gt; true</li>
+     * <li>info.on={"!delete"}, event="delete" =&gt; false</li>
      * </ul>
      *
      * @param info the ValidationMethod being examined
@@ -359,6 +366,8 @@ public class DispatcherHelper {
      * @param type a Class representing an ActionBean
      * @return a Method[] containing all methods marked as custom validations.
      * May return an empty array, but never null.
+     * @throws java.lang.Exception If an error occurs finding custom validation
+     * methods
      */
     public static Method[] findCustomValidationMethods(Class<? extends ActionBean> type) throws Exception {
         Method[] validations = null;
@@ -422,6 +431,7 @@ public class DispatcherHelper {
      * @return a Resolution if the error handling code determines that some kind
      * of resolution should be processed in favor of continuing on to handler
      * invocation
+     * @throws java.lang.Exception If an error occurs handling validation errors
      */
     public static Resolution handleValidationErrors(ExecutionContext ctx) throws Exception {
         DontValidate annotation = ctx.getHandler().getAnnotation(DontValidate.class);
@@ -445,7 +455,7 @@ public class DispatcherHelper {
             // For RestActionBean objects, we need to package up all of the validation errors
             // and return them to the caller in an ErrorResolution
             if (bean.getClass().isAnnotationPresent(RestActionBean.class)) {
-                if( resolution != null ) { // the bean wanted to handle the errors itself
+                if (resolution != null) { // the bean wanted to handle the errors itself
                     return resolution;
                 }
                 ValidationErrors validationErrors = ctx.getActionBeanContext().getValidationErrors();
@@ -567,6 +577,7 @@ public class DispatcherHelper {
      * @return a Resolution if the error handling code determines that some kind
      * of resolution should be processed in favor of continuing on to handler
      * invocation
+     * @throws java.lang.Exception If an error occurs invoking the event handler
      */
     public static Resolution invokeEventHandler(ExecutionContext ctx) throws Exception {
         final Configuration config = StripesFilter.getConfiguration();
@@ -690,6 +701,8 @@ public class DispatcherHelper {
      * @param ctx the current execution context representing the request
      * @param resolution the resolution to be executed unless another is
      * substituted by an interceptor before calling ctx.proceed()
+     * @throws java.lang.Exception If an error occurs executing the passed
+     * resolution
      */
     public static void executeResolution(ExecutionContext ctx, Resolution resolution) throws Exception {
         final Configuration config = StripesFilter.getConfiguration();
@@ -728,6 +741,8 @@ public class DispatcherHelper {
 
     /**
      * Log validation errors at DEBUG to help during development.
+     *
+     * @param context Action bean context object.
      */
     public static final void logValidationErrors(ActionBeanContext context) {
         StringBuilder buf = new StringBuilder("The following validation errors need to be fixed:");

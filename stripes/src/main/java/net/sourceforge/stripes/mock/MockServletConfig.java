@@ -23,14 +23,21 @@ import javax.servlet.ServletConfig;
  * @since Stripes 1.1.1
  */
 public class MockServletConfig extends MockBaseConfig implements ServletConfig {
+
     private String servletName;
 
-    /** Returns the name of the servlet for which this is the config. */
+    /**
+     * Returns the name of the servlet for which this is the config.
+     * @return 
+     */
     public String getServletName() {
         return this.servletName;
     }
 
-    /** Sets the name of the servlet for which this is the config. */
+    /**
+     * Sets the name of the servlet for which this is the config.
+     * @param name
+     */
     public void setServletName(String name) {
         this.servletName = name;
     }
