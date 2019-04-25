@@ -65,7 +65,7 @@ public class EmailTypeConverter implements TypeConverter<String> {
      * final
      * @param errors a non-null collection of errors to populate in case of
      * error
-     * @return the parsed address, or null if there are no errors. Note that the
+     * @return the parsed address, or null if there are errors. Note that the
      * parsed address may be different from the input if extraneous characters
      * were removed.
      */
