@@ -224,6 +224,29 @@ public class RestActionBeanTest extends FilterEnabledTestBase implements ActionB
     }
 
     @Test(groups = "fast")
+    public void testJsonBindingFromRequestBodyWithTransferEncoding() throws Exception {
+        MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), "/test/1");
+        trip.getRequest().addHeader("Content-Type", "application/json");
+        trip.getRequest().addHeader("Transfer-Encoding", "chunked");
+        trip.getRequest().setMethod("POST");
+        String json = "{ \"person\" : { \"firstName\":\"Jane\", \"lastName\":\"Johnson\", \"favoriteFoods\" : [\"Snickers\",\"Scotch\",\"Pizza\"], \"children\" : [{ \"firstName\": \"Jackie\"},{\"firstName\":\"Janie\"}]}}";
+        trip.getRequest().setRequestBody(json);
+        trip.execute("boundPersonEvent");
+        RestActionBeanTest bean = trip.getActionBean(getClass());
+        Assert.assertEquals(bean.getPerson().getId(), "1");
+        Assert.assertEquals(bean.getPerson().getFirstName(), "Jane");
+        Assert.assertEquals(bean.getPerson().getLastName(), "Johnson");
+        Assert.assertEquals(bean.getPerson().getChildren().size(), 2);
+        List< String> favoriteFoods = new ArrayList< String>();
+        favoriteFoods.add("Snickers");
+        favoriteFoods.add("Scotch");
+        favoriteFoods.add("Pizza");
+        Assert.assertEquals(bean.getPerson().getFavoriteFoods(), favoriteFoods);
+
+        logTripResponse(trip);
+    }
+
+    @Test(groups = "fast")
     public void testThereIsNoJsonBindingWithoutRequestBody() throws Exception {
         MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), "/test/1");
         trip.getRequest().addHeader("Content-Type", "application/json");
