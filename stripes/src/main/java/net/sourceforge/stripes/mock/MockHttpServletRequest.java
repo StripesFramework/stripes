@@ -113,7 +113,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
     /**
      * Gets the auth type being used by this request.
-     * @return 
+     * @return
      */
     public String getAuthType() {
         return this.authType;
@@ -129,7 +129,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
     /**
      * Returns any cookies that are set on the request.
-     * @return 
+     * @return
      */
     public Cookie[] getCookies() {
         return this.cookies;
@@ -151,7 +151,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
      * Gets the named header as a long. Must have been set as a long with
      * addHeader().
      * @param name
-     * @return 
+     * @return
      */
     public long getDateHeader(String name) {
         return (Long) this.headers.get(name);
@@ -160,7 +160,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
     /**
      * Returns any header as a String if it exists.
      * @param name
-     * @return 
+     * @return
      */
     public String getHeader(String name) {
         final Object header = this.headers.get(name == null ? null : name.toLowerCase());
@@ -171,7 +171,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
      * Returns an enumeration with single value of the named header, or an empty
      * enum if no value.
      * @param name
-     * @return 
+     * @return
      */
     public Enumeration<String> getHeaders(String name) {
         String header = getHeader(name);
@@ -184,7 +184,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
     /**
      * Returns an enumeration containing all the names of headers supplied.
-     * @return 
+     * @return
      */
     public Enumeration<String> getHeaderNames() {
         return Collections.enumeration(headers.keySet());
@@ -194,7 +194,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
      * Gets the named header as an int. Must have been set as an Integer with
      * addHeader().
      * @param name
-     * @return 
+     * @return
      */
     public int getIntHeader(String name) {
         String headerValue = getHeader(name);
@@ -214,7 +214,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
     /**
      * Gets the method used by the request. Defaults to POST.
-     * @return 
+     * @return
      */
     public String getMethod() {
         return this.method;
@@ -230,7 +230,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
     /**
      * Returns the path info. Defaults to the empty string.
-     * @return 
+     * @return
      */
     public String getPathInfo() {
         return this.pathInfo;
@@ -238,7 +238,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
     /**
      * Always returns the same as getPathInfo().
-     * @return 
+     * @return
      */
     public String getPathTranslated() {
         return getPathInfo();
@@ -254,7 +254,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
     /**
      * Returns the context path. Defaults to the empty string.
-     * @return 
+     * @return
      */
     public String getContextPath() {
         return this.contextPath;
@@ -271,7 +271,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
     /**
      * Returns the query string set on the request.
-     * @return 
+     * @return
      */
     public String getQueryString() {
         return this.queryString;
@@ -279,7 +279,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
     /**
      * Returns the name from the user principal if one exists, otherwise null.
-     * @return 
+     * @return
      */
     public String getRemoteUser() {
         Principal p = getUserPrincipal();
@@ -298,7 +298,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
      * Returns true if the set of roles contains the role specified, false
      * otherwise.
      * @param role
-     * @return 
+     * @return
      */
     public boolean isUserInRole(String role) {
         return this.roles.contains(role);
@@ -314,7 +314,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
     /**
      * Returns the Principal if one is set on the request.
-     * @return 
+     * @return
      */
     public Principal getUserPrincipal() {
         return this.userPrincipal;
@@ -323,7 +323,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
     /**
      * Returns the ID of the session if one is attached to this request.
      * Otherwise null.
-     * @return 
+     * @return
      */
     public String getRequestedSessionId() {
         if (this.session == null) {
@@ -334,7 +334,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
     /**
      * Returns the request URI as defined by the servlet spec.
-     * @return 
+     * @return
      */
     public String getRequestURI() {
         return this.contextPath + this.servletPath + this.pathInfo;
@@ -343,7 +343,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
     /**
      * Returns (an attempt at) a reconstructed URL based on its constituent
      * parts.
-     * @return 
+     * @return
      */
     public StringBuffer getRequestURL() {
         return new StringBuffer().append(this.protocol)
@@ -358,7 +358,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
     /**
      * Gets the part of the path which matched the servlet.
-     * @return 
+     * @return
      */
     public String getServletPath() {
         return this.servletPath;
@@ -367,7 +367,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
     /**
      * Gets the session object attached to this request.
      * @param b
-     * @return 
+     * @return
      */
     public HttpSession getSession(boolean b) {
         return this.session;
@@ -375,7 +375,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
     /**
      * Gets the session object attached to this request.
-     * @return 
+     * @return
      */
     public HttpSession getSession() {
         return this.session;
@@ -391,7 +391,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
     /**
      * Always returns true.
-     * @return 
+     * @return
      */
     public boolean isRequestedSessionIdValid() {
         return true;
@@ -399,7 +399,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
     /**
      * Always returns true.
-     * @return 
+     * @return
      */
     public boolean isRequestedSessionIdFromCookie() {
         return true;
@@ -407,7 +407,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
     /**
      * Always returns false.
-     * @return 
+     * @return
      */
     public boolean isRequestedSessionIdFromURL() {
         return false;
@@ -415,7 +415,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
     /**
      * Always returns false.
-     * @return 
+     * @return
      */
     public boolean isRequestedSessionIdFromUrl() {
         return false;
@@ -424,7 +424,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
     /**
      * Gets the named request attribute from an internal Map.
      * @param key
-     * @return 
+     * @return
      */
     public Object getAttribute(String key) {
         return this.attributes.get(key);
@@ -432,7 +432,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
     /**
      * Gets an enumeration of all request attribute names.
-     * @return 
+     * @return
      */
     public Enumeration<String> getAttributeNames() {
         return Collections.enumeration(this.attributes.keySet());
@@ -440,7 +440,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
     /**
      * Gets the character encoding, defaults to UTF-8.
-     * @return 
+     * @return
      */
     public String getCharacterEncoding() {
         return this.characterEncoding;
@@ -457,15 +457,19 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
     /**
      * Always returns -1 (unknown).
-     * @return 
+     * @return
      */
     public int getContentLength() {
-        return requestBody.length;
+        if ("chunked".equals(getHeader("Transfer-Encoding"))) {
+            return -1;
+        } else {
+            return requestBody.length;
+        }
     }
 
     /**
      * Always returns null.
-     * @return 
+     * @return
      */
     public String getContentType() {
         return getHeader("content-type");
@@ -473,7 +477,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
     /**
      * Always returns null.
-     * @return 
+     * @return
      * @throws java.io.IOException
      */
     public ServletInputStream getInputStream() throws IOException {
@@ -516,7 +520,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
      * Gets the first value of the named parameter or null if a value does not
      * exist.
      * @param name
-     * @return 
+     * @return
      */
     public String getParameter(String name) {
         String[] values = getParameterValues(name);
@@ -529,7 +533,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
     /**
      * Gets an enumeration containing all the parameter names present.
-     * @return 
+     * @return
      */
     public Enumeration<String> getParameterNames() {
         return Collections.enumeration(this.parameters.keySet());
@@ -539,7 +543,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
      * Returns an array of all values for a parameter, or null if the parameter
      * does not exist.
      * @param name
-     * @return 
+     * @return
      */
     public String[] getParameterValues(String name) {
         return this.parameters.get(name);
@@ -549,7 +553,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
      * Provides access to the parameter map. Note that this returns a reference
      * to the live, modifiable parameter map. As a result it can be used to
      * insert parameters when constructing the request.
-     * @return 
+     * @return
      */
     public Map<String, String[]> getParameterMap() {
         return this.parameters;
@@ -565,7 +569,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
     /**
      * Gets the protocol for the request. Defaults to "https".
-     * @return 
+     * @return
      */
     public String getProtocol() {
         return this.protocol;
@@ -573,7 +577,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
     /**
      * Always returns the same as getProtocol.
-     * @return 
+     * @return
      */
     public String getScheme() {
         return getProtocol();
@@ -589,7 +593,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
     /**
      * Gets the server name. Defaults to "localhost".
-     * @return 
+     * @return
      */
     public String getServerName() {
         return this.serverName;
@@ -605,7 +609,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
     /**
      * Returns the server port. Defaults to 8080.
-     * @return 
+     * @return
      */
     public int getServerPort() {
         return this.serverPort;
@@ -613,7 +617,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
     /**
      * Always returns null.
-     * @return 
+     * @return
      * @throws java.io.IOException
      */
     public BufferedReader getReader() throws IOException {
@@ -622,7 +626,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
     /**
      * Aways returns "127.0.0.1".
-     * @return 
+     * @return
      */
     public String getRemoteAddr() {
         return "127.0.0.1";
@@ -630,7 +634,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
     /**
      * Always returns "localhost".
-     * @return 
+     * @return
      */
     public String getRemoteHost() {
         return "localhost";
@@ -673,7 +677,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
     /**
      * Returns the preferred locale. Defaults to the system locale.
-     * @return 
+     * @return
      */
     public Locale getLocale() {
         return getLocales().nextElement();
@@ -682,7 +686,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
     /**
      * Returns an enumeration of requested locales. Defaults to the system
      * locale.
-     * @return 
+     * @return
      */
     public Enumeration<Locale> getLocales() {
         if (this.locales.size() == 0) {
@@ -694,7 +698,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
     /**
      * Returns true if the protocol is set to https (default), false otherwise.
-     * @return 
+     * @return
      */
     public boolean isSecure() {
         return this.protocol.equalsIgnoreCase("https");
@@ -705,7 +709,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
      * are forwarded to or included. The results can be examined later by
      * calling getForwardUrl() and getIncludedUrls().
      * @param url
-     * @return 
+     * @return
      */
     public MockRequestDispatcher getRequestDispatcher(String url) {
         return new MockRequestDispatcher(url);
@@ -714,7 +718,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
     /**
      * Always returns the path passed in without any alteration.
      * @param path
-     * @return 
+     * @return
      */
     public String getRealPath(String path) {
         return path;
@@ -722,7 +726,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
     /**
      * Always returns 1088 (and yes, that was picked arbitrarily).
-     * @return 
+     * @return
      */
     public int getRemotePort() {
         return 1088;
@@ -730,7 +734,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
     /**
      * Always returns the same value as getServerName().
-     * @return 
+     * @return
      */
     public String getLocalName() {
         return getServerName();
@@ -738,7 +742,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
     /**
      * Always returns 127.0.0.1).
-     * @return 
+     * @return
      */
     public String getLocalAddr() {
         return "127.0.0.1";
@@ -746,7 +750,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
     /**
      * Always returns the same value as getServerPort().
-     * @return 
+     * @return
      */
     public int getLocalPort() {
         return getServerPort();
@@ -763,7 +767,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
     /**
      * Gets the URL that was forwarded to, if a forward was processed. Null
      * otherwise.
-     * @return 
+     * @return
      */
     public String getForwardUrl() {
         return this.forwardUrl;
@@ -779,7 +783,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
     /**
      * Gets the list (potentially empty) or URLs that were included during the
      * request.
-     * @return 
+     * @return
      */
     public List<String> getIncludedUrls() {
         return this.includedUrls;
