@@ -123,7 +123,7 @@ public class StripesRequestWrapper extends HttpServletRequestWrapper {
         if (contentType != null) {
             if (isPost && contentType.startsWith("multipart/form-data")) {
                 constructMultipartWrapper(request);
-            } else if (contentType.toLowerCase().contains("json") && request.getContentLength() > 0) {
+            } else if (contentType.toLowerCase().contains("json") && (request.getContentLength() > 0 || "chunked".equals(request.getHeader("Transfer-Encoding")))) {
                 this.contentTypeRequestWrapper = new JsonContentTypeRequestWrapper();
                 try {
                     this.contentTypeRequestWrapper.build(request);
