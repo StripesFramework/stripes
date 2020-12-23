@@ -75,6 +75,8 @@ public class ValidationWithGenericsTest extends FilterEnabledTestBase {
                 @Validate(field = "password", required = true)
         })
         public void setModel(User user) { super.setModel(user); }
+        @Override
+        public User getModel() { return super.getModel(); }
         public void setModel(AdminUser user) {}
         public void setModel(SuperUser user) {}
         public void setModel(String string) {}
