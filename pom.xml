@@ -234,7 +234,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-javadoc-plugin</artifactId>
-					<version>2.9.1</version>
+					<version>3.2.0</version>
 					<executions>
 						<execution>
 							<id>generate-javadoc</id>
@@ -249,12 +249,7 @@
 								<protected>true</protected>
 								<use>true</use>
 								<version>true</version>
-								<links>
-									<link>http://docs.oracle.com/javase/1.5.0/docs/api/</link>
-									<link>http://docs.oracle.com/javaee/5/api/</link>
-									<link>http://docs.spring.io/spring/docs/1.2.x/api/</link>
-									<link>http://commons.apache.org/proper/commons-logging/apidocs/</link>
-								</links>
+								<doclint>none</doclint>
 							</configuration>
 						</execution>
 					</executions>
