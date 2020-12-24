@@ -14,7 +14,6 @@
  */
 package net.sourceforge.stripes.integration.spring;
 
-import net.sourceforge.stripes.action.ActionBeanContext;
 import net.sourceforge.stripes.controller.StripesFilter;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
 import net.sourceforge.stripes.util.Log;
@@ -26,9 +25,7 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 import javax.servlet.ServletContext;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -61,23 +58,16 @@ import java.util.concurrent.ConcurrentHashMap;
 public class SpringHelper {
     private static final Log log = Log.getInstance(SpringHelper.class);
 
-    /** Lazily filled in map of Class to methods annotated with SpringBean. */
-    private static Map<Class<?>, Collection<Method>> methodMap =
-            new ConcurrentHashMap<Class<?>, Collection<Method>>();
-
-    /** Lazily filled in map of Class to fields annotated with SpringBean. */
-    private static Map<Class<?>, Collection<Field>> fieldMap =
-            new ConcurrentHashMap<Class<?>, Collection<Field>>();
+    private static final Map<Class<?>, List<Injection>> injectionLookup = new ConcurrentHashMap<>();
 
     /**
      * Injects Spring managed beans into using a Web Application Context that is
      * derived from the ServletContext, which is in turn looked up using the
-     * ActionBeanContext.
+     * Stripes configuration.
      *
      * @param bean    the object into which to inject spring managed bean
-     * @param context the ActionBeanContext represented by the current request
      */
-    public static void injectBeans(Object bean, ActionBeanContext context) {
+    public static void injectBeans(Object bean) {
         injectBeans(bean, StripesFilter.getConfiguration().getServletContext());
     }
 
@@ -109,136 +99,84 @@ public class SpringHelper {
      * @param ctx the Spring application context
      */
     public static void injectBeans(Object bean, ApplicationContext ctx) {
-        // First inject any values using annotated methods
-        for (Method m : getMethods(bean.getClass())) {
-            try {
-                SpringBean springBean = m.getAnnotation(SpringBean.class);
-                boolean nameSupplied = !"".equals(springBean.value());
-                String name = nameSupplied ? springBean.value() : methodToPropertyName(m);
-                Class<?> beanType = m.getParameterTypes()[0];
-                Object managedBean = findSpringBean(ctx, name, beanType, !nameSupplied);
-                m.invoke(bean, managedBean);
-            }
-            catch (Exception e) {
-                throw new StripesRuntimeException("Exception while trying to lookup and inject " +
-                    "a Spring bean into a bean of type " + bean.getClass().getSimpleName() +
-                    " using method " + m.toString(), e);
-            }
-        }
+        List<Injection> injections = injectionLookup.computeIfAbsent(bean.getClass(), SpringHelper::computeInjections);
 
-        // And then inject any properties that are annotated
-        for (Field f : getFields(bean.getClass())) {
-            try {
-                SpringBean springBean = f.getAnnotation(SpringBean.class);
-                boolean nameSupplied = !"".equals(springBean.value());
-                String name = nameSupplied ? springBean.value() : f.getName();
-                Object managedBean = findSpringBean(ctx, name, f.getType(), !nameSupplied);
-                f.set(bean, managedBean);
-            }
-            catch (Exception e) {
-                throw new StripesRuntimeException("Exception while trying to lookup and inject " +
-                    "a Spring bean into a bean of type " + bean.getClass().getSimpleName() +
-                    " using field access on field " + f.toString(), e);
-            }
+        for (Injection injection : injections) {
+            injection.inject(bean, ctx);
         }
     }
 
-    /**
-     * Fetches the methods on a class that are annotated with SpringBean. The first time it
-     * is called for a particular class it will introspect the class and cache the results.
-     * All non-overridden methods are examined, including protected and private methods.
-     * If a method is not public an attempt it made to make it accessible - if it fails
-     * it is removed from the collection and an error is logged.
-     *
-     * @param clazz the class on which to look for SpringBean annotated methods
-     * @return the collection of methods with the annotation
-     */
-    protected static Collection<Method> getMethods(Class<?> clazz) {
-        Collection<Method> methods = methodMap.get(clazz);
-        if (methods == null) {
-            methods = ReflectUtil.getMethods(clazz);
-            Iterator<Method> iterator = methods.iterator();
+    private static List<Injection> computeInjections(Class<?> clazz) {
+        List<Injection> injections = new ArrayList<>();
+        addMethods(clazz, injections);
+        addFields(clazz, injections);
 
-            while (iterator.hasNext()) {
-                Method method = iterator.next();
-                if (!method.isAnnotationPresent(SpringBean.class)) {
-                    iterator.remove();
-                }
-                else {
-                    // If the method isn't public, try to make it accessible
-                    if (!method.isAccessible()) {
-                        try {
-                            method.setAccessible(true);
-                        }
-                        catch (SecurityException se) {
-                            throw new StripesRuntimeException(
-                                "Method " + clazz.getName() + "." + method.getName() + "is marked " +
-                                "with @SpringBean and is not public. An attempt to call " +
-                                "setAccessible(true) resulted in a SecurityException. Please " +
-                                "either make the method public or modify your JVM security " +
-                                "policy to allow Stripes to setAccessible(true).", se);
-                        }
-                    }
-
-                    // Ensure the method has only the one parameter
-                    if (method.getParameterTypes().length != 1) {
-                        throw new StripesRuntimeException(
-                            "A method marked with @SpringBean must have exactly one parameter: " +
-                            "the bean to be injected. Method [" + method.toGenericString() + "] has " +
-                            method.getParameterTypes().length + " parameters."
-                        );
-                    }
-                }
-            }
-
-            methodMap.put(clazz, methods);
-        }
-
-        return methods;
+        return injections;
     }
 
-    /**
-     * Fetches the fields on a class that are annotated with SpringBean. The first time it
-     * is called for a particular class it will introspect the class and cache the results.
-     * All non-overridden fields are examined, including protected and private fields.
-     * If a field is not public an attempt it made to make it accessible - if it fails
-     * it is removed from the collection and an error is logged.
-     *
-     * @param clazz the class on which to look for SpringBean annotated fields
-     * @return the collection of methods with the annotation
-     */
-    protected static Collection<Field> getFields(Class<?> clazz) {
-        Collection<Field> fields = fieldMap.get(clazz);
-        if (fields == null) {
-            fields = ReflectUtil.getFields(clazz);
-            Iterator<Field> iterator = fields.iterator();
+    private static void addFields(Class<?> clazz, List<Injection> injections) {
+        Collection<Field> fields = ReflectUtil.getFields(clazz);
 
-            while (iterator.hasNext()) {
-                Field field = iterator.next();
-                if (!field.isAnnotationPresent(SpringBean.class)) {
-                    iterator.remove();
+        for (Field field : fields) {
+            SpringBean springBean = field.getAnnotation(SpringBean.class);
+            if (springBean == null) {
+                continue;
+            }
+
+            if (!field.isAccessible()) {
+                // If the field isn't public, try to make it accessible
+                try {
+                    field.setAccessible(true);
                 }
-                else if (!field.isAccessible()) {
-                    // If the field isn't public, try to make it accessible
-                    try {
-                        field.setAccessible(true);
-                    }
-                    catch (SecurityException se) {
-                        throw new StripesRuntimeException(
+                catch (SecurityException se) {
+                    throw new StripesRuntimeException(
                             "Field " + clazz.getName() + "." + field.getName() + "is marked " +
-                            "with @SpringBean and is not public. An attempt to call " +
-                            "setAccessible(true) resulted in a SecurityException. Please " +
-                            "either make the field public, annotate a public setter instead " +
-                            "or modify your JVM security policy to allow Stripes to " +
-                            "setAccessible(true).", se);
-                    }
+                                    "with @SpringBean and is not public. An attempt to call " +
+                                    "setAccessible(true) resulted in a SecurityException. Please " +
+                                    "either make the field public, annotate a public setter instead " +
+                                    "or modify your JVM security policy to allow Stripes to " +
+                                    "setAccessible(true).", se);
                 }
             }
 
-            fieldMap.put(clazz, fields);
+            injections.add(new FieldInjection(field, springBean));
         }
+    }
 
-        return fields;
+    private static void addMethods(Class<?> clazz, List<Injection> injections) {
+        Collection<Method> methods = ReflectUtil.getMethods(clazz);
+        for (Method method : methods) {
+            SpringBean springBean = method.getAnnotation(SpringBean.class);
+            if (springBean == null) {
+                continue;
+            }
+
+            // If the method isn't public, try to make it accessible
+            if (!method.isAccessible()) {
+                try {
+                    method.setAccessible(true);
+                }
+                catch (SecurityException se) {
+                    throw new StripesRuntimeException(
+                            "Method " + clazz.getName() + "." + method.getName() + "is marked " +
+                                    "with @SpringBean and is not public. An attempt to call " +
+                                    "setAccessible(true) resulted in a SecurityException. Please " +
+                                    "either make the method public or modify your JVM security " +
+                                    "policy to allow Stripes to setAccessible(true).", se);
+                }
+            }
+
+            // Ensure the method has only the one parameter
+            if (method.getParameterTypes().length != 1) {
+                throw new StripesRuntimeException(
+                        "A method marked with @SpringBean must have exactly one parameter: " +
+                                "the bean to be injected. Method [" + method.toGenericString() + "] has " +
+                                method.getParameterTypes().length + " parameters."
+                );
+            }
+
+            injections.add(new MethodInjection(method, springBean));
+        }
     }
 
     /**
@@ -311,6 +249,64 @@ public class SpringHelper {
         }
         else {
             return name;
+        }
+    }
+
+    private interface Injection {
+        void inject(Object bean, ApplicationContext ctx);
+    }
+
+    private static class FieldInjection implements Injection {
+
+        private final Field field;
+        private final boolean nameSupplied;
+        private final String name;
+        private final Class<?> beanType;
+
+        public FieldInjection(Field field, SpringBean springBean) {
+            this.field = field;
+            this.nameSupplied = !"".equals(springBean.value());
+            this.name = nameSupplied ? springBean.value() : field.getName();
+            this.beanType = field.getType();
+        }
+
+        @Override
+        public void inject(Object bean, ApplicationContext ctx) {
+            try {
+                Object managedBean = findSpringBean(ctx, name, beanType, !nameSupplied);
+                field.set(bean, managedBean);
+            } catch (Exception e) {
+                throw new StripesRuntimeException("Exception while trying to lookup and inject " +
+                        "a Spring bean into a bean of type " + bean.getClass().getSimpleName() +
+                        " using field access on field " + field.toString(), e);
+            }
+        }
+    }
+
+    private static class MethodInjection implements Injection {
+
+        private final Method method;
+        private final boolean nameSupplied;
+        private final String name;
+        private final Class<?> beanType;
+
+        public MethodInjection(Method method, SpringBean springBean) {
+            this.method = method;
+            this.nameSupplied = !"".equals(springBean.value());
+            this.name = nameSupplied ? springBean.value() : methodToPropertyName(method);
+            this.beanType = method.getParameterTypes()[0];
+        }
+
+        @Override
+        public void inject(Object bean, ApplicationContext ctx) {
+            try {
+                Object managedBean = findSpringBean(ctx, name, beanType, !nameSupplied);
+                method.invoke(bean, managedBean);
+            } catch (Exception e) {
+                throw new StripesRuntimeException("Exception while trying to lookup and inject " +
+                        "a Spring bean into a bean of type " + bean.getClass().getSimpleName() +
+                        " using method " + method.toString(), e);
+            }
         }
     }
 }
