@@ -51,6 +51,10 @@
 		<url>http://www.stripesframework.org/jenkins</url>
 	</ciManagement>
 
+	<properties>
+		<spring.version>5.0.8.RELEASE</spring.version>
+	</properties>
+
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
@@ -147,8 +151,15 @@
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
-				<artifactId>spring</artifactId>
-				<version>1.2.6</version>
+				<artifactId>spring-context</artifactId>
+				<version>${spring.version}</version>
+				<scope>provided</scope>
+				<optional>true</optional>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-web</artifactId>
+				<version>${spring.version}</version>
 				<scope>provided</scope>
 				<optional>true</optional>
 			</dependency>

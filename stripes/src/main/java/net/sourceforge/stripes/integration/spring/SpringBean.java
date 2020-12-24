@@ -35,11 +35,14 @@ import java.lang.annotation.Documented;
  * <p>For a more details description of the injection process and how auto-wiring occurs
  * when explicit bean names are omitted see the {@link SpringHelper} class.</p>
  *
+ * @deprecated Will be removed soon, use @Autowired instead
+ *
  * @author Dan Hayes
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.FIELD})
 @Documented
+@Deprecated
 public @interface SpringBean {
     String value() default "";
 }

@@ -16,13 +16,15 @@ package net.sourceforge.stripes.integration.spring;
 
 import net.sourceforge.stripes.controller.StripesFilter;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
-import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.util.ReflectUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.NestedRuntimeException;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import javax.servlet.ServletContext;
+import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
@@ -56,8 +58,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author Dan Hayes, Tim Fennell
  */
 public class SpringHelper {
-    private static final Log log = Log.getInstance(SpringHelper.class);
-
     private static final Map<Class<?>, List<Injection>> injectionLookup = new ConcurrentHashMap<>();
 
     /**
@@ -118,9 +118,17 @@ public class SpringHelper {
         Collection<Field> fields = ReflectUtil.getFields(clazz);
 
         for (Field field : fields) {
-            SpringBean springBean = field.getAnnotation(SpringBean.class);
-            if (springBean == null) {
-                continue;
+            Autowired autowired;
+            SpringBean springBean;
+
+            autowired = field.getAnnotation(Autowired.class);
+            if (autowired == null) {
+                springBean = field.getAnnotation(SpringBean.class);
+                if (springBean == null) {
+                    continue;
+                }
+            } else {
+                springBean = null;
             }
 
             if (!field.isAccessible()) {
@@ -139,16 +147,28 @@ public class SpringHelper {
                 }
             }
 
-            injections.add(new FieldInjection(field, springBean));
+            if (autowired != null) {
+                injections.add(new FieldInjection(field, getQualifier(field)));
+            } else {
+                injections.add(new FieldInjection(field, springBean.value()));
+            }
         }
     }
 
     private static void addMethods(Class<?> clazz, List<Injection> injections) {
         Collection<Method> methods = ReflectUtil.getMethods(clazz);
         for (Method method : methods) {
-            SpringBean springBean = method.getAnnotation(SpringBean.class);
-            if (springBean == null) {
-                continue;
+            Autowired autowired;
+            SpringBean springBean;
+
+            autowired = method.getAnnotation(Autowired.class);
+            if (autowired == null) {
+                springBean = method.getAnnotation(SpringBean.class);
+                if (springBean == null) {
+                    continue;
+                }
+            } else {
+                springBean = null;
             }
 
             // If the method isn't public, try to make it accessible
@@ -175,8 +195,21 @@ public class SpringHelper {
                 );
             }
 
-            injections.add(new MethodInjection(method, springBean));
+            if (autowired != null) {
+                injections.add(new MethodInjection(method, getQualifier(method)));
+            } else {
+                injections.add(new MethodInjection(method, springBean.value()));
+            }
         }
+    }
+
+    private static String getQualifier(AccessibleObject fieldOrMethod) {
+        Qualifier qualifier = fieldOrMethod.getAnnotation(Qualifier.class);
+        if (qualifier == null) {
+            return null;
+        }
+
+        return qualifier.value();
     }
 
     /**
@@ -200,12 +233,7 @@ public class SpringHelper {
                                            boolean allowFindByType) {
         // First try to lookup using the name provided
         try {
-            Object bean = ctx.getBean(name, type);
-            if (bean != null) {
-                log.debug("Found spring bean with name [", name, "] and type [", bean.getClass()
-                        .getName(), "]");
-            }
-            return bean;
+            return ctx.getBean(name, type);
         }
         catch (NestedRuntimeException nre) {
             if (!allowFindByType) throw nre;
@@ -225,8 +253,6 @@ public class SpringHelper {
                 "beans of matching type.");
         }
         else {
-            log.debug("Found unique SpringBean with type [" + type.getName() + "]. Matching on ",
-                     "type is a little risky so watch out!");
             return ctx.getBean(beanNames[0], type);
         }
     }
@@ -263,10 +289,10 @@ public class SpringHelper {
         private final String name;
         private final Class<?> beanType;
 
-        public FieldInjection(Field field, SpringBean springBean) {
+        public FieldInjection(Field field, String qualifier) {
             this.field = field;
-            this.nameSupplied = !"".equals(springBean.value());
-            this.name = nameSupplied ? springBean.value() : field.getName();
+            this.nameSupplied = qualifier != null && !qualifier.isEmpty();
+            this.name = nameSupplied ? qualifier : field.getName();
             this.beanType = field.getType();
         }
 
@@ -290,10 +316,10 @@ public class SpringHelper {
         private final String name;
         private final Class<?> beanType;
 
-        public MethodInjection(Method method, SpringBean springBean) {
+        public MethodInjection(Method method, String qualifier) {
             this.method = method;
-            this.nameSupplied = !"".equals(springBean.value());
-            this.name = nameSupplied ? springBean.value() : methodToPropertyName(method);
+            this.nameSupplied = qualifier != null && !qualifier.isEmpty();
+            this.name = nameSupplied ? qualifier : methodToPropertyName(method);
             this.beanType = method.getParameterTypes()[0];
         }
 

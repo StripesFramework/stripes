@@ -9,6 +9,8 @@ import net.sourceforge.stripes.exception.StripesRuntimeException;
 import net.sourceforge.stripes.test.TestActionBean;
 import net.sourceforge.stripes.test.TestBean;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.support.StaticApplicationContext;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.StaticWebApplicationContext;
@@ -22,7 +24,8 @@ import org.testng.annotations.Test;
  *
  * @author Tim Fennell
  */
-public class SpringHelperTests {
+@SuppressWarnings("SpringJavaAutowiredMembersInspection")
+public class SpringHelper_AutowiredTests {
     StaticApplicationContext ctx;
 
     @BeforeClass(alwaysRun=true)
@@ -38,7 +41,8 @@ public class SpringHelperTests {
     private static class ExplicitPublicSetterTarget {
         private TestBean bean;
         @SuppressWarnings("unused")
-        @SpringBean("test/TestBean")
+        @Autowired
+        @Qualifier("test/TestBean")
         public void setBean(TestBean bean) { this.bean = bean; }
         public TestBean getBean() { return bean; }
     }
@@ -55,7 +59,8 @@ public class SpringHelperTests {
     private static class ExplicitPrivateSetterTarget {
         private TestBean bean;
         @SuppressWarnings("unused")
-        @SpringBean("test/TestBean")
+        @Autowired
+        @Qualifier("test/TestBean")
         private void setBean(TestBean bean) { this.bean = bean; }
         TestBean getBean() { return bean; }
     }
@@ -70,7 +75,10 @@ public class SpringHelperTests {
     ///////////////////////////////////////////////////////////////////////////
 
     private static class ExplicitPrivateFieldTarget {
-        @SpringBean("test/TestBean") private TestBean bean;
+        @Autowired
+        @Qualifier("test/TestBean") 
+        private TestBean bean;
+        
         TestBean getBean() { return bean; }
     }
 
@@ -86,7 +94,8 @@ public class SpringHelperTests {
     private static class ExplicitNonStandardSetterTarget {
         private TestBean bean;
         @SuppressWarnings("unused")
-        @SpringBean("test/TestBean")
+        @Autowired
+        @Qualifier("test/TestBean")
         protected void injectHere(TestBean bean) { this.bean = bean; }
         TestBean getBean() { return bean; }
     }
@@ -103,7 +112,7 @@ public class SpringHelperTests {
     private static class ImplicitNonStandardSetterTarget {
         private TestActionBean bean;
         @SuppressWarnings("unused")
-        @SpringBean protected void testActionBean(TestActionBean bean) { this.bean = bean; }
+        @Autowired protected void testActionBean(TestActionBean bean) { this.bean = bean; }
         TestActionBean getBean() { return bean; }
     }
 
@@ -119,7 +128,7 @@ public class SpringHelperTests {
     private static class ImplicitStandardSetterTarget {
         private TestActionBean bean;
         @SuppressWarnings("unused")
-        @SpringBean protected void setTestActionBean(TestActionBean bean) { this.bean = bean; }
+        @Autowired protected void setTestActionBean(TestActionBean bean) { this.bean = bean; }
         TestActionBean getBean() { return bean; }
     }
 
@@ -133,7 +142,7 @@ public class SpringHelperTests {
     ///////////////////////////////////////////////////////////////////////////
 
     private static class ImplicitFieldTarget {
-        @SpringBean private TestActionBean testActionBean;
+        @Autowired private TestActionBean testActionBean;
         TestActionBean getBean() { return testActionBean; }
     }
 
@@ -159,7 +168,7 @@ public class SpringHelperTests {
     ///////////////////////////////////////////////////////////////////////////
 
     private static class ByTypeTarget {
-        @SpringBean private TestBean someBeanOrOther;
+        @Autowired private TestBean someBeanOrOther;
         TestBean getBean() { return someBeanOrOther; }
     }
 
@@ -173,17 +182,19 @@ public class SpringHelperTests {
     ///////////////////////////////////////////////////////////////////////////
 
     private static class MultipleInjectionTarget {
-        @SpringBean TestBean someBeanOrOther; // by type
-        @SpringBean TestActionBean testActionBean; // by field name
+        @Autowired TestBean someBeanOrOther; // by type
+        @Autowired TestActionBean testActionBean; // by field name
         TestActionBean number3; // explicit private method
         TestActionBean number4; // explicit public method
 
         @SuppressWarnings("unused")
-        @SpringBean("test/testActionBean")
+        @Autowired
+        @Qualifier("test/testActionBean")
         private void setNumber3(TestActionBean value) { this.number3 = value; }
 
         @SuppressWarnings("unused")
-        @SpringBean("testActionBean")
+        @Autowired
+        @Qualifier("testActionBean")
         public void whee(TestActionBean value) { this.number4 = value; }
     }
 
@@ -201,7 +212,7 @@ public class SpringHelperTests {
 
     private static class AmbiguousByTypeTarget {
         @SuppressWarnings("unused")
-        @SpringBean TestActionBean someBeanOrOther;
+        @Autowired TestActionBean someBeanOrOther;
     }
 
     @Test(groups="fast", expectedExceptions=StripesRuntimeException.class)
@@ -214,12 +225,14 @@ public class SpringHelperTests {
 
     private static class ExplicitMisNamedTarget {
         @SuppressWarnings("unused")
-        @SpringBean("nonExistentBean") TestActionBean someBeanOrOther;
+        @Autowired
+        @Qualifier("nonExistentBean") 
+        TestActionBean someBeanOrOther;
     }
 
     @Test(groups="fast", expectedExceptions=StripesRuntimeException.class)
     public void testExplicitMisNamedTargetInjection() {
-    ExplicitMisNamedTarget target = new ExplicitMisNamedTarget();
+        ExplicitMisNamedTarget target = new ExplicitMisNamedTarget();
         SpringHelper.injectBeans(target, ctx);
     }
 
@@ -227,7 +240,7 @@ public class SpringHelperTests {
 
     private static class ImplicitMisNamedTarget {
         @SuppressWarnings("unused")
-        @SpringBean TestActionBean tstActionBea;
+        @Autowired TestActionBean tstActionBea;
     }
 
     @Test(groups="fast", expectedExceptions=StripesRuntimeException.class)
@@ -240,7 +253,8 @@ public class SpringHelperTests {
 
     private static class NoBeanOfTypeTarget {
         @SuppressWarnings("unused")
-        @SpringBean SpringHelperTests noBeansOfType;
+        @Autowired
+        SpringHelper_SpringBeanTests noBeansOfType;
     }
 
     @Test(groups="fast", expectedExceptions=StripesRuntimeException.class)
@@ -255,7 +269,7 @@ public class SpringHelperTests {
         @SuppressWarnings("unused")
         TestActionBean testActionBean;
         @SuppressWarnings("unused")
-        @SpringBean
+        @Autowired
         public void setTestActionBean(TestActionBean bean, TestActionBean other) {
             this.testActionBean = bean;
         }
@@ -270,17 +284,19 @@ public class SpringHelperTests {
     ///////////////////////////////////////////////////////////////////////////
 
     private static class MultipleInjectionTarget2 {
-        @SpringBean TestBean someBeanOrOther; // by type
-        @SpringBean TestActionBean testActionBean; // by field name
+        @Autowired TestBean someBeanOrOther; // by type
+        @Autowired TestActionBean testActionBean; // by field name
         TestActionBean number3; // explicit private method
         TestActionBean number4; // explicit public method
 
         @SuppressWarnings("unused")
-        @SpringBean("test/testActionBean")
+        @Autowired
+        @Qualifier("test/testActionBean")
         private void setNumber3(TestActionBean value) { this.number3 = value; }
 
         @SuppressWarnings("unused")
-        @SpringBean("testActionBean")
+        @Autowired
+        @Qualifier("testActionBean")
         public void whee(TestActionBean value) { this.number4 = value; }
     }
 
@@ -297,7 +313,8 @@ public class SpringHelperTests {
     // /////////////////////////////////////////////////////////////////////////
     public static class PostProcessorTarget {
         private TestBean bean;
-        @SpringBean("test/TestBean")
+        @Autowired
+        @Qualifier("test/TestBean")
         public void setBean(TestBean bean) { this.bean = bean; }
         public TestBean getBean() { return bean; }
     }
@@ -317,10 +334,10 @@ public class SpringHelperTests {
     ///////////////////////////////////////////////////////////////////////////
 
     public static class HiddenPrivateFieldTarget1 {
-        @SpringBean private TestBean a;
-        @SpringBean TestBean b;
-        @SpringBean protected TestBean c;
-        @SpringBean public TestBean d;
+        @Autowired private TestBean a;
+        @Autowired TestBean b;
+        @Autowired protected TestBean c;
+        @Autowired public TestBean d;
         public TestBean getA1() { return a; }
         public TestBean getB1() { return b; }
         public TestBean getC1() { return c; }
@@ -328,10 +345,10 @@ public class SpringHelperTests {
     }
 
     public static class HiddenPrivateFieldTarget2 extends HiddenPrivateFieldTarget1 {
-        @SpringBean private TestBean a;
-        @SpringBean TestBean b;
-        @SpringBean protected TestBean c;
-        @SpringBean public TestBean d;
+        @Autowired private TestBean a;
+        @Autowired TestBean b;
+        @Autowired protected TestBean c;
+        @Autowired public TestBean d;
         public TestBean getA2() { return a; }
         public TestBean getB2() { return b; }
         public TestBean getC2() { return c; }
