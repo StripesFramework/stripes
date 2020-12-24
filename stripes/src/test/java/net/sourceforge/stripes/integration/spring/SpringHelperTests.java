@@ -22,7 +22,7 @@ import org.testng.annotations.Test;
  *
  * @author Tim Fennell
  */
-public class SpringHelper_SpringBeanTests {
+public class SpringHelperTests {
     StaticApplicationContext ctx;
 
     @BeforeClass(alwaysRun=true)
@@ -241,7 +241,7 @@ public class SpringHelper_SpringBeanTests {
     private static class NoBeanOfTypeTarget {
         @SuppressWarnings("unused")
         @SpringBean
-        SpringHelper_SpringBeanTests noBeansOfType;
+        SpringHelperTests noBeansOfType;
     }
 
     @Test(groups="fast", expectedExceptions=StripesRuntimeException.class)
