@@ -24,8 +24,8 @@ import net.sourceforge.stripes.util.Log;
 /**
  * <p>
  * An implementation of {@link ObjectPostProcessor} that calls {@link
- * SpringHelper#injectBeans((Object, ServletContext))} to inject dependencies marked with
- * {@link SpringBean} in every type of object created by Stripes (Action Beans, Interceptors, Type
+ * SpringHelper#injectBeans(Object, ServletContext)} to inject dependencies marked with
+ * {@link org.springframework.beans.factory.annotation.Autowired} in every type of object created by Stripes (Action Beans, Interceptors, Type
  * Converters, Formatters, etc.).
  * </p>
  * 
@@ -58,8 +58,8 @@ public class SpringInjectionPostProcessor implements ObjectPostProcessor<Object>
     }
 
     /**
-     * Calls {@link SpringHelper#injectBeans((Object, ServletContext))} to inject dependencies
-     * marked with {@link SpringBean} into the object before returning it.
+     * Calls {@link SpringHelper#injectBeans(Object, ServletContext)} to inject dependencies
+     * marked with {@link org.springframework.beans.factory.annotation.Autowired} into the object before returning it.
      */
     public Object postProcess(Object object) {
         log.debug("Running Spring dependency injection for instance of ", object.getClass()

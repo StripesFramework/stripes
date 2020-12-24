@@ -34,7 +34,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * <p>Static helper class that is used to lookup Spring beans and inject them into objects
  * (often ActionBeans). Is capable of injecting beans through setter methods (property access)
  * and also through direct field access if the security policy allows it. Methods and fields
- * must be annotated using the {@code @SpringBean} annotation.</p>
+ * must be annotated using the {@code @Autowired} annotation.</p>
  *
  * <p>Methods and fields may be public, protected, package-access or private. If they are not
  * public an attempt is made to call {@link Method#setAccessible(boolean)} in order to make
@@ -44,7 +44,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * {@code someBean(bean b)}. In both cases, if a specific SpringBean name is not supplied,
  * the default name of {@code someBean} will be used.</p>
  *
- * <p>The value of the {@code @SpringBean} annotation should be the bean name in the Spring
+ * <p>The value of the {@code @Qualifier} annotation should be the bean name in the Spring
  * application context if it is different from the field/property name.  If the value
  * is left blank, an attempt is made to auto-wire the bean; first by field/property name and
  * then by type. If the value is left blank and more than one bean of the same type is found,
@@ -54,7 +54,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * of object, the object's class is examined for annotated fields and methods. The discovered
  * fields and methods are then cached for future usage.</p>
  *
- * @see SpringBean
+ * @see Autowired
+ * @see Qualifier
  * @author Dan Hayes, Tim Fennell
  */
 public class SpringHelper {
@@ -91,7 +92,7 @@ public class SpringHelper {
     }
 
     /**
-     * Looks for all methods and fields annotated with {@code @SpringBean} and attempts
+     * Looks for all methods and fields annotated with {@code @Autowired} and attempts
      * to lookup and inject a managed bean into the field/property. If any annotated
      * element cannot be injected an exception is thrown.
      *
@@ -118,17 +119,8 @@ public class SpringHelper {
         Collection<Field> fields = ReflectUtil.getFields(clazz);
 
         for (Field field : fields) {
-            Autowired autowired;
-            SpringBean springBean;
-
-            autowired = field.getAnnotation(Autowired.class);
-            if (autowired == null) {
-                springBean = field.getAnnotation(SpringBean.class);
-                if (springBean == null) {
-                    continue;
-                }
-            } else {
-                springBean = null;
+            if (!field.isAnnotationPresent(Autowired.class)) {
+                continue;
             }
 
             if (!field.isAccessible()) {
@@ -139,7 +131,7 @@ public class SpringHelper {
                 catch (SecurityException se) {
                     throw new StripesRuntimeException(
                             "Field " + clazz.getName() + "." + field.getName() + "is marked " +
-                                    "with @SpringBean and is not public. An attempt to call " +
+                                    "with @Autowired and is not public. An attempt to call " +
                                     "setAccessible(true) resulted in a SecurityException. Please " +
                                     "either make the field public, annotate a public setter instead " +
                                     "or modify your JVM security policy to allow Stripes to " +
@@ -147,28 +139,15 @@ public class SpringHelper {
                 }
             }
 
-            if (autowired != null) {
-                injections.add(new FieldInjection(field, getQualifier(field)));
-            } else {
-                injections.add(new FieldInjection(field, springBean.value()));
-            }
+            injections.add(new FieldInjection(field, getQualifier(field)));
         }
     }
 
     private static void addMethods(Class<?> clazz, List<Injection> injections) {
         Collection<Method> methods = ReflectUtil.getMethods(clazz);
         for (Method method : methods) {
-            Autowired autowired;
-            SpringBean springBean;
-
-            autowired = method.getAnnotation(Autowired.class);
-            if (autowired == null) {
-                springBean = method.getAnnotation(SpringBean.class);
-                if (springBean == null) {
-                    continue;
-                }
-            } else {
-                springBean = null;
+            if (!method.isAnnotationPresent(Autowired.class)) {
+                continue;
             }
 
             // If the method isn't public, try to make it accessible
@@ -179,7 +158,7 @@ public class SpringHelper {
                 catch (SecurityException se) {
                     throw new StripesRuntimeException(
                             "Method " + clazz.getName() + "." + method.getName() + "is marked " +
-                                    "with @SpringBean and is not public. An attempt to call " +
+                                    "with @Autowired and is not public. An attempt to call " +
                                     "setAccessible(true) resulted in a SecurityException. Please " +
                                     "either make the method public or modify your JVM security " +
                                     "policy to allow Stripes to setAccessible(true).", se);
@@ -189,17 +168,13 @@ public class SpringHelper {
             // Ensure the method has only the one parameter
             if (method.getParameterTypes().length != 1) {
                 throw new StripesRuntimeException(
-                        "A method marked with @SpringBean must have exactly one parameter: " +
+                        "A method marked with @Autowired must have exactly one parameter: " +
                                 "the bean to be injected. Method [" + method.toGenericString() + "] has " +
                                 method.getParameterTypes().length + " parameters."
                 );
             }
 
-            if (autowired != null) {
-                injections.add(new MethodInjection(method, getQualifier(method)));
-            } else {
-                injections.add(new MethodInjection(method, springBean.value()));
-            }
+            injections.add(new MethodInjection(method, getQualifier(method)));
         }
     }
 
