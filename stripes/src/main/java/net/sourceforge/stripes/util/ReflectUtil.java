@@ -16,22 +16,7 @@ package net.sourceforge.stripes.util;
 
 import net.sourceforge.stripes.exception.StripesRuntimeException;
 
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Collection;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.SortedSet;
-import java.util.TreeSet;
-import java.util.Queue;
-import java.util.LinkedList;
-import java.util.SortedMap;
-import java.util.TreeMap;
-import java.util.Arrays;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -55,8 +40,10 @@ public class ReflectUtil {
     private static final Log log = Log.getInstance(ReflectUtil.class);
 
     /** A cache of property descriptors by class and property name */
-    private static Map<Class<?>, Map<String, PropertyDescriptor>> propertyDescriptors =
-            new ConcurrentHashMap<Class<?>, Map<String, PropertyDescriptor>>();
+    private static final Map<Class<?>, Map<String, PropertyDescriptor>> propertyDescriptors = new ConcurrentHashMap<>();
+
+    private static final Map<Class<?>, Collection<Method>> methodCache = new ConcurrentHashMap<>();
+    private static final Map<Class<?>, Collection<Field>> fieldCache = new ConcurrentHashMap<>();
 
     /** Static helper class, shouldn't be constructed. */
     private ReflectUtil() {}
@@ -198,7 +185,11 @@ public class ReflectUtil {
      * @return a collection of methods
      */
     public static Collection<Method> getMethods(Class<?> clazz) {
-        Collection<Method> found = new ArrayList<Method>();
+        return methodCache.computeIfAbsent(clazz, ReflectUtil::calculateMethods);
+    }
+
+    private static Collection<Method> calculateMethods(Class<?> clazz) {
+        List<Method> found = new ArrayList<>();
         while (clazz != null) {
             for (Method m1 : clazz.getDeclaredMethods()) {
                 boolean overridden = false;
@@ -217,7 +208,7 @@ public class ReflectUtil {
             clazz = clazz.getSuperclass();
         }
 
-        return found;
+        return Collections.unmodifiableList(found);
     }
 
     /**
@@ -227,16 +218,18 @@ public class ReflectUtil {
      * @return a collection of fields
      */
     public static Collection<Field> getFields(Class<?> clazz) {
-        List<Field> fields = new ArrayList<Field>();
+        return fieldCache.computeIfAbsent(clazz, ReflectUtil::calculateFields);
+    }
+
+    private static Collection<Field> calculateFields(Class<?> clazz) {
+        List<Field> fields = new ArrayList<>();
         while (clazz != null) {
-            for (Field field : clazz.getDeclaredFields()) {
-                fields.add(field);
-            }
+            Collections.addAll(fields, clazz.getDeclaredFields());
 
             clazz = clazz.getSuperclass();
         }
 
-        return fields;
+        return Collections.unmodifiableList(fields);
     }
 
     /**
