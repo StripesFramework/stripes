@@ -16,96 +16,101 @@ package net.sourceforge.stripes.util;
 
 /**
  * Utility class for working with ranges, ranging from start to end (both inclusive).
- * 
+ *
  * @author Ward van Wanrooij
  * @since Stripes 1.6
  */
 public class Range<T extends Comparable<T>> implements Comparable<Range<T>> {
-    private T start, end;
 
-    /**
-     * Constructor for range from start to end (both inclusive). Start and end may not be null.
-     * 
-     * @param start Start of the range
-     * @param end End of the range
-     */
-    public Range(T start, T end) {
-        setStart(start);
-        setEnd(end);
-    }
+   private T _start;
+   private T _end;
 
-    /**
-     * Retrieves start of the range.
-     * 
-     * @return Start of the range
-     */
-    public T getStart() {
-        return start;
-    }
+   /**
+    * Constructor for range from start to end (both inclusive). Start and end may not be null.
+    *
+    * @param start Start of the range
+    * @param end End of the range
+    */
+   public Range( T start, T end ) {
+      setStart(start);
+      setEnd(end);
+   }
 
-    /**
-     * Sets start of the range. Start may not be null.
-     * 
-     * @param start Start of the range
-     */
-    public void setStart(T start) {
-        if (start == null)
-            throw new NullPointerException();
-        this.start = start;
-    }
+   @Override
+   public int compareTo( Range<T> o ) {
+      int res;
 
-    /**
-     * Retrieves end of the range.
-     * 
-     * @return End of the range
-     */
-    public T getEnd() {
-        return end;
-    }
+       if ( (res = _start.compareTo(o.getStart())) == 0 ) {
+           res = _end.compareTo(o.getEnd());
+       }
+      return res;
+   }
 
-    /**
-     * Sets end of the range. End may not be null.
-     * 
-     * @param end End of the range
-     */
-    public void setEnd(T end) {
-        if (end == null)
-            throw new NullPointerException();
-        this.end = end;
-    }
+   /**
+    * Checks whether an item is contained in this range.
+    *
+    * @param item Item to check
+    * @return True if item is in range
+    */
+   public boolean contains( T item ) {
+      return (_start.compareTo(item) <= 0) && (_end.compareTo(item) >= 0);
+   }
 
-    /**
-     * Checks whether an item is contained in this range.
-     * 
-     * @param item Item to check
-     * @return True if item is in range
-     */
-    public boolean contains(T item) {
-        return (start.compareTo(item) <= 0) && (end.compareTo(item) >= 0);
-    }
+   @SuppressWarnings("unchecked")
+   @Override
+   public boolean equals( Object o ) {
+      return (o instanceof Range) && ((this == o) || (compareTo((Range<T>)o) == 0));
+   }
 
-    public int compareTo(Range<T> o) {
-        int res;
+   /**
+    * Retrieves end of the range.
+    *
+    * @return End of the range
+    */
+   public T getEnd() {
+      return _end;
+   }
 
-        if ((res = start.compareTo(o.getStart())) == 0)
-            res = end.compareTo(o.getEnd());
-        return res;
-    }
+   /**
+    * Retrieves start of the range.
+    *
+    * @return Start of the range
+    */
+   public T getStart() {
+      return _start;
+   }
 
-    @SuppressWarnings("unchecked")
-    @Override
-    public boolean equals(Object o) {
-        return (o instanceof Range) && ((this == o) || (compareTo((Range<T>) o) == 0));
-    }
+   @Override
+   public int hashCode() {
+      return _start.hashCode() ^ _end.hashCode();
+   }
 
-    @Override
-    public int hashCode() {
-        return start.hashCode() ^ end.hashCode();
-    }
+   /**
+    * Sets end of the range. End may not be null.
+    *
+    * @param end End of the range
+    */
+   public void setEnd( T end ) {
+       if ( end == null ) {
+           throw new NullPointerException();
+       }
+       _end = end;
+   }
 
-    @Override
-    public String toString() {
-        return getClass().getName() + " { type: " + start.getClass().getName() + ", start: "
-                + start.toString() + ", end: " + end.toString() + " }";
-    }
+   /**
+    * Sets start of the range. Start may not be null.
+    *
+    * @param start Start of the range
+    */
+   public void setStart( T start ) {
+       if ( start == null ) {
+           throw new NullPointerException();
+       }
+       _start = start;
+   }
+
+   @Override
+   public String toString() {
+      return getClass().getName() + " { type: " + _start.getClass().getName() + ", start: " + _start.toString() + ", end: " + _end.toString() + " }";
+   }
 }

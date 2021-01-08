@@ -14,13 +14,14 @@
  */
 package net.sourceforge.stripes.format;
 
-import net.sourceforge.stripes.exception.StripesRuntimeException;
-
-import java.text.NumberFormat;
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
+
+import net.sourceforge.stripes.exception.StripesRuntimeException;
+
 
 /**
  * <p>Formats numbers into localized Strings for display.  This class relies heavily on the
@@ -47,101 +48,99 @@ import java.util.Set;
  */
 public class NumberFormatter implements Formatter<Number> {
 
-    /** Maintains a set of named formats that can be used instead of patterns. */
-    protected static final Set<String> namedPatterns = new HashSet<String>();
+   /** Maintains a set of named formats that can be used instead of patterns. */
+   protected static final Set<String> namedPatterns = new HashSet<>();
 
-    static {
-        namedPatterns.add("plain");
-        namedPatterns.add("integer");
-        namedPatterns.add("decimal");
-    }
+   static {
+      namedPatterns.add("plain");
+      namedPatterns.add("integer");
+      namedPatterns.add("decimal");
+   }
 
-    private String formatType;
-    private String formatPattern;
-    private Locale locale;
-    private NumberFormat format;
+   private String       formatType;
+   private String       formatPattern;
+   private Locale       locale;
+   private NumberFormat format;
 
-    /** Sets the format type to be used to render numbers as Strings. */
-    public void setFormatType(String formatType) {
-        this.formatType = formatType;
-    }
+   /** Formats the number supplied as a String. */
+   @Override
+   public String format( Number input ) {
+      return format.format(input);
+   }
 
-    /** Gets the format type to be used to render numbers as Strings. */
-    public String getFormatType() {
-        return formatType;
-    }
+   /** Gets the named format string or number format pattern to use to format the number. */
+   public String getFormatPattern() {
+      return formatPattern;
+   }
 
-    /** Sets the named format string or number format pattern to use to format the number. */
-    public void setFormatPattern(String formatPattern) {
-        this.formatPattern = formatPattern;
-    }
+   /** Gets the format type to be used to render numbers as Strings. */
+   public String getFormatType() {
+      return formatType;
+   }
 
-    /** Gets the named format string or number format pattern to use to format the number. */
-    public String getFormatPattern() {
-        return formatPattern;
-    }
+   /** Gets the locale that output String should be in. */
+   public Locale getLocale() {
+      return locale;
+   }
 
-    /** Sets the locale that output String should be in. */
-    public void setLocale(Locale locale) {
-        this.locale = locale;
-    }
+   /** Instantiates the NumberFormat based on the information provided through setter methods. */
+   @Override
+   public void init() {
+      // Set some sensible defaults if things are null
+      if ( formatType == null ) {
+          formatType = "number";
+      }
 
-    /** Gets the locale that output String should be in. */
-    public Locale getLocale() {
-        return locale;
-    }
+      // Figure out which kind of number formatter to get
+      if ( formatPattern == null ) {
+          formatPattern = "plain";
+      }
 
-    /** Instantiates the NumberFormat based on the information provided through setter methods. */
-    public void init() {
-        // Set some sensible defaults if things are null
-        if (this.formatType == null) {
-            this.formatType = "number";
-        }
+      if ( formatType.equalsIgnoreCase("number") ) {
+          format = NumberFormat.getInstance(locale);
+      } else if ( formatType.equalsIgnoreCase("currency") ) {
+          format = NumberFormat.getCurrencyInstance(locale);
+      } else if ( formatType.equalsIgnoreCase("percentage") ) {
+          format = NumberFormat.getPercentInstance(locale);
+      } else {
+         throw new StripesRuntimeException(
+               "Invalid format type supplied for formatting a " + "number: " + formatType + ". Valid values are 'number', 'currency' "
+                     + "and 'percentage'.");
+      }
 
-        // Figure out which kind of number formatter to get
-        if (this.formatPattern == null) {
-            this.formatPattern = "plain";
-        }
+      // Do any extra configuration
+      if ( formatPattern.equalsIgnoreCase("plain") ) {
+          format.setGroupingUsed(false);
+      } else if ( formatPattern.equalsIgnoreCase("integer") ) {
+          format.setMaximumFractionDigits(0);
+      } else if ( formatPattern.equalsIgnoreCase(("decimal")) ) {
+          format.setMinimumFractionDigits(2);
+          format.setMaximumFractionDigits(6);
+      } else {
+         try {
+            ((DecimalFormat)format).applyPattern(formatPattern);
+         }
+         catch ( Exception e ) {
+            throw new StripesRuntimeException("Custom pattern could not be applied to " + "NumberFormat instance.  Pattern was: " + formatPattern, e);
+         }
+      }
+   }
 
-        if (this.formatType.equalsIgnoreCase("number")) {
-            this.format = NumberFormat.getInstance(locale);
-        }
-        else if (this.formatType.equalsIgnoreCase("currency")) {
-            this.format = NumberFormat.getCurrencyInstance(locale);
-        }
-        else if (this.formatType.equalsIgnoreCase("percentage")) {
-            this.format = NumberFormat.getPercentInstance(locale);
-        }
-        else {
-            throw new StripesRuntimeException("Invalid format type supplied for formatting a " +
-                "number: " + this.formatType + ". Valid values are 'number', 'currency' " +
-                "and 'percentage'.");
-        }
+   /** Sets the named format string or number format pattern to use to format the number. */
+   @Override
+   public void setFormatPattern( String formatPattern ) {
+      this.formatPattern = formatPattern;
+   }
 
-        // Do any extra configuration
-        if (this.formatPattern.equalsIgnoreCase("plain")) {
-            this.format.setGroupingUsed(false);
-        }
-        else if (this.formatPattern.equalsIgnoreCase("integer")) {
-            this.format.setMaximumFractionDigits(0);
-        }
-        else if (this.formatPattern.equalsIgnoreCase(("decimal"))) {
-            this.format.setMinimumFractionDigits(2);
-            this.format.setMaximumFractionDigits(6);
-        }
-        else {
-            try {
-                ((DecimalFormat) this.format).applyPattern(this.formatPattern);
-            }
-            catch (Exception e) {
-                throw new StripesRuntimeException("Custom pattern could not be applied to " +
-                    "NumberFormat instance.  Pattern was: " + this.formatPattern,  e);
-            }
-        }
-    }
+   /** Sets the format type to be used to render numbers as Strings. */
+   @Override
+   public void setFormatType( String formatType ) {
+      this.formatType = formatType;
+   }
 
-    /** Formats the number supplied as a String. */
-    public String format(Number input) {
-        return this.format.format(input);
-    }
+   /** Sets the locale that output String should be in. */
+   @Override
+   public void setLocale( Locale locale ) {
+      this.locale = locale;
+   }
 }

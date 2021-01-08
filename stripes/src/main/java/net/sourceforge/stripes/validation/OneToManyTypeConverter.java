@@ -14,12 +14,13 @@
  */
 package net.sourceforge.stripes.validation;
 
-import net.sourceforge.stripes.controller.StripesFilter;
-import net.sourceforge.stripes.exception.StripesRuntimeException;
-
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Locale;
+
+import net.sourceforge.stripes.controller.StripesFilter;
+import net.sourceforge.stripes.exception.StripesRuntimeException;
+
 
 /**
  * <p>A specialized type converter for converting a <b>single</b> input field/parameter value
@@ -67,84 +68,82 @@ import java.util.Locale;
  * @since Stripes 1.2.2
  */
 public class OneToManyTypeConverter implements TypeConverter<Object> {
-    private Locale locale;
 
-    public void setLocale(Locale locale) { this.locale = locale; }
+   private Locale _locale;
 
-    /**
-     * Converts the supplied String into one or more objects is the manner described in
-     * the class level JavaDoc. If any validation errors occur then {@code null} is returned
-     * regardless of whether any items were successfully converted or not.
-     *
-     * @param input an input String containing one or more items to be converted in a single
-     *        String
-     * @param targetType the type that each individual item will be converted to
-     * @param errors a collection of ValidationErrors that can be added to
-     * @return a Collection containing one or more items of targetType, or null if any
-     *         ValidationErrors occur.
-     */
-    @SuppressWarnings("unchecked")
-	public Collection<? extends Object> convert(String input,
-                                          Class<? extends Object> targetType,
-                                          Collection<ValidationError> errors) {
+   /**
+    * Converts the supplied String into one or more objects is the manner described in
+    * the class level JavaDoc. If any validation errors occur then {@code null} is returned
+    * regardless of whether any items were successfully converted or not.
+    *
+    * @param input an input String containing one or more items to be converted in a single
+    *        String
+    * @param targetType the type that each individual item will be converted to
+    * @param errors a collection of ValidationErrors that can be added to
+    * @return a Collection containing one or more items of targetType, or null if any
+    *         ValidationErrors occur.
+    */
+   @Override
+   @SuppressWarnings("unchecked")
+   public Collection<? extends Object> convert( String input, Class<? extends Object> targetType, Collection<ValidationError> errors ) {
 
-        TypeConverter converter = getSingleItemTypeConverter(targetType);
-        String[] splits = input.split( getSplitRegex() );
-        Collection<Object> items = getCollectionInstance();
+      TypeConverter converter = getSingleItemTypeConverter(targetType);
+      String[] splits = input.split(getSplitRegex());
+      Collection<Object> items = getCollectionInstance();
 
-        for (String split : splits) {
-            Object item = converter.convert(split, targetType, errors);
-            if (item != null) {
-                items.add(item);
-            }
-        }
+      for ( String split : splits ) {
+         Object item = converter.convert(split, targetType, errors);
+         if ( item != null ) {
+            items.add(item);
+         }
+      }
 
-        return items.size() > 0 ? items : null;
-    }
+      return items.size() > 0 ? items : null;
+   }
 
-    /**
-     * Instantiates and returns a Collection of a type that can be set on ActionBeans using
-     * this converter.  By default returns an instance of {@link java.util.List}.
-     *
-     * @return an instance of {@link java.util.List}
-     */
-    @SuppressWarnings("unchecked")
-	public Collection getCollectionInstance() {
-        return new LinkedList<Object>();
-    }
+   /**
+    * Instantiates and returns a Collection of a type that can be set on ActionBeans using
+    * this converter.  By default returns an instance of {@link java.util.List}.
+    *
+    * @return an instance of {@link java.util.List}
+    */
+   @SuppressWarnings("unchecked")
+   public Collection getCollectionInstance() {
+      return new LinkedList<>();
+   }
 
-    /**
-     * Returns the String form of a regular expression that identifies the separator Strings
-     * in the input String.  The default expression matches an optional comma followed by one
-     * or more spaces.
-     *
-     * @return a regular expression matching an optional comma followed by one or more spaces.
-     */
-    protected String getSplitRegex() {
-        return "[, ]+";
-    }
+   @Override
+   public void setLocale( Locale locale ) { _locale = locale; }
 
-    /**
-     * Fetches an instance of {@link TypeConverter} that can be used to convert the individual
-     * items split out of the input String. By default uses the {@link TypeConverterFactory} to
-     * find an appropriate {@link TypeConverter}.
-     *
-     * @param targetType the type that each item should be converted to.
-     * @return a TypeConverter for use in converting each individual item.
-     */
-    @SuppressWarnings("unchecked")
-	protected TypeConverter getSingleItemTypeConverter(Class targetType) {
-        try {
-            TypeConverterFactory factory = StripesFilter.getConfiguration().getTypeConverterFactory();
-            return factory.getTypeConverter(targetType, this.locale);
-        }
-        catch (Exception e) {
-            throw new StripesRuntimeException(
-                    "You are using the OneToManyTypeConverter to convert a String to a List of " +
-                            "items for which there is no registered converter! Please check that the " +
-                            "TypeConverterFactory knows how to make a converter for: " +
-                            targetType, e
-            );
-        }
-    }
+   /**
+    * Fetches an instance of {@link TypeConverter} that can be used to convert the individual
+    * items split out of the input String. By default uses the {@link TypeConverterFactory} to
+    * find an appropriate {@link TypeConverter}.
+    *
+    * @param targetType the type that each item should be converted to.
+    * @return a TypeConverter for use in converting each individual item.
+    */
+   @SuppressWarnings("unchecked")
+   protected TypeConverter getSingleItemTypeConverter( Class targetType ) {
+      try {
+         TypeConverterFactory factory = StripesFilter.getConfiguration().getTypeConverterFactory();
+         return factory.getTypeConverter(targetType, _locale);
+      }
+      catch ( Exception e ) {
+         throw new StripesRuntimeException("You are using the OneToManyTypeConverter to convert a String to a List of "
+               + "items for which there is no registered converter! Please check that the " + "TypeConverterFactory knows how to make a converter for: "
+               + targetType, e);
+      }
+   }
+
+   /**
+    * Returns the String form of a regular expression that identifies the separator Strings
+    * in the input String.  The default expression matches an optional comma followed by one
+    * or more spaces.
+    *
+    * @return a regular expression matching an optional comma followed by one or more spaces.
+    */
+   protected String getSplitRegex() {
+      return "[, ]+";
+   }
 }

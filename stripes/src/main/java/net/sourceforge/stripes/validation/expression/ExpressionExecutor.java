@@ -14,12 +14,13 @@
  */
 package net.sourceforge.stripes.validation.expression;
 
+import java.util.List;
+
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.controller.ParameterName;
-import net.sourceforge.stripes.validation.ValidationMetadata;
 import net.sourceforge.stripes.validation.ValidationErrors;
+import net.sourceforge.stripes.validation.ValidationMetadata;
 
-import java.util.List;
 
 /**
  * <p>Simple interface that specifies how Stripes will invoke expression based validation.
@@ -33,42 +34,41 @@ import java.util.List;
  * @since Stripes 1.5
  */
 public interface ExpressionExecutor {
-    /** The default scope to use when constructing errors. */
-    String ERROR_DEFAULT_SCOPE = "validation.expression";
 
-    /** The error key to use when constructing errors. */
-    String ERROR_KEY = "valueFailedExpression";
+   /** The default scope to use when constructing errors. */
+   String ERROR_DEFAULT_SCOPE = "validation.expression";
 
-    /**
-     * The special name given to the field that the expression is annotated on.
-     *
-     * @deprecated  See http://www.stripesframework.org/jira/browse/STS-822 - replaced by SELF
-     */
-    @Deprecated
-    String THIS = "this";
+   /** The error key to use when constructing errors. */
+   String ERROR_KEY = "valueFailedExpression";
 
-    /**
-     * .
-     * This constant is the keyword to be used to refer to the 'this' in EL expressions, which is invalid in
-     * EL implementations.
-     *
-     * http://www.stripesframework.org/jira/browse/STS-822
-     */
-    final String SELF = "self";
+   /**
+    * The special name given to the field that the expression is annotated on.
+    *
+    * @deprecated See http://www.stripesframework.org/jira/browse/STS-822 - replaced by SELF
+    */
+   @Deprecated
+   String THIS = "this";
 
+   /**
+    * .
+    * This constant is the keyword to be used to refer to the 'this' in EL expressions, which is invalid in
+    * EL implementations.
+    *
+    * http://www.stripesframework.org/jira/browse/STS-822
+    */
+   final String SELF = "self";
 
-    /**
-     * Performs validation of an ActionBean property using the expression contained
-     * within the validation metadata. If the expression does not evaluate to true
-     * then an error will be added to the validation errors. Otherwise there are no
-     * side effects.
-     *
-     * @param bean the ActionBean instance owning the field being validated
-     * @param name the name of the field being validated
-     * @param values the List of values (post type conversion), each to be validated
-     * @param validationInfo the validation metadata for the field
-     * @param errors the ValidationErrors object into which to place any errors
-     */
-    public void evaluate(ActionBean bean, ParameterName name, List<Object> values,
-                         ValidationMetadata validationInfo, ValidationErrors errors);
+   /**
+    * Performs validation of an ActionBean property using the expression contained
+    * within the validation metadata. If the expression does not evaluate to true
+    * then an error will be added to the validation errors. Otherwise there are no
+    * side effects.
+    *
+    * @param bean the ActionBean instance owning the field being validated
+    * @param name the name of the field being validated
+    * @param values the List of values (post type conversion), each to be validated
+    * @param validationInfo the validation metadata for the field
+    * @param errors the ValidationErrors object into which to place any errors
+    */
+   public void evaluate( ActionBean bean, ParameterName name, List<Object> values, ValidationMetadata validationInfo, ValidationErrors errors );
 }

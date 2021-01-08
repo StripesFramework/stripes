@@ -24,8 +24,9 @@ package net.sourceforge.stripes.tag;
  * @author Tim Fennell
  */
 public class InputResetTag extends InputButtonSupportTag {
-    /** Sets the input tag type to be reset. */
-    public InputResetTag() {
-        getAttributes().put("type", "reset");
-    }
+
+   /** Sets the input tag type to be reset. */
+   public InputResetTag() {
+      getAttributes().put("type", "reset");
+   }
 }

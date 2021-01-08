@@ -21,6 +21,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+
 /**
  * <p>
  * This annotation can be applied to an event handler method or to an {@link ActionBean} class to
@@ -41,25 +42,26 @@ import java.lang.annotation.Target;
  * <li>{@code @HttpCache(expires=600)} - Caching is allowed. The document expires in 10 minutes.</li>
  * </ul>
  * </p>
- * 
+ *
  * @author Ben Gunter
  * @since Stripes 1.5
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target( { ElementType.METHOD, ElementType.TYPE })
+@Target({ ElementType.METHOD, ElementType.TYPE })
 @Inherited
 @Documented
 public @interface HttpCache {
-    /** Default value for {@link #expires()}. */
-    public static final int DEFAULT_EXPIRES = Integer.MIN_VALUE;
 
-    /** Indicates whether the response should be cached by the client. */
-    boolean allow() default true;
+   /** Default value for {@link #expires()}. */
+   public static final int DEFAULT_EXPIRES = Integer.MIN_VALUE;
 
-    /**
-     * The number of seconds into the future that the response should expire. If {@link #allow()} is
-     * false, then this value is ignored and zero is used. If {@link #allow()} is true and this
-     * value is less than zero, then no Expires header is sent.
-     */
-    int expires() default DEFAULT_EXPIRES;
+   /** Indicates whether the response should be cached by the client. */
+   boolean allow() default true;
+
+   /**
+    * The number of seconds into the future that the response should expire. If {@link #allow()} is
+    * false, then this value is ignored and zero is used. If {@link #allow()} is true and this
+    * value is less than zero, then no Expires header is sent.
+    */
+   int expires() default DEFAULT_EXPIRES;
 }

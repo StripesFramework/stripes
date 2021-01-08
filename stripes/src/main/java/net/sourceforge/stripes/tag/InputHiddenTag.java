@@ -14,10 +14,12 @@
  */
 package net.sourceforge.stripes.tag;
 
+import java.lang.reflect.Array;
+import java.util.Collection;
+
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.BodyTag;
-import java.util.Collection;
-import java.lang.reflect.Array;
+
 
 /**
  * <p>Generates one or more {@literal <input type="hidden" ... />} HTML tags based on the value
@@ -38,90 +40,90 @@ import java.lang.reflect.Array;
  * @author Tim Fennell
  */
 public class InputHiddenTag extends InputTagSupport implements BodyTag {
-    private Object value;
 
-    /** Basic constructor that sets the input tag's type attribute to "hidden". */
-    public InputHiddenTag() {
-        getAttributes().put("type", "hidden");
-    }
+   private Object _value;
 
-    /**
-     * Sets the value that will be used for the hidden field(s) if no body or repopulation
-     * value is found.
-     *
-     * @param value the result of an EL evaluation, can be a Collection, Array or other.
-     */
-    public void setValue(Object value) {
-        this.value = value;
-    }
+   /** Basic constructor that sets the input tag's type attribute to "hidden". */
+   public InputHiddenTag() {
+      getAttributes().put("type", "hidden");
+   }
 
-    /** Returns the value set with setValue(). */
-    public Object getValue() {
-        return this.value;
-    }
+   /**
+    * Does nothing.
+    * @return SKIP_BODY in all cases.
+    */
+   @Override
+   public int doAfterBody() throws JspException {
+      return SKIP_BODY;
+   }
 
-    /**
-     * Sets the tag up as a hidden tag.
-     *
-     * @return EVAL_BODY_BUFFERED to always buffer the body (so it can be used as the value)
-     */
-    @Override
-    public int doStartInputTag() throws JspException {
-        return EVAL_BODY_BUFFERED;
-    }
+   /**
+    * Determines the value(s) that will be used for the tag and then proceeds to generate
+    * one or more hidden fields to contain those values.
+    *
+    * @return EVAL_PAGE in all cases.
+    * @throws JspException if the enclosing form tag cannot be found, or output cannot be written.
+    */
+   @Override
+   public int doEndInputTag() throws JspException {
+      // Find out if we have a value from the PopulationStrategy
+      Object valueOrValues = getOverrideValueOrValues();
 
-    /** Does nothing. */
-    public void doInitBody() throws JspException {
-
-    }
-
-    /**
-     * Does nothing.
-     * @return SKIP_BODY in all cases.
-     */
-    public int doAfterBody() throws JspException {
-        return SKIP_BODY;
-    }
-
-    /**
-     * Determines the value(s) that will be used for the tag and then proceeds to generate
-     * one or more hidden fields to contain those values.
-     *
-     * @return EVAL_PAGE in all cases.
-     * @throws JspException if the enclosing form tag cannot be found, or output cannot be written.
-     */
-    @Override
-    public int doEndInputTag() throws JspException {
-        // Find out if we have a value from the PopulationStrategy
-        Object valueOrValues = getOverrideValueOrValues();
-
-        // Figure out how many times to write it out
-        if (valueOrValues == null) {
-            getAttributes().put("value", "");
+      // Figure out how many times to write it out
+      if ( valueOrValues == null ) {
+         getAttributes().put("value", "");
+         writeSingletonTag(getPageContext().getOut(), "input");
+      } else if ( valueOrValues.getClass().isArray() ) {
+         int len = Array.getLength(valueOrValues);
+         for ( int i = 0; i < len; ++i ) {
+            Object value = Array.get(valueOrValues, i);
+            getAttributes().put("value", format(value));
             writeSingletonTag(getPageContext().getOut(), "input");
-        }
-        else if (valueOrValues.getClass().isArray()) {
-            int len = Array.getLength(valueOrValues);
-            for (int i=0; i<len; ++i) {
-                Object value = Array.get(valueOrValues, i);
-                getAttributes().put("value", format(value));
-                writeSingletonTag(getPageContext().getOut(), "input");
-            }
-        }
-        else if (valueOrValues instanceof Collection<?>) {
-            for (Object value : (Collection<?>) valueOrValues) {
-                getAttributes().put("value", format(value));
-                writeSingletonTag(getPageContext().getOut(), "input");
-            }
-        }
-        else {
-            getAttributes().put("value", format(valueOrValues));
+         }
+      } else if ( valueOrValues instanceof Collection<?> ) {
+         for ( Object value : (Collection<?>)valueOrValues ) {
+            getAttributes().put("value", format(value));
             writeSingletonTag(getPageContext().getOut(), "input");
-        }
+         }
+      } else {
+         getAttributes().put("value", format(valueOrValues));
+         writeSingletonTag(getPageContext().getOut(), "input");
+      }
 
-        // Clear out the value from the attributes
-        getAttributes().remove("value");
+      // Clear out the value from the attributes
+      getAttributes().remove("value");
 
-        return EVAL_PAGE;
-    }
+      return EVAL_PAGE;
+   }
+
+   /** Does nothing. */
+   @Override
+   public void doInitBody() throws JspException {
+
+   }
+
+   /**
+    * Sets the tag up as a hidden tag.
+    *
+    * @return EVAL_BODY_BUFFERED to always buffer the body (so it can be used as the value)
+    */
+   @Override
+   public int doStartInputTag() throws JspException {
+      return EVAL_BODY_BUFFERED;
+   }
+
+   /** Returns the value set with setValue(). */
+   public Object getValue() {
+      return _value;
+   }
+
+   /**
+    * Sets the value that will be used for the hidden field(s) if no body or repopulation
+    * value is found.
+    *
+    * @param value the result of an EL evaluation, can be a Collection, Array or other.
+    */
+   public void setValue( Object value ) {
+       _value = value;
+   }
 }

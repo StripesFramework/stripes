@@ -28,22 +28,22 @@ package net.sourceforge.stripes.tag;
  */
 public interface TagErrorRenderer {
 
-    /**
-     * Initialize this renderer for a specific tag instance
-     * @param tag The InputTagSuppport subclass that will be modified
-     */
-    void init(InputTagSupport tag);
+   /**
+    * Executed after the end of rendering of the input tag, including
+    * its body and end tag.
+    */
+   void doAfterEndTag();
 
-    /**
-     * Executed before the start of rendering of the input tag.
-     * The input tag attributes can be modified here to be written
-     * out with other html attributes.
-     */
-    void doBeforeStartTag();
+   /**
+    * Executed before the start of rendering of the input tag.
+    * The input tag attributes can be modified here to be written
+    * out with other html attributes.
+    */
+   void doBeforeStartTag();
 
-    /**
-     * Executed after the end of rendering of the input tag, including
-     * its body and end tag.
-     */
-    void doAfterEndTag();
+   /**
+    * Initialize this renderer for a specific tag instance
+    * @param tag The InputTagSuppport subclass that will be modified
+    */
+   void init( InputTagSupport tag );
 }

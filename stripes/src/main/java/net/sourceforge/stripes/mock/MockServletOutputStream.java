@@ -14,9 +14,11 @@
  */
 package net.sourceforge.stripes.mock;
 
-import javax.servlet.ServletOutputStream;
-import java.io.IOException;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+
+import javax.servlet.ServletOutputStream;
+
 
 /**
  * Mock implementation of a ServletOutputStream that just uses a byte array output stream to
@@ -26,19 +28,20 @@ import java.io.ByteArrayOutputStream;
  * @since Stripes 1.1
  */
 public class MockServletOutputStream extends ServletOutputStream {
-    private ByteArrayOutputStream out = new ByteArrayOutputStream();
 
-    /** Pass through method calls ByteArrayOutputStream.write(int b). */
-    @Override
-    public void write(int b) throws IOException { out.write(b); }
+   private final ByteArrayOutputStream _out = new ByteArrayOutputStream();
 
-    /** Returns the array of bytes that have been written to the output stream. */
-    public byte[] getBytes() {
-        return out.toByteArray();
-    }
+   /** Returns the array of bytes that have been written to the output stream. */
+   public byte[] getBytes() {
+      return _out.toByteArray();
+   }
 
-    /** Returns, as a character string, the output that was written to the output stream. */
-    public String getString() {
-        return out.toString();
-    }
+   /** Returns, as a character string, the output that was written to the output stream. */
+   public String getString() {
+      return _out.toString();
+   }
+
+   /** Pass through method calls ByteArrayOutputStream.write(int b). */
+   @Override
+   public void write( int b ) throws IOException { _out.write(b); }
 }

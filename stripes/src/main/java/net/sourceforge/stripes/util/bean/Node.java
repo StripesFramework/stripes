@@ -24,57 +24,57 @@ package net.sourceforge.stripes.util.bean;
  * @since Stripes 1.4
  */
 public class Node {
-    private String stringValue;
-    private Object typedValue;
-    private boolean bracketed;
-    private Node next;
-    private Node previous;
 
-    /** Constructs a new node with the String value and typed value provided. */
-    public Node(String value, Object typedValue, boolean bracketed) {
-        this.stringValue = value;
-        this.typedValue = typedValue;
-        this.bracketed = bracketed;
-    }
+   private final String  _stringValue;
+   private final Object  _typedValue;
+   private final boolean _bracketed;
+   private       Node    _next;
+   private       Node    _previous;
 
-    /**
-     * Returns the Java type of this node in the expression.  Specifically this is the
-     * type determined for the text in this node, not the type of the property/sub-property
-     * represented by this node in an evaluation against a specific bean.
-     */
-    public Class<? extends Object> getExpresssionNodeType() {
-        return typedValue.getClass();
-    }
+   /** Constructs a new node with the String value and typed value provided. */
+   public Node( String value, Object typedValue, boolean bracketed ) {
+      _stringValue = value;
+      _typedValue = typedValue;
+      _bracketed = bracketed;
+   }
 
-    /**
-     * Returns the original String value of this expression node.
-     * @return the original String value
-     */
-    public String getStringValue() { return stringValue; }
+   /**
+    * Returns the Java type of this node in the expression.  Specifically this is the
+    * type determined for the text in this node, not the type of the property/sub-property
+    * represented by this node in an evaluation against a specific bean.
+    */
+   public Class<? extends Object> getExpresssionNodeType() {
+      return _typedValue.getClass();
+   }
 
-    /**
-     * Returns the typed value for this node as determined when parsing the expression
-     * @return the typed value (may also be a String)
-     */
-    public Object getTypedValue() { return typedValue; }
+   /** Gets the next node in the expression. Returns null if this is the terminal node. */
+   public Node getNext() { return _next; }
 
-    /** True if the expression that generated this node was inside square brackets. */
-    public boolean isBracketed() { return bracketed; }
+   /** Gets the previous node in the expression. Returns null if this is the first node. */
+   public Node getPrevious() { return _previous; }
 
-    /** Gets the next node in the expression. Returns null if this is the terminal node. */
-    public Node getNext() { return next; }
+   /**
+    * Returns the original String value of this expression node.
+    * @return the original String value
+    */
+   public String getStringValue() { return _stringValue; }
 
-    /** Sets the next node in the expression. */
-    protected void setNext(Node next) { this.next = next; }
+   /**
+    * Returns the typed value for this node as determined when parsing the expression
+    * @return the typed value (may also be a String)
+    */
+   public Object getTypedValue() { return _typedValue; }
 
-    /** Gets the previous node in the expression. Returns null if this is the first node. */
-    public Node getPrevious() { return previous; }
+   /** True if the expression that generated this node was inside square brackets. */
+   public boolean isBracketed() { return _bracketed; }
 
-    /** Sets the previous node in the expression. */
-    protected void setPrevious(Node previous) { this.previous = previous; }
+   /** Simple toString that returns the text that constructed this node. */
+   @Override
+   public String toString() { return _stringValue; }
 
+   /** Sets the next node in the expression. */
+   protected void setNext( Node next ) { _next = next; }
 
-    /** Simple toString that returns the text that constructed this node. */
-    @Override
-    public String toString() { return stringValue; }
+   /** Sets the previous node in the expression. */
+   protected void setPrevious( Node previous ) { _previous = previous; }
 }

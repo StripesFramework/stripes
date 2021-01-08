@@ -14,10 +14,11 @@
  */
 package net.sourceforge.stripes.validation.expression;
 
-import net.sourceforge.stripes.util.ReflectUtil;
-import net.sourceforge.stripes.exception.StripesRuntimeException;
-
 import javax.servlet.jsp.el.ExpressionEvaluator;
+
+import net.sourceforge.stripes.exception.StripesRuntimeException;
+import net.sourceforge.stripes.util.ReflectUtil;
+
 
 /**
  * An implementation of {@link ExpressionExecutor} that relies on the Apache Commons
@@ -30,33 +31,33 @@ import javax.servlet.jsp.el.ExpressionEvaluator;
  */
 @SuppressWarnings("deprecation")
 public class CommonsElExpressionExecutor extends ExpressionExecutorSupport {
-    /** The FQN of the expression evaluator class in commons-el. */
-    public static final String COMMONS_CLASS = "org.apache.commons.el.ExpressionEvaluatorImpl";
 
-    /**
-     * Default constructor that checks to make sure this class can work, and if not throws
-     * an exception.
-     */
-    public CommonsElExpressionExecutor() {
-        if (getEvaluator() == null) {
-            throw new StripesRuntimeException("Apache commons EL does not appear to be available.");
-        }
-    }
+   /** The FQN of the expression evaluator class in commons-el. */
+   public static final String COMMONS_CLASS = "org.apache.commons.el.ExpressionEvaluatorImpl";
 
-    /**
-     * Attempts to create an expression evaluator by reflecting to find the implementation
-     * in the apache commons-el project.
-     *
-     * @return an instance of ExpressionEvaluatorImpl if it can, null otherwise
-     */
-    @Override
-    protected ExpressionEvaluator getEvaluator() {
-        try {
-            return (ExpressionEvaluator)
-                    ReflectUtil.findClass(COMMONS_CLASS).newInstance();
-        }
-        catch (Exception e) {
-            return null;
-        }
-    }
+   /**
+    * Default constructor that checks to make sure this class can work, and if not throws
+    * an exception.
+    */
+   public CommonsElExpressionExecutor() {
+      if ( getEvaluator() == null ) {
+         throw new StripesRuntimeException("Apache commons EL does not appear to be available.");
+      }
+   }
+
+   /**
+    * Attempts to create an expression evaluator by reflecting to find the implementation
+    * in the apache commons-el project.
+    *
+    * @return an instance of ExpressionEvaluatorImpl if it can, null otherwise
+    */
+   @Override
+   protected ExpressionEvaluator getEvaluator() {
+      try {
+         return (ExpressionEvaluator)ReflectUtil.findClass(COMMONS_CLASS).newInstance();
+      }
+      catch ( Exception e ) {
+         return null;
+      }
+   }
 }

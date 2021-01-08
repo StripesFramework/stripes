@@ -23,18 +23,19 @@ package net.sourceforge.stripes.util.bean;
  * @since Stripes 1.4
  */
 public class ParseException extends ExpressionException {
-	private static final long serialVersionUID = 1L;
 
-    private String expression;
+   private static final long serialVersionUID = 1L;
 
-    /** Constructs an exception with the supplied expression and message. */
-    public ParseException(String expression, String message) {
-        super(message + " Expression: " + expression);
-        this.expression = expression;
-    }
+   private final String _expression;
 
-    /** Fetches the expression which caused the parsing failure. */
-    public String getExpression() {
-        return expression;
-    }
+   /** Constructs an exception with the supplied expression and message. */
+   public ParseException( String expression, String message ) {
+      super(message + " Expression: " + expression);
+      _expression = expression;
+   }
+
+   /** Fetches the expression which caused the parsing failure. */
+   public String getExpression() {
+      return _expression;
+   }
 }

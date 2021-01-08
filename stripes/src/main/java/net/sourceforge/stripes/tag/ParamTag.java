@@ -14,11 +14,12 @@
  */
 package net.sourceforge.stripes.tag;
 
-import javax.servlet.jsp.tagext.BodyTag;
-import javax.servlet.jsp.tagext.BodyContent;
-import javax.servlet.jsp.tagext.Tag;
-import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.PageContext;
+import javax.servlet.jsp.tagext.BodyContent;
+import javax.servlet.jsp.tagext.BodyTag;
+import javax.servlet.jsp.tagext.Tag;
+
 
 /**
  * <p>Used to supply parameters when nested inside tags that implement {@link ParameterizableTag}.
@@ -29,106 +30,113 @@ import javax.servlet.jsp.JspException;
  * over to it.</p>
  *
  * <p>Primarily used by the LinkTag and UrlTag.</p>
-
  * @author Tim Fennell
  * @since Stripes 1.4
  * @see ParamTag
  */
 public class ParamTag implements BodyTag {
-    private String name;
-    private Object value;
-    private BodyContent bodyContent;
-    private Tag parentTag;
-    private PageContext pageContext;
 
-    /** Sets the value of the parameter(s) to be added to the URL. */
-    public void setValue(Object value) {
-        this.value = value;
-    }
+   private String      _name;
+   private Object      _value;
+   private BodyContent _bodyContent;
+   private Tag         _parentTag;
+   private PageContext _pageContext;
 
-    /** Gets the value attribute, as set with setValue(). */
-    public Object getValue() {
-        return value;
-    }
+   /**
+    * Does nothing.
+    * @return SKIP_BODY in all cases.
+    */
+   @Override
+   public int doAfterBody() throws JspException { return SKIP_BODY; }
 
-    /** Sets the name of the parameter(s) that will be added to the URL. */
-    public void setName(String name) {
-        this.name = name;
-    }
+   /**
+    * Figures out what to use as the value, and then finds the parent link and adds
+    * the parameter.
+    * @return EVAL_PAGE in all cases.
+    */
+   @Override
+   public int doEndTag() throws JspException {
+      Object valueToSet = _value;
 
-    /** Gets the name of the parameter(s) that will be added to the URL. */
-    public String getName() {
-        return name;
-    }
+      // First figure out what value to send to the parent link tag
+      if ( _value == null ) {
+         if ( _bodyContent == null ) {
+            valueToSet = "";
+         } else {
+            valueToSet = _bodyContent.getString();
+         }
+      }
 
-    /** Used by the container to set the contents of the body of the tag. */
-    public void setBodyContent(BodyContent bodyContent) {
-        this.bodyContent = bodyContent;
-    }
+      // Find the parent link tag
+      Tag parameterizable = _parentTag;
+      while ( parameterizable != null && !(parameterizable instanceof ParameterizableTag) ) {
+         parameterizable = parameterizable.getParent();
+      }
 
-    /** Used by the container to set the page context for the tag. */
-    public void setPageContext(PageContext pageContext) {
-        this.pageContext = pageContext;
-    }
+      ((ParameterizableTag)parameterizable).addParameter(_name, valueToSet);
+      return EVAL_PAGE;
+   }
 
-    /** Used by the container to provide the tag with access to it's parent tag on the page. */
-    public void setParent(Tag tag) {
-        this.parentTag = tag;
-    }
+   /** Does nothing. */
+   @Override
+   public void doInitBody() throws JspException { /* Do Nothing */ }
 
-    /** Required spec method to allow others to access the parent of the tag. */
-    public Tag getParent() {
-        return this.parentTag;
-    }
+   /**
+    * Does nothing.
+    * @return EVAL_BODY_BUFFERED in all cases.
+    */
+   @Override
+   public int doStartTag() throws JspException { return EVAL_BODY_BUFFERED; }
 
-    /** Does nothing. */
-    public void doInitBody() throws JspException { /* Do Nothing */ }
+   /** Gets the name of the parameter(s) that will be added to the URL. */
+   public String getName() {
+      return _name;
+   }
 
-    /**
-     * Does nothing.
-     * @return SKIP_BODY in all cases.
-     */
-    public int doAfterBody() throws JspException { return SKIP_BODY; }
+   public PageContext getPageContext() {
+      return _pageContext;
+   }
 
-    /**
-     * Does nothing.
-     * @return EVAL_BODY_BUFFERED in all cases.
-     */
-    public int doStartTag() throws JspException { return EVAL_BODY_BUFFERED; }
+   /** Required spec method to allow others to access the parent of the tag. */
+   @Override
+   public Tag getParent() {
+      return _parentTag;
+   }
 
-    /**
-     * Figures out what to use as the value, and then finds the parent link and adds
-     * the parameter.
-     * @return EVAL_PAGE in all cases.
-     */
-    public int doEndTag() throws JspException {
-        Object valueToSet = value;
+   /** Gets the value attribute, as set with setValue(). */
+   public Object getValue() {
+      return _value;
+   }
 
-        // First figure out what value to send to the parent link tag
-        if (value == null) {
-            if (this.bodyContent == null) {
-                valueToSet = "";
-            }
-            else {
-                valueToSet = this.bodyContent.getString();
-            }
-        }
+   /** Does nothing. */
+   @Override
+   public void release() { /* Do nothing. */ }
 
-        // Find the parent link tag
-        Tag parameterizable = this.parentTag;
-        while (parameterizable != null && !(parameterizable instanceof ParameterizableTag)) {
-            parameterizable = parameterizable.getParent();
-        }
+   /** Used by the container to set the contents of the body of the tag. */
+   @Override
+   public void setBodyContent( BodyContent bodyContent ) {
+       _bodyContent = bodyContent;
+   }
 
-        ((ParameterizableTag) parameterizable).addParameter(name, valueToSet);
-        return EVAL_PAGE;
-    }
+   /** Sets the name of the parameter(s) that will be added to the URL. */
+   public void setName( String name ) {
+       _name = name;
+   }
 
-    /** Does nothing. */
-    public void release() { /* Do nothing. */ }
+   /** Used by the container to set the page context for the tag. */
+   @Override
+   public void setPageContext( PageContext pageContext ) {
+       _pageContext = pageContext;
+   }
 
-	public PageContext getPageContext()
-	{
-		return pageContext;
-	}
+   /** Used by the container to provide the tag with access to it's parent tag on the page. */
+   @Override
+   public void setParent( Tag tag ) {
+      _parentTag = tag;
+   }
+
+   /** Sets the value of the parameter(s) to be added to the URL. */
+   public void setValue( Object value ) {
+       _value = value;
+   }
 }

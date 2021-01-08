@@ -14,11 +14,12 @@
  */
 package net.sourceforge.stripes.action;
 
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Documented;
+
 
 /**
  * <p>Annotation that is used to specify that an ActionBean should be instantiated and stored across
@@ -60,7 +61,8 @@ import java.lang.annotation.Documented;
  * @author Tim Fennell
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.TYPE})
+@Target({ ElementType.TYPE })
 @Documented
 public @interface SessionScope {
+
 }

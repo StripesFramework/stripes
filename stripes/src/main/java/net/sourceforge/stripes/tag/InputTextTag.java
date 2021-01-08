@@ -22,6 +22,7 @@ import net.sourceforge.stripes.exception.StripesJspException;
 import net.sourceforge.stripes.validation.Validate;
 import net.sourceforge.stripes.validation.ValidationMetadata;
 
+
 /**
  * <p>Tag that generates HTML form fields of type
  * {@literal <input type="text" name="foo" value="bar"/>}, which can dynamically re-populate their
@@ -38,91 +39,93 @@ import net.sourceforge.stripes.validation.ValidationMetadata;
  *
  * @author Tim Fennell
  */
- public class InputTextTag extends InputTagSupport implements BodyTag {
-    private Object value;
-    private String maxlength;
+public class InputTextTag extends InputTagSupport implements BodyTag {
 
-    /** Basic constructor that sets the input tag's type attribute to "text". */
-    public InputTextTag() {
-        getAttributes().put("type", "text");
-    }
+   private Object _value;
+   private String _maxlength;
 
-    /** Sets the default value of the text field (if no body is present). */
-    public void setValue(Object value) { this.value = value; }
+   /** Basic constructor that sets the input tag's type attribute to "text". */
+   public InputTextTag() {
+      getAttributes().put("type", "text");
+   }
 
-    /** Returns the value set using setValue(). */
-    public Object getValue() { return this.value; }
+   /**
+    * Does nothing.
+    * @return SKIP_BODY in all cases.
+    */
+   @Override
+   public int doAfterBody() throws JspException {
+      return SKIP_BODY;
+   }
 
+   /**
+    * Determines which source is applicable for the value of the text field and then writes
+    * out the tag.
+    *
+    * @return EVAL_PAGE in all cases.
+    * @throws JspException if the enclosing form tag cannot be found, or output cannot be written.
+    */
+   @Override
+   public int doEndInputTag() throws JspException {
+      // Find out if we have a value from the PopulationStrategy
+      Object value = getSingleOverrideValue();
 
-    /** Sets the HTML attribute of the same name. */
-    public void setMaxlength(String maxlength) { this.maxlength = maxlength; }
+      // Figure out where to pull the value from
+      if ( value != null ) {
+         getAttributes().put("value", format(value));
+      }
 
-    /** Gets the HTML attribute of the same name. */
-    public String getMaxlength() { return maxlength; }
+      set("maxlength", getEffectiveMaxlength());
+      writeSingletonTag(getPageContext().getOut(), "input");
 
-    /**
-     * Gets the maxlength value that is in effect for this tag, as determined by checking
-     * {@link #getMaxlength()} and then the {@code maxlength} element of the {@link Validate}
-     * annotation on the associated {@link ActionBean} property.
-     * 
-     * @throws StripesJspException if thrown by {@link #getValidationMetadata()}
-     */
-    protected String getEffectiveMaxlength() throws StripesJspException {
-        if (getMaxlength() == null) {
-            ValidationMetadata validation = getValidationMetadata();
-            if (validation != null && validation.maxlength() != null)
-                return validation.maxlength().toString();
-            else
-                return null;
-        }
-        else {
-            return getMaxlength();
-        }
-    }
+      // Restore the original state before we mucked with it
+      getAttributes().remove("value");
 
-    /**
-     * Sets type input tags type to "text".
-     * @return EVAL_BODY_BUFFERED in all cases.
-     */
-    @Override
-    public int doStartInputTag() throws JspException {
-        return EVAL_BODY_BUFFERED;
-    }
+      return EVAL_PAGE;
+   }
 
-    /** Does nothing. */
-    public void doInitBody() throws JspException { }
+   /** Does nothing. */
+   @Override
+   public void doInitBody() throws JspException { }
 
-    /**
-     * Does nothing.
-     * @return SKIP_BODY in all cases.
-     */
-    public int doAfterBody() throws JspException {
-        return SKIP_BODY;
-    }
+   /**
+    * Sets type input tags type to "text".
+    * @return EVAL_BODY_BUFFERED in all cases.
+    */
+   @Override
+   public int doStartInputTag() throws JspException {
+      return EVAL_BODY_BUFFERED;
+   }
 
-    /**
-     * Determines which source is applicable for the value of the text field and then writes
-     * out the tag.
-     *
-     * @return EVAL_PAGE in all cases.
-     * @throws JspException if the enclosing form tag cannot be found, or output cannot be written.
-     */
-    @Override
-    public int doEndInputTag() throws JspException {
-        // Find out if we have a value from the PopulationStrategy
-        Object value = getSingleOverrideValue();
+   /** Gets the HTML attribute of the same name. */
+   public String getMaxlength() { return _maxlength; }
 
-        // Figure out where to pull the value from
-        if (value != null) {
-            getAttributes().put("value", format(value));
-        }
+   /** Returns the value set using setValue(). */
+   public Object getValue() { return _value; }
 
-        set("maxlength", getEffectiveMaxlength());
-        writeSingletonTag(getPageContext().getOut(), "input");
+   /** Sets the HTML attribute of the same name. */
+   public void setMaxlength( String maxlength ) { _maxlength = maxlength; }
 
-        // Restore the original state before we mucked with it
-        getAttributes().remove("value");
+   /** Sets the default value of the text field (if no body is present). */
+   public void setValue( Object value ) { _value = value; }
 
-        return EVAL_PAGE;
-    }
+   /**
+    * Gets the maxlength value that is in effect for this tag, as determined by checking
+    * {@link #getMaxlength()} and then the {@code maxlength} element of the {@link Validate}
+    * annotation on the associated {@link ActionBean} property.
+    *
+    * @throws StripesJspException if thrown by {@link #getValidationMetadata()}
+    */
+   protected String getEffectiveMaxlength() throws StripesJspException {
+      if ( getMaxlength() == null ) {
+         ValidationMetadata validation = getValidationMetadata();
+         if ( validation != null && validation.maxlength() != null ) {
+            return validation.maxlength().toString();
+         } else {
+            return null;
+         }
+      } else {
+         return getMaxlength();
+      }
+   }
 }

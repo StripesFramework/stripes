@@ -25,18 +25,20 @@ import net.sourceforge.stripes.format.Formatter;
 import net.sourceforge.stripes.validation.TypeConverter;
 import net.sourceforge.stripes.validation.Validate;
 
+
 /**
  * When applied to a Stripes extension class (e.g., one that implements {@link Formatter},
  * {@link TypeConverter}, {@link AutoExceptionHandler}, etc.), this annotation indicates that the
  * class should <em>not</em> be loaded via autodiscovery. This is useful, for example, when you
  * have a {@link TypeConverter} that is applied in special cases via {@link Validate#converter()}
  * but should not be used for all the type conversions to which it applies.
- * 
+ *
  * @author Ben Gunter
  * @since Stripes 1.5
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target( { ElementType.TYPE })
+@Target({ ElementType.TYPE })
 @Documented
 public @interface DontAutoLoad {
+
 }

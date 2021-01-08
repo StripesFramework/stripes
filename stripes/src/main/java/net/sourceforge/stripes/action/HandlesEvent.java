@@ -14,11 +14,12 @@
  */
 package net.sourceforge.stripes.action;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
 import java.lang.annotation.Documented;
-import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
 
 /**
  * Annotation used by ActionBean to declare that a method is capable of handling a named event
@@ -28,9 +29,10 @@ import java.lang.annotation.ElementType;
  * @author Tim Fennell
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.METHOD})
+@Target({ ElementType.METHOD })
 @Documented
 public @interface HandlesEvent {
-    /** The name of the event that will be handled by the annotated method. */
-    String value();
+
+   /** The name of the event that will be handled by the annotated method. */
+   String value();
 }

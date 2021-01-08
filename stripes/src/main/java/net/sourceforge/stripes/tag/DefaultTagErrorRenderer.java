@@ -25,7 +25,6 @@ package net.sourceforge.stripes.tag;
  *
  * <p>An example of the css definition to set backgrounds to yellow by default, but
  * to red for checkboxes and radio buttons follows:</p>
-
  * {@code
  *   input.error { background-color: yellow; }
  *   input[type="checkbox"].error, input[type="radio"].error {background-color: red; }
@@ -33,41 +32,44 @@ package net.sourceforge.stripes.tag;
  * @author Greg Hinkle, Tim Fennell
  */
 public class DefaultTagErrorRenderer implements TagErrorRenderer {
-    private InputTagSupport tag;
-    private String oldCssClass;
 
-    /** Simply stores the tag passed in. */
-    public void init(InputTagSupport tag) {
-        this.tag = tag;
-    }
+   private InputTagSupport _tag;
+   private String          _oldCssClass;
 
-    /**
-     * Returns the tag which is being rendered. Useful mostly when subclassing the default
-     * renderer to add further functionality.
-     *
-     * @return the input tag being rendered
-     */
-    protected InputTagSupport getTag() {
-        return this.tag;
-    }
+   /**
+    * Resets the tag's class attribute to it's original value in case the tag gets pooled.
+    */
+   @Override
+   public void doAfterEndTag() {
+      _tag.setCssClass(_oldCssClass);
+   }
 
-    /**
-     * Ensures that the tag's list of CSS classes includes the "error" class.
-     */
-    public void doBeforeStartTag() {
-        this.oldCssClass = tag.getCssClass();
-        if (this.oldCssClass != null && this.oldCssClass.length() > 0) {
-            tag.setCssClass("error " + this.oldCssClass);
-        }
-        else {
-            tag.setCssClass("error");
-        }
-    }
+   /**
+    * Ensures that the tag's list of CSS classes includes the "error" class.
+    */
+   @Override
+   public void doBeforeStartTag() {
+       _oldCssClass = _tag.getCssClass();
+      if ( _oldCssClass != null && _oldCssClass.length() > 0 ) {
+         _tag.setCssClass("error " + _oldCssClass);
+      } else {
+         _tag.setCssClass("error");
+      }
+   }
 
-    /**
-     * Resets the tag's class attribute to it's original value in case the tag gets pooled.
-     */
-    public void doAfterEndTag() {
-        tag.setCssClass(oldCssClass);
-    }
+   /** Simply stores the tag passed in. */
+   @Override
+   public void init( InputTagSupport tag ) {
+       _tag = tag;
+   }
+
+   /**
+    * Returns the tag which is being rendered. Useful mostly when subclassing the default
+    * renderer to add further functionality.
+    *
+    * @return the input tag being rendered
+    */
+   protected InputTagSupport getTag() {
+      return _tag;
+   }
 }

@@ -22,79 +22,82 @@ import net.sourceforge.stripes.controller.StripesConstants;
 import net.sourceforge.stripes.tag.StripesTagSupport;
 import net.sourceforge.stripes.util.HttpUtil;
 
+
 /**
  * Abstract base class for the tags that handle rendering of layouts.
- * 
+ *
  * @author Ben Gunter
  * @since Stripes 1.5.4
  */
 public abstract class LayoutTag extends StripesTagSupport {
-    /** Get the context-relative path of the page that invoked this tag. */
-    public String getCurrentPagePath() {
-        HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
-        String path = (String) request.getAttribute(StripesConstants.REQ_ATTR_INCLUDE_PATH);
-        if (path == null)
-            path = HttpUtil.getRequestedPath(request);
-        return path;
-    }
 
-    /**
-     * True if the nearest ancestor of this tag that is an instance of {@link LayoutTag} is also an
-     * instance of {@link LayoutRenderTag}.
-     */
-    public boolean isChildOfRender() {
-        LayoutTag parent = getLayoutParent();
-        return parent instanceof LayoutRenderTag;
-    }
+   /** Pop this tag's page context off each of the component renderers' page context stacks. */
+   public void cleanUpComponentRenderers() {
+      for ( LayoutContext c = LayoutContext.lookup(_pageContext).getLast(); c != null; c = c.getPrevious() ) {
+         for ( LayoutComponentRenderer renderer : c.getComponents().values() ) {
+            renderer.popPageContext();
+         }
+      }
+   }
 
-    /**
-     * True if the nearest ancestor of this tag that is an instance of {@link LayoutTag} is also an
-     * instance of {@link LayoutDefinitionTag}.
-     */
-    public boolean isChildOfDefinition() {
-        LayoutTag parent = getLayoutParent();
-        return parent instanceof LayoutDefinitionTag;
-    }
+   /**
+    * Starting from the outer-most context and working up the stack, put a reference to each
+    * component renderer by name into the page context and push this tag's page context onto the
+    * renderer's page context stack. Working from the bottom of the stack up ensures that newly
+    * defined components override any that might have been defined previously by the same name.
+    */
+   public void exportComponentRenderers() {
+      for ( LayoutContext c = LayoutContext.lookup(_pageContext).getFirst(); c != null; c = c.getNext() ) {
+         for ( Entry<String, LayoutComponentRenderer> entry : c.getComponents().entrySet() ) {
+            entry.getValue().pushPageContext(_pageContext);
+            _pageContext.setAttribute(entry.getKey(), entry.getValue());
+         }
+      }
+   }
 
-    /**
-     * True if the nearest ancestor of this tag that is an instance of {@link LayoutTag} is also an
-     * instance of {@link LayoutComponentTag}.
-     */
-    public boolean isChildOfComponent() {
-        LayoutTag parent = getLayoutParent();
-        return parent instanceof LayoutComponentTag;
-    }
+   /** Get the context-relative path of the page that invoked this tag. */
+   public String getCurrentPagePath() {
+      HttpServletRequest request = (HttpServletRequest)_pageContext.getRequest();
+      String path = (String)request.getAttribute(StripesConstants.REQ_ATTR_INCLUDE_PATH);
+      if ( path == null ) {
+         path = HttpUtil.getRequestedPath(request);
+      }
+      return path;
+   }
 
-    /**
-     * Get the nearest ancestor of this tag that is an instance of {@link LayoutTag}. If no ancestor
-     * of that type is found then null.
-     */
-    @SuppressWarnings("unchecked")
-    public <T extends LayoutTag> T getLayoutParent() {
-        return (T) getParentTag(LayoutTag.class);
-    }
+   /**
+    * Get the nearest ancestor of this tag that is an instance of {@link LayoutTag}. If no ancestor
+    * of that type is found then null.
+    */
+   @SuppressWarnings("unchecked")
+   public <T extends LayoutTag> T getLayoutParent() {
+      return (T)getParentTag(LayoutTag.class);
+   }
 
-    /**
-     * Starting from the outer-most context and working up the stack, put a reference to each
-     * component renderer by name into the page context and push this tag's page context onto the
-     * renderer's page context stack. Working from the bottom of the stack up ensures that newly
-     * defined components override any that might have been defined previously by the same name.
-     */
-    public void exportComponentRenderers() {
-        for (LayoutContext c = LayoutContext.lookup(pageContext).getFirst(); c != null; c = c.getNext()) {
-            for (Entry<String, LayoutComponentRenderer> entry : c.getComponents().entrySet()) {
-                entry.getValue().pushPageContext(pageContext);
-                pageContext.setAttribute(entry.getKey(), entry.getValue());
-            }
-        }
-    }
+   /**
+    * True if the nearest ancestor of this tag that is an instance of {@link LayoutTag} is also an
+    * instance of {@link LayoutComponentTag}.
+    */
+   public boolean isChildOfComponent() {
+      LayoutTag parent = getLayoutParent();
+      return parent instanceof LayoutComponentTag;
+   }
 
-    /** Pop this tag's page context off each of the component renderers' page context stacks. */
-    public void cleanUpComponentRenderers() {
-        for (LayoutContext c = LayoutContext.lookup(pageContext).getLast(); c != null; c = c.getPrevious()) {
-            for (LayoutComponentRenderer renderer : c.getComponents().values()) {
-                renderer.popPageContext();
-            }
-        }
-    }
+   /**
+    * True if the nearest ancestor of this tag that is an instance of {@link LayoutTag} is also an
+    * instance of {@link LayoutDefinitionTag}.
+    */
+   public boolean isChildOfDefinition() {
+      LayoutTag parent = getLayoutParent();
+      return parent instanceof LayoutDefinitionTag;
+   }
+
+   /**
+    * True if the nearest ancestor of this tag that is an instance of {@link LayoutTag} is also an
+    * instance of {@link LayoutRenderTag}.
+    */
+   public boolean isChildOfRender() {
+      LayoutTag parent = getLayoutParent();
+      return parent instanceof LayoutRenderTag;
+   }
 }

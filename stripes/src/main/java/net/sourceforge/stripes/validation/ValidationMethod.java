@@ -14,11 +14,12 @@
  */
 package net.sourceforge.stripes.validation;
 
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Documented;
+
 
 /**
  * <p>Annotation that marks a method in an ActionBean as a validation method. Validation methods
@@ -71,31 +72,32 @@ import java.lang.annotation.Documented;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 @Documented
-public @interface ValidationMethod { 
-    /**
-     * If there are multiple validation methods in an ActionBean, what is the priority of
-     * this one?  Lower values == higher priorities and will get run before methods with
-     * higher values. If methods have the same priority they are executed in alphabetical
-     * order.
-     */
-    int priority() default 0;
+public @interface ValidationMethod {
 
-    /**
-     * Allows the validation method to be restricted to one or more events. By default the
-     * validation method will execute on all events not marked with {@literal @}DontValidate.
-     * Can be used to specify one or more events to apply the method to (e.g. on={"save", "update"})
-     * or to specify one or more events <i>not</i> to apply the method to
-     * (e.g. on="!delete").
-     */
-    String[] on() default {};
+   /**
+    * Allows the validation method to be restricted to one or more events. By default the
+    * validation method will execute on all events not marked with {@literal @}DontValidate.
+    * Can be used to specify one or more events to apply the method to (e.g. on={"save", "update"})
+    * or to specify one or more events <i>not</i> to apply the method to
+    * (e.g. on="!delete").
+    */
+   String[] on() default {};
 
-    /**
-     * Controls whether or not the validation method will be executed when earlier phases of
-     * validation generated validation errors. Valid values are {@link ValidationState#ALWAYS},
-     * {@link ValidationState#NO_ERRORS} and {@link ValidationState#DEFAULT}. By specifying
-     * {@code ALWAYS} you can ensure that all error messages are presented to the user at once.
-     * By specifying {@code NO_ERRORS} you can be sure of the state of the ActionBean has been
-     * validated successfully prior to execution.
-     */
-    ValidationState when() default ValidationState.DEFAULT;
+   /**
+    * If there are multiple validation methods in an ActionBean, what is the priority of
+    * this one?  Lower values == higher priorities and will get run before methods with
+    * higher values. If methods have the same priority they are executed in alphabetical
+    * order.
+    */
+   int priority() default 0;
+
+   /**
+    * Controls whether or not the validation method will be executed when earlier phases of
+    * validation generated validation errors. Valid values are {@link ValidationState#ALWAYS},
+    * {@link ValidationState#NO_ERRORS} and {@link ValidationState#DEFAULT}. By specifying
+    * {@code ALWAYS} you can ensure that all error messages are presented to the user at once.
+    * By specifying {@code NO_ERRORS} you can be sure of the state of the ActionBean has been
+    * validated successfully prior to execution.
+    */
+   ValidationState when() default ValidationState.DEFAULT;
 }

@@ -23,15 +23,16 @@ package net.sourceforge.stripes.util.bean;
  * @since Stripes 1.4
  */
 public class NoSuchPropertyException extends EvaluationException {
-	private static final long serialVersionUID = 1L;
 
-    /** Constructs an exception with the supplied message. */
-    public NoSuchPropertyException(String message) {
-        super(message);
-    }
+   private static final long serialVersionUID = 1L;
 
-    /** Constructs an exception with the supplied message and causing exception. */
-    public NoSuchPropertyException(String message, Throwable cause) {
-        super(message, cause);
-    }
+   /** Constructs an exception with the supplied message. */
+   public NoSuchPropertyException( String message ) {
+      super(message);
+   }
+
+   /** Constructs an exception with the supplied message and causing exception. */
+   public NoSuchPropertyException( String message, Throwable cause ) {
+      super(message, cause);
+   }
 }

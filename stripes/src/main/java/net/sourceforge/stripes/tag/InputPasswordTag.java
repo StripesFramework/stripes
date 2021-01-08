@@ -16,6 +16,7 @@ package net.sourceforge.stripes.tag;
 
 import javax.servlet.jsp.JspException;
 
+
 /**
  * Tag class that implements an input tag of type password.  Defines one attribute in addition
  * to those provided by the HTML tag.  If {@code repopulate} is set then the password tag will
@@ -27,47 +28,46 @@ import javax.servlet.jsp.JspException;
  * @since Stripes 1.1
  */
 public class InputPasswordTag extends InputTextTag {
-    private boolean repopulate = false;
 
-    /** Sets whether or not the tag will repopulate the value if one is present. */
-    public void setRepopulate(boolean repopulate) { this.repopulate = repopulate; }
+   private boolean _repopulate = false;
 
-    /** Returns true if the tag will repopulate values, false otherwise. */
-    public boolean getRepopulate() { return repopulate; }
+   /**
+    * Constructs a new tag for generating password fields. Delegates to InputTextTag which it
+    * extends, and then overrides the type of input field to "password".
+    */
+   public InputPasswordTag() {
+      getAttributes().put("type", "password");
+   }
 
-    /**
-     * Constructs a new tag for generating password fields. Delegates to InputTextTag which it
-     * extends, and then overrides the type of input field to "password".
-     */
-    public InputPasswordTag() {
-        getAttributes().put("type", "password");
-    }
+   @Override
+   public int doEndInputTag() throws JspException {
+      if ( _repopulate ) {
+         // If repopulate is set, delegate to the parent input text tag
+         return super.doEndInputTag();
+      } else {
+         // Else just figure out if there is a default value and use it
+         String body = getBodyContentAsString();
 
-    @Override
-    public int doEndInputTag() throws JspException {
-        if (this.repopulate) {
-            // If repopulate is set, delegate to the parent input text tag
-            return super.doEndInputTag();
-        }
-        else {
-            // Else just figure out if there is a default value and use it
-            String body     = getBodyContentAsString();
+         // Figure out where to pull the value from
+         if ( body != null ) {
+            getAttributes().put("value", body);
+         } else if ( getValue() != null ) {
+            getAttributes().put("value", format(getValue()));
+         }
 
-            // Figure out where to pull the value from
-            if (body != null) {
-                getAttributes().put("value", body);
-            }
-            else if (getValue() != null) {
-                getAttributes().put("value", format(getValue()));
-            }
+         set("maxlength", getEffectiveMaxlength());
+         writeSingletonTag(getPageContext().getOut(), "input");
 
-            set("maxlength", getEffectiveMaxlength());
-            writeSingletonTag(getPageContext().getOut(), "input");
+         // Restore the original state before we mucked with it
+         getAttributes().remove("value");
 
-            // Restore the original state before we mucked with it
-            getAttributes().remove("value");
+         return EVAL_PAGE;
+      }
+   }
 
-            return EVAL_PAGE;
-        }
-    }
+   /** Returns true if the tag will repopulate values, false otherwise. */
+   public boolean getRepopulate() { return _repopulate; }
+
+   /** Sets whether or not the tag will repopulate the value if one is present. */
+   public void setRepopulate( boolean repopulate ) { _repopulate = repopulate; }
 }

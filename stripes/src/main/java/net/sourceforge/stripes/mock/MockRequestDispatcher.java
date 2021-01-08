@@ -14,12 +14,14 @@
  */
 package net.sourceforge.stripes.mock;
 
+import java.io.IOException;
+
 import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequestWrapper;
-import java.io.IOException;
+
 
 /**
  * Mock implementation of a RequesetDispatcher used for testing purposes. Note that the mock
@@ -31,29 +33,32 @@ import java.io.IOException;
  * @since Stripes 1.1.1
  */
 public class MockRequestDispatcher implements RequestDispatcher {
-    private String url;
 
-    /** Constructs a request dispatcher, giving it a handle to the creating request. */
-    public MockRequestDispatcher(String url) {
-        this.url = url;
-    }
+   private final String _url;
 
-    /** Simply stores the URL that was requested for forward, and returns. */
-    public void forward(ServletRequest req, ServletResponse res) throws ServletException, IOException {
-        getMockRequest(req).setForwardUrl(this.url);
-    }
+   /** Constructs a request dispatcher, giving it a handle to the creating request. */
+   public MockRequestDispatcher( String url ) {
+       _url = url;
+   }
 
-    /** Simply stores that the URL was included an then returns. */
-    public void include(ServletRequest req, ServletResponse res) throws ServletException, IOException {
-        getMockRequest(req).addIncludedUrl(this.url);
-    }
+   /** Simply stores the URL that was requested for forward, and returns. */
+   @Override
+   public void forward( ServletRequest req, ServletResponse res ) throws ServletException, IOException {
+      getMockRequest(req).setForwardUrl(_url);
+   }
 
-    /** Locates the MockHttpServletRequest in case it is wrapped. */
-    public MockHttpServletRequest getMockRequest(ServletRequest request) {
-        while (request != null & !(request instanceof MockHttpServletRequest)) {
-            request = ((HttpServletRequestWrapper) request).getRequest();
-        }
+   /** Locates the MockHttpServletRequest in case it is wrapped. */
+   public MockHttpServletRequest getMockRequest( ServletRequest request ) {
+      while ( request != null & !(request instanceof MockHttpServletRequest) ) {
+         request = ((HttpServletRequestWrapper)request).getRequest();
+      }
 
-        return (MockHttpServletRequest) request;
-    }
+      return (MockHttpServletRequest)request;
+   }
+
+   /** Simply stores that the URL was included an then returns. */
+   @Override
+   public void include( ServletRequest req, ServletResponse res ) throws ServletException, IOException {
+      getMockRequest(req).addIncludedUrl(_url);
+   }
 }

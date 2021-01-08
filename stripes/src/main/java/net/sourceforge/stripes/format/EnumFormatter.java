@@ -16,6 +16,7 @@ package net.sourceforge.stripes.format;
 
 import java.util.Locale;
 
+
 /**
  * A simple formatter for Enum classes that always returns the value of Enum.name(). Intended
  * really only to enable the seamless usage of enums as values in hidden fields, radio
@@ -26,28 +27,37 @@ import java.util.Locale;
  * @since Stripes 1.4.1
  */
 public class EnumFormatter implements Formatter<Enum<?>> {
-    /** Does nothing. Format types are not supported for Enums. */
-    public void setFormatType(String formatType) { }
 
-    /** Does nothing. Format patterns are not supported for Enums. */
-    public void setFormatPattern(String formatPattern) { }
+   /**
+    * Formats the supplied value as a String.  If the value cannot be formatted because it is
+    * an inappropriate type, or because faulty pattern information was supplied, should fail
+    * loudly by throwing a RuntimeException or subclass thereof.
+    *
+    * @param input an object of a type that the formatter knows how to format
+    * @return a String version of the input, formatted for the chosen locale
+    */
+   @Override
+   public String format( Enum<?> input ) {
+       if ( input != null ) {
+           return input.name();
+       } else {
+           return null;
+       }
+   }
 
-    /** Does nothing. Enums values are always formatted using name() which is not localizable. */
-    public void setLocale(Locale locale) { }
+   /** Does nothing since no initialization is needed. */
+   @Override
+   public void init() { }
 
-    /** Does nothing since no initialization is needed. */
-    public void init() { }
+   /** Does nothing. Format patterns are not supported for Enums. */
+   @Override
+   public void setFormatPattern( String formatPattern ) { }
 
-    /**
-     * Formats the supplied value as a String.  If the value cannot be formatted because it is
-     * an inappropriate type, or because faulty pattern information was supplied, should fail
-     * loudly by throwing a RuntimeException or subclass thereof.
-     *
-     * @param input an object of a type that the formatter knows how to format
-     * @return a String version of the input, formatted for the chosen locale
-     */
-    public String format(Enum<?> input) {
-        if (input != null) return input.name();
-        else return null;
-    }
+   /** Does nothing. Format types are not supported for Enums. */
+   @Override
+   public void setFormatType( String formatType ) { }
+
+   /** Does nothing. Enums values are always formatted using name() which is not localizable. */
+   @Override
+   public void setLocale( Locale locale ) { }
 }

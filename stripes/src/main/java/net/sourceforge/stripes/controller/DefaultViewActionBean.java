@@ -4,6 +4,7 @@ import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.action.ActionBeanContext;
 import net.sourceforge.stripes.action.Resolution;
 
+
 /**
  * <p>A special purpose ActionBean that is used by the NameBasedActionResolver when a valid
  * ActionBean cannot be found for a URL.  If the URL can be successfully translated into a
@@ -18,12 +19,17 @@ import net.sourceforge.stripes.action.Resolution;
  * @since Stripes 1.3
  */
 public class DefaultViewActionBean implements ActionBean {
-    private ActionBeanContext context;
-    private Resolution view;
 
-    public DefaultViewActionBean(Resolution view) { this.view = view; }
-    public void setContext(ActionBeanContext context) { this.context = context; }
-    public ActionBeanContext getContext() { return this.context; }
+   private ActionBeanContext _context;
+   private Resolution        _view;
 
-    public Resolution view() { return view; }
+   public DefaultViewActionBean( Resolution view ) { _view = view; }
+
+   @Override
+   public ActionBeanContext getContext() { return _context; }
+
+   @Override
+   public void setContext( ActionBeanContext context ) { _context = context; }
+
+   public Resolution view() { return _view; }
 }

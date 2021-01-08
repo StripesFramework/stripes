@@ -5,6 +5,7 @@ import net.sourceforge.stripes.action.StrictBinding;
 import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.validation.Validate;
 
+
 /**
  * Exception thrown when a client attempts to bind to an {@link ActionBean} property that is not allowed. This will
  * occur when using the {@link StrictBinding} annotation. If you intend to bind to the property, you should apply a
@@ -18,8 +19,8 @@ import net.sourceforge.stripes.validation.Validate;
  * @since Stripes 1.6
  */
 public class BindingDeniedException extends RuntimeException {
-    public BindingDeniedException(String parameterName) {
-        super("Binding denied for parameter [" + parameterName + "]. If you want to allow binding to this parameter, " +
-                "use the @Validate annotation.");
-    }
+
+   public BindingDeniedException( String parameterName ) {
+      super("Binding denied for parameter [" + parameterName + "]. If you want to allow binding to this parameter, " + "use the @Validate annotation.");
+   }
 }

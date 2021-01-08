@@ -14,11 +14,12 @@
  */
 package net.sourceforge.stripes.action;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
 import java.lang.annotation.Documented;
-import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
 
 /**
  * Specify that the event handled by the annotated method should not have validation run on it
@@ -26,20 +27,21 @@ import java.lang.annotation.ElementType;
  * request, there may still be errors during type conversion and binding. Such errors are also
  * ignored by default. That behavior can be modified using the {@link #ignoreBindingErrors()}
  * element of this annotation.
- * 
+ *
  * @author Tim Fennell
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.METHOD})
+@Target({ ElementType.METHOD })
 @Documented
 public @interface DontValidate {
-    /**
-     * If true (the default) then any validation errors that might occur during type conversion and
-     * binding will be ignored. If false then Stripes will forward back to the source page as it
-     * normally would when it encounters validation errors. In either case, any errors that occur
-     * during binding will be present in the {@link ActionBeanContext}.
-     * 
-     * @see ActionBeanContext#getValidationErrors()
-     */
-    boolean ignoreBindingErrors() default true;
+
+   /**
+    * If true (the default) then any validation errors that might occur during type conversion and
+    * binding will be ignored. If false then Stripes will forward back to the source page as it
+    * normally would when it encounters validation errors. In either case, any errors that occur
+    * during binding will be present in the {@link ActionBeanContext}.
+    *
+    * @see ActionBeanContext#getValidationErrors()
+    */
+   boolean ignoreBindingErrors() default true;
 }

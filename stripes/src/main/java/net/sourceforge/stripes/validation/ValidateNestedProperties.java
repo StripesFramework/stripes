@@ -14,11 +14,12 @@
  */
 package net.sourceforge.stripes.validation;
 
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Documented;
+
 
 /**
  * Annotation used to capture the validation needs of nested properties within an ActionBean. It
@@ -28,8 +29,9 @@ import java.lang.annotation.Documented;
  * @author Tim Fennell
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.FIELD, ElementType.METHOD})
+@Target({ ElementType.FIELD, ElementType.METHOD })
 @Documented
 public @interface ValidateNestedProperties {
-    Validate[] value();
+
+   Validate[] value();
 }

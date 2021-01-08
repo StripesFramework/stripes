@@ -21,6 +21,7 @@ import net.sourceforge.stripes.controller.DefaultObjectFactory;
 import net.sourceforge.stripes.controller.ObjectPostProcessor;
 import net.sourceforge.stripes.util.Log;
 
+
 /**
  * <p>
  * An implementation of {@link ObjectPostProcessor} that calls {@link
@@ -28,43 +29,45 @@ import net.sourceforge.stripes.util.Log;
  * {@link org.springframework.beans.factory.annotation.Autowired} in every type of object created by Stripes (Action Beans, Interceptors, Type
  * Converters, Formatters, etc.).
  * </p>
- * 
+ *
  * @author Freddy Daoud, Ben Gunter
  * @since Stripes 1.6
  */
 public class SpringInjectionPostProcessor implements ObjectPostProcessor<Object> {
-    private static final Log log = Log.getInstance(SpringInjectionPostProcessor.class);
-    private ServletContext servletContext;
 
-    /** Get the servlet context from the object factory's configuration. */
-    public void setObjectFactory(DefaultObjectFactory factory) {
-        Configuration configuration = factory.getConfiguration();
-        if (configuration == null) {
-            final String name = getClass().getSimpleName();
-            throw new IllegalStateException("The object factory passed to " + name
-                    + " has no configuration. The configuration is required by " + name
-                    + " to get the servlet context.");
-        }
+   private static final Log log = Log.getInstance(SpringInjectionPostProcessor.class);
 
-        ServletContext servletContext = configuration.getServletContext();
-        if (this.servletContext != null && this.servletContext != servletContext) {
-            final String name = getClass().getSimpleName();
-            throw new IllegalStateException("An attempt was made to use a single instance of "
-                    + name + " in two different servlet contexts. " + name + " instances "
-                    + "cannot be shared across servlet contexts.");
-        }
+   private ServletContext _servletContext;
 
-        this.servletContext = servletContext;
-    }
+   /**
+    * Calls {@link SpringHelper#injectBeans(Object, ServletContext)} to inject dependencies
+    * marked with {@link org.springframework.beans.factory.annotation.Autowired} into the object before returning it.
+    */
+   @Override
+   public Object postProcess( Object object ) {
+      log.debug("Running Spring dependency injection for instance of ", object.getClass().getSimpleName());
+      SpringHelper.injectBeans(object, _servletContext);
+      return object;
+   }
 
-    /**
-     * Calls {@link SpringHelper#injectBeans(Object, ServletContext)} to inject dependencies
-     * marked with {@link org.springframework.beans.factory.annotation.Autowired} into the object before returning it.
-     */
-    public Object postProcess(Object object) {
-        log.debug("Running Spring dependency injection for instance of ", object.getClass()
-                .getSimpleName());
-        SpringHelper.injectBeans(object, servletContext);
-        return object;
-    }
+   /** Get the servlet context from the object factory's configuration. */
+   @Override
+   public void setObjectFactory( DefaultObjectFactory factory ) {
+      Configuration configuration = factory.getConfiguration();
+      if ( configuration == null ) {
+         final String name = getClass().getSimpleName();
+         throw new IllegalStateException(
+               "The object factory passed to " + name + " has no configuration. The configuration is required by " + name + " to get the servlet context.");
+      }
+
+      ServletContext servletContext = configuration.getServletContext();
+      if ( _servletContext != null && _servletContext != servletContext ) {
+         final String name = getClass().getSimpleName();
+         throw new IllegalStateException(
+               "An attempt was made to use a single instance of " + name + " in two different servlet contexts. " + name + " instances "
+                     + "cannot be shared across servlet contexts.");
+      }
+
+       _servletContext = servletContext;
+   }
 }

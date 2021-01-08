@@ -16,6 +16,7 @@ package net.sourceforge.stripes.format;
 
 import java.util.Locale;
 
+
 /**
  * <p>Interface that is used to provide a relatively simple formatting interface to the rest of the
  * system. Designed to wrap the complexity of the java.text format classes in an interface that
@@ -34,26 +35,25 @@ import java.util.Locale;
  */
 public interface Formatter<T> {
 
-    /** Sets the type of format that should be created. */
-    void setFormatType(String formatType);
+   /**
+    * Formats the supplied value as a String.  If the value cannot be formatted because it is
+    * an inappropriate type, or because faulty pattern information was supplied, should fail
+    * loudly by throwing a RuntimeException or subclass thereof. Therefore this method should
+    * never return {@code null}.
+    * @param input an object of a type that the formatter knows how to format
+    * @return a non-null, String version of the input, formatted for the chosen locale
+    */
+   String format( T input );
 
-    /** Sets a named format, or format pattern to use in formatting objects. */
-    void setFormatPattern(String formatPattern);
+   /** Called once all setters have been invoked, to allow Formatter to prepare itself. */
+   void init();
 
-    /** Sets the Locale into which the object should be formatted. */
-    void setLocale(Locale locale);
+   /** Sets a named format, or format pattern to use in formatting objects. */
+   void setFormatPattern( String formatPattern );
 
-    /** Called once all setters have been invoked, to allow Formatter to prepare itself. */
-    void init();
+   /** Sets the type of format that should be created. */
+   void setFormatType( String formatType );
 
-    /**
-     * Formats the supplied value as a String.  If the value cannot be formatted because it is
-     * an inappropriate type, or because faulty pattern information was supplied, should fail
-     * loudly by throwing a RuntimeException or subclass thereof. Therefore this method should
-     * never return {@code null}.
-
-     * @param input an object of a type that the formatter knows how to format
-     * @return a non-null, String version of the input, formatted for the chosen locale
-     */
-    String format(T input);
+   /** Sets the Locale into which the object should be formatted. */
+   void setLocale( Locale locale );
 }

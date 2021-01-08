@@ -14,13 +14,15 @@
  */
 package net.sourceforge.stripes.tag;
 
-import net.sourceforge.stripes.util.Log;
-import net.sourceforge.stripes.validation.ValidationError;
+import java.io.IOException;
+import java.util.Locale;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
-import java.io.IOException;
-import java.util.Locale;
+
+import net.sourceforge.stripes.util.Log;
+import net.sourceforge.stripes.validation.ValidationError;
+
 
 /**
  * The individual-error tag works in concert with a parent errors tag to control the
@@ -32,44 +34,43 @@ import java.util.Locale;
  */
 public class IndividualErrorTag extends HtmlTagSupport {
 
-    private static final Log log = Log.getInstance(IndividualErrorTag.class);
+   private static final Log log = Log.getInstance(IndividualErrorTag.class);
 
-    /**
-     * Does nothing
-     * @return SKIP_BODY always
-     * @throws JspException
-     */
-    @Override
-    public int doStartTag() throws JspException {
-        return SKIP_BODY;
-    }
+   /**
+    * Outputs the error for the current iteration of the parent ErrorsTag.
+    *
+    * @return EVAL_PAGE in all circumstances
+    */
+   @Override
+   public int doEndTag() throws JspException {
 
-    /**
-     * Outputs the error for the current iteration of the parent ErrorsTag.
-     *
-     * @return EVAL_PAGE in all circumstances
-     */
-    @Override
-    public int doEndTag() throws JspException {
+      Locale locale = getPageContext().getRequest().getLocale();
+      JspWriter writer = getPageContext().getOut();
 
-        Locale locale = getPageContext().getRequest().getLocale();
-        JspWriter writer = getPageContext().getOut();
+      ErrorsTag parentErrorsTag = getParentTag(ErrorsTag.class);
+      if ( parentErrorsTag != null ) {
+         // Mode: sub-tag inside an errors tag
+         try {
+            ValidationError error = parentErrorsTag.getCurrentError();
+            writer.write(error.getMessage(locale));
+         }
+         catch ( IOException ioe ) {
+            JspException jspe = new JspException("IOException encountered while writing " + "error tag to the JspWriter.", ioe);
+            log.warn(jspe);
+            throw jspe;
+         }
+      }
 
-        ErrorsTag parentErrorsTag = getParentTag(ErrorsTag.class);
-        if (parentErrorsTag != null) {
-            // Mode: sub-tag inside an errors tag
-            try {
-                ValidationError error = parentErrorsTag.getCurrentError();
-                writer.write( error.getMessage(locale) );
-            }
-            catch (IOException ioe) {
-                JspException jspe = new JspException("IOException encountered while writing " +
-                    "error tag to the JspWriter.", ioe);
-                log.warn(jspe);
-                throw jspe;
-            }
-        }
+      return EVAL_PAGE;
+   }
 
-        return EVAL_PAGE;
-    }
+   /**
+    * Does nothing
+    * @return SKIP_BODY always
+    * @throws JspException
+    */
+   @Override
+   public int doStartTag() throws JspException {
+      return SKIP_BODY;
+   }
 }

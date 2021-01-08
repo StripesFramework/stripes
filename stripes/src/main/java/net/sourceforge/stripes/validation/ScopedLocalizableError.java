@@ -14,10 +14,11 @@
  */
 package net.sourceforge.stripes.validation;
 
-import net.sourceforge.stripes.localization.LocalizationUtility;
-
 import java.util.Locale;
 import java.util.MissingResourceException;
+
+import net.sourceforge.stripes.localization.LocalizationUtility;
+
 
 /**
  * <p>Provides a slightly more customizable approach to error messages.  Where the LocalizedError
@@ -48,157 +49,154 @@ import java.util.MissingResourceException;
  * @author Tim Fennell
  */
 public class ScopedLocalizableError extends LocalizableError {
-	private static final long serialVersionUID = 1L;
 
-    /** Default key that is used for looking up error messages. */
-    public static final String DEFAULT_NAME = "errorMessage";
+   private static final long serialVersionUID = 1L;
 
-    private String defaultScope;
-    private String key;
+   /** Default key that is used for looking up error messages. */
+   public static final String DEFAULT_NAME = "errorMessage";
 
-    /**
-     * Constructs a ScopedLocalizableError with the supplied information.
-     *
-     * @param defaultScope the default scope under which to look for the error message should more
-     *        specifically scoped lookups fail
-     * @param key the name of the message to lookup
-     * @param parameters an optional number of replacement parameters to be used in the message
-     */
-    public ScopedLocalizableError(String defaultScope, String key, Object... parameters) {
-        super(defaultScope + "." + key, parameters);
-        this.defaultScope = defaultScope;
-        this.key = key;
-    }
+   private final String _defaultScope;
+   private final String _key;
 
-    /**
-     * Get the default scope that was passed into the constructor.
-     * 
-     * @see #ScopedLocalizableError(String, String, Object...)
-     */
-    public String getDefaultScope() {
-        return defaultScope;
-    }
+   /**
+    * Constructs a ScopedLocalizableError with the supplied information.
+    *
+    * @param defaultScope the default scope under which to look for the error message should more
+    *        specifically scoped lookups fail
+    * @param key the name of the message to lookup
+    * @param parameters an optional number of replacement parameters to be used in the message
+    */
+   public ScopedLocalizableError( String defaultScope, String key, Object... parameters ) {
+      super(defaultScope + "." + key, parameters);
+       _defaultScope = defaultScope;
+       _key = key;
+   }
 
-    /**
-     * Get the key that was passed into the constructor.
-     * 
-     * @see #ScopedLocalizableError(String, String, Object...)
-     */
-    public String getKey() {
-        return key;
-    }
+   /** Generated equals method that checks all fields and super.equals(). */
+   @Override
+   public boolean equals( Object o ) {
+      if ( this == o ) {
+         return true;
+      }
+      if ( o == null || getClass() != o.getClass() ) {
+         return false;
+      }
+      if ( !super.equals(o) ) {
+         return false;
+      }
 
-    /**
-     * Overrides getMessageTemplate to perform a scoped search for a message template as defined in
-     * the class level javadoc.
-     */
-    @Override
-    protected String getMessageTemplate(Locale locale) {
-        String name1=null, name2=null, name3=null, name4=null, name5=null, name6=null,
-               name7=null, name8=null, name9=null, name10=null, name11=null;
+      final ScopedLocalizableError that = (ScopedLocalizableError)o;
 
-        final String actionPath = getActionPath();
-        final String fqn = getBeanclass().getName();
-        final String fieldName = getFieldName();
+      if ( _defaultScope != null ? !_defaultScope.equals(that._defaultScope) : that._defaultScope != null ) {
+         return false;
+      }
+      if ( _key != null ? !_key.equals(that._key) : that._key != null ) {
+         return false;
+      }
 
-        // 1. com.myco.KittenDetailActionBean.age.outOfRange
-        name1 = fqn + "." + fieldName + "." + this.key;
-        String template = LocalizationUtility.getErrorMessage(locale, name1);
+      return true;
+   }
 
-        if (template == null) {
-            // 2. com.myco.KittenDetailActionBean.age.errorMessage
-            name2 = fqn + "." + fieldName + "." + DEFAULT_NAME;
-            template = LocalizationUtility.getErrorMessage(locale, name2);
-        }
-        if (template == null) {
-            // 3. /cats/KittenDetail.action.age.outOfRange
-            name3 = actionPath + "." + fieldName + "." + this.key;
-            template = LocalizationUtility.getErrorMessage(locale, name3);
-        }
-        if (template == null) {
-            // 4. /cats/KittenDetail.action.age.errorMessage
-            name4 = actionPath + "." + fieldName + "." + DEFAULT_NAME;
-            template = LocalizationUtility.getErrorMessage(locale, name4);
-        }
-        if (template == null) {
-            // 5. age.outOfRange
-            name5 = fieldName + "." + this.key;
-            template = LocalizationUtility.getErrorMessage(locale, name5);
-        }
-        if (template == null) {
-            // 6. age.errorMessage
-            name6 = fieldName + "." + DEFAULT_NAME;
-            template = LocalizationUtility.getErrorMessage(locale, name6);
-        }
-        if (template == null) {
-            // 7. com.myco.KittenDetailActionBean.outOfRange
-            name7 = fqn + "." + this.key;
-            template = LocalizationUtility.getErrorMessage(locale, name7);
-        }
-        if (template == null) {
-            // 8. com.myco.KittenDetailActionBean.outOfRange
-            name8 = fqn + "." + DEFAULT_NAME;
-            template = LocalizationUtility.getErrorMessage(locale, name8);
-        }
-        if (template == null) {
-            // 9. /cats/KittenDetail.action.outOfRange
-            name9 = actionPath + "." + this.key;
-            template = LocalizationUtility.getErrorMessage(locale, name9);
-        }
-        if (template == null) {
-            // 10. /cats/KittenDetail.action.errorMessage
-            name10 = actionPath + "." + DEFAULT_NAME;
-            template = LocalizationUtility.getErrorMessage(locale, name10);
-        }
-        if (template == null) {
-            // 11. converter.integer.outOfRange
-            name11 = this.defaultScope + "." + this.key;
-            template = LocalizationUtility.getErrorMessage(locale, name11);
-        }
+   /**
+    * Get the default scope that was passed into the constructor.
+    *
+    * @see #ScopedLocalizableError(String, String, Object...)
+    */
+   public String getDefaultScope() {
+      return _defaultScope;
+   }
 
-        if (template == null) {
-            throw new MissingResourceException(
-                    "Could not find an error message with any of the following keys: " +
-                    "'" + name1 + "', '" + name2 + "', '" + name3 + "', '" +
-                    name4 + "', '" + name5 + "', '" + name6 + "', '" + name7 + "'." +
-                    name8 + "', '" + name9 + "', '" + name10 + "', '" + name11 + "'.", null, null
-            );
-        }
+   /**
+    * Get the key that was passed into the constructor.
+    *
+    * @see #ScopedLocalizableError(String, String, Object...)
+    */
+   public String getKey() {
+      return _key;
+   }
 
-        return template;
-    }
+   /** Generated hashCode() method. */
+   @Override
+   public int hashCode() {
+      int result = super.hashCode();
+      result = 29 * result + (_defaultScope != null ? _defaultScope.hashCode() : 0);
+      result = 29 * result + (_key != null ? _key.hashCode() : 0);
+      return result;
+   }
 
-    /** Generated equals method that checks all fields and super.equals(). */
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        if (!super.equals(o)) {
-            return false;
-        }
+   /**
+    * Overrides getMessageTemplate to perform a scoped search for a message template as defined in
+    * the class level javadoc.
+    */
+   @Override
+   protected String getMessageTemplate( Locale locale ) {
+      String name1 = null, name2 = null, name3 = null, name4 = null, name5 = null, name6 = null, name7 = null, name8 = null, name9 = null, name10 = null, name11 = null;
 
-        final ScopedLocalizableError that = (ScopedLocalizableError) o;
+      final String actionPath = getActionPath();
+      final String fqn = getBeanclass().getName();
+      final String fieldName = getFieldName();
 
-        if (defaultScope != null ? !defaultScope.equals(that.defaultScope) : that.defaultScope != null) {
-            return false;
-        }
-        if (key != null ? !key.equals(that.key) : that.key != null) {
-            return false;
-        }
+      // 1. com.myco.KittenDetailActionBean.age.outOfRange
+      name1 = fqn + "." + fieldName + "." + _key;
+      String template = LocalizationUtility.getErrorMessage(locale, name1);
 
-        return true;
-    }
+      if ( template == null ) {
+         // 2. com.myco.KittenDetailActionBean.age.errorMessage
+         name2 = fqn + "." + fieldName + "." + DEFAULT_NAME;
+         template = LocalizationUtility.getErrorMessage(locale, name2);
+      }
+      if ( template == null ) {
+         // 3. /cats/KittenDetail.action.age.outOfRange
+         name3 = actionPath + "." + fieldName + "." + _key;
+         template = LocalizationUtility.getErrorMessage(locale, name3);
+      }
+      if ( template == null ) {
+         // 4. /cats/KittenDetail.action.age.errorMessage
+         name4 = actionPath + "." + fieldName + "." + DEFAULT_NAME;
+         template = LocalizationUtility.getErrorMessage(locale, name4);
+      }
+      if ( template == null ) {
+         // 5. age.outOfRange
+         name5 = fieldName + "." + _key;
+         template = LocalizationUtility.getErrorMessage(locale, name5);
+      }
+      if ( template == null ) {
+         // 6. age.errorMessage
+         name6 = fieldName + "." + DEFAULT_NAME;
+         template = LocalizationUtility.getErrorMessage(locale, name6);
+      }
+      if ( template == null ) {
+         // 7. com.myco.KittenDetailActionBean.outOfRange
+         name7 = fqn + "." + _key;
+         template = LocalizationUtility.getErrorMessage(locale, name7);
+      }
+      if ( template == null ) {
+         // 8. com.myco.KittenDetailActionBean.outOfRange
+         name8 = fqn + "." + DEFAULT_NAME;
+         template = LocalizationUtility.getErrorMessage(locale, name8);
+      }
+      if ( template == null ) {
+         // 9. /cats/KittenDetail.action.outOfRange
+         name9 = actionPath + "." + _key;
+         template = LocalizationUtility.getErrorMessage(locale, name9);
+      }
+      if ( template == null ) {
+         // 10. /cats/KittenDetail.action.errorMessage
+         name10 = actionPath + "." + DEFAULT_NAME;
+         template = LocalizationUtility.getErrorMessage(locale, name10);
+      }
+      if ( template == null ) {
+         // 11. converter.integer.outOfRange
+         name11 = _defaultScope + "." + _key;
+         template = LocalizationUtility.getErrorMessage(locale, name11);
+      }
 
-    /** Generated hashCode() method. */
-    @Override
-    public int hashCode() {
-        int result = super.hashCode();
-        result = 29 * result + (defaultScope != null ? defaultScope.hashCode() : 0);
-        result = 29 * result + (key != null ? key.hashCode() : 0);
-        return result;
-    }
+      if ( template == null ) {
+         throw new MissingResourceException(
+               "Could not find an error message with any of the following keys: " + "'" + name1 + "', '" + name2 + "', '" + name3 + "', '" + name4 + "', '"
+                     + name5 + "', '" + name6 + "', '" + name7 + "'." + name8 + "', '" + name9 + "', '" + name10 + "', '" + name11 + "'.", null, null);
+      }
+
+      return template;
+   }
 }

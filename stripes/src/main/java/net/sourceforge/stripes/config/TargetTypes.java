@@ -20,10 +20,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+
 /**
  * Annotation used to indicate classes, interfaces, and annotations that
  * a Formatter or TypeConverter can handle.
- * 
+ *
  * @author Aaron Porter
  *
  */
@@ -31,5 +32,6 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 @Documented
 public @interface TargetTypes {
-    Class<?>[] value();
+
+   Class<?>[] value();
 }

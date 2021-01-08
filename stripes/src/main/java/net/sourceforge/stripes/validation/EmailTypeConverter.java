@@ -14,10 +14,12 @@
  */
 package net.sourceforge.stripes.validation;
 
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
 import java.util.Collection;
 import java.util.Locale;
+
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
+
 
 /**
  * <p>A faux TypeConverter that validates that the String supplied is a valid email address.
@@ -42,36 +44,37 @@ import java.util.Locale;
  * @since Stripes 1.2
  */
 public class EmailTypeConverter implements TypeConverter<String> {
-    /** Accepts the Locale provided, but does nothing with it since emails are Locale-less. */
-    public void setLocale(Locale locale) { /** Doesn't matter for email. */}
 
-    /**
-     * Validates the user input to ensure that it is a valid email address.
-     *
-     * @param input the String input, always a non-null non-empty String
-     * @param targetType realistically always String since java.lang.String is final
-     * @param errors a non-null collection of errors to populate in case of error
-     * @return the parsed address, or null if there are no errors. Note that the parsed address
-     *         may be different from the input if extraneous characters were removed.
-     */
-    public String convert(String input,
-                          Class<? extends String> targetType,
-                          Collection<ValidationError> errors) {
+   /**
+    * Validates the user input to ensure that it is a valid email address.
+    *
+    * @param input the String input, always a non-null non-empty String
+    * @param targetType realistically always String since java.lang.String is final
+    * @param errors a non-null collection of errors to populate in case of error
+    * @return the parsed address, or null if there are no errors. Note that the parsed address
+    *         may be different from the input if extraneous characters were removed.
+    */
+   @Override
+   public String convert( String input, Class<? extends String> targetType, Collection<ValidationError> errors ) {
 
-        String result = null;
+      String result = null;
 
-        try {
-            InternetAddress address = new InternetAddress(input, true);
-            result = address.getAddress();
-            if (!result.contains("@")) {
-                result = null;
-                throw new AddressException();
-            }
-        }
-        catch (AddressException ae) {
-            errors.add( new ScopedLocalizableError("converter.email", "invalidEmail") );
-        }
+      try {
+         InternetAddress address = new InternetAddress(input, true);
+         result = address.getAddress();
+         if ( !result.contains("@") ) {
+            result = null;
+            throw new AddressException();
+         }
+      }
+      catch ( AddressException ae ) {
+         errors.add(new ScopedLocalizableError("converter.email", "invalidEmail"));
+      }
 
-        return result;
-    }
+      return result;
+   }
+
+   /** Accepts the Locale provided, but does nothing with it since emails are Locale-less. */
+   @Override
+   public void setLocale( Locale locale ) { /* Doesn't matter for email. */}
 }

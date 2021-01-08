@@ -22,6 +22,7 @@ import net.sourceforge.stripes.controller.StripesFilter;
 import net.sourceforge.stripes.format.Formatter;
 import net.sourceforge.stripes.util.UrlBuilder;
 
+
 /**
  * <p>Abstract class that provides a consistent API for all Resolutions that send the user onward to
  * another view - either by forwarding, redirecting or some other mechanism.  Provides methods
@@ -36,168 +37,167 @@ import net.sourceforge.stripes.util.UrlBuilder;
  * @author Tim Fennell
  */
 public abstract class OnwardResolution<T extends OnwardResolution<T>> implements Resolution {
-    /** Initial value for fields to indicate they were not changed when null has special meaning */
-    private static final String VALUE_NOT_SET = "VALUE_NOT_SET";
 
-    private String path;
-    private String event = VALUE_NOT_SET;
-    private Map<String,Object> parameters = new HashMap<String,Object>();
-    private String anchor;
+   /** Initial value for fields to indicate they were not changed when null has special meaning */
+   private static final String VALUE_NOT_SET = "VALUE_NOT_SET";
 
-    /**
-     * Default constructor that takes the supplied path and stores it for use.
-     * @param path the path to which the resolution should navigate
-     */
-    public OnwardResolution(String path) {
-        if (path==null) {
-            throw new IllegalArgumentException("path cannot be null");
-        }
-        this.path = path;
-    }
+   private String _path;
+   private String _event = VALUE_NOT_SET;
+   private String _anchor;
 
-    /**
-     * Constructor that will extract the url binding for the ActionBean class supplied and
-     * use that as the path for the resolution.
-     *
-     * @param beanType a Class that represents an ActionBean
-     */
-    public OnwardResolution(Class<? extends ActionBean> beanType) {
-        this(StripesFilter.getConfiguration().getActionResolver().getUrlBinding(beanType));
-    }
+   private final Map<String, Object> _parameters = new HashMap<>();
 
-    /**
-     * Constructor that will extract the url binding for the ActionBean class supplied and
-     * use that as the path for the resolution and adds a parameter to ensure that the
-     * specified event is invoked.
-     *
-     * @param beanType a Class that represents an ActionBean
-     * @param event the String name of the event to trigger on navigation
-     */
-    public OnwardResolution(Class<? extends ActionBean> beanType, String event) {
-        this(beanType);
-        this.event = event;
-    }
+   /**
+    * Default constructor that takes the supplied path and stores it for use.
+    * @param path the path to which the resolution should navigate
+    */
+   public OnwardResolution( String path ) {
+      if ( path == null ) {
+         throw new IllegalArgumentException("path cannot be null");
+      }
+      _path = path;
+   }
 
-    /** Get the event name that was specified in one of the constructor calls. */
-    public String getEvent() {
-        return event == VALUE_NOT_SET ? null : event;
-    }
+   /**
+    * Constructor that will extract the url binding for the ActionBean class supplied and
+    * use that as the path for the resolution.
+    *
+    * @param beanType a Class that represents an ActionBean
+    */
+   public OnwardResolution( Class<? extends ActionBean> beanType ) {
+      this(StripesFilter.getConfiguration().getActionResolver().getUrlBinding(beanType));
+   }
 
-    /** Return true if an event name was specified when this instance was constructed. */
-    public boolean isEventSpecified() {
-        return event != VALUE_NOT_SET;
-    }
+   /**
+    * Constructor that will extract the url binding for the ActionBean class supplied and
+    * use that as the path for the resolution and adds a parameter to ensure that the
+    * specified event is invoked.
+    *
+    * @param beanType a Class that represents an ActionBean
+    * @param event the String name of the event to trigger on navigation
+    */
+   public OnwardResolution( Class<? extends ActionBean> beanType, String event ) {
+      this(beanType);
+      _event = event;
+   }
 
-    /** Accessor for the path that the user should be sent to. */
-    public String getPath() {
-        return path;
-    }
+   /**
+    * <p>Adds a request parameter with zero or more values to the URL.  Values may
+    * be supplied using varargs, or alternatively by suppling a single value parameter which is
+    * an instance of Collection.</p>
+    *
+    * <p>Note that this method is additive. Therefore writing things like
+    * {@code builder.addParameter("p", "one").addParameter("p", "two");}
+    * will add both {@code p=one} and {@code p=two} to the URL.</p>
+    *
+    * @param name the name of the URL parameter
+    * @param values zero or more scalar values, or a single Collection
+    * @return this Resolution so that methods can be chained
+    */
+   @SuppressWarnings("unchecked")
+   public T addParameter( String name, Object... values ) {
+      if ( _parameters.containsKey(name) ) {
+         Object[] src = (Object[])_parameters.get(name);
+         Object[] dst = new Object[src.length + values.length];
+         System.arraycopy(src, 0, dst, 0, src.length);
+         System.arraycopy(values, 0, dst, src.length, values.length);
+         _parameters.put(name, dst);
+      } else {
+         _parameters.put(name, values);
+      }
 
-    /** Setter for the path that the user should be sent to. */
-    public void setPath(String path) {
-        this.path = path;
-    }
+      return (T)this;
+   }
 
-    /** Get the name of the anchor to be appended to the URL. */
-    protected String getAnchor() {
-        return anchor;
-    }
+   /**
+    * <p>Bulk adds one or more request parameters to the URL. Each entry in the Map
+    * represents a single named parameter, with the values being either a scalar value,
+    * an array or a Collection.</p>
+    *
+    * <p>Note that this method is additive. If a parameter with name X has already been
+    * added and the map contains X as a key, the value(s) in the map will be added to the
+    * URL as well as the previously held values for X.</p>
+    *
+    * @param parameters a Map of parameters as described above
+    * @return this Resolution so that methods can be chained
+    */
+   @SuppressWarnings("unchecked")
+   public T addParameters( Map<String, ?> parameters ) {
+      for ( Map.Entry<String, ?> entry : parameters.entrySet() ) {
+         addParameter(entry.getKey(), entry.getValue());
+      }
 
-    /** Set the name of the anchor to be appended to the URL. */
-    @SuppressWarnings("unchecked")
-    protected T setAnchor(String anchor) {
-        this.anchor = anchor;
-        return (T) this;
-    }
+      return (T)this;
+   }
 
-    /**
-     * Method that will work for this class and subclasses; returns a String containing the
-     * class name, and the path to which it will send the user.
-     */
-    @Override
-    public String toString() {
-        return getClass().getSimpleName() + "{" +
-            "path='" + getPath() + "'" +
-            "}";
-    }
+   /** Get the event name that was specified in one of the constructor calls. */
+   public String getEvent() {
+      return _event == VALUE_NOT_SET ? null : _event;
+   }
 
-    /**
-     * <p>Adds a request parameter with zero or more values to the URL.  Values may
-     * be supplied using varargs, or alternatively by suppling a single value parameter which is
-     * an instance of Collection.</p>
-     *
-     * <p>Note that this method is additive. Therefore writing things like
-     * {@code builder.addParameter("p", "one").addParameter("p", "two");}
-     * will add both {@code p=one} and {@code p=two} to the URL.</p>
-     *
-     * @param name the name of the URL parameter
-     * @param values zero or more scalar values, or a single Collection
-     * @return this Resolution so that methods can be chained
-     */
-    @SuppressWarnings("unchecked")
-	public T addParameter(String name, Object... values) {
-        if (this.parameters.containsKey(name)) {
-            Object[] src = (Object[]) this.parameters.get(name);
-            Object[] dst = new Object[src.length + values.length];
-            System.arraycopy(src, 0, dst, 0, src.length);
-            System.arraycopy(values, 0, dst, src.length, values.length);
-            this.parameters.put(name, dst);
-        }
-        else {
-            this.parameters.put(name, values);
-        }
+   /**
+    * <p>Provides access to the Map of parameters that has been accumulated so far
+    * for this resolution. The reference returned is to the internal parameters
+    * map! As such any changed made to the Map will be reflected in the Resolution,
+    * and any subsequent calls to addParameter(s) will be reflected in the Map.</p>
+    *
+    * @return the Map of parameters for the resolution
+    */
+   public Map<String, Object> getParameters() {
+      return _parameters;
+   }
 
-        return (T) this;
-    }
+   /** Accessor for the path that the user should be sent to. */
+   public String getPath() {
+      return _path;
+   }
 
-    /**
-     * <p>Bulk adds one or more request parameters to the URL. Each entry in the Map
-     * represents a single named parameter, with the values being either a scalar value,
-     * an array or a Collection.</p>
-     *
-     * <p>Note that this method is additive. If a parameter with name X has already been
-     * added and the map contains X as a key, the value(s) in the map will be added to the
-     * URL as well as the previously held values for X.</p>
-     *
-     * @param parameters a Map of parameters as described above
-     * @return this Resolution so that methods can be chained
-     */
-    @SuppressWarnings("unchecked")
-	public T addParameters(Map<String,? extends Object> parameters) {
-        for (Map.Entry<String,? extends Object> entry : parameters.entrySet()) {
-            addParameter(entry.getKey(), entry.getValue());
-        }
+   /**
+    * Constructs the URL for the resolution by taking the path and appending any parameters
+    * supplied.
+    *
+    * @param locale the locale to be used by {@link Formatter}s when formatting parameters
+    */
+   public String getUrl( Locale locale ) {
+      UrlBuilder builder = new UrlBuilder(locale, getPath(), false);
+      if ( _event != VALUE_NOT_SET ) {
+         builder.setEvent(_event == null || _event.length() < 1 ? null : _event);
+      }
+      if ( _anchor != null ) {
+         builder.setAnchor(_anchor);
+      }
+      builder.addParameters(_parameters);
+      return builder.toString();
+   }
 
-        return (T) this;
-    }
+   /** Return true if an event name was specified when this instance was constructed. */
+   public boolean isEventSpecified() {
+      return _event != VALUE_NOT_SET;
+   }
 
-    /**
-     * <p>Provides access to the Map of parameters that has been accumulated so far
-     * for this resolution. The reference returned is to the internal parameters
-     * map! As such any changed made to the Map will be reflected in the Resolution,
-     * and any subsequent calls to addParameter(s) will be reflected in the Map.</p>
-     *
-     * @return the Map of parameters for the resolution
-     */
-    public Map<String, Object> getParameters() {
-        return parameters;
-    }
+   /** Setter for the path that the user should be sent to. */
+   public void setPath( String path ) {
+      _path = path;
+   }
 
-    /**
-     * Constructs the URL for the resolution by taking the path and appending any parameters
-     * supplied.
-     * 
-     * @param locale the locale to be used by {@link Formatter}s when formatting parameters
-     */
-    public String getUrl(Locale locale) {
-        UrlBuilder builder = new UrlBuilder(locale, getPath(), false);
-        if (event != VALUE_NOT_SET) {
-            builder.setEvent(event == null || event.length() < 1 ? null : event);
-        }
-        if (anchor != null) {
-            builder.setAnchor(anchor);
-        }
-        builder.addParameters(this.parameters);
-        return builder.toString();
-    }
+   /**
+    * Method that will work for this class and subclasses; returns a String containing the
+    * class name, and the path to which it will send the user.
+    */
+   @Override
+   public String toString() {
+      return getClass().getSimpleName() + "{" + "path='" + getPath() + "'" + "}";
+   }
+
+   /** Get the name of the anchor to be appended to the URL. */
+   protected String getAnchor() {
+      return _anchor;
+   }
+
+   /** Set the name of the anchor to be appended to the URL. */
+   @SuppressWarnings("unchecked")
+   protected T setAnchor( String anchor ) {
+      _anchor = anchor;
+      return (T)this;
+   }
 }

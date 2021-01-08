@@ -14,11 +14,12 @@
  */
 package net.sourceforge.stripes.localization;
 
-import net.sourceforge.stripes.config.Configuration;
-
-import java.util.ResourceBundle;
 import java.util.Locale;
 import java.util.MissingResourceException;
+import java.util.ResourceBundle;
+
+import net.sourceforge.stripes.config.Configuration;
+
 
 /**
  * Very simple default implementation of a bundle factory.  Looks for configuration parameters in
@@ -31,108 +32,102 @@ import java.util.MissingResourceException;
  */
 public class DefaultLocalizationBundleFactory implements LocalizationBundleFactory {
 
-    /** The name of the default resource bundle for Stripes. */
-    public static final String BUNDLE_NAME = "StripesResources";
+   /** The name of the default resource bundle for Stripes. */
+   public static final String BUNDLE_NAME = "StripesResources";
 
-    /** The configuration parameter for changing the default error message resource bundle. */
-    public static final String ERROR_MESSAGE_BUNDLE = "LocalizationBundleFactory.ErrorMessageBundle";
+   /** The configuration parameter for changing the default error message resource bundle. */
+   public static final String ERROR_MESSAGE_BUNDLE = "LocalizationBundleFactory.ErrorMessageBundle";
 
-    /** The configuration parameter for changing the default field name resource bundle. */
-    public static final String FIELD_NAME_BUNDLE = "LocalizationBundleFactory.FieldNameBundle";
+   /** The configuration parameter for changing the default field name resource bundle. */
+   public static final String FIELD_NAME_BUNDLE = "LocalizationBundleFactory.FieldNameBundle";
 
-    /** Holds the configuration passed in at initialization time. */
-    private Configuration configuration;
-    private String errorBundleName;
-    private String fieldBundleName;
+   /** Holds the configuration passed in at initialization time. */
+   private Configuration _configuration;
+   private String        _errorBundleName;
+   private String        _fieldBundleName;
 
-    /**
-     * Uses the BootstrapPropertyResolver attached to the Configuration in order to look for
-     * configured bundle names in the servlet init parameters etc.  If those can't be found then
-     * the default bundle names are put in place.
-     */
-    public void init(Configuration configuration) throws Exception {
-        setConfiguration(configuration);
+   /**
+    * Looks for a bundle called StripesResources with the supplied locale if one is provided,
+    * or with the default locale if the locale provided is null.
+    *
+    * @param locale an optional locale, may be null.
+    * @return ResourceBundle a bundle in which to look for localized error messages
+    * @throws MissingResourceException if a suitable bundle cannot be found
+    */
+   @Override
+   public ResourceBundle getErrorMessageBundle( Locale locale ) throws MissingResourceException {
+      try {
+         if ( locale == null ) {
+            return ResourceBundle.getBundle(_errorBundleName);
+         } else {
+            return ResourceBundle.getBundle(_errorBundleName, locale);
+         }
+      }
+      catch ( MissingResourceException mre ) {
+         MissingResourceException mre2 = new MissingResourceException(
+               "Could not find the error message resource bundle needed by Stripes. This " + "almost certainly means that a properties file called '"
+                     + _errorBundleName + ".properties' could not be found in the classpath. "
+                     + "This properties file is needed to lookup validation error messages. Please "
+                     + "ensure the file exists in WEB-INF/classes or elsewhere in your classpath.", _errorBundleName, "");
+         mre2.setStackTrace(mre.getStackTrace());
+         throw mre2;
+      }
+   }
 
-        this.errorBundleName = configuration.getBootstrapPropertyResolver().
-                getProperty(ERROR_MESSAGE_BUNDLE);
-        if (this.errorBundleName == null) {
-            this.errorBundleName = BUNDLE_NAME;
-        }
+   /**
+    * Looks for a bundle called StripesResources with the supplied locale if one is provided,
+    * or with the default locale if the locale provided is null.
+    *
+    * @param locale an optional locale, may be null.
+    * @return ResourceBundle a bundle in which to look for localized field names
+    * @throws MissingResourceException if a suitable bundle cannot be found
+    */
+   @Override
+   public ResourceBundle getFormFieldBundle( Locale locale ) throws MissingResourceException {
+      try {
+         if ( locale == null ) {
+            return ResourceBundle.getBundle(_fieldBundleName);
+         } else {
+            return ResourceBundle.getBundle(_fieldBundleName, locale);
+         }
+      }
+      catch ( MissingResourceException mre ) {
+         MissingResourceException mre2 = new MissingResourceException(
+               "Could not find the form field resource bundle needed by Stripes. This " + "almost certainly means that a properties file called '"
+                     + _fieldBundleName + ".properties' could not be found in the classpath. "
+                     + "This properties file is needed to lookup form field names. Please "
+                     + "ensure the file exists in WEB-INF/classes or elsewhere in your classpath.", _fieldBundleName, "");
+         mre2.setStackTrace(mre.getStackTrace());
+         throw mre2;
+      }
+   }
 
-        this.fieldBundleName = configuration.getBootstrapPropertyResolver().
-                getProperty(FIELD_NAME_BUNDLE);
-        if (this.fieldBundleName == null) {
-            this.fieldBundleName = BUNDLE_NAME;
-        }
-    }
+   /**
+    * Uses the BootstrapPropertyResolver attached to the Configuration in order to look for
+    * configured bundle names in the servlet init parameters etc.  If those can't be found then
+    * the default bundle names are put in place.
+    */
+   @Override
+   public void init( Configuration configuration ) throws Exception {
+      setConfiguration(configuration);
 
-    /**
-     * Looks for a bundle called StripesResources with the supplied locale if one is provided,
-     * or with the default locale if the locale provided is null.
-     *
-     * @param locale an optional locale, may be null.
-     * @return ResourceBundle a bundle in which to look for localized error messages
-     * @throws MissingResourceException if a suitable bundle cannot be found
-     */
-    public ResourceBundle getErrorMessageBundle(Locale locale) throws MissingResourceException {
-        try {
-            if (locale == null) {
-                return ResourceBundle.getBundle(this.errorBundleName);
-            }
-            else {
-                return ResourceBundle.getBundle(this.errorBundleName, locale);
-            }
-        }
-        catch (MissingResourceException mre) {
-            MissingResourceException mre2 = new MissingResourceException(
-                    "Could not find the error message resource bundle needed by Stripes. This " +
-                    "almost certainly means that a properties file called '" +
-                    this.errorBundleName + ".properties' could not be found in the classpath. " +
-                    "This properties file is needed to lookup validation error messages. Please " +
-                    "ensure the file exists in WEB-INF/classes or elsewhere in your classpath.",
-                    this.errorBundleName, "");
-            mre2.setStackTrace(mre.getStackTrace());
-            throw mre2;
-        }
-    }
+      _errorBundleName = configuration.getBootstrapPropertyResolver().
+            getProperty(ERROR_MESSAGE_BUNDLE);
+      if ( _errorBundleName == null ) {
+         _errorBundleName = BUNDLE_NAME;
+      }
 
-    /**
-     * Looks for a bundle called StripesResources with the supplied locale if one is provided,
-     * or with the default locale if the locale provided is null.
-     *
-     * @param locale an optional locale, may be null.
-     * @return ResourceBundle a bundle in which to look for localized field names
-     * @throws MissingResourceException if a suitable bundle cannot be found
-     */
-    public ResourceBundle getFormFieldBundle(Locale locale) throws MissingResourceException {
-        try {
-            if (locale == null) {
-                return ResourceBundle.getBundle(this.fieldBundleName);
-            }
-            else {
-                return ResourceBundle.getBundle(this.fieldBundleName, locale);
-            }
-        }
-        catch (MissingResourceException mre) {
-            MissingResourceException mre2 = new MissingResourceException(
-                    "Could not find the form field resource bundle needed by Stripes. This " +
-                    "almost certainly means that a properties file called '" +
-                    this.fieldBundleName + ".properties' could not be found in the classpath. " +
-                    "This properties file is needed to lookup form field names. Please " +
-                    "ensure the file exists in WEB-INF/classes or elsewhere in your classpath.",
-                    this.fieldBundleName, "");
-            mre2.setStackTrace(mre.getStackTrace());
-            throw mre2;
-        }
-    }
+      _fieldBundleName = configuration.getBootstrapPropertyResolver().getProperty(FIELD_NAME_BUNDLE);
+      if ( _fieldBundleName == null ) {
+         _fieldBundleName = BUNDLE_NAME;
+      }
+   }
 
-	protected Configuration getConfiguration()
-	{
-		return configuration;
-	}
+   protected Configuration getConfiguration() {
+      return _configuration;
+   }
 
-	protected void setConfiguration(Configuration configuration)
-	{
-		this.configuration = configuration;
-	}
+   protected void setConfiguration( Configuration configuration ) {
+      _configuration = configuration;
+   }
 }

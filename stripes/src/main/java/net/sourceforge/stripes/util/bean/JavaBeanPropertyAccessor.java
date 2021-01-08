@@ -14,11 +14,12 @@
  */
 package net.sourceforge.stripes.util.bean;
 
-import net.sourceforge.stripes.util.ReflectUtil;
-
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+
+import net.sourceforge.stripes.util.ReflectUtil;
+
 
 /**
  * Implementation of {@link PropertyAccessor} for reading JavaBean properties from
@@ -30,88 +31,84 @@ import java.lang.reflect.Method;
  * @since Stripes 1.4
  */
 public class JavaBeanPropertyAccessor implements PropertyAccessor<Object> {
-    /**
-     * Fetches the specified property value from the bean if it exists.
-     * @param evaluation the current node evaluation
-     * @param bean the bean from which to fetch the property
-     * @return the value of the property
-     * @throws NoSuchPropertyException if there is no property with the supplied name
-     * @throws EvaluationException if the value cannot be retrieved for any other reason
-     */
-    public Object getValue(NodeEvaluation evaluation, Object bean)
-            throws NoSuchPropertyException, EvaluationException {
-        String property = evaluation.getNode().getStringValue();
-        PropertyDescriptor pd = ReflectUtil.getPropertyDescriptor(bean.getClass(), property);
 
-        try {
-            if (pd != null) {
-                Method m = pd.getReadMethod();
-                if (m != null) {
-                    m = ReflectUtil.findAccessibleMethod(m);
-                    return m.invoke(bean);
-                }
-                else {
-                    throw new EvaluationException("Could not read write-only property '" +
-                        property + "' on bean of type " + bean.getClass().getName());
-                }
-            }
-            else {
-                Field field = ReflectUtil.getField(bean.getClass(), property);
-                if (field != null) {
-                    return field.get(bean);
-                }
-                else {
-                    throw new NoSuchPropertyException("Bean class " + bean.getClass().getName() +
-                    " does not contain a property called '" + property + "'.");
-                }
-            }
-        }
-        catch (EvaluationException ee) { throw ee; }
-        catch (Exception e) {
-            throw new EvaluationException("Could not read value of property '" + property +
-            "' on bean of type " + bean.getClass().getName() + " due to an exception.", e);
-        }
-    }
+   /**
+    * Fetches the specified property value from the bean if it exists.
+    * @param evaluation the current node evaluation
+    * @param bean the bean from which to fetch the property
+    * @return the value of the property
+    * @throws NoSuchPropertyException if there is no property with the supplied name
+    * @throws EvaluationException if the value cannot be retrieved for any other reason
+    */
+   @Override
+   public Object getValue( NodeEvaluation evaluation, Object bean ) throws NoSuchPropertyException, EvaluationException {
+      String property = evaluation.getNode().getStringValue();
+      PropertyDescriptor pd = ReflectUtil.getPropertyDescriptor(bean.getClass(), property);
 
-    /**
-     * Sets the specified property value to the supplied value.
-     * @param evaluation the current node evaluation
-     * @param bean the bean on to which to set the property
-     * @param value the value of the property
-     * @throws NoSuchPropertyException if there is no property with the supplied name
-     * @throws EvaluationException if the value cannot be set for any other reason
-     */
-    public void setValue(NodeEvaluation evaluation, Object bean, Object value) {
-        String property = evaluation.getNode().getStringValue();
-        PropertyDescriptor pd = ReflectUtil.getPropertyDescriptor(bean.getClass(), property);
+      try {
+         if ( pd != null ) {
+            Method m = pd.getReadMethod();
+            if ( m != null ) {
+               m = ReflectUtil.findAccessibleMethod(m);
+               return m.invoke(bean);
+            } else {
+               throw new EvaluationException("Could not read write-only property '" + property + "' on bean of type " + bean.getClass().getName());
+            }
+         } else {
+            Field field = ReflectUtil.getField(bean.getClass(), property);
+            if ( field != null ) {
+               return field.get(bean);
+            } else {
+               throw new NoSuchPropertyException("Bean class " + bean.getClass().getName() + " does not contain a property called '" + property + "'.");
+            }
+         }
+      }
+      catch ( EvaluationException ee ) {
+         throw ee;
+      }
+      catch ( Exception e ) {
+         throw new EvaluationException(
+               "Could not read value of property '" + property + "' on bean of type " + bean.getClass().getName() + " due to an exception.", e);
+      }
+   }
 
-        try {
-            if (pd != null) {
-                Method m = pd.getWriteMethod();
-                if (m != null) {
-                    m = ReflectUtil.findAccessibleMethod(m);
-                    m.invoke(bean, value);
-                }
-                else {
-                    throw new EvaluationException("Could not write read-only property '" +
-                            property + "' on bean of type " + bean.getClass().getName());
-                }
+   /**
+    * Sets the specified property value to the supplied value.
+    * @param evaluation the current node evaluation
+    * @param bean the bean on to which to set the property
+    * @param value the value of the property
+    * @throws NoSuchPropertyException if there is no property with the supplied name
+    * @throws EvaluationException if the value cannot be set for any other reason
+    */
+   @Override
+   public void setValue( NodeEvaluation evaluation, Object bean, Object value ) {
+      String property = evaluation.getNode().getStringValue();
+      PropertyDescriptor pd = ReflectUtil.getPropertyDescriptor(bean.getClass(), property);
+
+      try {
+         if ( pd != null ) {
+            Method m = pd.getWriteMethod();
+            if ( m != null ) {
+               m = ReflectUtil.findAccessibleMethod(m);
+               m.invoke(bean, value);
+            } else {
+               throw new EvaluationException("Could not write read-only property '" + property + "' on bean of type " + bean.getClass().getName());
             }
-            else {
-                Field field = ReflectUtil.getField(bean.getClass(), property);
-                if (field != null) {
-                    field.set(bean, value);
-                }
-                else {
-                    throw new NoSuchPropertyException("Bean class " + bean.getClass().getName() +
-                            " does not contain a property called '" + property + "'.");
-                }
+         } else {
+            Field field = ReflectUtil.getField(bean.getClass(), property);
+            if ( field != null ) {
+               field.set(bean, value);
+            } else {
+               throw new NoSuchPropertyException("Bean class " + bean.getClass().getName() + " does not contain a property called '" + property + "'.");
             }
-        }
-        catch (EvaluationException ee) { throw ee; }
-        catch (Exception e) {
-            throw new EvaluationException("Could not write value of property '" + property +
-                    "' on bean of type " + bean.getClass().getName() + " due to an exception.", e);
-        }
-    }
+         }
+      }
+      catch ( EvaluationException ee ) {
+         throw ee;
+      }
+      catch ( Exception e ) {
+         throw new EvaluationException(
+               "Could not write value of property '" + property + "' on bean of type " + bean.getClass().getName() + " due to an exception.", e);
+      }
+   }
 }

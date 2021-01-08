@@ -18,6 +18,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Locale;
 
+
 /**
  * Performs a fairly aggressive conversion of a String to a boolean. The String will be deemed to be
  * equivalent to true if it meets any of the following conditions:
@@ -37,46 +38,47 @@ import java.util.Locale;
  * @author Tim Fennell
  */
 public class BooleanTypeConverter implements TypeConverter<Boolean> {
-    private static final Collection<String> truths = new HashSet<String>();
 
-    static {
-        truths.add("true");
-        truths.add("t");
-        truths.add("yes");
-        truths.add("y");
-        truths.add("on");
-    }
+   private static final Collection<String> truths = new HashSet<>();
 
-    /**
-     * Does nothing currently due to the fact that there is no localization support for
-     * Booleans in Java.
-     */
-    public void setLocale(Locale locale) {
-        // Do nothing
-    }
+   static {
+      truths.add("true");
+      truths.add("t");
+      truths.add("yes");
+      truths.add("y");
+      truths.add("on");
+   }
 
-    /**
-     * Converts a String to a Boolean in accordance with the specification laid out in the
-     * class level javadoc.
-     */
-    public Boolean convert(String input,
-                           Class<? extends Boolean> targetType,
-                           Collection<ValidationError> errors) {
+   /**
+    * Converts a String to a Boolean in accordance with the specification laid out in the
+    * class level javadoc.
+    */
+   @Override
+   public Boolean convert( String input, Class<? extends Boolean> targetType, Collection<ValidationError> errors ) {
 
-        boolean retval = false;
+      boolean retval = false;
 
-        for (String truth : truths) {
-            retval = retval || truth.equalsIgnoreCase(input);
-        }
+      for ( String truth : truths ) {
+         retval = retval || truth.equalsIgnoreCase(input);
+      }
 
-        if (retval == false) {
-            try {
-                long number = Long.parseLong(input);
-                retval =  (number > 0);
-            }
-            catch (NumberFormatException nfe) {/* Ignore the exception */ }
-        }
+      if ( !retval ) {
+         try {
+            long number = Long.parseLong(input);
+            retval = (number > 0);
+         }
+         catch ( NumberFormatException nfe ) {/* Ignore the exception */ }
+      }
 
-        return retval;
-    }
+      return retval;
+   }
+
+   /**
+    * Does nothing currently due to the fact that there is no localization support for
+    * Booleans in Java.
+    */
+   @Override
+   public void setLocale( Locale locale ) {
+      // Do nothing
+   }
 }

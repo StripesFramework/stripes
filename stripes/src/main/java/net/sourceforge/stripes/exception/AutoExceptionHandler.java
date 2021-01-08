@@ -14,7 +14,6 @@
  */
 package net.sourceforge.stripes.exception;
 
-
 /**
  * <p>A marker interface for delegate exception handlers to be used with the
  * {@link DelegatingExceptionHandler}.  Note that the DelegatingExceptionHandler must be
@@ -36,4 +35,6 @@ package net.sourceforge.stripes.exception;
  * @author Jeppe Cramon
  * @since Stripes 1.3
  */
-public interface AutoExceptionHandler { }
+public interface AutoExceptionHandler {
+
+}

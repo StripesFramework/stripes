@@ -17,6 +17,7 @@ package net.sourceforge.stripes.tag;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.BodyTag;
 
+
 /**
  * <p>Generates {@literal <input type="radio" value="foo"/>} HTML tags based on the attribute set
  * on the tag and the state of the form. Since a single radio button widget on a HTML page can
@@ -38,89 +39,90 @@ import javax.servlet.jsp.tagext.BodyTag;
  * @author Tim Fennell
  */
 public class InputRadioButtonTag extends InputTagSupport implements BodyTag {
-    private String checked;
-    private Object value;
 
-    /** Basic constructor that sets the input tag's type attribute to "radio". */
-    public InputRadioButtonTag() {
-        getAttributes().put("type", "radio");
-    }
+   private String _checked;
+   private Object _value;
 
-    /**
-     * Sets the value amongst a set of radio buttons, that should be "checked" by default.
-     * @param checked the default value for a set of radio buttons
-     */
-    public void setChecked(String checked) { this.checked = checked; }
+   /** Basic constructor that sets the input tag's type attribute to "radio". */
+   public InputRadioButtonTag() {
+      getAttributes().put("type", "radio");
+   }
 
-    /** Returns the value set with setChecked(). */
-    public String getChecked() { return this.checked; }
+   /**
+    * Does nothing.
+    * @return SKIP_BODY in all cases.
+    */
+   @Override
+   public int doAfterBody() throws JspException {
+      return SKIP_BODY;
+   }
 
-    /** Sets the Object value of this individual checkbox. */
-    public void setValue(Object value) { this.value = value; }
+   /**
+    * Determines the state of the set of radio buttons and then writes the radio button to the
+    * output stream with checked="checked" or not as appropriate.
+    *
+    * @return EVAL_PAGE in all cases.
+    * @throws JspException if the parent form tag cannot be found, or output cannot be written.
+    */
+   @Override
+   public int doEndInputTag() throws JspException {
+      Object actualChecked = getSingleOverrideValue();
 
-    /** Returns the value set with setValue() */
-    public Object getValue() { return this.value; }
+      // Now if the "checked" value matches this tags value, check it!
+      if ( actualChecked != null && _value != null && format(_value, false).equals(format(actualChecked, false)) ) {
+         getAttributes().put("checked", "checked");
+      }
 
-    /**
-     * Sets the input tag type to "radio".
-     * @return EVAL_BODY_BUFFERED in all cases.
-     */
-    @Override
-    public int doStartInputTag() throws JspException {
-        return EVAL_BODY_BUFFERED;
-    }
+      getAttributes().put("value", format(_value));
 
-    /** Does nothing. */
-    public void doInitBody() throws JspException { }
+      writeSingletonTag(getPageContext().getOut(), "input");
 
-    /**
-     * Does nothing.
-     * @return SKIP_BODY in all cases.
-     */
-    public int doAfterBody() throws JspException {
-        return SKIP_BODY;
-    }
+      // Restore the state of the tag to before we mucked with it
+      getAttributes().remove("checked");
+      getAttributes().remove("value");
 
-    /**
-     * Returns the body of the tag if it is present and not empty, otherwise returns
-     * the value of the 'checked' attribute.
-     */
-    @Override
-    public Object getValueOnPage() {
-        String body         = getBodyContentAsString();
-        if (body != null) {
-            return body;
-        }
-        else {
-            return this.checked;
-        }
-    }
+      return EVAL_PAGE;
+   }
 
-    /**
-     * Determines the state of the set of radio buttons and then writes the radio button to the
-     * output stream with checked="checked" or not as appropriate.
-     *
-     * @return EVAL_PAGE in all cases.
-     * @throws JspException if the parent form tag cannot be found, or output cannot be written.
-     */
-    @Override
-    public int doEndInputTag() throws JspException {
-        Object actualChecked = getSingleOverrideValue();
+   /** Does nothing. */
+   @Override
+   public void doInitBody() throws JspException { }
 
-        // Now if the "checked" value matches this tags value, check it!
-        if (actualChecked != null && this.value != null
-                && format(this.value, false).equals(format(actualChecked, false))) {
-            getAttributes().put("checked", "checked");
-        }
+   /**
+    * Sets the input tag type to "radio".
+    * @return EVAL_BODY_BUFFERED in all cases.
+    */
+   @Override
+   public int doStartInputTag() throws JspException {
+      return EVAL_BODY_BUFFERED;
+   }
 
-        getAttributes().put("value", format(this.value));
+   /** Returns the value set with setChecked(). */
+   public String getChecked() { return _checked; }
 
-        writeSingletonTag(getPageContext().getOut(), "input");
+   /** Returns the value set with setValue() */
+   public Object getValue() { return _value; }
 
-        // Restore the state of the tag to before we mucked with it
-        getAttributes().remove("checked");
-        getAttributes().remove("value");
+   /**
+    * Returns the body of the tag if it is present and not empty, otherwise returns
+    * the value of the 'checked' attribute.
+    */
+   @Override
+   public Object getValueOnPage() {
+      String body = getBodyContentAsString();
+      if ( body != null ) {
+         return body;
+      } else {
+         return _checked;
+      }
+   }
 
-        return EVAL_PAGE;
-    }
+   /**
+    * Sets the value amongst a set of radio buttons, that should be "checked" by default.
+    * @param checked the default value for a set of radio buttons
+    */
+   public void setChecked( String checked ) { _checked = checked; }
+
+   /** Sets the Object value of this individual checkbox. */
+   public void setValue( Object value ) { _value = value; }
 }

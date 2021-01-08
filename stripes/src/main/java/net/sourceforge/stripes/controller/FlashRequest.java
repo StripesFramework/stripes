@@ -16,11 +16,12 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+
 /**
  * Captures the state of an {@link javax.servlet.http.HttpServletRequest} so that the information
  * contained therein can be carried over to the next request for use by the flash scope. There are
  * several methods in here that cannot be faked and so must delegate to an active {@link
- * javax.servlet.http.HttpServletRequest} object, the {@link #delegate}. If one of these methods is
+ * javax.servlet.http.HttpServletRequest} object, the {@link #_delegate}. If one of these methods is
  * called and there is no delegate object set on the instance, they will throw a {@link
  * net.sourceforge.stripes.exception.StripesRuntimeException}. Unless this class is used outside its
  * intended context (during a live request processed through {@link StripesFilter}), you won't need
@@ -30,357 +31,409 @@ import javax.servlet.http.HttpSession;
  * @since Stripes 1.4.3
  */
 public class FlashRequest implements HttpServletRequest, Serializable {
-	private static final long serialVersionUID = 1L;
 
-    private Cookie[] cookies;
-    private HttpServletRequest delegate;
-    private List<Locale> locales;
-    private Locale locale;
-    private Map<String, List<String>> headers = new HashMap<String, List<String>>();
-    private Map<String, Long> dateHeaders = new HashMap<String, Long>();
-    private Map<String, Object> attributes = new HashMap<String, Object>();
-    private Map<String, String[]> parameters = new HashMap<String, String[]>();
-    private String authType;
-    private String characterEncoding;
-    private String contentType;
-    private String contextPath;
-    private String localAddr;
-    private String localName;
-    private String method;
-    private String pathInfo;
-    private String pathTranslated;
-    private String protocol;
-    private String queryString;
-    private String remoteAddr;
-    private String remoteHost;
-    private String remoteUser;
-    private String requestURI;
-    private String requestedSessionId;
-    private String scheme;
-    private String serverName;
-    private String servletPath;
-    private StringBuffer requestURL;
-    private boolean requestedSessionIdFromCookie;
-    private boolean requestedSessionIdFromURL;
-    private boolean requestedSessionIdFromUrl;
-    private boolean requestedSessionIdValid;
-    private boolean secure;
-    private int localPort;
-    private int remotePort;
-    private int serverPort;
-    
-	/**
-	 * Finds the StripesRequestWrapper for the supplied request and swaps out the underlying
-	 * request for an instance of FlashRequest.
-	 *
-	 * @param request the current HttpServletRequest
-	 * @return the StripesRequestWrapper for this request with the "live" request replaced
-	 */
-    public static StripesRequestWrapper replaceRequest(HttpServletRequest request) {
-        StripesRequestWrapper wrapper = StripesRequestWrapper.findStripesWrapper(request);
-        wrapper.setRequest(new FlashRequest((HttpServletRequest) wrapper.getRequest()));
-        return wrapper;
-    }
+   private static final long serialVersionUID = 1L;
 
-    /**
-     * Creates a new FlashRequest by copying all appropriate attributes from the prototype
-     * request supplied.
-     *
-     * @param prototype the HttpServletRequest to create a disconnected copy of
-     */
-    @SuppressWarnings({ "unchecked", "deprecation" })
-    public FlashRequest(HttpServletRequest prototype) {
-        // copy properties
-        authType = prototype.getAuthType();
-        characterEncoding = prototype.getCharacterEncoding();
-        contentType = prototype.getContentType();
-        contextPath = prototype.getContextPath();
-        cookies = prototype.getCookies();
-        localAddr = prototype.getLocalAddr();
-        localName = prototype.getLocalName();
-        localPort = prototype.getLocalPort();
-        locale = prototype.getLocale();
-        method = prototype.getMethod();
-        pathInfo = prototype.getPathInfo();
-        pathTranslated = prototype.getPathTranslated();
-        protocol = prototype.getProtocol();
-        queryString = prototype.getQueryString();
-        remoteAddr = prototype.getRemoteAddr();
-        remoteHost = prototype.getRemoteHost();
-        remotePort = prototype.getRemotePort();
-        remoteUser = prototype.getRemoteUser();
-        requestURI = prototype.getRequestURI();
-        requestURL = prototype.getRequestURL();
-        requestedSessionId = prototype.getRequestedSessionId();
-        requestedSessionIdFromCookie = prototype.isRequestedSessionIdFromCookie();
-        requestedSessionIdFromURL = prototype.isRequestedSessionIdFromURL();
-        requestedSessionIdFromUrl = prototype.isRequestedSessionIdFromUrl();
-        requestedSessionIdValid = prototype.isRequestedSessionIdValid();
-        scheme = prototype.getScheme();
-        secure = prototype.isSecure();
-        serverName = prototype.getServerName();
-        serverPort = prototype.getServerPort();
-        servletPath = prototype.getServletPath();
+   /**
+    * Finds the StripesRequestWrapper for the supplied request and swaps out the underlying
+    * request for an instance of FlashRequest.
+    *
+    * @param request the current HttpServletRequest
+    * @return the StripesRequestWrapper for this request with the "live" request replaced
+    */
+   public static StripesRequestWrapper replaceRequest( HttpServletRequest request ) {
+      StripesRequestWrapper wrapper = StripesRequestWrapper.findStripesWrapper(request);
+      wrapper.setRequest(new FlashRequest((HttpServletRequest)wrapper.getRequest()));
+      return wrapper;
+   }
 
-        // copy attributes
-        for (String key : Collections.list((Enumeration<String>) prototype.getAttributeNames())) {
-            attributes.put(key, prototype.getAttribute(key));
-        }
+   private final Cookie[]                  _cookies;
+   private       HttpServletRequest        _delegate;
+   private final List<Locale>              _locales;
+   private final Locale                    _locale;
+   private final Map<String, List<String>> _headers     = new HashMap<>();
+   private final Map<String, Long>         _dateHeaders = new HashMap<>();
+   private final Map<String, Object>       _attributes  = new HashMap<>();
+   private final Map<String, String[]>     _parameters  = new HashMap<>();
+   private final String                    _authType;
+   private       String                    _characterEncoding;
+   private final String                    _contentType;
+   private final String                    _contextPath;
+   private final String                    _localAddr;
+   private final String                    _localName;
+   private final String                    _method;
+   private final String                    _pathInfo;
+   private final String                    _pathTranslated;
+   private final String                    _protocol;
+   private final String                    _queryString;
+   private final String                    _remoteAddr;
+   private final String                    _remoteHost;
+   private final String                    _remoteUser;
+   private final String                    _requestURI;
+   private final String                    _requestedSessionId;
+   private final String                    _scheme;
+   private final String                    _serverName;
+   private final String                    _servletPath;
+   private final StringBuffer              _requestURL;
+   private final boolean                   _requestedSessionIdFromCookie;
+   private final boolean                   _requestedSessionIdFromURL;
+   private final boolean                   _requestedSessionIdFromUrl;
+   private final boolean                   _requestedSessionIdValid;
+   private final boolean                   _secure;
+   private final int                       _localPort;
+   private final int                       _remotePort;
+   private final int                       _serverPort;
 
-        // copy headers
-        for (String key : Collections.list((Enumeration<String>) prototype.getHeaderNames())) {
-            headers.put(key, Collections.list(prototype.getHeaders(key)));
-            try {
-                dateHeaders.put(key, prototype.getDateHeader(key));
-            }
-            catch (Exception e) {
-            }
-        }
+   /**
+    * Creates a new FlashRequest by copying all appropriate attributes from the prototype
+    * request supplied.
+    *
+    * @param prototype the HttpServletRequest to create a disconnected copy of
+    */
+   @SuppressWarnings({ "unchecked", "deprecation" })
+   public FlashRequest( HttpServletRequest prototype ) {
+      // copy properties
+      _authType = prototype.getAuthType();
+      _characterEncoding = prototype.getCharacterEncoding();
+      _contentType = prototype.getContentType();
+      _contextPath = prototype.getContextPath();
+      _cookies = prototype.getCookies();
+      _localAddr = prototype.getLocalAddr();
+      _localName = prototype.getLocalName();
+      _localPort = prototype.getLocalPort();
+      _locale = prototype.getLocale();
+      _method = prototype.getMethod();
+      _pathInfo = prototype.getPathInfo();
+      _pathTranslated = prototype.getPathTranslated();
+      _protocol = prototype.getProtocol();
+      _queryString = prototype.getQueryString();
+      _remoteAddr = prototype.getRemoteAddr();
+      _remoteHost = prototype.getRemoteHost();
+      _remotePort = prototype.getRemotePort();
+      _remoteUser = prototype.getRemoteUser();
+      _requestURI = prototype.getRequestURI();
+      _requestURL = prototype.getRequestURL();
+      _requestedSessionId = prototype.getRequestedSessionId();
+      _requestedSessionIdFromCookie = prototype.isRequestedSessionIdFromCookie();
+      _requestedSessionIdFromURL = prototype.isRequestedSessionIdFromURL();
+      _requestedSessionIdFromUrl = prototype.isRequestedSessionIdFromUrl();
+      _requestedSessionIdValid = prototype.isRequestedSessionIdValid();
+      _scheme = prototype.getScheme();
+      _secure = prototype.isSecure();
+      _serverName = prototype.getServerName();
+      _serverPort = prototype.getServerPort();
+      _servletPath = prototype.getServletPath();
 
-        // copy locales
-        locales = Collections.list(prototype.getLocales());
+      // copy attributes
+      for ( String key : Collections.list((Enumeration<String>)prototype.getAttributeNames()) ) {
+         _attributes.put(key, prototype.getAttribute(key));
+      }
 
-        // copy parameters
-        parameters.putAll(prototype.getParameterMap());
-    }
+      // copy headers
+      for ( String key : Collections.list((Enumeration<String>)prototype.getHeaderNames()) ) {
+         _headers.put(key, Collections.list(prototype.getHeaders(key)));
+         try {
+            _dateHeaders.put(key, prototype.getDateHeader(key));
+         }
+         catch ( Exception e ) {
+         }
+      }
 
-    protected HttpServletRequest getDelegate() {
-        if (delegate == null) {
-            throw new IllegalStateException(
-                    "Attempt to access a delegate method of " +
-                    FlashRequest.class.getName() +
-                    " but no delegate request has been set");
-        }
-        return delegate;
-    }
+      // copy locales
+      _locales = Collections.list(prototype.getLocales());
 
-    public void setDelegate(HttpServletRequest delegate) {
-        this.delegate = delegate;
-    }
+      // copy parameters
+      _parameters.putAll(prototype.getParameterMap());
+   }
 
-    public String getAuthType() {
-        return authType;
-    }
+   @Override
+   public Object getAttribute( String name ) {
+      return _attributes.get(name);
+   }
 
-    public Cookie[] getCookies() {
-        return cookies;
-    }
+   @Override
+   public Enumeration<String> getAttributeNames() {
+      return Collections.enumeration(_attributes.keySet());
+   }
 
-    public long getDateHeader(String name) {
-        Long value = dateHeaders.get(name);
-        return value == null ? 0 : value;
-    }
+   @Override
+   public String getAuthType() {
+      return _authType;
+   }
 
-    public String getHeader(String name) {
-        List<String> values = headers.get(name);
-        return values != null && values.size() > 0 ? values.get(0) : null;
-    }
+   @Override
+   public String getCharacterEncoding() {
+      return _characterEncoding;
+   }
 
-    public Enumeration<String> getHeaders(String name) {
-        return Collections.enumeration(headers.get(name));
-    }
+   @Override
+   public int getContentLength() {
+      return 0;
+   }
 
-    public Enumeration<String> getHeaderNames() {
-        return Collections.enumeration(headers.keySet());
-    }
+   @Override
+   public String getContentType() {
+      return _contentType;
+   }
 
-    public int getIntHeader(String name) {
-        try {
-            return Integer.parseInt(getHeader(name));
-        }
-        catch (Exception e) {
-            return 0;
-        }
-    }
+   @Override
+   public String getContextPath() {
+      return _contextPath;
+   }
 
-    public String getMethod() {
-        return method;
-    }
+   @Override
+   public Cookie[] getCookies() {
+      return _cookies;
+   }
 
-    public String getPathInfo() {
-        return pathInfo;
-    }
+   @Override
+   public long getDateHeader( String name ) {
+      Long value = _dateHeaders.get(name);
+      return value == null ? 0 : value;
+   }
 
-    public String getPathTranslated() {
-        return pathTranslated;
-    }
+   @Override
+   public String getHeader( String name ) {
+      List<String> values = _headers.get(name);
+      return values != null && values.size() > 0 ? values.get(0) : null;
+   }
 
-    public String getContextPath() {
-        return contextPath;
-    }
+   @Override
+   public Enumeration<String> getHeaderNames() {
+      return Collections.enumeration(_headers.keySet());
+   }
 
-    public String getQueryString() {
-        return queryString;
-    }
+   @Override
+   public Enumeration<String> getHeaders( String name ) {
+      return Collections.enumeration(_headers.get(name));
+   }
 
-    public String getRemoteUser() {
-        return remoteUser;
-    }
+   @Override
+   public ServletInputStream getInputStream() {
+      return null;
+   }
 
-    public boolean isUserInRole(String role) {
-        return getDelegate().isUserInRole(role);
-    }
+   @Override
+   public int getIntHeader( String name ) {
+      try {
+         return Integer.parseInt(getHeader(name));
+      }
+      catch ( Exception e ) {
+         return 0;
+      }
+   }
 
-    public Principal getUserPrincipal() {
-        return getDelegate().getUserPrincipal();
-    }
+   @Override
+   public String getLocalAddr() {
+      return _localAddr;
+   }
 
-    public String getRequestedSessionId() {
-        return requestedSessionId;
-    }
+   @Override
+   public String getLocalName() {
+      return _localName;
+   }
 
-    public String getRequestURI() {
-        return requestURI;
-    }
+   @Override
+   public int getLocalPort() {
+      return _localPort;
+   }
 
-    public StringBuffer getRequestURL() {
-        return new StringBuffer(requestURL.toString());
-    }
+   @Override
+   public Locale getLocale() {
+      return _locale;
+   }
 
-    public String getServletPath() {
-        return servletPath;
-    }
+   @Override
+   public Enumeration<Locale> getLocales() {
+      return Collections.enumeration(_locales);
+   }
 
-    public HttpSession getSession(boolean create) {
-        return getDelegate().getSession(create);
-    }
+   @Override
+   public String getMethod() {
+      return _method;
+   }
 
-    public HttpSession getSession() {
-        return getDelegate().getSession();
-    }
+   @Override
+   public String getParameter( String name ) {
+      String[] values = getParameterValues(name);
+      return values != null && values.length > 0 ? values[0] : null;
+   }
 
-    public boolean isRequestedSessionIdValid() {
-        return requestedSessionIdValid;
-    }
+   @Override
+   public Map<String, String[]> getParameterMap() {
+      return Collections.unmodifiableMap(_parameters);
+   }
 
-    public boolean isRequestedSessionIdFromCookie() {
-        return requestedSessionIdFromCookie;
-    }
+   @Override
+   public Enumeration<String> getParameterNames() {
+      return Collections.enumeration(_parameters.keySet());
+   }
 
-    public boolean isRequestedSessionIdFromURL() {
-        return requestedSessionIdFromURL;
-    }
+   @Override
+   public String[] getParameterValues( String name ) {
+      return _parameters.get(name);
+   }
 
-    @Deprecated
-    public boolean isRequestedSessionIdFromUrl() {
-        return requestedSessionIdFromUrl;
-    }
+   @Override
+   public String getPathInfo() {
+      return _pathInfo;
+   }
 
-    public Object getAttribute(String name) {
-        return attributes.get(name);
-    }
+   @Override
+   public String getPathTranslated() {
+      return _pathTranslated;
+   }
 
-    public Enumeration<String> getAttributeNames() {
-        return Collections.enumeration(attributes.keySet());
-    }
+   @Override
+   public String getProtocol() {
+      return _protocol;
+   }
 
-    public String getCharacterEncoding() {
-        return characterEncoding;
-    }
+   @Override
+   public String getQueryString() {
+      return _queryString;
+   }
 
-    public void setCharacterEncoding(String characterEncoding) {
-        this.characterEncoding = characterEncoding;
-    }
+   @Override
+   public BufferedReader getReader() {
+      return null;
+   }
 
-    public int getContentLength() {
-        return 0;
-    }
+   @Override
+   @Deprecated
+   public String getRealPath( String name ) {
+      return getDelegate().getRealPath(name);
+   }
 
-    public String getContentType() {
-        return contentType;
-    }
+   @Override
+   public String getRemoteAddr() {
+      return _remoteAddr;
+   }
 
-    public ServletInputStream getInputStream() {
-        return null;
-    }
+   @Override
+   public String getRemoteHost() {
+      return _remoteHost;
+   }
 
-    public String getParameter(String name) {
-        String[] values = getParameterValues(name);
-        return values != null && values.length > 0 ? values[0] : null;
-    }
+   @Override
+   public int getRemotePort() {
+      return _remotePort;
+   }
 
-    public Enumeration<String> getParameterNames() {
-        return Collections.enumeration(parameters.keySet());
-    }
+   @Override
+   public String getRemoteUser() {
+      return _remoteUser;
+   }
 
-    public String[] getParameterValues(String name) {
-        return parameters.get(name);
-    }
+   @Override
+   public RequestDispatcher getRequestDispatcher( String name ) {
+      return getDelegate().getRequestDispatcher(name);
+   }
 
-    public Map<String, String[]> getParameterMap() {
-        return Collections.unmodifiableMap(parameters);
-    }
+   @Override
+   public String getRequestURI() {
+      return _requestURI;
+   }
 
-    public String getProtocol() {
-        return protocol;
-    }
+   @Override
+   public StringBuffer getRequestURL() {
+      return new StringBuffer(_requestURL.toString());
+   }
 
-    public String getScheme() {
-        return scheme;
-    }
+   @Override
+   public String getRequestedSessionId() {
+      return _requestedSessionId;
+   }
 
-    public String getServerName() {
-        return serverName;
-    }
+   @Override
+   public String getScheme() {
+      return _scheme;
+   }
 
-    public int getServerPort() {
-        return serverPort;
-    }
+   @Override
+   public String getServerName() {
+      return _serverName;
+   }
 
-    public BufferedReader getReader() {
-        return null;
-    }
+   @Override
+   public int getServerPort() {
+      return _serverPort;
+   }
 
-    public String getRemoteAddr() {
-        return remoteAddr;
-    }
+   @Override
+   public String getServletPath() {
+      return _servletPath;
+   }
 
-    public String getRemoteHost() {
-        return remoteHost;
-    }
+   @Override
+   public HttpSession getSession( boolean create ) {
+      return getDelegate().getSession(create);
+   }
 
-    public void setAttribute(String name, Object value) {
-        attributes.put(name, value);
-    }
+   @Override
+   public HttpSession getSession() {
+      return getDelegate().getSession();
+   }
 
-    public void removeAttribute(String name) {
-        attributes.remove(name);
-    }
+   @Override
+   public Principal getUserPrincipal() {
+      return getDelegate().getUserPrincipal();
+   }
 
-    public Locale getLocale() {
-        return locale;
-    }
+   @Override
+   public boolean isRequestedSessionIdFromCookie() {
+      return _requestedSessionIdFromCookie;
+   }
 
-    public Enumeration<Locale> getLocales() {
-        return Collections.enumeration(locales);
-    }
+   @Override
+   public boolean isRequestedSessionIdFromURL() {
+      return _requestedSessionIdFromURL;
+   }
 
-    public boolean isSecure() {
-        return secure;
-    }
+   @Override
+   @Deprecated
+   public boolean isRequestedSessionIdFromUrl() {
+      return _requestedSessionIdFromUrl;
+   }
 
-    public RequestDispatcher getRequestDispatcher(String name) {
-        return getDelegate().getRequestDispatcher(name);
-    }
+   @Override
+   public boolean isRequestedSessionIdValid() {
+      return _requestedSessionIdValid;
+   }
 
-    @Deprecated
-    public String getRealPath(String name) {
-        return getDelegate().getRealPath(name);
-    }
+   @Override
+   public boolean isSecure() {
+      return _secure;
+   }
 
-    public int getRemotePort() {
-        return remotePort;
-    }
+   @Override
+   public boolean isUserInRole( String role ) {
+      return getDelegate().isUserInRole(role);
+   }
 
-    public String getLocalName() {
-        return localName;
-    }
+   @Override
+   public void removeAttribute( String name ) {
+      _attributes.remove(name);
+   }
 
-    public String getLocalAddr() {
-        return localAddr;
-    }
+   @Override
+   public void setAttribute( String name, Object value ) {
+      _attributes.put(name, value);
+   }
 
-    public int getLocalPort() {
-        return localPort;
-    }
+   @Override
+   public void setCharacterEncoding( String characterEncoding ) {
+       _characterEncoding = characterEncoding;
+   }
+
+   public void setDelegate( HttpServletRequest delegate ) {
+       _delegate = delegate;
+   }
+
+   protected HttpServletRequest getDelegate() {
+      if ( _delegate == null ) {
+         throw new IllegalStateException("Attempt to access a delegate method of " + FlashRequest.class.getName() + " but no delegate request has been set");
+      }
+      return _delegate;
+   }
 }

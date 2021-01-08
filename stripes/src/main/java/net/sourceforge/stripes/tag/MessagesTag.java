@@ -14,19 +14,21 @@
  */
 package net.sourceforge.stripes.tag;
 
-import net.sourceforge.stripes.action.Message;
-import net.sourceforge.stripes.controller.StripesConstants;
-import net.sourceforge.stripes.controller.StripesFilter;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.JspWriter;
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.JspWriter;
+
+import net.sourceforge.stripes.action.Message;
+import net.sourceforge.stripes.controller.StripesConstants;
+import net.sourceforge.stripes.controller.StripesFilter;
+
 
 /**
  * <p>Displays a list of non-error messages to the user. The list of messages can come from
@@ -64,99 +66,113 @@ import java.util.ResourceBundle;
  */
 public class MessagesTag extends HtmlTagSupport {
 
-    /** The header that will be emitted if no header is defined in the resource bundle. */
-    public static final String DEFAULT_HEADER = "<ul class=\"messages\">";
+   /** The header that will be emitted if no header is defined in the resource bundle. */
+   public static final String DEFAULT_HEADER = "<ul class=\"messages\">";
 
-    /** The footer that will be emitted if no footer is defined in the resource bundle. */
-    public static final String DEFAULT_FOOTER = "</ul>";
+   /** The footer that will be emitted if no footer is defined in the resource bundle. */
+   public static final String DEFAULT_FOOTER = "</ul>";
 
-    /** The key that will be used to perform a scope search for messages. */
-    private String key = StripesConstants.REQ_ATTR_MESSAGES;
+   /** The key that will be used to perform a scope search for messages. */
+   private String key = StripesConstants.REQ_ATTR_MESSAGES;
 
-    /**
-     * Does nothing, all processing is performed in doEndTag().
-     * @return SKIP_BODY in all cases.
-     */
-    @Override
-    public int doStartTag() throws JspException {
-        return SKIP_BODY;
-    }
+   /**
+    * Outputs the set of messages appropriate for this tag.
+    * @return EVAL_PAGE always
+    */
+   @Override
+   public int doEndTag() throws JspException {
+      try {
+         List<Message> messages = getMessages();
 
-    /**
-     * Outputs the set of messages appropriate for this tag.
-     * @return EVAL_PAGE always
-     */
-    @Override
-    public int doEndTag() throws JspException {
-        try {
-            List<Message> messages = getMessages();
+         if ( messages != null && messages.size() > 0 ) {
+            JspWriter writer = getPageContext().getOut();
 
-            if (messages != null && messages.size() > 0) {
-                JspWriter writer = getPageContext().getOut();
+            // Output all errors in a standard format
+            Locale locale = getPageContext().getRequest().getLocale();
+            ResourceBundle bundle = StripesFilter.getConfiguration().getLocalizationBundleFactory().getErrorMessageBundle(locale);
 
-                // Output all errors in a standard format
-                Locale locale = getPageContext().getRequest().getLocale();
-                ResourceBundle bundle = StripesFilter.getConfiguration()
-                        .getLocalizationBundleFactory().getErrorMessageBundle(locale);
-
-                // Fetch the header and footer
-                String header, footer, beforeMessage, afterMessage;
-                try { header = bundle.getString("stripes.messages.header"); }
-                catch (MissingResourceException mre) { header = DEFAULT_HEADER; }
-
-                try { footer = bundle.getString("stripes.messages.footer"); }
-                catch (MissingResourceException mre) { footer = DEFAULT_FOOTER; }
-
-                try { beforeMessage = bundle.getString("stripes.messages.beforeMessage"); }
-                catch (MissingResourceException mre) { beforeMessage = "<li>"; }
-
-                try { afterMessage = bundle.getString("stripes.messages.afterMessage"); }
-                catch (MissingResourceException mre) { afterMessage = "</li>"; }
-
-                // Write out the error messages
-                writer.write(header);
-
-                for (Message message : messages) {
-                    writer.write(beforeMessage);
-                    writer.write(message.getMessage(locale));
-                    writer.write(afterMessage);
-                }
-
-                writer.write(footer);
+            // Fetch the header and footer
+            String header, footer, beforeMessage, afterMessage;
+            try {
+               header = bundle.getString("stripes.messages.header");
             }
-            return EVAL_PAGE;
-        }
-        catch (IOException e) {
-            throw new JspException("IOException encountered while writing messages " +
-                    "tag to the JspWriter.", e);
-        }
-    }
-
-    /** Gets the key that will be used to scope search for messages to display. */
-    public String getKey() { return key; }
-
-    /** Sets the key that will be used to scope search for messages to display. */
-    public void setKey(String key) { this.key = key; }
-
-    /**
-     * Gets the list of messages that will be displayed by the tag.  Looks first in the request
-     * under the specified key, and if none are found, then looks in session under the same key.
-     *
-     * @return List<Message> a possibly null list of messages to display
-     */
-    @SuppressWarnings("unchecked")
-	protected List<Message> getMessages() {
-        HttpServletRequest request = (HttpServletRequest) getPageContext().getRequest();
-        List<Message> messages = (List<Message>) request.getAttribute( getKey() );
-
-        if (messages == null) {
-            HttpSession session = request.getSession(false);
-            if (session != null) {
-                messages = (List<Message>) session.getAttribute(getKey());
-                session.removeAttribute(getKey());
+            catch ( MissingResourceException mre ) {
+               header = DEFAULT_HEADER;
             }
-        }
 
-        return messages;
-    }
+            try {
+               footer = bundle.getString("stripes.messages.footer");
+            }
+            catch ( MissingResourceException mre ) {
+               footer = DEFAULT_FOOTER;
+            }
+
+            try {
+               beforeMessage = bundle.getString("stripes.messages.beforeMessage");
+            }
+            catch ( MissingResourceException mre ) {
+               beforeMessage = "<li>";
+            }
+
+            try {
+               afterMessage = bundle.getString("stripes.messages.afterMessage");
+            }
+            catch ( MissingResourceException mre ) {
+               afterMessage = "</li>";
+            }
+
+            // Write out the error messages
+            writer.write(header);
+
+            for ( Message message : messages ) {
+               writer.write(beforeMessage);
+               writer.write(message.getMessage(locale));
+               writer.write(afterMessage);
+            }
+
+            writer.write(footer);
+         }
+         return EVAL_PAGE;
+      }
+      catch ( IOException e ) {
+         throw new JspException("IOException encountered while writing messages " + "tag to the JspWriter.", e);
+      }
+   }
+
+   /**
+    * Does nothing, all processing is performed in doEndTag().
+    * @return SKIP_BODY in all cases.
+    */
+   @Override
+   public int doStartTag() throws JspException {
+      return SKIP_BODY;
+   }
+
+   /** Gets the key that will be used to scope search for messages to display. */
+   public String getKey() { return key; }
+
+   /** Sets the key that will be used to scope search for messages to display. */
+   public void setKey( String key ) { this.key = key; }
+
+   /**
+    * Gets the list of messages that will be displayed by the tag.  Looks first in the request
+    * under the specified key, and if none are found, then looks in session under the same key.
+    *
+    * @return List<Message> a possibly null list of messages to display
+    */
+   @SuppressWarnings("unchecked")
+   protected List<Message> getMessages() {
+      HttpServletRequest request = (HttpServletRequest)getPageContext().getRequest();
+      List<Message> messages = (List<Message>)request.getAttribute(getKey());
+
+      if ( messages == null ) {
+         HttpSession session = request.getSession(false);
+         if ( session != null ) {
+            messages = (List<Message>)session.getAttribute(getKey());
+            session.removeAttribute(getKey());
+         }
+      }
+
+      return messages;
+   }
 }

@@ -14,13 +14,15 @@
  */
 package net.sourceforge.stripes.action;
 
-import net.sourceforge.stripes.controller.StripesConstants;
-import net.sourceforge.stripes.util.Log;
+import java.io.IOException;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+
+import net.sourceforge.stripes.controller.StripesConstants;
+import net.sourceforge.stripes.util.Log;
+
 
 /**
  * <p>Resolution that uses the Servlet API to <em>forward</em> the user to another path within the
@@ -42,96 +44,97 @@ import java.io.IOException;
  * @author Tim Fennell
  */
 public class ForwardResolution extends OnwardResolution<ForwardResolution> {
-    private boolean autoInclude = true;
-    private static final Log log = Log.getInstance(ForwardResolution.class);
-    private String event;
-    private Integer status;
 
-    /**
-     * Simple constructor that takes in the path to forward the user to.
-     * @param path the path within the web application that the user should be forwarded to
-     */
-    public ForwardResolution(String path) {
-        super(path);
-    }
+   private static final Log log = Log.getInstance(ForwardResolution.class);
 
-    /**
-     * Constructs a ForwardResolution that will forward to the URL appropriate for
-     * the ActionBean supplied.  This constructor should be preferred when forwarding
-     * to an ActionBean as it will ensure the correct URL is always used.
-     *
-     * @param beanType the Class object representing the ActionBean to redirect to
-     */
-    public ForwardResolution(Class<? extends ActionBean> beanType) {
-        super(beanType);
-    }
+   private boolean _autoInclude = true;
+   private String  _event;
+   private Integer _status;
 
-    /**
-     * Constructs a ForwardResolution that will forward to the URL appropriate for
-     * the ActionBean supplied.  This constructor should be preferred when forwarding
-     * to an ActionBean as it will ensure the correct URL is always used.
-     *
-     * @param beanType the Class object representing the ActionBean to redirect to
-     * @param event the event that should be triggered on the redirect
-     */
-    public ForwardResolution(Class<? extends ActionBean> beanType, String event) {
-        super(beanType, event);
-        this.event = event;
-    }
+   /**
+    * Simple constructor that takes in the path to forward the user to.
+    * @param path the path within the web application that the user should be forwarded to
+    */
+   public ForwardResolution( String path ) {
+      super(path);
+   }
 
-    /**
-     * If true then the ForwardResolution will automatically detect when it is executing
-     * as part of a server-side Include and <i>include</i> the supplied URL instead of
-     * forwarding to it.  Defaults to true.
-     *
-     * @param auto whether or not to automatically detect and use includes
-     */
-    public void autoInclude(boolean auto) {
-        this.autoInclude = auto;
-    }
+   /**
+    * Constructs a ForwardResolution that will forward to the URL appropriate for
+    * the ActionBean supplied.  This constructor should be preferred when forwarding
+    * to an ActionBean as it will ensure the correct URL is always used.
+    *
+    * @param beanType the Class object representing the ActionBean to redirect to
+    */
+   public ForwardResolution( Class<? extends ActionBean> beanType ) {
+      super(beanType);
+   }
 
-    /** Get the HTTP status, or <code>null</code> if none was explicitly set. */
-    public Integer getStatus() {
-        return status;
-    }
+   /**
+    * Constructs a ForwardResolution that will forward to the URL appropriate for
+    * the ActionBean supplied.  This constructor should be preferred when forwarding
+    * to an ActionBean as it will ensure the correct URL is always used.
+    *
+    * @param beanType the Class object representing the ActionBean to redirect to
+    * @param event the event that should be triggered on the redirect
+    */
+   public ForwardResolution( Class<? extends ActionBean> beanType, String event ) {
+      super(beanType, event);
+       _event = event;
+   }
 
-    /**
-     * Explicitly sets an HTTP status code, in which case a call to {@code response.setStatus(status)}
-     * will be made when executing the resolution.
-     */
-    public ForwardResolution setStatus(int status) {
-        this.status = status;
-        return this;
-    }
+   /**
+    * If true then the ForwardResolution will automatically detect when it is executing
+    * as part of a server-side Include and <i>include</i> the supplied URL instead of
+    * forwarding to it.  Defaults to true.
+    *
+    * @param auto whether or not to automatically detect and use includes
+    */
+   public void autoInclude( boolean auto ) {
+      _autoInclude = auto;
+   }
 
-    /**
-     * Attempts to forward the user to the specified path.
-     * @throws ServletException thrown when the Servlet container encounters an error
-     * @throws IOException thrown when the Servlet container encounters an error
-     */
-    public void execute(HttpServletRequest request, HttpServletResponse response)
-        throws ServletException, IOException {
+   /**
+    * Attempts to forward the user to the specified path.
+    * @throws ServletException thrown when the Servlet container encounters an error
+    * @throws IOException thrown when the Servlet container encounters an error
+    */
+   @Override
+   public void execute( HttpServletRequest request, HttpServletResponse response ) throws ServletException, IOException {
 
-        if (status != null) {
-            response.setStatus(status);
-        }
-        String path = getUrl(request.getLocale());
+      if ( _status != null ) {
+         response.setStatus(_status);
+      }
+      String path = getUrl(request.getLocale());
 
-        // Set event name as a request attribute
-        String oldEvent = (String) request.getAttribute(StripesConstants.REQ_ATTR_EVENT_NAME);
-        request.setAttribute(StripesConstants.REQ_ATTR_EVENT_NAME, event);
+      // Set event name as a request attribute
+      String oldEvent = (String)request.getAttribute(StripesConstants.REQ_ATTR_EVENT_NAME);
+      request.setAttribute(StripesConstants.REQ_ATTR_EVENT_NAME, _event);
 
-        // Figure out if we're inside an include, and use an include instead of a forward
-        if (autoInclude && request.getAttribute(StripesConstants.REQ_ATTR_INCLUDE_PATH) != null) {
-            log.trace("Including URL: ", path);
-            request.getRequestDispatcher(path).include(request, response);
-        }
-        else {
-            log.trace("Forwarding to URL: ", path);
-            request.getRequestDispatcher(path).forward(request, response);
-        }
+      // Figure out if we're inside an include, and use an include instead of a forward
+      if ( _autoInclude && request.getAttribute(StripesConstants.REQ_ATTR_INCLUDE_PATH) != null ) {
+         log.trace("Including URL: ", path);
+         request.getRequestDispatcher(path).include(request, response);
+      } else {
+         log.trace("Forwarding to URL: ", path);
+         request.getRequestDispatcher(path).forward(request, response);
+      }
 
-        // Revert event name to its original value
-        request.setAttribute(StripesConstants.REQ_ATTR_EVENT_NAME, oldEvent);
-    }
+      // Revert event name to its original value
+      request.setAttribute(StripesConstants.REQ_ATTR_EVENT_NAME, oldEvent);
+   }
+
+   /** Get the HTTP status, or <code>null</code> if none was explicitly set. */
+   public Integer getStatus() {
+      return _status;
+   }
+
+   /**
+    * Explicitly sets an HTTP status code, in which case a call to {@code response.setStatus(status)}
+    * will be made when executing the resolution.
+    */
+   public ForwardResolution setStatus( int status ) {
+       _status = status;
+      return this;
+   }
 }

@@ -14,12 +14,13 @@
  */
 package net.sourceforge.stripes.tag;
 
+import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.controller.StripesConstants;
 import net.sourceforge.stripes.exception.StripesJspException;
-import net.sourceforge.stripes.action.ActionBean;
+import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.util.bean.BeanUtil;
 import net.sourceforge.stripes.util.bean.ExpressionException;
-import net.sourceforge.stripes.util.Log;
+
 
 /**
  * <p>An alternative tag population strategy that will normally prefer the value from the ActionBean
@@ -36,51 +37,51 @@ import net.sourceforge.stripes.util.Log;
  * @since Stripes 1.4
  */
 public class BeanFirstPopulationStrategy extends DefaultPopulationStrategy {
-    private static final Log log = Log.getInstance(BeanFirstPopulationStrategy.class);
 
-    /**
-     * Implementation of the interface method that will follow the search described in the class
-     * level JavaDoc and attempt to find a value for this tag.
-     *
-     * @param tag the form input tag whose value to populate
-     * @return Object will be one of null, a single Object or an Array of Objects depending upon
-     *         what was submitted in the prior request, and what is declared on the ActionBean
-     */
-    @Override
-    public Object getValue(InputTagSupport tag) throws StripesJspException {
-        // If the specific tag is in error, grab the values from the request
-        if (tag.hasErrors()) {
-            return super.getValue(tag);
-        }
-        else {
-            // Try getting from the ActionBean.  If the bean is present and the property
-            // is defined, then the value from the bean takes precedence even if it's null
-            ActionBean bean = tag.getActionBean();
-            Object value = null;
-            boolean kaboom = false;
-            if (bean != null) {
-                try {
-                    value = BeanUtil.getPropertyValue(tag.getName(), bean);
-                }
-                catch (ExpressionException ee) {
-                    if (!StripesConstants.SPECIAL_URL_KEYS.contains(tag.getName())) {
-                        log.info("Could not find property [", tag.getName(), "] on ActionBean.", ee);
-                    }
-                    kaboom = true;
-                }
+   private static final Log log = Log.getInstance(BeanFirstPopulationStrategy.class);
+
+   /**
+    * Implementation of the interface method that will follow the search described in the class
+    * level JavaDoc and attempt to find a value for this tag.
+    *
+    * @param tag the form input tag whose value to populate
+    * @return Object will be one of null, a single Object or an Array of Objects depending upon
+    *         what was submitted in the prior request, and what is declared on the ActionBean
+    */
+   @Override
+   public Object getValue( InputTagSupport tag ) throws StripesJspException {
+      // If the specific tag is in error, grab the values from the request
+      if ( tag.hasErrors() ) {
+         return super.getValue(tag);
+      } else {
+         // Try getting from the ActionBean.  If the bean is present and the property
+         // is defined, then the value from the bean takes precedence even if it's null
+         ActionBean bean = tag.getActionBean();
+         Object value = null;
+         boolean kaboom = false;
+         if ( bean != null ) {
+            try {
+               value = BeanUtil.getPropertyValue(tag.getName(), bean);
             }
-
-            // If there's no matching bean property, then look elsewhere
-            if (bean == null || kaboom) {
-                value = getValueFromTag(tag);
-
-                if (value == null) {
-                    value = getValuesFromRequest(tag);
-                }
+            catch ( ExpressionException ee ) {
+               if ( !StripesConstants.SPECIAL_URL_KEYS.contains(tag.getName()) ) {
+                  log.info("Could not find property [", tag.getName(), "] on ActionBean.", ee);
+               }
+               kaboom = true;
             }
+         }
 
-            return value;
-        }
-    }
+         // If there's no matching bean property, then look elsewhere
+         if ( bean == null || kaboom ) {
+            value = getValueFromTag(tag);
+
+            if ( value == null ) {
+               value = getValuesFromRequest(tag);
+            }
+         }
+
+         return value;
+      }
+   }
 
 }

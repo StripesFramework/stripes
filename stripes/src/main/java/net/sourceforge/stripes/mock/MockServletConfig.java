@@ -16,6 +16,7 @@ package net.sourceforge.stripes.mock;
 
 import javax.servlet.ServletConfig;
 
+
 /**
  * Mock implementation of a Servlet Config.
  *
@@ -23,15 +24,17 @@ import javax.servlet.ServletConfig;
  * @since Stripes 1.1.1
  */
 public class MockServletConfig extends MockBaseConfig implements ServletConfig {
-    private String servletName;
 
-    /** Returns the name of the servlet for which this is the config. */
-    public String getServletName() {
-        return this.servletName;
-    }
+   private String _servletName;
 
-    /** Sets the name of the servlet for which this is the config. */
-    public void setServletName(String name) {
-        this.servletName = name;
-    }
+   /** Returns the name of the servlet for which this is the config. */
+   @Override
+   public String getServletName() {
+      return _servletName;
+   }
+
+   /** Sets the name of the servlet for which this is the config. */
+   public void setServletName( String name ) {
+       _servletName = name;
+   }
 }

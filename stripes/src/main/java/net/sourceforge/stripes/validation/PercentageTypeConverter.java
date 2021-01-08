@@ -14,10 +14,11 @@
  */
 package net.sourceforge.stripes.validation;
 
-import java.util.Collection;
-import java.text.NumberFormat;
 import java.math.BigDecimal;
+import java.text.NumberFormat;
+import java.util.Collection;
 import java.util.regex.Pattern;
+
 
 /**
  * <p>A locale aware number converter that parses percentages. Consistent with other areas of
@@ -28,61 +29,56 @@ import java.util.regex.Pattern;
  *
  * @author Tim Fennell
  */
-public class PercentageTypeConverter extends NumberTypeConverterSupport
-                                     implements TypeConverter<Number> {
+public class PercentageTypeConverter extends NumberTypeConverterSupport implements TypeConverter<Number> {
 
-    /** Pattern used to remove any spaces between the value and the % sign. */
-    public static final Pattern PRE_PROCESS_PATTERN = Pattern.compile("[\\s]+%");
+   /** Pattern used to remove any spaces between the value and the % sign. */
+   public static final Pattern PRE_PROCESS_PATTERN = Pattern.compile("[\\s]+%");
 
-    /** Returns a single percentage instance of NumberFormat. */
-    @Override
-    protected NumberFormat[] getNumberFormats() {
-        return new NumberFormat[] { NumberFormat.getPercentInstance(getLocale()) };
-    }
+   /**
+    * Converts the input to a subclass of Number based on the targetType provided. Uses
+    * a NumberFormat Percentage instance to do the parsing, making sure that the number
+    * is divided by 100 and any percent signs etc. are handled.
+    */
+   @Override
+   public Number convert( String input, Class<? extends Number> targetType, Collection<ValidationError> errors ) {
+      Number number = parse(input, errors);
 
-    /**
-     * Pre-processes the input by first using {@link NumberTypeConverterSupport#preprocess(String)}
-     * and further pre-processing by adding the % sign if it is missing, any removing any spaces
-     * between the value and the % sign.
-     */
-    @Override
-    protected String preprocess(String input) {
-        String output = super.preprocess(input);
+      if ( errors.size() == 0 ) {
+         if ( targetType.equals(Float.class) || targetType.equals(Float.TYPE) ) {
+            number = number.floatValue();
+         } else if ( targetType.equals(Double.class) || targetType.equals(Double.TYPE) ) {
+            number = number.doubleValue();
+         } else if ( targetType.equals(BigDecimal.class) ) {
+            number = BigDecimal.valueOf(number.doubleValue());
+         } else {
+            throw new IllegalArgumentException("PercentageTypeConverter only converts to float, double and BigDecimal. "
+                  + "This is because the input number is always converted to a decimal value. " + "E.g. 99% -> 0.99. Type specified was: " + targetType);
+         }
+      }
 
-        if (!output.endsWith("%")) {
-            output = output + "%";
-        }
-        output = PRE_PROCESS_PATTERN.matcher(output).replaceAll("%");
+      return number;
+   }
 
-        return output;
-    }
+   /** Returns a single percentage instance of NumberFormat. */
+   @Override
+   protected NumberFormat[] getNumberFormats() {
+      return new NumberFormat[] { NumberFormat.getPercentInstance(getLocale()) };
+   }
 
-    /**
-     * Converts the input to a subclass of Number based on the targetType provided. Uses
-     * a NumberFormat Percentage instance to do the parsing, making sure that the number
-     * is divided by 100 and any percent signs etc. are handled.
-     */
-    public Number convert(String input, Class<? extends Number> targetType, Collection<ValidationError> errors) {
-        Number number = parse(input, errors);
+   /**
+    * Pre-processes the input by first using {@link NumberTypeConverterSupport#preprocess(String)}
+    * and further pre-processing by adding the % sign if it is missing, any removing any spaces
+    * between the value and the % sign.
+    */
+   @Override
+   protected String preprocess( String input ) {
+      String output = super.preprocess(input);
 
-        if (errors.size() == 0) {
-            if (targetType.equals(Float.class) || targetType.equals(Float.TYPE)) {
-                number = new Float(number.floatValue());
-            }
-            else if (targetType.equals(Double.class) || targetType.equals(Double.TYPE)) {
-                number = new Double(number.doubleValue());
-            }
-            else if (targetType.equals(BigDecimal.class)) {
-                number = new BigDecimal(number.doubleValue());
-            }
-            else {
-                throw new IllegalArgumentException(
-                        "PercentageTypeConverter only converts to float, double and BigDecimal. " +
-                        "This is because the input number is always converted to a decimal value. " +
-                         "E.g. 99% -> 0.99. Type specified was: " + targetType);
-            }
-        }
+      if ( !output.endsWith("%") ) {
+         output = output + "%";
+      }
+      output = PRE_PROCESS_PATTERN.matcher(output).replaceAll("%");
 
-        return number;
-    }
+      return output;
+   }
 }

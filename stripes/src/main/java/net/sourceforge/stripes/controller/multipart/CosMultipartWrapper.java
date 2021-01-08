@@ -14,6 +14,14 @@
  */
 package net.sourceforge.stripes.controller.multipart;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Enumeration;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.servlet.http.HttpServletRequest;
+
 import com.oreilly.servlet.MultipartRequest;
 import com.oreilly.servlet.multipart.FileRenamePolicy;
 
@@ -21,12 +29,6 @@ import net.sourceforge.stripes.action.FileBean;
 import net.sourceforge.stripes.controller.FileUploadLimitExceededException;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
 
-import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
-import java.io.File;
-import java.util.Enumeration;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Implementation of MultipartWrapper that uses Jason Hunter's COS (com.oreilly.servlet)
@@ -41,127 +43,120 @@ import java.util.regex.Pattern;
  * @since Stripes 1.4
  */
 public class CosMultipartWrapper implements MultipartWrapper {
-    /** Pattern used to parse useful info out of the IOException cos throws. */
-    private static Pattern EXCEPTION_PATTERN =
-            Pattern.compile("Posted content length of (\\d*) exceeds limit of (\\d*)");
 
-    /** Ensure this class will not load unless COS is on the classpath. */
-    static {
-        MultipartRequest.class.getName();
-    }
+   /** Pattern used to parse useful info out of the IOException cos throws. */
+   private static final Pattern EXCEPTION_PATTERN = Pattern.compile("Posted content length of (\\d*) exceeds limit of (\\d*)");
 
-    private MultipartRequest multipart;
-    private String charset;
-    /**
-     * Pseudo-constructor that allows the class to perform any initialization necessary.
-     *
-     * @param request an HttpServletRequest that has a content-type of multipart.
-     * @param tempDir a File representing the temporary directory that can be used to store
-     *        file parts as they are uploaded if this is desirable
-     * @param maxPostSize the size in bytes beyond which the request should not be read, and a
-     *                    FileUploadLimitExceeded exception should be thrown
-     * @throws IOException if a problem occurs processing the request of storing temporary
-     *                     files
-     * @throws FileUploadLimitExceededException if the POST content is longer than the
-     *         maxPostSize supplied.
-     */
-    public void build(HttpServletRequest request, final File tempDir, long maxPostSize)
-            throws IOException, FileUploadLimitExceededException {
+   /* Ensure this class will not load unless COS is on the classpath. */
+   static {
+      //noinspection ResultOfMethodCallIgnored
+      MultipartRequest.class.getName();
+   }
 
-        try {
-            // Create a new file in the temp directory in case of file name conflict
-            FileRenamePolicy renamePolicy = new FileRenamePolicy() {
-                public File rename(File arg0) {
-                    try {
-                        return File.createTempFile("cos", "", tempDir);
-                    }
-                    catch (IOException e) {
-                        throw new StripesRuntimeException(
-                                "Caught an exception while trying to rename an uploaded file", e);
-                    }
-                }
-            };
+   private MultipartRequest multipart;
+   private String           charset;
 
-            this.charset = request.getCharacterEncoding();
-            this.multipart = new MultipartRequest(request,
-                                                  tempDir.getAbsolutePath(),
-                                                  (int) maxPostSize,
-                                                  this.charset,
-                                                  renamePolicy);
-        }
-        catch (IOException ioe) {
-            Matcher matcher = EXCEPTION_PATTERN.matcher(ioe.getMessage());
+   /**
+    * Pseudo-constructor that allows the class to perform any initialization necessary.
+    *
+    * @param request an HttpServletRequest that has a content-type of multipart.
+    * @param tempDir a File representing the temporary directory that can be used to store
+    *        file parts as they are uploaded if this is desirable
+    * @param maxPostSize the size in bytes beyond which the request should not be read, and a
+    *                    FileUploadLimitExceeded exception should be thrown
+    * @throws IOException if a problem occurs processing the request of storing temporary
+    *                     files
+    * @throws FileUploadLimitExceededException if the POST content is longer than the
+    *         maxPostSize supplied.
+    */
+   @Override
+   public void build( HttpServletRequest request, final File tempDir, long maxPostSize ) throws IOException, FileUploadLimitExceededException {
 
-            if (matcher.matches()) {
-                throw new FileUploadLimitExceededException(Long.parseLong(matcher.group(2)),
-                                                           Long.parseLong(matcher.group(1)));
+      try {
+         // Create a new file in the temp directory in case of file name conflict
+         FileRenamePolicy renamePolicy = unused -> {
+            try {
+               return File.createTempFile("cos", "", tempDir);
             }
-            else {
-                throw ioe;
+            catch ( IOException e ) {
+               throw new StripesRuntimeException("Caught an exception while trying to rename an uploaded file", e);
             }
-        }
-    }
+         };
 
-    /**
-     * Fetches the names of all non-file parameters in the request. Directly analogous to the method
-     * of the same name in HttpServletRequest when the request is non-multipart.
-     *
-     * @return an Enumeration of all non-file parameter names in the request
-     */
-    @SuppressWarnings("unchecked")
-	public Enumeration<String> getParameterNames() {
-        return this.multipart.getParameterNames();
-    }
+          charset = request.getCharacterEncoding();
+          multipart = new MultipartRequest(request, tempDir.getAbsolutePath(), (int)maxPostSize, charset, renamePolicy);
+      }
+      catch ( IOException ioe ) {
+         Matcher matcher = EXCEPTION_PATTERN.matcher(ioe.getMessage());
 
-    /**
-     * Fetches all values of a specific parameter in the request. To simulate the HTTP request
-     * style, the array should be null for non-present parameters, and values in the array should
-     * never be null - the empty String should be used when there is value.
-     *
-     * @param name the name of the request parameter
-     * @return an array of non-null parameters or null
-     */
-    public String[] getParameterValues(String name) {
-        String[] values = this.multipart.getParameterValues(name);
-        if (values != null) {
-            for (int i=0; i<values.length; ++i) {
-                if (values[i] == null) {
-                    values[i] = "";
-                }
+         if ( matcher.matches() ) {
+            throw new FileUploadLimitExceededException(Long.parseLong(matcher.group(2)), Long.parseLong(matcher.group(1)));
+         } else {
+            throw ioe;
+         }
+      }
+   }
+
+   /**
+    * Fetches the names of all file parameters in the request. Note that these are not the file
+    * names, but the names given to the form fields in which the files are specified.
+    *
+    * @return the names of all file parameters in the request.
+    */
+   @Override
+   @SuppressWarnings("unchecked")
+   public Enumeration<String> getFileParameterNames() {
+      return multipart.getFileNames();
+   }
+
+   /**
+    * Responsible for constructing a FileBean object for the named file parameter. If there is no
+    * file parameter with the specified name this method should return null.
+    *
+    * @param name the name of the file parameter
+    * @return a FileBean object wrapping the uploaded file
+    */
+   @Override
+   public FileBean getFileParameterValue( String name ) {
+      File file = multipart.getFile(name);
+      if ( file != null ) {
+         return new FileBean(file, multipart.getContentType(name), multipart.getOriginalFileName(name), charset);
+      } else {
+         return null;
+      }
+   }
+
+   /**
+    * Fetches the names of all non-file parameters in the request. Directly analogous to the method
+    * of the same name in HttpServletRequest when the request is non-multipart.
+    *
+    * @return an Enumeration of all non-file parameter names in the request
+    */
+   @Override
+   @SuppressWarnings("unchecked")
+   public Enumeration<String> getParameterNames() {
+      return multipart.getParameterNames();
+   }
+
+   /**
+    * Fetches all values of a specific parameter in the request. To simulate the HTTP request
+    * style, the array should be null for non-present parameters, and values in the array should
+    * never be null - the empty String should be used when there is value.
+    *
+    * @param name the name of the request parameter
+    * @return an array of non-null parameters or null
+    */
+   @Override
+   public String[] getParameterValues( String name ) {
+      String[] values = multipart.getParameterValues(name);
+      if ( values != null ) {
+         for ( int i = 0; i < values.length; ++i ) {
+            if ( values[i] == null ) {
+               values[i] = "";
             }
-        }
+         }
+      }
 
-        return values;
-    }
-
-    /**
-     * Fetches the names of all file parameters in the request. Note that these are not the file
-     * names, but the names given to the form fields in which the files are specified.
-     *
-     * @return the names of all file parameters in the request.
-     */
-    @SuppressWarnings("unchecked")
-	public Enumeration<String> getFileParameterNames() {
-        return this.multipart.getFileNames();
-    }
-
-    /**
-     * Responsible for constructing a FileBean object for the named file parameter. If there is no
-     * file parameter with the specified name this method should return null.
-     *
-     * @param name the name of the file parameter
-     * @return a FileBean object wrapping the uploaded file
-     */
-    public FileBean getFileParameterValue(String name) {
-        File file = this.multipart.getFile(name);
-        if (file != null) {
-            return new FileBean(file,
-                                this.multipart.getContentType(name),
-                                this.multipart.getOriginalFileName(name),
-                                this.charset);
-        }
-        else {
-            return null;
-        }
-    }
+      return values;
+   }
 }

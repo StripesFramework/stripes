@@ -14,8 +14,9 @@
  */
 package net.sourceforge.stripes.tag;
 
-import javax.servlet.jsp.JspException;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.jsp.JspException;
+
 
 /**
  * <p>Tag class that generates an image button for use in HTML forms, e.g:</p>
@@ -45,59 +46,67 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class InputImageTag extends InputTagSupport {
 
-    /** Sets the tag's type to be an image input. */
-    public InputImageTag() {
-        set("type", "image");
-    }
+   /** Sets the tag's type to be an image input. */
+   public InputImageTag() {
+      set("type", "image");
+   }
 
-    /**
-     * Does nothing.
-     * @return SKIP_BODY in all cases
-     */
-    @Override
-    public int doStartInputTag() throws JspException { return SKIP_BODY; }
+   /**
+    * Does the major work of the tag as described in the class level javadoc. Checks for
+    * localized src and alt attributes and prepends the context path to any src URL that
+    * starts with a slash.
+    *
+    * @return EVAL_PAGE always
+    */
+   @Override
+   public int doEndInputTag() throws JspException {
+      // See if we should use a URL to a localized image
+      String name = getAttributes().get("name");
+      String src = getLocalizedFieldName(name + ".src");
+      if ( src != null ) {
+         setSrc(src);
+      }
 
-    /**
-     * Does the major work of the tag as described in the class level javadoc. Checks for
-     * localized src and alt attributes and prepends the context path to any src URL that
-     * starts with a slash.
-     *
-     * @return EVAL_PAGE always
-     */
-    @Override
-    public int doEndInputTag() throws JspException {
-        // See if we should use a URL to a localized image
-        String name = getAttributes().get("name");
-        String src = getLocalizedFieldName(name + ".src");
-        if (src != null) { setSrc(src); }
+      // And see if we have localized alt text too
+      String alt = getLocalizedFieldName(name + ".alt");
+      if ( alt != null ) {
+         setAlt(alt);
+      }
 
-        // And see if we have localized alt text too
-        String alt = getLocalizedFieldName(name + ".alt");
-        if (alt != null) { setAlt(alt); }
+      // Prepend the context path to the src URL
+      src = getSrc();
+      if ( src != null && src.startsWith("/") ) {
+         String ctx = ((HttpServletRequest)getPageContext().getRequest()).getContextPath();
+         setSrc(ctx + src);
+      }
 
-        // Prepend the context path to the src URL
-        src = getSrc();
-        if (src != null && src.startsWith("/")) {
-            String ctx = ((HttpServletRequest) getPageContext().getRequest()).getContextPath();
-            setSrc(ctx + src);
-        }
+      writeSingletonTag(getPageContext().getOut(), "input");
+      return EVAL_PAGE;
+   }
 
-        writeSingletonTag(getPageContext().getOut(), "input");
-        return EVAL_PAGE;
-    }
+   /**
+    * Does nothing.
+    * @return SKIP_BODY in all cases
+    */
+   @Override
+   public int doStartInputTag() throws JspException { return SKIP_BODY; }
 
-    ///////////////////////////////////////////////////////////////////////////
-    // Getter/Setter methods for additional attributes
-    ///////////////////////////////////////////////////////////////////////////
-    public void setAlign(String align) { set("align", align); }
-    public String getAlign() { return get("align"); }
+   public String getAlign() { return get("align"); }
 
-    public void setAlt(String alt) { set("alt", alt); }
-    public String getAlt() { return get("alt"); }
+   public String getAlt() { return get("alt"); }
 
-    public void setSrc(String src) { set("src", src); }
-    public String getSrc() { return get("src"); }
+   public String getSrc() { return get("src"); }
 
-    public void setValue(String value) { set("value", value); }
-    public String getValue() { return get("value"); }
+   public String getValue() { return get("value"); }
+
+   ///////////////////////////////////////////////////////////////////////////
+   // Getter/Setter methods for additional attributes
+   ///////////////////////////////////////////////////////////////////////////
+   public void setAlign( String align ) { set("align", align); }
+
+   public void setAlt( String alt ) { set("alt", alt); }
+
+   public void setSrc( String src ) { set("src", src); }
+
+   public void setValue( String value ) { set("value", value); }
 }

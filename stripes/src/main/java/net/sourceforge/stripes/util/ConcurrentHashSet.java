@@ -20,122 +20,137 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+
 /**
  * A set based on {@link ConcurrentHashMap}. The Javadoc for the constructors in this class were
  * copied from the Java 1.5 Javadoc for {@link ConcurrentHashMap} and changed to reflect that this
  * is a Set and not a Map. See the Javadoc for {@link ConcurrentHashMap} for information on
  * performance characteristics, etc.
- * 
+ *
  * @author Ben Gunter
  */
 public class ConcurrentHashSet<T> implements Set<T> {
-    /** The value object that will be put in the map since it does not accept null values. */
-    private static final Object VALUE = new Object();
 
-    /** The map that backs this set. */
-    private ConcurrentMap<T, Object> map;
+   /** The value object that will be put in the map since it does not accept null values. */
+   private static final Object VALUE = new Object();
 
-    /**
-     * Creates a new, empty map with a default initial capacity, load factor, and concurrencyLevel.
-     */
-    public ConcurrentHashSet() {
-        map = new ConcurrentHashMap<T, Object>();
-    }
+   /** The map that backs this set. */
+   private ConcurrentMap<T, Object> map;
 
-    /**
-     * Creates a new, empty map with the specified initial capacity, and with default load factor
-     * and concurrencyLevel.
-     * 
-     * @param initialCapacity the initial capacity. The implementation performs internal sizing to
-     *            accommodate this many elements.
-     * @throws IllegalArgumentException if the initial capacity of elements is negative.
-     */
-    public ConcurrentHashSet(int initialCapacity) {
-        map = new ConcurrentHashMap<T, Object>(initialCapacity);
-    }
+   /**
+    * Creates a new, empty map with a default initial capacity, load factor, and concurrencyLevel.
+    */
+   public ConcurrentHashSet() {
+      map = new ConcurrentHashMap<>();
+   }
 
-    /**
-     * Creates a new, empty map with the specified initial capacity, load factor, and concurrency
-     * level.
-     * 
-     * @param initialCapacity the initial capacity. The implementation performs internal sizing to
-     *            accommodate this many elements.
-     * @param loadFactor the load factor threshold, used to control resizing. Resizing may be
-     *            performed when the average number of elements per bin exceeds this threshold.
-     * @param concurrencyLevel - the estimated number of concurrently updating threads. The
-     *            implementation performs internal sizing to try to accommodate this many threads.
-     * @throws IllegalArgumentException if the initial capacity is negative or the load factor or
-     *             concurrencyLevel are nonpositive.
-     */
-    public ConcurrentHashSet(int initialCapacity, float loadFactor, int concurrencyLevel) {
-        map = new ConcurrentHashMap<T, Object>(initialCapacity, loadFactor, concurrencyLevel);
-    }
+   /**
+    * Creates a new, empty map with the specified initial capacity, and with default load factor
+    * and concurrencyLevel.
+    *
+    * @param initialCapacity the initial capacity. The implementation performs internal sizing to
+    *            accommodate this many elements.
+    * @throws IllegalArgumentException if the initial capacity of elements is negative.
+    */
+   public ConcurrentHashSet( int initialCapacity ) {
+      map = new ConcurrentHashMap<>(initialCapacity);
+   }
 
-    /**
-     * Creates a new set with the same elements as the given set. The set is created with a capacity
-     * of twice the number of elements in the given set or 11 (whichever is greater), and a default
-     * load factor and concurrencyLevel.
-     * 
-     * @param set The set
-     */
-    public ConcurrentHashSet(Set<? extends T> set) {
-        this(Math.max(set.size() * 2, 11));
-        addAll(set);
-    }
+   /**
+    * Creates a new, empty map with the specified initial capacity, load factor, and concurrency
+    * level.
+    *
+    * @param initialCapacity the initial capacity. The implementation performs internal sizing to
+    *            accommodate this many elements.
+    * @param loadFactor the load factor threshold, used to control resizing. Resizing may be
+    *            performed when the average number of elements per bin exceeds this threshold.
+    * @param concurrencyLevel - the estimated number of concurrently updating threads. The
+    *            implementation performs internal sizing to try to accommodate this many threads.
+    * @throws IllegalArgumentException if the initial capacity is negative or the load factor or
+    *             concurrencyLevel are nonpositive.
+    */
+   public ConcurrentHashSet( int initialCapacity, float loadFactor, int concurrencyLevel ) {
+      map = new ConcurrentHashMap<>(initialCapacity, loadFactor, concurrencyLevel);
+   }
 
-    public boolean add(T e) {
-        return map.putIfAbsent(e, VALUE) == null;
-    }
+   /**
+    * Creates a new set with the same elements as the given set. The set is created with a capacity
+    * of twice the number of elements in the given set or 11 (whichever is greater), and a default
+    * load factor and concurrencyLevel.
+    *
+    * @param set The set
+    */
+   public ConcurrentHashSet( Set<? extends T> set ) {
+      this(Math.max(set.size() * 2, 11));
+      addAll(set);
+   }
 
-    public boolean addAll(Collection<? extends T> c) {
-        boolean b = false;
-        for (T t : c) {
-            b = b || map.putIfAbsent(t, VALUE) == null;
-        }
-        return b;
-    }
+   @Override
+   public boolean add( T e ) {
+      return map.putIfAbsent(e, VALUE) == null;
+   }
 
-    public void clear() {
-        map.clear();
-    }
+   @Override
+   public boolean addAll( Collection<? extends T> c ) {
+      boolean b = false;
+      for ( T t : c ) {
+         b = b || map.putIfAbsent(t, VALUE) == null;
+      }
+      return b;
+   }
 
-    public boolean contains(Object o) {
-        return map.keySet().contains(o);
-    }
+   @Override
+   public void clear() {
+      map.clear();
+   }
 
-    public boolean containsAll(Collection<?> c) {
-        return map.keySet().containsAll(c);
-    }
+   @Override
+   public boolean contains( Object o ) {
+      return map.keySet().contains(o);
+   }
 
-    public boolean isEmpty() {
-        return map.isEmpty();
-    }
+   @Override
+   public boolean containsAll( Collection<?> c ) {
+      return map.keySet().containsAll(c);
+   }
 
-    public Iterator<T> iterator() {
-        return map.keySet().iterator();
-    }
+   @Override
+   public boolean isEmpty() {
+      return map.isEmpty();
+   }
 
-    public boolean remove(Object o) {
-        return map.remove(o) != null;
-    }
+   @Override
+   public Iterator<T> iterator() {
+      return map.keySet().iterator();
+   }
 
-    public boolean removeAll(Collection<?> c) {
-        return map.keySet().removeAll(c);
-    }
+   @Override
+   public boolean remove( Object o ) {
+      return map.remove(o) != null;
+   }
 
-    public boolean retainAll(Collection<?> c) {
-        return map.keySet().retainAll(c);
-    }
+   @Override
+   public boolean removeAll( Collection<?> c ) {
+      return map.keySet().removeAll(c);
+   }
 
-    public int size() {
-        return map.size();
-    }
+   @Override
+   public boolean retainAll( Collection<?> c ) {
+      return map.keySet().retainAll(c);
+   }
 
-    public Object[] toArray() {
-        return map.keySet().toArray();
-    }
+   @Override
+   public int size() {
+      return map.size();
+   }
 
-    public <E> E[] toArray(E[] a) {
-        return map.keySet().toArray(a);
-    }
+   @Override
+   public Object[] toArray() {
+      return map.keySet().toArray();
+   }
+
+   @Override
+   public <E> E[] toArray( E[] a ) {
+      return map.keySet().toArray(a);
+   }
 }

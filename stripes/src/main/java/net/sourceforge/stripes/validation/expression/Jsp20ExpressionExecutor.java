@@ -14,11 +14,12 @@
  */
 package net.sourceforge.stripes.validation.expression;
 
-import net.sourceforge.stripes.util.Log;
-import net.sourceforge.stripes.controller.DispatcherHelper;
-
-import javax.servlet.jsp.el.ExpressionEvaluator;
 import javax.servlet.jsp.PageContext;
+import javax.servlet.jsp.el.ExpressionEvaluator;
+
+import net.sourceforge.stripes.controller.DispatcherHelper;
+import net.sourceforge.stripes.util.Log;
+
 
 /**
  * An implementation of {@link ExpressionExecutor} that uses the container's built in
@@ -31,27 +32,26 @@ import javax.servlet.jsp.PageContext;
  */
 @SuppressWarnings("deprecation")
 public class Jsp20ExpressionExecutor extends ExpressionExecutorSupport {
-    private static final Log log = Log.getInstance(Jsp20ExpressionExecutor.class);
 
-    /**
-     * Attempts to get the PageContext object stashed away in the DispatcherHelper
-     *  and use it to generate an ExpressionEvaluator.
-     *
-     * @return an ExpressionEvaluator if possible, or null otherwise
-     */
-    @Override
-    protected ExpressionEvaluator getEvaluator() {
-        final PageContext context = DispatcherHelper.getPageContext();
+   private static final Log log = Log.getInstance(Jsp20ExpressionExecutor.class);
 
-        if (context == null) {
-            log.error("Could not process expression based validation. It would seem that ",
-                      "your servlet container is being mean and will not let the dispatcher ",
-                      "servlet manufacture a PageContext object through the JSPFactory. The ",
-                      "result of this is that expression validation will be disabled. Sorry.");
-            return null;
-        }
-        else {
-            return context.getExpressionEvaluator();
-        }
-    }
+   /**
+    * Attempts to get the PageContext object stashed away in the DispatcherHelper
+    *  and use it to generate an ExpressionEvaluator.
+    *
+    * @return an ExpressionEvaluator if possible, or null otherwise
+    */
+   @Override
+   protected ExpressionEvaluator getEvaluator() {
+      final PageContext context = DispatcherHelper.getPageContext();
+
+      if ( context == null ) {
+         log.error("Could not process expression based validation. It would seem that ",
+               "your servlet container is being mean and will not let the dispatcher ", "servlet manufacture a PageContext object through the JSPFactory. The ",
+               "result of this is that expression validation will be disabled. Sorry.");
+         return null;
+      } else {
+         return context.getExpressionEvaluator();
+      }
+   }
 }

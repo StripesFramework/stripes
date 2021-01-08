@@ -14,16 +14,17 @@
  */
 package net.sourceforge.stripes.util.bean;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Locale;
+import java.util.Map;
+
 import net.sourceforge.stripes.action.ActionBean;
-import net.sourceforge.stripes.validation.ValidationError;
-import net.sourceforge.stripes.validation.TypeConverter;
 import net.sourceforge.stripes.controller.StripesFilter;
 import net.sourceforge.stripes.util.Log;
+import net.sourceforge.stripes.validation.TypeConverter;
+import net.sourceforge.stripes.validation.ValidationError;
 
-import java.util.Map;
-import java.util.Locale;
-import java.util.Collection;
-import java.util.ArrayList;
 
 /**
  * Implementation of {@link PropertyAccessor} for interacting with Maps. Uses information
@@ -33,90 +34,88 @@ import java.util.ArrayList;
  * @author Tim Fennell
  * @since Stripes 1.4
  */
-public class MapPropertyAccessor implements PropertyAccessor<Map<?,?>> {
-    private static final Log log = Log.getInstance(MapPropertyAccessor.class);
+public class MapPropertyAccessor implements PropertyAccessor<Map<?, ?>> {
 
-    /**
-     * Gets the value stored in the Map under the key specified by the current node.
-     * @param evaluation the current node evaluation
-     * @param map the target Map
-     * @return the value stored in the map under the specified key
-     */
-    public Object getValue(NodeEvaluation evaluation, Map<?,?> map) {
-        Object key = getKey(evaluation);
-        return map.get(key);
-    }
+   private static final Log log = Log.getInstance(MapPropertyAccessor.class);
 
-    /**
-     * Sets the value stored in the Map under the key specified by the current node.
-     * @param evaluation the current node evaluation
-     * @param map the target Map
-     * @param value the value to be stored in the map under the specified key
-     */
-    @SuppressWarnings("unchecked")
-    public void setValue(NodeEvaluation evaluation, Map map, Object value) {
-        Object key = getKey(evaluation);
-        if (key != null && !evaluation.getKeyType().isAssignableFrom(key.getClass())) {
-            String exprString = evaluation.getExpressionEvaluation().getExpression().getSource();
-            String nodeString = evaluation.getNode().getStringValue();
-            String declTypeName = evaluation.getKeyType().getName();
-            String evalTypeName = key.getClass().getName();
-            log.warn("Unable to bind ", exprString, " because the string \"", nodeString,
-                    "\" evaluates to a ", evalTypeName,
-                    ", which is not assignable to the map's key type of ", declTypeName,
-                    ". This likely means type conversion failed and there is no constructor ",
-                    declTypeName, "(String).");
-        }
-        else {
-            map.put(key, value);
-        }
-    }
+   /**
+    * Gets the value stored in the Map under the key specified by the current node.
+    * @param evaluation the current node evaluation
+    * @param map the target Map
+    * @return the value stored in the map under the specified key
+    */
+   @Override
+   public Object getValue( NodeEvaluation evaluation, Map<?, ?> map ) {
+      Object key = getKey(evaluation);
+      return map.get(key);
+   }
 
-    /**
-     * Attempts to convert the key to from the expression node to the correct type
-     * as determined by reflection (using generics to find the Map key type). If generics
-     * information is not present then the type found in the expression is used (String, int etc.).
-     *
-     * @param evaluation the current node evaluation
-     * @return the key to use when interacting with the Map
-     */
-    @SuppressWarnings("unchecked")
-	protected Object getKey(NodeEvaluation evaluation) {
-        Class declaredType = evaluation.getKeyType();
-        Class nodeType     = evaluation.getNode().getTypedValue().getClass();
+   /**
+    * Sets the value stored in the Map under the key specified by the current node.
+    * @param evaluation the current node evaluation
+    * @param map the target Map
+    * @param value the value to be stored in the map under the specified key
+    */
+   @Override
+   @SuppressWarnings("unchecked")
+   public void setValue( NodeEvaluation evaluation, Map map, Object value ) {
+      Object key = getKey(evaluation);
+      if ( key != null && !evaluation.getKeyType().isAssignableFrom(key.getClass()) ) {
+         String exprString = evaluation.getExpressionEvaluation().getExpression().getSource();
+         String nodeString = evaluation.getNode().getStringValue();
+         String declTypeName = evaluation.getKeyType().getName();
+         String evalTypeName = key.getClass().getName();
+         log.warn("Unable to bind ", exprString, " because the string \"", nodeString, "\" evaluates to a ", evalTypeName,
+               ", which is not assignable to the map's key type of ", declTypeName, ". This likely means type conversion failed and there is no constructor ",
+               declTypeName, "(String).");
+      } else {
+         map.put(key, value);
+      }
+   }
 
-        if (nodeType.equals(declaredType) || declaredType == null) {
-            return evaluation.getNode().getTypedValue();
-        }
-        else {
-            try {
-                // Collect the things needed to grab a type converter
-                String stringKey = evaluation.getNode().getStringValue();
-                ActionBean bean = (ActionBean) evaluation.getExpressionEvaluation().getBean();
-                Locale locale = bean.getContext().getLocale();
-                Collection errors = new ArrayList<ValidationError>();
+   /**
+    * Attempts to convert the key to from the expression node to the correct type
+    * as determined by reflection (using generics to find the Map key type). If generics
+    * information is not present then the type found in the expression is used (String, int etc.).
+    *
+    * @param evaluation the current node evaluation
+    * @return the key to use when interacting with the Map
+    */
+   @SuppressWarnings("unchecked")
+   protected Object getKey( NodeEvaluation evaluation ) {
+      Class declaredType = evaluation.getKeyType();
+      Class nodeType = evaluation.getNode().getTypedValue().getClass();
 
-                TypeConverter tc = StripesFilter.getConfiguration()
-                        .getTypeConverterFactory().getTypeConverter(declaredType, locale);
+      if ( nodeType.equals(declaredType) || declaredType == null ) {
+         return evaluation.getNode().getTypedValue();
+      } else {
+         try {
+            // Collect the things needed to grab a type converter
+            String stringKey = evaluation.getNode().getStringValue();
+            ActionBean bean = (ActionBean)evaluation.getExpressionEvaluation().getBean();
+            Locale locale = bean.getContext().getLocale();
+            Collection errors = new ArrayList<ValidationError>();
 
-                // If there is a type converter, try using it!
-                if (tc != null) {
-                    Object retval = tc.convert(stringKey, declaredType, errors);
-                    if (errors.size() == 0) return retval;
-                }
-                // Otherwise look for a String constructor
-                else {
-                    return StripesFilter.getConfiguration().getObjectFactory()
-                            .constructor(declaredType, String.class).newInstance(stringKey);
+            TypeConverter tc = StripesFilter.getConfiguration().getTypeConverterFactory().getTypeConverter(declaredType, locale);
+
+            // If there is a type converter, try using it!
+            if ( tc != null ) {
+               Object retval = tc.convert(stringKey, declaredType, errors);
+                if ( errors.size() == 0 ) {
+                    return retval;
                 }
             }
-            catch (Exception e) {
-                log.warn("Exception while converting Map key to appropriate type. Key: ",
-                         evaluation.getNode().getStringValue());
+            // Otherwise look for a String constructor
+            else {
+               return StripesFilter.getConfiguration().getObjectFactory().constructor(declaredType, String.class).newInstance(stringKey);
             }
+         }
+         catch ( Exception e ) {
+            log.warn("Exception while converting Map key to appropriate type. Key: ", evaluation.getNode().getStringValue());
+         }
 
-            // Return the original key if we couldn't type convert it
-            return evaluation.getNode().getTypedValue();
-        }
-    }
+         // Return the original key if we couldn't type convert it
+         return evaluation.getNode().getTypedValue();
+      }
+   }
 }

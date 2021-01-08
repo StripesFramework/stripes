@@ -16,6 +16,7 @@ package net.sourceforge.stripes.validation;
 
 import net.sourceforge.stripes.action.Resolution;
 
+
 /**
  * <p>Interface that can be implemented by ActionBeans to be notified of ValidationErrors that
  * occur during validation and binding.  In the case where an ActionBean does not implement
@@ -57,15 +58,15 @@ import net.sourceforge.stripes.action.Resolution;
  */
 public interface ValidationErrorHandler {
 
-    /**
-     * Allows the ActionBean to influence what happens when validation errors occur during
-     * validation and binding.  See class level javadoc for full description of behaviour.
-     *
-     * @param errors the set of validation errors generated during validation and binding
-     * @return null, or a Resolution specifying what should happen next if non-standard
-     *         behaviour is desired
-     * @throws Exception may throw any exception, but this will generally result in a
-     *         ServletException being thrown on up the stack
-     */
-    Resolution handleValidationErrors(ValidationErrors errors) throws Exception;
+   /**
+    * Allows the ActionBean to influence what happens when validation errors occur during
+    * validation and binding.  See class level javadoc for full description of behaviour.
+    *
+    * @param errors the set of validation errors generated during validation and binding
+    * @return null, or a Resolution specifying what should happen next if non-standard
+    *         behaviour is desired
+    * @throws Exception may throw any exception, but this will generally result in a
+    *         ServletException being thrown on up the stack
+    */
+   Resolution handleValidationErrors( ValidationErrors errors ) throws Exception;
 }

@@ -17,23 +17,25 @@ package net.sourceforge.stripes.exception;
 import net.sourceforge.stripes.action.ActionBeanContext;
 import net.sourceforge.stripes.controller.StripesConstants;
 
+
 /**
  * A subclass of {@link IllegalStateException} that is thrown when validation errors are present on
  * a request and the source page cannot be determined.
- * 
+ *
  * @author Ben Gunter
  * @since Stripes 1.5.5
  */
 public class SourcePageNotFoundException extends IllegalStateException {
-    private ActionBeanContext actionBeanContext;
 
-    /**
-     * Construct a new instance for the given action bean context.
-     * 
-     * @param actionBeanContext The context.
-     */
-    public SourcePageNotFoundException(ActionBeanContext actionBeanContext) {
-        // @formatter:off
+   private final ActionBeanContext _actionBeanContext;
+
+   /**
+    * Construct a new instance for the given action bean context.
+    *
+    * @param actionBeanContext The context.
+    */
+   public SourcePageNotFoundException( ActionBeanContext actionBeanContext ) {
+      // @formatter:off
         super(
                 "Here's how it is. Someone (quite possibly the Stripes Dispatcher) needed " +
                 "to get the source page resolution. But no source page was supplied in the " +
@@ -44,11 +46,11 @@ public class SourcePageNotFoundException extends IllegalStateException {
                 "you must include a value  for this parameter. This can be done by calling " +
                 "request.getServletPath().");
         // @formatter:on
-        this.actionBeanContext = actionBeanContext;
-    }
+       _actionBeanContext = actionBeanContext;
+   }
 
-    /** Get the action bean context in which this exception occurred. */
-    public ActionBeanContext getActionBeanContext() {
-        return actionBeanContext;
-    }
+   /** Get the action bean context in which this exception occurred. */
+   public ActionBeanContext getActionBeanContext() {
+      return _actionBeanContext;
+   }
 }

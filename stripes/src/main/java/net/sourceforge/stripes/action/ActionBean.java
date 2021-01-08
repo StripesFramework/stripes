@@ -16,6 +16,7 @@ package net.sourceforge.stripes.action;
 
 import net.sourceforge.stripes.validation.ValidationErrorHandler;
 
+
 /**
  * <p>Interface for all classes that respond to user interface events. Implementations receive
  * information about the event (usually a form submission) in two ways.  The first is through a
@@ -90,20 +91,21 @@ import net.sourceforge.stripes.validation.ValidationErrorHandler;
  * @author Tim Fennell
  */
 public interface ActionBean {
-    /**
-     * Called by the Stripes dispatcher to provide context to the ActionBean before invoking the
-     * handler method.  Implementations should store a reference to the context for use during
-     * event handling.
-     *
-     * @param context ActionBeanContext associated with the current request
-     */
-    public void setContext(ActionBeanContext context);
 
-    /**
-     * Implementations must implement this method to return a reference to the context object
-     * provided to the ActionBean during the call to setContext(ActionBeanContext).
-     *
-     * @return ActionBeanContext associated with the current request
-     */
-    public ActionBeanContext getContext();
+   /**
+    * Implementations must implement this method to return a reference to the context object
+    * provided to the ActionBean during the call to setContext(ActionBeanContext).
+    *
+    * @return ActionBeanContext associated with the current request
+    */
+   ActionBeanContext getContext();
+
+   /**
+    * Called by the Stripes dispatcher to provide context to the ActionBean before invoking the
+    * handler method.  Implementations should store a reference to the context for use during
+    * event handling.
+    *
+    * @param context ActionBeanContext associated with the current request
+    */
+   void setContext( ActionBeanContext context );
 }

@@ -14,8 +14,6 @@
  */
 package net.sourceforge.stripes.validation;
 
-import net.sourceforge.stripes.controller.StripesFilter;
-
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -25,6 +23,9 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.regex.Pattern;
+
+import net.sourceforge.stripes.controller.StripesFilter;
+
 
 /**
  * <p>A TypeConverter that aggressively attempts to convert a String to a java.util.Date object.
@@ -81,186 +82,177 @@ import java.util.regex.Pattern;
  * </p>
  */
 public class DateTypeConverter implements TypeConverter<Date> {
-    private Locale locale;
-    private DateFormat[] formats;
 
-    /**
-     * Used by Stripes to set the input locale.  Once the locale is set a number of DateFormat
-     * instances are created ready to convert any input.
-     */
-    public void setLocale(Locale locale) {
-        this.locale = locale;
-        this.formats = getDateFormats();
-    }
+   /**
+    * <p>A pattern used to pre-process Strings before the parsing attempt is made.  Since
+    * SimpleDateFormat strictly enforces that the separator characters in the input are the same
+    * as those in the pattern, this regular expression is used to remove commas, slashes, hyphens
+    * and periods from the input String (replacing them with spaces) and to collapse multiple
+    * white-space characters into a single space.</p>
+    *
+    * <p>This pattern can be changed by providing a different value under the
+    * <code>'stripes.dateTypeConverter.preProcessPattern'</code> key in the resource
+    * bundle. The default value is <code>(?&lt;!GMT)[\\s,-/\\.]+</code>.</p>
+    */
+   public static final Pattern  PRE_PROCESS_PATTERN     = Pattern.compile("(?<!GMT)[\\s,/\\.-]+");
+   /** The default set of date patterns used to parse dates with SimpleDateFormat. */
+   public static final String[] formatStrings           = new String[] { "d MMM yy", "yyyy M d", "yyyy MMM d", "EEE MMM dd HH:mm:ss zzz yyyy" };
+   /** The key used to look up the localized format strings from the resource bundle. */
+   public static final String   KEY_FORMAT_STRINGS      = "stripes.dateTypeConverter.formatStrings";
+   /** The key used to look up the pre-process pattern from the resource bundle. */
+   public static final String   KEY_PRE_PROCESS_PATTERN = "stripes.dateTypeConverter.preProcessPattern";
 
-    /**
-     * @return the current input locale.
-     */
-    public Locale getLocale() {
-        return locale;
-    }
+   private Locale       _locale;
+   private DateFormat[] _formats;
 
-    /**
-     * <p>A pattern used to pre-process Strings before the parsing attempt is made.  Since
-     * SimpleDateFormat strictly enforces that the separator characters in the input are the same
-     * as those in the pattern, this regular expression is used to remove commas, slashes, hyphens
-     * and periods from the input String (replacing them with spaces) and to collapse multiple
-     * white-space characters into a single space.</p>
-     *
-     * <p>This pattern can be changed by providing a different value under the
-     * <code>'stripes.dateTypeConverter.preProcessPattern'</code> key in the resource
-     * bundle. The default value is <code>(?&lt;!GMT)[\\s,-/\\.]+</code>.</p>
-     */
-    public static final Pattern PRE_PROCESS_PATTERN = Pattern.compile("(?<!GMT)[\\s,/\\.-]+");
+   /**
+    * Attempts to convert a String to a Date object.  Pre-processes the input by invoking the
+    * method preProcessInput(), then uses an ordered list of DateFormat objects (supplied by
+    * getDateFormats()) to try and parse the String into a Date.
+    */
+   @Override
+   public Date convert( String input, Class<? extends Date> targetType, Collection<ValidationError> errors ) {
 
-    /** The default set of date patterns used to parse dates with SimpleDateFormat. */
-    public static final String[] formatStrings = new String[] {
-            "d MMM yy",
-            "yyyy M d",
-            "yyyy MMM d",
-            "EEE MMM dd HH:mm:ss zzz yyyy"
-    };
+      // Step 1: pre-process the input to make it more palatable
+      String parseable = preProcessInput(input);
 
-    /** The key used to look up the localized format strings from the resource bundle. */
-    public static final String KEY_FORMAT_STRINGS = "stripes.dateTypeConverter.formatStrings";
+      // Step 2: try really hard to parse the input
+      Date date = null;
 
-    /** The key used to look up the pre-process pattern from the resource bundle. */
-    public static final String KEY_PRE_PROCESS_PATTERN = "stripes.dateTypeConverter.preProcessPattern";
+      for ( DateFormat format : _formats ) {
+         try {
+            date = format.parse(parseable);
+            break;
+         }
+         catch ( ParseException pe ) { /* Do nothing, we'll get lots of these. */ }
+      }
 
-    /**
-     * Returns an array of format strings that will be used, in order, to try and parse the date.
-     * This method can be overridden to make DateTypeConverter use a different set of format
-     * Strings. Given that pre-processing converts most common separator characters into spaces,
-     * patterns should be expressed with spaces as separators, not slashes, hyphens etc.
-     */
-    protected String[] getFormatStrings() {
-        try {
-            return getResourceString(KEY_FORMAT_STRINGS).split(", *");
-        }
-        catch (MissingResourceException mre) {
-            // First get the locale specific date format patterns
-            int[] dateFormats = { DateFormat.SHORT, DateFormat.MEDIUM, DateFormat.LONG };
-            String[] formatStrings = new String[dateFormats.length + DateTypeConverter.formatStrings.length];
+      // Step 3: If we successfully parsed, return a date, otherwise send back an error
+      if ( date != null ) {
+         return date;
+      } else {
+         errors.add(new ScopedLocalizableError("converter.date", "invalidDate"));
+         return null;
+      }
+   }
 
-            for (int i=0; i<dateFormats.length; i++) {
-                SimpleDateFormat dateFormat = (SimpleDateFormat) DateFormat.getDateInstance(dateFormats[i], locale);
-                formatStrings[i] = preProcessInput(dateFormat.toPattern());
-            }
+   /**
+    * @return the current input locale.
+    */
+   public Locale getLocale() {
+      return _locale;
+   }
 
-            // Then copy the default format strings over too
-            System.arraycopy(DateTypeConverter.formatStrings, 0,
-                             formatStrings, dateFormats.length,
-                             DateTypeConverter.formatStrings.length);
+   /**
+    * Used by Stripes to set the input locale.  Once the locale is set a number of DateFormat
+    * instances are created ready to convert any input.
+    */
+   @Override
+   public void setLocale( Locale locale ) {
+       _locale = locale;
+      _formats = getDateFormats();
+   }
 
-            return formatStrings;
-        }
-    }
+   /**
+    * Checks to see how many 'parts' there are to the date (separated by spaces) and
+    * if there are only two parts it adds the current year to the end by geting the
+    * Locale specific year string from a Calendar instance.
+    *
+    * @param input the date string after the pre-process pattern has been run against it
+    * @return either the date string as is, or with the year appended to the end
+    */
+   protected String checkAndAppendYear( String input ) {
+      // Count the spaces, date components = spaces + 1
+      int count = 0;
+      for ( char ch : input.toCharArray() ) {
+         if ( ch == ' ' ) {
+            ++count;
+         }
+      }
 
-    /**
-     * Returns an array of DateFormat objects that will be used in sequence to try and parse the
-     * date String. This method will be called once when the DateTypeConverter instance is
-     * initialized. It first calls getFormatStrings() to obtain the format strings that are used to
-     * construct SimpleDateFormat instances.
-     */
-    protected DateFormat[] getDateFormats() {
-        String[] formatStrings = getFormatStrings();
-        SimpleDateFormat[] dateFormats = new SimpleDateFormat[formatStrings.length];
+      // Looks like we probably only have a day and month component, that won't work!
+      if ( count == 1 ) {
+         input += " " + Calendar.getInstance(_locale).get(Calendar.YEAR);
+      }
+      return input;
+   }
 
-        for (int i=0; i<formatStrings.length; i++) {
-            dateFormats[i] = new SimpleDateFormat(formatStrings[i], locale);
-            dateFormats[i].setLenient(false);
-        }
+   /**
+    * Returns an array of DateFormat objects that will be used in sequence to try and parse the
+    * date String. This method will be called once when the DateTypeConverter instance is
+    * initialized. It first calls getFormatStrings() to obtain the format strings that are used to
+    * construct SimpleDateFormat instances.
+    */
+   protected DateFormat[] getDateFormats() {
+      String[] formatStrings = getFormatStrings();
+      SimpleDateFormat[] dateFormats = new SimpleDateFormat[formatStrings.length];
 
-        return dateFormats;
-    }
+      for ( int i = 0; i < formatStrings.length; i++ ) {
+         dateFormats[i] = new SimpleDateFormat(formatStrings[i], _locale);
+         dateFormats[i].setLenient(false);
+      }
 
-    /**
-     * Attempts to convert a String to a Date object.  Pre-processes the input by invoking the
-     * method preProcessInput(), then uses an ordered list of DateFormat objects (supplied by
-     * getDateFormats()) to try and parse the String into a Date.
-     */
-    public Date convert(String input,
-                        Class<? extends Date> targetType,
-                        Collection<ValidationError> errors) {
+      return dateFormats;
+   }
 
-        // Step 1: pre-process the input to make it more palatable
-        String parseable = preProcessInput(input);
+   /**
+    * Returns an array of format strings that will be used, in order, to try and parse the date.
+    * This method can be overridden to make DateTypeConverter use a different set of format
+    * Strings. Given that pre-processing converts most common separator characters into spaces,
+    * patterns should be expressed with spaces as separators, not slashes, hyphens etc.
+    */
+   protected String[] getFormatStrings() {
+      try {
+         return getResourceString(KEY_FORMAT_STRINGS).split(", *");
+      }
+      catch ( MissingResourceException mre ) {
+         // First get the locale specific date format patterns
+         int[] dateFormats = { DateFormat.SHORT, DateFormat.MEDIUM, DateFormat.LONG };
+         String[] formatStrings = new String[dateFormats.length + DateTypeConverter.formatStrings.length];
 
-        // Step 2: try really hard to parse the input
-        Date date = null;
+         for ( int i = 0; i < dateFormats.length; i++ ) {
+            SimpleDateFormat dateFormat = (SimpleDateFormat)DateFormat.getDateInstance(dateFormats[i], _locale);
+            formatStrings[i] = preProcessInput(dateFormat.toPattern());
+         }
 
-        for (DateFormat format : this.formats) {
-            try {
-                date = format.parse(parseable);
-                break;
-            }
-            catch (ParseException pe) { /* Do nothing, we'll get lots of these. */ }
-        }
+         // Then copy the default format strings over too
+         System.arraycopy(DateTypeConverter.formatStrings, 0, formatStrings, dateFormats.length, DateTypeConverter.formatStrings.length);
 
-        // Step 3: If we successfully parsed, return a date, otherwise send back an error
-        if (date != null) {
-            return date;
-        }
-        else {
-            errors.add( new ScopedLocalizableError("converter.date", "invalidDate") );
-            return null;
-        }
-    }
+         return formatStrings;
+      }
+   }
 
-    /**
-     * Returns the regular expression pattern used in the pre-process method. Looks for a pattern in
-     * the resource bundle under the key 'stripes.dateTypeConverter.preProcessPattern'. If no value
-     * is found, the pattern <code>(?&lt;!GMT)[\\s,-/\\.]+</code> is used by default. The pattern is
-     * used by preProcessInput() to replace all matches by single spaces.
-     */
-    protected Pattern getPreProcessPattern() {
-        try {
-            return Pattern.compile(getResourceString(KEY_PRE_PROCESS_PATTERN));
-        }
-        catch (MissingResourceException exc) {
-            return DateTypeConverter.PRE_PROCESS_PATTERN;
-        }
-    }
+   /**
+    * Returns the regular expression pattern used in the pre-process method. Looks for a pattern in
+    * the resource bundle under the key 'stripes.dateTypeConverter.preProcessPattern'. If no value
+    * is found, the pattern <code>(?&lt;!GMT)[\\s,-/\\.]+</code> is used by default. The pattern is
+    * used by preProcessInput() to replace all matches by single spaces.
+    */
+   protected Pattern getPreProcessPattern() {
+      try {
+         return Pattern.compile(getResourceString(KEY_PRE_PROCESS_PATTERN));
+      }
+      catch ( MissingResourceException exc ) {
+         return DateTypeConverter.PRE_PROCESS_PATTERN;
+      }
+   }
 
-    /**
-     * Pre-processes the input String to improve the chances of parsing it. First uses the regular
-     * expression Pattern returned by getPreProcessPattern() to remove all separator chars and
-     * ensure that components are separated by single spaces.  Then invokes
-     * {@link #checkAndAppendYear(String)} to append the year to the date in case the date
-     * is in a format like "12/25" which would otherwise fail to parse.
-     */
-    protected String preProcessInput(String input) {
-        input = getPreProcessPattern().matcher(input.trim()).replaceAll(" ");
-        input = checkAndAppendYear(input);
-        return input;
-    }
+   /** Convenience method to fetch a property from the resource bundle. */
+   protected String getResourceString( String key ) throws MissingResourceException {
+      return StripesFilter.getConfiguration().getLocalizationBundleFactory().getErrorMessageBundle(_locale).getString(key);
 
-    /**
-     * Checks to see how many 'parts' there are to the date (separated by spaces) and
-     * if there are only two parts it adds the current year to the end by geting the
-     * Locale specific year string from a Calendar instance.
-     *
-     * @param input the date string after the pre-process pattern has been run against it
-     * @return either the date string as is, or with the year appended to the end
-     */
-    protected String checkAndAppendYear(String input) {
-        // Count the spaces, date components = spaces + 1
-        int count = 0;
-        for (char ch : input.toCharArray()) {
-            if (ch == ' ') ++count;
-        }
+   }
 
-        // Looks like we probably only have a day and month component, that won't work!
-        if (count == 1) {
-            input += " " + Calendar.getInstance(locale).get(Calendar.YEAR);
-        }
-        return input;
-    }
-
-    /** Convenience method to fetch a property from the resource bundle. */
-    protected String getResourceString(String key) throws MissingResourceException {
-        return StripesFilter.getConfiguration().getLocalizationBundleFactory()
-                .getErrorMessageBundle(locale).getString(key);
-
-    }
+   /**
+    * Pre-processes the input String to improve the chances of parsing it. First uses the regular
+    * expression Pattern returned by getPreProcessPattern() to remove all separator chars and
+    * ensure that components are separated by single spaces.  Then invokes
+    * {@link #checkAndAppendYear(String)} to append the year to the date in case the date
+    * is in a format like "12/25" which would otherwise fail to parse.
+    */
+   protected String preProcessInput( String input ) {
+      input = getPreProcessPattern().matcher(input.trim()).replaceAll(" ");
+      input = checkAndAppendYear(input);
+      return input;
+   }
 }

@@ -16,6 +16,7 @@ package net.sourceforge.stripes.util.bean;
 
 import net.sourceforge.stripes.exception.StripesRuntimeException;
 
+
 /**
  * Root exception type which all exceptions in this package extend. Used for generalized
  * exceptions that occur during expression parsing and evaluation. Users can catch this
@@ -26,15 +27,16 @@ import net.sourceforge.stripes.exception.StripesRuntimeException;
  * @since Stripes 1.4
  */
 public class ExpressionException extends StripesRuntimeException {
-	private static final long serialVersionUID = 1L;
-	
-    /** Constructs an exception with the supplied message. */
-    public ExpressionException(String message) {
-        super(message);
-    }
 
-    /** Constructs an exception with the supplied message and causing exception. */
-    public ExpressionException(String message, Throwable cause) {
-        super(message, cause);
-    }
+   private static final long serialVersionUID = 1L;
+
+   /** Constructs an exception with the supplied message. */
+   public ExpressionException( String message ) {
+      super(message);
+   }
+
+   /** Constructs an exception with the supplied message and causing exception. */
+   public ExpressionException( String message, Throwable cause ) {
+      super(message, cause);
+   }
 }

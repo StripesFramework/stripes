@@ -24,8 +24,9 @@ package net.sourceforge.stripes.tag;
  * @author Tim Fennell
  */
 public class InputSubmitTag extends InputButtonSupportTag {
-    /** Sets the input tag type to be submit. */
-    public InputSubmitTag() {
-        getAttributes().put("type", "submit");
-    }
+
+   /** Sets the input tag type to be submit. */
+   public InputSubmitTag() {
+      getAttributes().put("type", "submit");
+   }
 }

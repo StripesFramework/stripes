@@ -14,8 +14,9 @@
  */
 package net.sourceforge.stripes.validation;
 
-import java.util.Locale;
 import java.util.Collection;
+import java.util.Locale;
+
 
 /**
  * Simple type converter that converts the input String to a Character by returning
@@ -25,23 +26,25 @@ import java.util.Collection;
  * @since Stripes 1.4
  */
 public class CharacterTypeConverter implements TypeConverter<Character> {
-    /** Does nothing. */
-    public void setLocale(Locale locale) { }
 
-    /**
-     * Converts the input String to a Character by taking the first character in the
-     * String and returning it. If the String is null or empty (this should never happen)
-     * then it will return the Character represented by ordinal 0, aka the null character.
-     *
-     * @param input the String to convert into a single Character
-     * @param targetType the type to convert to
-     */
-    public Character convert(String input, Class<? extends Character> targetType, Collection<ValidationError> errors) {
-        if (input != null && !"".equals(input)) {
-            return input.charAt(0);
-        }
-        else {
-            return '\0';
-        }
-    }
+   /**
+    * Converts the input String to a Character by taking the first character in the
+    * String and returning it. If the String is null or empty (this should never happen)
+    * then it will return the Character represented by ordinal 0, aka the null character.
+    *
+    * @param input the String to convert into a single Character
+    * @param targetType the type to convert to
+    */
+   @Override
+   public Character convert( String input, Class<? extends Character> targetType, Collection<ValidationError> errors ) {
+      if ( input != null && !"".equals(input) ) {
+         return input.charAt(0);
+      } else {
+         return '\0';
+      }
+   }
+
+   /** Does nothing. */
+   @Override
+   public void setLocale( Locale locale ) { }
 }

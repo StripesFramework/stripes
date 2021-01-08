@@ -16,57 +16,55 @@ package net.sourceforge.stripes.tag;
 
 import javax.servlet.http.HttpServletRequest;
 
+
 /**
  * Provides support for tags that allow assigning a value in a named scope. The
  * "var" and "scope" properties are provided, as is an {@link #export(Object)}
  * method that assigns a value to the given name in the given scope.
- * 
+ *
  * @author Ben Gunter
  */
 public abstract class VarTagSupport extends StripesTagSupport {
-    protected String var;
-    protected String scope;
 
-    /** Get the scope in which the value will be stored */
-    public String getScope() {
-        return scope;
-    }
+   protected String _var;
+   protected String _scope;
 
-    /** Set the scope in which the value will be stored */
-    public void setScope(String scope) {
-        this.scope = scope;
-    }
+   /** Get the scope in which the value will be stored */
+   public String getScope() {
+      return _scope;
+   }
 
-    /** Get the name of the variable to which the value will be assigned */
-    public String getVar() {
-        return var;
-    }
+   /** Get the name of the variable to which the value will be assigned */
+   public String getVar() {
+      return _var;
+   }
 
-    /** Set the name of the variable to which the value will be assigned */
-    public void setVar(String var) {
-        this.var = var;
-    }
+   /** Set the scope in which the value will be stored */
+   public void setScope( String scope ) {
+      _scope = scope;
+   }
 
-    /**
-     * Assigns the <code>value</code> to an attribute named by
-     * <code>var</code> in the named <code>scope</code>.
-     * 
-     * @param value
-     *            the object to be exported
-     */
-    protected void export(Object value) {
-        if ("request".equals(scope)) {
-            pageContext.getRequest().setAttribute(var, value);
-        }
-        else if ("session".equals(scope)) {
-            ((HttpServletRequest) pageContext.getRequest()).getSession()
-                    .setAttribute(var, value);
-        }
-        else if ("application".equals(scope)) {
-            pageContext.getServletContext().setAttribute(var, value);
-        }
-        else {
-            pageContext.setAttribute(var, value);
-        }
-    }
+   /** Set the name of the variable to which the value will be assigned */
+   public void setVar( String var ) {
+      _var = var;
+   }
+
+   /**
+    * Assigns the <code>value</code> to an attribute named by
+    * <code>var</code> in the named <code>scope</code>.
+    *
+    * @param value
+    *            the object to be exported
+    */
+   protected void export( Object value ) {
+      if ( "request".equals(_scope) ) {
+         _pageContext.getRequest().setAttribute(_var, value);
+      } else if ( "session".equals(_scope) ) {
+         ((HttpServletRequest)_pageContext.getRequest()).getSession().setAttribute(_var, value);
+      } else if ( "application".equals(_scope) ) {
+         _pageContext.getServletContext().setAttribute(_var, value);
+      } else {
+         _pageContext.setAttribute(_var, value);
+      }
+   }
 }

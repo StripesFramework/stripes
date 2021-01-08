@@ -14,14 +14,15 @@
  */
 package net.sourceforge.stripes.action;
 
-import net.sourceforge.stripes.controller.LifecycleStage;
-
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
+import net.sourceforge.stripes.controller.LifecycleStage;
+
 
 /**
  * <p>Specifies that the annotated method should be run <i>before</i> the specified
@@ -64,18 +65,19 @@ import java.lang.annotation.Target;
  * @since Stripes 1.3
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.METHOD})
+@Target({ ElementType.METHOD })
 @Inherited
 @Documented
 public @interface Before {
-	/** One or more lifecycle stages before which the method should be called. */
-	LifecycleStage[] stages() default LifecycleStage.EventHandling;
 
-    /**
-     * Allows the method to be restricted to one or more events. By default the method will
-     * be executed on all events. Can be used to specify one or more events to apply the method
-     * to (e.g. on={"save", "update"}),  or to specify one or more events <i>not</i> to apply
-     * the method to (e.g. on="!delete").
-     */
-    String[] on() default {};
+   /**
+    * Allows the method to be restricted to one or more events. By default the method will
+    * be executed on all events. Can be used to specify one or more events to apply the method
+    * to (e.g. on={"save", "update"}),  or to specify one or more events <i>not</i> to apply
+    * the method to (e.g. on="!delete").
+    */
+   String[] on() default {};
+
+   /** One or more lifecycle stages before which the method should be called. */
+   LifecycleStage[] stages() default LifecycleStage.EventHandling;
 }

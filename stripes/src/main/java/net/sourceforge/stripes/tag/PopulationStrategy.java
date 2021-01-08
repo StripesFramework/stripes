@@ -14,8 +14,9 @@
  */
 package net.sourceforge.stripes.tag;
 
-import net.sourceforge.stripes.exception.StripesJspException;
 import net.sourceforge.stripes.config.ConfigurableComponent;
+import net.sourceforge.stripes.exception.StripesJspException;
+
 
 /**
  * Interface that implements the logic to determine how to populate/repopulate an input tag.
@@ -26,5 +27,6 @@ import net.sourceforge.stripes.config.ConfigurableComponent;
  * @author Tim Fennell 
  */
 public interface PopulationStrategy extends ConfigurableComponent {
-    Object getValue(InputTagSupport tag) throws StripesJspException ;
+
+   Object getValue( InputTagSupport tag ) throws StripesJspException;
 }

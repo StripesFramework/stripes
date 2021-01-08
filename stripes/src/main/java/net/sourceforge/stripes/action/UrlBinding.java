@@ -14,11 +14,12 @@
  */
 package net.sourceforge.stripes.action;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
 import java.lang.annotation.Documented;
-import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
 
 /**
  * <p>
@@ -52,13 +53,14 @@ import java.lang.annotation.ElementType;
  * Clean URLs support both prefix mapping ({@code /action/foo/{bar}}) and extension mapping ({@code /foo/{bar}.action}).
  * Any number of parameters and/or literals may be omitted from the end of a request URL.
  * </p>
- * 
+ *
  * @author Tim Fennell
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.TYPE})
+@Target({ ElementType.TYPE })
 @Documented
 public @interface UrlBinding {
-    /** The web-app relative URL that the ActionBean will respond to. */
-    String value();
+
+   /** The web-app relative URL that the ActionBean will respond to. */
+   String value();
 }

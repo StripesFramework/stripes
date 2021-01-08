@@ -14,10 +14,11 @@
  */
 package net.sourceforge.stripes.action;
 
-import net.sourceforge.stripes.controller.StripesFilter;
-
 import java.util.Locale;
 import java.util.ResourceBundle;
+
+import net.sourceforge.stripes.controller.StripesFilter;
+
 
 /**
  * A non-error message class that can localize (or at least externalize) the message String
@@ -28,72 +29,73 @@ import java.util.ResourceBundle;
  * @author Tim Fennell 
  */
 public class LocalizableMessage extends SimpleMessage {
-	private static final long serialVersionUID = 1L;
 
-    private String messageKey;
+   private static final long serialVersionUID = 1L;
 
-    /**
-     * Creates a new LocalizableMessage with the message key provided, and optionally zero or more
-     * replacement parameters to use in the message.
-     *
-     * @param messageKey a key to lookup a message in the resource bundle
-     * @param parameter one or more replacement parameters to insert into the message
-     */
-    public LocalizableMessage(String messageKey, Object... parameter) {
-        super((String) null, parameter);
-        this.messageKey = messageKey;
-    }
+   private final String _messageKey;
 
-    /**
-     * Method responsible for using the information supplied to the message object to find a
-     * message template. In this class this is done simply by looking up the resource
-     * corresponding to the messageKey supplied in the constructor.
-     */
-    @Override
-    protected String getMessageTemplate(Locale locale) {
-        ResourceBundle bundle = StripesFilter.getConfiguration().
-                getLocalizationBundleFactory().getErrorMessageBundle(locale);
+   /**
+    * Creates a new LocalizableMessage with the message key provided, and optionally zero or more
+    * replacement parameters to use in the message.
+    *
+    * @param messageKey a key to lookup a message in the resource bundle
+    * @param parameter one or more replacement parameters to insert into the message
+    */
+   public LocalizableMessage( String messageKey, Object... parameter ) {
+      super((String)null, parameter);
+       _messageKey = messageKey;
+   }
 
-        return bundle.getString(messageKey);
-    }
+   /**
+    * Generated equals method which will return true if the other object is of the same
+    * type as this instance, and would produce the same user message.
+    *
+    * @param o an instance of LocalizableMessage or subclass thereof
+    * @return true if the two messages would produce the same user message, false otherwise
+    */
+   @Override
+   public boolean equals( Object o ) {
+      if ( this == o ) {
+         return true;
+      }
+      if ( o == null || getClass() != o.getClass() ) {
+         return false;
+      }
+      if ( !super.equals(o) ) {
+         return false;
+      }
 
-    /**
-     * Generated equals method which will return true if the other object is of the same
-     * type as this instance, and would produce the same user message.
-     *
-     * @param o an instance of LocalizableMessage or subclass thereof
-     * @return true if the two messages would produce the same user message, false otherwise
-     */
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        if (!super.equals(o)) {
-            return false;
-        }
+      final LocalizableMessage that = (LocalizableMessage)o;
 
-        final LocalizableMessage that = (LocalizableMessage) o;
+      if ( _messageKey != null ? !_messageKey.equals(that._messageKey) : that._messageKey != null ) {
+         return false;
+      }
 
-        if (messageKey != null ? !messageKey.equals(that.messageKey) : that.messageKey != null) {
-            return false;
-        }
+      return true;
+   }
 
-        return true;
-    }
+   public String getMessageKey() {
+      return _messageKey;
+   }
 
-    /** Generated hashCode method. */
-    @Override
-    public int hashCode() {
-        int result = super.hashCode();
-        result = 29 * result + (messageKey != null ? messageKey.hashCode() : 0);
-        return result;
-    }
+   /** Generated hashCode method. */
+   @Override
+   public int hashCode() {
+      int result = super.hashCode();
+      result = 29 * result + (_messageKey != null ? _messageKey.hashCode() : 0);
+      return result;
+   }
 
-    public String getMessageKey() {
-        return messageKey;
-    }
+   /**
+    * Method responsible for using the information supplied to the message object to find a
+    * message template. In this class this is done simply by looking up the resource
+    * corresponding to the messageKey supplied in the constructor.
+    */
+   @Override
+   protected String getMessageTemplate( Locale locale ) {
+      ResourceBundle bundle = StripesFilter.getConfiguration().
+            getLocalizationBundleFactory().getErrorMessageBundle(locale);
+
+      return bundle.getString(_messageKey);
+   }
 }

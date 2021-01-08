@@ -23,56 +23,57 @@ package net.sourceforge.stripes.controller;
  * @since Stripes 1.3
  */
 public enum LifecycleStage {
-    /**
-     * Executed before any processing occurs on the request. No Stripes processing is
-     * associated with this stage. It is simply provided as a hook for interceptors.
-     */
-    RequestInit,
 
-    /**
-     * First major lifecycle stage.  Involves the location of the ActionBean class that
-     * is bound to the URL being requested, and usually also the creation of a new instance
-     * of that class.
-     */
-    ActionBeanResolution,
+   /**
+    * Executed before any processing occurs on the request. No Stripes processing is
+    * associated with this stage. It is simply provided as a hook for interceptors.
+    */
+   RequestInit,
 
-    /**
-     * Second major lifecycle stage.  Involves the determination of the event name in the
-     * request (if there is one), and the location of the Method which handles the even.
-     */
-    HandlerResolution,
+   /**
+    * First major lifecycle stage.  Involves the location of the ActionBean class that
+    * is bound to the URL being requested, and usually also the creation of a new instance
+    * of that class.
+    */
+   ActionBeanResolution,
 
-    /**
-     * Third major lifecycle stage. Involves the processing of all validations specified through
-     * {@literal} @Validate annotations as well as the type conversion of request parameters
-     * and their binding to the ActionBean.
-     */
-    BindingAndValidation,
+   /**
+    * Second major lifecycle stage.  Involves the determination of the event name in the
+    * request (if there is one), and the location of the Method which handles the even.
+    */
+   HandlerResolution,
 
-    /**
-     * Fourth major lifecycle stage. Involves the execution of any custom validation logic
-     * exposed by the ActionBean.
-     */
-    CustomValidation,
+   /**
+    * Third major lifecycle stage. Involves the processing of all validations specified through
+    * {@literal} @Validate annotations as well as the type conversion of request parameters
+    * and their binding to the ActionBean.
+    */
+   BindingAndValidation,
 
-    /**
-     * Fifth major lifecycle stage.  The actual execution of the event handler method. Only
-     * occurs when the prior stages have produced no persistent validation errors.
-     */
-    EventHandling,
+   /**
+    * Fourth major lifecycle stage. Involves the execution of any custom validation logic
+    * exposed by the ActionBean.
+    */
+   CustomValidation,
 
-    /**
-     * Sixth major lifecycle stage. Is executed any time a Resolution is executed, either
-     * as the outcome of an event handler, or because some other mechanism short circuits
-     * processing by returning a Resolution. 
-     */
-    ResolutionExecution,
-    
-    /**
-     * Final lifecycle stage. Executes in the finally block of the request so it will
-     * always be called when a request terminates regardless of any other conditions.
-     * This is only useful for cleaning up because Resolution execution has already
-     * occurred.
-     */
-    RequestComplete
+   /**
+    * Fifth major lifecycle stage.  The actual execution of the event handler method. Only
+    * occurs when the prior stages have produced no persistent validation errors.
+    */
+   EventHandling,
+
+   /**
+    * Sixth major lifecycle stage. Is executed any time a Resolution is executed, either
+    * as the outcome of an event handler, or because some other mechanism short circuits
+    * processing by returning a Resolution.
+    */
+   ResolutionExecution,
+
+   /**
+    * Final lifecycle stage. Executes in the finally block of the request so it will
+    * always be called when a request terminates regardless of any other conditions.
+    * This is only useful for cleaning up because Resolution execution has already
+    * occurred.
+    */
+   RequestComplete
 }

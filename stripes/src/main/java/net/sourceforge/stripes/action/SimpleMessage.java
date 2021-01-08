@@ -18,6 +18,7 @@ import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Locale;
 
+
 /**
  * <p>A simple non-error message that uses the String supplied to it as the message (i.e. it does
  * not look up the message in a resource bundle).</p>
@@ -42,123 +43,124 @@ import java.util.Locale;
  * @see java.text.MessageFormat
  */
 public class SimpleMessage implements Message {
-	private static final long serialVersionUID = 1L;
 
-    private String message;
+   private static final long serialVersionUID = 1L;
 
-    /**
-     * The set of replacement parameters that will be used to create the message from the message
-     * template.  Note that position 0 is reserved for the field name and position 1 is reserved
-     * for the field value.
-     */
-    private Object[] replacementParameters;
+   private String _message;
 
-    /**
-     * Constructs a message with the supplied message string and zero or more parameters
-     * to be merged into the message.  When constructing a SimpleMessage a non-null message
-     * string must be supplied (though subclasses may return null if they do not rely upon it).
-     *
-     * @param message the String message to display to the user, optionally with placeholders
-     *        for replacement parameters
-     * @param parameters
-     */
-    public SimpleMessage(String message, Object... parameters) {
-        this.replacementParameters = parameters;
-        this.message = message;
-    }
+   /**
+    * The set of replacement parameters that will be used to create the message from the message
+    * template.  Note that position 0 is reserved for the field name and position 1 is reserved
+    * for the field value.
+    */
+   private final Object[] _replacementParameters;
 
-    /**
-     * Helper constructor to allow subclasses to provide and manipulate replacement
-     * parameters without having to supply a message String.
-     *
-     * @param parameters zero or more parameters for replacement into the message
-     */
-    protected SimpleMessage(Object... parameters) {
-        this.replacementParameters = parameters;
-    }
+   /**
+    * Constructs a message with the supplied message string and zero or more parameters
+    * to be merged into the message.  When constructing a SimpleMessage a non-null message
+    * string must be supplied (though subclasses may return null if they do not rely upon it).
+    *
+    * @param message the String message to display to the user, optionally with placeholders
+    *        for replacement parameters
+    * @param parameters
+    */
+   public SimpleMessage( String message, Object... parameters ) {
+      _replacementParameters = parameters;
+       _message = message;
+   }
 
-    /**
-     * Uses the String message passed in as the message template and combines it with any
-     * replacement parameters provided to construct a message for display to the user. Although
-     * SimpleMessage does not localize it's message string, any formatters invoked as a result
-     * of using replacement parameters will be in the correct locale.
-     *
-     * @param locale the locale of the current request
-     * @return String the message stored under the messageKey supplied
-     */
-    public String getMessage(Locale locale) {
-        // Now get the message itself
-        String messageTemplate = getMessageTemplate(locale);
+   /**
+    * Helper constructor to allow subclasses to provide and manipulate replacement
+    * parameters without having to supply a message String.
+    *
+    * @param parameters zero or more parameters for replacement into the message
+    */
+   protected SimpleMessage( Object... parameters ) {
+      _replacementParameters = parameters;
+   }
 
-        // For compatibility with JSTL, only apply formatting if there are replacement parameters
-        if (this.replacementParameters != null && this.replacementParameters.length > 0) {
-            MessageFormat format = new MessageFormat(messageTemplate, locale);
-            return format.format(this.replacementParameters, new StringBuffer(), null).toString();
-        }
-        else {
-            return messageTemplate;
-        }
-    }
+   /**
+    * Checks equality by ensuring that the current instance and the 'other' instance are
+    * instances of the same class (though not necessarily SimpleMessage!) and that the
+    * message String and replacement parameters provided are the same.
+    *
+    * @param o another object that is a SimpleMessage or subclass thereof
+    * @return true if the two objects will generate the same user message, false otherwise
+    */
+   @Override
+   public boolean equals( Object o ) {
+      if ( this == o ) {
+         return true;
+      }
+      if ( o == null || getClass() != o.getClass() ) {
+         return false;
+      }
 
-    /**
-     * Simply returns the message passed in at Construction time. Designed to be overridden by
-     * subclasses to lookup messages from resource bundles.
-     *
-     * @param locale the Locale of the message template desired
-     * @return the message (potentially with TextFormat replacement tokens).
-     */
-    protected String getMessageTemplate(Locale locale) {
-        return this.message;
-    }
+      final SimpleMessage that = (SimpleMessage)o;
 
-    /**
-     * Returns the exact message that was supplied in the constructor. This should not
-     * be called to render user output, but only when direct access to the String is
-     * needed for some reason.
-     *
-     * @return the exact message String passed in to the constructor
-     */
-    public String getMessage() {
-        return this.message;
-    }
+      if ( _message != null ? !_message.equals(that._message) : that._message != null ) {
+         return false;
+      }
+      if ( !Arrays.equals(_replacementParameters, that._replacementParameters) ) {
+         return false;
+      }
 
-    /** Allows subclasses to access the replacement parameters for this message. */
-    public Object[] getReplacementParameters() {
-        return this.replacementParameters;
-    }
+      return true;
+   }
 
-    /**
-     * Checks equality by ensuring that the current instance and the 'other' instance are
-     * instances of the same class (though not necessarily SimpleMessage!) and that the
-     * message String and replacement parameters provided are the same.
-     *
-     * @param o another object that is a SimpleMessage or subclass thereof
-     * @return true if the two objects will generate the same user message, false otherwise
-     */
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
+   /**
+    * Returns the exact message that was supplied in the constructor. This should not
+    * be called to render user output, but only when direct access to the String is
+    * needed for some reason.
+    *
+    * @return the exact message String passed in to the constructor
+    */
+   public String getMessage() {
+      return _message;
+   }
 
-        final SimpleMessage that = (SimpleMessage) o;
+   /**
+    * Uses the String message passed in as the message template and combines it with any
+    * replacement parameters provided to construct a message for display to the user. Although
+    * SimpleMessage does not localize it's message string, any formatters invoked as a result
+    * of using replacement parameters will be in the correct locale.
+    *
+    * @param locale the locale of the current request
+    * @return String the message stored under the messageKey supplied
+    */
+   @Override
+   public String getMessage( Locale locale ) {
+      // Now get the message itself
+      String messageTemplate = getMessageTemplate(locale);
 
-        if (message != null ? !message.equals(that.message) : that.message != null) {
-            return false;
-        }
-        if (!Arrays.equals(replacementParameters, that.replacementParameters)) {
-            return false;
-        }
+      // For compatibility with JSTL, only apply formatting if there are replacement parameters
+      if ( _replacementParameters != null && _replacementParameters.length > 0 ) {
+         MessageFormat format = new MessageFormat(messageTemplate, locale);
+         return format.format(_replacementParameters, new StringBuffer(), null).toString();
+      } else {
+         return messageTemplate;
+      }
+   }
 
-        return true;
-    }
+   /** Allows subclasses to access the replacement parameters for this message. */
+   public Object[] getReplacementParameters() {
+      return _replacementParameters;
+   }
 
-    /** Generated hash code method. */
-    @Override
-    public int hashCode() {
-        return (message != null ? message.hashCode() : 0);
-    }
+   /** Generated hash code method. */
+   @Override
+   public int hashCode() {
+      return (_message != null ? _message.hashCode() : 0);
+   }
+
+   /**
+    * Simply returns the message passed in at Construction time. Designed to be overridden by
+    * subclasses to lookup messages from resource bundles.
+    *
+    * @param locale the Locale of the message template desired
+    * @return the message (potentially with TextFormat replacement tokens).
+    */
+   protected String getMessageTemplate( Locale locale ) {
+      return _message;
+   }
 }

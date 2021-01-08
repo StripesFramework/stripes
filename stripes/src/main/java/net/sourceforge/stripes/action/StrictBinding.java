@@ -23,6 +23,7 @@ import java.lang.annotation.Target;
 import net.sourceforge.stripes.validation.Validate;
 import net.sourceforge.stripes.validation.ValidateNestedProperties;
 
+
 /**
  * <p>
  * When applied to an {@link ActionBean}, this annotation turns on binding access controls. The
@@ -53,33 +54,34 @@ import net.sourceforge.stripes.validation.ValidateNestedProperties;
  * {@code @StrictBinding(allow="user, user.*")} is equivalent to
  * {@code @StrictBinding(allow={ "user", "user.*" }}.
  * </p>
- * 
+ *
  * @author Ben Gunter
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target( { ElementType.TYPE })
+@Target({ ElementType.TYPE })
 @Documented
 public @interface StrictBinding {
-    /**
-     * The options for the {@link StrictBinding#defaultPolicy()} element.
-     */
-    public enum Policy {
-        /** In the event of a conflict, binding is allowed */
-        ALLOW,
 
-        /** In the event of a conflict, binding is denied */
-        DENY
-    }
+   /** The list of properties that may be bound. */
+   String[] allow() default "";
 
-    /**
-     * The policy to observe when a property name matches both the deny and allow lists, or when a
-     * property name does not match either list.
-     */
-    Policy defaultPolicy() default Policy.DENY;
+   /**
+    * The policy to observe when a property name matches both the deny and allow lists, or when a
+    * property name does not match either list.
+    */
+   Policy defaultPolicy() default Policy.DENY;
 
-    /** The list of properties that may be bound. */
-    String[] allow() default "";
+   /** The list of properties that may <em>not</em> be bound. */
+   String[] deny() default "";
 
-    /** The list of properties that may <em>not</em> be bound. */
-    String[] deny() default "";
+   /**
+    * The options for the {@link StrictBinding#defaultPolicy()} element.
+    */
+   enum Policy {
+      /** In the event of a conflict, binding is allowed */
+      ALLOW,
+
+      /** In the event of a conflict, binding is denied */
+      DENY
+   }
 }

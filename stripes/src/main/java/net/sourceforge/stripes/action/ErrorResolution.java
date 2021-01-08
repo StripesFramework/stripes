@@ -17,62 +17,66 @@ package net.sourceforge.stripes.action;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+
 /**
  * Resolution for sending HTTP error messages back to the client. errorCode is the HTTP status code
  * to be sent. errorMessage is a descriptive message.
- * 
+ *
  * @author Aaron Porter
  * @since Stripes 1.5
  */
 public class ErrorResolution implements Resolution {
-    private int errorCode;
-    private String errorMessage;
 
-    /**
-     * Sends an error response to the client using the specified status code and clears the buffer.
-     * 
-     * @param errorCode the HTTP status code
-     */
-    public ErrorResolution(int errorCode) {
-        this.errorCode = errorCode;
-    }
+   private int    _errorCode;
+   private String _errorMessage;
 
-    /**
-     * Sends an error response to the client using the specified status code and message and clears
-     * the buffer.
-     * 
-     * @param errorCode the HTTP status code
-     * @param errorMessage a descriptive message
-     */
-    public ErrorResolution(int errorCode, String errorMessage) {
-        this.errorCode = errorCode;
-        this.errorMessage = errorMessage;
-    }
+   /**
+    * Sends an error response to the client using the specified status code and clears the buffer.
+    *
+    * @param errorCode the HTTP status code
+    */
+   public ErrorResolution( int errorCode ) {
+       _errorCode = errorCode;
+   }
 
-    public void execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        if (errorMessage != null)
-            response.sendError(errorCode, errorMessage);
-        else
-            response.sendError(errorCode);
-    }
+   /**
+    * Sends an error response to the client using the specified status code and message and clears
+    * the buffer.
+    *
+    * @param errorCode the HTTP status code
+    * @param errorMessage a descriptive message
+    */
+   public ErrorResolution( int errorCode, String errorMessage ) {
+       _errorCode = errorCode;
+       _errorMessage = errorMessage;
+   }
 
-    /** Accessor for the HTTP status code. */
-    public int getErrorCode() {
-        return errorCode;
-    }
+   @Override
+   public void execute( HttpServletRequest request, HttpServletResponse response ) throws Exception {
+      if ( _errorMessage != null ) {
+         response.sendError(_errorCode, _errorMessage);
+      } else {
+         response.sendError(_errorCode);
+      }
+   }
 
-    /** Setter for the HTTP status code. */
-    public void setErrorCode(int errorCode) {
-        this.errorCode = errorCode;
-    }
+   /** Accessor for the HTTP status code. */
+   public int getErrorCode() {
+      return _errorCode;
+   }
 
-    /** Accessor for the descriptive error message. */
-    public String getErrorMessage() {
-        return errorMessage;
-    }
+   /** Accessor for the descriptive error message. */
+   public String getErrorMessage() {
+      return _errorMessage;
+   }
 
-    /** Setter for the descriptive error message. */
-    public void setErrorMessage(String errorMessage) {
-        this.errorMessage = errorMessage;
-    }
+   /** Setter for the HTTP status code. */
+   public void setErrorCode( int errorCode ) {
+       _errorCode = errorCode;
+   }
+
+   /** Setter for the descriptive error message. */
+   public void setErrorMessage( String errorMessage ) {
+       _errorMessage = errorMessage;
+   }
 }

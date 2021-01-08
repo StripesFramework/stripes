@@ -23,15 +23,16 @@ package net.sourceforge.stripes.util.bean;
  * @since Stripes 1.4
  */
 public class EvaluationException extends ExpressionException {
-	private static final long serialVersionUID = 1L;
-	
-    /** Constructs an exception with the supplied message. */
-    public EvaluationException(String message) {
-        super(message);
-    }
 
-    /** Constructs an exception with the supplied message and causing exception. */
-    public EvaluationException(String message, Throwable cause) {
-        super(message, cause);
-    }
+   private static final long serialVersionUID = 1L;
+
+   /** Constructs an exception with the supplied message. */
+   public EvaluationException( String message ) {
+      super(message);
+   }
+
+   /** Constructs an exception with the supplied message and causing exception. */
+   public EvaluationException( String message, Throwable cause ) {
+      super(message, cause);
+   }
 }

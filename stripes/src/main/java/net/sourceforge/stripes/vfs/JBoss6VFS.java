@@ -23,147 +23,152 @@ import java.util.List;
 
 import net.sourceforge.stripes.util.Log;
 
+
 /**
  * A {@link VFS} implementation that works with the VFS API provided by JBoss 6.
- * 
+ *
  * @author Ben Gunter
  */
 public class JBoss6VFS extends net.sourceforge.stripes.vfs.VFS {
-    private static final Log log = Log.getInstance(JBoss6VFS.class);
 
-    /** A class that mimics a tiny subset of the JBoss VirtualFile class. */
-    static class VirtualFile {
-        static Class<?> VirtualFile;
-        static Method getPathNameRelativeTo, getChildrenRecursively;
+   private static final Log log = Log.getInstance(JBoss6VFS.class);
 
-        Object virtualFile;
+   /** Flag that indicates if this VFS is valid for the current environment. */
+   private static Boolean valid;
 
-        VirtualFile(Object virtualFile) {
-            this.virtualFile = virtualFile;
-        }
+   static {
+      initialize();
+   }
 
-        String getPathNameRelativeTo(VirtualFile parent) {
-            try {
-                return invoke(getPathNameRelativeTo, virtualFile, parent.virtualFile);
-            }
-            catch (IOException e) {
-                // This exception is not thrown by the called method
-                log.error("This should not be possible. VirtualFile.getPathNameRelativeTo() threw IOException.");
-                return null;
-            }
-        }
+   /**
+    * Verifies that the provided object reference is null. If it is null, then this VFS is marked
+    * as invalid for the current environment.
+    *
+    * @param object The object reference to check for null.
+    */
+   protected static <T> T checkNotNull( T object ) {
+      if ( object == null ) {
+         setInvalid();
+      }
+      return object;
+   }
 
-        List<VirtualFile> getChildren() throws IOException {
-            List<?> objects = invoke(getChildrenRecursively, virtualFile);
-            List<VirtualFile> children = new ArrayList<VirtualFile>(objects.size());
-            for (Object object : objects) {
-                children.add(new VirtualFile(object));
-            }
-            return children;
-        }
-    }
+   /**
+    * Verifies that the return type of a method is what it is expected to be. If it is not, then
+    * this VFS is marked as invalid for the current environment.
+    *
+    * @param method The method whose return type is to be checked.
+    * @param expected A type to which the method's return type must be assignable.
+    * @see Class#isAssignableFrom(Class)
+    */
+   protected static void checkReturnType( Method method, Class<?> expected ) {
+      if ( method != null && !expected.isAssignableFrom(method.getReturnType()) ) {
+         log.warn("Method ", method.getClass().getName(), ".", method.getName(), "(..) should return ", expected.getName(), " but returns ", //
+               method.getReturnType().getName(), " instead.");
+         setInvalid();
+      }
+   }
 
-    /** A class that mimics a tiny subset of the JBoss VFS class. */
-    static class VFS {
-        static Class<?> VFS;
-        static Method getChild;
+   /** Find all the classes and methods that are required to access the JBoss 6 VFS. */
+   protected static synchronized void initialize() {
+      if ( valid == null ) {
+         // Assume valid. It will get flipped later if something goes wrong.
+         valid = true;
 
-        static VirtualFile getChild(URL url) throws IOException {
-            Object o = invoke(getChild, VFS, url);
-            return o == null ? null : new VirtualFile(o);
-        }
-    }
+         // Look up and verify required classes
+         VFS.VFS = checkNotNull(getClass("org.jboss.vfs.VFS"));
+         VirtualFile.VirtualFile = checkNotNull(getClass("org.jboss.vfs.VirtualFile"));
 
-    /** Flag that indicates if this VFS is valid for the current environment. */
-    private static Boolean valid;
+         // Look up and verify required methods
+         VFS.getChild = checkNotNull(getMethod(VFS.VFS, "getChild", URL.class));
+         VirtualFile.getChildrenRecursively = checkNotNull(getMethod(VirtualFile.VirtualFile, "getChildrenRecursively"));
+         VirtualFile.getPathNameRelativeTo = checkNotNull(getMethod(VirtualFile.VirtualFile, "getPathNameRelativeTo", VirtualFile.VirtualFile));
 
-    /** Find all the classes and methods that are required to access the JBoss 6 VFS. */
-    protected static synchronized void initialize() {
-        if (valid == null) {
-            // Assume valid. It will get flipped later if something goes wrong.
-            valid = true;
+         // Verify that the API has not changed
+         checkReturnType(VFS.getChild, VirtualFile.VirtualFile);
+         checkReturnType(VirtualFile.getChildrenRecursively, List.class);
+         checkReturnType(VirtualFile.getPathNameRelativeTo, String.class);
+      }
+   }
 
-            // Look up and verify required classes
-            VFS.VFS = checkNotNull(getClass("org.jboss.vfs.VFS"));
-            VirtualFile.VirtualFile = checkNotNull(getClass("org.jboss.vfs.VirtualFile"));
+   /** Mark this {@link VFS} as invalid for the current environment. */
+   protected static void setInvalid() {
+      if ( JBoss6VFS.valid != null && JBoss6VFS.valid ) {
+         log.debug("JBoss 6 VFS API is not available in this environment.");
+         JBoss6VFS.valid = false;
+      }
+   }
 
-            // Look up and verify required methods
-            VFS.getChild = checkNotNull(getMethod(VFS.VFS, "getChild", URL.class));
-            VirtualFile.getChildrenRecursively = checkNotNull(getMethod(VirtualFile.VirtualFile,
-                    "getChildrenRecursively"));
-            VirtualFile.getPathNameRelativeTo = checkNotNull(getMethod(VirtualFile.VirtualFile,
-                    "getPathNameRelativeTo", VirtualFile.VirtualFile));
+   @Override
+   public boolean isValid() {
+      return valid;
+   }
 
-            // Verify that the API has not changed
-            checkReturnType(VFS.getChild, VirtualFile.VirtualFile);
-            checkReturnType(VirtualFile.getChildrenRecursively, List.class);
-            checkReturnType(VirtualFile.getPathNameRelativeTo, String.class);
-        }
-    }
+   @Override
+   public List<String> list( URL url, String path ) throws IOException {
+      VirtualFile directory;
+      directory = VFS.getChild(url);
+      if ( directory == null ) {
+         return Collections.emptyList();
+      }
 
-    /**
-     * Verifies that the provided object reference is null. If it is null, then this VFS is marked
-     * as invalid for the current environment.
-     * 
-     * @param object The object reference to check for null.
-     */
-    protected static <T> T checkNotNull(T object) {
-        if (object == null)
-            setInvalid();
-        return object;
-    }
+      if ( !path.endsWith("/") ) {
+         path += "/";
+      }
 
-    /**
-     * Verifies that the return type of a method is what it is expected to be. If it is not, then
-     * this VFS is marked as invalid for the current environment.
-     * 
-     * @param method The method whose return type is to be checked.
-     * @param expected A type to which the method's return type must be assignable.
-     * @see Class#isAssignableFrom(Class)
-     */
-    protected static void checkReturnType(Method method, Class<?> expected) {
-        if (method != null && !expected.isAssignableFrom(method.getReturnType())) {
-            log.warn("Method ", method.getClass().getName(), ".", method.getName(),
-                    "(..) should return ", expected.getName(), " but returns ", //
-                    method.getReturnType().getName(), " instead.");
-            setInvalid();
-        }
-    }
+      List<VirtualFile> children = directory.getChildren();
+      List<String> names = new ArrayList<>(children.size());
+      for ( VirtualFile vf : children ) {
+         String relative = vf.getPathNameRelativeTo(directory);
+         names.add(path + relative);
+      }
 
-    /** Mark this {@link VFS} as invalid for the current environment. */
-    protected static void setInvalid() {
-        if (JBoss6VFS.valid != null && JBoss6VFS.valid) {
-            log.debug("JBoss 6 VFS API is not available in this environment.");
-            JBoss6VFS.valid = false;
-        }
-    }
+      return names;
+   }
 
-    static {
-        initialize();
-    }
+   /** A class that mimics a tiny subset of the JBoss VFS class. */
+   static class VFS {
 
-    @Override
-    public boolean isValid() {
-        return valid;
-    }
+      static Class<?> VFS;
+      static Method   getChild;
 
-    @Override
-    public List<String> list(URL url, String path) throws IOException {
-        VirtualFile directory;
-        directory = VFS.getChild(url);
-        if (directory == null)
-            return Collections.emptyList();
+      static VirtualFile getChild( URL url ) throws IOException {
+         Object o = invoke(getChild, VFS, url);
+         return o == null ? null : new VirtualFile(o);
+      }
+   }
 
-        if (!path.endsWith("/"))
-            path += "/";
 
-        List<VirtualFile> children = directory.getChildren();
-        List<String> names = new ArrayList<String>(children.size());
-        for (VirtualFile vf : children) {
-            String relative = vf.getPathNameRelativeTo(directory);
-            names.add(path + relative);
-        }
+   /** A class that mimics a tiny subset of the JBoss VirtualFile class. */
+   static class VirtualFile {
 
-        return names;
-    }
+      static Class<?> VirtualFile;
+      static Method   getPathNameRelativeTo, getChildrenRecursively;
+
+      Object virtualFile;
+
+      VirtualFile( Object virtualFile ) {
+         this.virtualFile = virtualFile;
+      }
+
+      List<VirtualFile> getChildren() throws IOException {
+         List<?> objects = invoke(getChildrenRecursively, virtualFile);
+         List<VirtualFile> children = new ArrayList<>(objects.size());
+         for ( Object object : objects ) {
+            children.add(new VirtualFile(object));
+         }
+         return children;
+      }
+
+      String getPathNameRelativeTo( VirtualFile parent ) {
+         try {
+            return invoke(getPathNameRelativeTo, virtualFile, parent.virtualFile);
+         }
+         catch ( IOException e ) {
+            // This exception is not thrown by the called method
+            log.error("This should not be possible. VirtualFile.getPathNameRelativeTo() threw IOException.");
+            return null;
+         }
+      }
+   }
 }

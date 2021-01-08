@@ -14,8 +14,9 @@
  */
 package net.sourceforge.stripes.tag;
 
-import javax.servlet.jsp.tagext.BodyTag;
 import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.tagext.BodyTag;
+
 
 /**
  * <p>Support tag class that can generate HTML form fields with localized value attributes.
@@ -34,62 +35,63 @@ import javax.servlet.jsp.JspException;
  * @author Tim Fennell
  */
 public class InputButtonSupportTag extends InputTagSupport implements BodyTag {
-    private String value;
 
-    /** Sets the value to use for the submit button if all other strategies fail. */
-    public void setValue(String value) { this.value = value; }
+   private String _value;
 
-    /** Returns the value set with setValue(). */
-    public String getValue() { return this.value; }
+   /**
+    * Does nothing.
+    * @return SKIP_BODY in all cases.
+    */
+   @Override
+   public int doAfterBody() throws JspException {
+      return SKIP_BODY;
+   }
 
-    /**
-     * Does nothing.
-     * @return EVAL_BODY_BUFFERED in all cases.
-     */
-    @Override
-    public int doStartInputTag() throws JspException {
-        return EVAL_BODY_BUFFERED;
-    }
+   /**
+    * Looks up the appropriate value to use for the submit button and then writes the tag
+    * out to the page.
+    * @return EVAL_PAGE in all cases.
+    * @throws javax.servlet.jsp.JspException if output cannot be written.
+    */
+   @Override
+   public int doEndInputTag() throws JspException {
+      // Find out if we have a value from the PopulationStrategy
+      String body = getBodyContentAsString();
+      String localizedValue = getLocalizedFieldName();
 
-    /** Does nothing. */
-    public void doInitBody() throws JspException { }
+      // Figure out where to pull the value from
+      if ( localizedValue != null ) {
+         getAttributes().put("value", localizedValue);
+      } else if ( body != null ) {
+         getAttributes().put("value", body.trim());
+      } else if ( _value != null ) {
+         getAttributes().put("value", _value);
+      }
 
-    /**
-     * Does nothing.
-     * @return SKIP_BODY in all cases.
-     */
-    public int doAfterBody() throws JspException {
-        return SKIP_BODY;
-    }
+      writeSingletonTag(getPageContext().getOut(), "input");
 
-    /**
-     * Looks up the appropriate value to use for the submit button and then writes the tag
-     * out to the page.
-     * @return EVAL_PAGE in all cases.
-     * @throws javax.servlet.jsp.JspException if output cannot be written.
-     */
-    @Override
-    public int doEndInputTag() throws JspException {
-        // Find out if we have a value from the PopulationStrategy
-        String body = getBodyContentAsString();
-        String localizedValue = getLocalizedFieldName();
+      // Restore the original state before we mucked with it
+      getAttributes().remove("value");
 
-        // Figure out where to pull the value from
-        if (localizedValue != null) {
-            getAttributes().put("value", localizedValue);
-        }
-        else if (body != null) {
-            getAttributes().put("value", body.trim());
-        }
-        else if (this.value != null) {
-            getAttributes().put("value", this.value);
-        }
+      return EVAL_PAGE;
+   }
 
-        writeSingletonTag(getPageContext().getOut(), "input");
+   /** Does nothing. */
+   @Override
+   public void doInitBody() throws JspException { }
 
-        // Restore the original state before we mucked with it
-        getAttributes().remove("value");
+   /**
+    * Does nothing.
+    * @return EVAL_BODY_BUFFERED in all cases.
+    */
+   @Override
+   public int doStartInputTag() throws JspException {
+      return EVAL_BODY_BUFFERED;
+   }
 
-        return EVAL_PAGE;
-    }
+   /** Returns the value set with setValue(). */
+   public String getValue() { return _value; }
+
+   /** Sets the value to use for the submit button if all other strategies fail. */
+   public void setValue( String value ) { _value = value; }
 }

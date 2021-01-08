@@ -14,11 +14,12 @@
  */
 package net.sourceforge.stripes.validation;
 
+import java.util.Locale;
+import java.util.MissingResourceException;
+
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.localization.LocalizationUtility;
 
-import java.util.Locale;
-import java.util.MissingResourceException;
 
 /**
  * <p>Provides a mechanism for creating localizable error messages for presentation to the user.
@@ -63,87 +64,87 @@ import java.util.MissingResourceException;
  * @see java.util.ResourceBundle
  */
 public class LocalizableError extends SimpleError {
-	private static final long serialVersionUID = 1L;
 
-    private String messageKey;
+   private static final long serialVersionUID = 1L;
 
-    /**
-     * Creates a new LocalizableError with the message key provided, and optionally zero or more
-     * replacement parameters to use in the message.  It should be noted that the replacement
-     * parameters provided here can be referenced in the error message <b>starting with number
-     * 2</b>.
-     *
-     * @param messageKey a key to lookup a message in the resource bundle
-     * @param parameter one or more replacement parameters to insert into the message
-     */
-    public LocalizableError(String messageKey, Object... parameter) {
-        super(null, parameter);
-        this.messageKey = messageKey;
-    }
+   private final String _messageKey;
 
-    /**
-     * Method responsible for using the information supplied to the error object to find a
-     * message template. In this class this is done simply by looking up the resource
-     * corresponding to the messageKey supplied in the constructor, first with the FQN
-     * prepended, then with the action path prepended and finally bare.
-     */
-    @Override
-    protected String getMessageTemplate(Locale locale) {
-        String template = null;
+   /**
+    * Creates a new LocalizableError with the message key provided, and optionally zero or more
+    * replacement parameters to use in the message.  It should be noted that the replacement
+    * parameters provided here can be referenced in the error message <b>starting with number
+    * 2</b>.
+    *
+    * @param messageKey a key to lookup a message in the resource bundle
+    * @param parameter one or more replacement parameters to insert into the message
+    */
+   public LocalizableError( String messageKey, Object... parameter ) {
+      super(null, parameter);
+      _messageKey = messageKey;
+   }
 
-        Class<? extends ActionBean> beanclass = getBeanclass();
-        if (beanclass != null) {
-            template = LocalizationUtility.getErrorMessage(locale, beanclass.getName() + "." + messageKey);
-        }
-        if (template == null) {
-            String actionPath = getActionPath();
-            if (actionPath != null) {
-                template = LocalizationUtility.getErrorMessage(locale, actionPath + "." + messageKey);
-            }
-        }
-        if (template == null) {
-            template = LocalizationUtility.getErrorMessage(locale, messageKey);
-        }
+   /** Generated equals method that compares each field and super.equals(). */
+   @Override
+   public boolean equals( Object o ) {
+      if ( this == o ) {
+         return true;
+      }
+      if ( o == null || getClass() != o.getClass() ) {
+         return false;
+      }
+      if ( !super.equals(o) ) {
+         return false;
+      }
 
-        if (template == null) {
-            throw new MissingResourceException(
-                    "Could not find an error message with key: " + messageKey, null, null);
-        }
+      final LocalizableError that = (LocalizableError)o;
 
-        return template;
-    }
+      if ( _messageKey != null ? !_messageKey.equals(that._messageKey) : that._messageKey != null ) {
+         return false;
+      }
 
-    /** Generated equals method that compares each field and super.equals(). */
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        if (!super.equals(o)) {
-            return false;
-        }
+      return true;
+   }
 
-        final LocalizableError that = (LocalizableError) o;
+   public String getMessageKey() {
+      return _messageKey;
+   }
 
-        if (messageKey != null ? !messageKey.equals(that.messageKey) : that.messageKey != null) {
-            return false;
-        }
+   /** Generated hashCode method. */
+   @Override
+   public int hashCode() {
+      int result = super.hashCode();
+      result = 29 * result + (_messageKey != null ? _messageKey.hashCode() : 0);
+      return result;
+   }
 
-        return true;
-    }
+   /**
+    * Method responsible for using the information supplied to the error object to find a
+    * message template. In this class this is done simply by looking up the resource
+    * corresponding to the messageKey supplied in the constructor, first with the FQN
+    * prepended, then with the action path prepended and finally bare.
+    */
+   @Override
+   protected String getMessageTemplate( Locale locale ) {
+      String template = null;
 
-    /** Generated hashCode method. */
-    @Override
-    public int hashCode() {
-        int result = super.hashCode();
-        result = 29 * result + (messageKey != null ? messageKey.hashCode() : 0);
-        return result;
-    }
+      Class<? extends ActionBean> beanclass = getBeanclass();
+      if ( beanclass != null ) {
+         template = LocalizationUtility.getErrorMessage(locale, beanclass.getName() + "." + _messageKey);
+      }
+      if ( template == null ) {
+         String actionPath = getActionPath();
+         if ( actionPath != null ) {
+            template = LocalizationUtility.getErrorMessage(locale, actionPath + "." + _messageKey);
+         }
+      }
+      if ( template == null ) {
+         template = LocalizationUtility.getErrorMessage(locale, _messageKey);
+      }
 
-	public String getMessageKey() {
-		return messageKey;
-	}
+      if ( template == null ) {
+         throw new MissingResourceException("Could not find an error message with key: " + _messageKey, null, null);
+      }
+
+      return template;
+   }
 }

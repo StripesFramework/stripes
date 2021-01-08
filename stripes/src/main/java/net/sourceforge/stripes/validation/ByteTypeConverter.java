@@ -14,8 +14,9 @@
  */
 package net.sourceforge.stripes.validation;
 
-import java.util.Collection;
 import java.text.NumberFormat;
+import java.util.Collection;
+
 
 /**
  * Basic type converter for converting strings to bytes.  Will produce one error if the String
@@ -26,34 +27,31 @@ import java.text.NumberFormat;
  */
 public class ByteTypeConverter extends NumberTypeConverterSupport implements TypeConverter<Byte> {
 
-    /**
-     * Converts a String to a Byte in accordance with the rules laid out in the class level javadoc.
-     */
-    public Byte convert(String input,
-                        Class<? extends Byte> targetType,
-                        Collection<ValidationError> errors) {
+   /**
+    * Converts a String to a Byte in accordance with the rules laid out in the class level javadoc.
+    */
+   @Override
+   public Byte convert( String input, Class<? extends Byte> targetType, Collection<ValidationError> errors ) {
 
-        Number number = parse(input, errors);
-        Byte retval = null;
+      Number number = parse(input, errors);
+      Byte retval = null;
 
-        if (errors.size() == 0) {
-            long output = number.longValue();
+      if ( errors.size() == 0 ) {
+         long output = number.longValue();
 
-            if (output < Byte.MIN_VALUE || output > Byte.MAX_VALUE) {
-                errors.add( new ScopedLocalizableError("converter.byte", "outOfRange",
-                                                       Byte.MIN_VALUE, Byte.MAX_VALUE) );
-            }
-            else {
-                retval = new Byte((byte) output);
-            }
-        }
+         if ( output < Byte.MIN_VALUE || output > Byte.MAX_VALUE ) {
+            errors.add(new ScopedLocalizableError("converter.byte", "outOfRange", Byte.MIN_VALUE, Byte.MAX_VALUE));
+         } else {
+            retval = (byte)output;
+         }
+      }
 
-        return retval;
-    }
+      return retval;
+   }
 
-    /** Overridden to return integer instances instead. */
-    @Override
-    protected NumberFormat[] getNumberFormats() {
-        return new NumberFormat[] { NumberFormat.getIntegerInstance(this.getLocale()) };
-    }
+   /** Overridden to return integer instances instead. */
+   @Override
+   protected NumberFormat[] getNumberFormats() {
+      return new NumberFormat[] { NumberFormat.getIntegerInstance(getLocale()) };
+   }
 }

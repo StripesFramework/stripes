@@ -14,12 +14,14 @@
  */
 package net.sourceforge.stripes.tag;
 
-import net.sourceforge.stripes.exception.StripesJspException;
-import net.sourceforge.stripes.util.HtmlUtil;
+import java.io.IOException;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.BodyTag;
-import java.io.IOException;
+
+import net.sourceforge.stripes.exception.StripesJspException;
+import net.sourceforge.stripes.util.HtmlUtil;
+
 
 /**
  * <p>Generates an {@literal <option value="foo">Fooey</option>} HTML tag.  Coordinates with an
@@ -45,113 +47,114 @@ import java.io.IOException;
  * @author Tim Fennell
  */
 public class InputOptionTag extends InputTagSupport implements BodyTag {
-    private String selected;
-    private String label;
-    private Object value;
 
-    /** Sets the value of this option. */
-    public void setValue(Object value) { this.value = value; }
+   private String _selected;
+   private String _label;
+   private Object _value;
 
-    /** Returns the value of the option as set with setValue(). */
-    public Object getValue() { return this.value; }
+   /**
+    * Does nothing.
+    * @return SKIP_BODY in all cases.
+    */
+   @Override
+   public int doAfterBody() throws JspException {
+      return SKIP_BODY;
+   }
 
-    /** Sets the label that will be used as the option body if no body is supplied. */
-    public void setLabel(String label) { this.label = label; }
+   /**
+    * Locates the option's parent select tag, determines selection state and then writes out
+    * an option tag with an appropriate body.
+    *
+    * @return EVAL_PAGE in all cases.
+    * @throws JspException if the option is not contained inside an InputSelectTag or output
+    *         cannot be written.
+    */
+   @Override
+   public int doEndInputTag() throws JspException {
+      // Find our mandatory enclosing select tag
+      InputSelectTag selectTag = getParentTag(InputSelectTag.class);
+      if ( selectTag == null ) {
+         throw new StripesJspException("Option tags must always be contained inside a select tag.");
+      }
 
-    /** Returns the value set with setLabel(). */
-    public String getLabel() { return this.label; }
+      // Decide if the label will come from the body of the option, of the label attr
+      String actualLabel = getBodyContentAsString();
+      if ( actualLabel == null ) {
+         actualLabel = HtmlUtil.encode(_label);
+      }
 
-    /** Sets whether or not this option believes it should be selected by default. */
-    public void setSelected(String selected) { this.selected = selected; }
+      // If no explicit value attribute set, use the tag label as the value
+      Object actualValue;
+      if ( _value == null ) {
+         actualValue = actualLabel;
+      } else {
+         actualValue = _value;
+      }
+      getAttributes().put("value", format(actualValue));
 
-    /** Returns the value set with setSelected(). */
-    public String getSelected() { return this.selected; }
+      // Determine if the option should be selected
+      if ( selectTag.isOptionSelected(actualValue, (_selected != null)) ) {
+         getAttributes().put("selected", "selected");
+      }
 
-    /**
-     * Does nothing.
-     * @return EVAL_BODY_BUFFERED in all cases.
-     */
-    @Override
-    public int doStartInputTag() throws JspException {
-        return EVAL_BODY_BUFFERED;
-    }
+      // And finally write the tag out to the page
+      try {
+         writeOpenTag(getPageContext().getOut(), "option");
+         if ( actualLabel != null ) {
+            getPageContext().getOut().write(actualLabel);
+         }
+         writeCloseTag(getPageContext().getOut(), "option");
 
-    /** Does nothing. */
-    public void doInitBody() throws JspException {
-    }
+         // Clean out the attributes we modified
+         getAttributes().remove("selected");
+         getAttributes().remove("value");
+      }
+      catch ( IOException ioe ) {
+         throw new JspException("IOException in InputOptionTag.doEndTag().", ioe);
+      }
 
-    /**
-     * Does nothing.
-     * @return SKIP_BODY in all cases.
-     */
-    public int doAfterBody() throws JspException {
-        return SKIP_BODY;
-    }
+      return EVAL_PAGE;
+   }
 
-    /**
-     * Locates the option's parent select tag, determines selection state and then writes out
-     * an option tag with an appropriate body.
-     *
-     * @return EVAL_PAGE in all cases.
-     * @throws JspException if the option is not contained inside an InputSelectTag or output
-     *         cannot be written.
-     */
-    @Override
-    public int doEndInputTag() throws JspException {
-        // Find our mandatory enclosing select tag
-        InputSelectTag selectTag = getParentTag(InputSelectTag.class);
-        if (selectTag == null) {
-            throw new StripesJspException
-                    ("Option tags must always be contained inside a select tag.");
-        }
+   /** Does nothing. */
+   @Override
+   public void doInitBody() throws JspException {
+   }
 
-        // Decide if the label will come from the body of the option, of the label attr
-        String actualLabel = getBodyContentAsString();
-        if (actualLabel == null) {
-            actualLabel = HtmlUtil.encode(this.label);
-        }
+   /**
+    * Does nothing.
+    * @return EVAL_BODY_BUFFERED in all cases.
+    */
+   @Override
+   public int doStartInputTag() throws JspException {
+      return EVAL_BODY_BUFFERED;
+   }
 
-        // If no explicit value attribute set, use the tag label as the value
-        Object actualValue;
-        if (this.value == null) {
-            actualValue = actualLabel;
-        }
-        else {
-            actualValue = this.value;
-        }
-        getAttributes().put("value", format(actualValue));
+   /** Returns the value set with setLabel(). */
+   public String getLabel() { return _label; }
 
-       // Determine if the option should be selected
-        if (selectTag.isOptionSelected(actualValue, (this.selected != null))) {
-            getAttributes().put("selected", "selected");
-        }
+   /** Returns the value set with setSelected(). */
+   public String getSelected() { return _selected; }
 
-        // And finally write the tag out to the page
-        try {
-            writeOpenTag(getPageContext().getOut(), "option");
-            if (actualLabel != null) {
-                getPageContext().getOut().write(actualLabel);
-            }
-            writeCloseTag(getPageContext().getOut(), "option");
+   /** Returns the value of the option as set with setValue(). */
+   public Object getValue() { return _value; }
 
-            // Clean out the attributes we modified
-            getAttributes().remove("selected");
-            getAttributes().remove("value");
-        }
-        catch (IOException ioe) {
-            throw new JspException("IOException in InputOptionTag.doEndTag().", ioe);
-        }
+   /** Sets the label that will be used as the option body if no body is supplied. */
+   public void setLabel( String label ) { _label = label; }
 
-        return EVAL_PAGE;
-    }
+   /** Sets whether or not this option believes it should be selected by default. */
+   public void setSelected( String selected ) { _selected = selected; }
 
-    /**
-     * Overridden to make sure that options do not try and register themselves with
-     * the form tag. This is done because options are not standalone input tags, but
-     * always part of a select tag (which gets registered).
-     */
-    @Override
-    protected void registerWithParentForm() throws StripesJspException {
-        // Do nothing, options are not standalone fields and should not register
-    }
+   /** Sets the value of this option. */
+   public void setValue( Object value ) { _value = value; }
+
+   /**
+    * Overridden to make sure that options do not try and register themselves with
+    * the form tag. This is done because options are not standalone input tags, but
+    * always part of a select tag (which gets registered).
+    */
+   @Override
+   protected void registerWithParentForm() throws StripesJspException {
+      // Do nothing, options are not standalone fields and should not register
+   }
 }

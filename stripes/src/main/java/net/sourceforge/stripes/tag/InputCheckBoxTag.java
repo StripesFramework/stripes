@@ -17,6 +17,7 @@ package net.sourceforge.stripes.tag;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.BodyTag;
 
+
 /**
  * <p>Implements an HTML tag that generates form fields of type {@literal <input type="checkbox"/>}.
  * Since a single checkbox widget on a HTML page can have only a single value, the value tag
@@ -38,93 +39,94 @@ import javax.servlet.jsp.tagext.BodyTag;
  * @author Tim Fennell
  */
 public class InputCheckBoxTag extends InputTagSupport implements BodyTag {
-    private Object checked;
-    private Object value = Boolean.TRUE; // default value to supply true/false checkbox behaviour
 
-    /** Basic constructor that sets the input tag's type attribute to "checkbox". */
-    public InputCheckBoxTag() {
-        getAttributes().put("type", "checkbox");
-    }
+   private Object _checked;
+   private Object _value = Boolean.TRUE; // default value to supply true/false checkbox behaviour
 
-    /**
-     * Sets the default checked values for checkboxes with this name.
-     *
-     * @param checked may be either a Collection or Array of checked values, or a single Checked
-     *        value.  Values do not have to be Strings, but will need to be convertible to String
-     *        using the toString() method.
-     */
-    public void setChecked(Object checked) {
-        this.checked = checked;
-    }
+   /** Basic constructor that sets the input tag's type attribute to "checkbox". */
+   public InputCheckBoxTag() {
+      getAttributes().put("type", "checkbox");
+   }
 
-    /** Returns the value originally set using setChecked(). */
-    public Object getChecked() {
-        return this.checked;
-    }
+   /** Ensure that the body is evaluated only once. */
+   @Override
+   public int doAfterBody() throws JspException {
+      return SKIP_BODY;
+   }
 
-    /** Sets the value that this checkbox will submit if it is checked. */
-    public void setValue(Object value) { this.value = value; }
+   /**
+    * Does the main work of the tag, including determining the tags state (checked or not) and
+    * writing out a singleton tag representing the checkbox.
+    *
+    * @return always returns EVAL_PAGE to continue page execution
+    * @throws JspException if the checkbox is not contained inside a stripes InputFormTag, or has
+    *         problems writing to the output.
+    */
+   @Override
+   public int doEndInputTag() throws JspException {
+      // Find out if we have a value from the PopulationStrategy
+      Object checked = getOverrideValueOrValues();
 
-    /** Returns the value that this checkbox will submit if it is checked. */
-    public Object getValue() { return this.value; }
+      // If the value of this checkbox is contained in the value or override value, check it
+      getAttributes().put("value", format(_value));
+      if ( isItemSelected(_value, checked) ) {
+         getAttributes().put("checked", "checked");
+      }
 
+      writeSingletonTag(getPageContext().getOut(), "input");
 
-    /** Does nothing. */
-    @Override
-    public int doStartInputTag() throws JspException {
-        return EVAL_BODY_BUFFERED;
-    }
+      // Restore the tags state to before we mucked with it
+      getAttributes().remove("checked");
+      getAttributes().remove("value");
 
-    /** Does nothing. */
-    public void doInitBody() throws JspException {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
+      return EVAL_PAGE;
+   }
 
-    /** Ensure that the body is evaluated only once. */
-    public int doAfterBody() throws JspException {
-        return SKIP_BODY;
-    }
+   /** Does nothing. */
+   @Override
+   public void doInitBody() throws JspException {
+      //To change body of implemented methods use File | Settings | File Templates.
+   }
 
-    /**
-     * Returns the body of the tag if it is present and not empty, otherwise returns
-     * the value of the 'checked' attribute.
-     */
-    @Override
-    public Object getValueOnPage() {
-        Object value = getBodyContentAsString();
-        if (value != null) {
-            return value;
-        }
-        else {
-            return this.checked;
-        }
-    }
+   /** Does nothing. */
+   @Override
+   public int doStartInputTag() throws JspException {
+      return EVAL_BODY_BUFFERED;
+   }
 
-    /**
-     * Does the main work of the tag, including determining the tags state (checked or not) and
-     * writing out a singleton tag representing the checkbox.
-     *
-     * @return always returns EVAL_PAGE to continue page execution
-     * @throws JspException if the checkbox is not contained inside a stripes InputFormTag, or has
-     *         problems writing to the output.
-     */
-    @Override
-    public int doEndInputTag() throws JspException {
-        // Find out if we have a value from the PopulationStrategy
-        Object checked = getOverrideValueOrValues();
+   /** Returns the value originally set using setChecked(). */
+   public Object getChecked() {
+      return _checked;
+   }
 
-        // If the value of this checkbox is contained in the value or override value, check it
-        getAttributes().put("value", format(this.value));
-        if (isItemSelected(this.value, checked)) {
-            getAttributes().put("checked", "checked");
-        }
+   /** Returns the value that this checkbox will submit if it is checked. */
+   public Object getValue() { return _value; }
 
-        writeSingletonTag(getPageContext().getOut(), "input");
+   /**
+    * Returns the body of the tag if it is present and not empty, otherwise returns
+    * the value of the 'checked' attribute.
+    */
+   @Override
+   public Object getValueOnPage() {
+      Object value = getBodyContentAsString();
+      if ( value != null ) {
+         return value;
+      } else {
+         return _checked;
+      }
+   }
 
-        // Restore the tags state to before we mucked with it
-        getAttributes().remove("checked");
-        getAttributes().remove("value");
+   /**
+    * Sets the default checked values for checkboxes with this name.
+    *
+    * @param checked may be either a Collection or Array of checked values, or a single Checked
+    *        value.  Values do not have to be Strings, but will need to be convertible to String
+    *        using the toString() method.
+    */
+   public void setChecked( Object checked ) {
+       _checked = checked;
+   }
 
-        return EVAL_PAGE;
-    }
+   /** Sets the value that this checkbox will submit if it is checked. */
+   public void setValue( Object value ) { _value = value; }
 }

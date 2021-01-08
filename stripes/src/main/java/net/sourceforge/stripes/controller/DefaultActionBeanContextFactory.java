@@ -14,14 +14,15 @@
  */
 package net.sourceforge.stripes.controller;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import net.sourceforge.stripes.action.ActionBeanContext;
 import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.exception.StripesServletException;
 import net.sourceforge.stripes.util.Log;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * Implements an ActionBeanContextFactory that allows for instantiation of application specific
@@ -33,56 +34,51 @@ import javax.servlet.http.HttpServletResponse;
  * @author Tim Fennell
  */
 public class DefaultActionBeanContextFactory implements ActionBeanContextFactory {
-    private static final Log log = Log.getInstance(DefaultActionBeanContextFactory.class);
 
-    /** The name of the configuration property used for the context class name. */
-    public static final String CONTEXT_CLASS_NAME = "ActionBeanContext.Class";
+   private static final Log log = Log.getInstance(DefaultActionBeanContextFactory.class);
 
-    private Configuration configuration;
-    private Class<? extends ActionBeanContext> contextClass;
+   /** The name of the configuration property used for the context class name. */
+   public static final String CONTEXT_CLASS_NAME = "ActionBeanContext.Class";
 
-    /** Stores the configuration, and looks up the ActionBeanContext class specified. */
-    public void init(Configuration configuration) throws Exception {
-        setConfiguration(configuration);
+   private Configuration                      _configuration;
+   private Class<? extends ActionBeanContext> _contextClass;
 
-        Class<? extends ActionBeanContext> clazz = configuration.getBootstrapPropertyResolver()
-                .getClassProperty(CONTEXT_CLASS_NAME, ActionBeanContext.class);
-        if (clazz == null) {
-            clazz = ActionBeanContext.class;
-        }
-        else {
-            log.info(DefaultActionBeanContextFactory.class.getSimpleName(), " will use ",
-                    ActionBeanContext.class.getSimpleName(), " subclass ", clazz.getName());
-        }
-        this.contextClass = clazz;
-    }
+   /**
+    * Returns a new instance of the configured class, or ActionBeanContext if a class is
+    * not specified.
+    */
+   @Override
+   public ActionBeanContext getContextInstance( HttpServletRequest request, HttpServletResponse response ) throws ServletException {
+      try {
+         ActionBeanContext context = getConfiguration().getObjectFactory().newInstance(_contextClass);
+         context.setRequest(request);
+         context.setResponse(response);
+         return context;
+      }
+      catch ( Exception e ) {
+         throw new StripesServletException("Could not instantiate configured " + "ActionBeanContext class: " + _contextClass, e);
+      }
+   }
 
-    /**
-     * Returns a new instance of the configured class, or ActionBeanContext if a class is
-     * not specified.
-     */
-    public ActionBeanContext getContextInstance(HttpServletRequest request,
-                                                HttpServletResponse response) throws ServletException {
-        try {
-            ActionBeanContext context = getConfiguration().getObjectFactory().newInstance(
-                    this.contextClass);
-            context.setRequest(request);
-            context.setResponse(response);
-            return context;
-        }
-        catch (Exception e) {
-            throw new StripesServletException("Could not instantiate configured " +
-            "ActionBeanContext class: " + this.contextClass, e);
-        }
-    }
+   /** Stores the configuration, and looks up the ActionBeanContext class specified. */
+   @Override
+   public void init( Configuration configuration ) throws Exception {
+      setConfiguration(configuration);
 
-	protected Configuration getConfiguration()
-	{
-		return configuration;
-	}
+      Class<? extends ActionBeanContext> clazz = configuration.getBootstrapPropertyResolver().getClassProperty(CONTEXT_CLASS_NAME, ActionBeanContext.class);
+      if ( clazz == null ) {
+         clazz = ActionBeanContext.class;
+      } else {
+         log.info(DefaultActionBeanContextFactory.class.getSimpleName(), " will use ", ActionBeanContext.class.getSimpleName(), " subclass ", clazz.getName());
+      }
+      _contextClass = clazz;
+   }
 
-	protected void setConfiguration(Configuration configuration)
-	{
-		this.configuration = configuration;
-	}
+   protected Configuration getConfiguration() {
+      return _configuration;
+   }
+
+   protected void setConfiguration( Configuration configuration ) {
+      _configuration = configuration;
+   }
 }

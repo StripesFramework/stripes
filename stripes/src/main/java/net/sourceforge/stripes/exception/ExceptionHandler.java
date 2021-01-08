@@ -14,12 +14,14 @@
  */
 package net.sourceforge.stripes.exception;
 
-import net.sourceforge.stripes.config.ConfigurableComponent;
+import java.io.IOException;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.ServletException;
-import java.io.IOException;
+
+import net.sourceforge.stripes.config.ConfigurableComponent;
+
 
 /**
  * <p>Component that is delegated to in order to handle any exceptions that are raised
@@ -44,18 +46,16 @@ import java.io.IOException;
  */
 public interface ExceptionHandler extends ConfigurableComponent {
 
-    /**
-     * Responsible for handling any exceptions that arise as described in the class
-     * level javadoc.
-     *
-     * @param throwable the exception/throwable being handled
-     * @param request the current request. Notably, if the request progressed as far as
-     *        ActionBeanResolution the ActionBean can be retreived by calling
-     *       {@code request.getAttribute(StripesConstants.REQ_ATTR_ACTION_BEAN)}.
-     * @param response the current response.
-     * @throws ServletException if the exception passed in cannot be handled
-     */
-    void handle(Throwable throwable,
-                HttpServletRequest request,
-                HttpServletResponse response) throws ServletException, IOException ;
+   /**
+    * Responsible for handling any exceptions that arise as described in the class
+    * level javadoc.
+    *
+    * @param throwable the exception/throwable being handled
+    * @param request the current request. Notably, if the request progressed as far as
+    *        ActionBeanResolution the ActionBean can be retreived by calling
+    *       {@code request.getAttribute(StripesConstants.REQ_ATTR_ACTION_BEAN)}.
+    * @param response the current response.
+    * @throws ServletException if the exception passed in cannot be handled
+    */
+   void handle( Throwable throwable, HttpServletRequest request, HttpServletResponse response ) throws ServletException, IOException;
 }

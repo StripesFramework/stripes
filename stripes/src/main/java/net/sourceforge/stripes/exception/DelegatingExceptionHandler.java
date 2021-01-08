@@ -14,6 +14,15 @@
  */
 package net.sourceforge.stripes.exception;
 
+import java.lang.reflect.Modifier;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import net.sourceforge.stripes.config.BootstrapPropertyResolver;
 import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.controller.AnnotatedClassActionResolver;
@@ -21,13 +30,6 @@ import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.util.ResolverUtil;
 import net.sourceforge.stripes.util.StringUtil;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.lang.reflect.Modifier;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 /**
  * <p>An alternative implementation of {@link ExceptionHandler} that discovers and automatically
@@ -67,74 +69,71 @@ import java.util.Set;
  * @since Stripes 1.3
  */
 public class DelegatingExceptionHandler extends DefaultExceptionHandler {
-    /** Log instance for use within in this class. */
-    private static final Log log = Log.getInstance(DelegatingExceptionHandler.class);
 
-    /**
-     * Configuration key used to lookup the list of packages to scan for auto handlers.
-     * @since Stripes 1.5
-     */
-    public static final String PACKAGES = "DelegatingExceptionHandler.Packages";
+   /** Log instance for use within in this class. */
+   private static final Log log = Log.getInstance(DelegatingExceptionHandler.class);
 
-    /**
-     * Looks up the filters as defined in the Configuration and then invokes the
-     * {@link ResolverUtil} to find implementations of AutoExceptionHandler. Each
-     * implementation found is then examined and cached by calling
-     * {@link #addHandler(Class)}
-     *
-     * @param configuration the Configuration for this Stripes application
-     * @throws Exception thrown if any of the discovered handler types cannot be safely
-     *         instantiated
-     */
-    @Override
-    public void init(Configuration configuration) throws Exception {
-        super.init(configuration);
+   /**
+    * Configuration key used to lookup the list of packages to scan for auto handlers.
+    * @since Stripes 1.5
+    */
+   public static final String PACKAGES = "DelegatingExceptionHandler.Packages";
 
-        // Fetch the AutoExceptionHandler implementations and add them to the cache
-        Set<Class<? extends AutoExceptionHandler>> handlers = findClasses();
-        for (Class<? extends AutoExceptionHandler> handler : handlers) {
-            if (!Modifier.isAbstract(handler.getModifiers())) {
-                log.debug("Processing class ", handler, " looking for exception handling methods.");
-                addHandler(handler);
-            }
-        }
-    }
+   /**
+    * Looks up the filters as defined in the Configuration and then invokes the
+    * {@link ResolverUtil} to find implementations of AutoExceptionHandler. Each
+    * implementation found is then examined and cached by calling
+    * {@link #addHandler(Class)}
+    *
+    * @param configuration the Configuration for this Stripes application
+    * @throws Exception thrown if any of the discovered handler types cannot be safely
+    *         instantiated
+    */
+   @Override
+   public void init( Configuration configuration ) throws Exception {
+      super.init(configuration);
 
-    /**
-     * Helper method to find implementations of AutoExceptionHandler in the packages specified in
-     * Configuration using the {@link ResolverUtil} class.
-     *
-     * @return a set of Class objects that represent subclasses of AutoExceptionHandler
-     */
-    protected Set<Class<? extends AutoExceptionHandler>> findClasses() {
-        BootstrapPropertyResolver bootstrap = getConfiguration().getBootstrapPropertyResolver();
+      // Fetch the AutoExceptionHandler implementations and add them to the cache
+      Set<Class<? extends AutoExceptionHandler>> handlers = findClasses();
+      for ( Class<? extends AutoExceptionHandler> handler : handlers ) {
+         if ( !Modifier.isAbstract(handler.getModifiers()) ) {
+            log.debug("Processing class ", handler, " looking for exception handling methods.");
+            addHandler(handler);
+         }
+      }
+   }
 
-        // Try the config param that is specific to this class
-        String[] packages = StringUtil.standardSplit(bootstrap.getProperty(PACKAGES));
-        if (packages == null || packages.length == 0) {
-            // Config param not found so try autodiscovery
-            log.info("No config parameter '", PACKAGES, "' found. Trying autodiscovery instead.");
-            List<Class<? extends AutoExceptionHandler>> classes = bootstrap
-                    .getClassPropertyList(AutoExceptionHandler.class);
-            if (!classes.isEmpty()) {
-                return new HashSet<Class<? extends AutoExceptionHandler>>(classes);
-            }
-            else {
-                // Autodiscovery found nothing so resort to looking at the ActionBean packages
-                log.info("Autodiscovery found no implementations of AutoExceptionHandler. Using ",
-                        "the value of '", AnnotatedClassActionResolver.PACKAGES, "' instead.");
-                packages = StringUtil.standardSplit(bootstrap
-                        .getProperty(AnnotatedClassActionResolver.PACKAGES));
-            }
-        }
+   /**
+    * Helper method to find implementations of AutoExceptionHandler in the packages specified in
+    * Configuration using the {@link ResolverUtil} class.
+    *
+    * @return a set of Class objects that represent subclasses of AutoExceptionHandler
+    */
+   protected Set<Class<? extends AutoExceptionHandler>> findClasses() {
+      BootstrapPropertyResolver bootstrap = getConfiguration().getBootstrapPropertyResolver();
 
-        if (packages != null && packages.length > 0) {
-            ResolverUtil<AutoExceptionHandler> resolver = new ResolverUtil<AutoExceptionHandler>();
-            resolver.findImplementations(AutoExceptionHandler.class, packages);
-            return resolver.getClasses();
-        }
-        else {
-            return Collections.emptySet();
-        }
-    }
+      // Try the config param that is specific to this class
+      String[] packages = StringUtil.standardSplit(bootstrap.getProperty(PACKAGES));
+      if ( packages == null || packages.length == 0 ) {
+         // Config param not found so try autodiscovery
+         log.info("No config parameter '", PACKAGES, "' found. Trying autodiscovery instead.");
+         List<Class<? extends AutoExceptionHandler>> classes = bootstrap.getClassPropertyList(AutoExceptionHandler.class);
+         if ( !classes.isEmpty() ) {
+            return new HashSet<>(classes);
+         } else {
+            // Autodiscovery found nothing so resort to looking at the ActionBean packages
+            log.info("Autodiscovery found no implementations of AutoExceptionHandler. Using ", "the value of '", AnnotatedClassActionResolver.PACKAGES,
+                  "' instead.");
+            packages = StringUtil.standardSplit(bootstrap.getProperty(AnnotatedClassActionResolver.PACKAGES));
+         }
+      }
+
+      if ( packages != null && packages.length > 0 ) {
+         ResolverUtil<AutoExceptionHandler> resolver = new ResolverUtil<>();
+         resolver.findImplementations(AutoExceptionHandler.class, packages);
+         return resolver.getClasses();
+      } else {
+         return Collections.emptySet();
+      }
+   }
 }

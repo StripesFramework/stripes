@@ -24,13 +24,13 @@ package net.sourceforge.stripes.config;
  */
 public interface ConfigurableComponent {
 
-    /**
-     * Invoked directly after instantiation to allow the configured component to perform
-     * one time initialization.  Components are expected to fail loudly if they are not
-     * going to be in a valid state after initialization.
-     *
-     * @param configuration the Configuration object being used by Stripes
-     * @throws Exception should be thrown if the component cannot be configured well enough to use.
-     */
-    void init(Configuration configuration) throws Exception;
+   /**
+    * Invoked directly after instantiation to allow the configured component to perform
+    * one time initialization.  Components are expected to fail loudly if they are not
+    * going to be in a valid state after initialization.
+    *
+    * @param configuration the Configuration object being used by Stripes
+    * @throws Exception should be thrown if the component cannot be configured well enough to use.
+    */
+   void init( Configuration configuration ) throws Exception;
 }

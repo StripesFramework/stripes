@@ -16,6 +16,7 @@ package net.sourceforge.stripes.controller;
 
 import net.sourceforge.stripes.action.Resolution;
 
+
 /**
  * <p>Interface for classes which wish to intercept the processing of a request at various
  * stages in the Stripes lifecycle. To denote the {@link LifecycleStage} (or stages) at
@@ -76,13 +77,14 @@ import net.sourceforge.stripes.action.Resolution;
  * @since Stripes 1.3
  */
 public interface Interceptor {
-    /**
-     * Invoked when intercepting the flow of execution.
-     *
-     * @param context the ExecutionContext of the request currently being processed
-     * @return the result of calling context.proceed(), or if the interceptor wishes to change
-     *         the flow of execution, a Resolution
-     * @throws Exception if any non-recoverable errors occur
-     */
-    Resolution intercept(ExecutionContext context) throws Exception;
+
+   /**
+    * Invoked when intercepting the flow of execution.
+    *
+    * @param context the ExecutionContext of the request currently being processed
+    * @return the result of calling context.proceed(), or if the interceptor wishes to change
+    *         the flow of execution, a Resolution
+    * @throws Exception if any non-recoverable errors occur
+    */
+   Resolution intercept( ExecutionContext context ) throws Exception;
 }

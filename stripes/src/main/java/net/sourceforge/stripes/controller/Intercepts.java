@@ -14,11 +14,12 @@
  */
 package net.sourceforge.stripes.controller;
 
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Documented;
+
 
 /**
  * Annotation that declares the lifecycle stages that an interceptor should intercept. In
@@ -29,11 +30,12 @@ import java.lang.annotation.Documented;
  * @since Stripes 1.3
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.TYPE})
+@Target({ ElementType.TYPE })
 @Documented
 public @interface Intercepts {
-    /**
-     * One or more lifecycle stages at which interception should occur.
-     */
-    LifecycleStage[] value();
+
+   /**
+    * One or more lifecycle stages at which interception should occur.
+    */
+   LifecycleStage[] value();
 }
