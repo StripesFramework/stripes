@@ -160,12 +160,12 @@ public class FlashRequest implements HttpServletRequest, Serializable {
 
    @Override
    public boolean authenticate( HttpServletResponse httpServletResponse ) throws IOException, ServletException {
-      return false;
+      return getDelegate().authenticate(httpServletResponse);
    }
 
    @Override
    public String changeSessionId() {
-      return null;
+      return getDelegate().changeSessionId();
    }
 
    @Override
