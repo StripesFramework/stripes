@@ -200,7 +200,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-jar-plugin</artifactId>
-					<version>2.1</version>
+					<version>3.2.0</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
@@ -257,7 +257,6 @@
 								<overview>${basedir}/src/main/resources/overview.html</overview>
 								<bottom>© Copyright 2005-2014, Stripes Development Team.</bottom>
 								<author>true</author>
-								<protected>true</protected>
 								<use>true</use>
 								<version>true</version>
 								<doclint>none</doclint>
