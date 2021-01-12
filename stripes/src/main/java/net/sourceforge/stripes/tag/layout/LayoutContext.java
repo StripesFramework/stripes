@@ -27,6 +27,7 @@ import java.util.Map.Entry;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
+import javax.servlet.WriteListener;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 import javax.servlet.jsp.PageContext;
@@ -131,6 +132,7 @@ public class LayoutContext {
       pageContext.setAttribute(LAYOUT_CONTEXT_KEY, context);
       return context;
    }
+
    private LayoutContext previous, next;
    private LayoutRenderTag                      renderTag;
    private LayoutWriter                         out;
@@ -148,8 +150,8 @@ public class LayoutContext {
     */
    public LayoutContext( LayoutRenderTag renderTag ) {
       this.renderTag = renderTag;
-       renderPage = renderTag.getCurrentPagePath();
-       componentPath = new LayoutRenderTagPath(renderTag);
+      renderPage = renderTag.getCurrentPagePath();
+      componentPath = new LayoutRenderTagPath(renderTag);
       log.debug("Path is ", componentPath);
    }
 
@@ -168,11 +170,11 @@ public class LayoutContext {
    public void doInclude( PageContext pageContext, String relativeUrlPath ) throws ServletException, IOException {
       try {
          pageContext.getRequest().setAttribute(LAYOUT_CONTEXT_KEY, this);
-          if ( isIncludeBroken(pageContext) ) {
-              doIncludeHack(pageContext, relativeUrlPath);
-          } else {
-              pageContext.include(relativeUrlPath, false);
-          }
+         if ( isIncludeBroken(pageContext) ) {
+            doIncludeHack(pageContext, relativeUrlPath);
+         } else {
+            pageContext.include(relativeUrlPath, false);
+         }
       }
       finally {
          pageContext.getRequest().removeAttribute(LAYOUT_CONTEXT_KEY);
@@ -200,18 +202,18 @@ public class LayoutContext {
    /** Get the first context in the list. */
    public LayoutContext getFirst() {
       for ( LayoutContext c = this; ; c = c.getPrevious() ) {
-          if ( c.getPrevious() == null ) {
-              return c;
-          }
+         if ( c.getPrevious() == null ) {
+            return c;
+         }
       }
    }
 
    /** Get the last context in the list. */
    public LayoutContext getLast() {
       for ( LayoutContext c = this; ; c = c.getNext() ) {
-          if ( c.getNext() == null ) {
-              return c;
-          }
+         if ( c.getNext() == null ) {
+            return c;
+         }
       }
    }
 
@@ -285,6 +287,11 @@ public class LayoutContext {
          }
 
          @Override
+         public boolean isReady() {
+            return true;
+         }
+
+         @Override
          public void print( char c ) throws IOException {
             out.write(c);
          }
@@ -292,6 +299,11 @@ public class LayoutContext {
          @Override
          public void print( String s ) throws IOException {
             out.write(s);
+         }
+
+         @Override
+         public void setWriteListener( WriteListener writeListener ) {
+            // Unused
          }
 
          @Override
@@ -307,9 +319,9 @@ public class LayoutContext {
 
             for ( int i = 0; i < len; i += bbuf.remaining() ) {
                int n = len - i;
-                if ( n > bbuf.remaining() ) {
-                    n = bbuf.remaining();
-                }
+               if ( n > bbuf.remaining() ) {
+                  n = bbuf.remaining();
+               }
 
                bbuf.put(buf, i, n);
                decodeBuffer();
@@ -344,14 +356,14 @@ public class LayoutContext {
             if ( decoder == null ) {
                decoder = Charset.forName(getCharset()).newDecoder();
 
-                if ( bbuf == null ) {
-                    bbuf = ByteBuffer.allocate(BUFFER_SIZE);
-                }
+               if ( bbuf == null ) {
+                  bbuf = ByteBuffer.allocate(BUFFER_SIZE);
+               }
 
                int size = (int)Math.ceil(BUFFER_SIZE * decoder.maxCharsPerByte());
-                if ( cbuf == null || cbuf.capacity() != size ) {
-                    cbuf = CharBuffer.allocate(size);
-                }
+               if ( cbuf == null || cbuf.capacity() != size ) {
+                  cbuf = CharBuffer.allocate(size);
+               }
             }
          }
 
@@ -372,14 +384,14 @@ public class LayoutContext {
 
          /** Set the character set to which bytes will be decoded. */
          void setCharset( String charset ) {
-             if ( charset == null ) {
-                 charset = DEFAULT_CHARSET;
-             }
+            if ( charset == null ) {
+               charset = DEFAULT_CHARSET;
+            }
 
             // Create a new decoder only if the charset has changed
-             if ( !charset.equals(this.charset) ) {
-                 decoder = null;
-             }
+            if ( !charset.equals(this.charset) ) {
+               decoder = null;
+            }
 
             this.charset = charset;
          }

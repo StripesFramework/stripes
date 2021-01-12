@@ -1,8 +1,10 @@
 package net.sourceforge.stripes.controller;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.Serializable;
 import java.security.Principal;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -10,11 +12,20 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import javax.servlet.AsyncContext;
+import javax.servlet.DispatcherType;
 import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
 import javax.servlet.ServletInputStream;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpUpgradeHandler;
+import javax.servlet.http.Part;
 
 
 /**
@@ -90,7 +101,7 @@ public class FlashRequest implements HttpServletRequest, Serializable {
     *
     * @param prototype the HttpServletRequest to create a disconnected copy of
     */
-   @SuppressWarnings({ "unchecked", "deprecation" })
+   @SuppressWarnings({ "deprecation" })
    public FlashRequest( HttpServletRequest prototype ) {
       // copy properties
       _authType = prototype.getAuthType();
@@ -125,17 +136,18 @@ public class FlashRequest implements HttpServletRequest, Serializable {
       _servletPath = prototype.getServletPath();
 
       // copy attributes
-      for ( String key : Collections.list((Enumeration<String>)prototype.getAttributeNames()) ) {
+      for ( String key : Collections.list(prototype.getAttributeNames()) ) {
          _attributes.put(key, prototype.getAttribute(key));
       }
 
       // copy headers
-      for ( String key : Collections.list((Enumeration<String>)prototype.getHeaderNames()) ) {
+      for ( String key : Collections.list(prototype.getHeaderNames()) ) {
          _headers.put(key, Collections.list(prototype.getHeaders(key)));
          try {
             _dateHeaders.put(key, prototype.getDateHeader(key));
          }
          catch ( Exception e ) {
+            // ignored
          }
       }
 
@@ -144,6 +156,21 @@ public class FlashRequest implements HttpServletRequest, Serializable {
 
       // copy parameters
       _parameters.putAll(prototype.getParameterMap());
+   }
+
+   @Override
+   public boolean authenticate( HttpServletResponse httpServletResponse ) throws IOException, ServletException {
+      return false;
+   }
+
+   @Override
+   public String changeSessionId() {
+      return null;
+   }
+
+   @Override
+   public AsyncContext getAsyncContext() {
+      return getDelegate().getAsyncContext();
    }
 
    @Override
@@ -172,6 +199,11 @@ public class FlashRequest implements HttpServletRequest, Serializable {
    }
 
    @Override
+   public long getContentLengthLong() {
+      return 0;
+   }
+
+   @Override
    public String getContentType() {
       return _contentType;
    }
@@ -190,6 +222,11 @@ public class FlashRequest implements HttpServletRequest, Serializable {
    public long getDateHeader( String name ) {
       Long value = _dateHeaders.get(name);
       return value == null ? 0 : value;
+   }
+
+   @Override
+   public DispatcherType getDispatcherType() {
+      return getDelegate().getDispatcherType();
    }
 
    @Override
@@ -272,6 +309,16 @@ public class FlashRequest implements HttpServletRequest, Serializable {
    @Override
    public String[] getParameterValues( String name ) {
       return _parameters.get(name);
+   }
+
+   @Override
+   public Part getPart( String s ) throws IOException, ServletException {
+      return null;
+   }
+
+   @Override
+   public Collection<Part> getParts() throws IOException, ServletException {
+      return Collections.emptyList();
    }
 
    @Override
@@ -361,6 +408,11 @@ public class FlashRequest implements HttpServletRequest, Serializable {
    }
 
    @Override
+   public ServletContext getServletContext() {
+      return getDelegate().getServletContext();
+   }
+
+   @Override
    public String getServletPath() {
       return _servletPath;
    }
@@ -378,6 +430,16 @@ public class FlashRequest implements HttpServletRequest, Serializable {
    @Override
    public Principal getUserPrincipal() {
       return getDelegate().getUserPrincipal();
+   }
+
+   @Override
+   public boolean isAsyncStarted() {
+      return getDelegate().isAsyncStarted();
+   }
+
+   @Override
+   public boolean isAsyncSupported() {
+      return getDelegate().isAsyncSupported();
    }
 
    @Override
@@ -412,6 +474,16 @@ public class FlashRequest implements HttpServletRequest, Serializable {
    }
 
    @Override
+   public void login( String username, String password ) throws ServletException {
+      getDelegate().login(username, password);
+   }
+
+   @Override
+   public void logout() throws ServletException {
+      getDelegate().logout();
+   }
+
+   @Override
    public void removeAttribute( String name ) {
       _attributes.remove(name);
    }
@@ -423,11 +495,26 @@ public class FlashRequest implements HttpServletRequest, Serializable {
 
    @Override
    public void setCharacterEncoding( String characterEncoding ) {
-       _characterEncoding = characterEncoding;
+      _characterEncoding = characterEncoding;
    }
 
    public void setDelegate( HttpServletRequest delegate ) {
-       _delegate = delegate;
+      _delegate = delegate;
+   }
+
+   @Override
+   public AsyncContext startAsync() throws IllegalStateException {
+      return getDelegate().startAsync();
+   }
+
+   @Override
+   public AsyncContext startAsync( ServletRequest servletRequest, ServletResponse servletResponse ) throws IllegalStateException {
+      return getDelegate().startAsync(servletRequest, servletResponse);
+   }
+
+   @Override
+   public <T extends HttpUpgradeHandler> T upgrade( Class<T> aClass ) throws IOException, ServletException {
+      return getDelegate().upgrade(aClass);
    }
 
    protected HttpServletRequest getDelegate() {

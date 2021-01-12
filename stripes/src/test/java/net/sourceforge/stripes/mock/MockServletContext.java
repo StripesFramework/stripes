@@ -20,18 +20,24 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.EventListener;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.Filter;
+import javax.servlet.FilterRegistration;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.Servlet;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.ServletException;
+import javax.servlet.ServletRegistration;
+import javax.servlet.SessionCookieConfig;
+import javax.servlet.SessionTrackingMode;
+import javax.servlet.descriptor.JspConfigDescriptor;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 
@@ -100,7 +106,7 @@ public class MockServletContext implements ServletContext {
             config.addAllInitParameters(initParams);
          }
 
-         Filter filter = filterClass.newInstance();
+         Filter filter = filterClass.getDeclaredConstructor().newInstance();
          filter.init(config);
          _filters.add(filter);
          return this;
@@ -108,6 +114,21 @@ public class MockServletContext implements ServletContext {
       catch ( Exception e ) {
          throw new RuntimeException("Exception registering new filter with name " + filterName, e);
       }
+   }
+
+   @Override
+   public FilterRegistration.Dynamic addFilter( String s, String s1 ) {
+      return null;
+   }
+
+   @Override
+   public FilterRegistration.Dynamic addFilter( String s, Filter filter ) {
+      return null;
+   }
+
+   @Override
+   public FilterRegistration.Dynamic addFilter( String s, Class<? extends Filter> aClass ) {
+      return null;
    }
 
    /** Adds an init parameter to the mock servlet context. */
@@ -121,6 +142,36 @@ public class MockServletContext implements ServletContext {
       listener.contextInitialized(event);
       _listeners.add(listener);
       return this;
+   }
+
+   @Override
+   public void addListener( String s ) {
+
+   }
+
+   @Override
+   public <T extends EventListener> void addListener( T t ) {
+
+   }
+
+   @Override
+   public void addListener( Class<? extends EventListener> aClass ) {
+
+   }
+
+   @Override
+   public ServletRegistration.Dynamic addServlet( String s, String s1 ) {
+      return null;
+   }
+
+   @Override
+   public ServletRegistration.Dynamic addServlet( String s, Servlet servlet ) {
+      return null;
+   }
+
+   @Override
+   public ServletRegistration.Dynamic addServlet( String s, Class<? extends Servlet> aClass ) {
+      return null;
    }
 
    /**
@@ -157,6 +208,26 @@ public class MockServletContext implements ServletContext {
       }
    }
 
+   @Override
+   public <T extends Filter> T createFilter( Class<T> aClass ) throws ServletException {
+      return null;
+   }
+
+   @Override
+   public <T extends EventListener> T createListener( Class<T> aClass ) throws ServletException {
+      return null;
+   }
+
+   @Override
+   public <T extends Servlet> T createServlet( Class<T> aClass ) throws ServletException {
+      return null;
+   }
+
+   @Override
+   public void declareRoles( String... strings ) {
+
+   }
+
    /** Gets an attribute that has been set on the context (i.e. application) scope. */
    @Override
    public Object getAttribute( String name ) {
@@ -167,6 +238,11 @@ public class MockServletContext implements ServletContext {
    @Override
    public Enumeration<String> getAttributeNames() {
       return Collections.enumeration(_attributes.keySet());
+   }
+
+   @Override
+   public ClassLoader getClassLoader() {
+      return null;
    }
 
    /** If the url is within this servlet context, returns this. Otherwise returns null. */
@@ -183,6 +259,36 @@ public class MockServletContext implements ServletContext {
    @Override
    public String getContextPath() {
       return "/" + _contextName;
+   }
+
+   @Override
+   public Set<SessionTrackingMode> getDefaultSessionTrackingModes() {
+      return null;
+   }
+
+   @Override
+   public int getEffectiveMajorVersion() {
+      return getMajorVersion();
+   }
+
+   @Override
+   public int getEffectiveMinorVersion() {
+      return getEffectiveMajorVersion();
+   }
+
+   @Override
+   public Set<SessionTrackingMode> getEffectiveSessionTrackingModes() {
+      return null;
+   }
+
+   @Override
+   public FilterRegistration getFilterRegistration( String s ) {
+      return null;
+   }
+
+   @Override
+   public Map<String, ? extends FilterRegistration> getFilterRegistrations() {
+      return null;
    }
 
    /** Provides access to the set of filters configured for this context. */
@@ -202,17 +308,20 @@ public class MockServletContext implements ServletContext {
       return Collections.enumeration(_initParameters.keySet());
    }
 
-   /** Always returns 2. */
    @Override
-   public int getMajorVersion() { return 2; }
+   public JspConfigDescriptor getJspConfigDescriptor() {
+      return null;
+   }
+
+   @Override
+   public int getMajorVersion() { return 3; }
 
    /** Always returns null (i.e. don't know). */
    @Override
    public String getMimeType( String file ) { return null; }
 
-   /** Always returns 4. */
    @Override
-   public int getMinorVersion() { return 4; }
+   public int getMinorVersion() { return 1; }
 
    /** Returns a MockRequestDispatcher for the named servlet provided. */
    @Override
@@ -250,7 +359,7 @@ public class MockServletContext implements ServletContext {
 
    /** Always returns null (i.e. there are no resources under this path). */
    @Override
-   public Set<?> getResourcePaths( String path ) {
+   public Set<String> getResourcePaths( String path ) {
       return null;
    }
 
@@ -272,14 +381,34 @@ public class MockServletContext implements ServletContext {
 
    /** Deprecated method always returns an empty enumeration. */
    @Override
-   public Enumeration<?> getServletNames() {
+   public Enumeration<String> getServletNames() {
       return Collections.enumeration(Collections.emptySet());
+   }
+
+   @Override
+   public ServletRegistration getServletRegistration( String s ) {
+      return null;
+   }
+
+   @Override
+   public Map<String, ? extends ServletRegistration> getServletRegistrations() {
+      return null;
    }
 
    /** Deprecated method always returns an empty enumeration. */
    @Override
-   public Enumeration<?> getServlets() {
+   public Enumeration<Servlet> getServlets() {
       return Collections.enumeration(Collections.emptySet());
+   }
+
+   @Override
+   public SessionCookieConfig getSessionCookieConfig() {
+      return null;
+   }
+
+   @Override
+   public String getVirtualServerName() {
+      return null;
    }
 
    /** Logs the message to System.out. */
@@ -337,6 +466,11 @@ public class MockServletContext implements ServletContext {
       _attributes.put(name, value);
    }
 
+   @Override
+   public boolean setInitParameter( String s, String s1 ) {
+      return false;
+   }
+
    /** Sets the servlet that will receive all requests in this servlet context. */
    public MockServletContext setServlet( Class<? extends HttpServlet> servletClass, String servletName, Map<String, String> initParams ) {
       try {
@@ -347,12 +481,17 @@ public class MockServletContext implements ServletContext {
             config.addAllInitParameters(initParams);
          }
 
-         _servlet = servletClass.newInstance();
+         _servlet = servletClass.getDeclaredConstructor().newInstance();
          _servlet.init(config);
          return this;
       }
       catch ( Exception e ) {
          throw new RuntimeException("Exception registering servlet with name " + servletName, e);
       }
+   }
+
+   @Override
+   public void setSessionTrackingModes( Set<SessionTrackingMode> set ) {
+
    }
 }

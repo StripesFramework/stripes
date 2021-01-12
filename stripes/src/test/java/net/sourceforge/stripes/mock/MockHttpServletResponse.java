@@ -17,11 +17,14 @@ package net.sourceforge.stripes.mock;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.Cookie;
@@ -132,6 +135,15 @@ public class MockHttpServletResponse implements HttpServletResponse {
    /** Gets the error message if one was set with setStatus() or sendError(). */
    public String getErrorMessage() { return _errorMessage; }
 
+   @Override
+   public String getHeader( String name ) {
+      List<Object> list = _headers.get(name);
+      if ( list != null && !list.isEmpty() ) {
+         return list.get(0).toString();
+      }
+      return null;
+   }
+
    /**
     * Provides access to all headers that were set. The format is a Map which uses the header
     * name as the key, and stores a List of Objects, one per header value.  The Objects will
@@ -139,6 +151,20 @@ public class MockHttpServletResponse implements HttpServletResponse {
     * Longs (if setDateHeader() was used).
     */
    public Map<String, List<Object>> getHeaderMap() { return _headers; }
+
+   @Override
+   public Collection<String> getHeaderNames() {
+      return _headers.keySet();
+   }
+
+   @Override
+   public Collection<String> getHeaders( String name ) {
+      List<Object> headers = _headers.get(name);
+      if ( headers == null ) {
+         return Collections.emptyList();
+      }
+      return headers.stream().map(Objects::toString).collect(Collectors.toList());
+   }
 
    /** Gets the response locale. Default to the system default locale. */
    @Override
@@ -171,6 +197,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
    public String getRedirectUrl() { return _redirectUrl; }
 
    /** Gets the status (or error) code if one was set. Defaults to 200 (HTTP OK). */
+   @Override
    public int getStatus() { return _status; }
 
    /**
@@ -229,6 +256,11 @@ public class MockHttpServletResponse implements HttpServletResponse {
    /** Sets a custom content length on the response. */
    @Override
    public void setContentLength( int contentLength ) { _contentLength = contentLength; }
+
+   @Override
+   public void setContentLengthLong( long contentLength ) {
+      _contentLength = (int)contentLength;
+   }
 
    /** Sets the content type for the response. */
    @Override

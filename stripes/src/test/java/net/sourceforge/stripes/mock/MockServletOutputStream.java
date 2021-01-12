@@ -18,6 +18,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import javax.servlet.ServletOutputStream;
+import javax.servlet.WriteListener;
 
 
 /**
@@ -39,6 +40,16 @@ public class MockServletOutputStream extends ServletOutputStream {
    /** Returns, as a character string, the output that was written to the output stream. */
    public String getString() {
       return _out.toString();
+   }
+
+   @Override
+   public boolean isReady() {
+      return true;
+   }
+
+   @Override
+   public void setWriteListener( WriteListener writeListener ) {
+      // Ignored
    }
 
    /** Pass through method calls ByteArrayOutputStream.write(int b). */

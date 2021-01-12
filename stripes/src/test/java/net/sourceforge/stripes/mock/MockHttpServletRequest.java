@@ -28,10 +28,19 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
+import javax.servlet.AsyncContext;
+import javax.servlet.DispatcherType;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
 import javax.servlet.ServletInputStream;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpUpgradeHandler;
+import javax.servlet.http.Part;
 
 
 /**
@@ -88,8 +97,8 @@ public class MockHttpServletRequest implements HttpServletRequest {
     * @param servletPath
     */
    public MockHttpServletRequest( String contextPath, String servletPath ) {
-       _contextPath = contextPath;
-       _servletPath = servletPath;
+      _contextPath = contextPath;
+      _servletPath = servletPath;
    }
 
    /**
@@ -103,6 +112,21 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
    /** Adds a Locale to the set of requested locales. */
    public void addLocale( Locale locale ) { _locales.add(locale); }
+
+   @Override
+   public boolean authenticate( HttpServletResponse httpServletResponse ) throws IOException, ServletException {
+      return false;
+   }
+
+   @Override
+   public String changeSessionId() {
+      return null;
+   }
+
+   @Override
+   public AsyncContext getAsyncContext() {
+      return null;
+   }
 
    /** Gets the named request attribute from an internal Map. */
    @Override
@@ -126,6 +150,11 @@ public class MockHttpServletRequest implements HttpServletRequest {
    @Override
    public int getContentLength() { return -1; }
 
+   @Override
+   public long getContentLengthLong() {
+      return 0;
+   }
+
    /** Always returns null. */
    @Override
    public String getContentType() { return null; }
@@ -141,6 +170,11 @@ public class MockHttpServletRequest implements HttpServletRequest {
    /** Gets the named header as a long. Must have been set as a long with addHeader(). */
    @Override
    public long getDateHeader( String name ) { return (Long)_headers.get(name); }
+
+   @Override
+   public DispatcherType getDispatcherType() {
+      return null;
+   }
 
    /** Gets the URL that was forwarded to, if a forward was processed. Null otherwise. */
    public String getForwardUrl() { return _forwardUrl; }
@@ -247,6 +281,16 @@ public class MockHttpServletRequest implements HttpServletRequest {
       return _parameters.get(name);
    }
 
+   @Override
+   public Part getPart( String s ) throws IOException, ServletException {
+      return null;
+   }
+
+   @Override
+   public Collection<Part> getParts() throws IOException, ServletException {
+      return null;
+   }
+
    /** Returns the path info. Defaults to the empty string. */
    @Override
    public String getPathInfo() { return _pathInfo; }
@@ -338,6 +382,11 @@ public class MockHttpServletRequest implements HttpServletRequest {
    @Override
    public int getServerPort() { return _serverPort; }
 
+   @Override
+   public ServletContext getServletContext() {
+      return null;
+   }
+
    /** Gets the part of the path which matched the servlet. */
    @Override
    public String getServletPath() { return _servletPath; }
@@ -353,6 +402,16 @@ public class MockHttpServletRequest implements HttpServletRequest {
    /** Returns the Principal if one is set on the request. */
    @Override
    public Principal getUserPrincipal() { return _userPrincipal; }
+
+   @Override
+   public boolean isAsyncStarted() {
+      return false;
+   }
+
+   @Override
+   public boolean isAsyncSupported() {
+      return false;
+   }
 
    /** Always returns true. */
    @Override
@@ -380,6 +439,16 @@ public class MockHttpServletRequest implements HttpServletRequest {
    @Override
    public boolean isUserInRole( String role ) {
       return _roles.contains(role);
+   }
+
+   @Override
+   public void login( String s, String s1 ) throws ServletException {
+
+   }
+
+   @Override
+   public void logout() throws ServletException {
+
    }
 
    /** Removes any value for the named request attribute. */
@@ -431,6 +500,21 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
    /** Sets the Principal for the current request. */
    public void setUserPrincipal( Principal userPrincipal ) { _userPrincipal = userPrincipal; }
+
+   @Override
+   public AsyncContext startAsync() throws IllegalStateException {
+      return null;
+   }
+
+   @Override
+   public AsyncContext startAsync( ServletRequest servletRequest, ServletResponse servletResponse ) throws IllegalStateException {
+      return null;
+   }
+
+   @Override
+   public <T extends HttpUpgradeHandler> T upgrade( Class<T> aClass ) throws IOException, ServletException {
+      return null;
+   }
 
    /** Used by the request dispatcher to record that a URL was included. */
    void addIncludedUrl( String url ) { _includedUrls.add(url); }
