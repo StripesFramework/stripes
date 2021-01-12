@@ -2,6 +2,9 @@ package net.sourceforge.stripes.mocktest;
 
 import javax.servlet.http.Cookie;
 
+import org.testng.Assert;
+import org.testng.annotations.Test;
+
 import net.sourceforge.stripes.StripesTestFixture;
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.action.ActionBeanContext;
@@ -12,72 +15,56 @@ import net.sourceforge.stripes.action.UrlBinding;
 import net.sourceforge.stripes.mock.MockRoundtrip;
 import net.sourceforge.stripes.mock.MockServletContext;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
 
 /**
- * Unit test that is designed to test how MockRoundTrip copies cookies from the request to the
+ * Unit test that is designed to test how MockRoundTrip does NOT copy cookies from the request to the
  * response.
- * 
+ *
  * @author Scott Archer
  */
 @UrlBinding("/mock/MockRoundtripCookies.test")
 public class TestMockRoundtripCookies implements ActionBean {
-    private ActionBeanContext context;
 
-    public void setContext(ActionBeanContext context) {
-        this.context = context;
-    }
+   private ActionBeanContext context;
 
-    public ActionBeanContext getContext() {
-        return this.context;
-    }
+   @Override
+   public ActionBeanContext getContext() {
+      return context;
+   }
 
-    /** A very simple add event that returns a Forward reslution. */
-    @DefaultHandler
-    public Resolution index() {
-        context.getResponse().addCookie(new Cookie("testCookie", "testCookie"));
-        return new ForwardResolution("/mock/success.jsp");
-    }
+   /** A very simple add event that returns a Forward reslution. */
+   @DefaultHandler
+   public Resolution index() {
+      context.getResponse().addCookie(new Cookie("testCookie", "testCookie"));
+      return new ForwardResolution("/mock/success.jsp");
+   }
 
-    // /////////////////////////////////////////////////////////////////////////
-    // End of ActionBean methods and beginning of test methods. Everything
-    // below this line is a test!
-    // /////////////////////////////////////////////////////////////////////////
+   @Override
+   public void setContext( ActionBeanContext context ) {
+      this.context = context;
+   }
 
-    @Test(groups = "fast")
-    public void testDefaultEvent() throws Exception {
-        // Setup the servlet engine
-        MockServletContext ctx = StripesTestFixture.createServletContext();
-        try {
-            MockRoundtrip trip = new MockRoundtrip(ctx, TestMockRoundtripCookies.class);
+   // /////////////////////////////////////////////////////////////////////////
+   // End of ActionBean methods and beginning of test methods. Everything
+   // below this line is a test!
+   // /////////////////////////////////////////////////////////////////////////
 
-            Cookie[] cookies = new Cookie[] { new Cookie("Cookie", "1"), new Cookie("Monster", "2"),
-                    new Cookie("Test", "3") };
-            trip.getRequest().setCookies(cookies);
-            trip.execute();
+   @Test(groups = "fast")
+   public void testDefaultEvent() throws Exception {
+      // Setup the servlet engine
+      MockServletContext ctx = StripesTestFixture.createServletContext();
+      try {
+         MockRoundtrip trip = new MockRoundtrip(ctx, TestMockRoundtripCookies.class);
 
-            Assert.assertEquals(trip.getResponse().getCookies().length, 4);
+         Cookie[] cookies = new Cookie[] { new Cookie("Cookie", "1"), new Cookie("Monster", "2"), new Cookie("Test", "3") };
+         trip.getRequest().setCookies(cookies);
+         trip.execute();
 
-            for (Cookie cookie : trip.getResponse().getCookies()) {
-                if ("Cookie".equals(cookie.getName())) {
-                    Assert.assertEquals(cookie.getValue(), "1");
-                }
-                else if ("Monster".equals(cookie.getName())) {
-                    Assert.assertEquals(cookie.getValue(), "2");
-                }
-                else if ("Test".equals(cookie.getName())) {
-                    Assert.assertEquals(cookie.getValue(), "3");
-                }
-                else if ("testCookie".equals(cookie.getName())) {
-                    Assert.assertEquals(cookie.getValue(), "testCookie");
-                }
-                else {
-                    throw new RuntimeException("Unexected cookie found in response!");
-                }
-            }
-        } finally {
-            ctx.close();
-        }
-    }
+         Assert.assertEquals(trip.getResponse().getCookies().length, 1);
+         Assert.assertEquals(trip.getResponse().getCookies()[0].getName(), "testCookie"); // Only the cookie set by the action
+      }
+      finally {
+         ctx.close();
+      }
+   }
 }

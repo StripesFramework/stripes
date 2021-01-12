@@ -38,7 +38,6 @@ import javax.servlet.ServletRegistration;
 import javax.servlet.SessionCookieConfig;
 import javax.servlet.SessionTrackingMode;
 import javax.servlet.descriptor.JspConfigDescriptor;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 
 
@@ -84,7 +83,6 @@ public class MockServletContext implements ServletContext {
     * passed through to the caller. I.e. they will be thrown from this method.</p>
     */
    public void acceptRequest( MockHttpServletRequest request, MockHttpServletResponse response ) throws Exception {
-      copyCookies(request, response);
       MockFilterChain chain = new MockFilterChain();
       chain.setServlet(_servlet);
       chain.addFilters(_filters);
@@ -190,20 +188,6 @@ public class MockServletContext implements ServletContext {
             catch ( Exception e ) {
                log("Exception caught destroying servlet " + servlet + " contextName=" + _contextName, e);
             }
-         }
-      }
-   }
-
-   /**
-    * Copies cookies from the request to the response.
-    *
-    * @param request The request.
-    * @param response The response.
-    */
-   public void copyCookies( MockHttpServletRequest request, MockHttpServletResponse response ) {
-      if ( request.getCookies() != null ) {
-         for ( Cookie cookie : request.getCookies() ) {
-            response.addCookie(cookie);
          }
       }
    }
