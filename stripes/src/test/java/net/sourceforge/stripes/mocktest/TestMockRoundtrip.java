@@ -1,4 +1,4 @@
-package net.sourceforge.stripes.mock;
+package net.sourceforge.stripes.mocktest;
 
 import java.io.StringReader;
 
@@ -12,6 +12,8 @@ import net.sourceforge.stripes.action.RedirectResolution;
 import net.sourceforge.stripes.action.Resolution;
 import net.sourceforge.stripes.action.StreamingResolution;
 import net.sourceforge.stripes.action.UrlBinding;
+import net.sourceforge.stripes.mock.MockHttpServletRequest;
+import net.sourceforge.stripes.mock.MockRoundtrip;
 import net.sourceforge.stripes.validation.SimpleError;
 import net.sourceforge.stripes.validation.Validate;
 

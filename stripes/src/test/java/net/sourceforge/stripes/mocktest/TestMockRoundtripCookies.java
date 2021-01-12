@@ -1,4 +1,4 @@
-package net.sourceforge.stripes.mock;
+package net.sourceforge.stripes.mocktest;
 
 import javax.servlet.http.Cookie;
 
@@ -9,6 +9,8 @@ import net.sourceforge.stripes.action.DefaultHandler;
 import net.sourceforge.stripes.action.ForwardResolution;
 import net.sourceforge.stripes.action.Resolution;
 import net.sourceforge.stripes.action.UrlBinding;
+import net.sourceforge.stripes.mock.MockRoundtrip;
+import net.sourceforge.stripes.mock.MockServletContext;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;

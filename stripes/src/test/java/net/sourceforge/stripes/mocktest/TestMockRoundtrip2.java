@@ -1,4 +1,4 @@
-package net.sourceforge.stripes.mock;
+package net.sourceforge.stripes.mocktest;
 
 import static org.testng.Assert.assertEquals;
 
@@ -9,6 +9,7 @@ import net.sourceforge.stripes.action.ActionBeanContext;
 import net.sourceforge.stripes.action.DefaultHandler;
 import net.sourceforge.stripes.action.Resolution;
 import net.sourceforge.stripes.action.UrlBinding;
+import net.sourceforge.stripes.mock.MockRoundtrip;
 
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;

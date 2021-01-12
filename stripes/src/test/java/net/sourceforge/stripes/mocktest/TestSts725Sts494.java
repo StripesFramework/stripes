@@ -1,8 +1,10 @@
-package net.sourceforge.stripes.mock;
+package net.sourceforge.stripes.mocktest;
 
 import net.sourceforge.stripes.StripesTestFixture;
 import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.controller.StripesFilter;
+import net.sourceforge.stripes.mock.MockServletContext;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

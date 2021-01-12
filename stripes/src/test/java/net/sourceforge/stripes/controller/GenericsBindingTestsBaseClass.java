@@ -2,7 +2,9 @@ package net.sourceforge.stripes.controller;
 
 import java.util.List;
 import java.util.Map;
-import net.sourceforge.stripes.test.TestGenericBean;
+
+import net.sourceforge.stripes.testbeans.TestGenericBean;
+
 
 /**
  * A simple base class that is littered with Type parameters at the class level. Contains
@@ -11,25 +13,31 @@ import net.sourceforge.stripes.test.TestGenericBean;
  *
  * @author Tim Fennell
  */
-public class GenericsBindingTestsBaseClass<JB,N,E,K,V> {
-    JB bean;
-    TestGenericBean.GenericBean<N,E> genericBean;
-    N number;
-    List<? extends E> list;
-    Map<K,V> map;
+public class GenericsBindingTestsBaseClass<JB, N, E, K, V> {
 
-    public JB getBean() { return bean; }
-    public void setBean(JB bean) { this.bean = bean; }
+   JB                                bean;
+   TestGenericBean.GenericBean<N, E> genericBean;
+   N                                 number;
+   List<? extends E>                 list;
+   Map<K, V>                         map;
 
-    public TestGenericBean.GenericBean<N,E> getGenericBean() { return genericBean; }
-    public void setGenericBean(TestGenericBean.GenericBean<N,E> genericBean) { this.genericBean = genericBean; }
+   public JB getBean() { return bean; }
 
-    public N getNumber() { return number; }
-    public void setNumber(N number) { this.number = number; }
+   public TestGenericBean.GenericBean<N, E> getGenericBean() { return genericBean; }
 
-    public List<? extends E> getList() { return list; }
-    public void setList(List<? extends E> list) { this.list = list; }
+   public List<? extends E> getList() { return list; }
 
-    public Map<K, V> getMap() { return map; }
-    public void setMap(Map<K, V> map) { this.map = map; }
+   public Map<K, V> getMap() { return map; }
+
+   public N getNumber() { return number; }
+
+   public void setBean( JB bean ) { this.bean = bean; }
+
+   public void setGenericBean( TestGenericBean.GenericBean<N, E> genericBean ) { this.genericBean = genericBean; }
+
+   public void setList( List<? extends E> list ) { this.list = list; }
+
+   public void setMap( Map<K, V> map ) { this.map = map; }
+
+   public void setNumber( N number ) { this.number = number; }
 }
