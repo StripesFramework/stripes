@@ -109,13 +109,13 @@ public class SpringHelperTests {
       Assert.assertNotNull(target.getBean());
    }
 
-   ///////////////////////////////////////////////////////////////////////////
-
    @Test(groups = "fast", expectedExceptions = StripesRuntimeException.class)
    public void testImplicitMisNamedTargetInjection() {
       ImplicitMisNamedTarget target = new ImplicitMisNamedTarget();
       SpringHelper.injectBeans(target, ctx);
    }
+
+   ///////////////////////////////////////////////////////////////////////////
 
    @Test(groups = "fast")
    public void testImplicitNonStandardSetterInjection() {
@@ -124,14 +124,14 @@ public class SpringHelperTests {
       Assert.assertNotNull(target.getBean());
    }
 
-   ///////////////////////////////////////////////////////////////////////////
-
    @Test(groups = "fast")
    public void testImplicitStandardSetterInjection() {
       ImplicitStandardSetterTarget target = new ImplicitStandardSetterTarget();
       SpringHelper.injectBeans(target, ctx);
       Assert.assertNotNull(target.getBean());
    }
+
+   ///////////////////////////////////////////////////////////////////////////
 
    @Test(groups = "fast", dependsOnMethods = "testExplicitSetterInjection")
    public void testInjectionViaObjectPostProcessor() throws Exception {
@@ -145,13 +145,13 @@ public class SpringHelperTests {
       Assert.assertNotNull(target.getBean());
    }
 
-   ///////////////////////////////////////////////////////////////////////////
-
    @Test(groups = "fast", expectedExceptions = StripesRuntimeException.class)
    public void testInvalidSetterSignatureInjection() {
       InvalidSetterSignatureTarget target = new InvalidSetterSignatureTarget();
       SpringHelper.injectBeans(target, ctx);
    }
+
+   ///////////////////////////////////////////////////////////////////////////
 
    @Test(groups = "fast")
    public void testMultipleInjection() {
@@ -163,12 +163,32 @@ public class SpringHelperTests {
       Assert.assertNotNull(target.number4);
    }
 
-   ///////////////////////////////////////////////////////////////////////////
-
    @Test(groups = "fast", expectedExceptions = StripesRuntimeException.class)
    public void testNoBeansOfTargetTypeInjection() {
       NoBeanOfTypeTarget target = new NoBeanOfTypeTarget();
       SpringHelper.injectBeans(target, ctx);
+   }
+
+   ///////////////////////////////////////////////////////////////////////////
+
+   @Test(groups = "fast")
+   public void testNotRequiredFieldInjection() {
+      NotRequiredBeans target = new NotRequiredBeans();
+
+      SpringHelper.injectBeans(target, ctx);
+
+      Assert.assertNotNull(target.beanExists);
+      Assert.assertNull(target.beanDoesNotExist);
+   }
+
+   @Test(groups = "fast")
+   public void testNotRequiredMethodInjection() {
+      NotRequiredMethodBeans target = new NotRequiredMethodBeans();
+
+      SpringHelper.injectBeans(target, ctx);
+
+      Assert.assertNotNull(target.beanExists);
+      Assert.assertNull(target.beanDoesNotExist);
    }
 
    @Test(groups = "fast")
@@ -201,9 +221,9 @@ public class SpringHelperTests {
    public static class HiddenPrivateFieldTarget1 {
 
       @Autowired
-      private   TestBean a;
+      private TestBean a;
       @Autowired
-                TestBean b;
+      TestBean b;
       @Autowired
       protected TestBean c;
       @Autowired
@@ -222,9 +242,9 @@ public class SpringHelperTests {
    public static class HiddenPrivateFieldTarget2 extends HiddenPrivateFieldTarget1 {
 
       @Autowired
-      private   TestBean a;
+      private TestBean a;
       @Autowired
-                TestBean b;
+      TestBean b;
       @Autowired
       protected TestBean c;
       @Autowired
@@ -392,7 +412,7 @@ public class SpringHelperTests {
       @SuppressWarnings("unused")
       @Autowired
       public void setTestActionBean( TestActionBean bean, TestActionBean other ) {
-          testActionBean = bean;
+         testActionBean = bean;
       }
    }
 
@@ -446,5 +466,32 @@ public class SpringHelperTests {
       @SuppressWarnings("unused")
       @Autowired
       SpringHelperTests noBeansOfType;
+   }
+
+
+   private static class NotRequiredBeans {
+
+      @Autowired(required = false)
+      TestBean beanExists;
+
+      @Autowired(required = false)
+      SpringHelperTests beanDoesNotExist;
+   }
+
+
+   private static class NotRequiredMethodBeans {
+
+      TestBean          beanExists;
+      SpringHelperTests beanDoesNotExist;
+
+      @Autowired(required = false)
+      public void setBeanDoesNotExist( SpringHelperTests beanDoesNotExist ) {
+         this.beanDoesNotExist = beanDoesNotExist;
+      }
+
+      @Autowired(required = false)
+      public void setBeanExists( TestBean beanExists ) {
+         this.beanExists = beanExists;
+      }
    }
 }

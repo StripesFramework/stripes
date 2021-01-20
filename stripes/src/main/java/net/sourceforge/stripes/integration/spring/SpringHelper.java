@@ -76,16 +76,21 @@ public class SpringHelper {
     * @param ctx the Spring Application Context
     * @param name the name of the spring bean to look for
     * @param type the type of bean to look for
+    * @param required true if this bean is required to be found
     * @exception RuntimeException various subclasses of RuntimeException are thrown if it
     *            is not possible to find a unique matching bean in the spring context given
     *            the constraints supplied.
     */
-   public static Object findSpringBean( ApplicationContext ctx, String name, Class<?> type ) {
+   public static Object findSpringBean( ApplicationContext ctx, String name, Class<?> type, boolean required ) {
 
       String[] beanNames = ctx.getBeanNamesForType(type);
       if ( beanNames.length == 0 ) {
-         throw new StripesRuntimeException(
-               "Unable to find SpringBean with name [" + name + "] or type [" + type.getName() + "] in the Spring application context.");
+         if ( required ) {
+            throw new StripesRuntimeException(
+                  "Unable to find SpringBean with name [" + name + "] or type [" + type.getName() + "] in the Spring application context.");
+         } else {
+            return null;
+         }
       } else if ( beanNames.length > 1 ) {
          boolean found = false;
          for ( String beanName : beanNames ) {
@@ -95,8 +100,12 @@ public class SpringHelper {
             }
          }
          if ( !found ) {
-            throw new StripesRuntimeException("Unable to find SpringBean with name [" + name + "] or unique bean with type [" + type.getName()
-                  + "] in the Spring application context. Found " + beanNames.length + "beans of matching type.");
+            if ( required ) {
+               throw new StripesRuntimeException("Unable to find SpringBean with name [" + name + "] or unique bean with type [" + type.getName()
+                     + "] in the Spring application context. Found " + beanNames.length + "beans of matching type.");
+            } else {
+               return null;
+            }
          }
       } else {
          name = beanNames[0];
@@ -176,7 +185,8 @@ public class SpringHelper {
       Collection<Field> fields = ReflectUtil.getFields(clazz);
 
       for ( Field field : fields ) {
-         if ( !field.isAnnotationPresent(Autowired.class) ) {
+         Autowired autowired = field.getAnnotation(Autowired.class);
+         if ( autowired == null ) {
             continue;
          }
 
@@ -193,14 +203,15 @@ public class SpringHelper {
             }
          }
 
-         injections.add(new FieldInjection(field, getQualifier(field)));
+         injections.add(new FieldInjection(field, getQualifier(field), autowired.required()));
       }
    }
 
    private static void addMethods( Class<?> clazz, List<Injection> injections ) {
       Collection<Method> methods = ReflectUtil.getMethods(clazz);
       for ( Method method : methods ) {
-         if ( !method.isAnnotationPresent(Autowired.class) ) {
+         Autowired autowired = method.getAnnotation(Autowired.class);
+         if ( autowired == null ) {
             continue;
          }
 
@@ -224,7 +235,7 @@ public class SpringHelper {
                         + "] has " + method.getParameterTypes().length + " parameters.");
          }
 
-         injections.add(new MethodInjection(method, getQualifier(method)));
+         injections.add(new MethodInjection(method, getQualifier(method), autowired.required()));
       }
    }
 
@@ -255,12 +266,14 @@ public class SpringHelper {
 
       private final Field    _field;
       private final boolean  _nameSupplied;
+      private final boolean  _required;
       private final String   _name;
       private final Class<?> _beanType;
 
-      public FieldInjection( Field field, String qualifier ) {
+      public FieldInjection( Field field, String qualifier, boolean required ) {
          _field = field;
          _nameSupplied = qualifier != null && !qualifier.isEmpty();
+         _required = required;
          _name = _nameSupplied ? qualifier : field.getName();
          _beanType = field.getType();
       }
@@ -268,8 +281,10 @@ public class SpringHelper {
       @Override
       public void inject( Object bean, ApplicationContext ctx ) {
          try {
-            Object managedBean = findSpringBean(ctx, _name, _beanType);
-            _field.set(bean, managedBean);
+            Object managedBean = findSpringBean(ctx, _name, _beanType, _required);
+            if ( managedBean != null ) {
+               _field.set(bean, managedBean);
+            }
          }
          catch ( Exception e ) {
             throw new StripesRuntimeException(
@@ -284,12 +299,14 @@ public class SpringHelper {
 
       private final Method   _method;
       private final boolean  _nameSupplied;
+      private final boolean  _required;
       private final String   _name;
       private final Class<?> _beanType;
 
-      public MethodInjection( Method method, String qualifier ) {
+      public MethodInjection( Method method, String qualifier, boolean required ) {
          _method = method;
          _nameSupplied = qualifier != null && !qualifier.isEmpty();
+         _required = required;
          _name = _nameSupplied ? qualifier : methodToPropertyName(method);
          _beanType = method.getParameterTypes()[0];
       }
@@ -297,7 +314,7 @@ public class SpringHelper {
       @Override
       public void inject( Object bean, ApplicationContext ctx ) {
          try {
-            Object managedBean = findSpringBean(ctx, _name, _beanType);
+            Object managedBean = findSpringBean(ctx, _name, _beanType, _required);
             _method.invoke(bean, managedBean);
          }
          catch ( Exception e ) {
