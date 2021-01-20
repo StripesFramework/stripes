@@ -28,7 +28,6 @@ import javax.servlet.ServletContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
-import org.springframework.core.NestedRuntimeException;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import net.sourceforge.stripes.controller.StripesFilter;
@@ -77,35 +76,33 @@ public class SpringHelper {
     * @param ctx the Spring Application Context
     * @param name the name of the spring bean to look for
     * @param type the type of bean to look for
-    * @param allowFindByType true to indicate that finding a bean by type is acceptable
-    *        if find by name fails.
     * @exception RuntimeException various subclasses of RuntimeException are thrown if it
     *            is not possible to find a unique matching bean in the spring context given
     *            the constraints supplied.
     */
-   public static Object findSpringBean( ApplicationContext ctx, String name, Class<?> type, boolean allowFindByType ) {
-      // First try to lookup using the name provided
-      try {
-         return ctx.getBean(name, type);
-      }
-      catch ( NestedRuntimeException nre ) {
-         if ( !allowFindByType ) {
-            throw nre;
-         }
-      }
+   public static Object findSpringBean( ApplicationContext ctx, String name, Class<?> type ) {
 
-      // If we got here then we didn't find a bean yet, try by type
       String[] beanNames = ctx.getBeanNamesForType(type);
       if ( beanNames.length == 0 ) {
          throw new StripesRuntimeException(
                "Unable to find SpringBean with name [" + name + "] or type [" + type.getName() + "] in the Spring application context.");
       } else if ( beanNames.length > 1 ) {
-         throw new StripesRuntimeException(
-               "Unable to find SpringBean with name [" + name + "] or unique bean with type [" + type.getName() + "] in the Spring application context. Found "
-                     + beanNames.length + "beans of matching type.");
+         boolean found = false;
+         for ( String beanName : beanNames ) {
+            if ( beanName.equals(name) ) {
+               found = true;
+               break;
+            }
+         }
+         if ( !found ) {
+            throw new StripesRuntimeException("Unable to find SpringBean with name [" + name + "] or unique bean with type [" + type.getName()
+                  + "] in the Spring application context. Found " + beanNames.length + "beans of matching type.");
+         }
       } else {
-         return ctx.getBean(beanNames[0], type);
+         name = beanNames[0];
       }
+
+      return ctx.getBean(name, type);
    }
 
    /**
@@ -262,7 +259,7 @@ public class SpringHelper {
       private final Class<?> _beanType;
 
       public FieldInjection( Field field, String qualifier ) {
-          _field = field;
+         _field = field;
          _nameSupplied = qualifier != null && !qualifier.isEmpty();
          _name = _nameSupplied ? qualifier : field.getName();
          _beanType = field.getType();
@@ -271,7 +268,7 @@ public class SpringHelper {
       @Override
       public void inject( Object bean, ApplicationContext ctx ) {
          try {
-            Object managedBean = findSpringBean(ctx, _name, _beanType, !_nameSupplied);
+            Object managedBean = findSpringBean(ctx, _name, _beanType);
             _field.set(bean, managedBean);
          }
          catch ( Exception e ) {
@@ -300,7 +297,7 @@ public class SpringHelper {
       @Override
       public void inject( Object bean, ApplicationContext ctx ) {
          try {
-            Object managedBean = findSpringBean(ctx, _name, _beanType, !_nameSupplied);
+            Object managedBean = findSpringBean(ctx, _name, _beanType);
             _method.invoke(bean, managedBean);
          }
          catch ( Exception e ) {
