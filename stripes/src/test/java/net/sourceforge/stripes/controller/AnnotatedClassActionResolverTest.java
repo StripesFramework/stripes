@@ -1,86 +1,109 @@
 package net.sourceforge.stripes.controller;
 
-import net.sourceforge.stripes.action.*;
-import net.sourceforge.stripes.action.UrlBinding;
-import org.testng.Assert;
-import org.testng.annotations.BeforeTest;
-import org.testng.annotations.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.HashSet;
 import java.util.Set;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import net.sourceforge.stripes.action.ActionBean;
+import net.sourceforge.stripes.action.ActionBeanContext;
+import net.sourceforge.stripes.action.UrlBinding;
+
+
 public class AnnotatedClassActionResolverTest {
 
-    private AnnotatedClassActionResolver resolver = new AnnotatedClassActionResolver() {
-        @Override
-        protected Set<Class<? extends ActionBean>> findClasses() {
-            Set<Class<? extends ActionBean>> classes = new HashSet<Class<? extends ActionBean>>();
-            classes.add(SimpleActionBean.class);
-            classes.add(OverloadedActionBean.class);
-            classes.add(Container1.OverloadedActionBean.class);
-            classes.add(Container2.OverloadedActionBean.class);
-            return classes;
-        }
-    };
+   private final AnnotatedClassActionResolver resolver = new AnnotatedClassActionResolver() {
 
-    @UrlBinding("/Simple.action")
-    static class SimpleActionBean implements ActionBean {
-        public void setContext(ActionBeanContext context) {
-        }
+      @Override
+      protected Set<Class<? extends ActionBean>> findClasses() {
+         Set<Class<? extends ActionBean>> classes = new HashSet<>();
+         classes.add(SimpleActionBean.class);
+         classes.add(OverloadedActionBean.class);
+         classes.add(Container1.OverloadedActionBean.class);
+         classes.add(Container2.OverloadedActionBean.class);
+         return classes;
+      }
+   };
 
-        public ActionBeanContext getContext() {
+   @BeforeEach
+   public void before() throws Exception {
+      resolver.init(null);
+   }
+
+   @Test
+   public void findByName() {
+      Class<? extends ActionBean> actionBean = resolver.getActionBeanByName("SimpleActionBean");
+      assertThat(actionBean).isNotNull();
+   }
+
+   @Test
+   public void multipleActionBeansWithSameSimpleName() {
+      Class<? extends ActionBean> actionBean = resolver.getActionBeanByName("OverloadedActionBean");
+      assertThat(actionBean).isNull();
+   }
+
+
+   static class Container1 {
+
+      @UrlBinding("/container1/Overloaded.action")
+      static class OverloadedActionBean implements ActionBean {
+
+         @Override
+         public ActionBeanContext getContext() {
             return null;
-        }
-    }
+         }
 
-    @UrlBinding("/Overloaded.action")
-    static class OverloadedActionBean implements ActionBean {
-        public void setContext(ActionBeanContext context) {
-        }
+         @Override
+         public void setContext( ActionBeanContext context ) {
+         }
+      }
+   }
 
-        public ActionBeanContext getContext() {
+
+   static class Container2 {
+
+      @UrlBinding("/container2/Overloaded.action")
+      static class OverloadedActionBean implements ActionBean {
+
+         @Override
+         public ActionBeanContext getContext() {
             return null;
-        }
-    }
+         }
 
-    static class Container1 {
-        @UrlBinding("/container1/Overloaded.action")
-        static class OverloadedActionBean implements ActionBean {
-            public void setContext(ActionBeanContext context) {
-            }
+         @Override
+         public void setContext( ActionBeanContext context ) {
+         }
+      }
+   }
 
-            public ActionBeanContext getContext() {
-                return null;
-            }
-        }
-    }
 
-    static class Container2 {
-        @UrlBinding("/container2/Overloaded.action")
-        static class OverloadedActionBean implements ActionBean {
-            public void setContext(ActionBeanContext context) {
-            }
+   @UrlBinding("/Overloaded.action")
+   static class OverloadedActionBean implements ActionBean {
 
-            public ActionBeanContext getContext() {
-                return null;
-            }
-        }
-    }
+      @Override
+      public ActionBeanContext getContext() {
+         return null;
+      }
 
-    @BeforeTest
-    public void setUp() throws Exception {
-        resolver.init(null);
-    }
+      @Override
+      public void setContext( ActionBeanContext context ) {
+      }
+   }
 
-    @Test(groups = "fast")
-    public void findByName() {
-        Class<? extends ActionBean> actionBean = resolver.getActionBeanByName("SimpleActionBean");
-        Assert.assertNotNull(actionBean);
-    }
 
-    @Test(groups = "fast")
-    public void multipleActionBeansWithSameSimpleName() {
-        Class<? extends ActionBean> actionBean = resolver.getActionBeanByName("OverloadedActionBean");
-        Assert.assertNull(actionBean);
-    }
+   @UrlBinding("/Simple.action")
+   static class SimpleActionBean implements ActionBean {
+
+      @Override
+      public ActionBeanContext getContext() {
+         return null;
+      }
+
+      @Override
+      public void setContext( ActionBeanContext context ) {
+      }
+   }
 }

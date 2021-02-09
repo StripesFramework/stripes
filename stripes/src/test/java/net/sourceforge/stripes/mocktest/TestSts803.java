@@ -1,8 +1,8 @@
 package net.sourceforge.stripes.mocktest;
 
-import static org.testng.Assert.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import net.sourceforge.stripes.FilterEnabledTestBase;
 import net.sourceforge.stripes.action.ActionBean;
@@ -17,14 +17,13 @@ import net.sourceforge.stripes.mock.MockRoundtrip;
 
 public class TestSts803 extends FilterEnabledTestBase {
 
-   @Test(groups = "fast")
+   @Test
    public void testActionBeanGetsResolved() throws Exception {
       MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), "/teststs803/first/_/edit");
       trip.execute();
       Sts803ActionBean bean = trip.getActionBean(Sts803ActionBean.class);
-      assertNotNull(bean);
+      assertThat(bean).isNotNull();
    }
-
 
    @UrlBinding("/teststs803/{param1}/{param2}/{$event}")
    public static class Sts803ActionBean implements ActionBean {

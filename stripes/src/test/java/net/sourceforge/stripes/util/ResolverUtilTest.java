@@ -1,15 +1,18 @@
 package net.sourceforge.stripes.util;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.util.Set;
+
+import org.junit.jupiter.api.Test;
+
 import net.sourceforge.stripes.validation.BooleanTypeConverter;
 import net.sourceforge.stripes.validation.DateTypeConverter;
 import net.sourceforge.stripes.validation.LocalizableError;
 import net.sourceforge.stripes.validation.ScopedLocalizableError;
 import net.sourceforge.stripes.validation.SimpleError;
 import net.sourceforge.stripes.validation.TypeConverter;
-import org.testng.Assert;
-import org.testng.annotations.Test;
 
-import java.util.Set;
 
 /**
  * Simple test case that tets out the basic functionality of the Resolver Util class.
@@ -18,72 +21,60 @@ import java.util.Set;
  */
 public class ResolverUtilTest {
 
-    @Test(groups="slow")
-    public void testSimpleFind() throws Exception {
-        // Because the tests package depends on stripes, it's safe to assume that
-        // there will be some TypeConverter subclasses in the classpath
-        ResolverUtil<TypeConverter<?>> resolver = new ResolverUtil<TypeConverter<?>>();
-        resolver.findImplementations(TypeConverter.class, "net");
-        Set<Class<? extends TypeConverter<?>>> impls = resolver.getClasses();
+   @Test
+   public void testFindExtensionsOfClass() {
+      ResolverUtil<SimpleError> resolver = new ResolverUtil<>();
+      resolver.findImplementations(SimpleError.class, "net.sourceforge.stripes");
 
-        // Check on a few random converters
-        Assert.assertTrue(impls.contains(BooleanTypeConverter.class),
-                          "BooleanTypeConverter went missing.");
-        Assert.assertTrue(impls.contains(DateTypeConverter.class),
-                          "DateTypeConverter went missing.");
-        Assert.assertTrue(impls.contains(BooleanTypeConverter.class),
-                          "ShortTypeConverter went missing.");
+      Set<Class<? extends SimpleError>> impls = resolver.getClasses();
 
-        Assert.assertTrue(impls.size() >= 10,
-                          "Did not find all the built in TypeConverters.");
-    }
+      assertThat(impls.contains(LocalizableError.class)).describedAs("LocalizableError should have been found.").isTrue();
+      assertThat(impls.contains(ScopedLocalizableError.class)).describedAs("ScopedLocalizableError should have been found.").isTrue();
+      assertThat(impls.contains(SimpleError.class)).describedAs("SimpleError itself should have been found.").isTrue();
+   }
 
-    @Test(groups="fast")
-    public void testMoreSpecificFind() throws Exception {
-        // Because the tests package depends on stripes, it's safe to assume that
-        // there will be some TypeConverter subclasses in the classpath
-        ResolverUtil<TypeConverter<?>> resolver = new ResolverUtil<TypeConverter<?>>();
-        resolver.findImplementations(TypeConverter.class, "net.sourceforge.stripes.validation");
-        Set<Class<? extends TypeConverter<?>>> impls = resolver.getClasses();
+   @Test
+   public void testFindZeroImplementations() {
+      ResolverUtil<ZeroImplementations> resolver = new ResolverUtil<>();
+      resolver.findImplementations(ZeroImplementations.class, "net.sourceforge.stripes");
 
-        // Check on a few random converters
-        Assert.assertTrue(impls.contains(BooleanTypeConverter.class),
-                          "BooleanTypeConverter went missing.");
-        Assert.assertTrue(impls.contains(DateTypeConverter.class),
-                          "DateTypeConverter went missing.");
-        Assert.assertTrue(impls.contains(BooleanTypeConverter.class),
-                          "ShortTypeConverter went missing.");
+      Set<Class<? extends ZeroImplementations>> impls = resolver.getClasses();
 
-        Assert.assertTrue(impls.size() >= 10,
-                          "Did not find all the built in TypeConverters.");
-    }
+      assertThat(impls).describedAs("There should not have been any implementations besides the interface itself.").containsExactly(ZeroImplementations.class);
+   }
 
-    @Test(groups="fast")
-    public void testFindExtensionsOfClass() throws Exception {
-        ResolverUtil<SimpleError> resolver = new ResolverUtil<SimpleError>();
-        resolver.findImplementations(SimpleError.class, "net.sourceforge.stripes");
+   @Test
+   public void testMoreSpecificFind() {
+      // Because the tests package depends on stripes, it's safe to assume that
+      // there will be some TypeConverter subclasses in the classpath
+      ResolverUtil<TypeConverter<?>> resolver = new ResolverUtil<>();
+      resolver.findImplementations(TypeConverter.class, "net.sourceforge.stripes.validation");
+      Set<Class<? extends TypeConverter<?>>> impls = resolver.getClasses();
 
-        Set<Class<? extends SimpleError>> impls = resolver.getClasses();
+      // Check on a few random converters
+      assertThat(impls.contains(BooleanTypeConverter.class)).describedAs("BooleanTypeConverter went missing.").isTrue();
+      assertThat(impls.contains(DateTypeConverter.class)).describedAs("DateTypeConverter went missing.").isTrue();
+      assertThat(impls.contains(BooleanTypeConverter.class)).describedAs("ShortTypeConverter went missing.").isTrue();
 
-        Assert.assertTrue(impls.contains(LocalizableError.class),
-                          "LocalizableError should have been found.");
-        Assert.assertTrue(impls.contains(ScopedLocalizableError.class),
-                          "ScopedLocalizableError should have been found.");
-        Assert.assertTrue(impls.contains(SimpleError.class),
-                          "SimpleError itself should have been found.");
-    }
+      assertThat(impls.size()).describedAs("Did not find all the built in TypeConverters.").isGreaterThan(10);
+   }
 
-    /** Test interface used with the testFindZeroImplementatios() method. */
-    private static interface ZeroImplementations {}
+   @Test
+   public void testSimpleFind() {
+      // Because the tests package depends on stripes, it's safe to assume that
+      // there will be some TypeConverter subclasses in the classpath
+      ResolverUtil<TypeConverter<?>> resolver = new ResolverUtil<>();
+      resolver.findImplementations(TypeConverter.class, "net");
+      Set<Class<? extends TypeConverter<?>>> impls = resolver.getClasses();
 
-    @Test(groups="fast")
-    public void testFindZeroImplementations() throws Exception {
-        ResolverUtil<ZeroImplementations> resolver = new ResolverUtil<ZeroImplementations>();
-        resolver.findImplementations(ZeroImplementations.class, "net.sourceforge.stripes");
+      // Check on a few random converters
+      assertThat(impls.contains(BooleanTypeConverter.class)).describedAs("BooleanTypeConverter went missing.").isTrue();
+      assertThat(impls.contains(DateTypeConverter.class)).describedAs("DateTypeConverter went missing.").isTrue();
+      assertThat(impls.contains(BooleanTypeConverter.class)).describedAs("ShortTypeConverter went missing.").isTrue();
 
-        Set<Class<? extends ZeroImplementations>> impls = resolver.getClasses();
+      assertThat(impls.size()).describedAs("Did not find all the built in TypeConverters.").isGreaterThan(10);
+   }
 
-        Assert.assertTrue(impls.size() == 1 && impls.contains(ZeroImplementations.class),
-                          "There should not have been any implementations besides the interface itself.");
-    }
+   /** Test interface used with the testFindZeroImplementatios() method. */
+   private interface ZeroImplementations {}
 }

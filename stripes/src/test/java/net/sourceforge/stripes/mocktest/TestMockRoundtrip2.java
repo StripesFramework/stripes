@@ -1,8 +1,8 @@
 package net.sourceforge.stripes.mocktest;
 
-import static org.testng.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import net.sourceforge.stripes.FilterEnabledTestBase;
 import net.sourceforge.stripes.action.ActionBean;
@@ -50,17 +50,17 @@ public class TestMockRoundtrip2 extends FilterEnabledTestBase implements ActionB
       this.id = id;
    }
 
-   @Test(groups = "fast")
+   @Test
    public void testUsingBeanClass() throws Exception {
       executeTest(new MockRoundtrip(getMockServletContext(), getClass()));
    }
 
-   @Test(groups = "fast")
+   @Test
    public void testUsingUrlWithEventSpecified() throws Exception {
       executeTest(new MockRoundtrip(getMockServletContext(), "/foo/" + REF_ID + "/bar"));
    }
 
-   @Test(groups = "fast")
+   @Test
    public void testUsingUrlWithoutEventSpecified() throws Exception {
       executeTest(new MockRoundtrip(getMockServletContext(), "/foo/" + REF_ID));
    }
@@ -68,6 +68,6 @@ public class TestMockRoundtrip2 extends FilterEnabledTestBase implements ActionB
    private void executeTest( MockRoundtrip trip ) throws Exception {
       trip.setParameter("id", REF_ID.toString());
       trip.execute();
-      assertEquals(trip.getActionBean(getClass()).getId(), REF_ID);
+      assertThat(trip.getActionBean(getClass()).getId()).isEqualTo(REF_ID);
    }
 }

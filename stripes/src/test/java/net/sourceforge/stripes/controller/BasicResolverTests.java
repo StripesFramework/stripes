@@ -1,11 +1,12 @@
 package net.sourceforge.stripes.controller;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import net.sourceforge.stripes.FilterEnabledTestBase;
 import net.sourceforge.stripes.action.ActionBean;
@@ -37,7 +38,7 @@ public class BasicResolverTests extends FilterEnabledTestBase implements ActionB
    @DefaultHandler
    @HandlesEvent("one")
    public Resolution one() {
-       number = 1;
+      number = 1;
       return null;
    }
 
@@ -50,57 +51,55 @@ public class BasicResolverTests extends FilterEnabledTestBase implements ActionB
 
    public void setNumber( int number ) { this.number = number; }
 
-   @Test(groups = "fast")
+   @Test
    public void testDefaultResolution() throws Exception {
       MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
       trip.execute();
 
       BasicResolverTests bean = trip.getActionBean(getClass());
-      Assert.assertEquals(bean.getNumber(), 1);
+      assertThat(bean.getNumber()).isEqualTo(1);
    }
 
-   // Start of Test Methods
-
-   @Test(groups = "fast")
+   @Test
    public void testEventNameParameterResolution() throws Exception {
       MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
       trip.addParameter(StripesConstants.URL_KEY_EVENT_NAME, "two");
       trip.execute();
 
       BasicResolverTests bean = trip.getActionBean(getClass());
-      Assert.assertEquals(bean.getNumber(), 2);
-      Assert.assertEquals(bean.getContext().getEventName(), "two");
+      assertThat(bean.getNumber()).isEqualTo(2);
+      assertThat(bean.getContext().getEventName()).isEqualTo("two");
    }
 
-   @Test(groups = "fast")
+   @Test
    public void testImageStyleResolution() throws Exception {
       MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
       trip.execute("two.x");
 
       BasicResolverTests bean = trip.getActionBean(getClass());
-      Assert.assertEquals(bean.getNumber(), 2);
+      assertThat(bean.getNumber()).isEqualTo(2);
    }
 
-   @Test(groups = "fast")
+   @Test
    public void testImageStyleResolution2() throws Exception {
       MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
       trip.addParameter("two.x", "381");
       trip.execute();
 
       BasicResolverTests bean = trip.getActionBean(getClass());
-      Assert.assertEquals(bean.getNumber(), 2);
+      assertThat(bean.getNumber()).isEqualTo(2);
    }
 
-   @Test(groups = "fast")
+   @Test
    public void testNonDefaultResolution() throws Exception {
       MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
       trip.execute("two");
 
       BasicResolverTests bean = trip.getActionBean(getClass());
-      Assert.assertEquals(bean.getNumber(), 2);
+      assertThat(bean.getNumber()).isEqualTo(2);
    }
 
-   @Test(groups = "fast")
+   @Test
    public void testOverrideHandlerMethodReturnsSubtype() throws SecurityException, NoSuchMethodException {
       NameBasedActionResolver resolver = new NameBasedActionResolver();
       Map<String, Method> classMappings = new HashMap<>();
@@ -109,10 +108,9 @@ public class BasicResolverTests extends FilterEnabledTestBase implements ActionB
 
    @HandlesEvent("two")
    public Resolution two() {
-       number = 2;
+      number = 2;
       return null;
    }
-
 
    public static class ExtendedBaseAction extends BasicResolverTests {
 

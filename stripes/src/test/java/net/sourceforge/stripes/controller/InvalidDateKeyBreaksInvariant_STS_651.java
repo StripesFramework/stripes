@@ -1,10 +1,12 @@
 package net.sourceforge.stripes.controller;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
+
 import java.util.Date;
 import java.util.Map;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import net.sourceforge.stripes.FilterEnabledTestBase;
 import net.sourceforge.stripes.mock.MockRoundtrip;
@@ -29,11 +31,11 @@ public class InvalidDateKeyBreaksInvariant_STS_651 extends FilterEnabledTestBase
             // if we go this far then it's ok, but we try to see
             // if the value if ok as well...
             Date dateValue = mapDateDate.get(dateKey);
-            Assert.assertNotNull(dateValue);
+            assertThat(dateValue).isNotNull();
          }
       }
       catch ( ClassCastException e ) {
-         Assert.fail("bad ! Map<Date,Date> contains a <String,?> entry, the map's invariant has been violated", e);
+         fail("bad ! Map<Date,Date> contains a <String,?> entry, the map's invariant has been violated", e);
       }
    }
 

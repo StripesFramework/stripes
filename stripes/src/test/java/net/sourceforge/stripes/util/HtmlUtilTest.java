@@ -15,50 +15,46 @@
  */
 package net.sourceforge.stripes.util;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 
-/**
- * Unit tests for the HtmlUtil class..
- */
+import org.junit.jupiter.api.Test;
+
+
 public class HtmlUtilTest {
 
-    @Test(groups="fast")
-    public void testJoinAndSplit() throws Exception {
-        String[] input = {"foo", "bar", "foobar"};
-        List<String> listInput = Arrays.asList(input);
+   @Test
+   public void testJoinAndSplit() {
+      String[] input = { "foo", "bar", "foobar" };
+      List<String> listInput = Arrays.asList(input);
 
-        String combined = HtmlUtil.combineValues(listInput);
-        Collection<String> output = HtmlUtil.splitValues(combined);
+      String combined = HtmlUtil.combineValues(listInput);
+      Collection<String> output = HtmlUtil.splitValues(combined);
 
-        Assert.assertEquals(output.size(), listInput.size(), "Different number of params.");
-        Assert.assertTrue(output.contains("foo"));
-        Assert.assertTrue(output.contains("bar"));
-        Assert.assertTrue(output.contains("foobar"));
-    }
+      assertThat(output).containsExactly("foo", "bar", "foobar");
+   }
 
-    @Test(groups="fast")
-    public void testJoinWithNoStrings() throws Exception {
-        String combined = HtmlUtil.combineValues(null);
-        Assert.assertEquals(combined, "");
+   @Test
+   public void testJoinWithNoStrings() {
+      String combined = HtmlUtil.combineValues(null);
+      assertThat(combined).isEmpty();
 
-        combined = HtmlUtil.combineValues( new HashSet<String>() );
-        Assert.assertEquals(combined, "");
-    }
+      combined = HtmlUtil.combineValues(new HashSet<>());
+      assertThat(combined).isEmpty();
+   }
 
-    @Test(groups="fast")
-    public void testSplitWithNoValues() throws Exception {
-        Collection<String> values = HtmlUtil.splitValues(null);
-        Assert.assertNotNull(values);
-        Assert.assertEquals(values.size(), 0);
+   @Test
+   public void testSplitWithNoValues() {
+      Collection<String> values = HtmlUtil.splitValues(null);
+      assertThat(values).isNotNull();
+      assertThat(values).isEmpty();
 
-        values = HtmlUtil.splitValues("");
-        Assert.assertNotNull(values);
-        Assert.assertEquals(values.size(), 0);
-    }
+      values = HtmlUtil.splitValues("");
+      assertThat(values).isNotNull();
+      assertThat(values).isEmpty();
+   }
 }

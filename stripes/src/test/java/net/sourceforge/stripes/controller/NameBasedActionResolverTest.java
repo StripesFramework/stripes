@@ -1,12 +1,13 @@
 package net.sourceforge.stripes.controller;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.testng.Assert;
-import org.testng.annotations.BeforeTest;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.action.ActionBeanContext;
@@ -22,7 +23,7 @@ import net.sourceforge.stripes.action.UrlBinding;
  */
 public class NameBasedActionResolverTest {
 
-   private NameBasedActionResolver resolver = new NameBasedActionResolver() {
+   private static final NameBasedActionResolver resolver = new NameBasedActionResolver() {
 
       @Override
       protected Set<Class<? extends ActionBean>> findClasses() {
@@ -35,88 +36,89 @@ public class NameBasedActionResolverTest {
       }
    };
 
-   @Test(groups = "fast")
-   public void generateBinding() {
-      String binding = resolver.getUrlBinding("foo.bar.web.admin.ControlCenterActionBean");
-      Assert.assertEquals(binding, "/admin/ControlCenter.action");
-   }
-
-   @Test(groups = "fast")
-   public void generateBindingForClassWithSingleBasePackage() {
-      String binding = resolver.getUrlBinding("www.ControlCenterActionBean");
-      Assert.assertEquals(binding, "/ControlCenter.action");
-   }
-
-   @Test(groups = "fast")
-   public void generateBindingForNonPackagedClass() {
-      String binding = resolver.getUrlBinding("ControlCenterActionBean");
-      Assert.assertEquals(binding, "/ControlCenter.action");
-   }
-
-   @Test(groups = "fast")
-   public void generateBindingWithDifferentSuffix() {
-      String binding = resolver.getUrlBinding("foo.web.stripes.www.admin.ControlCenterBean");
-      Assert.assertEquals(binding, "/admin/ControlCenter.action");
-   }
-
-   @Test(groups = "fast")
-   public void generateBindingWithDifferentSuffix2() {
-      String binding = resolver.getUrlBinding("foo.web.stripes.www.admin.ControlCenterAction");
-      Assert.assertEquals(binding, "/admin/ControlCenter.action");
-   }
-
-   @Test(groups = "fast")
-   public void generateBindingWithMultipleBasePackages() {
-      String binding = resolver.getUrlBinding("foo.web.stripes.bar.www.ControlCenterActionBean");
-      Assert.assertEquals(binding, "/ControlCenter.action");
-   }
-
-   @Test(groups = "fast")
-   public void generateBindingWithMultipleBasePackages2() {
-      String binding = resolver.getUrlBinding("foo.web.stripes.www.admin.ControlCenterActionBean");
-      Assert.assertEquals(binding, "/admin/ControlCenter.action");
-   }
-
-   @Test(groups = "fast")
-   public void generateBindingWithoutSuffix() {
-      String binding = resolver.getUrlBinding("foo.web.stripes.www.admin.ControlCenter");
-      Assert.assertEquals(binding, "/admin/ControlCenter.action");
-   }
-
-   @BeforeTest
-   public void setUp() throws Exception {
+   @BeforeAll
+   public static void setUp() throws Exception {
       resolver.init(null);
    }
 
-   @Test(groups = "fast")
-   public void testFindByNameWithSuffixes() {
-      Assert.assertNotNull(resolver.getActionBeanByName("Simple"));
-      Assert.assertNotNull(resolver.getActionBeanByName("SimpleAction"));
+   @Test
+   public void generateBinding() {
+      String binding = resolver.getUrlBinding("foo.bar.web.admin.ControlCenterActionBean");
+      assertThat(binding).isEqualTo("/admin/ControlCenter.action");
    }
 
-   @Test(groups = "fast")
+   @Test
+   public void generateBindingForClassWithSingleBasePackage() {
+      String binding = resolver.getUrlBinding("www.ControlCenterActionBean");
+      assertThat(binding).isEqualTo("/ControlCenter.action");
+   }
+
+   @Test
+   public void generateBindingForNonPackagedClass() {
+      String binding = resolver.getUrlBinding("ControlCenterActionBean");
+      assertThat(binding).isEqualTo("/ControlCenter.action");
+   }
+
+   @Test
+   public void generateBindingWithDifferentSuffix() {
+      String binding = resolver.getUrlBinding("foo.web.stripes.www.admin.ControlCenterBean");
+      assertThat(binding).isEqualTo("/admin/ControlCenter.action");
+   }
+
+   @Test
+   public void generateBindingWithDifferentSuffix2() {
+      String binding = resolver.getUrlBinding("foo.web.stripes.www.admin.ControlCenterAction");
+      assertThat(binding).isEqualTo("/admin/ControlCenter.action");
+   }
+
+   @Test
+   public void generateBindingWithMultipleBasePackages() {
+      String binding = resolver.getUrlBinding("foo.web.stripes.bar.www.ControlCenterActionBean");
+      assertThat(binding).isEqualTo("/ControlCenter.action");
+   }
+
+   @Test
+   public void generateBindingWithMultipleBasePackages2() {
+      String binding = resolver.getUrlBinding("foo.web.stripes.www.admin.ControlCenterActionBean");
+      assertThat(binding).isEqualTo("/admin/ControlCenter.action");
+   }
+
+   @Test
+   public void generateBindingWithoutSuffix() {
+      String binding = resolver.getUrlBinding("foo.web.stripes.www.admin.ControlCenter");
+      assertThat(binding).isEqualTo("/admin/ControlCenter.action");
+   }
+
+   @Test
+   public void testFindByNameWithSuffixes() {
+      assertThat(resolver.getActionBeanByName("Simple")).isNotNull();
+      assertThat(resolver.getActionBeanByName("SimpleAction")).isNotNull();
+   }
+
+   @Test
    public void testGetFindViewAttempts() {
       String urlBinding = "/account/ViewAccount.action";
       List<String> viewAttempts = resolver.getFindViewAttempts(urlBinding);
-      Assert.assertEquals(viewAttempts.size(), 3);
-      Assert.assertEquals(viewAttempts.get(0), "/account/ViewAccount.jsp");
-      Assert.assertEquals(viewAttempts.get(1), "/account/viewAccount.jsp");
-      Assert.assertEquals(viewAttempts.get(2), "/account/view_account.jsp");
+
+      assertThat(viewAttempts).containsExactly( //
+            "/account/ViewAccount.jsp",  //
+            "/account/viewAccount.jsp",  //
+            "/account/view_account.jsp");
    }
 
-   @Test(groups = "fast")
+   @Test
    public void testOverloadedBeanNameWithSuffixes() {
-      Assert.assertNull(resolver.getActionBeanByName("Overloaded"));
+      assertThat(resolver.getActionBeanByName("Overloaded")).isNull();
    }
 
-   @Test(groups = "fast")
+   @Test
    public void testWithAnnotatedClass() {
       String name = net.sourceforge.stripes.testbeans.TestActionBean.class.getName();
       String binding = resolver.getUrlBinding(name);
-      Assert.assertEquals(binding, "/testbeans/Test.action");
+      assertThat(binding).isEqualTo("/testbeans/Test.action");
 
       binding = resolver.getUrlBinding(net.sourceforge.stripes.testbeans.TestActionBean.class);
-      Assert.assertEquals(binding, net.sourceforge.stripes.testbeans.TestActionBean.class.
+      assertThat(binding).isEqualTo(net.sourceforge.stripes.testbeans.TestActionBean.class.
             getAnnotation(UrlBinding.class).value());
    }
 

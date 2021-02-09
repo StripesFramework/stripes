@@ -1,7 +1,8 @@
 package net.sourceforge.stripes.validation;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import org.junit.jupiter.api.Test;
 
 import net.sourceforge.stripes.FilterEnabledTestBase;
 import net.sourceforge.stripes.action.ActionBean;
@@ -20,6 +21,7 @@ import net.sourceforge.stripes.mock.MockRoundtrip;
  *
  * @author Tim Fennell
  */
+@SuppressWarnings("unused")
 @UrlBinding("/test/ValidationFlowTest.action")
 public class ValidationFlowTest extends FilterEnabledTestBase implements ActionBean {
 
@@ -27,11 +29,11 @@ public class ValidationFlowTest extends FilterEnabledTestBase implements ActionB
 
    private ActionBeanContext context;
    @Validate(required = true)
-   private int numberZero;
+   private int               numberZero;
    @Validate(required = true, on = "eventOne", minvalue = 0)
-   private int numberOne;
+   private int               numberOne;
    @Validate(required = true, on = "eventTwo")
-   private int numberTwo;
+   private int               numberTwo;
 
    @Override
    public ActionBeanContext getContext() { return context; }
@@ -60,7 +62,7 @@ public class ValidationFlowTest extends FilterEnabledTestBase implements ActionB
     * Tests to make sure that event-specific validations are still applied correctly when the
     * event name isn't present in the request.
     */
-   @Test(groups = "fast")
+   @Test
    public void testEventOneAsDefault() throws Exception {
       MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
       trip.addParameter("numberZero", "100");
@@ -68,19 +70,19 @@ public class ValidationFlowTest extends FilterEnabledTestBase implements ActionB
       trip.execute();
 
       ValidationFlowTest test = trip.getActionBean(getClass());
-      Assert.assertEquals(1, test.validateAlwaysRan);
-      Assert.assertEquals(2, test.validateOneRan);
-      Assert.assertEquals(0, test.validateTwoRan);
-      Assert.assertEquals(test.numberZero, 100);
-      Assert.assertEquals(test.numberOne, 101);
-      Assert.assertEquals(0, test.getContext().getValidationErrors().size());
+      assertThat(test.validateAlwaysRan).isEqualTo(1);
+      assertThat(test.validateOneRan).isEqualTo(2);
+      assertThat(test.validateTwoRan).isEqualTo(0);
+      assertThat(test.numberZero).isEqualTo(100);
+      assertThat(test.numberOne).isEqualTo(101);
+      assertThat(test.getContext().getValidationErrors()).isEmpty();
    }
 
    /**
     * Number one is a required field also for this event, so we supply it.  This event should
     * cause both validateAlways and validateOne to run.
     */
-   @Test(groups = "fast")
+   @Test
    public void testEventOneNoErrors() throws Exception {
       MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
       trip.addParameter("numberZero", "100");
@@ -89,12 +91,12 @@ public class ValidationFlowTest extends FilterEnabledTestBase implements ActionB
       trip.execute("eventOne");
 
       ValidationFlowTest test = trip.getActionBean(getClass());
-      Assert.assertEquals(1, test.validateAlwaysRan);
-      Assert.assertEquals(2, test.validateOneRan);
-      Assert.assertEquals(0, test.validateTwoRan);
-      Assert.assertEquals(test.numberZero, 100);
-      Assert.assertEquals(test.numberOne, 101);
-      Assert.assertEquals(0, test.getContext().getValidationErrors().size());
+      assertThat(test.validateAlwaysRan).isEqualTo(1);
+      assertThat(test.validateOneRan).isEqualTo(2);
+      assertThat(test.validateTwoRan).isEqualTo(0);
+      assertThat(test.numberZero).isEqualTo(100);
+      assertThat(test.numberOne).isEqualTo(101);
+      assertThat(test.getContext().getValidationErrors()).isEmpty();
    }
 
    /**
@@ -102,7 +104,7 @@ public class ValidationFlowTest extends FilterEnabledTestBase implements ActionB
     * required for this event.  Again this single error should prevent both validateAlways
     * and validateOne from running.
     */
-   @Test(groups = "fast")
+   @Test
    public void testEventOneWithErrors() throws Exception {
       MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
       trip.addParameter("numberZero", "100");
@@ -110,11 +112,11 @@ public class ValidationFlowTest extends FilterEnabledTestBase implements ActionB
       trip.execute("eventOne");
 
       ValidationFlowTest test = trip.getActionBean(getClass());
-      Assert.assertEquals(0, test.validateAlwaysRan);
-      Assert.assertEquals(0, test.validateOneRan);
-      Assert.assertEquals(0, test.validateTwoRan);
-      Assert.assertEquals(test.numberZero, 100);
-      Assert.assertEquals(1, test.getContext().getValidationErrors().size());
+      assertThat(test.validateAlwaysRan).isEqualTo(0);
+      assertThat(test.validateOneRan).isEqualTo(0);
+      assertThat(test.validateTwoRan).isEqualTo(0);
+      assertThat(test.numberZero).isEqualTo(100);
+      assertThat(test.getContext().getValidationErrors()).hasSize(1);
    }
 
    /**
@@ -122,7 +124,7 @@ public class ValidationFlowTest extends FilterEnabledTestBase implements ActionB
     * numberTwo should be required (and is supplied) and validateAlways and validateTwo should
     * run but not validateOne.
     */
-   @Test(groups = "fast")
+   @Test
    public void testEventTwoNoErrors() throws Exception {
       MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
       trip.addParameter("numberZero", "100");
@@ -131,19 +133,19 @@ public class ValidationFlowTest extends FilterEnabledTestBase implements ActionB
       trip.execute("eventTwo");
 
       ValidationFlowTest test = trip.getActionBean(getClass());
-      Assert.assertEquals(1, test.validateAlwaysRan);
-      Assert.assertEquals(0, test.validateOneRan);
-      Assert.assertEquals(2, test.validateTwoRan);
-      Assert.assertEquals(test.numberZero, 100);
-      Assert.assertEquals(test.numberTwo, 102);
-      Assert.assertEquals(0, test.getContext().getValidationErrors().size());
+      assertThat(test.validateAlwaysRan).isEqualTo(1);
+      assertThat(test.validateOneRan).isEqualTo(0);
+      assertThat(test.validateTwoRan).isEqualTo(2);
+      assertThat(test.numberZero).isEqualTo(100);
+      assertThat(test.numberTwo).isEqualTo(102);
+      assertThat(test.getContext().getValidationErrors()).isEmpty();
    }
 
    /**
     * Tests that validateTwo is run event though there are errors and valiateAlways did not run,
     * because validateTwo is marked to run always.
     */
-   @Test(groups = "fast")
+   @Test
    public void testEventTwoWithErrors() throws Exception {
       MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
       trip.addParameter("numberZero", ""); // required field always
@@ -151,30 +153,28 @@ public class ValidationFlowTest extends FilterEnabledTestBase implements ActionB
       trip.execute("eventTwo");
 
       ValidationFlowTest test = trip.getActionBean(getClass());
-      Assert.assertEquals(0, test.validateAlwaysRan);
-      Assert.assertEquals(0, test.validateOneRan);
-      Assert.assertEquals(1, test.validateTwoRan);
-      Assert.assertEquals(2, test.getContext().getValidationErrors().size());
+      assertThat(test.validateAlwaysRan).isEqualTo(0);
+      assertThat(test.validateOneRan).isEqualTo(0);
+      assertThat(test.validateTwoRan).isEqualTo(1);
+      assertThat(test.getContext().getValidationErrors()).hasSize(2);
    }
-
-   // Test methods begin here!
 
    /**
     * numberZero is the only required field for eventZero, so there should be no validation
     * errors generated. The only validation method that should be run is validateAlways() because
     * the others are tied to specific events.
     */
-   @Test(groups = "fast")
+   @Test
    public void testEventZeroNoErrors() throws Exception {
       MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
       trip.addParameter("numberZero", "99");
       trip.execute("eventZero");
 
       ValidationFlowTest test = trip.getActionBean(getClass());
-      Assert.assertEquals(1, test.validateAlwaysRan);
-      Assert.assertEquals(0, test.validateOneRan);
-      Assert.assertEquals(0, test.validateTwoRan);
-      Assert.assertEquals(0, test.getContext().getValidationErrors().size());
+      assertThat(test.validateAlwaysRan).isEqualTo(1);
+      assertThat(test.validateOneRan).isEqualTo(0);
+      assertThat(test.validateTwoRan).isEqualTo(0);
+      assertThat(test.getContext().getValidationErrors()).isEmpty();
    }
 
    /**
@@ -183,7 +183,7 @@ public class ValidationFlowTest extends FilterEnabledTestBase implements ActionB
     * has a on="one".  The single validaiton error should prevent validateAlways() and
     * validateOne from running.
     */
-   @Test(groups = "fast")
+   @Test
    public void testEventZeroWithErrors() throws Exception {
       MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
       trip.addParameter("numberZero", "99");
@@ -191,21 +191,22 @@ public class ValidationFlowTest extends FilterEnabledTestBase implements ActionB
       trip.execute("eventZero");
 
       ValidationFlowTest test = trip.getActionBean(getClass());
-      Assert.assertEquals(0, test.validateAlwaysRan);
-      Assert.assertEquals(0, test.validateOneRan);
-      Assert.assertEquals(0, test.validateTwoRan);
-      Assert.assertEquals(test.numberZero, 99);
-      Assert.assertEquals(1, test.getContext().getValidationErrors().size());
+      assertThat(test.validateAlwaysRan).isEqualTo(0);
+      assertThat(test.validateOneRan).isEqualTo(0);
+      assertThat(test.validateTwoRan).isEqualTo(0);
+      assertThat(test.numberZero).isEqualTo(99);
+      assertThat(test.getContext().getValidationErrors()).hasSize(1);
    }
 
    @HandlesEvent("eventTwo")
    public Resolution two() { return null; }
 
+   @SuppressWarnings("DefaultAnnotationParam")
    @ValidationMethod(priority = 0)
    public void validateAlways( ValidationErrors errors ) {
-       if ( errors == null ) {
-           throw new RuntimeException("errors must not be null");
-       }
+      if ( errors == null ) {
+         throw new RuntimeException("errors must not be null");
+      }
       validateAlwaysRan = counter++;
    }
 

@@ -1,8 +1,12 @@
 package net.sourceforge.stripes.controller;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+
+import org.junit.jupiter.api.Test;
 
 import net.sourceforge.stripes.FilterEnabledTestBase;
 import net.sourceforge.stripes.action.ActionBean;
@@ -19,292 +23,289 @@ import net.sourceforge.stripes.util.bean.PropertyExpressionEvaluation;
 import net.sourceforge.stripes.validation.Validate;
 import net.sourceforge.stripes.validation.ValidateNestedProperties;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
 
 /**
  * Tests binding security.
  */
 public class BindingSecurityTests extends FilterEnabledTestBase {
-    public static class NoAnnotation implements ActionBean {
-        private ActionBeanContext context;
 
-        public String[] getTestProperties() {
-            return new String[] { "foo", "bar", "baz" };
-        }
+   private static final Log log = Log.getInstance(BindingSecurityTests.class);
 
-        public boolean[] getExpectSuccess() {
-            return new boolean[] { true, true, true };
-        }
+   @Test
+   public void bindingPolicyEnforcement() {
+      try {
+         evaluate(new NoAnnotation());
+         evaluate(new DefaultAnnotation());
+         evaluate(new ImplicitDeny());
+         evaluate(new ExplicitDeny());
+         evaluate(new ImplicitAllow());
+         evaluate(new HonorValidateAnnotations());
+         evaluate(new OverrideValidateAnnotations());
+      }
+      catch ( Exception e ) {
+         StripesRuntimeException re = new StripesRuntimeException(e.getMessage(), e);
+         re.setStackTrace(e.getStackTrace());
+         throw re;
+      }
+   }
 
-        public ActionBeanContext getContext() {
-            return context;
-        }
+   public void evaluate( NoAnnotation bean ) throws Exception {
+      String[] properties = bean.getTestProperties();
+      boolean[] expect = bean.getExpectSuccess();
 
-        public void setContext(ActionBeanContext context) {
-            this.context = context;
-        }
+      Class<? extends NoAnnotation> beanType = bean.getClass();
+      MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), beanType);
+      for ( String p : properties ) {
+         trip.addParameter(p, p + "Value");
+      }
+      trip.execute();
 
-        private String foo, bar, baz;
+      bean = trip.getActionBean(beanType);
+      for ( int i = 0; i < properties.length; i++ ) {
+         String fullName = beanType.getSimpleName() + "." + properties[i];
+         log.debug("Testing binding security on ", fullName);
+         PropertyExpression pe = PropertyExpression.getExpression(properties[i]);
+         PropertyExpressionEvaluation eval = new PropertyExpressionEvaluation(pe, bean);
+         Object value = eval.getValue();
+         assertThat(value != null).describedAs(
+               "Property " + fullName + " should" + (expect[i] ? " not" : "") + " be null but it is" + (expect[i] ? "" : " not")).isEqualTo(expect[i]);
+      }
+   }
 
-        public String getFoo() {
-            return foo;
-        }
+   @Test
+   @SuppressWarnings("unused")
+   public void protectedClasses() {
+      class TestBean implements ActionBean {
 
-        public void setFoo(String foo) {
-            this.foo = foo;
-        }
-
-        public String getBar() {
-            return bar;
-        }
-
-        public void setBar(String bar) {
-            this.bar = bar;
-        }
-
-        public String getBaz() {
-            return baz;
-        }
-
-        public void setBaz(String baz) {
-            this.baz = baz;
-        }
-
-        @DefaultHandler
-        public Resolution execute() {
+         public ClassLoader getClassLoader() {
             return null;
-        }
-    }
+         }
 
-    @StrictBinding
-    public static class DefaultAnnotation extends BindingSecurityTests.NoAnnotation {
-        @Override
-        public boolean[] getExpectSuccess() {
-            return new boolean[] { false, false, false };
-        }
-    }
+         @Override
+         public ActionBeanContext getContext() {
+            return null;
+         }
 
-    @StrictBinding(allow = "foo,bar")
-    public static class ImplicitDeny extends BindingSecurityTests.NoAnnotation {
-        @Override
-        public boolean[] getExpectSuccess() {
-            return new boolean[] { true, true, false };
-        }
-    }
+         public TestBean getOther() {
+            return null;
+         }
 
-    @StrictBinding(allow = "foo,bar,baz", deny = "baz,baz.**")
-    public static class ExplicitDeny extends BindingSecurityTests.NoAnnotation {
-        @Override
-        public boolean[] getExpectSuccess() {
-            return new boolean[] { true, true, false };
-        }
-    }
+         public HttpServletRequest getRequest() {
+            return null;
+         }
 
-    @StrictBinding(defaultPolicy = Policy.ALLOW)
-    public static class ImplicitAllow extends BindingSecurityTests.NoAnnotation {
-        @Override
-        public boolean[] getExpectSuccess() {
-            return new boolean[] { true, true, true };
-        }
-    }
+         public HttpServletResponse getResponse() {
+            return null;
+         }
 
-    public static class Blah {
-        private String name;
+         public HttpSession getSession() {
+            return null;
+         }
 
-        public String getName() {
-            return name;
-        }
+         @Override
+         public void setContext( ActionBeanContext context ) {
+         }
+      }
 
-        public void setName(String name) {
-            this.name = name;
-        }
-    }
+      final String[] expressions = {
+            // Direct, single node
+            "class", "classLoader", "context", "request", "response", "session",
 
-    @StrictBinding
-    public static class HonorValidateAnnotations extends BindingSecurityTests.NoAnnotation {
-        @Override
-        public boolean[] getExpectSuccess() {
-            return new boolean[] { true, true, true, true, true };
-        }
+            // Indirect, last node
+            "other.class", "other.classLoader", "other.context", "other.request", "other.response", "other.session",
 
-        @Override
-        public String[] getTestProperties() {
-            return new String[] { "foo", "bar", "baz", "blah", "blah.name" };
-        }
+            // Indirect, not first node, not last node
+            "other.class.name", "other.request.cookies", "other.session.id", };
 
-        @Validate
-        private String foo;
-        private String bar;
-        private String baz;
-        @ValidateNestedProperties(@Validate(field = "name"))
-        private Blah blah;
+      final TestBean bean = new TestBean();
+      final BindingPolicyManager bpm = new BindingPolicyManager(TestBean.class);
+      for ( String expression : expressions ) {
+         log.debug("Testing illegal expression: " + expression);
+         PropertyExpression pe = PropertyExpression.getExpression(expression);
+         PropertyExpressionEvaluation eval = new PropertyExpressionEvaluation(pe, bean);
+         assertThat(bpm.isBindingAllowed(eval)).describedAs("Binding should not be allowed for expression " + expression).isFalse();
+      }
+   }
 
-        @Override
-        public String getFoo() {
-            return foo;
-        }
+   public static class Blah {
 
-        @Override
-        public void setFoo(String foo) {
-            this.foo = foo;
-        }
+      private String name;
 
-        @Validate
-        @Override
-        public String getBar() {
-            return bar;
-        }
+      public String getName() {
+         return name;
+      }
 
-        @Override
-        public void setBar(String bar) {
-            this.bar = bar;
-        }
+      public void setName( String name ) {
+         this.name = name;
+      }
+   }
 
-        @Override
-        public String getBaz() {
-            return baz;
-        }
 
-        @Validate
-        @Override
-        public void setBaz(String baz) {
-            this.baz = baz;
-        }
+   @StrictBinding
+   public static class DefaultAnnotation extends BindingSecurityTests.NoAnnotation {
 
-        public Blah getBlah() {
-            return blah;
-        }
+      @Override
+      public boolean[] getExpectSuccess() {
+         return new boolean[] { false, false, false };
+      }
+   }
 
-        public void setBlah(Blah blah) {
-            this.blah = blah;
-        }
-    }
 
-    @StrictBinding(deny = "**")
-    public static class OverrideValidateAnnotations extends
-            BindingSecurityTests.HonorValidateAnnotations {
-        @Override
-        public boolean[] getExpectSuccess() {
-            return new boolean[] { false, false, false, false, false };
-        }
-    }
+   @StrictBinding(allow = "foo,bar,baz", deny = "baz,baz.**")
+   public static class ExplicitDeny extends BindingSecurityTests.NoAnnotation {
 
-    private static final Log log = Log.getInstance(BindingSecurityTests.class);
+      @Override
+      public boolean[] getExpectSuccess() {
+         return new boolean[] { true, true, false };
+      }
+   }
 
-    @Test(groups = "fast")
-    public void bindingPolicyEnforcement() {
-        try {
-            evaluate(new NoAnnotation());
-            evaluate(new DefaultAnnotation());
-            evaluate(new ImplicitDeny());
-            evaluate(new ExplicitDeny());
-            evaluate(new ImplicitAllow());
-            evaluate(new HonorValidateAnnotations());
-            evaluate(new OverrideValidateAnnotations());
-        }
-        catch (Exception e) {
-            StripesRuntimeException re = new StripesRuntimeException(e.getMessage(), e);
-            re.setStackTrace(e.getStackTrace());
-            throw re;
-        }
-    }
 
-    public void evaluate(NoAnnotation bean) throws Exception {
-        String[] properties = bean.getTestProperties();
-        boolean[] expect = bean.getExpectSuccess();
+   @SuppressWarnings("unused")
+   @StrictBinding
+   public static class HonorValidateAnnotations extends BindingSecurityTests.NoAnnotation {
 
-        Class<? extends NoAnnotation> beanType = bean.getClass();
-        MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), beanType);
-        for (String p : properties)
-            trip.addParameter(p, p + "Value");
-        trip.execute();
+      @Validate
+      private String foo;
+      private String bar;
+      private String baz;
+      @ValidateNestedProperties(@Validate(field = "name"))
+      private Blah   blah;
 
-        bean = trip.getActionBean(beanType);
-        for (int i = 0; i < properties.length; i++) {
-            String fullName = beanType.getSimpleName() + "." + properties[i];
-            log.debug("Testing binding security on ", fullName);
-            PropertyExpression pe = PropertyExpression.getExpression(properties[i]);
-            PropertyExpressionEvaluation eval = new PropertyExpressionEvaluation(pe, bean);
-            Object value = eval.getValue();
-            Assert.assertEquals(value != null, expect[i], "Property " + fullName + " should"
-                    + (expect[i] ? " not" : "") + " be null but it is" + (expect[i] ? "" : " not"));
-        }
-    }
+      @Validate
+      @Override
+      public String getBar() {
+         return bar;
+      }
 
-    @Test(groups = "fast")
-    @SuppressWarnings("unused")
-    public void protectedClasses() {
-        class TestBean implements ActionBean {
-            public void setContext(ActionBeanContext context) {
-            }
+      @Override
+      public String getBaz() {
+         return baz;
+      }
 
-            public ClassLoader getClassLoader() {
-                return null;
-            }
+      public Blah getBlah() {
+         return blah;
+      }
 
-            public ActionBeanContext getContext() {
-                return null;
-            }
+      @Override
+      public boolean[] getExpectSuccess() {
+         return new boolean[] { true, true, true, true, true };
+      }
 
-            public HttpServletRequest getRequest() {
-                return null;
-            }
+      @Override
+      public String getFoo() {
+         return foo;
+      }
 
-            public HttpServletResponse getResponse() {
-                return null;
-            }
+      @Override
+      public String[] getTestProperties() {
+         return new String[] { "foo", "bar", "baz", "blah", "blah.name" };
+      }
 
-            public HttpSession getSession() {
-                return null;
-            }
+      @Override
+      public void setBar( String bar ) {
+         this.bar = bar;
+      }
 
-            public TestBean getOther() {
-                return null;
-            }
-        }
+      @Validate
+      @Override
+      public void setBaz( String baz ) {
+         this.baz = baz;
+      }
 
-        final String[] expressions = {
-                // Direct, single node
-                "class",
-                "classLoader",
-                "context",
-                "request",
-                "response",
-                "session",
+      public void setBlah( Blah blah ) {
+         this.blah = blah;
+      }
 
-                // Indirect, last node
-                "other.class",
-                "other.classLoader",
-                "other.context",
-                "other.request",
-                "other.response",
-                "other.session",
+      @Override
+      public void setFoo( String foo ) {
+         this.foo = foo;
+      }
+   }
 
-                // Indirect, not first node, not last node
-                "other.class.name",
-                "other.request.cookies",
-                "other.session.id",
-        };
 
-        final TestBean bean = new TestBean();
-        final BindingPolicyManager bpm = new BindingPolicyManager(TestBean.class);
-        for (String expression : expressions) {
-            log.debug("Testing illegal expression: " + expression);
-            PropertyExpression pe = PropertyExpression.getExpression(expression);
-            PropertyExpressionEvaluation eval = new PropertyExpressionEvaluation(pe, bean);
-            Assert.assertFalse(bpm.isBindingAllowed(eval), "Binding should not be allowed for expression " + expression);
-        }
-    }
+   @StrictBinding(defaultPolicy = Policy.ALLOW)
+   public static class ImplicitAllow extends BindingSecurityTests.NoAnnotation {
 
-    public static void main(String[] args) {
-        BindingSecurityTests tests = new BindingSecurityTests();
-        try {
-            tests.initCtx();
-            tests.bindingPolicyEnforcement();
-            tests.protectedClasses();
-        } finally {
-            tests.closeCtx();
-        }
-    }
+      @Override
+      public boolean[] getExpectSuccess() {
+         return new boolean[] { true, true, true };
+      }
+   }
+
+
+   @StrictBinding(allow = "foo,bar")
+   public static class ImplicitDeny extends BindingSecurityTests.NoAnnotation {
+
+      @Override
+      public boolean[] getExpectSuccess() {
+         return new boolean[] { true, true, false };
+      }
+   }
+
+
+   @SuppressWarnings("unused")
+   public static class NoAnnotation implements ActionBean {
+
+      private ActionBeanContext context;
+      private String            foo, bar, baz;
+
+      @DefaultHandler
+      public Resolution execute() {
+         return null;
+      }
+
+      public String getBar() {
+         return bar;
+      }
+
+      public String getBaz() {
+         return baz;
+      }
+
+      @Override
+      public ActionBeanContext getContext() {
+         return context;
+      }
+
+      public boolean[] getExpectSuccess() {
+         return new boolean[] { true, true, true };
+      }
+
+      public String getFoo() {
+         return foo;
+      }
+
+      public String[] getTestProperties() {
+         return new String[] { "foo", "bar", "baz" };
+      }
+
+      public void setBar( String bar ) {
+         this.bar = bar;
+      }
+
+      public void setBaz( String baz ) {
+         this.baz = baz;
+      }
+
+      @Override
+      public void setContext( ActionBeanContext context ) {
+         this.context = context;
+      }
+
+      public void setFoo( String foo ) {
+         this.foo = foo;
+      }
+   }
+
+
+   @StrictBinding(deny = "**")
+   public static class OverrideValidateAnnotations extends BindingSecurityTests.HonorValidateAnnotations {
+
+      @Override
+      public boolean[] getExpectSuccess() {
+         return new boolean[] { false, false, false, false, false };
+      }
+   }
+
 }

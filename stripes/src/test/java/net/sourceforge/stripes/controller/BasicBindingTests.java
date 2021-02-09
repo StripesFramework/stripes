@@ -1,9 +1,8 @@
 package net.sourceforge.stripes.controller;
 
-import java.util.Arrays;
+import static org.assertj.core.api.Assertions.assertThat;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import net.sourceforge.stripes.FilterEnabledTestBase;
 import net.sourceforge.stripes.action.ActionBeanContext;
@@ -21,7 +20,7 @@ import net.sourceforge.stripes.testbeans.TestEnum;
  */
 public class BasicBindingTests extends FilterEnabledTestBase {
 
-   @Test(groups = "fast")
+   @Test
    public void attemptToBindIntoActionBeanContext() throws Exception {
       // Should be able to set it just fine
       MockRoundtrip trip = getRoundtrip();
@@ -31,10 +30,10 @@ public class BasicBindingTests extends FilterEnabledTestBase {
 
       TestActionBean bean = trip.getActionBean(TestActionBean.class);
       ActionBeanContext context = bean.getContext();
-      Assert.assertFalse("woohaa!".equals(context.getEventName()));
+      assertThat(context.getEventName()).isNotEqualTo("woohaa!");
    }
 
-   @Test(groups = "fast")
+   @Test
    public void attemptToBindIntoActionBeanContextII() throws Exception {
       // Should be able to set it just fine
       MockRoundtrip trip = getRoundtrip();
@@ -44,10 +43,10 @@ public class BasicBindingTests extends FilterEnabledTestBase {
 
       TestActionBean bean = trip.getActionBean(TestActionBean.class);
       ActionBeanContext context = bean.getContext();
-      Assert.assertFalse("woohaa!".equals(context.getEventName()));
+      assertThat(context.getEventName()).isNotEqualTo("woohaa!");
    }
 
-   @Test(groups = "fast")
+   @Test
    public void basicBinding() throws Exception {
       MockRoundtrip trip = getRoundtrip();
       trip.addParameter("singleString", "testValue");
@@ -55,11 +54,11 @@ public class BasicBindingTests extends FilterEnabledTestBase {
       trip.execute();
 
       TestActionBean bean = trip.getActionBean(TestActionBean.class);
-      Assert.assertEquals(bean.getSingleString(), "testValue");
-      Assert.assertEquals(bean.getSingleLong(), new Long(12345L));
+      assertThat(bean.getSingleString()).isEqualTo("testValue");
+      assertThat(bean.getSingleLong()).isEqualTo(12345L);
    }
 
-   @Test(groups = "fast")
+   @Test
    public void bindArrayOfEnums() throws Exception {
       // Should be able to set it just fine
       MockRoundtrip trip = getRoundtrip();
@@ -68,38 +67,34 @@ public class BasicBindingTests extends FilterEnabledTestBase {
 
       TestActionBean bean = trip.getActionBean(TestActionBean.class);
       TestActionBean.Color[] colors = bean.getColors();
-      Assert.assertNotNull(colors);
-      Assert.assertEquals(colors.length, 3);
-      Assert.assertEquals(colors[0], TestActionBean.Color.Red);
-      Assert.assertEquals(colors[1], TestActionBean.Color.Green);
-      Assert.assertEquals(colors[2], TestActionBean.Color.Blue);
+      assertThat(colors).isNotNull();
+      assertThat(colors).hasSize(3);
+      assertThat(colors[0]).isEqualTo(TestActionBean.Color.Red);
+      assertThat(colors[1]).isEqualTo(TestActionBean.Color.Green);
+      assertThat(colors[2]).isEqualTo(TestActionBean.Color.Blue);
    }
 
-   @Test(groups = "fast")
+   @Test
    public void bindIntArray() throws Exception {
       MockRoundtrip trip = getRoundtrip();
       trip.addParameter("intArray", "100", "200", "30017");
       trip.execute();
 
       TestActionBean bean = trip.getActionBean(TestActionBean.class);
-      Assert.assertTrue(Arrays.equals(bean.getIntArray(), new int[] { 100, 200, 30017 }));
+      assertThat(bean.getIntArray()).containsExactly(100, 200, 30017);
    }
 
-   @Test(groups = "fast")
+   @Test
    public void bindListOfLongs() throws Exception {
       MockRoundtrip trip = getRoundtrip();
       trip.addParameter("listOfLongs", "1", "2", "3", "456");
       trip.execute();
 
       TestActionBean bean = trip.getActionBean(TestActionBean.class);
-      Assert.assertTrue(bean.getListOfLongs().contains(1L));
-      Assert.assertTrue(bean.getListOfLongs().contains(2L));
-      Assert.assertTrue(bean.getListOfLongs().contains(3L));
-      Assert.assertTrue(bean.getListOfLongs().contains(456L));
-      Assert.assertEquals(bean.getListOfLongs().size(), 4);
+      assertThat(bean.getListOfLongs()).containsExactly(1L, 2L, 3L, 456L);
    }
 
-   @Test(groups = "fast")
+   @Test
    public void bindNestedProperties() throws Exception {
       MockRoundtrip trip = getRoundtrip();
       trip.addParameter("testBean.intProperty", "10");
@@ -109,29 +104,26 @@ public class BasicBindingTests extends FilterEnabledTestBase {
       trip.execute();
 
       TestBean bean = trip.getActionBean(TestActionBean.class).getTestBean();
-      Assert.assertNotNull(bean);
-      Assert.assertEquals(bean.getIntProperty(), 10);
-      Assert.assertEquals(bean.getLongProperty(), new Long(20));
-      Assert.assertEquals(bean.isBooleanProperty(), true);
-      Assert.assertEquals(bean.getEnumProperty(), TestEnum.Third);
+      assertThat(bean).isNotNull();
+      assertThat(bean.getIntProperty()).isEqualTo(10);
+      assertThat(bean.getLongProperty()).isEqualTo(20L);
+      assertThat(bean.isBooleanProperty()).isTrue();
+      assertThat(bean.getEnumProperty()).isEqualTo(TestEnum.Third);
    }
 
-   @Test(groups = "fast")
+   @Test
    public void bindNestedSet() throws Exception {
       MockRoundtrip trip = getRoundtrip();
       trip.addParameter("testBean.stringSet", "foo", "bar", "splat");
       trip.execute();
 
       TestBean bean = trip.getActionBean(TestActionBean.class).getTestBean();
-      Assert.assertNotNull(bean);
-      Assert.assertNotNull(bean.getStringSet());
-      Assert.assertEquals(bean.getStringSet().size(), 3);
-      Assert.assertTrue(bean.getStringSet().contains("foo"));
-      Assert.assertTrue(bean.getStringSet().contains("bar"));
-      Assert.assertTrue(bean.getStringSet().contains("splat"));
+      assertThat(bean).isNotNull();
+      assertThat(bean.getStringSet()).isNotNull();
+      assertThat(bean.getStringSet()).containsExactlyInAnyOrder("foo", "bar", "splat");
    }
 
-   @Test(groups = "fast")
+   @Test
    public void bindNonExistentProperty() throws Exception {
       // Should get logged but otherwise ignored...not blow up
       MockRoundtrip trip = getRoundtrip();
@@ -139,24 +131,21 @@ public class BasicBindingTests extends FilterEnabledTestBase {
       trip.execute();
 
       TestActionBean bean = trip.getActionBean(TestActionBean.class);
-      Assert.assertNotNull(bean);
+      assertThat(bean).isNotNull();
    }
 
-   @Test(groups = "fast")
+   @SuppressWarnings("unchecked")
+   @Test
    public void bindNonGenericListOfLongs() throws Exception {
       MockRoundtrip trip = getRoundtrip();
       trip.addParameter("nakedListOfLongs", "10", "20", "30", "4567");
       trip.execute();
 
       TestActionBean bean = trip.getActionBean(TestActionBean.class);
-      Assert.assertTrue(bean.getNakedListOfLongs().contains(10L));
-      Assert.assertTrue(bean.getNakedListOfLongs().contains(20L));
-      Assert.assertTrue(bean.getNakedListOfLongs().contains(30L));
-      Assert.assertTrue(bean.getNakedListOfLongs().contains(4567L));
-      Assert.assertEquals(bean.getNakedListOfLongs().size(), 4);
+      assertThat(bean.getNakedListOfLongs()).containsExactly(10L, 20L, 30L, 4567L);
    }
 
-   @Test(groups = "fast")
+   @Test
    public void bindNumericallyIndexedProperties() throws Exception {
       MockRoundtrip trip = getRoundtrip();
       trip.addParameter("listOfBeans[0].intProperty", "0");
@@ -167,14 +156,14 @@ public class BasicBindingTests extends FilterEnabledTestBase {
       trip.execute();
 
       TestActionBean bean = trip.getActionBean(TestActionBean.class);
-      Assert.assertEquals(bean.getListOfBeans().get(0).getIntProperty(), 00);
-      Assert.assertEquals(bean.getListOfBeans().get(1).getIntProperty(), 10);
-      Assert.assertEquals(bean.getListOfBeans().get(2).getIntProperty(), 20);
-      Assert.assertEquals(bean.getListOfBeans().get(3).getIntProperty(), 30);
-      Assert.assertEquals(bean.getListOfBeans().get(4).getIntProperty(), 40);
+      assertThat(bean.getListOfBeans().get(0).getIntProperty()).isEqualTo(0);
+      assertThat(bean.getListOfBeans().get(1).getIntProperty()).isEqualTo(10);
+      assertThat(bean.getListOfBeans().get(2).getIntProperty()).isEqualTo(20);
+      assertThat(bean.getListOfBeans().get(3).getIntProperty()).isEqualTo(30);
+      assertThat(bean.getListOfBeans().get(4).getIntProperty()).isEqualTo(40);
    }
 
-   @Test(groups = "fast")
+   @Test
    public void bindPropertyWithoutGetterMethod() throws Exception {
       // Should be able to set it just fine
       MockRoundtrip trip = getRoundtrip();
@@ -182,10 +171,10 @@ public class BasicBindingTests extends FilterEnabledTestBase {
       trip.execute();
 
       TestActionBean bean = trip.getActionBean(TestActionBean.class);
-      Assert.assertTrue(bean.setOnlyStringIsNotNull());
+      assertThat(bean.setOnlyStringIsNotNull()).isTrue();
    }
 
-   @Test(groups = "fast")
+   @Test
    public void bindPublicPropertyWithoutMethods() throws Exception {
       // Should be able to set it just fine
       MockRoundtrip trip = getRoundtrip();
@@ -193,23 +182,20 @@ public class BasicBindingTests extends FilterEnabledTestBase {
       trip.execute();
 
       TestActionBean bean = trip.getActionBean(TestActionBean.class);
-      Assert.assertEquals(new Long(12345), bean.publicLong);
+      assertThat(bean.publicLong).isEqualTo(12345L);
    }
 
-   @Test(groups = "fast")
+   @Test
    public void bindSetsOfStrings() throws Exception {
       MockRoundtrip trip = getRoundtrip();
       trip.addParameter("setOfStrings", "testValue", "testValue", "testValue2", "testValue3");
       trip.execute();
 
       TestActionBean bean = trip.getActionBean(TestActionBean.class);
-      Assert.assertTrue(bean.getSetOfStrings().contains("testValue"));
-      Assert.assertTrue(bean.getSetOfStrings().contains("testValue2"));
-      Assert.assertTrue(bean.getSetOfStrings().contains("testValue3"));
-      Assert.assertEquals(bean.getSetOfStrings().size(), 3);
+      assertThat(bean.getSetOfStrings()).containsExactlyInAnyOrder("testValue", "testValue2", "testValue3");
    }
 
-   @Test(groups = "fast")
+   @Test
    public void bindStringIndexedProperties() throws Exception {
       MockRoundtrip trip = getRoundtrip();
       trip.addParameter("mapOfLongs['one']", "1");
@@ -218,12 +204,12 @@ public class BasicBindingTests extends FilterEnabledTestBase {
       trip.execute();
 
       TestActionBean bean = trip.getActionBean(TestActionBean.class);
-      Assert.assertEquals(bean.getMapOfLongs().get("one"), new Long(1));
-      Assert.assertEquals(bean.getMapOfLongs().get("twentyseven"), new Long(27));
-      Assert.assertEquals(bean.getMapOfLongs().get("nine"), new Long(9));
+      assertThat(bean.getMapOfLongs().get("one")).isEqualTo(1L);
+      assertThat(bean.getMapOfLongs().get("twentyseven")).isEqualTo(27L);
+      assertThat(bean.getMapOfLongs().get("nine")).isEqualTo(9L);
    }
 
-   @Test(groups = "fast")
+   @Test
    public void bindStringIndexedPropertiesII() throws Exception {
       MockRoundtrip trip = getRoundtrip();
       trip.addParameter("mapOfObjects['foo']", "bar");
@@ -233,13 +219,13 @@ public class BasicBindingTests extends FilterEnabledTestBase {
       trip.execute();
 
       TestActionBean bean = trip.getActionBean(TestActionBean.class);
-      Assert.assertEquals(bean.getMapOfObjects().get("foo"), "bar");
-      Assert.assertEquals(bean.getMapOfObjects().get("cat"), "meow");
-      Assert.assertEquals(bean.getMapOfObjects().get("dog"), "woof");
-      Assert.assertEquals(bean.getMapOfObjects().get("snake"), "ssss");
+      assertThat(bean.getMapOfObjects().get("foo")).isEqualTo("bar");
+      assertThat(bean.getMapOfObjects().get("cat")).isEqualTo("meow");
+      assertThat(bean.getMapOfObjects().get("dog")).isEqualTo("woof");
+      assertThat(bean.getMapOfObjects().get("snake")).isEqualTo("ssss");
    }
 
-   @Test(groups = "fast")
+   @Test
    public void testBindingToSubclassOfDeclaredType() throws Exception {
       MockRoundtrip trip = getRoundtrip();
       trip.addParameter("item.id", "1000000");
@@ -247,8 +233,8 @@ public class BasicBindingTests extends FilterEnabledTestBase {
 
       TestActionBean bean = trip.getActionBean(TestActionBean.class);
       TestActionBean.PropertyLess item = bean.getItem();
-      Assert.assertEquals(item.getClass(), TestActionBean.Item.class);
-      Assert.assertEquals(((TestActionBean.Item)item).getId(), new Long(1000000l));
+      assertThat(item.getClass()).isEqualTo(TestActionBean.Item.class);
+      assertThat(((TestActionBean.Item)item).getId()).isEqualTo(1000000L);
    }
 
    /** Helper method to create a roundtrip with the TestActionBean class. */

@@ -15,12 +15,13 @@
  */
 package net.sourceforge.stripes.util;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import net.sourceforge.stripes.FilterEnabledTestBase;
 
@@ -32,35 +33,35 @@ import net.sourceforge.stripes.FilterEnabledTestBase;
  */
 public class UrlBuilderTest extends FilterEnabledTestBase {
 
-   @Test(groups = "fast")
-   public void testBasicUrl() throws Exception {
+   @Test
+   public void testBasicUrl() {
       String path = "/test/page.jsp";
       UrlBuilder builder = new UrlBuilder(Locale.getDefault(), path, false);
       String result = builder.toString();
-      Assert.assertEquals(result, path);
+      assertThat(result).isEqualTo(path);
    }
 
-   @Test(groups = "fast")
-   public void testUrlWithParameterArray() throws Exception {
+   @Test
+   public void testUrlWithParameterArray() {
       String path = "/test/page.jsp";
       UrlBuilder builder = new UrlBuilder(Locale.getDefault(), path, false);
       builder.addParameter("one", (Object[])Literal.array("1", "one", "uno", "i"));
       String result = builder.toString();
-      Assert.assertEquals(result, "/test/page.jsp?one=1&one=one&one=uno&one=i");
+      assertThat(result).isEqualTo("/test/page.jsp?one=1&one=one&one=uno&one=i");
    }
 
-   @Test(groups = "fast")
-   public void testUrlWithParameterCollection() throws Exception {
+   @Test
+   public void testUrlWithParameterCollection() {
       String path = "/test/page.jsp";
       UrlBuilder builder = new UrlBuilder(Locale.getDefault(), path, false);
 
       builder.addParameter("one", Literal.list("1", "one", "uno", "i"));
       String result = builder.toString();
-      Assert.assertEquals(result, "/test/page.jsp?one=1&one=one&one=uno&one=i");
+      assertThat(result).isEqualTo("/test/page.jsp?one=1&one=one&one=uno&one=i");
    }
 
-   @Test(groups = "fast")
-   public void testUrlWithParameterMap() throws Exception {
+   @Test
+   public void testUrlWithParameterMap() {
       String path = "/test/page.jsp";
       UrlBuilder builder = new UrlBuilder(Locale.getDefault(), path, false);
       Map<Object, Object> map = new LinkedHashMap<>();
@@ -70,42 +71,42 @@ public class UrlBuilderTest extends FilterEnabledTestBase {
 
       builder.addParameters(map);
       String result = builder.toString();
-      Assert.assertEquals(result, "/test/page.jsp?one=one&two=2&two=two&three=3&three=three");
+      assertThat(result).isEqualTo("/test/page.jsp?one=one&two=2&two=two&three=3&three=three");
    }
 
-   @Test(groups = "fast")
-   public void testUrlWithParameterVarargs() throws Exception {
+   @Test
+   public void testUrlWithParameterVarargs() {
       String path = "/test/page.jsp";
       UrlBuilder builder = new UrlBuilder(Locale.getDefault(), path, false);
       builder.addParameter("one", 1, "one", "uno", "i");
       String result = builder.toString();
-      Assert.assertEquals(result, "/test/page.jsp?one=1&one=one&one=uno&one=i");
+      assertThat(result).isEqualTo("/test/page.jsp?one=1&one=one&one=uno&one=i");
    }
 
-   @Test(groups = "fast")
-   public void testUrlWithParameters() throws Exception {
+   @Test
+   public void testUrlWithParameters() {
       String path = "/test/page.jsp";
       UrlBuilder builder = new UrlBuilder(Locale.getDefault(), path, false);
       builder.addParameter("one", 1);
       builder.addParameter("two", 2);
       builder.addParameter("three", 3);
       String result = builder.toString();
-      Assert.assertEquals(result, "/test/page.jsp?one=1&two=2&three=3");
+      assertThat(result).isEqualTo("/test/page.jsp?one=1&two=2&three=3");
    }
 
-   @Test(groups = "fast")
-   public void testUrlWithParametersAndAnchor() throws Exception {
+   @Test
+   public void testUrlWithParametersAndAnchor() {
       String path = "/test/page.jsp#someAnchor";
       UrlBuilder builder = new UrlBuilder(Locale.getDefault(), path, false);
       builder.addParameter("one", 1);
       builder.addParameter("two", 2);
       builder.addParameter("three", 3);
       String result = builder.toString();
-      Assert.assertEquals(result, "/test/page.jsp?one=1&two=2&three=3#someAnchor");
+      assertThat(result).isEqualTo("/test/page.jsp?one=1&two=2&three=3#someAnchor");
    }
 
-   @Test(groups = "fast")
-   public void testUrlWithParametersAndAnchor2() throws Exception {
+   @Test
+   public void testUrlWithParametersAndAnchor2() {
       String path = "/test/page.jsp#someAnchor";
       UrlBuilder builder = new UrlBuilder(Locale.getDefault(), path, false);
       builder.addParameter("one", 1);
@@ -113,11 +114,11 @@ public class UrlBuilderTest extends FilterEnabledTestBase {
       builder.addParameter("three", 3);
       builder.setAnchor("someOtherAnchor");
       String result = builder.toString();
-      Assert.assertEquals(result, "/test/page.jsp?one=1&two=2&three=3#someOtherAnchor");
+      assertThat(result).isEqualTo("/test/page.jsp?one=1&two=2&three=3#someOtherAnchor");
    }
 
-   @Test(groups = "fast")
-   public void testUrlWithParametersAndAnchor3() throws Exception {
+   @Test
+   public void testUrlWithParametersAndAnchor3() {
       String path = "/test/page.jsp#someAnchor";
       UrlBuilder builder = new UrlBuilder(Locale.getDefault(), path, false);
       builder.addParameter("one", 1);
@@ -125,11 +126,11 @@ public class UrlBuilderTest extends FilterEnabledTestBase {
       builder.addParameter("three", 3);
       builder.setAnchor(null);
       String result = builder.toString();
-      Assert.assertEquals(result, "/test/page.jsp?one=1&two=2&three=3");
+      assertThat(result).isEqualTo("/test/page.jsp?one=1&two=2&three=3");
    }
 
-   @Test(groups = "fast")
-   public void testUrlWithRepeatedParameters() throws Exception {
+   @Test
+   public void testUrlWithRepeatedParameters() {
       String path = "/test/page.jsp";
       UrlBuilder builder = new UrlBuilder(Locale.getDefault(), path, false);
       builder.addParameter("one", "one");
@@ -137,20 +138,20 @@ public class UrlBuilderTest extends FilterEnabledTestBase {
       builder.addParameter("one", "four");
 
       String result = builder.toString();
-      Assert.assertTrue(result.contains("one=one"));
-      Assert.assertTrue(result.contains("one=two"));
-      Assert.assertTrue(result.contains("one=three"));
-      Assert.assertTrue(result.contains("one=four"));
+      assertThat(result.contains("one=one")).isTrue();
+      assertThat(result.contains("one=two")).isTrue();
+      assertThat(result.contains("one=three")).isTrue();
+      assertThat(result.contains("one=four")).isTrue();
    }
 
-   @Test(groups = "fast")
-   public void testUrlWithValuelessParameter() throws Exception {
+   @Test
+   public void testUrlWithValuelessParameter() {
       String path = "/test/page.jsp";
       UrlBuilder builder = new UrlBuilder(Locale.getDefault(), path, false);
       builder.addParameter("one");
       builder.addParameter("two", "");
       builder.addParameter("three");
       String result = builder.toString();
-      Assert.assertEquals(result, "/test/page.jsp?one=&two=&three=");
+      assertThat(result).isEqualTo("/test/page.jsp?one=&two=&three=");
    }
 }

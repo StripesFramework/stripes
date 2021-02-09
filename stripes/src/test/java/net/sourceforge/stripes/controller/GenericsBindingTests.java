@@ -1,13 +1,14 @@
 package net.sourceforge.stripes.controller;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
-import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import net.sourceforge.stripes.StripesTestFixture;
 import net.sourceforge.stripes.action.ActionBean;
@@ -26,21 +27,27 @@ import net.sourceforge.stripes.testbeans.TestBean;
  */
 public class GenericsBindingTests extends GenericsBindingTestsBaseClass<TestBean, Double, Boolean, Long, Date> implements ActionBean {
 
-   // Stuff necessary to implement ActionBean!
-   private ActionBeanContext context;
-   private MockServletContext ctx;
+   private static MockServletContext ctx;
 
-   @AfterClass
-   public void closeServletContext() {
+   @AfterAll
+   public static void closeServletContext() {
       ctx.close();
    }
 
-   @DefaultHandler
-   public Resolution execute() { return new RedirectResolution("/somewhere.jsp"); }
+   @BeforeAll
+   public static void setupServletContext() {
+      ctx = StripesTestFixture.createServletContext();
+   }
+
+   // Stuff necessary to implement ActionBean!
+   private ActionBeanContext context;
 
    ///////////////////////////////////////////////////////////////////////////
    // Test and Support Methods
    ///////////////////////////////////////////////////////////////////////////
+
+   @DefaultHandler
+   public Resolution execute() { return new RedirectResolution("/somewhere.jsp"); }
 
    @Override
    public ActionBeanContext getContext() { return context; }
@@ -48,12 +55,7 @@ public class GenericsBindingTests extends GenericsBindingTestsBaseClass<TestBean
    @Override
    public void setContext( ActionBeanContext context ) { this.context = context; }
 
-   @BeforeClass
-   public void setupServletContext() {
-      ctx = StripesTestFixture.createServletContext();
-   }
-
-   @Test(groups = "fast")
+   @Test
    public void testGenericBean() throws Exception {
       MockRoundtrip trip = getRoundtrip();
       trip.getRequest().addLocale(Locale.ENGLISH);
@@ -62,13 +64,11 @@ public class GenericsBindingTests extends GenericsBindingTestsBaseClass<TestBean
       trip.execute();
 
       GenericsBindingTests bean = trip.getActionBean(GenericsBindingTests.class);
-      Assert.assertNotNull(bean.getGenericBean().getGenericA());
-      Assert.assertEquals(bean.getGenericBean().getGenericA(), new Double(123.4));
-      Assert.assertNotNull(bean.getGenericBean().getGenericB());
-      Assert.assertEquals(bean.getGenericBean().getGenericB(), Boolean.TRUE);
+      assertThat(bean.getGenericBean().getGenericA()).isEqualTo(123.4);
+      assertThat(bean.getGenericBean().getGenericB()).isEqualTo(true);
    }
 
-   @Test(groups = "fast")
+   @Test
    public void testSimpleTypeVariable() throws Exception {
       MockRoundtrip trip = getRoundtrip();
       trip.getRequest().addLocale(Locale.ENGLISH);
@@ -76,11 +76,10 @@ public class GenericsBindingTests extends GenericsBindingTestsBaseClass<TestBean
       trip.execute();
 
       GenericsBindingTests bean = trip.getActionBean(GenericsBindingTests.class);
-      Assert.assertNotNull(bean.getNumber());
-      Assert.assertEquals(bean.getNumber(), new Double(123.4));
+      assertThat(bean.getNumber()).isEqualTo(123.4);
    }
 
-   @Test(groups = "fast")
+   @Test
    public void testTypeVariableLists() throws Exception {
       MockRoundtrip trip = getRoundtrip();
       trip.addParameter("list[0]", "true");
@@ -89,13 +88,13 @@ public class GenericsBindingTests extends GenericsBindingTestsBaseClass<TestBean
       trip.execute();
 
       GenericsBindingTests bean = trip.getActionBean(GenericsBindingTests.class);
-      Assert.assertNotNull(bean.getList());
-      Assert.assertEquals(bean.getList().get(0), Boolean.TRUE);
-      Assert.assertEquals(bean.getList().get(1), Boolean.FALSE);
-      Assert.assertEquals(bean.getList().get(2), Boolean.TRUE);
+      assertThat(bean.getList()).hasSize(3);
+      assertThat(bean.getList().get(0)).isEqualTo(true);
+      assertThat(bean.getList().get(1)).isEqualTo(false);
+      assertThat(bean.getList().get(2)).isEqualTo(true);
    }
 
-   @Test(groups = "fast")
+   @Test
    public void testTypeVariableMaps() throws Exception {
       MockRoundtrip trip = getRoundtrip();
       trip.addParameter("map[10]", "1/1/2010");
@@ -104,13 +103,13 @@ public class GenericsBindingTests extends GenericsBindingTestsBaseClass<TestBean
       trip.execute();
 
       GenericsBindingTests bean = trip.getActionBean(GenericsBindingTests.class);
-      Assert.assertNotNull(bean.getMap());
-      Assert.assertEquals(bean.getMap().get(10l), makeDate(2010, 1, 1));
-      Assert.assertEquals(bean.getMap().get(20l), makeDate(2020, 1, 1));
-      Assert.assertEquals(bean.getMap().get(30l), makeDate(2030, 1, 1));
+      assertThat(bean.getMap()).hasSize(3);
+      assertThat(bean.getMap().get(10L)).isEqualTo(makeDate(2010, 1, 1));
+      assertThat(bean.getMap().get(20L)).isEqualTo(makeDate(2020, 1, 1));
+      assertThat(bean.getMap().get(30L)).isEqualTo(makeDate(2030, 1, 1));
    }
 
-   @Test(groups = "fast")
+   @Test
    public void testTypeVariableNestedProperties() throws Exception {
       MockRoundtrip trip = getRoundtrip();
       trip.addParameter("bean.longProperty", "1234");
@@ -118,9 +117,9 @@ public class GenericsBindingTests extends GenericsBindingTestsBaseClass<TestBean
       trip.execute();
 
       GenericsBindingTests bean = trip.getActionBean(GenericsBindingTests.class);
-      Assert.assertNotNull(bean.getBean());
-      Assert.assertEquals(bean.getBean().getLongProperty(), new Long(1234));
-      Assert.assertEquals(bean.getBean().getStringProperty(), "foobar");
+      assertThat(bean.getBean()).isNotNull();
+      assertThat(bean.getBean().getLongProperty()).isEqualTo(1234L);
+      assertThat(bean.getBean().getStringProperty()).isEqualTo("foobar");
    }
 
    /** Makes a roundtrip using the current instances' type. */

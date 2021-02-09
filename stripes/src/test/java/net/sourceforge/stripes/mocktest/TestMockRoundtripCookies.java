@@ -1,9 +1,10 @@
 package net.sourceforge.stripes.mocktest;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import javax.servlet.http.Cookie;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import net.sourceforge.stripes.StripesTestFixture;
 import net.sourceforge.stripes.action.ActionBean;
@@ -49,7 +50,7 @@ public class TestMockRoundtripCookies implements ActionBean {
    // below this line is a test!
    // /////////////////////////////////////////////////////////////////////////
 
-   @Test(groups = "fast")
+   @Test
    public void testDefaultEvent() throws Exception {
       // Setup the servlet engine
       MockServletContext ctx = StripesTestFixture.createServletContext();
@@ -60,8 +61,8 @@ public class TestMockRoundtripCookies implements ActionBean {
          trip.getRequest().setCookies(cookies);
          trip.execute();
 
-         Assert.assertEquals(trip.getResponse().getCookies().length, 1);
-         Assert.assertEquals(trip.getResponse().getCookies()[0].getName(), "testCookie"); // Only the cookie set by the action
+         assertThat(trip.getResponse().getCookies()).hasSize(1);
+         assertThat(trip.getResponse().getCookies()[0].getName()).isEqualTo("testCookie"); // Only the cookie set by the action
       }
       finally {
          ctx.close();

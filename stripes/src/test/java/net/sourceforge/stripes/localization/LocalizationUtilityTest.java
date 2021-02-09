@@ -1,8 +1,9 @@
 package net.sourceforge.stripes.localization;
 
-import org.testng.annotations.Test;
-import org.testng.Assert;
-import net.sourceforge.stripes.localization.LocalizationUtility;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import org.junit.jupiter.api.Test;
+
 
 /**
  * Simple test cases for the LocalizationUtility.
@@ -10,58 +11,63 @@ import net.sourceforge.stripes.localization.LocalizationUtility;
  */
 public class LocalizationUtilityTest {
 
-    @Test(groups="fast")
-    public void testBaseCase() throws Exception {
-        String input = "Hello";
-        String output = LocalizationUtility.makePseudoFriendlyName(input);
-        Assert.assertEquals(output, input);
-    }
+   @Test
+   public void testBaseCase() throws Exception {
+      String input = "Hello";
+      String output = LocalizationUtility.makePseudoFriendlyName(input);
+      assertThat(output).isEqualTo(input);
+   }
 
-    @Test(groups="fast")
-    public void testSimpleCase() throws Exception {
-        String input = "hello";
-        String output = LocalizationUtility.makePseudoFriendlyName(input);
-        Assert.assertEquals(output, "Hello");
-    }
+   @Test
+   public void testComplexName() throws Exception {
+      String input = "bug.submittedBy.firstName";
+      String output = LocalizationUtility.makePseudoFriendlyName(input);
+      assertThat(output).isEqualTo("Bug Submitted By First Name");
+   }
 
-    @Test(groups="fast")
-    public void testWithPeriod() throws Exception {
-        String input = "bug.name";
-        String output = LocalizationUtility.makePseudoFriendlyName(input);
-        Assert.assertEquals(output, "Bug Name");
-    }
+   @Test
+   public void testSimpleCase() throws Exception {
+      String input = "hello";
+      String output = LocalizationUtility.makePseudoFriendlyName(input);
+      assertThat(output).isEqualTo("Hello");
+   }
 
-    @Test(groups="fast")
-    public void testWithStudlyCaps() throws Exception {
-        String input = "bugName";
-        String output = LocalizationUtility.makePseudoFriendlyName(input);
-        Assert.assertEquals(output, "Bug Name");
-    }
+   @Test
+   public void testSimpleClassName() throws Exception {
+      String output = LocalizationUtility.getSimpleName(TestEnum.class);
+      assertThat(output).isEqualTo("LocalizationUtilityTest.TestEnum");
 
-    @Test(groups="fast")
-    public void testComplexName() throws Exception {
-        String input = "bug.submittedBy.firstName";
-        String output = LocalizationUtility.makePseudoFriendlyName(input);
-        Assert.assertEquals(output, "Bug Submitted By First Name");
-    }
+      output = LocalizationUtility.getSimpleName(A.B.C.class);
+      assertThat(output).isEqualTo("LocalizationUtilityTest.A.B.C");
+   }
 
-    public static enum TestEnum {
-        A, B, C;
-    }
+   @Test
+   public void testWithPeriod() throws Exception {
+      String input = "bug.name";
+      String output = LocalizationUtility.makePseudoFriendlyName(input);
+      assertThat(output).isEqualTo("Bug Name");
+   }
 
-    public static class A {
-        public static class B {
-            public static class C {
-            }
-        }
-    }
+   @Test
+   public void testWithStudlyCaps() throws Exception {
+      String input = "bugName";
+      String output = LocalizationUtility.makePseudoFriendlyName(input);
+      assertThat(output).isEqualTo("Bug Name");
+   }
 
-    @Test(groups = "fast")
-    public void testSimpleClassName() throws Exception {
-        String output = LocalizationUtility.getSimpleName(TestEnum.class);
-        Assert.assertEquals(output, "LocalizationUtilityTest.TestEnum");
 
-        output = LocalizationUtility.getSimpleName(A.B.C.class);
-        Assert.assertEquals(output, "LocalizationUtilityTest.A.B.C");
-    }
+   public enum TestEnum {
+      A,
+      B,
+      C
+   }
+
+
+   public static class A {
+
+      public static class B {
+
+         public static class C {}
+      }
+   }
 }

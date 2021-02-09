@@ -1,17 +1,18 @@
 package net.sourceforge.stripes.validation;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.Locale;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import net.sourceforge.stripes.FilterEnabledTestBase;
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.action.ActionBeanContext;
 import net.sourceforge.stripes.action.Resolution;
 import net.sourceforge.stripes.controller.StripesFilter;
-import net.sourceforge.stripes.extensions.MyIntegerTypeConverter;
-import net.sourceforge.stripes.extensions.MyStringTypeConverter;
+import net.sourceforge.stripes.extensions.MyDoubleIntegerTypeConverter;
+import net.sourceforge.stripes.extensions.MyUppercaseStringTypeConverter;
 import net.sourceforge.stripes.mock.MockRoundtrip;
 import net.sourceforge.stripes.util.CryptoUtil;
 
@@ -21,21 +22,22 @@ import net.sourceforge.stripes.util.CryptoUtil;
  *
  * @author Freddy Daoud
  */
+@SuppressWarnings("unused")
 public class ValidationAnnotationsTest extends FilterEnabledTestBase implements ActionBean {
 
    private ActionBeanContext context;
    @Validate(required = true, on = "validateRequiredAndIgnored", ignore = true)
-   private String first;
+   private String            first;
    @Validate(required = true, on = "validatePublicField")
-   public String publicField;
-   public Integer shouldBeDoubled;
+   public  String            publicField;
+   public  Integer           shouldBeDoubled;
    @Validate(converter = IntegerTypeConverter.class)
-   public Integer shouldNotBeDoubled;
-   public String shouldBeUpperCased;
+   public  Integer           shouldNotBeDoubled;
+   public  String            shouldBeUpperCased;
    @Validate(converter = StringTypeConverter.class)
-   public String shouldNotBeUpperCased;
+   public  String            shouldNotBeUpperCased;
    @Validate(encrypted = true)
-   public String encryptedParam;
+   public  String            encryptedParam;
 
    @Override
    public ActionBeanContext getContext() { return context; }
@@ -52,13 +54,13 @@ public class ValidationAnnotationsTest extends FilterEnabledTestBase implements 
     *
     * @see http://www.stripesframework.org/jira/browse/STS-521
     */
-   @Test(groups = "fast")
+   @Test
    public void testValidateEncryptedEmptyString() throws Exception {
       MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
       trip.addParameter("encryptedParam", CryptoUtil.encrypt(""));
       trip.execute("validateEncrypted");
       ValidationAnnotationsTest actionBean = trip.getActionBean(getClass());
-      Assert.assertNull(actionBean.encryptedParam);
+      assertThat(actionBean.encryptedParam).isNull();
    }
 
    /**
@@ -66,12 +68,12 @@ public class ValidationAnnotationsTest extends FilterEnabledTestBase implements 
     *
     * @see http://www.stripesframework.org/jira/browse/STS-604
     */
-   @Test(groups = "fast")
+   @Test
    public void testValidatePublicField() throws Exception {
       MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
       trip.execute("validatePublicField");
       ActionBean actionBean = trip.getActionBean(getClass());
-      Assert.assertEquals(actionBean.getContext().getValidationErrors().size(), 1);
+      assertThat(actionBean.getContext().getValidationErrors()).hasSize(1);
    }
 
    /**
@@ -80,12 +82,12 @@ public class ValidationAnnotationsTest extends FilterEnabledTestBase implements 
     *
     * @see http://www.stripesframework.org/jira/browse/STS-600
     */
-   @Test(groups = "fast")
+   @Test
    public void testValidateRequiredAndIgnored() throws Exception {
       MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
       trip.execute("validateRequiredAndIgnored");
       ActionBean actionBean = trip.getActionBean(getClass());
-      Assert.assertEquals(actionBean.getContext().getValidationErrors().size(), 0);
+      assertThat(actionBean.getContext().getValidationErrors()).isEmpty();
    }
 
    /**
@@ -95,21 +97,21 @@ public class ValidationAnnotationsTest extends FilterEnabledTestBase implements 
     *
     * @see http://www.stripesframework.org/jira/browse/STS-610
     */
-   @SuppressWarnings("unchecked")
-   @Test(groups = "extensions")
+   @SuppressWarnings({ "unchecked", "rawtypes" })
+   @Test
    public void testValidateTypeConverterDoesNotExtendStock() throws Exception {
       TypeConverterFactory factory = StripesFilter.getConfiguration().getTypeConverterFactory();
       Class<? extends TypeConverter> oldtc = factory.getTypeConverter(//
             String.class, Locale.getDefault()).getClass();
       try {
          MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
-         factory.add(String.class, MyStringTypeConverter.class);
+         factory.add(String.class, MyUppercaseStringTypeConverter.class);
          trip.addParameter("shouldBeUpperCased", "test");
          trip.addParameter("shouldNotBeUpperCased", "test");
          trip.execute("validateTypeConverters");
          ValidationAnnotationsTest actionBean = trip.getActionBean(getClass());
-         Assert.assertEquals(actionBean.shouldBeUpperCased, "TEST");
-         Assert.assertEquals(actionBean.shouldNotBeUpperCased, "test");
+         assertThat(actionBean.shouldBeUpperCased).isEqualTo("TEST");
+         assertThat(actionBean.shouldNotBeUpperCased).isEqualTo("test");
       }
       finally {
          factory.add(String.class, (Class<? extends TypeConverter<?>>)oldtc);
@@ -123,7 +125,7 @@ public class ValidationAnnotationsTest extends FilterEnabledTestBase implements 
     *
     * @see http://www.stripesframework.org/jira/browse/STS-610
     */
-   @Test(groups = "extensions")
+   @Test
    @SuppressWarnings({ "unchecked", "rawtypes" })
    public void testValidateTypeConverterExtendsStock() throws Exception {
       MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
@@ -131,13 +133,13 @@ public class ValidationAnnotationsTest extends FilterEnabledTestBase implements 
       TypeConverterFactory factory = StripesFilter.getConfiguration().getTypeConverterFactory();
       TypeConverter<?> tc = factory.getTypeConverter(Integer.class, locale);
       try {
-         factory.add(Integer.class, MyIntegerTypeConverter.class);
+         factory.add(Integer.class, MyDoubleIntegerTypeConverter.class);
          trip.addParameter("shouldBeDoubled", "42");
          trip.addParameter("shouldNotBeDoubled", "42");
          trip.execute("validateTypeConverters");
          ValidationAnnotationsTest actionBean = trip.getActionBean(getClass());
-         Assert.assertEquals(actionBean.shouldBeDoubled, new Integer(84));
-         Assert.assertEquals(actionBean.shouldNotBeDoubled, new Integer(42));
+         assertThat(actionBean.shouldBeDoubled).isEqualTo(84);
+         assertThat(actionBean.shouldNotBeDoubled).isEqualTo(42);
       }
       finally {
          Class<? extends TypeConverter> tcType = tc == null ? null : tc.getClass();

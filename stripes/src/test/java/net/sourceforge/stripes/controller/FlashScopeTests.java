@@ -1,5 +1,8 @@
 package net.sourceforge.stripes.controller;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
+
 import java.lang.reflect.Proxy;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -8,8 +11,7 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import net.sourceforge.stripes.StripesTestFixture;
 import net.sourceforge.stripes.action.ActionBean;
@@ -43,7 +45,6 @@ public class FlashScopeTests implements ActionBean {
    }
 
    /** A test handler that moves all request parameters into a flash scope. */
-   @SuppressWarnings("unchecked")
    @DefaultHandler
    public Resolution flash() {
       HttpServletRequest req = getContext().getRequest();
@@ -65,7 +66,7 @@ public class FlashScopeTests implements ActionBean {
    @Override
    public ActionBeanContext getContext() { return context; }
 
-   @Test(groups = "fast")
+   @Test
    public void positiveCase() throws Exception {
       MockServletContext ctx = StripesTestFixture.createServletContext();
       try {
@@ -75,9 +76,9 @@ public class FlashScopeTests implements ActionBean {
 
          String url = trip.getDestination();
          Matcher matcher = FLASH_ID_REGEX.matcher(url);
-         Assert.assertTrue(matcher.matches(), "Redirect URL should contain request parameter for flash scope id.");
+         assertThat(matcher.matches()).describedAs("Redirect URL should contain request parameter for flash scope id.").isTrue();
 
-         Assert.assertEquals("foo123", trip.getRequest().getAttribute("foo"), "FlashScope should have inserted 'foo' into a request attribute.");
+         assertThat(trip.getRequest().getAttribute("foo")).describedAs("FlashScope should have inserted 'foo' into a request attribute.").isEqualTo("foo123");
 
          MockRoundtrip trip2 = new MockRoundtrip(ctx, FlashScopeTests.class, (MockHttpSession)trip.getRequest().getSession());
 
@@ -85,12 +86,12 @@ public class FlashScopeTests implements ActionBean {
          String id = matcher.group(1);
          trip2.addParameter(StripesConstants.URL_KEY_FLASH_SCOPE_ID, id);
 
-         Assert.assertNull(trip2.getRequest().getAttribute("foo"), "Request attribute 'foo' should not exist prior to request.");
+         assertThat(trip2.getRequest().getAttribute("foo")).describedAs("Request attribute 'foo' should not exist prior to request.").isNull();
 
          trip2.execute("DoNothing");
-         Assert.assertEquals("foo123", trip2.getRequest().getAttribute("foo"), "Request attribute 'foo' should have been set by FlashScope.");
+         assertThat(trip2.getRequest().getAttribute("foo")).describedAs("Request attribute 'foo' should have been set by FlashScope.").isEqualTo("foo123");
 
-         Assert.assertEquals(FlashScope.getAllFlashScopes(trip2.getRequest()).size(), 0, "FlashScope should have been removed from session after use.");
+         assertThat(FlashScope.getAllFlashScopes(trip2.getRequest())).describedAs("FlashScope should have been removed from session after use.").isEmpty();
 
          // Test flashing an ActionBean
          MockRoundtrip trip3 = new MockRoundtrip(ctx, FlashScopeTests.class, (MockHttpSession)trip.getRequest().getSession());
@@ -99,19 +100,18 @@ public class FlashScopeTests implements ActionBean {
          trip3.addParameter(StripesConstants.URL_KEY_FLASH_SCOPE_ID, id);
          trip3.execute("FlashBean");
 
-         try {
-            ActionBeanContext tmp = trip3.getActionBean(getClass()).getContext();
-            HttpServletResponse response = tmp.getResponse();
-            HttpServletRequest request = tmp.getRequest();
-            Assert.assertNotNull(request);
-            Assert.assertNotNull(response);
-            Assert.assertTrue(Proxy.class.isAssignableFrom(response.getClass()));
-            Assert.assertEquals(StripesRequestWrapper.class, request.getClass());
-            response.isCommitted();
-            Assert.fail("Response should have thrown IllegalStateException after request cycle complete");
-         }
-         catch ( IllegalStateException e ) {
-         }
+         ActionBeanContext tmp = trip3.getActionBean(getClass()).getContext();
+         HttpServletResponse response = tmp.getResponse();
+         HttpServletRequest request = tmp.getRequest();
+         assertThat(request).isNotNull();
+         assertThat(response).isNotNull();
+         assertThat(Proxy.class.isAssignableFrom(response.getClass())).isTrue();
+         assertThat(request.getClass()).isEqualTo(StripesRequestWrapper.class);
+
+         Throwable throwable = catchThrowable(response::isCommitted);
+
+         assertThat(throwable).describedAs("Response should have thrown IllegalStateException after request cycle complete")
+               .isInstanceOf(IllegalStateException.class);
       }
       finally {
          ctx.close();

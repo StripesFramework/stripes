@@ -1,11 +1,11 @@
 package net.sourceforge.stripes.util.bean;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Test;
 
 import net.sourceforge.stripes.testbeans.TestBean;
 import net.sourceforge.stripes.testbeans.TestEnum;
@@ -19,8 +19,8 @@ import net.sourceforge.stripes.testbeans.TestEnum;
  */
 public class BeanComparatorTest {
 
-   @Test(groups = "fast")
-   public void testNestedPropertySort() throws Exception {
+   @Test
+   public void testNestedPropertySort() {
       List<TestBean> beans = new ArrayList<>();
       beans.add(new TestBean());
       beans.get(beans.size() - 1).setNestedBean(new TestBean());
@@ -38,16 +38,17 @@ public class BeanComparatorTest {
       beans.get(beans.size() - 1).setNestedBean(new TestBean());
       beans.get(beans.size() - 1).getNestedBean().setEnumProperty(TestEnum.First);
 
-      Collections.sort(beans, new BeanComparator("nestedBean.enumProperty"));
-      Assert.assertEquals(beans.get(0).getNestedBean().getEnumProperty(), TestEnum.First);
-      Assert.assertEquals(beans.get(1).getNestedBean().getEnumProperty(), TestEnum.Second);
-      Assert.assertEquals(beans.get(2).getNestedBean().getEnumProperty(), TestEnum.Fourth);
-      Assert.assertEquals(beans.get(3).getNestedBean().getEnumProperty(), TestEnum.Eight);
-      Assert.assertEquals(beans.get(4).getNestedBean().getEnumProperty(), TestEnum.Ninth);
+      beans.sort(new BeanComparator("nestedBean.enumProperty"));
+
+      assertThat(beans.get(0).getNestedBean().getEnumProperty()).isEqualTo(TestEnum.First);
+      assertThat(beans.get(1).getNestedBean().getEnumProperty()).isEqualTo(TestEnum.Second);
+      assertThat(beans.get(2).getNestedBean().getEnumProperty()).isEqualTo(TestEnum.Fourth);
+      assertThat(beans.get(3).getNestedBean().getEnumProperty()).isEqualTo(TestEnum.Eight);
+      assertThat(beans.get(4).getNestedBean().getEnumProperty()).isEqualTo(TestEnum.Ninth);
    }
 
-   @Test(groups = "fast")
-   public void testNullPropertySort() throws Exception {
+   @Test
+   public void testNullPropertySort() {
       List<TestBean> beans = new ArrayList<>();
       beans.add(new TestBean());
       beans.get(beans.size() - 1).setStringProperty("hello");
@@ -56,14 +57,15 @@ public class BeanComparatorTest {
       beans.add(new TestBean());
       beans.get(beans.size() - 1).setStringProperty("whatever");
 
-      Collections.sort(beans, new BeanComparator("stringProperty"));
-      Assert.assertEquals(beans.get(0).getStringProperty(), "hello");
-      Assert.assertEquals(beans.get(1).getStringProperty(), "whatever");
-      Assert.assertEquals(beans.get(2).getStringProperty(), null);
+      beans.sort(new BeanComparator("stringProperty"));
+
+      assertThat(beans.get(0).getStringProperty()).isEqualTo("hello");
+      assertThat(beans.get(1).getStringProperty()).isEqualTo("whatever");
+      assertThat(beans.get(2).getStringProperty()).isEqualTo(null);
    }
 
-   @Test(groups = "fast")
-   public void testNullPropertySort2() throws Exception {
+   @Test
+   public void testNullPropertySort2() {
       List<TestBean> beans = new ArrayList<>();
       beans.add(new TestBean());
       beans.get(beans.size() - 1).setStringProperty(null);
@@ -72,41 +74,43 @@ public class BeanComparatorTest {
       beans.add(new TestBean());
       beans.get(beans.size() - 1).setStringProperty("whatever");
 
-      Collections.sort(beans, new BeanComparator("stringProperty"));
-      Assert.assertEquals(beans.get(0).getStringProperty(), "whatever");
-      Assert.assertEquals(beans.get(1).getStringProperty(), null);
-      Assert.assertEquals(beans.get(2).getStringProperty(), null);
+      beans.sort(new BeanComparator("stringProperty"));
+
+      assertThat(beans.get(0).getStringProperty()).isEqualTo("whatever");
+      assertThat(beans.get(1).getStringProperty()).isNull();
+      assertThat(beans.get(2).getStringProperty()).isNull();
    }
 
-   @Test(groups = "fast")
-   public void testSimpleMultiPropertySort() throws Exception {
+   @Test
+   public void testSimpleMultiPropertySort() {
       List<TestBean> beans = new ArrayList<>();
       beans.add(new TestBean());
-      beans.get(beans.size() - 1).setLongProperty(2l);
+      beans.get(beans.size() - 1).setLongProperty(2L);
       beans.get(beans.size() - 1).setStringProperty("hello");
       beans.add(new TestBean());
-      beans.get(beans.size() - 1).setLongProperty(2l);
+      beans.get(beans.size() - 1).setLongProperty(2L);
       beans.get(beans.size() - 1).setStringProperty("goodbye");
       beans.add(new TestBean());
-      beans.get(beans.size() - 1).setLongProperty(1l);
+      beans.get(beans.size() - 1).setLongProperty(1L);
       beans.get(beans.size() - 1).setStringProperty("whatever");
       beans.add(new TestBean());
-      beans.get(beans.size() - 1).setLongProperty(1l);
+      beans.get(beans.size() - 1).setLongProperty(1L);
       beans.get(beans.size() - 1).setStringProperty("huh?");
       beans.add(new TestBean());
-      beans.get(beans.size() - 1).setLongProperty(3l);
+      beans.get(beans.size() - 1).setLongProperty(3L);
       beans.get(beans.size() - 1).setStringProperty("no way!");
 
-      Collections.sort(beans, new BeanComparator("longProperty", "stringProperty"));
-      Assert.assertEquals(beans.get(0).getStringProperty(), "huh?");
-      Assert.assertEquals(beans.get(1).getStringProperty(), "whatever");
-      Assert.assertEquals(beans.get(2).getStringProperty(), "goodbye");
-      Assert.assertEquals(beans.get(3).getStringProperty(), "hello");
-      Assert.assertEquals(beans.get(4).getStringProperty(), "no way!");
+      beans.sort(new BeanComparator("longProperty", "stringProperty"));
+
+      assertThat(beans.get(0).getStringProperty()).isEqualTo("huh?");
+      assertThat(beans.get(1).getStringProperty()).isEqualTo("whatever");
+      assertThat(beans.get(2).getStringProperty()).isEqualTo("goodbye");
+      assertThat(beans.get(3).getStringProperty()).isEqualTo("hello");
+      assertThat(beans.get(4).getStringProperty()).isEqualTo("no way!");
    }
 
-   @Test(groups = "fast")
-   public void testSimplePropertySort() throws Exception {
+   @Test
+   public void testSimplePropertySort() {
       List<TestBean> beans = new ArrayList<>();
       beans.add(new TestBean());
       beans.get(beans.size() - 1).setStringProperty("hello");
@@ -119,11 +123,12 @@ public class BeanComparatorTest {
       beans.add(new TestBean());
       beans.get(beans.size() - 1).setStringProperty("no way!");
 
-      Collections.sort(beans, new BeanComparator("stringProperty"));
-      Assert.assertEquals(beans.get(0).getStringProperty(), "goodbye");
-      Assert.assertEquals(beans.get(1).getStringProperty(), "hello");
-      Assert.assertEquals(beans.get(2).getStringProperty(), "huh?");
-      Assert.assertEquals(beans.get(3).getStringProperty(), "no way!");
-      Assert.assertEquals(beans.get(4).getStringProperty(), "whatever");
+      beans.sort(new BeanComparator("stringProperty"));
+
+      assertThat(beans.get(0).getStringProperty()).isEqualTo("goodbye");
+      assertThat(beans.get(1).getStringProperty()).isEqualTo("hello");
+      assertThat(beans.get(2).getStringProperty()).isEqualTo("huh?");
+      assertThat(beans.get(3).getStringProperty()).isEqualTo("no way!");
+      assertThat(beans.get(4).getStringProperty()).isEqualTo("whatever");
    }
 }

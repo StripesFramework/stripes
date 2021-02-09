@@ -1,119 +1,121 @@
 package net.sourceforge.stripes.util.bean;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 
-/**
- * 
- */
+import org.junit.jupiter.api.Test;
+
+
 public class PropertyExpressionTests {
-    @Test(groups="fast")
-    public void testDotNotation() {
-        PropertyExpression expr = PropertyExpression.getExpression("foo.bar.splat");
-        Node root = expr.getRootNode();
-        Assert.assertEquals(root.getStringValue(), "foo");
-        Assert.assertEquals(root.getNext().getStringValue(), "bar");
-        Assert.assertEquals(root.getNext().getNext().getStringValue(), "splat");
-    }
 
-    @Test(groups="fast")
-    public void testDotNotationWithEscapes() {
-        PropertyExpression expr = PropertyExpression.getExpression("fo\\\"o\\\".bar.splat");
-        Node root = expr.getRootNode();
-        Assert.assertEquals(root.getStringValue(), "fo\"o\"");
-        Assert.assertEquals(root.getNext().getStringValue(), "bar");
-        Assert.assertEquals(root.getNext().getNext().getStringValue(), "splat");
-    }
+   @Test
+   public void testBackToBackQuotedStrings() {
+      Throwable throwable = catchThrowable(() -> PropertyExpression.getExpression("foo['bar''splat']"));
+      assertThat(throwable).isInstanceOf(ParseException.class);
+   }
 
-    @Test(groups="fast")
-    public void testSquareBracketNotation() {
-        PropertyExpression expr = PropertyExpression.getExpression("foo[index].bar");
-        Node root = expr.getRootNode();
-        Assert.assertEquals(root.getStringValue(), "foo");
-        Assert.assertEquals(root.getNext().getStringValue(), "index");
-        Assert.assertEquals(root.getNext().getNext().getStringValue(), "bar");
-    }
+   @Test
+   public void testBooleanIndex() {
+      PropertyExpression expr = PropertyExpression.getExpression("foo[false]");
+      Node root = expr.getRootNode();
+      assertThat(root.getStringValue()).isEqualTo("foo");
+      assertThat(root.getNext().getStringValue()).isEqualTo("false");
+      assertThat(root.getNext().getTypedValue()).isEqualTo(Boolean.FALSE);
 
-    @Test(groups="fast")
-    public void testSquareBracketNotation2() {
-        PropertyExpression expr = PropertyExpression.getExpression("foo[index][bar]");
-        Node root = expr.getRootNode();
-        Assert.assertEquals(root.getStringValue(), "foo");
-        Assert.assertEquals(root.getNext().getStringValue(), "index");
-        Assert.assertEquals(root.getNext().getNext().getStringValue(), "bar");
-    }
+      expr = PropertyExpression.getExpression("foo[tRue]");
+      root = expr.getRootNode();
+      assertThat(root.getStringValue()).isEqualTo("foo");
+      assertThat(root.getNext().getStringValue()).isEqualTo("tRue");
+      assertThat(root.getNext().getTypedValue()).isEqualTo(Boolean.TRUE);
+   }
 
-    @Test(groups="fast")
-    public void testSquareBracketWithSingleQuoteNotation() {
-        PropertyExpression expr = PropertyExpression.getExpression("foo['index'].bar");
-        Node root = expr.getRootNode();
-        Assert.assertEquals(root.getStringValue(), "foo");
-        Assert.assertEquals(root.getNext().getStringValue(), "index");
-        Assert.assertEquals(root.getNext().getNext().getStringValue(), "bar");
-    }
+   @Test
+   public void testDotNotation() {
+      PropertyExpression expr = PropertyExpression.getExpression("foo.bar.splat");
+      Node root = expr.getRootNode();
+      assertThat(root.getStringValue()).isEqualTo("foo");
+      assertThat(root.getNext().getStringValue()).isEqualTo("bar");
+      assertThat(root.getNext().getNext().getStringValue()).isEqualTo("splat");
+   }
 
-    @Test(groups="fast")
-    public void testSquareBracketWithDoubleQuoteNotation() {
-        PropertyExpression expr = PropertyExpression.getExpression("foo[\"index\"].bar");
-        Node root = expr.getRootNode();
-        Assert.assertEquals(root.getStringValue(), "foo");
-        Assert.assertEquals(root.getNext().getStringValue(), "index");
-        Assert.assertEquals(root.getNext().getNext().getStringValue(), "bar");
-    }
+   @Test
+   public void testDotNotationWithEscapes() {
+      PropertyExpression expr = PropertyExpression.getExpression("fo\\\"o\\\".bar.splat");
+      Node root = expr.getRootNode();
+      assertThat(root.getStringValue()).isEqualTo("fo\"o\"");
+      assertThat(root.getNext().getStringValue()).isEqualTo("bar");
+      assertThat(root.getNext().getNext().getStringValue()).isEqualTo("splat");
+   }
 
-    @Test(groups="fast", expectedExceptions=ParseException.class)
-    public void testBackToBackQuotedStrings() {
-        @SuppressWarnings("unused")
-        PropertyExpression expr = PropertyExpression.getExpression("foo['bar''splat']");
-    }
+   @Test
+   public void testDoubleIndex() {
+      PropertyExpression expr = PropertyExpression.getExpression("foo[123.4]");
+      Node root = expr.getRootNode();
+      assertThat(root.getStringValue()).isEqualTo("foo");
+      assertThat(root.getNext().getStringValue()).isEqualTo("123.4");
+      assertThat(root.getNext().getTypedValue()).isEqualTo(123.4);
+   }
 
-    @Test(groups="fast")
-    public void testIntIndex() {
-        PropertyExpression expr = PropertyExpression.getExpression("foo[123]");
-        Node root = expr.getRootNode();
-        Assert.assertEquals(root.getStringValue(), "foo");
-        Assert.assertEquals(root.getNext().getStringValue(), "123");
-        Assert.assertEquals(root.getNext().getTypedValue(), new Integer(123));
-    }
+   @Test
+   public void testFloatIndex() {
+      PropertyExpression expr = PropertyExpression.getExpression("foo[123F]");
+      Node root = expr.getRootNode();
+      assertThat(root.getStringValue()).isEqualTo("foo");
+      assertThat(root.getNext().getStringValue()).isEqualTo("123F");
+      assertThat(root.getNext().getTypedValue()).isEqualTo(123f);
+   }
 
-    @Test(groups="fast")
-    public void testDoubleIndex() {
-        PropertyExpression expr = PropertyExpression.getExpression("foo[123.4]");
-        Node root = expr.getRootNode();
-        Assert.assertEquals(root.getStringValue(), "foo");
-        Assert.assertEquals(root.getNext().getStringValue(), "123.4");
-        Assert.assertEquals(root.getNext().getTypedValue(), new Double(123.4));
-    }
+   @Test
+   public void testIntIndex() {
+      PropertyExpression expr = PropertyExpression.getExpression("foo[123]");
+      Node root = expr.getRootNode();
+      assertThat(root.getStringValue()).isEqualTo("foo");
+      assertThat(root.getNext().getStringValue()).isEqualTo("123");
+      assertThat(root.getNext().getTypedValue()).isEqualTo(123);
+   }
 
-    @Test(groups="fast")
-    public void testLongIndex() {
-        PropertyExpression expr = PropertyExpression.getExpression("foo[123l]");
-        Node root = expr.getRootNode();
-        Assert.assertEquals(root.getStringValue(), "foo");
-        Assert.assertEquals(root.getNext().getStringValue(), "123l");
-        Assert.assertEquals(root.getNext().getTypedValue(), new Long(123));
-    }
+   @Test
+   public void testLongIndex() {
+      PropertyExpression expr = PropertyExpression.getExpression("foo[123l]");
+      Node root = expr.getRootNode();
+      assertThat(root.getStringValue()).isEqualTo("foo");
+      assertThat(root.getNext().getStringValue()).isEqualTo("123l");
+      assertThat(root.getNext().getTypedValue()).isEqualTo(123L);
+   }
 
-    @Test(groups="fast")
-    public void testFloatIndex() {
-        PropertyExpression expr = PropertyExpression.getExpression("foo[123F]");
-        Node root = expr.getRootNode();
-        Assert.assertEquals(root.getStringValue(), "foo");
-        Assert.assertEquals(root.getNext().getStringValue(), "123F");
-        Assert.assertEquals(root.getNext().getTypedValue(), new Float(123f));
-    }
-    @Test(groups="fast")
-    public void testBooleanIndex() {
-        PropertyExpression expr = PropertyExpression.getExpression("foo[false]");
-        Node root = expr.getRootNode();
-        Assert.assertEquals(root.getStringValue(), "foo");
-        Assert.assertEquals(root.getNext().getStringValue(), "false");
-        Assert.assertEquals(root.getNext().getTypedValue(), Boolean.FALSE);
+   @Test
+   public void testSquareBracketNotation() {
+      PropertyExpression expr = PropertyExpression.getExpression("foo[index].bar");
+      Node root = expr.getRootNode();
+      assertThat(root.getStringValue()).isEqualTo("foo");
+      assertThat(root.getNext().getStringValue()).isEqualTo("index");
+      assertThat(root.getNext().getNext().getStringValue()).isEqualTo("bar");
+   }
 
-        expr = PropertyExpression.getExpression("foo[tRue]");
-        root = expr.getRootNode();
-        Assert.assertEquals(root.getStringValue(), "foo");
-        Assert.assertEquals(root.getNext().getStringValue(), "tRue");
-        Assert.assertEquals(root.getNext().getTypedValue(), Boolean.TRUE);
-    }
+   @Test
+   public void testSquareBracketNotation2() {
+      PropertyExpression expr = PropertyExpression.getExpression("foo[index][bar]");
+      Node root = expr.getRootNode();
+      assertThat(root.getStringValue()).isEqualTo("foo");
+      assertThat(root.getNext().getStringValue()).isEqualTo("index");
+      assertThat(root.getNext().getNext().getStringValue()).isEqualTo("bar");
+   }
+
+   @Test
+   public void testSquareBracketWithDoubleQuoteNotation() {
+      PropertyExpression expr = PropertyExpression.getExpression("foo[\"index\"].bar");
+      Node root = expr.getRootNode();
+      assertThat(root.getStringValue()).isEqualTo("foo");
+      assertThat(root.getNext().getStringValue()).isEqualTo("index");
+      assertThat(root.getNext().getNext().getStringValue()).isEqualTo("bar");
+   }
+
+   @Test
+   public void testSquareBracketWithSingleQuoteNotation() {
+      PropertyExpression expr = PropertyExpression.getExpression("foo['index'].bar");
+      Node root = expr.getRootNode();
+      assertThat(root.getStringValue()).isEqualTo("foo");
+      assertThat(root.getNext().getStringValue()).isEqualTo("index");
+      assertThat(root.getNext().getNext().getStringValue()).isEqualTo("bar");
+   }
 }

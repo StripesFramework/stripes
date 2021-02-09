@@ -1,7 +1,8 @@
 package net.sourceforge.stripes.util.bean;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import org.junit.jupiter.api.Test;
 
 import net.sourceforge.stripes.FilterEnabledTestBase;
 
@@ -15,24 +16,24 @@ import net.sourceforge.stripes.FilterEnabledTestBase;
  *
  * @author Tim Fennell
  */
+@SuppressWarnings("unused")
 public class GenericInterfaceImplTest extends FilterEnabledTestBase {
 
-   @Test(groups = "fast")
-   public void testInheritFromGenericInterface() throws Exception {
+   @Test
+   public void testInheritFromGenericInterface() {
       GenericImpl bean = new GenericImpl();
       BeanUtil.setPropertyValue("prop.stringProperty", bean, "whee");
-      Assert.assertEquals(bean.getProp().getStringProperty(), "whee");
+      assertThat(bean.getProp().getStringProperty()).isEqualTo("whee");
    }
 
-   @Test(groups = "fast")
-   public void testInheritFromWriteOnlyGenericInterface() throws Exception {
+   @Test
+   public void testInheritFromWriteOnlyGenericInterface() {
       WriteOnlyGenericImpl bean = new WriteOnlyGenericImpl();
-      Assert.assertEquals(BeanUtil.getPropertyType("prop", bean), WriteOnlyGenericImpl.class);
+      assertThat(BeanUtil.getPropertyType("prop", bean)).isSameAs(WriteOnlyGenericImpl.class);
    }
-
 
    /** An interface that has a type parameter for a property type. */
-   public static interface GenericInterface<T> {
+   public interface GenericInterface<T> {
 
       T getProp();
 
@@ -41,7 +42,7 @@ public class GenericInterfaceImplTest extends FilterEnabledTestBase {
 
 
    /** An interface with a type parameter and only a write method. */
-   public static interface WriteOnlyGenericInterface<T> {
+   public interface WriteOnlyGenericInterface<T> {
 
       void setProp( T prop );
    }
