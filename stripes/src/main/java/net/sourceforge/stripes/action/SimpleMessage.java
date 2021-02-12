@@ -14,9 +14,10 @@
  */
 package net.sourceforge.stripes.action;
 
-import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Locale;
+
+import net.sourceforge.stripes.util.SimpleMessageFormat;
 
 
 /**
@@ -134,8 +135,7 @@ public class SimpleMessage implements Message {
       String messageTemplate = getMessageTemplate(locale);
       // For compatibility with JSTL, only apply formatting if there are replacement parameters
       if ( _replacementParameters != null && _replacementParameters.length > 0 ) {
-         MessageFormat format = new MessageFormat(messageTemplate.replaceAll("'", "''"), locale);
-         return format.format(_replacementParameters, new StringBuffer(), null).toString();
+         return SimpleMessageFormat.format(messageTemplate, locale, _replacementParameters);
       } else {
          return messageTemplate;
       }
