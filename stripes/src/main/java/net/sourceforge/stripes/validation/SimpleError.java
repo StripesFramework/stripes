@@ -15,6 +15,7 @@
 package net.sourceforge.stripes.validation;
 
 import java.util.Locale;
+import java.util.Objects;
 
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.action.SimpleMessage;
@@ -46,7 +47,7 @@ import net.sourceforge.stripes.util.Log;
  * <p>One last point of interest is where the user friendly field name comes from. Firstly an
  * attempt is made to look up the localized name in the applicable resource bundle using the
  * String <em>beanClassFQN.fieldName</em> where beanClassFQN is the fully qualified name of the
- * bean class, and fieldName is the name of the field on the form. The second attempt is made with 
+ * bean class, and fieldName is the name of the field on the form. The second attempt is made with
  * String <em>actionPath.fieldName</em> where actionPath is the action of the form in the JSP
  * (or equally, the path given in the @UrlBinding annotation in the ActionBean class). Finally,
  * the last attempt uses fieldName by itself.</p>
@@ -104,10 +105,10 @@ public class SimpleError extends SimpleMessage implements ValidationError {
 
       final SimpleError that = (SimpleError)o;
 
-      if ( _actionPath != null ? !_actionPath.equals(that._actionPath) : that._actionPath != null ) {
+      if ( !Objects.equals(_actionPath, that._actionPath) ) {
          return false;
       }
-      if ( _fieldNameKey != null ? !_fieldNameKey.equals(that._fieldNameKey) : that._fieldNameKey != null ) {
+      if ( !Objects.equals(_fieldNameKey, that._fieldNameKey) ) {
          return false;
       }
 
@@ -162,7 +163,7 @@ public class SimpleError extends SimpleMessage implements ValidationError {
    /** Sets the binding path of the ActionBean on which the errored field occurs. */
    @Override
    public void setActionPath( String actionPath ) {
-       _actionPath = actionPath;
+      _actionPath = actionPath;
    }
 
    /** Sets the class of the ActionBean associated to the request. */
