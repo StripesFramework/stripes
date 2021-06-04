@@ -1,0 +1,133 @@
+/* Copyright 2007 Ben Gunter
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.stripesframework.jsp.tag;
+
+import java.io.IOException;
+
+import javax.servlet.jsp.JspException;
+
+import org.stripesframework.web.controller.StripesFilter;
+import org.stripesframework.web.format.Formatter;
+import org.stripesframework.web.format.FormatterFactory;
+import org.stripesframework.web.util.Log;
+
+
+/**
+ * This tag accepts an object and formats it using an appropriate
+ * {@link Formatter}. The resulting {@link String} can be assigned in the page,
+ * request, session or application scopes by using "var" and "scope" or it can
+ * be written directly to the JSP output.
+ *
+ * @author Ben Gunter
+ * @since Stripes 1.5
+ */
+public class FormatTag extends VarTagSupport {
+
+   private static final Log log = Log.getInstance(FormatTag.class);
+
+   private Object _value;
+   private String _formatType;
+   private String _formatPattern;
+
+   @Override
+   public int doEndTag() throws JspException {
+      if ( _var == null ) {
+         writeOut(_value);
+      } else {
+         export(format(_value));
+      }
+      return EVAL_PAGE;
+   }
+
+   @Override
+   public int doStartTag() throws JspException {
+      return SKIP_BODY;
+   }
+
+   /** Get the format pattern */
+   public String getFormatPattern() {
+      return _formatPattern;
+   }
+
+   /** Get the format type */
+   public String getFormatType() {
+      return _formatType;
+   }
+
+   /** Get the object to be formatted */
+   public Object getValue() {
+      return _value;
+   }
+
+   /** Set the format pattern */
+   public void setFormatPattern( String formatPattern ) {
+      _formatPattern = formatPattern;
+   }
+
+   /** Set the format type */
+   public void setFormatType( String formatType ) {
+      _formatType = formatType;
+   }
+
+   /** Set the object to be formatted */
+   public void setValue( Object value ) {
+      _value = value;
+   }
+
+   /**
+    * Attempts to format an object using an appropriate {@link Formatter}. If
+    * no formatter is available for the object, then this method will call
+    * <code>toString()</code> on the object. A null <code>value</code> will
+    * be formatted as an empty string.
+    *
+    * @param value
+    *            the object to be formatted
+    * @return the formatted value
+    */
+   @SuppressWarnings("unchecked")
+   protected String format( Object value ) {
+      if ( value == null ) {
+         return "";
+      }
+
+      FormatterFactory factory = StripesFilter.getConfiguration().getFormatterFactory();
+      Formatter formatter = factory.getFormatter(value.getClass(), getPageContext().getRequest().getLocale(), _formatType, _formatPattern);
+      if ( formatter == null ) {
+         return String.valueOf(value);
+      } else {
+         return formatter.format(value);
+      }
+   }
+
+   /**
+    * Calls {@link #format(Object)} and writes the resulting {@link String} to
+    * the JSP output.
+    *
+    * @param value
+    *            the object to be formatted and written
+    * @throws JspException
+    */
+   protected void writeOut( Object value ) throws JspException {
+      String formatted = format(value);
+      try {
+         _pageContext.getOut().print(formatted);
+      }
+      catch ( IOException e ) {
+         JspException jspe = new JspException("IOException encountered while writing formatted value '" + formatted + " to the JspWriter.", e);
+         log.warn(jspe);
+         throw jspe;
+      }
+   }
+}

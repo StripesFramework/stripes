@@ -7,49 +7,49 @@
 		<artifactId>oss-parent</artifactId>
 		<version>9</version>
 	</parent>
-	<groupId>net.sourceforge.stripes</groupId>
+	<groupId>org.stripesframework</groupId>
 	<artifactId>stripes-parent</artifactId>
 	<version>2.0.0-EAP-3</version>
 	<packaging>pom</packaging>
 
 	<modules>
-		<module>stripes</module>
-		<module>examples</module>
-		<module>test-report</module>
-		<module>dist</module>
+		<module>stripes-web</module>
+		<module>stripes-spring</module>
+		<module>stripes-jsp</module>
+		<module>stripes-test-report</module>
 	</modules>
 
 	<name>Stripes Parent</name>
-	<url>http://stripesframework.org/</url>
+	<url>https://stripesframework.org/</url>
 	<description>Stripes web framework parent project.</description>
 
 	<organization>
 		<name>Stripes Framework</name>
-		<url>http://www.stripesframework.org/</url>
+		<url>https://www.stripesframework.org/</url>
 	</organization>
 
 	<licenses>
 		<license>
 			<name>The Apache Software License, Version 2.0</name>
-			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+			<url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
 			<distribution>repo</distribution>
 		</license>
 	</licenses>
 
 	<scm>
-		<url>https://github.com/StripesFramework/stripes</url>
-		<connection>scm:git:https://github.com/StripesFramework/stripes.git</connection>
-		<developerConnection>scm:git:https://github.com/StripesFramework/stripes.git</developerConnection>
+		<url>https://github.com/Chrono24/stripes</url>
+		<connection>scm:git:https://github.com/Chrono24/stripes.git</connection>
+		<developerConnection>scm:git:https://github.com/Chrono24/stripes.git</developerConnection>
 	</scm>
 
 	<issueManagement>
 		<system>JIRA</system>
-		<url>http://stripesframework.org/jira/browse/STS</url>
+		<url>https://github.com/chrono24/stripes/issues</url>
 	</issueManagement>
 
 	<ciManagement>
 		<system>Jenkins</system>
-		<url>http://www.stripesframework.org/jenkins</url>
+		<url>https://github.com/chrono24/stripes/actions</url>
 	</ciManagement>
 
 	<properties>
