@@ -112,6 +112,9 @@
 							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
 							<addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
 						</manifest>
+						<manifestEntries>
+							<Automatic-Module-Name>org.stripesframework.jsp</Automatic-Module-Name>
+						</manifestEntries>
 					</archive>
 				</configuration>
 			</plugin>
