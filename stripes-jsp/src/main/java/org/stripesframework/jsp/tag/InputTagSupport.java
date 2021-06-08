@@ -567,7 +567,12 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
     * @throws StripesJspException if the parent form tag is not found
     */
    protected void registerWithParentForm() throws StripesJspException {
-      getParentFormTag().registerField(this);
+
+      // Disabled form fields should not be part of the __fp form parameter.
+      // Disabled form fields are not sent with the request but should not set anything to null either.
+      if ( getDisabled() == null ) {
+         getParentFormTag().registerField(this);
+      }
    }
 
 }
