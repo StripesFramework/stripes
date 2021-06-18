@@ -16,6 +16,7 @@ package org.stripesframework.web.validation;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Map;
@@ -103,7 +104,7 @@ public class DefaultTypeConverterFactory implements TypeConverterFactory {
     */
    @Override
    public void init( final Configuration configuration ) {
-       _configuration = configuration;
+      _configuration = configuration;
       _cache = new TypeHandlerCache<>();
       _cache.setSearchHierarchy(false);
 
@@ -131,6 +132,7 @@ public class DefaultTypeConverterFactory implements TypeConverterFactory {
       _cache.add(Object.class, ObjectTypeConverter.class);
       _cache.add(Character.class, CharacterTypeConverter.class);
       _cache.add(Character.TYPE, CharacterTypeConverter.class);
+      _cache.add(LocalDate.class, LocalDateTypeConverter.class);
    }
 
    /** Provides subclasses with access to the configuration provided at initialization. */
