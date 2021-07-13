@@ -1,5 +1,6 @@
 [![Build Status](https://github.com/Chrono24/stripes/workflows/Test%20all%20JDKs%20on%20all%20OSes/badge.svg)](https://github.com/Chrono24/stripes/actions)
 [![Coverage Status](https://codecov.io/gh/Chrono24/stripes/branch/main/graph/badge.svg)](https://codecov.io/gh/Chrono24/stripes)
+[![Maven Central](https://img.shields.io/maven-central/v/org.stripesframework/stripes-web.svg)](https://mvnrepository.com/artifact/org.stripesframework/stripes-web)
 
 Stripes is a Java web framework with the goal of making Servlet/JSP based web development in Java as easy, intuitive and straight-forward as possible. Stripes has always been guided by the following principles:
 

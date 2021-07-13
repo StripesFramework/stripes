@@ -10,11 +10,6 @@
       <version>2.0.0-EAP-4</version>
    </parent>
 
-   <properties>
-      <maven.deploy.skip>true</maven.deploy.skip>
-      <skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>
-   </properties>
-
    <profiles>
       <profile>
          <id>coverage</id>
