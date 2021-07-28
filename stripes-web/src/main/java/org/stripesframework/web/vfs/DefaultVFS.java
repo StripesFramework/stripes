@@ -25,6 +25,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
@@ -113,7 +114,7 @@ public class DefaultVFS extends VFS {
                   log.trace("Listing directory ", file.getAbsolutePath());
                   if ( file.isDirectory() ) {
                      log.debug("Listing ", url);
-                     children = Arrays.asList(file.list());
+                     children = Arrays.asList(Objects.requireNonNull(file.list()));
                   }
                } else {
                   // No idea where the exception came from so rethrow it
@@ -145,6 +146,7 @@ public class DefaultVFS extends VFS {
             }
          }
          catch ( Exception e ) {
+            // Closing silently
          }
       }
    }
@@ -157,9 +159,8 @@ public class DefaultVFS extends VFS {
     *
     * @param url The URL of the JAR entry.
     * @return The URL of the JAR file, if one is found. Null if not.
-    * @throws MalformedURLException
     */
-   protected URL findJarForResource( URL url ) throws MalformedURLException {
+   protected URL findJarForResource( URL url ) {
       log.trace("Find JAR URL: ", url);
 
       // If the file part of the URL is itself a URL, then that URL probably points to the JAR
@@ -245,24 +246,15 @@ public class DefaultVFS extends VFS {
     *            for multiple calls as an optimization.)
     */
    protected boolean isJar( URL url, byte[] buffer ) {
-      InputStream is = null;
-      try {
-         is = url.openStream();
-         is.read(buffer, 0, JAR_MAGIC.length);
-         if ( Arrays.equals(buffer, JAR_MAGIC) ) {
+      try (InputStream is = url.openStream()) {
+         int bytesRead = is.read(buffer, 0, JAR_MAGIC.length);
+         if ( bytesRead == JAR_MAGIC.length && Arrays.equals(buffer, JAR_MAGIC) ) {
             log.debug("Found JAR: ", url);
             return true;
          }
       }
       catch ( Exception e ) {
          // Failure to read the stream means this is not a JAR
-      }
-      finally {
-         try {
-            is.close();
-         }
-         catch ( Exception e ) {
-         }
       }
 
       return false;

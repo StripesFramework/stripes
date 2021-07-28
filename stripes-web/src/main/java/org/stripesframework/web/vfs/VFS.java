@@ -15,17 +15,13 @@
 package org.stripesframework.web.vfs;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import org.stripesframework.web.exception.StripesRuntimeException;
 import org.stripesframework.web.util.Log;
-import org.stripesframework.web.util.ReflectUtil;
 
 
 /**
@@ -38,7 +34,7 @@ public abstract class VFS {
    private static final Log log = Log.getInstance(VFS.class);
 
    /** The built-in implementations. */
-   public static final Class<?>[] IMPLEMENTATIONS = { JBoss6VFS.class, DefaultVFS.class };
+   public static final Class<?>[] IMPLEMENTATIONS = { DefaultVFS.class };
 
    /** The list to which implementations are added by {@link #addImplClass(Class)}. */
    public static final List<Class<? extends VFS>> USER_IMPLEMENTATIONS = new ArrayList<>();
@@ -78,16 +74,12 @@ public abstract class VFS {
       for ( int i = 0; vfs == null || !vfs.isValid(); i++ ) {
          Class<? extends VFS> impl = impls.get(i);
          try {
-            vfs = impl.newInstance();
-            if ( vfs == null || !vfs.isValid() ) {
+            vfs = impl.getConstructor().newInstance();
+            if ( !vfs.isValid() ) {
                log.debug("VFS implementation ", impl.getName(), " is not valid in this environment.");
             }
          }
-         catch ( InstantiationException e ) {
-            log.error(e, "Failed to instantiate ", impl);
-            return null;
-         }
-         catch ( IllegalAccessException e ) {
+         catch ( Exception e ) {
             log.error(e, "Failed to instantiate ", impl);
             return null;
          }
@@ -95,42 +87,6 @@ public abstract class VFS {
 
       log.info("Using VFS adapter ", vfs.getClass().getName());
       return VFS.instance = vfs;
-   }
-
-   /** Get a class by name. If the class is not found then return null. */
-   protected static Class<?> getClass( String className ) {
-      try {
-         return ReflectUtil.findClass(className);
-      }
-      catch ( ClassNotFoundException e ) {
-         log.debug("Class not found: ", className);
-         return null;
-      }
-   }
-
-   /**
-    * Get a method by name and parameter types. If the method is not found then return null.
-    *
-    * @param clazz The class to which the method belongs.
-    * @param methodName The name of the method.
-    * @param parameterTypes The types of the parameters accepted by the method.
-    */
-   protected static Method getMethod( Class<?> clazz, String methodName, Class<?>... parameterTypes ) {
-      try {
-         if ( clazz == null ) {
-            return null;
-         } else {
-            return clazz.getMethod(methodName, parameterTypes);
-         }
-      }
-      catch ( SecurityException e ) {
-         log.debug(e, "Security exception looking for method ", clazz.getName(), ".", methodName);
-         return null;
-      }
-      catch ( NoSuchMethodException e ) {
-         log.debug(e, "Method not found ", clazz.getName(), ".", methodName);
-         return null;
-      }
    }
 
    /**
@@ -143,36 +99,6 @@ public abstract class VFS {
     */
    protected static List<URL> getResources( String path ) throws IOException {
       return Collections.list(Thread.currentThread().getContextClassLoader().getResources(path));
-   }
-
-   /**
-    * Invoke a method on an object and return whatever it returns.
-    *
-    * @param method The method to invoke.
-    * @param object The instance or class (for static methods) on which to invoke the method.
-    * @param parameters The parameters to pass to the method.
-    * @return Whatever the method returns.
-    * @throws IOException If I/O errors occur
-    * @throws StripesRuntimeException If anything else goes wrong
-    */
-   @SuppressWarnings("unchecked")
-   protected static <T> T invoke( Method method, Object object, Object... parameters ) throws IOException, StripesRuntimeException {
-      try {
-         return (T)method.invoke(object, parameters);
-      }
-      catch ( IllegalArgumentException e ) {
-         throw new StripesRuntimeException(e);
-      }
-      catch ( IllegalAccessException e ) {
-         throw new StripesRuntimeException(e);
-      }
-      catch ( InvocationTargetException e ) {
-         if ( e.getTargetException() instanceof IOException ) {
-            throw (IOException)e.getTargetException();
-         } else {
-            throw new StripesRuntimeException(e);
-         }
-      }
    }
 
    /** Return true if the {@link VFS} implementation is valid for the current environment. */
