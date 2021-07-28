@@ -36,7 +36,6 @@ import org.stripesframework.web.action.ActionBeanContext;
 import org.stripesframework.web.action.FileBean;
 import org.stripesframework.web.action.Wizard;
 import org.stripesframework.web.config.Configuration;
-import org.stripesframework.web.exception.BindingDeniedException;
 import org.stripesframework.web.exception.StripesRuntimeException;
 import org.stripesframework.web.util.CollectionUtil;
 import org.stripesframework.web.util.CryptoUtil;
@@ -654,15 +653,7 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
     * @return true if binding can/should proceed, false to veto binding
     */
    protected boolean isBindingAllowed( PropertyExpressionEvaluation eval ) {
-      boolean allowed = BindingPolicyManager.getInstance(eval.getBean().getClass()).isBindingAllowed(eval);
-      if ( !allowed ) {
-         String param = eval.getExpression().getSource();
-         if ( _configuration.isDebugMode() ) {
-            throw new BindingDeniedException(param);
-         }
-         log.warn("Binding denied for parameter [", param, "]. Use @Validate to allow binding in conjunction with @StrictBinding.");
-      }
-      return allowed;
+      return BindingPolicyManager.getInstance(eval.getBean().getClass()).isBindingAllowed(eval);
    }
 
    /**

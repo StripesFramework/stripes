@@ -29,9 +29,11 @@ public class ValidationAnnotationsTest extends FilterEnabledTestBase implements 
    private String            first;
    @Validate(required = true, on = "validatePublicField")
    public  String            publicField;
+   @Validate
    public  Integer           shouldBeDoubled;
    @Validate(converter = IntegerTypeConverter.class)
    public  Integer           shouldNotBeDoubled;
+   @Validate
    public  String            shouldBeUpperCased;
    @Validate(converter = StringTypeConverter.class)
    public  String            shouldNotBeUpperCased;

@@ -14,16 +14,15 @@
  */
 package org.stripesframework.web.controller;
 
+import java.beans.PropertyDescriptor;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -31,10 +30,9 @@ import javax.servlet.http.HttpSession;
 
 import org.stripesframework.web.action.ActionBean;
 import org.stripesframework.web.action.ActionBeanContext;
-import org.stripesframework.web.action.StrictBinding;
-import org.stripesframework.web.action.StrictBinding.Policy;
 import org.stripesframework.web.exception.StripesRuntimeException;
 import org.stripesframework.web.util.Log;
+import org.stripesframework.web.util.ReflectUtil;
 import org.stripesframework.web.util.bean.NodeEvaluation;
 import org.stripesframework.web.util.bean.PropertyExpressionEvaluation;
 import org.stripesframework.web.validation.ValidationMetadata;
@@ -46,26 +44,18 @@ import org.stripesframework.web.validation.ValidationMetadataProvider;
  * to an {@link ActionBean}.
  *
  * @author Ben Gunter
- * @see StrictBinding
  */
-@StrictBinding(defaultPolicy = Policy.ALLOW)
 public class BindingPolicyManager {
 
    /** List of classes that, for security reasons, are not allowed as a {@link NodeEvaluation} value type. */
    private static final List<Class<?>> ILLEGAL_NODE_VALUE_TYPES = Arrays.asList(ActionBeanContext.class, Class.class, ClassLoader.class, HttpSession.class,
          ServletRequest.class, ServletResponse.class);
 
-   /** The regular expression that a property name must match */
-   private static final String PROPERTY_REGEX = "\\p{javaJavaIdentifierStart}\\p{javaJavaIdentifierPart}*";
-
-   /** The compiled form of {@link #PROPERTY_REGEX} */
-   private static final Pattern PROPERTY_PATTERN = Pattern.compile(PROPERTY_REGEX);
-
    /** Log */
    private static final Log log = Log.getInstance(BindingPolicyManager.class);
 
    /** Cached instances */
-   private static final Map<Class<?>, BindingPolicyManager> instances = new HashMap<>();
+   private static final Map<Class<?>, BindingPolicyManager> instances = new ConcurrentHashMap<>();
 
    /**
     * Get the policy manager for the given class. Instances are cached and returned on subsequent
@@ -75,29 +65,14 @@ public class BindingPolicyManager {
     * @return a policy manager
     */
    public static BindingPolicyManager getInstance( Class<?> beanType ) {
-      if ( instances.containsKey(beanType) ) {
-         return instances.get(beanType);
-      }
-
-      BindingPolicyManager instance = new BindingPolicyManager(beanType);
-      instances.put(beanType, instance);
-      return instance;
+      return instances.computeIfAbsent(beanType, BindingPolicyManager::new);
    }
 
    /** The class to which the binding policy applies */
    private final Class<?> _beanClass;
 
-   /** The default policy to honor, in case of conflicts */
-   private Policy _defaultPolicy;
-
-   /** The regular expression that allowed properties must match */
-   private Pattern _allowPattern;
-
-   /** The regular expression that denied properties must match */
-   private Pattern _denyPattern;
-
-   /** The regular expression that matches properties with {@literal @Validate} */
-   private Pattern _validatePattern;
+   /** The set of properties with {@literal @Validate} */
+   private final Set<String> _validatedProperties;
 
    /**
     * Create a new instance to handle binding security for the given type.
@@ -106,24 +81,8 @@ public class BindingPolicyManager {
     */
    protected BindingPolicyManager( Class<?> beanClass ) {
       try {
-         log.debug("Creating ", getClass().getName(), " for ", beanClass, " with default policy ", _defaultPolicy);
-          _beanClass = beanClass;
-
-         // process the annotation
-         StrictBinding annotation = getAnnotation(beanClass);
-         if ( annotation != null ) {
-            // set default policy
-            _defaultPolicy = annotation.defaultPolicy();
-
-            // construct the allow pattern
-            _allowPattern = globToPattern(annotation.allow());
-
-            // construct the deny pattern
-            _denyPattern = globToPattern(annotation.deny());
-
-            // construct the validated properties pattern
-            _validatePattern = globToPattern(getValidatedProperties(beanClass));
-         }
+         _beanClass = beanClass;
+         _validatedProperties = getValidatedProperties(beanClass);
       }
       catch ( Exception e ) {
          log.error(e, "%%% Failure instantiating ", getClass().getName());
@@ -143,15 +102,6 @@ public class BindingPolicyManager {
    }
 
    /**
-    * Get the default policy.
-    *
-    * @return the policy
-    */
-   public Policy getDefaultPolicy() {
-      return _defaultPolicy;
-   }
-
-   /**
     * Indicates if binding is allowed for the given expression.
     *
     * @param eval a property expression that has been evaluated against an {@link ActionBean}
@@ -165,48 +115,16 @@ public class BindingPolicyManager {
 
       // check parameter name against access lists
       String paramName = new ParameterName(eval.getExpression().getSource()).getStrippedName();
-      boolean deny = _denyPattern != null && _denyPattern.matcher(paramName).matches();
-      boolean allow = (_allowPattern != null && _allowPattern.matcher(paramName).matches()) || (_validatePattern != null && _validatePattern.matcher(paramName)
-            .matches());
-
-      /*
-       * if path appears on neither or both lists ( i.e. !(allow ^ deny) ) and default policy is
-       * to deny access, then fail
-       */
-      if ( _defaultPolicy == Policy.DENY && !(allow ^ deny) ) {
-         return false;
+      if ( _validatedProperties.contains(paramName) ) {
+         return true;
       }
 
-      /*
-       * regardless of default policy, if it's in the deny list but not in the allow list, then
-       * fail
-       */
-      if ( !allow && deny ) {
-         return false;
+      if ( isBindingDeniedLoggingRequired(eval.getBean(), paramName) ) {
+         log.warn("Binding denied for action ", eval.getBean().getClass(), ", param ", paramName,
+               " has no @Validate annotation. CAUTION: Before you allow binding with @Validate, take a step back and make sure that binding this parameter is safe.");
       }
 
-      // any other conditions pass the test
-      return true;
-   }
-
-   /**
-    * Get the {@link StrictBinding} annotation for a class, checking all its superclasses if
-    * necessary. If no annotation is found, then one will be returned whose default policy is to
-    * allow binding to all properties.
-    *
-    * @param beanType the class to get the {@link StrictBinding} annotation for
-    * @return An annotation. This method never returns null.
-    */
-   protected StrictBinding getAnnotation( Class<?> beanType ) {
-      StrictBinding annotation;
-      do {
-         annotation = beanType.getAnnotation(StrictBinding.class);
-      }
-      while ( annotation == null && (beanType = beanType.getSuperclass()) != null );
-      if ( annotation == null ) {
-         annotation = getClass().getAnnotation(StrictBinding.class);
-      }
-      return annotation;
+      return false;
    }
 
    /**
@@ -217,84 +135,30 @@ public class BindingPolicyManager {
     * may be bound to the bean.
     *
     * @param beanClass a class
-    * @return The validated properties. If no properties are annotated then null.
+    * @return The validated properties. If no properties are annotated then the set is empty.
     * @see ValidationMetadataProvider#getValidationMetadata(Class)
     */
-   protected String[] getValidatedProperties( Class<?> beanClass ) {
+   protected Set<String> getValidatedProperties( Class<?> beanClass ) {
       Set<String> properties = StripesFilter.getConfiguration().getValidationMetadataProvider().getValidationMetadata(beanClass).keySet();
-      return new ArrayList<>(properties).toArray(new String[properties.size()]);
+      return new HashSet<>(properties);
    }
 
-   /**
-    * Converts a glob to a regex {@link Pattern}.
-    *
-    * @param globArray an array of property name globs, each of which may be a comma separated list
-    *            of globs
-    * @return the pattern
-    */
-   protected Pattern globToPattern( String... globArray ) {
-      if ( globArray == null || globArray.length == 0 ) {
-         return null;
+   protected boolean isBindingDeniedLoggingRequired( Object actionBean, String paramName ) {
+      // Only track violation if there's an actual property on this actionBean we would bind...
+      if ( paramName.contains(".") ) {
+         return true; // Nested property, this definitely needs to be logged
       }
 
-      // things are much easier if we convert to a single list
-      List<String> globs = new ArrayList<>();
-      for ( String glob : globArray ) {
-         String[] subs = glob.split("(\\s*,\\s*)+");
-         for ( String sub : subs ) {
-            globs.add(sub);
-         }
+      PropertyDescriptor propertyDescriptor = ReflectUtil.getPropertyDescriptor(actionBean.getClass(), paramName);
+      if ( propertyDescriptor == null ) {
+         return false; // Not a property of this action, do not log
       }
 
-      List<String> subs = new ArrayList<>();
-      StringBuilder buf = new StringBuilder();
-      for ( String glob : globs ) {
-         buf.setLength(0);
-         String[] properties = glob.split("\\.");
-         for ( int i = 0; i < properties.length; i++ ) {
-            String property = properties[i];
-            if ( "*".equals(property) ) {
-               buf.append(PROPERTY_REGEX);
-            } else if ( "**".equals(property) ) {
-               buf.append(PROPERTY_REGEX).append("(\\.").append(PROPERTY_REGEX).append(")*");
-            } else if ( property.length() > 0 ) {
-               Matcher matcher = PROPERTY_PATTERN.matcher(property);
-               if ( matcher.matches() ) {
-                  buf.append(property);
-               } else {
-                  log.warn("Invalid property name: " + property);
-                  return null;
-               }
-            }
-
-            // add a literal dot after all but the last
-            if ( i < properties.length - 1 ) {
-               buf.append("\\.");
-            }
-         }
-
-         // add to the list of subs
-         if ( buf.length() != 0 ) {
-            subs.add(buf.toString());
-         }
+      if ( propertyDescriptor.getReadMethod() != null && propertyDescriptor.getWriteMethod() == null ) {
+         return false; // No setter, do not log
       }
 
-      // join subs together with pipes and compile
-      buf.setLength(0);
-      for ( String sub : subs ) {
-         buf.append(sub).append('|');
-      }
-      if ( buf.length() > 0 ) {
-         buf.setLength(buf.length() - 1);
-      }
-      log.debug("Translated globs ", Arrays.toString(globArray), " to regex ", buf);
-
-      // return null if pattern is empty
-      if ( buf.length() == 0 ) {
-         return null;
-      } else {
-         return Pattern.compile(buf.toString());
-      }
+      return true;
    }
 
    /**

@@ -17,6 +17,8 @@ import org.stripesframework.web.action.Resolution;
 import org.stripesframework.web.mock.MockRoundtrip;
 import org.stripesframework.web.testbeans.TestBean;
 import org.stripesframework.web.testbeans.TestEnum;
+import org.stripesframework.web.validation.Validate;
+import org.stripesframework.web.validation.ValidateNestedProperties;
 
 
 /**
@@ -241,18 +243,34 @@ public class MapBindingTests extends FilterEnabledTestBase implements ActionBean
    @Override
    public void setContext( ActionBeanContext context ) { this.context = context; }
 
+   @Validate
    public void setMapDateDate( Map<Date, Date> mapDateDate ) { this.mapDateDate = mapDateDate; }
 
+   @Validate
    public void setMapEnumString( Map<Color, String> mapEnumString ) { this.mapEnumString = mapEnumString; }
 
+   @ValidateNestedProperties({ //
+                               @Validate(field = "longProperty"), //
+                               @Validate(field = "intProperty"), //
+                             })
    public void setMapEnumTestBean( Map<Color, TestBean> mapEnumTestBean ) { this.mapEnumTestBean = mapEnumTestBean; }
 
+   @Validate
    public void setMapShortInteger( Map<Short, Integer> mapShortInteger ) { this.mapShortInteger = mapShortInteger; }
 
+   @Validate
    public void setMapStringLong( Map<String, Long> mapStringLong ) { this.mapStringLong = mapStringLong; }
 
+   @ValidateNestedProperties({ //
+                               @Validate(field = "longMap"), //
+                             })
    public void setTestBean( TestBean testBean ) { this.testBean = testBean; }
 
+   @ValidateNestedProperties({ //
+                               @Validate(field = "longProperty"), //
+                               @Validate(field = "nestedBean.longProperty"), //
+                               @Validate(field = "enumProperty"), //
+                             })
    @SuppressWarnings("rawtypes")
    public void setTypelessMap( Map typelessMap ) { this.typelessMap = typelessMap; }
 

@@ -10,6 +10,7 @@ import org.stripesframework.web.action.DefaultHandler;
 import org.stripesframework.web.action.UrlBinding;
 import org.stripesframework.web.validation.LongTypeConverter;
 import org.stripesframework.web.validation.Validate;
+import org.stripesframework.web.validation.ValidateNestedProperties;
 
 
 /**
@@ -34,6 +35,7 @@ public class TestActionBean implements ActionBean {
    private List                nakedListOfLongs;
    private int[]               intArray;
    private String              setOnlyString;
+   @Validate
    public  Long                publicLong;
    public  Color[]             colors;
    private PropertyLess        item = new Item();
@@ -67,7 +69,6 @@ public class TestActionBean implements ActionBean {
 
    /** A non-generic list to make sure specifying the converter is used properly. */
    @SuppressWarnings("unchecked")
-   @Validate(converter = LongTypeConverter.class)
    public List getNakedListOfLongs() { return nakedListOfLongs; }
 
    /** A Set of Strings, to test non List based collections. */
@@ -82,6 +83,7 @@ public class TestActionBean implements ActionBean {
    /** A single test bean to test out basic nested properties. */
    public TestBean getTestBean() { return testBean; }
 
+   @Validate
    public void setColors( Color[] colors ) { this.colors = colors; }
 
    ///////////////////////////////////////////////////////////////////////////
@@ -90,32 +92,61 @@ public class TestActionBean implements ActionBean {
    @Override
    public void setContext( ActionBeanContext context ) { this.context = context; }
 
+   @Validate
    public void setIntArray( int[] intArray ) { this.intArray = intArray; }
 
+   @ValidateNestedProperties({ //
+                               @Validate(field = "id"), //
+                             })
    public void setItem( PropertyLess item ) { this.item = item; }
 
+   @ValidateNestedProperties({  //
+                                @Validate(field = "intProperty"), //
+                             })
    public void setListOfBeans( List<TestBean> listOfBeans ) { this.listOfBeans = listOfBeans; }
 
+   @Validate
    public void setListOfLongs( List<Long> listOfLongs ) { this.listOfLongs = listOfLongs; }
 
+   @Validate
    public void setMapOfLongs( Map<String, Long> mapOfLongs ) { this.mapOfLongs = mapOfLongs; }
 
+   @Validate
    public void setMapOfObjects( Map<String, Object> mapOfObjects ) { this.mapOfObjects = mapOfObjects; }
 
-   @SuppressWarnings("unchecked")
+   @Validate(converter = LongTypeConverter.class)
    public void setNakedListOfLongs( List nakedListOfLongs ) { this.nakedListOfLongs = nakedListOfLongs; }
 
+   @Validate
    public boolean setOnlyStringIsNotNull() { return setOnlyString != null; }
 
+   @Validate
    public void setSetOfStrings( Set<String> setOfStrings ) { this.setOfStrings = setOfStrings; }
 
    /** A property with only a setter to test out setting when there's no getter. */
+   @Validate
    public void setSetOnlyString( String setOnlyString ) { this.setOnlyString = setOnlyString; }
 
+   @Validate
    public void setSingleLong( Long singleLong ) { this.singleLong = singleLong; }
 
+   @Validate
    public void setSingleString( String singleString ) { this.singleString = singleString; }
 
+   @ValidateNestedProperties({  //
+                                @Validate(field = "stringProperty"), //
+                                @Validate(field = "intProperty"), //
+                                @Validate(field = "longProperty"), //
+                                @Validate(field = "enumProperty"), //
+                                @Validate(field = "booleanProperty"), //
+                                @Validate(field = "genericArray"), //
+                                @Validate(field = "stringArray"), //
+                                @Validate(field = "stringList"), //
+                                @Validate(field = "stringSet"), //
+                                @Validate(field = "stringMap"), //
+                                @Validate(field = "nestedMap"), //
+                                @Validate(field = "longMap"), //
+                             })
    public void setTestBean( TestBean testBean ) { this.testBean = testBean; }
 
    public enum Color {

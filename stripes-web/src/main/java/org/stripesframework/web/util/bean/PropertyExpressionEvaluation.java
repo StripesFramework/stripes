@@ -60,8 +60,8 @@ public class PropertyExpressionEvaluation {
     * @param bean a non-null bean against which to evaluate the expression
     */
    public PropertyExpressionEvaluation( PropertyExpression expression, Object bean ) {
-       _expression = expression;
-       _bean = bean;
+      _expression = expression;
+      _bean = bean;
 
       for ( Node node = expression.getRootNode(); node != null; node = node.getNext() ) {
          NodeEvaluation evaluation = new NodeEvaluation(this, node);
@@ -551,6 +551,9 @@ public class PropertyExpressionEvaluation {
          if ( n.getType() == NodeType.BeanProperty && n.getNode().isBracketed() ) {
             throw new EvaluationException(
                   "The expression \"" + getExpression().getSource() + "\" illegally attempts to access a bean property using bracket notation");
+         } else if ( n.getType() != NodeType.BeanProperty && !n.getNode().isBracketed() ) {
+            throw new EvaluationException(
+                  "The expression \"" + getExpression().getSource() + "\" illegally attempts to access a bean property using dot notation");
          }
       }
    }

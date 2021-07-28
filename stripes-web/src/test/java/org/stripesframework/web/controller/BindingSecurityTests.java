@@ -1,6 +1,12 @@
 package org.stripesframework.web.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -12,11 +18,9 @@ import org.stripesframework.web.action.ActionBean;
 import org.stripesframework.web.action.ActionBeanContext;
 import org.stripesframework.web.action.DefaultHandler;
 import org.stripesframework.web.action.Resolution;
-import org.stripesframework.web.action.StrictBinding;
-import org.stripesframework.web.action.StrictBinding.Policy;
-import org.stripesframework.web.exception.StripesRuntimeException;
 import org.stripesframework.web.mock.MockRoundtrip;
 import org.stripesframework.web.util.Log;
+import org.stripesframework.web.util.bean.EvaluationException;
 import org.stripesframework.web.util.bean.PropertyExpression;
 import org.stripesframework.web.util.bean.PropertyExpressionEvaluation;
 import org.stripesframework.web.validation.Validate;
@@ -26,54 +30,62 @@ import org.stripesframework.web.validation.ValidateNestedProperties;
 /**
  * Tests binding security.
  */
-public class BindingSecurityTests extends FilterEnabledTestBase {
+class BindingSecurityTests extends FilterEnabledTestBase {
 
    private static final Log log = Log.getInstance(BindingSecurityTests.class);
 
    @Test
-   public void bindingPolicyEnforcement() {
-      try {
-         evaluate(new NoAnnotation());
-         evaluate(new DefaultAnnotation());
-         evaluate(new ImplicitDeny());
-         evaluate(new ExplicitDeny());
-         evaluate(new ImplicitAllow());
-         evaluate(new HonorValidateAnnotations());
-         evaluate(new OverrideValidateAnnotations());
-      }
-      catch ( Exception e ) {
-         StripesRuntimeException re = new StripesRuntimeException(e.getMessage(), e);
-         re.setStackTrace(e.getStackTrace());
-         throw re;
-      }
+   void testDefaultAnnotation() {
+      evaluate(new DefaultAnnotation());
    }
 
-   public void evaluate( NoAnnotation bean ) throws Exception {
-      String[] properties = bean.getTestProperties();
-      boolean[] expect = bean.getExpectSuccess();
+   @Test
+   void testHonorValidateAnnotations() {
+      evaluate(new HonorValidateAnnotations());
+   }
 
-      Class<? extends NoAnnotation> beanType = bean.getClass();
-      MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), beanType);
-      for ( String p : properties ) {
-         trip.addParameter(p, p + "Value");
-      }
-      trip.execute();
+   @Test
+   void testIllegalBeanAccess() {
+      Throwable throwable = catchThrowable(() -> evaluate(new IllegalBeanAccess()));
 
-      bean = trip.getActionBean(beanType);
-      for ( int i = 0; i < properties.length; i++ ) {
-         String fullName = beanType.getSimpleName() + "." + properties[i];
-         log.debug("Testing binding security on ", fullName);
-         PropertyExpression pe = PropertyExpression.getExpression(properties[i]);
-         PropertyExpressionEvaluation eval = new PropertyExpressionEvaluation(pe, bean);
-         Object value = eval.getValue();
-         assertThat(value != null).describedAs(
-               "Property " + fullName + " should" + (expect[i] ? " not" : "") + " be null but it is" + (expect[i] ? "" : " not")).isEqualTo(expect[i]);
-      }
+      assertThat(throwable).isInstanceOf(EvaluationException.class)
+            .hasMessage("The expression \"blah[name]\" illegally attempts to access a bean property using bracket notation");
+   }
+
+   @Test
+   void testNestedListValidateAnnotations() {
+      evaluate(new NestedListValidateAnnotations());
+   }
+
+   @Test
+   void testNestedListValidateAnnotationsDotNotation() {
+      Throwable throwable = catchThrowable(() -> evaluate(new NestedListValidateAnnotationsDotNotation()));
+
+      assertThat(throwable).isInstanceOf(EvaluationException.class)
+            .hasMessage("The expression \"blahList.0.name\" illegally attempts to access a bean property using dot notation");
+   }
+
+   @Test
+   void testNestedMapValidateAnnotations() {
+      evaluate(new NestedMapValidateAnnotations());
+   }
+
+   @Test
+   void testNestedMapValidateAnnotationsDotNotation() {
+      Throwable throwable = catchThrowable(() -> evaluate(new NestedMapValidateAnnotationsDotNotation()));
+
+      assertThat(throwable).isInstanceOf(EvaluationException.class)
+            .hasMessage("The expression \"blahMap.foo.name\" illegally attempts to access a bean property using dot notation");
+   }
+
+   @Test
+   void testNoAnnotation() {
+      evaluate(new NoAnnotation());
    }
 
    @Test
    @SuppressWarnings("unused")
-   public void protectedClasses() {
+   void testProtectedClasses() {
       class TestBean implements ActionBean {
 
          public ClassLoader getClassLoader() {
@@ -126,12 +138,54 @@ public class BindingSecurityTests extends FilterEnabledTestBase {
       }
    }
 
+   @Test
+   void testValidateAnnotationOnComplexType() {
+      evaluate(new ValidateAnnotationOnComplexType());
+   }
+
+   private void evaluate( NoAnnotation bean ) {
+      String[] properties = bean.getTestProperties();
+      boolean[] expect = bean.getExpectSuccess();
+
+      Class<? extends NoAnnotation> beanType = bean.getClass();
+      MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), beanType);
+      for ( String p : properties ) {
+         trip.addParameter(p, p + "Value");
+      }
+      try {
+         trip.execute();
+      }
+      catch ( Exception e ) {
+         throw new RuntimeException(e);
+      }
+
+      bean = trip.getActionBean(beanType);
+      for ( int i = 0; i < properties.length; i++ ) {
+         String fullName = beanType.getSimpleName() + "." + properties[i];
+         log.debug("Testing binding security on ", fullName);
+         PropertyExpression pe = PropertyExpression.getExpression(properties[i]);
+         PropertyExpressionEvaluation eval = new PropertyExpressionEvaluation(pe, bean);
+         Object value = eval.getValue();
+         assertThat(value != null).describedAs(
+               "Property " + fullName + " should" + (expect[i] ? " not" : "") + " be null but it is" + (expect[i] ? "" : " not")).isEqualTo(expect[i]);
+      }
+   }
+
    public static class Blah {
 
       private String name;
+      private String internalName;
+
+      public String getInternalName() {
+         return internalName;
+      }
 
       public String getName() {
          return name;
+      }
+
+      public void setInternalName( String internalName ) {
+         this.internalName = internalName;
       }
 
       public void setName( String name ) {
@@ -140,7 +194,6 @@ public class BindingSecurityTests extends FilterEnabledTestBase {
    }
 
 
-   @StrictBinding
    public static class DefaultAnnotation extends BindingSecurityTests.NoAnnotation {
 
       @Override
@@ -150,18 +203,7 @@ public class BindingSecurityTests extends FilterEnabledTestBase {
    }
 
 
-   @StrictBinding(allow = "foo,bar,baz", deny = "baz,baz.**")
-   public static class ExplicitDeny extends BindingSecurityTests.NoAnnotation {
-
-      @Override
-      public boolean[] getExpectSuccess() {
-         return new boolean[] { true, true, false };
-      }
-   }
-
-
    @SuppressWarnings("unused")
-   @StrictBinding
    public static class HonorValidateAnnotations extends BindingSecurityTests.NoAnnotation {
 
       @Validate
@@ -188,7 +230,7 @@ public class BindingSecurityTests extends FilterEnabledTestBase {
 
       @Override
       public boolean[] getExpectSuccess() {
-         return new boolean[] { true, true, true, true, true };
+         return new boolean[] { true, true, true, true, true, false };
       }
 
       @Override
@@ -198,7 +240,7 @@ public class BindingSecurityTests extends FilterEnabledTestBase {
 
       @Override
       public String[] getTestProperties() {
-         return new String[] { "foo", "bar", "baz", "blah", "blah.name" };
+         return new String[] { "foo", "bar", "baz", "blah", "blah.name", "blah.internalName" };
       }
 
       @Override
@@ -223,23 +265,126 @@ public class BindingSecurityTests extends FilterEnabledTestBase {
    }
 
 
-   @StrictBinding(defaultPolicy = Policy.ALLOW)
-   public static class ImplicitAllow extends BindingSecurityTests.NoAnnotation {
+   @SuppressWarnings("unused")
+   public static class IllegalBeanAccess extends BindingSecurityTests.NoAnnotation {
+
+      private Blah blah;
+
+      @ValidateNestedProperties(@Validate(field = "name"))
+      public Blah getBlah() {
+         return blah;
+      }
 
       @Override
       public boolean[] getExpectSuccess() {
-         return new boolean[] { true, true, true };
+         return new boolean[] { false };
       }
+
+      @Override
+      public String[] getTestProperties() {
+         return new String[] { "blah[name]" };
+      }
+
    }
 
 
-   @StrictBinding(allow = "foo,bar")
-   public static class ImplicitDeny extends BindingSecurityTests.NoAnnotation {
+   @SuppressWarnings("unused")
+   public static class NestedListValidateAnnotations extends BindingSecurityTests.NoAnnotation {
+
+      private final List<Blah> _blahList = new ArrayList<>();
+
+      @ValidateNestedProperties({ //
+                                  @Validate(field = "name"), //
+                                })
+      public List<Blah> getBlahList() {
+         return _blahList;
+      }
 
       @Override
       public boolean[] getExpectSuccess() {
-         return new boolean[] { true, true, false };
+         return new boolean[] { true, false };
       }
+
+      @Override
+      public String[] getTestProperties() {
+         return new String[] { "blahList[0].name", "blahList[0].internalName" };
+      }
+
+   }
+
+
+   @SuppressWarnings("unused")
+   public static class NestedListValidateAnnotationsDotNotation extends BindingSecurityTests.NoAnnotation {
+
+      private final List<Blah> _blahList = new ArrayList<>();
+
+      @ValidateNestedProperties({ //
+                                  @Validate(field = "name"), //
+                                })
+      public List<Blah> getBlahList() {
+         return _blahList;
+      }
+
+      @Override
+      public boolean[] getExpectSuccess() {
+         return new boolean[] { true, false };
+      }
+
+      @Override
+      public String[] getTestProperties() {
+         return new String[] { "blahList.0.name", "blahList.0.internalName" };
+      }
+
+   }
+
+
+   @SuppressWarnings("unused")
+   public static class NestedMapValidateAnnotations extends BindingSecurityTests.NoAnnotation {
+
+      private final Map<String, Blah> _blahMap = new HashMap<>();
+
+      @ValidateNestedProperties({ //
+                                  @Validate(field = "name"), //
+                                })
+      public Map<String, Blah> getBlahMap() {
+         return _blahMap;
+      }
+
+      @Override
+      public boolean[] getExpectSuccess() {
+         return new boolean[] { true, false };
+      }
+
+      @Override
+      public String[] getTestProperties() {
+         return new String[] { "blahMap[foo].name", "blahMap[foo].internalName" };
+      }
+
+   }
+
+
+   @SuppressWarnings("unused")
+   public static class NestedMapValidateAnnotationsDotNotation extends BindingSecurityTests.NoAnnotation {
+
+      private final Map<String, Blah> _blahMap = new HashMap<>();
+
+      @ValidateNestedProperties({ //
+                                  @Validate(field = "name"), //
+                                })
+      public Map<String, Blah> getBlahMap() {
+         return _blahMap;
+      }
+
+      @Override
+      public boolean[] getExpectSuccess() {
+         return new boolean[] { false, false };
+      }
+
+      @Override
+      public String[] getTestProperties() {
+         return new String[] { "blahMap.foo.name", "blahMap.foo.internalName" };
+      }
+
    }
 
 
@@ -268,7 +413,7 @@ public class BindingSecurityTests extends FilterEnabledTestBase {
       }
 
       public boolean[] getExpectSuccess() {
-         return new boolean[] { true, true, true };
+         return new boolean[] { false, false, false };
       }
 
       public String getFoo() {
@@ -298,12 +443,24 @@ public class BindingSecurityTests extends FilterEnabledTestBase {
    }
 
 
-   @StrictBinding(deny = "**")
-   public static class OverrideValidateAnnotations extends BindingSecurityTests.HonorValidateAnnotations {
+   @SuppressWarnings("unused")
+   public static class ValidateAnnotationOnComplexType extends BindingSecurityTests.NoAnnotation {
+
+      private final Blah blah = new Blah();
+
+      @Validate
+      public Blah getBlah() {
+         return blah;
+      }
 
       @Override
       public boolean[] getExpectSuccess() {
-         return new boolean[] { false, false, false, false, false };
+         return new boolean[] { false, false };
+      }
+
+      @Override
+      public String[] getTestProperties() {
+         return new String[] { "blah.name", "blah.internalName" };
       }
    }
 

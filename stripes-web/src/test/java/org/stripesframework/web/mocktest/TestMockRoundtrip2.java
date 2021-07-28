@@ -10,6 +10,7 @@ import org.stripesframework.web.action.DefaultHandler;
 import org.stripesframework.web.action.Resolution;
 import org.stripesframework.web.action.UrlBinding;
 import org.stripesframework.web.mock.MockRoundtrip;
+import org.stripesframework.web.validation.Validate;
 
 
 /**
@@ -45,6 +46,7 @@ public class TestMockRoundtrip2 extends FilterEnabledTestBase implements ActionB
       this.context = context;
    }
 
+   @Validate
    public void setId( Integer id ) {
       this.id = id;
    }

@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.stripesframework.web.testbeans.TestGenericBean;
+import org.stripesframework.web.validation.Validate;
+import org.stripesframework.web.validation.ValidateNestedProperties;
 
 
 /**
@@ -31,13 +33,24 @@ public class GenericsBindingTestsBaseClass<JB, N, E, K, V> {
 
    public N getNumber() { return number; }
 
+   @ValidateNestedProperties({ //
+                               @Validate(field = "longProperty"), //
+                               @Validate(field = "stringProperty"), //
+                             })
    public void setBean( JB bean ) { this.bean = bean; }
 
+   @ValidateNestedProperties({ //
+                               @Validate(field = "genericA"), //
+                               @Validate(field = "genericB"), //
+                             })
    public void setGenericBean( TestGenericBean.GenericBean<N, E> genericBean ) { this.genericBean = genericBean; }
 
+   @Validate
    public void setList( List<? extends E> list ) { this.list = list; }
 
+   @Validate
    public void setMap( Map<K, V> map ) { this.map = map; }
 
+   @Validate
    public void setNumber( N number ) { this.number = number; }
 }
