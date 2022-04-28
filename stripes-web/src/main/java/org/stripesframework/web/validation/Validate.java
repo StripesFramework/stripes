@@ -70,7 +70,7 @@ public @interface Validate {
     * form input labels, etc. This will only be used if a localized field name cannot be found in
     * the resource bundle.
     *
-    * @see LocalizationUtility#getLocalizedFieldName(String, String, Class, java.util.Locale)
+    * @see LocalizationUtility#getLocalizedFieldName(String, Class, java.util.Locale)
     */
    String label() default "";
 

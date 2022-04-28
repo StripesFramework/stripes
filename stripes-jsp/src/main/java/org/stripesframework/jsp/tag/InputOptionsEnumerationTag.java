@@ -115,10 +115,8 @@ public class InputOptionsEnumerationTag extends InputOptionsCollectionTag {
             String simpleName = LocalizationUtility.getSimpleName(clazz);
 
             if ( attemptToLocalizeLabels ) {
-               String packageName = clazz.getPackage() == null ? "" : clazz.getPackage().getName();
-
                // Check for a localized label using class.ENUM_VALUE and package.class.ENUM_VALUE
-               label = LocalizationUtility.getLocalizedFieldName(simpleName + "." + item.name(), packageName, null, locale);
+               label = LocalizationUtility.getLocalizedFieldName(simpleName + "." + item.name(), null, locale);
             }
             if ( label == null ) {
                if ( getLabel() != null ) {

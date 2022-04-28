@@ -382,14 +382,12 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
    // Getters and setters only below this point.
 
    /**
-    * Attempts to fetch a "field name" resource from the localization bundle. Delegates
-    * to {@link LocalizationUtility#getLocalizedFieldName(String, String, Class, java.util.Locale)}
+    * Attempts to fetch a "field name" resource from the localization bundle.
     *
     * @param name the field name or resource to look up
     * @return the localized String corresponding to the name provided
-    * @throws StripesJspException
     */
-   protected String getLocalizedFieldName( final String name ) throws StripesJspException {
+   protected String getLocalizedFieldName( final String name ) {
       Locale locale = getPageContext().getRequest().getLocale();
       FormTag form = null;
 
@@ -398,11 +396,9 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
       }
       catch ( StripesJspException sje ) { /* Do nothing. */}
 
-      String actionPath = null;
       Class<? extends ActionBean> beanClass = null;
 
       if ( form != null ) {
-         actionPath = form.getAction();
          beanClass = form.getActionBeanClass();
       } else {
          ActionBean mainBean = (ActionBean)getPageContext().getRequest().getAttribute(StripesConstants.REQ_ATTR_ACTION_BEAN);
@@ -410,7 +406,7 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
             beanClass = mainBean.getClass();
          }
       }
-      return LocalizationUtility.getLocalizedFieldName(name, actionPath, beanClass, locale);
+      return LocalizationUtility.getLocalizedFieldName(name, beanClass, locale);
    }
 
    /**

@@ -62,24 +62,21 @@ public class LocalizationUtility {
     * If for any reason a localized value cannot be found (e.g. the bundle cannot be found, or
     * does not contain the required properties) then null will be returned.</p>
     *
-    * <p>Looks first for a property called {@code beanClassFQN.fieldName} in the resource bundle.
-    * If that is undefined, it next looks for {@code actionPath.fieldName} and
-    * if not defined, looks for a property called {@code fieldName}.  Will strip any indexing
+    * <p>Looks first for a property called {@code field.fieldName} in the resource bundle.
+    * If not defined, looks for a property called {@code fieldName}.  Will strip any indexing
     * from the field name prior to using it to construct property names (e.g. foo[12] will become
     * simply foo).</p>
     *
     * @param fieldName The name of the field whose localized name to look up
-    * @param actionPath The action path of the form in which the field is nested. If for some
-    *        reason this is not available, null may be passed without causing errors.
     * @param locale The desired locale of the looked up name.
     * @return a localized field name if one can be found, or null otherwise.
     */
-   public static String getLocalizedFieldName( String fieldName, String actionPath, Class<? extends ActionBean> beanclass, Locale locale ) {
+   public static String getLocalizedFieldName( String fieldName, Class<? extends ActionBean> beanclass, Locale locale ) {
 
       ParameterName parameterName = new ParameterName(fieldName);
       String strippedName = parameterName.getStrippedName();
       String localizedValue = null;
-      ResourceBundle bundle = null;
+      ResourceBundle bundle;
 
       try {
          bundle = StripesFilter.getConfiguration().getLocalizationBundleFactory().getFormFieldBundle(locale);
@@ -89,13 +86,11 @@ public class LocalizationUtility {
          return null;
       }
 
-      // First with the bean class
-      if ( beanclass != null ) {
-         try {
-            localizedValue = bundle.getString(beanclass.getName() + "." + strippedName);
-         }
-         catch ( MissingResourceException mre ) { /* do nothing */ }
+      // First with field prefix
+      try {
+         localizedValue = bundle.getString("field." + strippedName);
       }
+      catch ( MissingResourceException mre ) { /* do nothing */ }
 
       // Then all by itself
       if ( localizedValue == null ) {
@@ -125,11 +120,11 @@ public class LocalizationUtility {
     * @return The simple name of the class.
     */
    public static String getSimpleName( Class<?> c ) {
-       if ( c.getEnclosingClass() == null ) {
-           return c.getSimpleName();
-       } else {
-           return prefixSimpleName(new StringBuilder(), c).toString();
-       }
+      if ( c.getEnclosingClass() == null ) {
+         return c.getSimpleName();
+      } else {
+         return prefixSimpleName(new StringBuilder(), c).toString();
+      }
    }
 
    /**
@@ -140,6 +135,7 @@ public class LocalizationUtility {
     * @param fieldNameKey the programmatic name of a form field
     * @return String a more user friendly name for the field in the absence of anything better
     */
+   @SuppressWarnings("ConstantConditions")
    public static String makePseudoFriendlyName( String fieldNameKey ) {
       StringBuilder builder = new StringBuilder(fieldNameKey.length() + 10);
       char[] characters = fieldNameKey.toCharArray();
@@ -167,9 +163,9 @@ public class LocalizationUtility {
 
    /** A recursive method used by {@link #getSimpleName(Class)}. */
    private static StringBuilder prefixSimpleName( StringBuilder s, Class<?> c ) {
-       if ( c.getEnclosingClass() != null ) {
-           prefixSimpleName(s, c.getEnclosingClass()).append('.');
-       }
+      if ( c.getEnclosingClass() != null ) {
+         prefixSimpleName(s, c.getEnclosingClass()).append('.');
+      }
       return s.append(c.getSimpleName());
    }
 }

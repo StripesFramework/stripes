@@ -236,14 +236,13 @@ public class InputOptionsCollectionTag extends HtmlTagSupport {
 
             if ( attemptToLocalizeLabels ) {
                // Try to localize the label
-               String packageName = clazz.getPackage() == null ? "" : clazz.getPackage().getName();
                String simpleName = LocalizationUtility.getSimpleName(clazz);
                String localizedLabel = null;
                if ( label != null ) {
-                  localizedLabel = LocalizationUtility.getLocalizedFieldName(simpleName + "." + label, packageName, null, locale);
+                  localizedLabel = LocalizationUtility.getLocalizedFieldName(simpleName + "." + label, null, locale);
                }
                if ( localizedLabel == null && value != null ) {
-                  localizedLabel = LocalizationUtility.getLocalizedFieldName(simpleName + "." + value, packageName, null, locale);
+                  localizedLabel = LocalizationUtility.getLocalizedFieldName(simpleName + "." + value, null, locale);
                }
                if ( localizedLabel != null ) {
                   label = localizedLabel;
@@ -251,7 +250,7 @@ public class InputOptionsCollectionTag extends HtmlTagSupport {
 
                // Try to localize the group
                if ( group != null ) {
-                  String localizedGroup = LocalizationUtility.getLocalizedFieldName(simpleName + "." + group, packageName, null, locale);
+                  String localizedGroup = LocalizationUtility.getLocalizedFieldName(simpleName + "." + group, null, locale);
                   if ( localizedGroup != null ) {
                      group = localizedGroup;
                   }

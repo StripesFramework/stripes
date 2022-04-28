@@ -197,7 +197,7 @@ public class SimpleError extends SimpleMessage implements ValidationError {
       if ( _fieldNameKey == null ) {
          getReplacementParameters()[0] = "FIELD NAME NOT SUPPLIED IN CODE";
       } else {
-         getReplacementParameters()[0] = LocalizationUtility.getLocalizedFieldName(_fieldNameKey, _actionPath, _beanclass, locale);
+         getReplacementParameters()[0] = LocalizationUtility.getLocalizedFieldName(_fieldNameKey, _beanclass, locale);
 
          if ( getReplacementParameters()[0] == null ) {
             getReplacementParameters()[0] = LocalizationUtility.makePseudoFriendlyName(_fieldNameKey);
