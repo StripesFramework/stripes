@@ -16,6 +16,7 @@ package org.stripesframework.web.format;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
@@ -50,6 +51,10 @@ public class NumberFormatter implements Formatter<Number> {
 
    /** Maintains a set of named formats that can be used instead of patterns. */
    protected static final Set<String> namedPatterns = new HashSet<>();
+
+   private static final   ThreadLocal<HashMap<Locale, NumberFormat>> numberFormatNumberCache   = ThreadLocal.withInitial(HashMap::new);
+   private static final   ThreadLocal<HashMap<Locale, NumberFormat>> numberFormatPercentCache  = ThreadLocal.withInitial(HashMap::new);
+   private static final   ThreadLocal<HashMap<Locale, NumberFormat>> numberFormatCurrencyCache = ThreadLocal.withInitial(HashMap::new);
 
    static {
       namedPatterns.add("plain");
@@ -96,16 +101,19 @@ public class NumberFormatter implements Formatter<Number> {
           formatPattern = "plain";
       }
 
-      if ( formatType.equalsIgnoreCase("number") ) {
-          format = NumberFormat.getInstance(locale);
-      } else if ( formatType.equalsIgnoreCase("currency") ) {
-          format = NumberFormat.getCurrencyInstance(locale);
-      } else if ( formatType.equalsIgnoreCase("percentage") ) {
-          format = NumberFormat.getPercentInstance(locale);
-      } else {
-         throw new StripesRuntimeException(
-               "Invalid format type supplied for formatting a " + "number: " + formatType + ". Valid values are 'number', 'currency' "
-                     + "and 'percentage'.");
+      switch (formatType.toLowerCase()) {
+         case "number":
+            format = numberFormatNumberCache.get().computeIfAbsent(locale, NumberFormat::getInstance);
+            break;
+         case "currency":
+            format = numberFormatCurrencyCache.get().computeIfAbsent(locale, NumberFormat::getCurrencyInstance);
+            break;
+         case "percentage":
+            format = numberFormatPercentCache.get().computeIfAbsent(locale, NumberFormat::getPercentInstance);
+            break;
+         default:
+            throw new StripesRuntimeException(
+                    "Invalid format type supplied for formatting a " + "number: " + formatType + ". Valid values are 'number', 'currency' " + "and 'percentage'.");
       }
 
       // Do any extra configuration
