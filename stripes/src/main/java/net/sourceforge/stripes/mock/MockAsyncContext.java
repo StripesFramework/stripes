@@ -2,7 +2,7 @@ package net.sourceforge.stripes.mock;
 
 import net.sourceforge.stripes.util.Log;
 
-import javax.servlet.*;
+import jakarta.servlet.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;

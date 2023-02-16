@@ -34,8 +34,8 @@ public class ElFunctions {
 
     /**
      * Gets the name of the supplied enumerated value.
-     * @param e
-     * @return 
+     * @param e the enum to get the name for
+     * @return  the name of the given enum
      */
     public static String name(Enum<?> e) {
         return e.name();
@@ -44,9 +44,9 @@ public class ElFunctions {
     /**
      * Indicates if validation errors exist for the given field of the given
      * {@link ActionBean}.
-     * @param actionBean
-     * @param field
-     * @return 
+     * @param actionBean the action bean to check for erros
+     * @param field the field to check for errors
+     * @return true when the field has errors
      */
     public static boolean hasErrors(ActionBean actionBean, String field) {
         if (actionBean == null || field == null) {

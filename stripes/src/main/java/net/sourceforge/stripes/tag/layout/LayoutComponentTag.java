@@ -17,8 +17,8 @@ package net.sourceforge.stripes.tag.layout;
 import java.io.IOException;
 import java.util.regex.Pattern;
 
-import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.PageContext;
+import jakarta.servlet.jsp.JspException;
+import jakarta.servlet.jsp.PageContext;
 
 import net.sourceforge.stripes.exception.StripesJspException;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
@@ -125,7 +125,7 @@ public class LayoutComponentTag extends LayoutTag {
      *
      * @return {@code EVAL_BODY_INCLUDE} or {@code SKIP_BODY}, as described
      * above.
-     * @throws javax.servlet.jsp.JspException
+     * @throws jakarta.servlet.jsp.JspException
      */
     @Override
     public int doStartTag() throws JspException {
@@ -243,7 +243,7 @@ public class LayoutComponentTag extends LayoutTag {
      *
      * @return SKIP_PAGE if this component is the current component, otherwise
      * EVAL_PAGE.
-     * @throws javax.servlet.jsp.JspException
+     * @throws jakarta.servlet.jsp.JspException
      */
     @Override
     public int doEndTag() throws JspException {

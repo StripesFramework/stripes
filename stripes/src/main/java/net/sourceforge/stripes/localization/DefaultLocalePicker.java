@@ -18,7 +18,7 @@ import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.util.StringUtil;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -82,8 +82,8 @@ public class DefaultLocalePicker implements LocalePicker {
     /**
      * Attempts to read the
      *
-     * @param configuration
-     * @throws Exception
+     * @param configuration the configuration to read
+     * @throws Exception when an error happened
      */
     public void init(Configuration configuration) throws Exception {
         this.configuration = configuration;

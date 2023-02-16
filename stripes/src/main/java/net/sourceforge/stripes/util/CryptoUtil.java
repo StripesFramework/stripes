@@ -57,7 +57,7 @@ import net.sourceforge.stripes.exception.StripesRuntimeException;
  * supported by the JVM in which it is constructed. CryptoUtil will then use the
  * algorithm returned by {@link javax.crypto.SecretKey#getAlgorithm()}. If using
  * this method, the key should be set before any requests are made, e.g. in a
- * {@link javax.servlet.ServletContextListener}.</p>
+ * {@link jakarta.servlet.ServletContextListener}.</p>
  *
  * <p>
  * Stripes originally performed a broken authentication scheme. It was rewritten

@@ -27,9 +27,9 @@ import net.sourceforge.stripes.controller.StripesFilter;
 import net.sourceforge.stripes.controller.DispatcherServlet;
 import net.sourceforge.stripes.exception.StripesJspException;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.jsp.JspException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.jsp.JspException;
 
 /**
  * <p>
@@ -235,7 +235,7 @@ public class UseActionBeanTag extends StripesTagSupport
      *
      * @param beanclass the FQN of an ActionBean class, or a Class object for
      * one.
-     * @throws net.sourceforge.stripes.exception.StripesJspException
+     * @throws net.sourceforge.stripes.exception.StripesJspException when an error happened
      */
     public void setBeanclass( Object beanclass ) throws StripesJspException
     {

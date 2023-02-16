@@ -14,11 +14,17 @@
  */
 package net.sourceforge.stripes.mock;
 
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequestWrapper;
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequestWrapper;
+
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequestWrapper;
 import java.io.IOException;
 
 /**
@@ -47,7 +53,7 @@ public class MockRequestDispatcher implements RequestDispatcher {
      * Simply stores the URL that was requested for forward, and returns.
      * @param req
      * @param res
-     * @throws javax.servlet.ServletException
+     * @throws jakarta.servlet.ServletException
      * @throws java.io.IOException
      */
     public void forward(ServletRequest req, ServletResponse res) throws ServletException, IOException {
@@ -58,7 +64,7 @@ public class MockRequestDispatcher implements RequestDispatcher {
      * Simply stores that the URL was included an then returns.
      * @param req
      * @param res
-     * @throws javax.servlet.ServletException
+     * @throws jakarta.servlet.ServletException
      * @throws java.io.IOException
      */
     public void include(ServletRequest req, ServletResponse res) throws ServletException, IOException {

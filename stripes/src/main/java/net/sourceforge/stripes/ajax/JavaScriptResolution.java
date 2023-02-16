@@ -17,8 +17,8 @@ package net.sourceforge.stripes.ajax;
 import net.sourceforge.stripes.action.Resolution;
 import net.sourceforge.stripes.controller.AsyncResponse;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * <p>

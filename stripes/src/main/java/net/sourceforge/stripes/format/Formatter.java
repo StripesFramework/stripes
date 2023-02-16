@@ -73,9 +73,6 @@ public interface Formatter<T> {
      * @param input an object of a type that the formatter knows how to format
      * @return a non-null, String version of the input, formatted for the chosen
      * locale
-     * 
-     * @param input - Object to format
-     * @return Resulting formatted object.
      */
     String format(T input);
 }

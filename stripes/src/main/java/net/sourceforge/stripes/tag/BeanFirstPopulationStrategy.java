@@ -52,7 +52,7 @@ public class BeanFirstPopulationStrategy extends DefaultPopulationStrategy {
      * @return Object will be one of null, a single Object or an Array of
      * Objects depending upon what was submitted in the prior request, and what
      * is declared on the ActionBean
-     * @throws net.sourceforge.stripes.exception.StripesJspException
+     * @throws net.sourceforge.stripes.exception.StripesJspException when an error happened when an error happened
      */
     @Override
     public Object getValue(InputTagSupport tag) throws StripesJspException {

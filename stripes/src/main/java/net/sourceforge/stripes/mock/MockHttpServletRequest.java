@@ -14,26 +14,12 @@
  */
 package net.sourceforge.stripes.mock;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.security.Principal;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ExecutorService;
+import jakarta.servlet.*;
+import jakarta.servlet.http.*;
 
-import javax.servlet.*;
-import javax.servlet.http.*;
+import java.io.*;
+import java.security.Principal;
+import java.util.*;
 
 /**
  * <p>
@@ -925,6 +911,21 @@ public class MockHttpServletRequest implements HttpServletRequest {
      * @return
      */
     public DispatcherType getDispatcherType() {
+        return null;
+    }
+
+    @Override
+    public String getRequestId() {
+        return null;
+    }
+
+    @Override
+    public String getProtocolRequestId() {
+        return null;
+    }
+
+    @Override
+    public ServletConnection getServletConnection() {
         return null;
     }
 }

@@ -50,7 +50,7 @@ import net.sourceforge.stripes.validation.TypeConverter;
  * </p>
  *
  * @author Ben Gunter
- * @param <T>
+ * @param <T> the type of the object to cache
  */
 public class TypeHandlerCache<T> {
 

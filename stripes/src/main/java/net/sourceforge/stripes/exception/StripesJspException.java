@@ -14,7 +14,7 @@
  */
 package net.sourceforge.stripes.exception;
 
-import javax.servlet.jsp.JspException;
+import jakarta.servlet.jsp.JspException;
 
 /**
  * Stripes' version of the JspException that is used where only JspExceptions

@@ -14,10 +14,10 @@
  */
 package net.sourceforge.stripes.mock;
 
-import javax.servlet.*;
-import javax.servlet.descriptor.JspConfigDescriptor;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServlet;
+import jakarta.servlet.*;
+import jakarta.servlet.descriptor.JspConfigDescriptor;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServlet;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -173,7 +173,7 @@ public class MockServletContext implements ServletContext {
      * Deprecated method always returns null.
      * @param string
      * @return 
-     * @throws javax.servlet.ServletException 
+     * @throws jakarta.servlet.ServletException
      */
     public Servlet getServlet(String string) throws ServletException {
         return null;
@@ -538,6 +538,11 @@ public class MockServletContext implements ServletContext {
         return null;
     }
 
+    @Override
+    public ServletRegistration.Dynamic addJspFile(String s, String s1) {
+        return null;
+    }
+
     /**
      *
      * @param <T>
@@ -722,5 +727,35 @@ public class MockServletContext implements ServletContext {
      */
     public String getVirtualServerName() {
         return null;
+    }
+
+    @Override
+    public int getSessionTimeout() {
+        return 0;
+    }
+
+    @Override
+    public void setSessionTimeout(int i) {
+
+    }
+
+    @Override
+    public String getRequestCharacterEncoding() {
+        return null;
+    }
+
+    @Override
+    public void setRequestCharacterEncoding(String s) {
+
+    }
+
+    @Override
+    public String getResponseCharacterEncoding() {
+        return null;
+    }
+
+    @Override
+    public void setResponseCharacterEncoding(String s) {
+
     }
 }

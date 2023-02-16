@@ -107,10 +107,10 @@
 
             <pre>&lt;stripes:checkbox name="likesChocolate"/&gt;</pre>
 
-            <p>When the <tt>value</tt> attribute is omitted, as above, the checkbox defaults to
+            <p>When the <code>value</code> attribute is omitted, as above, the checkbox defaults to
             the simple behaviour of sending "true" to the server when checked and nothing to the
-            server when unchecked.  For this reason it is best to use <tt>boolean</tt> values,
-            or <tt>Boolean</tt> values initialized to Boolean.FALSE.</p>
+            server when unchecked.  For this reason it is best to use <code>boolean</code> values,
+            or <code>Boolean</code> values initialized to Boolean.FALSE.</p>
 
             <p>The other common usage is to use checkboxes in a manner similar to a multi-select.
             For example:</p>
@@ -248,12 +248,12 @@
               <li>stripes.fieldErrors.afterError</li>
             </ul>
 
-            <p>If the <tt>fieldErrors</tt> resources cannot be found, the tag will default to using the
+            <p>If the <code>fieldErrors</code> resources cannot be found, the tag will default to using the
             same resources and defaults as when displaying for all fields.</p>
 
             <p>Similar to the above, field specific, manner of display the errors tag can also be used
             to output only errors not associated with a field, i.e. global errors.  This is done by setting
-            the <tt>globalErrorsOnly</tt> attribute to true.</p>
+            the <code>globalErrorsOnly</code> attribute to true.</p>
 
             <p>This tag has several ways of being attached to the errors of a specific action request.
             If the tag is inside a form tag, it will display only errors that are associated
@@ -560,14 +560,14 @@
 
            <p>Provides a couple of facilities above and beyond using the plain HTML tag. The main
            advantage is a localization capability. The tag looks in the Stripes Field Name
-           message bundle for resources to be used as the <tt>src</tt> URL for the image and the
-           <tt>alt</tt> text of the image.  In order it will look for and use:</p>
+           message bundle for resources to be used as the <code>src</code> URL for the image and the
+           <code>alt</code> text of the image.  In order it will look for and use:</p>
 
            <ul>
-             <li>resource: <tt>actionFQN.inputName.[src|alt]</tt></li>
-             <li>resource: <tt>actionPath.inputName.[src|alt]</tt> (deprecated)</li>
-             <li>resource: <tt>inputName.[src|alt]</tt></li>
-             <li>tag attributes: <tt>src</tt> and <tt>alt</tt>
+             <li>resource: <code>actionFQN.inputName.[src|alt]</code></li>
+             <li>resource: <code>actionPath.inputName.[src|alt]</code> (deprecated)</li>
+             <li>resource: <code>inputName.[src|alt]</code></li>
+             <li>tag attributes: <code>src</code> and <code>alt</code>
            </ul>
 
            <p>If localized values exist these are preferred over the values specified directly
@@ -656,12 +656,12 @@
             field labels, it can be used to generate HTML label tags with arbitrary localized or
             non-localized values.</p>
 
-            <p>It is important to understand the relationship between the <tt>name</tt> and
-            <tt>for</tt> attributes of the <tt>stripes:label</tt> tag.  The <tt>for</tt> attribute
-            is used directly to generated the <tt>for</tt> attribute of the generated HTML
-            <tt>label</tt> tag, and as such should correspond to the HTML <tt>id</tt> attribute
-            of the input tag for which it is a label.  If the <tt>name</tt> attribute is omitted
-            then the value of the <tt>for</tt> attribute will also be used as the <tt>name</tt>
+            <p>It is important to understand the relationship between the <code>name</code> and
+            <code>for</code> attributes of the <code>stripes:label</code> tag.  The <code>for</code> attribute
+            is used directly to generated the <code>for</code> attribute of the generated HTML
+            <code>label</code> tag, and as such should correspond to the HTML <code>id</code> attribute
+            of the input tag for which it is a label.  If the <code>name</code> attribute is omitted
+            then the value of the <code>for</code> attribute will also be used as the <code>name</code>
             attribute.</p>
 
             <p>The value of the label is set by searching for a non-null value in the following
@@ -675,9 +675,9 @@
                 <li>A warning message telling you to supply a label value somewhere!</li>
             </ul>
 
-            <p>In the case of indexed or mapped form fields (e.g. <tt>foo[3].bar</tt>) the
+            <p>In the case of indexed or mapped form fields (e.g. <code>foo[3].bar</code>) the
             indexing and mapping will be removed from the name prior to using it to lookup
-            labels (e.g. <tt>foo.bar</tt>).  This is done to remain consistent with the way
+            labels (e.g. <code>foo.bar</code>).  This is done to remain consistent with the way
             field names are looked up for error messages.</p>
 
             <p>It should be noted that in cases where a form field and HTML control are
@@ -703,8 +703,8 @@
 &lt;/td&gt;
 </pre>
 
-        <p>The above example uses one label tag at the top (with <tt>for="bug.status"</tt>) that
-        labels a row in the table and will display differently when the <tt>bug.status</tt> field
+        <p>The above example uses one label tag at the top (with <code>for="bug.status"</code>) that
+        labels a row in the table and will display differently when the <code>bug.status</code> field
         is in error.  It then employs a label tag for each radio button.  These are bound to the
         individual radio buttons (clicking on the label will select the appropriate radio button),
         and default to the name of the enum value if a localized name isn't found.  Since these
@@ -1322,22 +1322,22 @@
 
             <pre>&lt;stripes:options-enumeration enum="net.kitty.EyeColor" label="description"/&gt;</pre>
 
-            when generating the option for the value <tt>EyeColor.BLUE</tt> will look for a label in the
+            when generating the option for the value <code>EyeColor.BLUE</code> will look for a label in the
             following order:</p>
 
             <ul>
-              <li><tt>resource: EyeColor.BLUE</tt> (skipped if localizeLabels is set to false)</li>
-              <li><tt>resource: net.kitty.EyeColor.BLUE</tt> (skipped if localizeLabels is set to false)</li>
-              <li><tt>property: EyeColor.BLUE.getDescription()</tt> (because of the label="description" above)</li>
-              <li><tt>failsafe: EyeColor.BLUE.toString()</tt></li>
+              <li><code>resource: EyeColor.BLUE</code> (skipped if localizeLabels is set to false)</li>
+              <li><code>resource: net.kitty.EyeColor.BLUE</code> (skipped if localizeLabels is set to false)</li>
+              <li><code>property: EyeColor.BLUE.getDescription()</code> (because of the label="description" above)</li>
+              <li><code>failsafe: EyeColor.BLUE.toString()</code></li>
             </ul>
 
             <p>If the class specified does not exist, or does not specify a Java 1.5 enum then a
             JspException will be raised.</p>
 
             <p>All attributes of the tag, other than enum and label, are passed directly through to
-            the <tt>&lt;stripes:option/&gt;</tt> which is used to generate the individual HTML
-            options tags. As a result the <tt>&lt;stripes:options-enumeration/&gt;</tt> will exhibit
+            the <code>&lt;stripes:option/&gt;</code> which is used to generate the individual HTML
+            options tags. As a result the <code>&lt;stripes:options-enumeration/&gt;</code> will exhibit
             the same re-population/selection behaviour as the regular options tag.</p>
 
             <p>Since the tag has no use for one it does not allow a body.</p>
@@ -1456,7 +1456,7 @@
             non-null value attribute.</p>
 
             <p>Repopulation of values for password tags is optional, and by default is <b>not</b>
-            performed. To control this behaviour explicitly use the <tt>repopulate</tt> tag
+            performed. To control this behaviour explicitly use the <code>repopulate</code> tag
             attribute.</p>
 
         ]]></description>

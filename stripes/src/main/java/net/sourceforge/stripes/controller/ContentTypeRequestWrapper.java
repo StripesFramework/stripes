@@ -15,7 +15,7 @@
 package net.sourceforge.stripes.controller;
 
 import java.io.IOException;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.Enumeration;
 
 /**

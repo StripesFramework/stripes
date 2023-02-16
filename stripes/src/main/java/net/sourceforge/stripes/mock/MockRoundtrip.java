@@ -22,7 +22,7 @@ import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import javax.servlet.Filter;
+import jakarta.servlet.Filter;
 
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.action.Message;

@@ -29,9 +29,9 @@ import net.sourceforge.stripes.validation.ValidationError;
 import net.sourceforge.stripes.validation.ValidationErrors;
 import net.sourceforge.stripes.validation.ValidationMetadata;
 
-import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.JspWriter;
-import javax.servlet.jsp.tagext.TryCatchFinally;
+import jakarta.servlet.jsp.JspException;
+import jakarta.servlet.jsp.JspWriter;
+import jakarta.servlet.jsp.tagext.TryCatchFinally;
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
@@ -258,7 +258,7 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
      *
      * @return a localized field name if one can be found, or null if one cannot
      * be found.
-     * @throws net.sourceforge.stripes.exception.StripesJspException
+     * @throws net.sourceforge.stripes.exception.StripesJspException when an error happened
      */
     public String getLocalizedFieldName() throws StripesJspException {
         String name = getAttributes().get("name");
@@ -384,7 +384,7 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
     /**
      * Find errors that are related to the form field this input tag represents
      * and place them in an instance variable to use during error rendering.
-     * @throws net.sourceforge.stripes.exception.StripesJspException
+     * @throws net.sourceforge.stripes.exception.StripesJspException when an error happened
      */
     protected void loadErrors() throws StripesJspException {
         ActionBean actionBean = getActionBean();
@@ -402,7 +402,7 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
      * represents
      *
      * @return list of validation errors for this field
-     * @throws net.sourceforge.stripes.exception.StripesJspException If an error
+     * @throws net.sourceforge.stripes.exception.StripesJspException when an error happened If an error
      * occurs retrieving field errors for this tag.
      */
     public List<ValidationError> getFieldErrors() throws StripesJspException {
@@ -418,7 +418,7 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
      * Returns true if one or more validation errors exist for the field
      * represented by this input tag.
      * @return 
-     * @throws net.sourceforge.stripes.exception.StripesJspException
+     * @throws net.sourceforge.stripes.exception.StripesJspException when an error happened
      */
     public boolean hasErrors() throws StripesJspException {
         List<ValidationError> errors = getFieldErrors();
@@ -434,7 +434,7 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
      * &quot;pre-Action&quot; and the &quot;post-action&quot;.
      *
      * @return ActionBean the ActionBean bound to the form if there is one
-     * @throws net.sourceforge.stripes.exception.StripesJspException
+     * @throws net.sourceforge.stripes.exception.StripesJspException when an error happened
      */
     public ActionBean getActionBean() throws StripesJspException {
         return getParentFormTag().getActionBean();
@@ -447,7 +447,7 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
      * field and intercepts with a {@link TagErrorRenderer} if appropriate.
      *
      * @return int the value returned by the child class from doStartInputTag()
-     * @throws javax.servlet.jsp.JspException
+     * @throws jakarta.servlet.jsp.JspException
      */
     @Override
     public final int doStartTag() throws JspException {
@@ -477,7 +477,7 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
     /**
      * Abstract method implemented in child classes instead of doStartTag().
      * @return 
-     * @throws javax.servlet.jsp.JspException
+     * @throws jakarta.servlet.jsp.JspException
      */
     public abstract int doStartInputTag() throws JspException;
 
@@ -487,7 +487,7 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
      * performs its doEndTag equivalent method.
      *
      * @return int the value returned by the child class from doStartInputTag()
-     * @throws javax.servlet.jsp.JspException
+     * @throws jakarta.servlet.jsp.JspException
      */
     @Override
     public final int doEndTag() throws JspException {
@@ -555,7 +555,7 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
     /**
      * Writes out a JavaScript string to set focus on the field as it is
      * rendered.
-     * @throws javax.servlet.jsp.JspException
+     * @throws jakarta.servlet.jsp.JspException
      */
     protected void makeFocused() throws JspException {
         try {
@@ -582,7 +582,7 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
     /**
      * Abstract method implemented in child classes instead of doEndTag().
      * @return 
-     * @throws javax.servlet.jsp.JspException 
+     * @throws jakarta.servlet.jsp.JspException 
      */
     public abstract int doEndInputTag() throws JspException;
 

@@ -28,13 +28,13 @@ import net.sourceforge.stripes.util.UrlBuilder;
 import net.sourceforge.stripes.validation.ValidationErrors;
 import net.sourceforge.stripes.validation.ValidationError;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.JspWriter;
-import javax.servlet.jsp.tagext.BodyTag;
-import javax.servlet.jsp.tagext.TryCatchFinally;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.jsp.JspException;
+import jakarta.servlet.jsp.JspWriter;
+import jakarta.servlet.jsp.tagext.BodyTag;
+import jakarta.servlet.jsp.tagext.TryCatchFinally;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -357,7 +357,7 @@ public class FormTag extends HtmlTagSupport implements BodyTag, TryCatchFinally,
      * Does sanity checks and returns EVAL_BODY_BUFFERED. Everything else of
      * interest happens in doEndTag.
      * @return 
-     * @throws javax.servlet.jsp.JspException 
+     * @throws jakarta.servlet.jsp.JspException 
      */
     @Override
     public int doStartTag() throws JspException {
@@ -374,7 +374,7 @@ public class FormTag extends HtmlTagSupport implements BodyTag, TryCatchFinally,
 
     /**
      * No-op method.
-     * @throws javax.servlet.jsp.JspException
+     * @throws jakarta.servlet.jsp.JspException
      */
     public void doInitBody() throws JspException {
     }
@@ -382,7 +382,7 @@ public class FormTag extends HtmlTagSupport implements BodyTag, TryCatchFinally,
     /**
      * Just returns SKIP_BODY so that the body is included only once.
      * @return 
-     * @throws javax.servlet.jsp.JspException
+     * @throws jakarta.servlet.jsp.JspException
      */
     public int doAfterBody() throws JspException {
         return SKIP_BODY;
@@ -403,7 +403,7 @@ public class FormTag extends HtmlTagSupport implements BodyTag, TryCatchFinally,
      * which needs to ensure that the form method is POST and the enctype is
      * correct.</p>
      * @return 
-     * @throws javax.servlet.jsp.JspException 
+     * @throws jakarta.servlet.jsp.JspException 
      */
     @Override
     public int doEndTag() throws JspException {
@@ -475,7 +475,7 @@ public class FormTag extends HtmlTagSupport implements BodyTag, TryCatchFinally,
      * request.
      * @param out
      * @throws java.io.IOException
-     * @throws javax.servlet.jsp.JspException
+     * @throws jakarta.servlet.jsp.JspException
      */
     protected void writeHiddenTags(JspWriter out) throws IOException, JspException {
         /*
@@ -625,7 +625,7 @@ public class FormTag extends HtmlTagSupport implements BodyTag, TryCatchFinally,
      * but are not explicitly present in this form. Excludes any fields that
      * have special meaning to Stripes and are not really application data. Uses
      * the stripes:wizard-fields tag to do the grunt work.
-     * @throws javax.servlet.jsp.JspException
+     * @throws jakarta.servlet.jsp.JspException
      */
     protected void writeWizardFields() throws JspException {
         WizardFieldsTag tag = new WizardFieldsTag();

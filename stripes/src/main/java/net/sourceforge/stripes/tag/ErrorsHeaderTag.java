@@ -14,7 +14,7 @@
  */
 package net.sourceforge.stripes.tag;
 
-import javax.servlet.jsp.JspException;
+import jakarta.servlet.jsp.JspException;
 
 /**
  * Can be used within a stripes:errors tag to show a header on an error list.

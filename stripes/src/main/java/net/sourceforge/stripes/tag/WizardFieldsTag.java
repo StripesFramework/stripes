@@ -19,9 +19,9 @@ import static net.sourceforge.stripes.controller.StripesConstants.URL_KEY_FIELDS
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.servlet.ServletRequest;
-import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.tagext.TryCatchFinally;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.jsp.JspException;
+import jakarta.servlet.jsp.tagext.TryCatchFinally;
 
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.controller.ActionResolver;
@@ -71,7 +71,7 @@ public class WizardFieldsTag extends StripesTagSupport implements TryCatchFinall
     /**
      * Skips over the body because there shouldn't be one.
      * @return 
-     * @throws javax.servlet.jsp.JspException
+     * @throws jakarta.servlet.jsp.JspException
      */
     @Override
     public int doStartTag() throws JspException {
@@ -84,7 +84,7 @@ public class WizardFieldsTag extends StripesTagSupport implements TryCatchFinall
      * javadoc.
      *
      * @return EVAL_PAGE in all cases.
-     * @throws javax.servlet.jsp.JspException
+     * @throws jakarta.servlet.jsp.JspException
      */
     @Override
     public int doEndTag() throws JspException {
@@ -129,8 +129,8 @@ public class WizardFieldsTag extends StripesTagSupport implements TryCatchFinall
      * Write out a hidden field which contains parameters that should be sent
      * along with the actual form fields.
      * @param form
-     * @throws javax.servlet.jsp.JspException
-     * @throws net.sourceforge.stripes.exception.StripesJspException
+     * @throws jakarta.servlet.jsp.JspException
+     * @throws net.sourceforge.stripes.exception.StripesJspException when an error happened
      */
     protected void writeWizardFields(FormTag form) throws JspException, StripesJspException {
         // Set up a hidden tag to do the writing for us

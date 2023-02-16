@@ -14,8 +14,8 @@
  */
 package net.sourceforge.stripes.tag;
 
-import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.tagext.BodyTag;
+import jakarta.servlet.jsp.JspException;
+import jakarta.servlet.jsp.tagext.BodyTag;
 import java.util.Collection;
 import java.lang.reflect.Array;
 
@@ -76,7 +76,7 @@ public class InputHiddenTag extends InputTagSupport implements BodyTag {
      *
      * @return EVAL_BODY_BUFFERED to always buffer the body (so it can be used
      * as the value)
-     * @throws javax.servlet.jsp.JspException
+     * @throws jakarta.servlet.jsp.JspException
      */
     @Override
     public int doStartInputTag() throws JspException {
@@ -85,7 +85,7 @@ public class InputHiddenTag extends InputTagSupport implements BodyTag {
 
     /**
      * Does nothing.
-     * @throws javax.servlet.jsp.JspException
+     * @throws jakarta.servlet.jsp.JspException
      */
     public void doInitBody() throws JspException {
 
@@ -95,7 +95,7 @@ public class InputHiddenTag extends InputTagSupport implements BodyTag {
      * Does nothing.
      *
      * @return SKIP_BODY in all cases.
-     * @throws javax.servlet.jsp.JspException
+     * @throws jakarta.servlet.jsp.JspException
      */
     public int doAfterBody() throws JspException {
         return SKIP_BODY;

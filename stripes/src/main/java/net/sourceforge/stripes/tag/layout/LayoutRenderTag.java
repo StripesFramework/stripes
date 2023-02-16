@@ -16,11 +16,11 @@ package net.sourceforge.stripes.tag.layout;
 
 import java.io.IOException;
 
-import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.tagext.BodyContent;
-import javax.servlet.jsp.tagext.BodyTag;
-import javax.servlet.jsp.tagext.DynamicAttributes;
-import javax.servlet.jsp.tagext.Tag;
+import jakarta.servlet.jsp.JspException;
+import jakarta.servlet.jsp.tagext.BodyContent;
+import jakarta.servlet.jsp.tagext.BodyTag;
+import jakarta.servlet.jsp.tagext.DynamicAttributes;
+import jakarta.servlet.jsp.tagext.Tag;
 
 import net.sourceforge.stripes.exception.StripesJspException;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
@@ -74,10 +74,10 @@ public class LayoutRenderTag extends LayoutTag implements BodyTag, DynamicAttrib
 
     /**
      * Initialize fields before execution begins. Typically, this would be done
-     * by overriding {@link #setPageContext(javax.servlet.jsp.PageContext)}, but
+     * by overriding {@link #setPageContext(jakarta.servlet.jsp.PageContext)}, but
      * that isn't possible in this case because some of the logic depends on
      * {@link #setName(String)} having been called, which does not happen until
-     * after {@link #setPageContext(javax.servlet.jsp.PageContext)} has been
+     * after {@link #setPageContext(jakarta.servlet.jsp.PageContext)} has been
      * called.
      */
     protected void initialize() {
@@ -120,7 +120,7 @@ public class LayoutRenderTag extends LayoutTag implements BodyTag, DynamicAttrib
      * @param uri
      * @param localName
      * @param value
-     * @throws javax.servlet.jsp.JspException
+     * @throws jakarta.servlet.jsp.JspException
      */
     public void setDynamicAttribute(String uri, String localName, Object value) throws JspException {
         context.getParameters().put(localName, value);
@@ -137,7 +137,7 @@ public class LayoutRenderTag extends LayoutTag implements BodyTag, DynamicAttrib
      * </ul>
      *
      * @return EVAL_BODY_INCLUDE in all cases
-     * @throws javax.servlet.jsp.JspException
+     * @throws jakarta.servlet.jsp.JspException
      */
     @Override
     public int doStartTag() throws JspException {
@@ -174,7 +174,7 @@ public class LayoutRenderTag extends LayoutTag implements BodyTag, DynamicAttrib
 
     /**
      * Does nothing.
-     * @throws javax.servlet.jsp.JspException
+     * @throws jakarta.servlet.jsp.JspException
      */
     public void doInitBody() throws JspException {
     }
@@ -182,7 +182,7 @@ public class LayoutRenderTag extends LayoutTag implements BodyTag, DynamicAttrib
     /**
      * Returns {@link Tag#SKIP_BODY}.
      * @return 
-     * @throws javax.servlet.jsp.JspException
+     * @throws jakarta.servlet.jsp.JspException
      */
     public int doAfterBody() throws JspException {
         return SKIP_BODY;
@@ -199,7 +199,7 @@ public class LayoutRenderTag extends LayoutTag implements BodyTag, DynamicAttrib
      * </ul>
      *
      * @return EVAL_PAGE in all cases.
-     * @throws javax.servlet.jsp.JspException
+     * @throws jakarta.servlet.jsp.JspException
      */
     @Override
     public int doEndTag() throws JspException {

@@ -17,8 +17,8 @@ package net.sourceforge.stripes.tag;
 import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.validation.ValidationError;
 
-import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.JspWriter;
+import jakarta.servlet.jsp.JspException;
+import jakarta.servlet.jsp.JspWriter;
 import java.io.IOException;
 import java.util.Locale;
 
@@ -49,7 +49,7 @@ public class IndividualErrorTag extends HtmlTagSupport {
      * Outputs the error for the current iteration of the parent ErrorsTag.
      *
      * @return EVAL_PAGE in all circumstances
-     * @throws javax.servlet.jsp.JspException
+     * @throws jakarta.servlet.jsp.JspException
      */
     @Override
     public int doEndTag() throws JspException {

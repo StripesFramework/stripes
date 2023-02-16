@@ -16,7 +16,7 @@ package net.sourceforge.stripes.controller;
 
 import net.sourceforge.stripes.config.ConfigurableComponent;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * Factory for classes that implement {@link ContentTypeRequestWrapper}. The
