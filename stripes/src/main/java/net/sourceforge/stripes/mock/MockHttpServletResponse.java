@@ -14,12 +14,23 @@
  */
 package net.sourceforge.stripes.mock;
 
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.Cookie;
-import javax.servlet.ServletOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Locale;
+import java.util.Map;
+
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * <p>
@@ -38,435 +49,546 @@ import java.util.*;
  */
 public class MockHttpServletResponse implements HttpServletResponse {
 
-    private MockServletOutputStream out = new MockServletOutputStream();
-    private PrintWriter writer = new PrintWriter(out, true);
-    private Locale locale = Locale.getDefault();
-    private Map<String, List<Object>> headers = new HashMap<String, List<Object>>();
-    private List<Cookie> cookies = new ArrayList<Cookie>();
-    private int status = 200;
-    private String errorMessage;
-    private String characterEncoding = "UTF-8";
-    private int contentLength;
-    private String contentType;
-    private String redirectUrl;
+	/**
+	 * The log.
+	 */
+	private static Logger log = LogManager.getLogger(MockHttpServletResponse.class);
 
-    /**
-     *
-     */
-    public MockHttpServletResponse() {
-        setContentType("text/html");
-    }
+	/**
+	 * The out.
+	 */
+	private MockServletOutputStream out = new MockServletOutputStream();
 
-    /**
-     * Adds a cookie to the set of cookies in the response.
-     * @param cookie
-     */
-    public void addCookie(Cookie cookie) {
-        // Remove existing cookies with the same name as the new one
-        ListIterator<Cookie> iterator = cookies.listIterator();
-        while (iterator.hasNext()) {
-            if (iterator.next().getName().equals(cookie.getName())) {
-                iterator.remove();
-            }
-        }
+	/**
+	 * The writer.
+	 */
+	private PrintWriter writer = new PrintWriter(out, true);
 
-        this.cookies.add(cookie);
-    }
+	/**
+	 * The locale.
+	 */
+	private Locale locale = Locale.getDefault();
 
-    /**
-     * Gets the set of cookies stored in the response.
-     * @return 
-     */
-    public Cookie[] getCookies() {
-        return this.cookies.toArray(new Cookie[this.cookies.size()]);
-    }
+	/**
+	 * The headers.
+	 */
+	private Map<String, List<Object>> headers = new HashMap<String, List<Object>>();
 
-    /**
-     * Returns true if the specified header was placed in the response.
-     * @param name
-     * @return 
-     */
-    public boolean containsHeader(String name) {
-        return this.headers.containsKey(name);
-    }
+	/**
+	 * The cookies.
+	 */
+	private List<Cookie> cookies = new ArrayList<Cookie>();
 
-    /**
-     * Returns the URL unchanged.
-     * @param url
-     * @return 
-     */
-    public String encodeURL(String url) {
-        return url;
-    }
+	/**
+	 * The status.
+	 */
+	private int status = 200;
 
-    /**
-     * Returns the URL unchanged.
-     * @param url
-     * @return 
-     */
-    public String encodeRedirectURL(String url) {
-        return url;
-    }
+	/**
+	 * The error message.
+	 */
+	private String errorMessage;
 
-    /**
-     * Returns the URL unchanged.
-     * @param url
-     * @return 
-     */
-    public String encodeUrl(String url) {
-        return url;
-    }
+	/**
+	 * The character encoding.
+	 */
+	private String characterEncoding = "UTF-8";
 
-    /**
-     * Returns the URL unchanged.
-     * @param url
-     * @return 
-     */
-    public String encodeRedirectUrl(String url) {
-        return url;
-    }
+	/**
+	 * The content length.
+	 */
+	private int contentLength;
 
-    /**
-     * Sets the status code and saves the message so it can be retrieved later.
-     * @param status
-     * @param errorMessage
-     * @throws java.io.IOException
-     */
-    public void sendError(int status, String errorMessage) throws IOException {
-        this.status = status;
-        this.errorMessage = errorMessage;
-    }
+	/**
+	 * The content type.
+	 */
+	private String contentType = "text/html";
 
-    /**
-     * Sets that status code to the error code provided.
-     * @param status
-     * @throws java.io.IOException
-     */
-    public void sendError(int status) throws IOException {
-        this.status = status;
-    }
+	/**
+	 * The redirect url.
+	 */
+	private String redirectUrl;
 
-    /**
-     * Simply sets the status code and stores the URL that was supplied, so that
-     * it can be examined later with getRedirectUrl.
-     * @param url
-     * @throws java.io.IOException
-     */
-    public void sendRedirect(String url) throws IOException {
-        this.status = HttpServletResponse.SC_MOVED_TEMPORARILY;
-        this.redirectUrl = url;
-    }
+	/**
+	 *
+	 */
+	public MockHttpServletResponse() {
+		setContentType("text/html");
+	}
 
-    /**
-     * If a call was made to sendRedirect() this method will return the URL that
-     * was supplied. Otherwise it will return null.
-     * @return 
-     */
-    public String getRedirectUrl() {
-        return this.redirectUrl;
-    }
+	/**
+	 * Adds a cookie to the set of cookies in the response.
+	 *
+	 * @param cookie
+	 */
+	@Override
+	public void addCookie(Cookie cookie) {
+		// Remove existing cookies with the same name as the new one
+		ListIterator<Cookie> iterator = cookies.listIterator();
+		while (iterator.hasNext()) {
+			if (iterator.next().getName().equals(cookie.getName())) {
+				iterator.remove();
+			}
+		}
 
-    /**
-     * Stores the value in a Long and saves it as a header.
-     * @param name
-     * @param value
-     */
-    public void setDateHeader(String name, long value) {
-        this.headers.remove(name);
-        addDateHeader(name, value);
-    }
+		this.cookies.add(cookie);
+	}
 
-    /**
-     * Adds the specified value for the named header (does not remove/replace
-     * existing values).
-     * @param name
-     * @param value
-     */
-    public void addDateHeader(String name, long value) {
-        List<Object> values = this.headers.get(name);
-        if (values == null) {
-            this.headers.put(name, values = new ArrayList<Object>());
-        }
-        values.add(value);
-    }
+	/**
+	 * Gets the set of cookies stored in the response.
+	 *
+	 * @return
+	 */
+	public Cookie[] getCookies() {
+		return this.cookies.toArray(new Cookie[this.cookies.size()]);
+	}
 
-    /**
-     * Sets the value of the specified header to the single value provided.
-     * @param name
-     * @param value
-     */
-    public void setHeader(String name, String value) {
-        this.headers.remove(name);
-        addHeader(name, value);
-    }
+	/**
+	 * Returns true if the specified header was placed in the response.
+	 *
+	 * @param name
+	 * @return
+	 */
+	@Override
+	public boolean containsHeader(String name) {
+		return this.headers.containsKey(name);
+	}
 
-    /**
-     * Adds the specified value for the named header (does not remove/replace
-     * existing values).
-     * @param name
-     * @param value
-     */
-    public void addHeader(String name, String value) {
-        List<Object> values = this.headers.get(name);
-        if (values == null) {
-            this.headers.put(name, values = new ArrayList<Object>());
-        }
-        values.add(value);
-    }
+	/**
+	 * Returns the URL unchanged.
+	 *
+	 * @param url
+	 * @return
+	 */
+	@Override
+	public String encodeURL(String url) {
+		return url;
+	}
 
-    /**
-     * Stores the value in an Integer and saves it as a header.
-     * @param name
-     * @param value
-     */
-    public void setIntHeader(String name, int value) {
-        this.headers.remove(name);
-        addIntHeader(name, value);
-    }
+	/**
+	 * Returns the URL unchanged.
+	 *
+	 * @param url
+	 * @return
+	 */
+	@Override
+	public String encodeRedirectURL(String url) {
+		return url;
+	}
 
-    /**
-     * Adds the specified value for the named header (does not remove/replace
-     * existing values).
-     * @param name
-     * @param value
-     */
-    public void addIntHeader(String name, int value) {
-        List<Object> values = this.headers.get(name);
-        if (values == null) {
-            this.headers.put(name, values = new ArrayList<Object>());
-        }
-        values.add(value);
-    }
+	/**
+	 * Returns the URL unchanged.
+	 *
+	 * @param url
+	 * @return
+	 */
+	@Override
+	public String encodeUrl(String url) {
+		return url;
+	}
 
-    /**
-     * Provides access to all headers that were set. The format is a Map which
-     * uses the header name as the key, and stores a List of Objects, one per
-     * header value. The Objects will be either Strings (if setHeader() was
-     * used), Integers (if setIntHeader() was used) or Longs (if setDateHeader()
-     * was used).
-     * @return 
-     */
-    public Map<String, List<Object>> getHeaderMap() {
-        return this.headers;
-    }
+	/**
+	 * Returns the URL unchanged.
+	 *
+	 * @param url
+	 * @return
+	 */
+	@Override
+	public String encodeRedirectUrl(String url) {
+		return url;
+	}
 
-    /**
-     * Sets the HTTP Status code of the response.
-     * @param statusCode
-     */
-    public void setStatus(int statusCode) {
-        this.status = statusCode;
-    }
+	/**
+	 * Sets the status code and saves the message so it can be retrieved later.
+	 *
+	 * @param status
+	 * @param errorMessage
+	 * @throws java.io.IOException
+	 */
+	@Override
+	public void sendError(int status, String errorMessage) throws IOException {
+		this.status = status;
+		this.errorMessage = errorMessage;
+	}
 
-    /**
-     * Saves the HTTP status code and the message provided.
-     * @param status
-     * @param errorMessage
-     */
-    public void setStatus(int status, String errorMessage) {
-        this.status = status;
-        this.errorMessage = errorMessage;
-    }
+	/**
+	 * Sets that status code to the error code provided.
+	 *
+	 * @param status
+	 * @throws java.io.IOException
+	 */
+	@Override
+	public void sendError(int status) throws IOException {
+		this.status = status;
+	}
 
-    /**
-     * Gets the status (or error) code if one was set. Defaults to 200 (HTTP
-     * OK).
-     * @return 
-     */
-    public int getStatus() {
-        return this.status;
-    }
+	/**
+	 * Simply sets the status code and stores the URL that was supplied, so that
+	 * it can be examined later with getRedirectUrl.
+	 *
+	 * @param url
+	 * @throws java.io.IOException
+	 */
+	@Override
+	public void sendRedirect(String url) throws IOException {
+		this.status = HttpServletResponse.SC_MOVED_TEMPORARILY;
+		this.redirectUrl = url;
+	}
 
-    /**
-     * Gets the error message if one was set with setStatus() or sendError().
-     * @return 
-     */
-    public String getErrorMessage() {
-        return this.errorMessage;
-    }
+	/**
+	 * If a call was made to sendRedirect() this method will return the URL that
+	 * was supplied. Otherwise it will return null.
+	 *
+	 * @return
+	 */
+	public String getRedirectUrl() {
+		return this.redirectUrl;
+	}
 
-    /**
-     * Sets the character encoding on the request.
-     * @param encoding
-     */
-    public void setCharacterEncoding(String encoding) {
-        this.characterEncoding = encoding;
-    }
+	/**
+	 * Stores the value in a Long and saves it as a header.
+	 *
+	 * @param name
+	 * @param value
+	 */
+	@Override
+	public void setDateHeader(String name, long value) {
+		this.headers.remove(name);
+		addDateHeader(name, value);
+	}
 
-    /**
-     * Gets the character encoding (defaults to UTF-8).
-     * @return 
-     */
-    public String getCharacterEncoding() {
-        return this.characterEncoding;
-    }
+	/**
+	 * Adds the specified value for the named header (does not remove/replace
+	 * existing values).
+	 *
+	 * @param name
+	 * @param value
+	 */
+	@Override
+	public void addDateHeader(String name, long value) {
+		List<Object> values = this.headers.get(name);
+		if (values == null) {
+			this.headers.put(name, values = new ArrayList<Object>());
+		}
+		values.add(value);
+	}
 
-    /**
-     * Sets the content type for the response.
-     * @param contentType
-     */
-    public void setContentType(String contentType) {
-        this.contentType = contentType;
-        getHeaderMap().put("Content-type", Collections.<Object>singletonList(contentType));
-    }
+	/**
+	 * Sets the value of the specified header to the single value provided.
+	 *
+	 * @param name
+	 * @param value
+	 */
+	@Override
+	public void setHeader(String name, String value) {
+		this.headers.remove(name);
+		addHeader(name, value);
+	}
 
-    /**
-     * Gets the content type for the response. Defaults to text/html.
-     * @return 
-     */
-    public String getContentType() {
-        return this.contentType;
-    }
+	/**
+	 * Adds the specified value for the named header (does not remove/replace
+	 * existing values).
+	 *
+	 * @param name
+	 * @param value
+	 */
+	@Override
+	public void addHeader(String name, String value) {
+		List<Object> values = this.headers.get(name);
+		if (values == null) {
+			this.headers.put(name, values = new ArrayList<Object>());
+		}
+		values.add(value);
+	}
 
-    /**
-     * Returns a reference to a ServletOutputStream to be used for output. The
-     * output is captured and can be examined at the end of a test run by
-     * calling getOutputBytes() or getOutputString().
-     * @return 
-     * @throws java.io.IOException
-     */
-    public ServletOutputStream getOutputStream() throws IOException {
-        return this.out;
-    }
+	/**
+	 * Stores the value in an Integer and saves it as a header.
+	 *
+	 * @param name
+	 * @param value
+	 */
+	@Override
+	public void setIntHeader(String name, int value) {
+		this.headers.remove(name);
+		addIntHeader(name, value);
+	}
 
-    /**
-     * Returns a reference to a PrintWriter to be used for character output. The
-     * output is captured and can be examined at the end of a test run by
-     * calling getOutputBytes() or getOutputString().
-     * @return 
-     * @throws java.io.IOException 
-     */
-    public PrintWriter getWriter() throws IOException {
-        return this.writer;
-    }
+	/**
+	 * Adds the specified value for the named header (does not remove/replace
+	 * existing values).
+	 *
+	 * @param name
+	 * @param value
+	 */
+	@Override
+	public void addIntHeader(String name, int value) {
+		List<Object> values = this.headers.get(name);
+		if (values == null) {
+			this.headers.put(name, values = new ArrayList<Object>());
+		}
+		values.add(value);
+	}
 
-    /**
-     * Gets the output that was written to the output stream, as a byte[].
-     * @return 
-     */
-    public byte[] getOutputBytes() {
-        this.writer.flush();
-        return this.out.getBytes();
-    }
+	/**
+	 * Provides access to all headers that were set. The format is a Map which
+	 * uses the header name as the key, and stores a List of Objects, one per
+	 * header value. The Objects will be either Strings (if setHeader() was
+	 * used), Integers (if setIntHeader() was used) or Longs (if setDateHeader()
+	 * was used).
+	 *
+	 * @return
+	 */
+	public Map<String, List<Object>> getHeaderMap() {
+		return this.headers;
+	}
 
-    /**
-     * Gets the output that was written to the output stream, as a character
-     * String.
-     * @return 
-     */
-    public String getOutputString() {
-        this.writer.flush();
-        return this.out.getString();
-    }
+	/**
+	 * Sets the HTTP Status code of the response.
+	 *
+	 * @param statusCode
+	 */
+	public void setStatus(int statusCode) {
+		this.status = statusCode;
+	}
 
-    /**
-     * Sets a custom content length on the response.
-     * @param contentLength
-     */
-    public void setContentLength(int contentLength) {
-        this.contentLength = contentLength;
-    }
+	/**
+	 * Saves the HTTP status code and the message provided.
+	 *
+	 * @param status
+	 * @param errorMessage
+	 */
+	@Override
+	public void setStatus(int status, String errorMessage) {
+		this.status = status;
+		this.errorMessage = errorMessage;
+	}
 
-    /**
-     * Returns the content length if one was set on the response by calling
-     * setContentLength().
-     * @return 
-     */
-    public int getContentLength() {
-        return this.contentLength;
-    }
+	/**
+	 * Gets the status (or error) code if one was set. Defaults to 200 (HTTP
+	 * OK).
+	 *
+	 * @return
+	 */
+	public int getStatus() {
+		return this.status;
+	}
 
-    /**
-     * Has no effect.
-     * @param i
-     */
-    public void setBufferSize(int i) {
-    }
+	/**
+	 * Gets the error message if one was set with setStatus() or sendError().
+	 *
+	 * @return
+	 */
+	public String getErrorMessage() {
+		return this.errorMessage;
+	}
 
-    /**
-     * Always returns 0.
-     * @return 
-     */
-    public int getBufferSize() {
-        return 0;
-    }
+	/**
+	 * Sets the character encoding on the request.
+	 *
+	 * @param encoding
+	 */
+	public void setCharacterEncoding(String encoding) {
+		this.characterEncoding = encoding;
+	}
 
-    /**
-     * Has no effect.
-     * @throws java.io.IOException
-     */
-    public void flushBuffer() throws IOException {
-    }
+	/**
+	 * Gets the character encoding (defaults to UTF-8).
+	 *
+	 * @return
+	 */
+	@Override
+	public String getCharacterEncoding() {
+		return this.characterEncoding;
+	}
 
-    /**
-     * Always throws IllegalStateException.
-     */
-    public void resetBuffer() {
-        throw new IllegalStateException("reset() is not supported");
-    }
+	/**
+	 * Sets the content type for the response.
+	 *
+	 * @param contentType
+	 */
+	@Override
+	public void setContentType(String contentType) {
+		this.contentType = contentType;
+		getHeaderMap().put("Content-type", Collections.<Object>singletonList(contentType));
+	}
 
-    /**
-     * Always returns true.
-     * @return 
-     */
-    public boolean isCommitted() {
-        return true;
-    }
+	/**
+	 * Gets the content type for the response. Defaults to text/html.
+	 *
+	 * @return
+	 */
+	public String getContentType() {
+		return this.contentType;
+	}
 
-    /**
-     * Always throws an IllegalStateException.
-     */
-    public void reset() {
-        throw new IllegalStateException("reset() is not supported");
-    }
+	/**
+	 * Returns a reference to a ServletOutputStream to be used for output. The
+	 * output is captured and can be examined at the end of a test run by
+	 * calling getOutputBytes() or getOutputString().
+	 *
+	 * @return
+	 * @throws java.io.IOException
+	 */
+	@Override
+	public ServletOutputStream getOutputStream() throws IOException {
+		return this.out;
+	}
 
-    /**
-     * Sets the response locale to the one specified.
-     * @param locale
-     */
-    public void setLocale(Locale locale) {
-        this.locale = locale;
-    }
+	/**
+	 * Returns a reference to a PrintWriter to be used for character output. The
+	 * output is captured and can be examined at the end of a test run by
+	 * calling getOutputBytes() or getOutputString().
+	 *
+	 * @return
+	 * @throws java.io.IOException
+	 */
+	@Override
+	public PrintWriter getWriter() throws IOException {
+		return this.writer;
+	}
 
-    /**
-     * Gets the response locale. Default to the system default locale.
-     * @return 
-     */
-    public Locale getLocale() {
-        return this.locale;
-    }
+	/**
+	 * Gets the output that was written to the output stream, as a byte[].
+	 *
+	 * @return
+	 */
+	public byte[] getOutputBytes() {
+		this.writer.flush();
+		return this.out.getBytes();
+	}
 
-    /**
-     *
-     * @param name
-     * @return
-     */
-    public String getHeader(String name) {
-        return null;
-    }
+	/**
+	 * Gets the output that was written to the output stream, as a character
+	 * String.
+	 *
+	 * @return
+	 */
+	public String getOutputString() {
+		this.writer.flush();
+		return this.out.getString();
+	}
 
-    /**
-     *
-     * @param name
-     * @return
-     */
-    public Collection<String> getHeaders(String name) {
-        return null;
-    }
+	/**
+	 * Sets a custom content length on the response.
+	 *
+	 * @param contentLength
+	 */
+	@Override
+	public void setContentLength(int contentLength) {
+		this.contentLength = contentLength;
+	}
 
-    /**
-     *
-     * @return
-     */
-    public Collection<String> getHeaderNames() {
-        return null;
-    }
+	/**
+	 * Returns the content length if one was set on the response by calling
+	 * setContentLength().
+	 *
+	 * @return
+	 */
+	public int getContentLength() {
+		return this.contentLength;
+	}
 
-    /**
-     *
-     * @param len
-     */
-    public void setContentLengthLong(long len) {
+	/**
+	 * Has no effect.
+	 *
+	 * @param i
+	 */
+	@Override
+	public void setBufferSize(int i) {
+	}
 
-    }
+	/**
+	 * Always returns 0.
+	 *
+	 * @return
+	 */
+	@Override
+	public int getBufferSize() {
+		return 0;
+	}
+
+	/**
+	 * Has no effect.
+	 *
+	 * @throws java.io.IOException
+	 */
+	@Override
+	public void flushBuffer() throws IOException {
+	}
+
+	/**
+	 * Always throws IllegalStateException.
+	 */
+	@Override
+	public void resetBuffer() {
+		throw new IllegalStateException("reset() is not supported");
+	}
+
+	/**
+	 * Always returns true.
+	 *
+	 * @return
+	 */
+	@Override
+	public boolean isCommitted() {
+		return true;
+	}
+
+	/**
+	 * Always throws an IllegalStateException.
+	 */
+	@Override
+	public void reset() {
+		throw new IllegalStateException("reset() is not supported");
+	}
+
+	/**
+	 * Sets the response locale to the one specified.
+	 *
+	 * @param locale
+	 */
+	@Override
+	public void setLocale(Locale locale) {
+		this.locale = locale;
+	}
+
+	/**
+	 * Gets the response locale. Default to the system default locale.
+	 *
+	 * @return
+	 */
+	@Override
+	public Locale getLocale() {
+		return this.locale;
+	}
+
+	/**
+	 * @param name
+	 * @return
+	 */
+	public String getHeader(String name) {
+		return null;
+	}
+
+	/**
+	 * @param name
+	 * @return
+	 */
+	public Collection<String> getHeaders(String name) {
+		return null;
+	}
+
+	/**
+	 * @return
+	 */
+	public Collection<String> getHeaderNames() {
+		return null;
+	}
+
+	/**
+	 * @param len
+	 */
+	public void setContentLengthLong(long len) {
+
+	}
 }

@@ -14,12 +14,16 @@
  */
 package net.sourceforge.stripes.mock;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Random;
 
 /**
@@ -32,9 +36,29 @@ import java.util.Random;
 @SuppressWarnings("deprecation")
 public class MockHttpSession implements HttpSession {
 
+  /**
+   * The log.
+   */
+  private static Logger log = LogManager.getLogger(MockHttpSession.class);
+
+  /**
+   * The creation time.
+   */
     private long creationTime = System.currentTimeMillis();
+
+  /**
+   * The session id.
+   */
     private String sessionId = String.valueOf(new Random().nextLong());
+
+  /**
+   * The context.
+   */
     private ServletContext context;
+
+  /**
+   * The attributes.
+   */
     private Map<String, Object> attributes = new HashMap<String, Object>();
 
     /**
@@ -48,32 +72,36 @@ public class MockHttpSession implements HttpSession {
 
     /**
      * Returns the time in milliseconds when the session was created.
-     * @return 
+     * @return
      */
+    @Override
     public long getCreationTime() {
         return this.creationTime;
     }
 
     /**
      * Returns an ID that was randomly generated when the session was created.
-     * @return 
+     * @return
      */
+    @Override
     public String getId() {
         return this.sessionId;
     }
 
     /**
      * Always returns the current time.
-     * @return 
+     * @return
      */
+    @Override
     public long getLastAccessedTime() {
         return System.currentTimeMillis();
     }
 
     /**
      * Provides access to the servlet context within which the session exists.
-     * @return 
+     * @return
      */
+    @Override
     public ServletContext getServletContext() {
         return this.context;
     }
@@ -90,21 +118,24 @@ public class MockHttpSession implements HttpSession {
      * Has no effect.
      * @param i
      */
+    @Override
     public void setMaxInactiveInterval(int i) {
     }
 
     /**
      * Always returns Integer.MAX_VALUE.
-     * @return 
+     * @return
      */
+    @Override
     public int getMaxInactiveInterval() {
         return Integer.MAX_VALUE;
     }
 
     /**
      * Deprecated method always returns null.
-     * @return 
+     * @return
      */
+    @Override
     public javax.servlet.http.HttpSessionContext getSessionContext() {
         return null;
     }
@@ -112,33 +143,39 @@ public class MockHttpSession implements HttpSession {
     /**
      * Returns the value of the named attribute from an internal Map.
      * @param key
-     * @return 
+     * @return
      */
+    @Override
     public Object getAttribute(String key) {
-        return this.attributes.get(key);
+        Object value = this.attributes.get(key);
+        log.debug("getAttribute(" + System.identityHashCode(this) + ", " + key + ")=" + Objects.toString(value, ""));
+        return value;
     }
 
     /**
      * Deprecated method. Use getAttribute() instead.
      * @param key
-     * @return 
+     * @return
      */
+    @Override
     public Object getValue(String key) {
         return getAttribute(key);
     }
 
     /**
      * Returns an enumeration of all the attribute names in the session.
-     * @return 
+     * @return
      */
+    @Override
     public Enumeration<String> getAttributeNames() {
         return Collections.enumeration(this.attributes.keySet());
     }
 
     /**
      * Returns a String[] of all the attribute names in session. Deprecated.
-     * @return 
+     * @return
      */
+    @Override
     public String[] getValueNames() {
         return this.attributes.keySet().toArray(new String[this.attributes.size()]);
     }
@@ -149,7 +186,9 @@ public class MockHttpSession implements HttpSession {
      * @param key
      * @param value
      */
+    @Override
     public void setAttribute(String key, Object value) {
+        log.debug("setAttribute(" + System.identityHashCode(this) + ", " + key + "=" + Objects.toString(value, ""));
         this.attributes.put(key, value);
     }
 
@@ -159,6 +198,7 @@ public class MockHttpSession implements HttpSession {
      * @param key
      * @param value
      */
+    @Override
     public void putValue(String key, Object value) {
         setAttribute(key, value);
     }
@@ -167,6 +207,7 @@ public class MockHttpSession implements HttpSession {
      * Removes any value stored in session with the key supplied.
      * @param key
      */
+    @Override
     public void removeAttribute(String key) {
         this.attributes.remove(key);
     }
@@ -175,6 +216,7 @@ public class MockHttpSession implements HttpSession {
      * Removes any value stored in session with the key supplied.
      * @param key
      */
+    @Override
     public void removeValue(String key) {
         removeAttribute(key);
     }
@@ -182,14 +224,16 @@ public class MockHttpSession implements HttpSession {
     /**
      * Clears the set of attributes, but has no other effect.
      */
+    @Override
     public void invalidate() {
         this.attributes.clear();
     }
 
     /**
      * Always returns false.
-     * @return 
+     * @return
      */
+    @Override
     public boolean isNew() {
         return false;
     }
