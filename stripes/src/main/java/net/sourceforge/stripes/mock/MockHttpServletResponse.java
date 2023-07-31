@@ -14,9 +14,12 @@
  */
 package net.sourceforge.stripes.mock;
 
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
@@ -38,16 +41,64 @@ import java.util.*;
  */
 public class MockHttpServletResponse implements HttpServletResponse {
 
+    /**
+     * The log.
+     */
+    private static Logger log = LogManager.getLogger(MockHttpServletResponse.class);
+
+    /**
+     * The out.
+     */
     private MockServletOutputStream out = new MockServletOutputStream();
+
+    /**
+     * The writer.
+     */
     private PrintWriter writer = new PrintWriter(out, true);
+
+    /**
+     * The locale.
+     */
     private Locale locale = Locale.getDefault();
+
+    /**
+     * The headers.
+     */
     private Map<String, List<Object>> headers = new HashMap<String, List<Object>>();
+
+    /**
+     * The cookies.
+     */
     private List<Cookie> cookies = new ArrayList<Cookie>();
+
+    /**
+     * The status.
+     */
     private int status = 200;
+
+    /**
+     * The error message.
+     */
     private String errorMessage;
+
+    /**
+     * The character encoding.
+     */
     private String characterEncoding = "UTF-8";
+
+    /**
+     * The content length.
+     */
     private int contentLength;
-    private String contentType;
+
+    /**
+     * The content type.
+     */
+    private String contentType = "text/html";
+
+    /**
+     * The redirect url.
+     */
     private String redirectUrl;
 
     /**
@@ -59,8 +110,10 @@ public class MockHttpServletResponse implements HttpServletResponse {
 
     /**
      * Adds a cookie to the set of cookies in the response.
+     *
      * @param cookie
      */
+    @Override
     public void addCookie(Cookie cookie) {
         // Remove existing cookies with the same name as the new one
         ListIterator<Cookie> iterator = cookies.listIterator();
@@ -75,7 +128,8 @@ public class MockHttpServletResponse implements HttpServletResponse {
 
     /**
      * Gets the set of cookies stored in the response.
-     * @return 
+     *
+     * @return
      */
     public Cookie[] getCookies() {
         return this.cookies.toArray(new Cookie[this.cookies.size()]);
@@ -83,55 +137,46 @@ public class MockHttpServletResponse implements HttpServletResponse {
 
     /**
      * Returns true if the specified header was placed in the response.
+     *
      * @param name
-     * @return 
+     * @return
      */
+    @Override
     public boolean containsHeader(String name) {
         return this.headers.containsKey(name);
     }
 
     /**
      * Returns the URL unchanged.
+     *
      * @param url
-     * @return 
+     * @return
      */
+    @Override
     public String encodeURL(String url) {
         return url;
     }
 
     /**
      * Returns the URL unchanged.
+     *
      * @param url
-     * @return 
+     * @return
      */
+    @Override
     public String encodeRedirectURL(String url) {
         return url;
     }
 
-    /**
-     * Returns the URL unchanged.
-     * @param url
-     * @return 
-     */
-    public String encodeUrl(String url) {
-        return url;
-    }
-
-    /**
-     * Returns the URL unchanged.
-     * @param url
-     * @return 
-     */
-    public String encodeRedirectUrl(String url) {
-        return url;
-    }
 
     /**
      * Sets the status code and saves the message so it can be retrieved later.
+     *
      * @param status
      * @param errorMessage
      * @throws java.io.IOException
      */
+    @Override
     public void sendError(int status, String errorMessage) throws IOException {
         this.status = status;
         this.errorMessage = errorMessage;
@@ -139,9 +184,11 @@ public class MockHttpServletResponse implements HttpServletResponse {
 
     /**
      * Sets that status code to the error code provided.
+     *
      * @param status
      * @throws java.io.IOException
      */
+    @Override
     public void sendError(int status) throws IOException {
         this.status = status;
     }
@@ -149,9 +196,11 @@ public class MockHttpServletResponse implements HttpServletResponse {
     /**
      * Simply sets the status code and stores the URL that was supplied, so that
      * it can be examined later with getRedirectUrl.
+     *
      * @param url
      * @throws java.io.IOException
      */
+    @Override
     public void sendRedirect(String url) throws IOException {
         this.status = HttpServletResponse.SC_MOVED_TEMPORARILY;
         this.redirectUrl = url;
@@ -160,7 +209,8 @@ public class MockHttpServletResponse implements HttpServletResponse {
     /**
      * If a call was made to sendRedirect() this method will return the URL that
      * was supplied. Otherwise it will return null.
-     * @return 
+     *
+     * @return
      */
     public String getRedirectUrl() {
         return this.redirectUrl;
@@ -168,9 +218,11 @@ public class MockHttpServletResponse implements HttpServletResponse {
 
     /**
      * Stores the value in a Long and saves it as a header.
+     *
      * @param name
      * @param value
      */
+    @Override
     public void setDateHeader(String name, long value) {
         this.headers.remove(name);
         addDateHeader(name, value);
@@ -179,9 +231,11 @@ public class MockHttpServletResponse implements HttpServletResponse {
     /**
      * Adds the specified value for the named header (does not remove/replace
      * existing values).
+     *
      * @param name
      * @param value
      */
+    @Override
     public void addDateHeader(String name, long value) {
         List<Object> values = this.headers.get(name);
         if (values == null) {
@@ -192,9 +246,11 @@ public class MockHttpServletResponse implements HttpServletResponse {
 
     /**
      * Sets the value of the specified header to the single value provided.
+     *
      * @param name
      * @param value
      */
+    @Override
     public void setHeader(String name, String value) {
         this.headers.remove(name);
         addHeader(name, value);
@@ -203,9 +259,11 @@ public class MockHttpServletResponse implements HttpServletResponse {
     /**
      * Adds the specified value for the named header (does not remove/replace
      * existing values).
+     *
      * @param name
      * @param value
      */
+    @Override
     public void addHeader(String name, String value) {
         List<Object> values = this.headers.get(name);
         if (values == null) {
@@ -216,9 +274,11 @@ public class MockHttpServletResponse implements HttpServletResponse {
 
     /**
      * Stores the value in an Integer and saves it as a header.
+     *
      * @param name
      * @param value
      */
+    @Override
     public void setIntHeader(String name, int value) {
         this.headers.remove(name);
         addIntHeader(name, value);
@@ -227,9 +287,11 @@ public class MockHttpServletResponse implements HttpServletResponse {
     /**
      * Adds the specified value for the named header (does not remove/replace
      * existing values).
+     *
      * @param name
      * @param value
      */
+    @Override
     public void addIntHeader(String name, int value) {
         List<Object> values = this.headers.get(name);
         if (values == null) {
@@ -244,7 +306,8 @@ public class MockHttpServletResponse implements HttpServletResponse {
      * header value. The Objects will be either Strings (if setHeader() was
      * used), Integers (if setIntHeader() was used) or Longs (if setDateHeader()
      * was used).
-     * @return 
+     *
+     * @return
      */
     public Map<String, List<Object>> getHeaderMap() {
         return this.headers;
@@ -252,26 +315,19 @@ public class MockHttpServletResponse implements HttpServletResponse {
 
     /**
      * Sets the HTTP Status code of the response.
+     *
      * @param statusCode
      */
     public void setStatus(int statusCode) {
         this.status = statusCode;
     }
 
-    /**
-     * Saves the HTTP status code and the message provided.
-     * @param status
-     * @param errorMessage
-     */
-    public void setStatus(int status, String errorMessage) {
-        this.status = status;
-        this.errorMessage = errorMessage;
-    }
 
     /**
      * Gets the status (or error) code if one was set. Defaults to 200 (HTTP
      * OK).
-     * @return 
+     *
+     * @return
      */
     public int getStatus() {
         return this.status;
@@ -279,7 +335,8 @@ public class MockHttpServletResponse implements HttpServletResponse {
 
     /**
      * Gets the error message if one was set with setStatus() or sendError().
-     * @return 
+     *
+     * @return
      */
     public String getErrorMessage() {
         return this.errorMessage;
@@ -287,6 +344,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
 
     /**
      * Sets the character encoding on the request.
+     *
      * @param encoding
      */
     public void setCharacterEncoding(String encoding) {
@@ -295,16 +353,20 @@ public class MockHttpServletResponse implements HttpServletResponse {
 
     /**
      * Gets the character encoding (defaults to UTF-8).
-     * @return 
+     *
+     * @return
      */
+    @Override
     public String getCharacterEncoding() {
         return this.characterEncoding;
     }
 
     /**
      * Sets the content type for the response.
+     *
      * @param contentType
      */
+    @Override
     public void setContentType(String contentType) {
         this.contentType = contentType;
         getHeaderMap().put("Content-type", Collections.<Object>singletonList(contentType));
@@ -312,7 +374,8 @@ public class MockHttpServletResponse implements HttpServletResponse {
 
     /**
      * Gets the content type for the response. Defaults to text/html.
-     * @return 
+     *
+     * @return
      */
     public String getContentType() {
         return this.contentType;
@@ -322,9 +385,11 @@ public class MockHttpServletResponse implements HttpServletResponse {
      * Returns a reference to a ServletOutputStream to be used for output. The
      * output is captured and can be examined at the end of a test run by
      * calling getOutputBytes() or getOutputString().
-     * @return 
+     *
+     * @return
      * @throws java.io.IOException
      */
+    @Override
     public ServletOutputStream getOutputStream() throws IOException {
         return this.out;
     }
@@ -333,16 +398,19 @@ public class MockHttpServletResponse implements HttpServletResponse {
      * Returns a reference to a PrintWriter to be used for character output. The
      * output is captured and can be examined at the end of a test run by
      * calling getOutputBytes() or getOutputString().
-     * @return 
-     * @throws java.io.IOException 
+     *
+     * @return
+     * @throws java.io.IOException
      */
+    @Override
     public PrintWriter getWriter() throws IOException {
         return this.writer;
     }
 
     /**
      * Gets the output that was written to the output stream, as a byte[].
-     * @return 
+     *
+     * @return
      */
     public byte[] getOutputBytes() {
         this.writer.flush();
@@ -352,7 +420,8 @@ public class MockHttpServletResponse implements HttpServletResponse {
     /**
      * Gets the output that was written to the output stream, as a character
      * String.
-     * @return 
+     *
+     * @return
      */
     public String getOutputString() {
         this.writer.flush();
@@ -361,8 +430,10 @@ public class MockHttpServletResponse implements HttpServletResponse {
 
     /**
      * Sets a custom content length on the response.
+     *
      * @param contentLength
      */
+    @Override
     public void setContentLength(int contentLength) {
         this.contentLength = contentLength;
     }
@@ -370,7 +441,8 @@ public class MockHttpServletResponse implements HttpServletResponse {
     /**
      * Returns the content length if one was set on the response by calling
      * setContentLength().
-     * @return 
+     *
+     * @return
      */
     public int getContentLength() {
         return this.contentLength;
@@ -378,37 +450,46 @@ public class MockHttpServletResponse implements HttpServletResponse {
 
     /**
      * Has no effect.
+     *
      * @param i
      */
+    @Override
     public void setBufferSize(int i) {
     }
 
     /**
      * Always returns 0.
-     * @return 
+     *
+     * @return
      */
+    @Override
     public int getBufferSize() {
         return 0;
     }
 
     /**
      * Has no effect.
+     *
      * @throws java.io.IOException
      */
+    @Override
     public void flushBuffer() throws IOException {
     }
 
     /**
      * Always throws IllegalStateException.
      */
+    @Override
     public void resetBuffer() {
         throw new IllegalStateException("reset() is not supported");
     }
 
     /**
      * Always returns true.
-     * @return 
+     *
+     * @return
      */
+    @Override
     public boolean isCommitted() {
         return true;
     }
@@ -416,28 +497,32 @@ public class MockHttpServletResponse implements HttpServletResponse {
     /**
      * Always throws an IllegalStateException.
      */
+    @Override
     public void reset() {
         throw new IllegalStateException("reset() is not supported");
     }
 
     /**
      * Sets the response locale to the one specified.
+     *
      * @param locale
      */
+    @Override
     public void setLocale(Locale locale) {
         this.locale = locale;
     }
 
     /**
      * Gets the response locale. Default to the system default locale.
-     * @return 
+     *
+     * @return
      */
+    @Override
     public Locale getLocale() {
         return this.locale;
     }
 
     /**
-     *
      * @param name
      * @return
      */
@@ -446,7 +531,6 @@ public class MockHttpServletResponse implements HttpServletResponse {
     }
 
     /**
-     *
      * @param name
      * @return
      */
@@ -455,7 +539,6 @@ public class MockHttpServletResponse implements HttpServletResponse {
     }
 
     /**
-     *
      * @return
      */
     public Collection<String> getHeaderNames() {
@@ -463,7 +546,6 @@ public class MockHttpServletResponse implements HttpServletResponse {
     }
 
     /**
-     *
      * @param len
      */
     public void setContentLengthLong(long len) {

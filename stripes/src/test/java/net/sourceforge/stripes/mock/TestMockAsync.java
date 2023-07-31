@@ -28,7 +28,7 @@ public class TestMockAsync extends FilterEnabledTestBase {
         assertNotNull(bean);
         assertEquals(eventName, bean.getContext().getEventName());
         assertTrue(bean.completed);
-        assertTrue(trip.getRequest().getAsyncContext().isCompleted());
+        assertTrue(trip.getRequest().getMockAsyncContext().isCompleted());
         System.out.println("==> done with : " + eventName);
         return bean;
     }
@@ -63,7 +63,7 @@ public class TestMockAsync extends FilterEnabledTestBase {
         assertTrue(!bean.isCompleted());
         HttpServletResponse response = bean.getContext().getResponse();
         assertEquals(response.getStatus(), 500);
-        assertTrue(trip.getRequest().getAsyncContext().isCompleted());
+        assertTrue(trip.getRequest().getMockAsyncContext().isCompleted());
     }
 
     @Test
@@ -84,7 +84,7 @@ public class TestMockAsync extends FilterEnabledTestBase {
         try {
             MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), AsyncActionBean.class);
             trip.execute(event);
-            assertTrue(trip.getRequest().getAsyncContext().isCompleted());
+            assertTrue(trip.getRequest().getMockAsyncContext().isCompleted());
         } catch (Exception e) {
             e.printStackTrace();
             caught = true;
@@ -125,7 +125,7 @@ public class TestMockAsync extends FilterEnabledTestBase {
         assertNotNull(bean);
         assertEquals("doAsyncWithForwardToNowhere", bean.getContext().getEventName());
         assertFalse(bean.completed);
-        assertTrue(trip.getRequest().getAsyncContext().isCompleted());
+        assertTrue(trip.getRequest().getMockAsyncContext().isCompleted());
     }
 
     @UrlBinding("/async")

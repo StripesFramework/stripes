@@ -74,7 +74,7 @@ public class MockServletContext implements ServletContext {
      * If the url is within this servlet context, returns this. Otherwise
      * returns null.
      * @param url
-     * @return 
+     * @return
      */
     public ServletContext getContext(String url) {
         if (url.startsWith("/" + this.contextName)) {
@@ -86,7 +86,7 @@ public class MockServletContext implements ServletContext {
 
     /**
      * Servlet 2.3 method. Returns the context name with a leading slash.
-     * @return 
+     * @return
      */
     public String getContextPath() {
         return "/" + this.contextName;
@@ -94,7 +94,7 @@ public class MockServletContext implements ServletContext {
 
     /**
      * Always returns 2.
-     * @return 
+     * @return
      */
     public int getMajorVersion() {
         return 2;
@@ -102,7 +102,7 @@ public class MockServletContext implements ServletContext {
 
     /**
      * Always returns 4.
-     * @return 
+     * @return
      */
     public int getMinorVersion() {
         return 4;
@@ -111,7 +111,7 @@ public class MockServletContext implements ServletContext {
     /**
      * Always returns null (i.e. don't know).
      * @param file
-     * @return 
+     * @return
      */
     public String getMimeType(String file) {
         return null;
@@ -120,7 +120,7 @@ public class MockServletContext implements ServletContext {
     /**
      * Always returns null (i.e. there are no resources under this path).
      * @param path
-     * @return 
+     * @return
      */
     public Set<String> getResourcePaths(String path) {
         return null;
@@ -129,8 +129,8 @@ public class MockServletContext implements ServletContext {
     /**
      * Uses the current classloader to fetch the resource if it can.
      * @param name
-     * @return 
-     * @throws java.net.MalformedURLException 
+     * @return
+     * @throws java.net.MalformedURLException
      */
     public URL getResource(String name) throws MalformedURLException {
         while (name.startsWith("/")) {
@@ -142,7 +142,7 @@ public class MockServletContext implements ServletContext {
     /**
      * Uses the current classloader to fetch the resource if it can.
      * @param name
-     * @return 
+     * @return
      */
     public InputStream getResourceAsStream(String name) {
         while (name.startsWith("/")) {
@@ -154,7 +154,7 @@ public class MockServletContext implements ServletContext {
     /**
      * Returns a MockRequestDispatcher for the url provided.
      * @param url
-     * @return 
+     * @return
      */
     public RequestDispatcher getRequestDispatcher(String url) {
         return new MockRequestDispatcher(url);
@@ -163,7 +163,7 @@ public class MockServletContext implements ServletContext {
     /**
      * Returns a MockRequestDispatcher for the named servlet provided.
      * @param name
-     * @return 
+     * @return
      */
     public RequestDispatcher getNamedDispatcher(String name) {
         return new MockRequestDispatcher(name);
@@ -172,7 +172,7 @@ public class MockServletContext implements ServletContext {
     /**
      * Deprecated method always returns null.
      * @param string
-     * @return 
+     * @return
      * @throws jakarta.servlet.ServletException
      */
     public Servlet getServlet(String string) throws ServletException {
@@ -181,7 +181,7 @@ public class MockServletContext implements ServletContext {
 
     /**
      * Deprecated method always returns an empty enumeration.
-     * @return 
+     * @return
      */
     public Enumeration<Servlet> getServlets() {
         return Collections.enumeration(Collections.<Servlet>emptySet());
@@ -189,7 +189,7 @@ public class MockServletContext implements ServletContext {
 
     /**
      * Deprecated method always returns an empty enumeration.
-     * @return 
+     * @return
      */
     public Enumeration<String> getServletNames() {
         return Collections.enumeration(Collections.<String>emptySet());
@@ -225,7 +225,7 @@ public class MockServletContext implements ServletContext {
     /**
      * Always returns null as this is standard behaviour for WAR resources.
      * @param string
-     * @return 
+     * @return
      */
     public String getRealPath(String string) {
         return null;
@@ -233,7 +233,7 @@ public class MockServletContext implements ServletContext {
 
     /**
      * Returns a version string identifying the Mock implementation.
-     * @return 
+     * @return
      */
     public String getServerInfo() {
         return "Stripes Mock Servlet Environment, version 1.0.";
@@ -260,7 +260,7 @@ public class MockServletContext implements ServletContext {
      * Gets the value of an init parameter with the specified name, if one
      * exists.
      * @param name
-     * @return 
+     * @return
      */
     public String getInitParameter(String name) {
         return this.initParameters.get(name);
@@ -269,7 +269,7 @@ public class MockServletContext implements ServletContext {
     /**
      * Returns an enumeration of all the initialization parameters in the
      * context.
-     * @return 
+     * @return
      */
     public Enumeration<String> getInitParameterNames() {
         return Collections.enumeration(this.initParameters.keySet());
@@ -279,7 +279,7 @@ public class MockServletContext implements ServletContext {
      * Gets an attribute that has been set on the context (i.e. application)
      * scope.
      * @param name
-     * @return 
+     * @return
      */
     public Object getAttribute(String name) {
         return this.attributes.get(name);
@@ -287,7 +287,7 @@ public class MockServletContext implements ServletContext {
 
     /**
      * Returns an enumeration of all the names of attributes in the context.
-     * @return 
+     * @return
      */
     public Enumeration<String> getAttributeNames() {
         return Collections.enumeration(this.attributes.keySet());
@@ -312,7 +312,7 @@ public class MockServletContext implements ServletContext {
 
     /**
      * Returns the name of the mock context.
-     * @return 
+     * @return
      */
     public String getServletContextName() {
         return this.contextName;
@@ -323,7 +323,7 @@ public class MockServletContext implements ServletContext {
      * @param filterClass
      * @param filterName
      * @param initParams
-     * @return 
+     * @return
      */
     public MockServletContext addFilter(Class<? extends Filter> filterClass,
             String filterName,
@@ -347,7 +347,7 @@ public class MockServletContext implements ServletContext {
 
     /**
      * Removes and destroys all registered filters.
-     * @return 
+     * @return
      */
     public MockServletContext removeFilters() {
         for (Filter each : filters) {
@@ -363,7 +363,7 @@ public class MockServletContext implements ServletContext {
 
     /**
      * Provides access to the set of filters configured for this context.
-     * @return 
+     * @return
      */
     public List<Filter> getFilters() {
         return this.filters;
@@ -372,7 +372,7 @@ public class MockServletContext implements ServletContext {
     /**
      * Adds a {@link ServletContextListener} to this context and initializes it.
      * @param listener
-     * @return 
+     * @return
      */
     public MockServletContext addListener(ServletContextListener listener) {
         ServletContextEvent event = new ServletContextEvent(this);
@@ -383,7 +383,7 @@ public class MockServletContext implements ServletContext {
 
     /**
      * Removes and destroys all registered {@link ServletContextListener}.
-     * @return 
+     * @return
      */
     public MockServletContext removeListeners() {
         ServletContextEvent e = new ServletContextEvent(this);
@@ -399,7 +399,7 @@ public class MockServletContext implements ServletContext {
      * @param servletClass
      * @param servletName
      * @param initParams
-     * @return 
+     * @return
      */
     public MockServletContext setServlet(Class<? extends HttpServlet> servletClass,
             String servletName,
@@ -443,7 +443,7 @@ public class MockServletContext implements ServletContext {
         chain.doFilter(request, response);
         // wait for any async context to finish (block)
         if (request.isAsyncStarted()) {
-            MockAsyncContext asyncContext = request.getAsyncContext();
+            MockAsyncContext asyncContext = (MockAsyncContext) request.getAsyncContext();
             asyncContext.waitForCompletion();
         }
 

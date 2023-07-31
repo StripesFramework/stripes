@@ -6,6 +6,7 @@
         <groupId>net.sourceforge.stripes</groupId>
         <artifactId>stripes-parent</artifactId>
         <version>1.7.0-SNAPSHOT</version>
+        <relativePath>..</relativePath>
     </parent>
     <artifactId>stripes</artifactId>
     <packaging>jar</packaging>
@@ -34,8 +35,8 @@
             <artifactId>jakarta.el-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>javax.mail</groupId>
-            <artifactId>mail</artifactId>
+            <groupId>com.sun.mail</groupId>
+            <artifactId>jakarta.mail</artifactId>
         </dependency>
         <dependency>
             <groupId>org.testng</groupId>
@@ -46,20 +47,28 @@
             <artifactId>commons-logging</artifactId>
         </dependency>
         <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-1.2-api</artifactId>
+        </dependency>
+        <!--dependency>
             <groupId>servlets.com</groupId>
             <artifactId>cos</artifactId>
-        </dependency>
+        </dependency-->
         <dependency>
             <groupId>org.springframework</groupId>
-            <artifactId>spring-web</artifactId>
+            <artifactId>spring-core</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -82,8 +91,8 @@
         </resources>
         <plugins>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.7</version>
                 <executions>
                     <execution>
                         <phase>generate-resources</phase>
@@ -163,7 +172,7 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
+            <!--plugin>
                 <groupId>net.sourceforge.maven-taglib</groupId>
                 <artifactId>maven-taglib-plugin</artifactId>
                 <configuration>
@@ -176,7 +185,7 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
+            </plugin-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>

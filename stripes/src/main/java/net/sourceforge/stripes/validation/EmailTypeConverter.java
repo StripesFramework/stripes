@@ -14,8 +14,8 @@
  */
 package net.sourceforge.stripes.validation;
 
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
+import jakarta.mail.internet.AddressException;
+import jakarta.mail.internet.InternetAddress;
 import java.util.Collection;
 import java.util.Locale;
 
