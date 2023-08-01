@@ -172,9 +172,10 @@
                     </execution>
                 </executions>
             </plugin>
-            <!--plugin>
+            <plugin>
                 <groupId>net.sourceforge.maven-taglib</groupId>
                 <artifactId>maven-taglib-plugin</artifactId>
+                <version>2.4</version>
                 <configuration>
                     <taglib.src.dir>target/classes/META-INF/</taglib.src.dir>
                 </configuration>
@@ -185,7 +186,7 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin-->
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>

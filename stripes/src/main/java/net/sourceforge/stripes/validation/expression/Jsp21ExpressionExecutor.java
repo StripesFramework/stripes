@@ -152,17 +152,6 @@ public class Jsp21ExpressionExecutor implements ExpressionExecutor {
         }
 
         /**
-         * Always returns null.
-         * @param elContext
-         * @param o
-         * @return 
-         */
-        @Override
-        public Iterator<FeatureDescriptor> getFeatureDescriptors(final ELContext elContext, final Object o) {
-            return null;
-        }
-
-        /**
          * Always returns Object.class.
          * @param elContext
          * @param o
