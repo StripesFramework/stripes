@@ -120,7 +120,7 @@ public abstract class HtmlTagSupport extends StripesTagSupport implements Dynami
     /**
      * Returns true if HTML tags that have no body should be closed like XML tags, with "/&gt;".
      * False if such HTML tags should be closed in the style of HTML4, with just a "&gt;".
-     * 
+     *
      * @see PageOptionsTag#setHtmlMode(String)
      */
     protected boolean isXmlTags() {
@@ -184,6 +184,22 @@ public abstract class HtmlTagSupport extends StripesTagSupport implements Dynami
         try {
             writer.print("<");
             writer.print(tag);
+
+
+            //WebJET - automaticky nastaveny autocomplete na login formoch
+            if (sk.iway.iwcm.Constants.getBoolean("formLoginProtect"))
+            {
+	            String type = get("type");
+	            String name = get("name");
+	            if (name != null) name = name.toLowerCase();
+
+	            boolean setAutocompleteOff = false;
+	            if (type != null && type.equals("password")) setAutocompleteOff = true;
+	            if (name != null && (name.indexOf("email")!=-1 || name.indexOf("login")!=-1)) setAutocompleteOff = true;
+
+	            if (setAutocompleteOff) set("autocomplete", "off");
+            }
+
             writeAttributes(writer);
             writer.print(isXmlTags() ? " />" : ">");
         }

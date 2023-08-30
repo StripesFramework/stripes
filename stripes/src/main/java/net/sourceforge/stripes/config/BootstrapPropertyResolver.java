@@ -48,7 +48,7 @@ import net.sourceforge.stripes.vfs.VFS;
  */
 public class BootstrapPropertyResolver {
     private static final Log log = Log.getInstance(BootstrapPropertyResolver.class);
-    
+
     private FilterConfig filterConfig;
 
     /** The Configuration Key for looking up the comma separated list of VFS classes. */
@@ -95,6 +95,9 @@ public class BootstrapPropertyResolver {
     public String getProperty(String key) {
         String value = null;
 
+        // WebJET CMS - get value from Constants object
+        if(Tools.isNotEmpty(Constants.getString("stripes." + key))) return Constants.getString("stripes." + key);
+
         try {
             value = this.filterConfig.getInitParameter(key);
         }
@@ -125,11 +128,11 @@ public class BootstrapPropertyResolver {
 
         return value;
     }
-    
+
     /**
      * Attempts to find a class the user has specified in web.xml or by auto-discovery in packages
      * listed in web.xml under Extension.Packages. Classes specified in web.xml take precedence.
-     * 
+     *
      * @param paramName the parameter to look for in web.xml
      * @param targetType the type that we're looking for
      * @return the Class that was found
@@ -176,10 +179,10 @@ public class BootstrapPropertyResolver {
 
         return clazz;
     }
-    
+
     /**
      * Attempts to find all classes the user has specified in web.xml.
-     * 
+     *
      * @param paramName the parameter to look for in web.xml
      * @return a List of classes found
      */
@@ -207,11 +210,11 @@ public class BootstrapPropertyResolver {
 
         return classes;
     }
-    
+
     /**
      * Attempts to find classes by auto-discovery in packages listed in web.xml under
      * Extension.Packages.
-     * 
+     *
      * @param targetType the type that we're looking for
      * @return a List of classes found
      */
@@ -229,7 +232,7 @@ public class BootstrapPropertyResolver {
     /**
      * Attempts to find all matching classes the user has specified in web.xml or by auto-discovery
      * in packages listed in web.xml under Extension.Packages.
-     * 
+     *
      * @param paramName the parameter to look for in web.xml
      * @param targetType the type that we're looking for
      * @return the Class that was found
@@ -260,7 +263,7 @@ public class BootstrapPropertyResolver {
             }
         }
     }
-    
+
     /** Removes any classes from the collection that are abstract or interfaces. */
     protected <T> void removeAbstractClasses(Collection<Class<? extends T>> classes) {
         Iterator<Class<? extends T>> iterator = classes.iterator();
