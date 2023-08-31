@@ -22,7 +22,7 @@ import java.util.Locale;
 /**
  * <p>
  * A faux TypeConverter that validates that the String supplied is a valid email
- * address. Relies on javax.mail.internet.InternetAddress for the bulk of the
+ * address. Relies on jakarta.mail.internet.InternetAddress for the bulk of the
  * work (note that this means in order to use this type converter you must have
  * JavaMail available in your classpath).</p>
  *

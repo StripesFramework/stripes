@@ -117,7 +117,7 @@ public class DefaultMultipartWrapperFactory implements MultipartWrapperFactory {
     }
 
     // Figure out where the temp directory is, and store that info
-    File tempDir = (File) config.getServletContext().getAttribute("javax.servlet.context.tempdir");
+    File tempDir = (File) config.getServletContext().getAttribute("jakarta.servlet.context.tempdir");
     if (tempDir != null) {
       this.temporaryDirectory = tempDir;
     } else {

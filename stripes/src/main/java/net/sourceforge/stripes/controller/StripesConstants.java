@@ -111,12 +111,12 @@ public interface StripesConstants {
      * Request attribute key defined by the servlet spec for storing the
      * included servlet path when processing a server side include.
      */
-    String REQ_ATTR_INCLUDE_PATH = "javax.servlet.include.servlet_path";
+    String REQ_ATTR_INCLUDE_PATH = "jakarta.servlet.include.servlet_path";
 
     /**
      * Request attribute key defined by the servlet spec for storing the
      * included path info when processing a server side include.
      */
-    String REQ_ATTR_INCLUDE_PATH_INFO = "javax.servlet.include.path_info";
+    String REQ_ATTR_INCLUDE_PATH_INFO = "jakarta.servlet.include.path_info";
 
 }

@@ -2,7 +2,7 @@ package net.sourceforge.stripes.controller;
 
 /**
  * Listeners that are notified of asynchronous lifecycle events. Wraps
- * serlvet3's <code>javax.servlet.AsyncListener</code>.
+ * serlvet3's <code>jakarta.servlet.AsyncListener</code>.
  */
 public interface AsyncListener {
 
