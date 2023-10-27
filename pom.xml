@@ -294,25 +294,6 @@
         </pluginManagement>
     </build>
 
-    <properties>
-        <snapshotRepositoryUrl>https://repo.micromata.de/nexus/content/repositories/genome-snapshot/</snapshotRepositoryUrl>
-        <releaseRepositoryUrl>https://repo.micromata.de/nexus/content/repositories/genome</releaseRepositoryUrl>
-    </properties>
-
-    <distributionManagement>
-        <repository>
-            <id>genome-releases</id>
-            <name>genome-releases</name>
-            <url>${releaseRepositoryUrl}</url>
-        </repository>
-        <snapshotRepository>
-            <id>genome-snapshots</id>
-            <name>genome-snapshots</name>
-            <url>${snapshotRepositoryUrl}</url>
-            <uniqueVersion>false</uniqueVersion>
-        </snapshotRepository>
-    </distributionManagement>
-
     <profiles>
         <profile>
             <id>webtests</id>
