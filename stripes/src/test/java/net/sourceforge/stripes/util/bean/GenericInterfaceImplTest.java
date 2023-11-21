@@ -3,10 +3,11 @@ package net.sourceforge.stripes.util.bean;
 import net.sourceforge.stripes.FilterEnabledTestBase;
 import net.sourceforge.stripes.StripesTestFixture;
 import net.sourceforge.stripes.mock.MockServletContext;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
-import org.testng.Assert;
+import org.junit.Test;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.AfterClass;
 
 /**
  * Tests a corner cases where a property's getter and/or setter method(s) are specified
@@ -46,14 +47,14 @@ public class GenericInterfaceImplTest extends FilterEnabledTestBase {
         public void setProp(WriteOnlyGenericImpl prop) {  }
     }
 
-    @Test(groups="fast")
+    @Test
     public void testInheritFromGenericInterface() throws Exception {
         GenericImpl bean = new GenericImpl();
         BeanUtil.setPropertyValue("prop.stringProperty", bean, "whee");
         Assert.assertEquals(bean.getProp().getStringProperty(), "whee");
     }
 
-    @Test(groups="fast")
+    @Test
     public void testInheritFromWriteOnlyGenericInterface() throws Exception {
         WriteOnlyGenericImpl bean = new WriteOnlyGenericImpl();
         Assert.assertEquals(BeanUtil.getPropertyType("prop", bean), WriteOnlyGenericImpl.class);

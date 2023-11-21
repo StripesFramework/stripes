@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import javax.servlet.Filter;
+import jakarta.servlet.Filter;
 
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.controller.ActionResolver;

@@ -14,8 +14,8 @@
  */
 package net.sourceforge.stripes.action;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * Resolution for sending HTTP error messages back to the client. errorCode is the HTTP status code

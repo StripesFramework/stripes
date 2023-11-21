@@ -19,7 +19,7 @@ import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.File;
 import java.util.regex.Pattern;
@@ -28,7 +28,7 @@ import java.util.regex.Matcher;
 /**
  * <p>Default implementation of a factory for MultipartWrappers. Looks up a class name in
  * Configuration under the key specified by {@link #WRAPPER_CLASS_NAME}. If no class
- * name is configured, defaults to the {@link CosMultipartWrapper}. An additional configuration
+ * name is configured, defaults to the {@link CommonsMultipartWrapper}. An additional configuration
  * parameter is supported to specify the maximum post size allowable.</p>
  * 
  * @author Tim Fennell
@@ -40,8 +40,7 @@ public class DefaultMultipartWrapperFactory implements MultipartWrapperFactory {
 
     /** The names of the MultipartWrapper classes that will be tried if no other is specified. */
     public static final String[] BUNDLED_IMPLEMENTATIONS = {
-            "net.sourceforge.stripes.controller.multipart.CommonsMultipartWrapper",
-            "net.sourceforge.stripes.controller.multipart.CosMultipartWrapper" };
+            "net.sourceforge.stripes.controller.multipart.CommonsMultipartWrapper" };
 
     /** Key used to lookup the name of the maximum post size. */
     public static final String MAX_POST = "FileUpload.MaximumPostSize";

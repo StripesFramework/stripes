@@ -14,7 +14,7 @@
  */
 package net.sourceforge.stripes.tag;
 
-import javax.servlet.jsp.JspException;
+import jakarta.servlet.jsp.JspException;
 
 /**
  * <p>Tag that generates HTML form fields of type {@literal <input type="file" ... />}.  The only

@@ -30,8 +30,8 @@ import net.sourceforge.stripes.validation.ValidationErrors;
 import net.sourceforge.stripes.validation.ValidationMethod;
 import net.sourceforge.stripes.validation.ValidationState;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.jsp.PageContext;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.jsp.PageContext;
 import java.lang.reflect.Method;
 import java.lang.ref.WeakReference;
 import java.util.Arrays;
@@ -323,7 +323,7 @@ public class DispatcherHelper {
 
                     ValidationMethod ann1 = o1.getAnnotation(ValidationMethod.class);
                     ValidationMethod ann2 = o2.getAnnotation(ValidationMethod.class);
-                    int returnValue =  new Integer(ann1.priority()).compareTo(ann2.priority());
+                    int returnValue = Integer.compare(ann1.priority(), ann2.priority());
 
                     if (returnValue == 0) {
                         returnValue = o1.getName().compareTo(o2.getName());

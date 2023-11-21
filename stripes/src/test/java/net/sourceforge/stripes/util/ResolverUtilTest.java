@@ -6,8 +6,8 @@ import net.sourceforge.stripes.validation.LocalizableError;
 import net.sourceforge.stripes.validation.ScopedLocalizableError;
 import net.sourceforge.stripes.validation.SimpleError;
 import net.sourceforge.stripes.validation.TypeConverter;
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import org.junit.Test;
+import org.junit.Assert;
 
 import java.util.Set;
 
@@ -18,7 +18,7 @@ import java.util.Set;
  */
 public class ResolverUtilTest {
 
-    @Test(groups="slow")
+    @Test
     public void testSimpleFind() throws Exception {
         // Because the tests package depends on stripes, it's safe to assume that
         // there will be some TypeConverter subclasses in the classpath
@@ -27,18 +27,13 @@ public class ResolverUtilTest {
         Set<Class<? extends TypeConverter<?>>> impls = resolver.getClasses();
 
         // Check on a few random converters
-        Assert.assertTrue(impls.contains(BooleanTypeConverter.class),
-                          "BooleanTypeConverter went missing.");
-        Assert.assertTrue(impls.contains(DateTypeConverter.class),
-                          "DateTypeConverter went missing.");
-        Assert.assertTrue(impls.contains(BooleanTypeConverter.class),
-                          "ShortTypeConverter went missing.");
-
-        Assert.assertTrue(impls.size() >= 10,
-                          "Did not find all the built in TypeConverters.");
+        Assert.assertTrue("BooleanTypeConverter went missing.", impls.contains(BooleanTypeConverter.class));
+        Assert.assertTrue("DateTypeConverter went missing.", impls.contains(DateTypeConverter.class));
+        Assert.assertTrue("ShortTypeConverter went missing.", impls.contains(BooleanTypeConverter.class));
+        Assert.assertTrue("Did not find all the built in TypeConverters.", impls.size() >= 10);
     }
 
-    @Test(groups="fast")
+    @Test
     public void testMoreSpecificFind() throws Exception {
         // Because the tests package depends on stripes, it's safe to assume that
         // there will be some TypeConverter subclasses in the classpath
@@ -47,43 +42,34 @@ public class ResolverUtilTest {
         Set<Class<? extends TypeConverter<?>>> impls = resolver.getClasses();
 
         // Check on a few random converters
-        Assert.assertTrue(impls.contains(BooleanTypeConverter.class),
-                          "BooleanTypeConverter went missing.");
-        Assert.assertTrue(impls.contains(DateTypeConverter.class),
-                          "DateTypeConverter went missing.");
-        Assert.assertTrue(impls.contains(BooleanTypeConverter.class),
-                          "ShortTypeConverter went missing.");
-
-        Assert.assertTrue(impls.size() >= 10,
-                          "Did not find all the built in TypeConverters.");
+        Assert.assertTrue("BooleanTypeConverter went missing.", impls.contains(BooleanTypeConverter.class));
+        Assert.assertTrue("DateTypeConverter went missing.", impls.contains(DateTypeConverter.class));
+        Assert.assertTrue("ShortTypeConverter went missing.", impls.contains(BooleanTypeConverter.class));
+        Assert.assertTrue("Did not find all the built in TypeConverters.", impls.size() >= 10);
     }
 
-    @Test(groups="fast")
+    @Test
     public void testFindExtensionsOfClass() throws Exception {
         ResolverUtil<SimpleError> resolver = new ResolverUtil<SimpleError>();
         resolver.findImplementations(SimpleError.class, "net.sourceforge.stripes");
 
         Set<Class<? extends SimpleError>> impls = resolver.getClasses();
 
-        Assert.assertTrue(impls.contains(LocalizableError.class),
-                          "LocalizableError should have been found.");
-        Assert.assertTrue(impls.contains(ScopedLocalizableError.class),
-                          "ScopedLocalizableError should have been found.");
-        Assert.assertTrue(impls.contains(SimpleError.class),
-                          "SimpleError itself should have been found.");
+        Assert.assertTrue("LocalizableError should have been found.", impls.contains(LocalizableError.class));
+        Assert.assertTrue("ScopedLocalizableError should have been found.", impls.contains(ScopedLocalizableError.class));
+        Assert.assertTrue("SimpleError itself should have been found.", impls.contains(SimpleError.class));
     }
 
-    /** Test interface used with the testFindZeroImplementatios() method. */
+    /** Test interface used with the testFindZeroImplementations() method. */
     private static interface ZeroImplementations {}
 
-    @Test(groups="fast")
+    @Test
     public void testFindZeroImplementations() throws Exception {
         ResolverUtil<ZeroImplementations> resolver = new ResolverUtil<ZeroImplementations>();
         resolver.findImplementations(ZeroImplementations.class, "net.sourceforge.stripes");
 
         Set<Class<? extends ZeroImplementations>> impls = resolver.getClasses();
 
-        Assert.assertTrue(impls.size() == 1 && impls.contains(ZeroImplementations.class),
-                          "There should not have been any implementations besides the interface itself.");
+        Assert.assertTrue("There should not have been any implementations besides the interface itself.", impls.size() == 1 && impls.contains(ZeroImplementations.class));
     }
 }

@@ -28,9 +28,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequestWrapper;
 
 import net.sourceforge.stripes.action.FileBean;
 import net.sourceforge.stripes.controller.multipart.MultipartWrapper;

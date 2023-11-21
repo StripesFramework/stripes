@@ -16,8 +16,8 @@ package net.sourceforge.stripes.tag;
 
 import net.sourceforge.stripes.validation.BooleanTypeConverter;
 
-import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.tagext.BodyTag;
+import jakarta.servlet.jsp.JspException;
+import jakarta.servlet.jsp.tagext.BodyTag;
 
 /**
  * <p>Coordinates with one or more other tags to produce a well formed HTML select tag with state

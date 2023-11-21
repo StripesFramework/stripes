@@ -14,7 +14,7 @@
  */
 package net.sourceforge.stripes.util;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import net.sourceforge.stripes.controller.StripesConstants;
 

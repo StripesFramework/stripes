@@ -14,7 +14,7 @@
  */
 package net.sourceforge.stripes.mock;
 
-import javax.servlet.ServletContext;
+import jakarta.servlet.ServletContext;
 import java.util.Map;
 import java.util.Enumeration;
 import java.util.Collections;

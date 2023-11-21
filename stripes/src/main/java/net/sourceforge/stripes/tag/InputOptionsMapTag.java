@@ -16,9 +16,7 @@ package net.sourceforge.stripes.tag;
 
 import java.util.Map;
 
-import javax.servlet.jsp.JspException;
-
-import net.sourceforge.stripes.tag.InputOptionsCollectionTag;
+import jakarta.servlet.jsp.JspException;
 
 /**
  * <p>Extracts the {@link java.util.Set} of {@link java.util.Map.Entry} from the

@@ -47,7 +47,7 @@ public class FloatTypeConverter extends NumberTypeConverterSupport implements Ty
                                                        MIN_VALUE, MAX_VALUE));
             }
             else {
-                retval = new Float(number.floatValue());
+                retval = number.floatValue();
             }
         }
 

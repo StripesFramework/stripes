@@ -14,8 +14,8 @@
  */
 package net.sourceforge.stripes.tag;
 
-import javax.servlet.jsp.tagext.BodyTag;
-import javax.servlet.jsp.JspException;
+import jakarta.servlet.jsp.tagext.BodyTag;
+import jakarta.servlet.jsp.JspException;
 
 /**
  * <p>Support tag class that can generate HTML form fields with localized value attributes.
@@ -66,7 +66,7 @@ public class InputButtonSupportTag extends InputTagSupport implements BodyTag {
      * Looks up the appropriate value to use for the submit button and then writes the tag
      * out to the page.
      * @return EVAL_PAGE in all cases.
-     * @throws javax.servlet.jsp.JspException if output cannot be written.
+     * @throws jakarta.servlet.jsp.JspException if output cannot be written.
      */
     @Override
     public int doEndInputTag() throws JspException {

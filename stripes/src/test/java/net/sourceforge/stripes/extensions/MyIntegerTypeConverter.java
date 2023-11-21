@@ -19,7 +19,7 @@ public class MyIntegerTypeConverter extends IntegerTypeConverter {
         Integer result = super.convert(input, targetType, errors);
 
         if (result != null) {
-            result = new Integer(result.intValue() * 2);
+            result = result * 2;
         }
         return result;
     }

@@ -6,8 +6,8 @@ import net.sourceforge.stripes.action.ActionBeanContext;
 import net.sourceforge.stripes.action.Resolution;
 import net.sourceforge.stripes.mock.MockRoundtrip;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import org.junit.Test;
+import org.junit.Assert;
 
 /**
  * Tests some cases where generics have been known to mess up validation.
@@ -97,10 +97,10 @@ public class ValidationWithGenericsTest extends FilterEnabledTestBase {
     /**
      * Attempts to trigger validation errors on an ActionBean declared with a type parameter.
      * Validation was crippled by a bug in JDK6 and earlier.
-     * 
-     * @see http://www.stripesframework.org/jira/browse/STS-664
+     *
+     * @see <a href="http://www.stripesframework.org/jira/browse/STS-664">...</a>
      */
-    @Test(groups = "fast")
+    @Test
     public void testActionBeanWithTypeParameter() throws Exception {
         runValidationTests(OverrideGetterAndSetterActionBean.class);
         runValidationTests(OverrideGetterActionBean.class);
@@ -115,16 +115,16 @@ public class ValidationWithGenericsTest extends FilterEnabledTestBase {
         MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), type);
         trip.execute("login");
         ValidationErrors errors = trip.getValidationErrors();
-        Assert.assertNotNull(errors, "Expected validation errors but got none");
-        Assert.assertFalse(errors.isEmpty(), "Expected validation errors but got none");
-        Assert.assertEquals(errors.size(), 2, "Expected two validation errors but got " + errors.size());
+        Assert.assertNotNull("Expected validation errors but got none", errors);
+        Assert.assertFalse("Expected validation errors but got none", errors.isEmpty());
+        Assert.assertEquals( "Expected two validation errors but got " + errors.size(), errors.size(), 2);
 
         // Now add the required parameters and make sure the validation errors don't happen
         trip.addParameter("model.username", "Scooby");
         trip.addParameter("model.password", "Shaggy");
         trip.execute("login");
         errors = trip.getValidationErrors();
-        Assert.assertTrue(errors == null || errors.isEmpty(), "Got unexpected validation errors");
+        Assert.assertTrue("Got unexpected validation errors", errors == null || errors.isEmpty() );
 
         BaseActionBean<User> bean = trip.getActionBean(type);
         Assert.assertNotNull(bean);

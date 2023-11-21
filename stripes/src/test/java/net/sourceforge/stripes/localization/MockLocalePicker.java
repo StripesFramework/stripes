@@ -16,7 +16,7 @@ package net.sourceforge.stripes.localization;
 
 import java.util.Locale;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import net.sourceforge.stripes.config.Configuration;
 

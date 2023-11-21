@@ -1,13 +1,16 @@
 package net.sourceforge.stripes.util.bean;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import org.junit.Test;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.AfterClass;
 
 /**
  * 
  */
 public class PropertyExpressionTests {
-    @Test(groups="fast")
+    @Test
     public void testDotNotation() {
         PropertyExpression expr = PropertyExpression.getExpression("foo.bar.splat");
         Node root = expr.getRootNode();
@@ -16,7 +19,7 @@ public class PropertyExpressionTests {
         Assert.assertEquals(root.getNext().getNext().getStringValue(), "splat");
     }
 
-    @Test(groups="fast")
+    @Test
     public void testDotNotationWithEscapes() {
         PropertyExpression expr = PropertyExpression.getExpression("fo\\\"o\\\".bar.splat");
         Node root = expr.getRootNode();
@@ -25,7 +28,7 @@ public class PropertyExpressionTests {
         Assert.assertEquals(root.getNext().getNext().getStringValue(), "splat");
     }
 
-    @Test(groups="fast")
+    @Test
     public void testSquareBracketNotation() {
         PropertyExpression expr = PropertyExpression.getExpression("foo[index].bar");
         Node root = expr.getRootNode();
@@ -34,7 +37,7 @@ public class PropertyExpressionTests {
         Assert.assertEquals(root.getNext().getNext().getStringValue(), "bar");
     }
 
-    @Test(groups="fast")
+    @Test
     public void testSquareBracketNotation2() {
         PropertyExpression expr = PropertyExpression.getExpression("foo[index][bar]");
         Node root = expr.getRootNode();
@@ -43,7 +46,7 @@ public class PropertyExpressionTests {
         Assert.assertEquals(root.getNext().getNext().getStringValue(), "bar");
     }
 
-    @Test(groups="fast")
+    @Test
     public void testSquareBracketWithSingleQuoteNotation() {
         PropertyExpression expr = PropertyExpression.getExpression("foo['index'].bar");
         Node root = expr.getRootNode();
@@ -52,7 +55,7 @@ public class PropertyExpressionTests {
         Assert.assertEquals(root.getNext().getNext().getStringValue(), "bar");
     }
 
-    @Test(groups="fast")
+    @Test
     public void testSquareBracketWithDoubleQuoteNotation() {
         PropertyExpression expr = PropertyExpression.getExpression("foo[\"index\"].bar");
         Node root = expr.getRootNode();
@@ -61,48 +64,48 @@ public class PropertyExpressionTests {
         Assert.assertEquals(root.getNext().getNext().getStringValue(), "bar");
     }
 
-    @Test(groups="fast", expectedExceptions=ParseException.class)
+    @Test
     public void testBackToBackQuotedStrings() {
         @SuppressWarnings("unused")
         PropertyExpression expr = PropertyExpression.getExpression("foo['bar''splat']");
     }
 
-    @Test(groups="fast")
+    @Test
     public void testIntIndex() {
         PropertyExpression expr = PropertyExpression.getExpression("foo[123]");
         Node root = expr.getRootNode();
         Assert.assertEquals(root.getStringValue(), "foo");
         Assert.assertEquals(root.getNext().getStringValue(), "123");
-        Assert.assertEquals(root.getNext().getTypedValue(), new Integer(123));
+        Assert.assertEquals(root.getNext().getTypedValue(), 123);
     }
 
-    @Test(groups="fast")
+    @Test
     public void testDoubleIndex() {
         PropertyExpression expr = PropertyExpression.getExpression("foo[123.4]");
         Node root = expr.getRootNode();
         Assert.assertEquals(root.getStringValue(), "foo");
         Assert.assertEquals(root.getNext().getStringValue(), "123.4");
-        Assert.assertEquals(root.getNext().getTypedValue(), new Double(123.4));
+        Assert.assertEquals(root.getNext().getTypedValue(), 123.4D);
     }
 
-    @Test(groups="fast")
+    @Test
     public void testLongIndex() {
         PropertyExpression expr = PropertyExpression.getExpression("foo[123l]");
         Node root = expr.getRootNode();
         Assert.assertEquals(root.getStringValue(), "foo");
         Assert.assertEquals(root.getNext().getStringValue(), "123l");
-        Assert.assertEquals(root.getNext().getTypedValue(), new Long(123));
+        Assert.assertEquals(root.getNext().getTypedValue(), 123L);
     }
 
-    @Test(groups="fast")
+    @Test
     public void testFloatIndex() {
         PropertyExpression expr = PropertyExpression.getExpression("foo[123F]");
         Node root = expr.getRootNode();
         Assert.assertEquals(root.getStringValue(), "foo");
         Assert.assertEquals(root.getNext().getStringValue(), "123F");
-        Assert.assertEquals(root.getNext().getTypedValue(), new Float(123f));
+        Assert.assertEquals(root.getNext().getTypedValue(), 123F);
     }
-    @Test(groups="fast")
+    @Test
     public void testBooleanIndex() {
         PropertyExpression expr = PropertyExpression.getExpression("foo[false]");
         Node root = expr.getRootNode();

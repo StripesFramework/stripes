@@ -27,9 +27,9 @@ import net.sourceforge.stripes.controller.StripesFilter;
 import net.sourceforge.stripes.controller.DispatcherServlet;
 import net.sourceforge.stripes.exception.StripesJspException;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.jsp.JspException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.jsp.JspException;
 
 /**
  * <p>This tag supports the use of Stripes ActionBean classes as view helpers.

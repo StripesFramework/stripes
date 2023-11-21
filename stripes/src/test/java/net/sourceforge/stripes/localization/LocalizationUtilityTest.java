@@ -1,7 +1,11 @@
 package net.sourceforge.stripes.localization;
 
-import org.testng.annotations.Test;
-import org.testng.Assert;
+import org.junit.Test;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.AfterClass;
+
 import net.sourceforge.stripes.localization.LocalizationUtility;
 
 /**
@@ -10,35 +14,35 @@ import net.sourceforge.stripes.localization.LocalizationUtility;
  */
 public class LocalizationUtilityTest {
 
-    @Test(groups="fast")
+    @Test
     public void testBaseCase() throws Exception {
         String input = "Hello";
         String output = LocalizationUtility.makePseudoFriendlyName(input);
         Assert.assertEquals(output, input);
     }
 
-    @Test(groups="fast")
+    @Test
     public void testSimpleCase() throws Exception {
         String input = "hello";
         String output = LocalizationUtility.makePseudoFriendlyName(input);
         Assert.assertEquals(output, "Hello");
     }
 
-    @Test(groups="fast")
+    @Test
     public void testWithPeriod() throws Exception {
         String input = "bug.name";
         String output = LocalizationUtility.makePseudoFriendlyName(input);
         Assert.assertEquals(output, "Bug Name");
     }
 
-    @Test(groups="fast")
+    @Test
     public void testWithStudlyCaps() throws Exception {
         String input = "bugName";
         String output = LocalizationUtility.makePseudoFriendlyName(input);
         Assert.assertEquals(output, "Bug Name");
     }
 
-    @Test(groups="fast")
+    @Test
     public void testComplexName() throws Exception {
         String input = "bug.submittedBy.firstName";
         String output = LocalizationUtility.makePseudoFriendlyName(input);
@@ -56,7 +60,7 @@ public class LocalizationUtilityTest {
         }
     }
 
-    @Test(groups = "fast")
+    @Test
     public void testSimpleClassName() throws Exception {
         String output = LocalizationUtility.getSimpleName(TestEnum.class);
         Assert.assertEquals(output, "LocalizationUtilityTest.TestEnum");

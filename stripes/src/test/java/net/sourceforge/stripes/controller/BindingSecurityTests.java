@@ -1,8 +1,8 @@
 package net.sourceforge.stripes.controller;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 import net.sourceforge.stripes.FilterEnabledTestBase;
 import net.sourceforge.stripes.action.ActionBean;
@@ -19,8 +19,12 @@ import net.sourceforge.stripes.util.bean.PropertyExpressionEvaluation;
 import net.sourceforge.stripes.validation.Validate;
 import net.sourceforge.stripes.validation.ValidateNestedProperties;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import org.junit.Test;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.AfterClass;
+
 
 /**
  * Tests binding security.
@@ -192,7 +196,7 @@ public class BindingSecurityTests extends FilterEnabledTestBase {
 
     private static final Log log = Log.getInstance(BindingSecurityTests.class);
 
-    @Test(groups = "fast")
+    @Test
     public void bindingPolicyEnforcement() {
         try {
             evaluate(new NoAnnotation());
@@ -227,12 +231,12 @@ public class BindingSecurityTests extends FilterEnabledTestBase {
             PropertyExpression pe = PropertyExpression.getExpression(properties[i]);
             PropertyExpressionEvaluation eval = new PropertyExpressionEvaluation(pe, bean);
             Object value = eval.getValue();
-            Assert.assertEquals(value != null, expect[i], "Property " + fullName + " should"
-                    + (expect[i] ? " not" : "") + " be null but it is" + (expect[i] ? "" : " not"));
+            Assert.assertEquals("Property " + fullName + " should"
+                    + (expect[i] ? " not" : "") + " be null but it is" + (expect[i] ? "" : " not"), value != null, expect[i]);
         }
     }
 
-    @Test(groups = "fast")
+    @Test
     @SuppressWarnings("unused")
     public void protectedClasses() {
         class TestBean implements ActionBean {
@@ -293,7 +297,7 @@ public class BindingSecurityTests extends FilterEnabledTestBase {
             log.debug("Testing illegal expression: " + expression);
             PropertyExpression pe = PropertyExpression.getExpression(expression);
             PropertyExpressionEvaluation eval = new PropertyExpressionEvaluation(pe, bean);
-            Assert.assertFalse(bpm.isBindingAllowed(eval), "Binding should not be allowed for expression " + expression);
+            Assert.assertFalse("Binding should not be allowed for expression " + expression, bpm.isBindingAllowed(eval) );
         }
     }
 

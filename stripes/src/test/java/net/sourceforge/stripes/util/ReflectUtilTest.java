@@ -1,7 +1,11 @@
 package net.sourceforge.stripes.util;
 
-import org.testng.annotations.Test;
-import org.testng.Assert;
+import org.junit.Test;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.AfterClass;
+
 
 import java.lang.reflect.Method;
 import java.util.Map;
@@ -14,14 +18,14 @@ import java.beans.PropertyDescriptor;
  * @author Tim Fennell
  */
 public class ReflectUtilTest {
-    @Test(groups="fast")
+    @Test
     public void testAccessibleMethodBaseCase() throws Exception {
         Method m = Object.class.getMethod("getClass");
         Method m2 = ReflectUtil.findAccessibleMethod(m);
         Assert.assertSame(m, m2);
     }
 
-    @Test(groups="fast")
+    @Test
     public void testAccessibleMethodWithMapEntry() throws Exception {
         Map<String,String> map = new HashMap<String,String>();
         map.put("foo", "bar");
@@ -33,7 +37,7 @@ public class ReflectUtilTest {
         Assert.assertEquals(value, "bar");
     }
 
-    @Test(groups = "fast")
+    @Test
     public void testCovariantProperty() {
         abstract class Base {
             abstract Object getId();
@@ -56,11 +60,11 @@ public class ReflectUtilTest {
         }
 
         PropertyDescriptor pd = ReflectUtil.getPropertyDescriptor(ROSub.class, "id");
-        Assert.assertNotNull(pd.getReadMethod(), "Read method is null");
-        Assert.assertNull(pd.getWriteMethod(), "Write method is not null");
+        Assert.assertNotNull("Read method is null", pd.getReadMethod());
+        Assert.assertNull("Write method is not null", pd.getWriteMethod());
 
         pd = ReflectUtil.getPropertyDescriptor(RWSub.class, "id");
-        Assert.assertNotNull(pd.getReadMethod(), "Read method is null");
-        Assert.assertNotNull(pd.getWriteMethod(), "Write method is null");
+        Assert.assertNotNull("Read method is null", (pd.getReadMethod()));
+        Assert.assertNotNull("Write method is null", pd.getWriteMethod());
     }
 }

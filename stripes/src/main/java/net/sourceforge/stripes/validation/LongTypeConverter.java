@@ -35,8 +35,8 @@ public class LongTypeConverter extends NumberTypeConverterSupport implements Typ
 
         Number number = parse(input, errors);
         Long retval = null;
-        if (errors.size() == 0) {
-            retval = new Long(number.longValue());
+        if (errors.isEmpty()) {
+            retval = number.longValue();
         }
 
         return retval;

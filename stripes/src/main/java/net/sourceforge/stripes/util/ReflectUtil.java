@@ -85,12 +85,12 @@ public class ReflectUtil {
 
         primitiveDefaults.put(Boolean.TYPE,    false);
         primitiveDefaults.put(Character.TYPE, '\0');
-        primitiveDefaults.put(Byte.TYPE,       new Byte("0"));
-        primitiveDefaults.put(Short.TYPE,      new Short("0"));
-        primitiveDefaults.put(Integer.TYPE,    new Integer(0));
-        primitiveDefaults.put(Long.TYPE,       new Long(0l));
-        primitiveDefaults.put(Float.TYPE,      new Float(0f));
-        primitiveDefaults.put(Double.TYPE,     new Double(0.0));
+        primitiveDefaults.put(Byte.TYPE,       Byte.valueOf("0"));
+        primitiveDefaults.put(Short.TYPE,      Short.valueOf("0"));
+        primitiveDefaults.put(Integer.TYPE, 0);
+        primitiveDefaults.put(Long.TYPE,       0L);
+        primitiveDefaults.put(Float.TYPE,      0.0F);
+        primitiveDefaults.put(Double.TYPE,     0.0D);
     }
 
     /**

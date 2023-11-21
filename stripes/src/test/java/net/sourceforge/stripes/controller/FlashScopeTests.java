@@ -1,8 +1,11 @@
 package net.sourceforge.stripes.controller;
 
-import net.sourceforge.stripes.FilterEnabledTestBase;
-import org.testng.annotations.Test;
-import org.testng.Assert;
+import org.junit.Test;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.AfterClass;
+
 import net.sourceforge.stripes.mock.MockServletContext;
 import net.sourceforge.stripes.mock.MockRoundtrip;
 import net.sourceforge.stripes.mock.MockHttpSession;
@@ -15,8 +18,8 @@ import net.sourceforge.stripes.action.RedirectResolution;
 import net.sourceforge.stripes.action.UrlBinding;
 import net.sourceforge.stripes.action.HandlesEvent;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import java.lang.reflect.Proxy;
 import java.util.Map;
@@ -63,7 +66,7 @@ public class FlashScopeTests implements ActionBean {
         return null;
     }
 
-    @Test(groups="fast")
+    @Test
     public void positiveCase() throws Exception {
         MockServletContext ctx = StripesTestFixture.createServletContext();
         try {
@@ -73,8 +76,7 @@ public class FlashScopeTests implements ActionBean {
 
             String url = trip.getDestination();
             Matcher matcher = FLASH_ID_REGEX.matcher(url);
-            Assert.assertTrue(matcher.matches(),
-                              "Redirect URL should contain request parameter for flash scope id.");
+            Assert.assertTrue("Redirect URL should contain request parameter for flash scope id.", matcher.matches());
 
             Assert.assertEquals("foo123", trip.getRequest().getAttribute("foo"),
                                 "FlashScope should have inserted 'foo' into a request attribute.");
@@ -86,15 +88,13 @@ public class FlashScopeTests implements ActionBean {
             String id = matcher.group(1);
             trip2.addParameter(StripesConstants.URL_KEY_FLASH_SCOPE_ID, id);
 
-            Assert.assertNull(trip2.getRequest().getAttribute("foo"),
-                              "Request attribute 'foo' should not exist prior to request.");
+            Assert.assertNull("Request attribute 'foo' should not exist prior to request.", trip2.getRequest().getAttribute("foo"));
 
             trip2.execute("DoNothing");
             Assert.assertEquals("foo123", trip2.getRequest().getAttribute("foo"),
                                 "Request attribute 'foo' should have been set by FlashScope.");
 
-            Assert.assertEquals(FlashScope.getAllFlashScopes(trip2.getRequest()).size(), 0,
-                                "FlashScope should have been removed from session after use.");
+            Assert.assertEquals("FlashScope should have been removed from session after use.", FlashScope.getAllFlashScopes(trip2.getRequest()).size(), 0);
 
             // Test flashing an ActionBean
             MockRoundtrip trip3 = new MockRoundtrip(ctx, FlashScopeTests.class, (MockHttpSession) trip

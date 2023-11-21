@@ -14,7 +14,7 @@
  */
 package net.sourceforge.stripes.mock;
 
-import javax.servlet.ServletConfig;
+import jakarta.servlet.ServletConfig;
 
 /**
  * Mock implementation of a Servlet Config.

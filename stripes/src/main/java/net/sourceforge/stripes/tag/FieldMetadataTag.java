@@ -10,9 +10,9 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
-import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.JspWriter;
-import javax.servlet.jsp.tagext.BodyTag;
+import jakarta.servlet.jsp.JspException;
+import jakarta.servlet.jsp.JspWriter;
+import jakarta.servlet.jsp.tagext.BodyTag;
 
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.ajax.JavaScriptBuilder;

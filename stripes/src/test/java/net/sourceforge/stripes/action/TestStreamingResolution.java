@@ -16,16 +16,18 @@ package net.sourceforge.stripes.action;
 
 import java.io.ByteArrayInputStream;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.UUID;
 
-import javax.mail.internet.ContentDisposition;
-import javax.mail.internet.ParseException;
+import jakarta.mail.internet.ContentDisposition;
+import jakarta.mail.internet.ParseException;
 
 import net.sourceforge.stripes.mock.MockHttpServletResponse;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import org.junit.Test;
+import org.junit.Assert;
+
 
 public class TestStreamingResolution {
     @Test

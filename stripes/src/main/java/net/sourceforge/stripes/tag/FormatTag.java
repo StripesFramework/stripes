@@ -16,7 +16,7 @@ package net.sourceforge.stripes.tag;
 
 import java.io.IOException;
 
-import javax.servlet.jsp.JspException;
+import jakarta.servlet.jsp.JspException;
 
 import net.sourceforge.stripes.controller.StripesFilter;
 import net.sourceforge.stripes.format.Formatter;

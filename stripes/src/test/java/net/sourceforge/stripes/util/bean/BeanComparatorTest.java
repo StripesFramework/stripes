@@ -1,7 +1,10 @@
 package net.sourceforge.stripes.util.bean;
 
-import org.testng.annotations.Test;
-import org.testng.Assert;
+import org.junit.Test;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.AfterClass;
 import net.sourceforge.stripes.test.TestBean;
 import net.sourceforge.stripes.test.TestEnum;
 
@@ -16,7 +19,7 @@ import java.util.Collections;
  * @author Tim Fennell
  */
 public class BeanComparatorTest {
-    @Test(groups="fast")
+    @Test
     public void testSimplePropertySort() throws Exception {
         List<TestBean> beans = new ArrayList<TestBean>();
         beans.add(new TestBean());
@@ -38,7 +41,7 @@ public class BeanComparatorTest {
         Assert.assertEquals(beans.get(4).getStringProperty(), "whatever");
     }
 
-    @Test(groups="fast")
+    @Test
     public void testSimpleMultiPropertySort() throws Exception {
         List<TestBean> beans = new ArrayList<TestBean>();
         beans.add(new TestBean());
@@ -65,7 +68,7 @@ public class BeanComparatorTest {
         Assert.assertEquals(beans.get(4).getStringProperty(), "no way!");
     }
 
-    @Test(groups="fast")
+    @Test
     public void testNullPropertySort() throws Exception {
         List<TestBean> beans = new ArrayList<TestBean>();
         beans.add(new TestBean());
@@ -81,7 +84,7 @@ public class BeanComparatorTest {
         Assert.assertEquals(beans.get(2).getStringProperty(), null);
     }
 
-    @Test(groups="fast")
+    @Test
     public void testNullPropertySort2() throws Exception {
         List<TestBean> beans = new ArrayList<TestBean>();
         beans.add(new TestBean());
@@ -97,7 +100,7 @@ public class BeanComparatorTest {
         Assert.assertEquals(beans.get(2).getStringProperty(), null);
     }
 
-    @Test(groups="fast")
+    @Test
     public void testNestedPropertySort() throws Exception {
         List<TestBean> beans = new ArrayList<TestBean>();
         beans.add(new TestBean());

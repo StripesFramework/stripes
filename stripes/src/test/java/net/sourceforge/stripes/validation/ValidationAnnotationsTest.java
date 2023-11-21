@@ -14,10 +14,12 @@ import net.sourceforge.stripes.mock.MockRoundtrip;
 import net.sourceforge.stripes.mock.MockServletContext;
 import net.sourceforge.stripes.util.CryptoUtil;
 
-import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
+import org.junit.Test;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.AfterClass;
+
 
 /**
  * Tests combinations of validation annotations.
@@ -40,9 +42,9 @@ public class ValidationAnnotationsTest extends FilterEnabledTestBase implements 
      * Tests that a required field that is also ignored, should be ignored and should not produce
      * a validation error.
      *
-     * @see http://www.stripesframework.org/jira/browse/STS-600
+     * @see <a href="http://www.stripesframework.org/jira/browse/STS-600">...</a>
      */
-    @Test(groups="fast")
+    @Test
     public void testValidateRequiredAndIgnored() throws Exception {
         MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
         trip.execute("validateRequiredAndIgnored");
@@ -58,9 +60,9 @@ public class ValidationAnnotationsTest extends FilterEnabledTestBase implements 
     /**
      * Tests that a validation annotation works on a public field.
      *
-     * @see http://www.stripesframework.org/jira/browse/STS-604
+     * @see <a href="http://www.stripesframework.org/jira/browse/STS-604">...</a>
      */
-    @Test(groups="fast")
+    @Test
     public void testValidatePublicField() throws Exception {
         MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
         trip.execute("validatePublicField");
@@ -81,9 +83,9 @@ public class ValidationAnnotationsTest extends FilterEnabledTestBase implements 
      * via {@code @Validate(converter)}, where the auto-loaded type converter extends the stock
      * type converter.
      *
-     * @see http://www.stripesframework.org/jira/browse/STS-610
+     * @see <a href="http://www.stripesframework.org/jira/browse/STS-610">...</a>
      */
-    @Test(groups="extensions")
+    @Test
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public void testValidateTypeConverterExtendsStock() throws Exception {
         MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
@@ -96,12 +98,12 @@ public class ValidationAnnotationsTest extends FilterEnabledTestBase implements 
             trip.addParameter("shouldNotBeDoubled", "42");
             trip.execute("validateTypeConverters");
             ValidationAnnotationsTest actionBean = trip.getActionBean(getClass());
-            Assert.assertEquals(actionBean.shouldBeDoubled, new Integer(84));
-            Assert.assertEquals(actionBean.shouldNotBeDoubled, new Integer(42));
+            Assert.assertEquals(actionBean.shouldBeDoubled, Integer.valueOf(84));
+            Assert.assertEquals(actionBean.shouldNotBeDoubled, Integer.valueOf(42));
         }
         finally {
-            Class<? extends TypeConverter> tcType = tc == null ? null : tc.getClass();
-            factory.add(Integer.class, (Class<? extends TypeConverter<?>>) tcType);
+            Class<? extends TypeConverter<?>> tcType = tc == null ? null : (Class<? extends TypeConverter<?>>) tc.getClass();
+            factory.add(Integer.class, tcType);
         }
     }
 
@@ -110,10 +112,10 @@ public class ValidationAnnotationsTest extends FilterEnabledTestBase implements 
      * via {@code @Validate(converter)}, where the auto-loaded type converter does not extend the
      * stock type converter.
      *
-     * @see http://www.stripesframework.org/jira/browse/STS-610
+     * @see <a href="http://www.stripesframework.org/jira/browse/STS-610">...</a>
      */
     @SuppressWarnings("unchecked")
-    @Test(groups="extensions")
+    @Test
     public void testValidateTypeConverterDoesNotExtendStock() throws Exception {
         TypeConverterFactory factory = StripesFilter.getConfiguration().getTypeConverterFactory();
         Class<? extends TypeConverter> oldtc = factory.getTypeConverter(//
@@ -141,9 +143,9 @@ public class ValidationAnnotationsTest extends FilterEnabledTestBase implements 
     /**
      * Tests that an empty string encrypted value is bound as null.
      *
-     * @see http://www.stripesframework.org/jira/browse/STS-521
+     * @see <a href="http://www.stripesframework.org/jira/browse/STS-521">...</a>
      */
-    @Test(groups="fast")
+    @Test
     public void testValidateEncryptedEmptyString() throws Exception {
         MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
         trip.addParameter("encryptedParam", CryptoUtil.encrypt(""));

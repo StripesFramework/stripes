@@ -65,15 +65,15 @@ public class PercentageTypeConverter extends NumberTypeConverterSupport
     public Number convert(String input, Class<? extends Number> targetType, Collection<ValidationError> errors) {
         Number number = parse(input, errors);
 
-        if (errors.size() == 0) {
+        if (errors.isEmpty()) {
             if (targetType.equals(Float.class) || targetType.equals(Float.TYPE)) {
-                number = new Float(number.floatValue());
+                number = number.floatValue();
             }
             else if (targetType.equals(Double.class) || targetType.equals(Double.TYPE)) {
-                number = new Double(number.doubleValue());
+                number = number.doubleValue();
             }
             else if (targetType.equals(BigDecimal.class)) {
-                number = new BigDecimal(number.doubleValue());
+                number = BigDecimal.valueOf(number.doubleValue());
             }
             else {
                 throw new IllegalArgumentException(

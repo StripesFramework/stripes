@@ -32,8 +32,8 @@ public class DoubleTypeConverter extends NumberTypeConverterSupport implements T
 
         Number number = parse(input, errors);
         Double retval = null;
-        if (errors.size() == 0) {
-            retval = new Double(number.doubleValue());
+        if (errors.isEmpty()) {
+            retval = number.doubleValue();
         }
 
         return retval;

@@ -1,10 +1,12 @@
 package net.sourceforge.stripes.controller;
 
 import net.sourceforge.stripes.FilterEnabledTestBase;
-import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
+import org.junit.Test;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.AfterClass;
+
 import net.sourceforge.stripes.mock.MockRoundtrip;
 import net.sourceforge.stripes.mock.MockServletContext;
 import net.sourceforge.stripes.StripesTestFixture;
@@ -40,7 +42,8 @@ public class InvalidDateKeyBreaksInvariant_STS_651 extends FilterEnabledTestBase
             }
         }
         catch (ClassCastException e) {
-            Assert.fail("bad ! Map<Date,Date> contains a <String,?> entry, the map's invariant has been violated", e);
+            e.printStackTrace();
+            Assert.fail("bad ! Map<Date,Date> contains a <String,?> entry, the map's invariant has been violated");
         }
     }
 }

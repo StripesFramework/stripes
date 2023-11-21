@@ -4,8 +4,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Locale;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import org.junit.Test;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.AfterClass;
+
 
 /**
  * Unit tests for the PercentageTypeConverter class.
@@ -24,111 +28,111 @@ public class PercentageTypeConverterTest {
         return converter;
     }
 
-    @Test(groups = "fast")
+    @Test
     public void parseBasic() throws Exception {
         Number result = getConverter().convert("80%", Float.class, errors());
-        Assert.assertEquals(result, new Float(0.8f));
+        Assert.assertEquals(result, 0.8F);
     }
 
-    @Test(groups = "fast")
+    @Test
     public void parseSpaceBeforePercentSign() throws Exception {
         Number result = getConverter().convert("80 %", Float.class, errors());
-        Assert.assertEquals(result, new Float(0.8f));
+        Assert.assertEquals(result, 0.8F);
     }
 
-    @Test(groups = "fast")
+    @Test
     public void parseWithoutPercentSign() throws Exception {
         Number result = getConverter().convert("80", Float.class, errors());
-        Assert.assertEquals(result, new Float(0.8f));
+        Assert.assertEquals(result,0.8F);
     }
 
-    @Test(groups = "fast")
+    @Test
     public void parseNegative() throws Exception {
         Number result = getConverter().convert("-80%", Float.class, errors());
-        Assert.assertEquals(result, new Float(-0.8f));
+        Assert.assertEquals(result, -0.8F);
     }
 
-    @Test(groups = "fast")
+    @Test
     public void parseNegativeSpaceBeforePercentSign() throws Exception {
         Number result = getConverter().convert("-80 %", Float.class, errors());
-        Assert.assertEquals(result, new Float(-0.8f));
+        Assert.assertEquals(result, -0.8F);
     }
 
-    @Test(groups = "fast")
+    @Test
     public void parseNegativeWithoutPercentSign() throws Exception {
         Number result = getConverter().convert("-80", Float.class, errors());
-        Assert.assertEquals(result, new Float(-0.8f));
+        Assert.assertEquals(result, -0.8F);
     }
 
-    @Test(groups = "fast")
+    @Test
     public void parseParentheses() throws Exception {
         Number result = getConverter().convert("(80%)", Float.class, errors());
-        Assert.assertEquals(result, new Float(-0.8f));
+        Assert.assertEquals(result, -0.8F);
     }
 
-    @Test(groups = "fast")
+    @Test
     public void parseParenthesesSpaceBeforePercentSign() throws Exception {
         Number result = getConverter().convert("(80 %)", Float.class, errors());
-        Assert.assertEquals(result, new Float(-0.8f));
+        Assert.assertEquals(result, -0.8F);
     }
 
-    @Test(groups = "fast")
+    @Test
     public void parseParenthesesWithoutPercentSign() throws Exception {
         Number result = getConverter().convert("(80)", Float.class, errors());
-        Assert.assertEquals(result, new Float(-0.8f));
+        Assert.assertEquals(result, -0.8F);
     }
 
-    @Test(groups = "fast")
+    @Test
     public void parseBasicDouble() throws Exception {
         Number result = getConverter().convert("0.8%", Double.class, errors());
-        Assert.assertEquals(result, new Double(0.008));
+        Assert.assertEquals(result, 0.008D);
     }
 
-    @Test(groups = "fast")
+    @Test
     public void parseSpaceBeforePercentSignDouble() throws Exception {
         Number result = getConverter().convert("0.8 %", Double.class, errors());
-        Assert.assertEquals(result, new Double(0.008));
+        Assert.assertEquals(result, 0.008D);
     }
 
-    @Test(groups = "fast")
+    @Test
     public void parseWithoutPercentSignDouble() throws Exception {
         Number result = getConverter().convert("0.8", Double.class, errors());
-        Assert.assertEquals(result, new Double(0.008));
+        Assert.assertEquals(result, 0.008D);
     }
 
-    @Test(groups = "fast")
+    @Test
     public void parseNegativeDouble() throws Exception {
         Number result = getConverter().convert("-0.8%", Double.class, errors());
-        Assert.assertEquals(result, new Double(-0.008));
+        Assert.assertEquals(result, -0.008D);
     }
 
-    @Test(groups = "fast")
+    @Test
     public void parseNegativeSpaceBeforePercentSignDouble() throws Exception {
         Number result = getConverter().convert("-0.8 %", Double.class, errors());
-        Assert.assertEquals(result, new Double(-0.008));
+        Assert.assertEquals(result, -0.008D);
     }
 
-    @Test(groups = "fast")
+    @Test
     public void parseNegativeWithoutPercentSignDouble() throws Exception {
         Number result = getConverter().convert("-0.8", Double.class, errors());
-        Assert.assertEquals(result, new Double(-0.008));
+        Assert.assertEquals(result, -0.008D);
     }
 
-    @Test(groups = "fast")
+    @Test
     public void parseParenthesesDouble() throws Exception {
         Number result = getConverter().convert("(0.8%)", Double.class, errors());
-        Assert.assertEquals(result, new Double(-0.008));
+        Assert.assertEquals(result, -0.008D);
     }
 
-    @Test(groups = "fast")
+    @Test
     public void parseParenthesesSpaceBeforePercentSignDouble() throws Exception {
         Number result = getConverter().convert("(0.8 %)", Double.class, errors());
-        Assert.assertEquals(result, new Double(-0.008));
+        Assert.assertEquals(result, -0.008D);
     }
 
-    @Test(groups = "fast")
+    @Test
     public void parseParenthesesWithoutPercentSignDouble() throws Exception {
         Number result = getConverter().convert("(0.8)", Double.class, errors());
-        Assert.assertEquals(result, new Double(-0.008));
+        Assert.assertEquals(result, -0.008D);
     }
 }

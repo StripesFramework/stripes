@@ -1,26 +1,19 @@
 package net.sourceforge.stripes.controller;
 
+import jakarta.servlet.*;
+import jakarta.servlet.http.*;
+
 import java.io.BufferedReader;
+import java.io.Serial;
 import java.io.Serializable;
 import java.security.Principal;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletInputStream;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
+import java.util.*;
 
 /**
- * Captures the state of an {@link javax.servlet.http.HttpServletRequest} so that the information
+ * Captures the state of an {@link jakarta.servlet.http.HttpServletRequest} so that the information
  * contained therein can be carried over to the next request for use by the flash scope. There are
  * several methods in here that cannot be faked and so must delegate to an active {@link
- * javax.servlet.http.HttpServletRequest} object, the {@link #delegate}. If one of these methods is
+ * jakarta.servlet.http.HttpServletRequest} object, the {@link #delegate}. If one of these methods is
  * called and there is no delegate object set on the instance, they will throw a {@link
  * net.sourceforge.stripes.exception.StripesRuntimeException}. Unless this class is used outside its
  * intended context (during a live request processed through {@link StripesFilter}), you won't need
@@ -30,44 +23,44 @@ import javax.servlet.http.HttpSession;
  * @since Stripes 1.4.3
  */
 public class FlashRequest implements HttpServletRequest, Serializable {
-	private static final long serialVersionUID = 1L;
+	@Serial
+    private static final long serialVersionUID = 1L;
 
-    private Cookie[] cookies;
+    private final Cookie[] cookies;
     private HttpServletRequest delegate;
-    private List<Locale> locales;
-    private Locale locale;
-    private Map<String, List<String>> headers = new HashMap<String, List<String>>();
-    private Map<String, Long> dateHeaders = new HashMap<String, Long>();
-    private Map<String, Object> attributes = new HashMap<String, Object>();
-    private Map<String, String[]> parameters = new HashMap<String, String[]>();
-    private String authType;
+    private final List<Locale> locales;
+    private final Locale locale;
+    private final Map<String, List<String>> headers = new HashMap<>();
+    private final Map<String, Long> dateHeaders = new HashMap<>();
+    private final Map<String, Object> attributes = new HashMap<>();
+    private final Map<String, String[]> parameters = new HashMap<>();
+    private final String authType;
     private String characterEncoding;
-    private String contentType;
-    private String contextPath;
-    private String localAddr;
-    private String localName;
-    private String method;
-    private String pathInfo;
-    private String pathTranslated;
-    private String protocol;
-    private String queryString;
-    private String remoteAddr;
-    private String remoteHost;
-    private String remoteUser;
-    private String requestURI;
-    private String requestedSessionId;
-    private String scheme;
-    private String serverName;
-    private String servletPath;
-    private StringBuffer requestURL;
-    private boolean requestedSessionIdFromCookie;
-    private boolean requestedSessionIdFromURL;
-    private boolean requestedSessionIdFromUrl;
-    private boolean requestedSessionIdValid;
-    private boolean secure;
-    private int localPort;
-    private int remotePort;
-    private int serverPort;
+    private final String contentType;
+    private final String contextPath;
+    private final String localAddr;
+    private final String localName;
+    private final String method;
+    private final String pathInfo;
+    private final String pathTranslated;
+    private final String protocol;
+    private final String queryString;
+    private final String remoteAddr;
+    private final String remoteHost;
+    private final String remoteUser;
+    private final String requestURI;
+    private final String requestedSessionId;
+    private final String scheme;
+    private final String serverName;
+    private final String servletPath;
+    private final StringBuffer requestURL;
+    private final boolean requestedSessionIdFromCookie;
+    private final boolean requestedSessionIdFromURL;
+    private final boolean requestedSessionIdValid;
+    private final boolean secure;
+    private final int localPort;
+    private final int remotePort;
+    private final int serverPort;
     
 	/**
 	 * Finds the StripesRequestWrapper for the supplied request and swaps out the underlying
@@ -88,7 +81,6 @@ public class FlashRequest implements HttpServletRequest, Serializable {
      *
      * @param prototype the HttpServletRequest to create a disconnected copy of
      */
-    @SuppressWarnings({ "unchecked", "deprecation" })
     public FlashRequest(HttpServletRequest prototype) {
         // copy properties
         authType = prototype.getAuthType();
@@ -114,7 +106,6 @@ public class FlashRequest implements HttpServletRequest, Serializable {
         requestedSessionId = prototype.getRequestedSessionId();
         requestedSessionIdFromCookie = prototype.isRequestedSessionIdFromCookie();
         requestedSessionIdFromURL = prototype.isRequestedSessionIdFromURL();
-        requestedSessionIdFromUrl = prototype.isRequestedSessionIdFromUrl();
         requestedSessionIdValid = prototype.isRequestedSessionIdValid();
         scheme = prototype.getScheme();
         secure = prototype.isSecure();
@@ -123,17 +114,17 @@ public class FlashRequest implements HttpServletRequest, Serializable {
         servletPath = prototype.getServletPath();
 
         // copy attributes
-        for (String key : Collections.list((Enumeration<String>) prototype.getAttributeNames())) {
+        for (String key : Collections.list(prototype.getAttributeNames())) {
             attributes.put(key, prototype.getAttribute(key));
         }
 
         // copy headers
-        for (String key : Collections.list((Enumeration<String>) prototype.getHeaderNames())) {
+        for (String key : Collections.list(prototype.getHeaderNames())) {
             headers.put(key, Collections.list(prototype.getHeaders(key)));
             try {
                 dateHeaders.put(key, prototype.getDateHeader(key));
             }
-            catch (Exception e) {
+            catch (Exception ignored) {
             }
         }
 
@@ -173,7 +164,7 @@ public class FlashRequest implements HttpServletRequest, Serializable {
 
     public String getHeader(String name) {
         List<String> values = headers.get(name);
-        return values != null && values.size() > 0 ? values.get(0) : null;
+        return values != null && !values.isEmpty() ? values.get(0) : null;
     }
 
     public Enumeration<String> getHeaders(String name) {
@@ -249,6 +240,11 @@ public class FlashRequest implements HttpServletRequest, Serializable {
         return getDelegate().getSession();
     }
 
+    @Override
+    public String changeSessionId() {
+        return null;
+    }
+
     public boolean isRequestedSessionIdValid() {
         return requestedSessionIdValid;
     }
@@ -261,11 +257,35 @@ public class FlashRequest implements HttpServletRequest, Serializable {
         return requestedSessionIdFromURL;
     }
 
-    @Deprecated
-    public boolean isRequestedSessionIdFromUrl() {
-        return requestedSessionIdFromUrl;
+    @Override
+    public boolean authenticate(HttpServletResponse httpServletResponse) {
+        return false;
     }
 
+    @Override
+    public void login(String s, String s1) {
+
+    }
+
+    @Override
+    public void logout() {
+
+    }
+
+    @Override
+    public Collection<Part> getParts() {
+        return null;
+    }
+
+    @Override
+    public Part getPart(String s) {
+        return null;
+    }
+
+    @Override
+    public <T extends HttpUpgradeHandler> T upgrade(Class<T> aClass) {
+        return null;
+    }
     public Object getAttribute(String name) {
         return attributes.get(name);
     }
@@ -283,6 +303,11 @@ public class FlashRequest implements HttpServletRequest, Serializable {
     }
 
     public int getContentLength() {
+        return 0;
+    }
+
+    @Override
+    public long getContentLengthLong() {
         return 0;
     }
 
@@ -363,11 +388,6 @@ public class FlashRequest implements HttpServletRequest, Serializable {
         return getDelegate().getRequestDispatcher(name);
     }
 
-    @Deprecated
-    public String getRealPath(String name) {
-        return getDelegate().getRealPath(name);
-    }
-
     public int getRemotePort() {
         return remotePort;
     }
@@ -382,5 +402,55 @@ public class FlashRequest implements HttpServletRequest, Serializable {
 
     public int getLocalPort() {
         return localPort;
+    }
+
+    @Override
+    public ServletContext getServletContext() {
+        return null;
+    }
+
+    @Override
+    public AsyncContext startAsync() throws IllegalStateException {
+        return null;
+    }
+
+    @Override
+    public AsyncContext startAsync(ServletRequest servletRequest, ServletResponse servletResponse) throws IllegalStateException {
+        return null;
+    }
+
+    @Override
+    public boolean isAsyncStarted() {
+        return false;
+    }
+
+    @Override
+    public boolean isAsyncSupported() {
+        return false;
+    }
+
+    @Override
+    public AsyncContext getAsyncContext() {
+        return null;
+    }
+
+    @Override
+    public DispatcherType getDispatcherType() {
+        return null;
+    }
+
+    @Override
+    public String getRequestId() {
+        return null;
+    }
+
+    @Override
+    public String getProtocolRequestId() {
+        return null;
+    }
+
+    @Override
+    public ServletConnection getServletConnection() {
+        return null;
     }
 }

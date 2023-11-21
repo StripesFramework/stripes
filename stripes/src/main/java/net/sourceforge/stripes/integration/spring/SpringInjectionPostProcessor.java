@@ -14,7 +14,7 @@
  */
 package net.sourceforge.stripes.integration.spring;
 
-import javax.servlet.ServletContext;
+import jakarta.servlet.ServletContext;
 
 import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.controller.DefaultObjectFactory;

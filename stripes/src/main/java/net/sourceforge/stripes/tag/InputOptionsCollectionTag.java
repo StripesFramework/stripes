@@ -22,8 +22,8 @@ import net.sourceforge.stripes.util.bean.BeanComparator;
 import net.sourceforge.stripes.util.StringUtil;
 import net.sourceforge.stripes.util.CollectionUtil;
 
-import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.JspWriter;
+import jakarta.servlet.jsp.JspException;
+import jakarta.servlet.jsp.JspWriter;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.Collections;

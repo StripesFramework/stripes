@@ -50,7 +50,7 @@ import net.sourceforge.stripes.exception.StripesRuntimeException;
  * key from any source.  In addition the provided key can be for any algorithm supported by
  * the JVM in which it is constructed.  CryptoUtil will then use the algorithm returned by
  * {@link javax.crypto.SecretKey#getAlgorithm()}.  If using this method, the key should be set
- * before any requests are made, e.g. in a {@link javax.servlet.ServletContextListener}.</p>
+ * before any requests are made, e.g. in a {@link jakarta.servlet.ServletContextListener}.</p>
  *
  * <p>Stripes originally performed a broken authentication scheme. It was rewritten in STS-934
  * to perform the Encrypt-then-Mac pattern. Also the encryption mode was changed from ECB to CBC.</p>

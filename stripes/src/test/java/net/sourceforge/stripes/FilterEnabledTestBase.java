@@ -1,20 +1,19 @@
 package net.sourceforge.stripes;
 
 import net.sourceforge.stripes.mock.MockServletContext;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-
+import org.junit.BeforeClass;
+import org.junit.AfterClass;
 public class FilterEnabledTestBase {
 
-    private MockServletContext context;
+    private static MockServletContext context;
 
     @BeforeClass
-    public void initCtx() {
+    public static void initCtx() {
         context = StripesTestFixture.createServletContext();
     }
 
     @AfterClass
-    public void closeCtx() {
+    public static void closeCtx() {
         context.close();
     }
 

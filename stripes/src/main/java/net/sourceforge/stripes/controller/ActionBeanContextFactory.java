@@ -17,9 +17,9 @@ package net.sourceforge.stripes.controller;
 import net.sourceforge.stripes.action.ActionBeanContext;
 import net.sourceforge.stripes.config.ConfigurableComponent;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * Interface for classes that can instantiate and supply new instances of the

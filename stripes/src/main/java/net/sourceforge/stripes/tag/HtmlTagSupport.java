@@ -18,10 +18,10 @@ import net.sourceforge.stripes.exception.StripesJspException;
 import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.util.HtmlUtil;
 
-import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.JspWriter;
-import javax.servlet.jsp.tagext.BodyContent;
-import javax.servlet.jsp.tagext.DynamicAttributes;
+import jakarta.servlet.jsp.JspException;
+import jakarta.servlet.jsp.JspWriter;
+import jakarta.servlet.jsp.tagext.BodyContent;
+import jakarta.servlet.jsp.tagext.DynamicAttributes;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -232,7 +232,7 @@ public abstract class HtmlTagSupport extends StripesTagSupport implements Dynami
             return (R) this.pageContext.getExpressionEvaluator().
                 evaluate(expression, resultType, this.pageContext.getVariableResolver(), null);
         }
-        catch (javax.servlet.jsp.el.ELException ele) {
+        catch (jakarta.servlet.jsp.el.ELException ele) {
             throw new StripesJspException
                 ("Could not evaluate EL expression  [" + expression + "] with result type [" +
                     resultType.getName() + "] in tag class of type: " + getClass().getName(), ele);

@@ -9,10 +9,12 @@ import net.sourceforge.stripes.action.Resolution;
 import net.sourceforge.stripes.mock.MockRoundtrip;
 import net.sourceforge.stripes.mock.MockServletContext;
 import net.sourceforge.stripes.test.TestBean;
-import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
+import org.junit.Test;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.AfterClass;
+
 
 import java.util.Calendar;
 import java.util.Date;
@@ -54,7 +56,7 @@ public class GenericsBindingTests
         return new MockRoundtrip(ctx, GenericsBindingTests.class);
     }
 
-    @Test(groups="fast")
+    @Test
     public void testSimpleTypeVariable() throws Exception {
         MockRoundtrip trip = getRoundtrip();
         trip.getRequest().addLocale(Locale.ENGLISH);
@@ -63,10 +65,10 @@ public class GenericsBindingTests
 
         GenericsBindingTests bean = trip.getActionBean(GenericsBindingTests.class);
         Assert.assertNotNull(bean.getNumber());
-        Assert.assertEquals(bean.getNumber(), new Double(123.4));
+        Assert.assertEquals(bean.getNumber(), Double.valueOf(123.4D));
     }
 
-    @Test(groups="fast")
+    @Test
     public void testGenericBean() throws Exception {
         MockRoundtrip trip = getRoundtrip();
         trip.getRequest().addLocale(Locale.ENGLISH);
@@ -76,12 +78,12 @@ public class GenericsBindingTests
 
         GenericsBindingTests bean = trip.getActionBean(GenericsBindingTests.class);
         Assert.assertNotNull(bean.getGenericBean().getGenericA());
-        Assert.assertEquals(bean.getGenericBean().getGenericA(), new Double(123.4));
+        Assert.assertEquals(bean.getGenericBean().getGenericA(), Double.valueOf(123.4D));
         Assert.assertNotNull(bean.getGenericBean().getGenericB());
         Assert.assertEquals(bean.getGenericBean().getGenericB(), Boolean.TRUE);
     }
 
-    @Test(groups="fast")
+    @Test
     public void testTypeVariableLists() throws Exception {
         MockRoundtrip trip = getRoundtrip();
         trip.addParameter("list[0]", "true");
@@ -96,7 +98,7 @@ public class GenericsBindingTests
         Assert.assertEquals(bean.getList().get(2), Boolean.TRUE);
     }
 
-    @Test(groups="fast")
+    @Test
     public void testTypeVariableMaps() throws Exception {
         MockRoundtrip trip = getRoundtrip();
         trip.addParameter("map[10]", "1/1/2010");
@@ -111,7 +113,7 @@ public class GenericsBindingTests
         Assert.assertEquals(bean.getMap().get(30l), makeDate(2030,1,1));
     }
 
-    @Test(groups="fast")
+    @Test
     public void testTypeVariableNestedProperties() throws Exception {
         MockRoundtrip trip = getRoundtrip();
         trip.addParameter("bean.longProperty", "1234");
@@ -120,7 +122,7 @@ public class GenericsBindingTests
 
         GenericsBindingTests bean = trip.getActionBean(GenericsBindingTests.class);
         Assert.assertNotNull(bean.getBean());
-        Assert.assertEquals(bean.getBean().getLongProperty(), new Long(1234));
+        Assert.assertEquals(bean.getBean().getLongProperty(), Long.valueOf(1234L));
         Assert.assertEquals(bean.getBean().getStringProperty(), "foobar");
     }
 

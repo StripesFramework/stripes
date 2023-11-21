@@ -1,17 +1,11 @@
 package net.sourceforge.stripes.mock;
 
-import javax.servlet.http.Cookie;
-
+import jakarta.servlet.http.Cookie;
 import net.sourceforge.stripes.StripesTestFixture;
-import net.sourceforge.stripes.action.ActionBean;
-import net.sourceforge.stripes.action.ActionBeanContext;
-import net.sourceforge.stripes.action.DefaultHandler;
-import net.sourceforge.stripes.action.ForwardResolution;
-import net.sourceforge.stripes.action.Resolution;
-import net.sourceforge.stripes.action.UrlBinding;
+import net.sourceforge.stripes.action.*;
+import org.junit.Assert;
+import org.junit.Test;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
 
 /**
  * Unit test that is designed to test how MockRoundTrip copies cookies from the request to the
@@ -43,7 +37,7 @@ public class TestMockRoundtripCookies implements ActionBean {
     // below this line is a test!
     // /////////////////////////////////////////////////////////////////////////
 
-    @Test(groups = "fast")
+    @Test
     public void testDefaultEvent() throws Exception {
         // Setup the servlet engine
         MockServletContext ctx = StripesTestFixture.createServletContext();

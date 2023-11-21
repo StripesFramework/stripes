@@ -18,7 +18,7 @@ import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.action.HttpCache;

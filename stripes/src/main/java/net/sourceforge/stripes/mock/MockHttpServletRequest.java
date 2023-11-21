@@ -28,10 +28,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-import javax.servlet.ServletInputStream;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.*;
+import jakarta.servlet.http.*;
 
 /**
  * <p>Mock implementation of an HttpServletRequest object.  Allows for setting most values that
@@ -219,6 +217,11 @@ public class MockHttpServletRequest implements HttpServletRequest {
     /** Gets the session object attached to this request. */
     public HttpSession getSession() { return this.session; }
 
+    @Override
+    public String changeSessionId() {
+        return null;
+    }
+
     /** Allows a session to be associated with the request. */
     public void setSession(HttpSession session) { this.session = session; }
 
@@ -230,6 +233,36 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
     /** Always returns false. */
     public boolean isRequestedSessionIdFromURL() { return false; }
+
+    @Override
+    public boolean authenticate(HttpServletResponse response) throws IOException, ServletException {
+        return false;
+    }
+
+    @Override
+    public void login(String username, String password) throws ServletException {
+
+    }
+
+    @Override
+    public void logout() throws ServletException {
+
+    }
+
+    @Override
+    public Collection<Part> getParts() throws IOException, ServletException {
+        return null;
+    }
+
+    @Override
+    public Part getPart(String name) throws IOException, ServletException {
+        return null;
+    }
+
+    @Override
+    public <T extends HttpUpgradeHandler> T upgrade(Class<T> handlerClass) throws IOException, ServletException {
+        return null;
+    }
 
     /** Always returns false. */
     public boolean isRequestedSessionIdFromUrl() { return false; }
@@ -250,6 +283,11 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
     /** Always returns -1 (unknown). */
     public int getContentLength() { return -1; }
+
+    @Override
+    public long getContentLengthLong() {
+        return 0;
+    }
 
     /** Always returns null. */
     public String getContentType() { return null; }
@@ -367,6 +405,56 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
     /** Always returns the same value as getServerPort(). */
     public int getLocalPort() { return getServerPort(); }
+
+    @Override
+    public ServletContext getServletContext() {
+        return null;
+    }
+
+    @Override
+    public AsyncContext startAsync() throws IllegalStateException {
+        return null;
+    }
+
+    @Override
+    public AsyncContext startAsync(ServletRequest servletRequest, ServletResponse servletResponse) throws IllegalStateException {
+        return null;
+    }
+
+    @Override
+    public boolean isAsyncStarted() {
+        return false;
+    }
+
+    @Override
+    public boolean isAsyncSupported() {
+        return false;
+    }
+
+    @Override
+    public AsyncContext getAsyncContext() {
+        return null;
+    }
+
+    @Override
+    public DispatcherType getDispatcherType() {
+        return null;
+    }
+
+    @Override
+    public String getRequestId() {
+        return null;
+    }
+
+    @Override
+    public String getProtocolRequestId() {
+        return null;
+    }
+
+    @Override
+    public ServletConnection getServletConnection() {
+        return null;
+    }
 
     /** Used by the request dispatcher to set the forward URL when a forward is invoked. */
     void setForwardUrl(String url) { this.forwardUrl = url; }

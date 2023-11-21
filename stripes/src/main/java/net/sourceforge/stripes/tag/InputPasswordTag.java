@@ -14,7 +14,7 @@
  */
 package net.sourceforge.stripes.tag;
 
-import javax.servlet.jsp.JspException;
+import jakarta.servlet.jsp.JspException;
 
 /**
  * Tag class that implements an input tag of type password.  Defines one attribute in addition

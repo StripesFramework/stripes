@@ -11,9 +11,12 @@ import net.sourceforge.stripes.exception.UrlBindingConflictException;
 import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.util.bean.ParseException;
 
-import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
+import org.junit.Test;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.AfterClass;
+
 
 /**
  * Tests for {@link UrlBindingFactory}.
@@ -137,12 +140,12 @@ public class UrlBindingFactoryTests {
     private List<UrlBindingParameter> checkBinding(String uri, Class<? extends ActionBean> expected) {
         log.debug("Checking that ", uri, " maps to ", expected);
         UrlBinding binding = urlBindingFactory.getBinding(uri);
-        Assert.assertNotNull(binding, "The uri \"" + uri + "\" matched nothing");
+        Assert.assertNotNull("The uri \"" + uri + "\" matched nothing", binding);
         Assert.assertSame(binding.getBeanType(), expected);
         return binding.getParameters();
     }
 
-    @Test(groups = "fast")
+    @Test
     @SuppressWarnings("unchecked")
     public void testParser1() {
         Class<? extends ActionBean>[] classes = new Class[] { BadSyntaxActionBean1.class,
@@ -156,7 +159,7 @@ public class UrlBindingFactoryTests {
             log.debug("Parsing URL binding ", annotation.value(), ", expecting failure");
             try {
                 UrlBindingFactory.parseUrlBinding(clazz);
-                Assert.assertTrue(false, "Expected parse exception but did not get one");
+                Assert.fail("Expected parse exception but did not get one");
             }
             catch (ParseException e) {
                 log.debug("As expected: ", e.getMessage());
@@ -168,7 +171,7 @@ public class UrlBindingFactoryTests {
         return s.replaceAll("\\\\(.)", "$1");
     }
 
-    @Test(groups = "fast")
+    @Test
     @SuppressWarnings("unchecked")
     public void testParser2() {
         Class<? extends ActionBean>[] classes = new Class[] { GoodSyntaxActionBean1.class,
@@ -199,8 +202,7 @@ public class UrlBindingFactoryTests {
             String value = annotation.value();
             log.debug("Checking URL binding parameters for ", value);
             UrlBinding binding = UrlBindingFactory.parseUrlBinding(clazz);
-            Assert.assertEquals(binding.getParameters().size(), 1,
-                    "Was expecting exactly one parameter");
+            Assert.assertEquals("Was expecting exactly one parameter", binding.getParameters().size(), 1);
             String pname = removeEscapes(value.substring(value.indexOf('{') + 1, value
                     .lastIndexOf('}')));
             log.debug("Parameter name is ", pname);
@@ -208,14 +210,14 @@ public class UrlBindingFactoryTests {
         }
     }
 
-    @Test(groups = "fast", expectedExceptions = UrlBindingConflictException.class)
+    @Test
     public void testUrlBindingConflict() {
         checkBinding("/clash/not", ConflictActionBean4.class);
         checkBinding("/clash/not/", ConflictActionBean4.class);
         urlBindingFactory.getBinding("/clash");
     }
 
-    @Test(groups = "fast")
+    @Test
     public void testUrlBindings() {
         // No extensions
         checkBinding("/foo", FooActionBean.class);
@@ -277,7 +279,7 @@ public class UrlBindingFactoryTests {
         }
     }
 
-    @Test(groups = "fast")
+    @Test
     public void testConflictDetectionIndependentOfClassLoadingOrder() {
         UrlBindingFactory factory;
         UrlBinding prototype;
@@ -316,7 +318,7 @@ public class UrlBindingFactoryTests {
         factory.addBinding(FooActionBean2.class, UrlBindingFactory.parseUrlBinding(FooActionBean.class));
         try {
             factory.getBindingPrototype("/foo");
-            Assert.assertTrue(false, "A URL binding conflict was expected but it didn't happen!");
+            Assert.assertTrue("A URL binding conflict was expected but it didn't happen!", false );
         }
         catch (UrlBindingConflictException e) {
             log.debug("Got expected URL binding conflict");

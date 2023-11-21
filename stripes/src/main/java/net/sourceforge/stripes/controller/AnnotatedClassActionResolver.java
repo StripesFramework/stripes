@@ -30,7 +30,7 @@ import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.util.ResolverUtil;
 import net.sourceforge.stripes.util.StringUtil;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -43,6 +43,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
 
 /**
  * <p>Uses Annotations on classes to identify the ActionBean that corresponds to the current
@@ -169,7 +170,7 @@ public class AnnotatedClassActionResolver implements ActionResolver {
             proto.initDefaultValueWithDefaultHandlerIfNeeded(this);
         }
 
-        if (log.getRealLog().isDebugEnabled()) {
+        if (log.getRealLog().isLoggable(Level.FINE)) {
             // Print out the event mappings nicely
             for (Map.Entry<String, Method> entry : classMappings.entrySet()) {
                 String event = entry.getKey();

@@ -26,17 +26,17 @@ import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.util.bean.BeanUtil;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
 
-import javax.servlet.jsp.JspFactory;
-import javax.servlet.jsp.JspApplicationContext;
-import javax.servlet.ServletContext;
-import javax.el.ExpressionFactory;
-import javax.el.ValueExpression;
-import javax.el.ELContext;
-import javax.el.ELResolver;
-import javax.el.PropertyNotWritableException;
-import javax.el.FunctionMapper;
-import javax.el.VariableMapper;
-import javax.el.ELException;
+import jakarta.servlet.jsp.JspFactory;
+import jakarta.servlet.jsp.JspApplicationContext;
+import jakarta.servlet.ServletContext;
+import jakarta.el.ExpressionFactory;
+import jakarta.el.ValueExpression;
+import jakarta.el.ELContext;
+import jakarta.el.ELResolver;
+import jakarta.el.PropertyNotWritableException;
+import jakarta.el.FunctionMapper;
+import jakarta.el.VariableMapper;
+import jakarta.el.ELException;
 import java.util.List;
 import java.util.Iterator;
 import java.beans.FeatureDescriptor;
@@ -44,7 +44,7 @@ import java.lang.reflect.Method;
 
 /**
  * An implementation of {@link ExpressionExecutor} that uses the new EL API available in Java
- * EE 5 in the {@link javax.el} package. While more complicated that the JSP 2.0 API it has
+ * EE 5 in the {@link jakarta.el} package. While more complicated that the JSP 2.0 API it has
  * one advantage which is that it can be used without the need to allocate a PageContext
  * object and without any other libraries being available.
  *

@@ -14,7 +14,7 @@
  */
 package net.sourceforge.stripes.exception;
 
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletException;
 
 /**
  * Stripes' implementation of a ServletException that is thrown by Stripes

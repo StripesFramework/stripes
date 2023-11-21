@@ -262,7 +262,7 @@ public class RuntimeConfiguration extends DefaultConfiguration {
                     component = objectFactory.newInstance((Class<T>) clazz);
                 }
                 else {
-                    component = (T) clazz.newInstance();
+                    component = (T) clazz.getDeclaredConstructor().newInstance();
                 }
 
                 component.init(this);

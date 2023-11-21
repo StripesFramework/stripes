@@ -17,8 +17,8 @@ package net.sourceforge.stripes.tag;
 import net.sourceforge.stripes.exception.StripesJspException;
 import net.sourceforge.stripes.util.HtmlUtil;
 
-import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.tagext.BodyTag;
+import jakarta.servlet.jsp.JspException;
+import jakarta.servlet.jsp.tagext.BodyTag;
 import java.io.IOException;
 
 /**

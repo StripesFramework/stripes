@@ -2,10 +2,12 @@ package net.sourceforge.stripes.validation;
 
 import net.sourceforge.stripes.FilterEnabledTestBase;
 import net.sourceforge.stripes.mock.MockServletContext;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
-import org.testng.Assert;
+import org.junit.Test;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.AfterClass;
+
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.action.ActionBeanContext;
 import net.sourceforge.stripes.action.UrlBinding;
@@ -34,7 +36,7 @@ public class OneToManyTypeConverterTest extends FilterEnabledTestBase implements
     @Validate(converter=OneToManyTypeConverter.class) private List<Long> numbers;
     @Validate(converter=OneToManyTypeConverter.class) private List<Date> dates;
 
-    @Test(groups="fast")
+    @Test
     public void testListOfLong() throws Exception {
         MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
         trip.addParameter("numbers", "123 456 789");
@@ -44,7 +46,7 @@ public class OneToManyTypeConverterTest extends FilterEnabledTestBase implements
         Assert.assertEquals(numbers, Literal.list(123l, 456l, 789l));
     }
 
-    @Test(groups="fast")
+    @Test
     public void testListOfDate() throws Exception {
         MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
         trip.getRequest().addLocale(Locale.ENGLISH);
@@ -60,7 +62,7 @@ public class OneToManyTypeConverterTest extends FilterEnabledTestBase implements
                                                 format.parse("7/7/2007")));
     }
     
-    @Test(groups="fast")
+    @Test
     public void testListOfDateWithCommasAndNoSpaces() throws Exception {
         MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
         trip.getRequest().addLocale(Locale.ENGLISH);
@@ -76,7 +78,7 @@ public class OneToManyTypeConverterTest extends FilterEnabledTestBase implements
                                                 format.parse("7/7/2007")));
     }
     
-    @Test(groups="fast")
+    @Test
     public void testListOfLongWithCommasAndNoSpaces() throws Exception {
         MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
         trip.addParameter("numbers", "123,456,789");
@@ -86,7 +88,7 @@ public class OneToManyTypeConverterTest extends FilterEnabledTestBase implements
         Assert.assertEquals(numbers, Literal.list(123l, 456l, 789l));
     }
 
-    @Test(groups="fast")
+    @Test
     public void testListOfLongWithCommasAndSpaces() throws Exception {
         MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
         trip.addParameter("numbers", "123, 456,789 999");
@@ -96,7 +98,7 @@ public class OneToManyTypeConverterTest extends FilterEnabledTestBase implements
         Assert.assertEquals(numbers, Literal.list(123l, 456l, 789l, 999l));
     }
 
-    @Test(groups="fast")
+    @Test
     public void testWithErrors() throws Exception {
         MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
         trip.addParameter("numbers", "123 456 abc 789 def");
@@ -107,7 +109,7 @@ public class OneToManyTypeConverterTest extends FilterEnabledTestBase implements
 
         Assert.assertNull(numbers);
         Collection<ValidationError> errors = bean.getContext().getValidationErrors().get("numbers");
-        Assert.assertEquals(errors.size(), 2, "There should be two errors!");
+        Assert.assertEquals("There should be two errors!", errors.size(), 2);
     }
 
     // Dummy action method

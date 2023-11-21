@@ -1,18 +1,11 @@
 package net.sourceforge.stripes.mock;
 
-import static org.testng.Assert.assertEquals;
-
 import net.sourceforge.stripes.FilterEnabledTestBase;
-import net.sourceforge.stripes.StripesTestFixture;
-import net.sourceforge.stripes.action.ActionBean;
-import net.sourceforge.stripes.action.ActionBeanContext;
-import net.sourceforge.stripes.action.DefaultHandler;
-import net.sourceforge.stripes.action.Resolution;
-import net.sourceforge.stripes.action.UrlBinding;
+import net.sourceforge.stripes.action.*;
+import org.junit.Test;
 
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
+import static org.junit.Assert.assertEquals;
+
 
 /**
  * Submitted by Nathan Maves and Remi Vankeisbelck to test a specific failure in
@@ -49,17 +42,17 @@ public class TestMockRoundtrip2 extends FilterEnabledTestBase implements ActionB
 
     private final static Integer REF_ID = 2;
 
-    @Test(groups = "fast")
+    @Test
     public void testUsingBeanClass() throws Exception {
         executeTest(new MockRoundtrip(getMockServletContext(), getClass()));
     }
 
-    @Test(groups = "fast")
+    @Test
     public void testUsingUrlWithEventSpecified() throws Exception {
         executeTest(new MockRoundtrip(getMockServletContext(), "/foo/" + REF_ID + "/bar"));
     }
 
-    @Test(groups = "fast")
+    @Test
     public void testUsingUrlWithoutEventSpecified() throws Exception {
         executeTest(new MockRoundtrip(getMockServletContext(), "/foo/" + REF_ID));
     }

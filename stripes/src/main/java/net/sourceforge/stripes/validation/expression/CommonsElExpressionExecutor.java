@@ -17,7 +17,7 @@ package net.sourceforge.stripes.validation.expression;
 import net.sourceforge.stripes.util.ReflectUtil;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
 
-import javax.servlet.jsp.el.ExpressionEvaluator;
+import jakarta.servlet.jsp.el.ExpressionEvaluator;
 
 /**
  * An implementation of {@link ExpressionExecutor} that relies on the Apache Commons

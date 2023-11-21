@@ -7,15 +7,18 @@ import java.util.Locale;
 
 import net.sourceforge.stripes.StripesTestFixture;
 import net.sourceforge.stripes.util.Log;
+import org.junit.Test;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.AfterClass;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
 
 public class DefaultTypeConverterFactoryTest {
 	private static final Log log = Log.getInstance(DefaultTypeConverterFactoryTest.class);
 
     @SuppressWarnings("unchecked")
-	@Test(groups="fast")
+	@Test
     public void testCharTypeConverter() throws Exception{
     	DefaultTypeConverterFactory factory = new DefaultTypeConverterFactory();
     	factory.init(StripesTestFixture.getDefaultConfiguration());
@@ -58,7 +61,7 @@ public class DefaultTypeConverterFactoryTest {
         }
     }
 
-    @Test(groups = "fast")
+    @Test
     public void testTypeConverters() throws Exception {
         DefaultTypeConverterFactory factory = new DefaultTypeConverterFactory();
         factory.init(StripesTestFixture.getDefaultConfiguration());

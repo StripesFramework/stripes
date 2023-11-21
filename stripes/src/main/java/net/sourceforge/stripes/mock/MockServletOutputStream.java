@@ -14,7 +14,9 @@
  */
 package net.sourceforge.stripes.mock;
 
-import javax.servlet.ServletOutputStream;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.WriteListener;
+
 import java.io.IOException;
 import java.io.ByteArrayOutputStream;
 
@@ -40,5 +42,15 @@ public class MockServletOutputStream extends ServletOutputStream {
     /** Returns, as a character string, the output that was written to the output stream. */
     public String getString() {
         return out.toString();
+    }
+
+    @Override
+    public boolean isReady() {
+        return false;
+    }
+
+    @Override
+    public void setWriteListener(WriteListener writeListener) {
+
     }
 }

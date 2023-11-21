@@ -10,10 +10,12 @@ import net.sourceforge.stripes.action.UrlBinding;
 import net.sourceforge.stripes.mock.MockRoundtrip;
 import net.sourceforge.stripes.StripesTestFixture;
 import net.sourceforge.stripes.mock.MockServletContext;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
-import org.testng.Assert;
+import org.junit.Test;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.AfterClass;
+
 
 /**
  * Test out various aspects of the validation subsystem in Stripes with regard to optional
@@ -69,7 +71,7 @@ public class ValidationFlowTest extends FilterEnabledTestBase implements ActionB
      * errors generated. The only validation method that should be run is validateAlways() because
      * the others are tied to specific events.
      */
-    @Test(groups="fast")
+    @Test
     public void testEventZeroNoErrors() throws Exception {
         MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
         trip.addParameter("numberZero", "99");
@@ -88,7 +90,7 @@ public class ValidationFlowTest extends FilterEnabledTestBase implements ActionB
      * has a on="one".  The single validaiton error should prevent validateAlways() and
      * validateOne from running.
      */
-    @Test(groups="fast")
+    @Test
     public void testEventZeroWithErrors() throws Exception {
         MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
         trip.addParameter("numberZero", "99");
@@ -107,7 +109,7 @@ public class ValidationFlowTest extends FilterEnabledTestBase implements ActionB
      * Number one is a required field also for this event, so we supply it.  This event should
      * cause both validateAlways and validateOne to run.
      */
-    @Test(groups="fast")
+    @Test
     public void testEventOneNoErrors() throws Exception {
         MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
         trip.addParameter("numberZero", "100");
@@ -129,7 +131,7 @@ public class ValidationFlowTest extends FilterEnabledTestBase implements ActionB
      * required for this event.  Again this single error should prevent both validateAlways
      * and validateOne from running.
      */
-    @Test(groups="fast")
+    @Test
     public void testEventOneWithErrors() throws Exception {
         MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
         trip.addParameter("numberZero", "100");
@@ -149,7 +151,7 @@ public class ValidationFlowTest extends FilterEnabledTestBase implements ActionB
      * Tests to make sure that event-specific validations are still applied correctly when the
      * event name isn't present in the request.
      */
-    @Test(groups="fast")
+    @Test
     public void testEventOneAsDefault() throws Exception {
         MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
         trip.addParameter("numberZero", "100");
@@ -170,7 +172,7 @@ public class ValidationFlowTest extends FilterEnabledTestBase implements ActionB
      * numberTwo should be required (and is supplied) and validateAlways and validateTwo should
      * run but not validateOne.
      */
-    @Test(groups="fast")
+    @Test
     public void testEventTwoNoErrors() throws Exception {
         MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
         trip.addParameter("numberZero", "100");
@@ -191,7 +193,7 @@ public class ValidationFlowTest extends FilterEnabledTestBase implements ActionB
      * Tests that validateTwo is run event though there are errors and valiateAlways did not run,
      * because validateTwo is marked to run always.
      */
-    @Test(groups="fast")
+    @Test
     public void testEventTwoWithErrors() throws Exception {
         MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
         trip.addParameter("numberZero", ""); // required field always

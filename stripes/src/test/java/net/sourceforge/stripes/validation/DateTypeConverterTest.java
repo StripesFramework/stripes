@@ -1,7 +1,11 @@
 package net.sourceforge.stripes.validation;
 
-import org.testng.annotations.Test;
-import org.testng.Assert;
+import org.junit.Test;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.AfterClass;
+
 
 import java.util.Locale;
 import java.util.Collection;
@@ -34,7 +38,7 @@ public class DateTypeConverterTest {
         return converter;
     }
 
-    @Test(groups="fast")
+    @Test
     public void testBasicUsLocaleDates() {
         Collection<ValidationError> errors = new ArrayList<ValidationError>();
         DateTypeConverter converter = getConverter(Locale.US);
@@ -54,7 +58,7 @@ public class DateTypeConverterTest {
         Assert.assertEquals(format.format(date), "03/01/2007");
     }
 
-    @Test(groups="fast")
+    @Test
     public void testVariantUsLocaleDates() {
         Collection<ValidationError> errors = new ArrayList<ValidationError>();
         DateTypeConverter converter = getConverter(Locale.US);
@@ -74,7 +78,7 @@ public class DateTypeConverterTest {
         Assert.assertEquals(format.format(date), "03/01/2007");
     }
 
-    @Test(groups="fast")
+    @Test
     public void testAlternateSeparatorsDates() {
         Collection<ValidationError> errors = new ArrayList<ValidationError>();
         DateTypeConverter converter = getConverter(Locale.US);
@@ -94,7 +98,7 @@ public class DateTypeConverterTest {
         Assert.assertEquals(format.format(date), "03/01/2007");
     }
 
-    @Test(groups="fast")
+    @Test
     public void testUkLocaleDates() {
         Collection<ValidationError> errors = new ArrayList<ValidationError>();
         DateTypeConverter converter = getConverter(Locale.UK);
@@ -114,7 +118,7 @@ public class DateTypeConverterTest {
         Assert.assertEquals(format.format(date), "03/01/2007");
     }
 
-    @Test(groups="fast")
+    @Test
     public void testWhackySeparators() {
         Collection<ValidationError> errors = new ArrayList<ValidationError>();
         DateTypeConverter converter = getConverter(Locale.US);
@@ -134,7 +138,7 @@ public class DateTypeConverterTest {
         Assert.assertEquals(format.format(date), "03/01/2007");
     }
 
-    @Test(groups="fast")
+    @Test
     public void testNonStandardFormats() {
         Collection<ValidationError> errors = new ArrayList<ValidationError>();
         DateTypeConverter converter = getConverter(Locale.US);
@@ -154,7 +158,7 @@ public class DateTypeConverterTest {
         Assert.assertEquals(format.format(date), "03/01/2007");
     }
 
-    @Test(groups="fast")
+    @Test
     public void testPartialInputFormats() {
         Collection<ValidationError> errors = new ArrayList<ValidationError>();
         DateTypeConverter converter = getConverter(Locale.US);
@@ -177,7 +181,7 @@ public class DateTypeConverterTest {
                 + Calendar.getInstance().get( Calendar.YEAR ));
     }
 
-    @Test(groups="fast")
+    @Test
     public void testDateToStringFormat() {
         Collection<ValidationError> errors = new ArrayList<ValidationError>();
         DateTypeConverter converter = getConverter(Locale.US);

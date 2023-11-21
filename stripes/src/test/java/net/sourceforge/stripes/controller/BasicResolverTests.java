@@ -15,10 +15,12 @@ import net.sourceforge.stripes.action.Resolution;
 import net.sourceforge.stripes.action.UrlBinding;
 import net.sourceforge.stripes.mock.MockRoundtrip;
 import net.sourceforge.stripes.mock.MockServletContext;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
-import org.testng.Assert;
+import org.junit.Test;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.AfterClass;
+
 
 /**
  * Tests that make sure the basic functions of the ActionResolver work as expected.
@@ -54,7 +56,7 @@ public class BasicResolverTests extends FilterEnabledTestBase implements ActionB
 
     // Start of Test Methods
 
-    @Test(groups="fast")
+    @Test
     public void testDefaultResolution() throws Exception {
         MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
         trip.execute();
@@ -63,7 +65,7 @@ public class BasicResolverTests extends FilterEnabledTestBase implements ActionB
         Assert.assertEquals(bean.getNumber(), 1);
     }
 
-    @Test(groups="fast")
+    @Test
     public void testNonDefaultResolution() throws Exception {
         MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
         trip.execute("two");
@@ -72,7 +74,7 @@ public class BasicResolverTests extends FilterEnabledTestBase implements ActionB
         Assert.assertEquals(bean.getNumber(), 2);
     }
 
-    @Test(groups="fast")
+    @Test
     public void testImageStyleResolution() throws Exception {
         MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
         trip.execute("two.x");
@@ -81,7 +83,7 @@ public class BasicResolverTests extends FilterEnabledTestBase implements ActionB
         Assert.assertEquals(bean.getNumber(), 2);
     }
 
-    @Test(groups="fast")
+    @Test
     public void testImageStyleResolution2() throws Exception {
         MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
         trip.addParameter("two.x", "381");
@@ -91,7 +93,7 @@ public class BasicResolverTests extends FilterEnabledTestBase implements ActionB
         Assert.assertEquals(bean.getNumber(), 2);
     }
 
-    @Test(groups="fast")
+    @Test
     public void testEventNameParameterResolution() throws Exception {
         MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), getClass());
         trip.addParameter(StripesConstants.URL_KEY_EVENT_NAME, "two");
@@ -102,7 +104,7 @@ public class BasicResolverTests extends FilterEnabledTestBase implements ActionB
         Assert.assertEquals(bean.getContext().getEventName(), "two");
     }
 
-    @Test(groups="fast")
+    @Test
     public void testOverrideHandlerMethodReturnsSubtype() throws SecurityException, NoSuchMethodException {
         NameBasedActionResolver resolver = new NameBasedActionResolver();
         Map<String, Method> classMappings = new HashMap<String, Method>();

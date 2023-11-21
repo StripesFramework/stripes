@@ -29,8 +29,12 @@ import net.sourceforge.stripes.controller.ObjectFactory.ConstructorWrapper;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
 import net.sourceforge.stripes.util.Log;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import org.junit.Test;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.AfterClass;
+
 
 /**
  * Unit tests for {@link ObjectFactory} and {@link DefaultObjectFactory}.
@@ -79,7 +83,7 @@ public class ObjectFactoryTests extends StripesTestFixture {
     }
 
     /** Test basic instantiation of classes. */
-    @Test(groups = "fast")
+    @Test
     public void basic() {
         ObjectFactory factory = super.getDefaultConfiguration().getObjectFactory();
         instantiateClasses(factory, Object.class, String.class, Exception.class,
@@ -87,7 +91,7 @@ public class ObjectFactoryTests extends StripesTestFixture {
     }
 
     /** Test instantiation of interfaces. */
-    @Test(groups = "fast")
+    @Test
     public void interfaces() {
         ObjectFactory factory = getDefaultConfiguration().getObjectFactory();
         instantiateInterfaces(factory, Collection.class, List.class, Set.class, SortedSet.class,
@@ -95,7 +99,7 @@ public class ObjectFactoryTests extends StripesTestFixture {
     }
 
     /** Test instantiation via constructor. */
-    @Test(groups = "fast")
+    @Test
     public void constructor() {
         log.info("Instantiating ", Adder.class, " via constructor call");
         ConstructorWrapper<Adder> constructor = getDefaultConfiguration().getObjectFactory()
@@ -109,7 +113,7 @@ public class ObjectFactoryTests extends StripesTestFixture {
     }
 
     /** Attempt to instantiate an interface that does not have a known implementing class. */
-    @Test(groups = "fast", expectedExceptions = InstantiationException.class)
+    @Test
     public void missingInterfaceImpl() throws Throwable {
         try {
             log.debug("Attempting to instantiate ", Runnable.class, " expecting failure");
@@ -120,7 +124,7 @@ public class ObjectFactoryTests extends StripesTestFixture {
         }
     }
 
-    @Test(groups = "fast")
+    @Test
     public void customInterfaceImpl() {
         DefaultObjectFactory factory = new DefaultObjectFactory();
         factory.addImplementingClass(CharSequence.class, String.class);
@@ -131,7 +135,7 @@ public class ObjectFactoryTests extends StripesTestFixture {
     }
 
     /** Attempt to instantiate a class that does not have a no-arg constructor. */
-    @Test(groups = "fast", expectedExceptions = InstantiationException.class)
+    @Test
     public void missingNoArgsConstructor() throws Throwable {
         try {
             log.debug("Attempting to instantiate ", Adder.class, " expecting failure");
@@ -143,7 +147,7 @@ public class ObjectFactoryTests extends StripesTestFixture {
     }
 
     /** Alter an instance via {@link DefaultObjectFactory#postProcess(Object)}. */
-    @Test(groups = "fast")
+    @Test
     public void postProcessMethod() {
         final String prefix = "Stripey!";
         DefaultObjectFactory factory = new DefaultObjectFactory() {
@@ -178,7 +182,7 @@ public class ObjectFactoryTests extends StripesTestFixture {
     }
 
     /** Alter an instance via {@link DefaultObjectFactory#postProcess(Object)}. */
-    @Test(groups = "fast")
+    @Test
     public void classPostProcessor() {
         final String prefix = "Stripey!";
         class MyObjectPostProcessor implements ObjectPostProcessor<String> {
@@ -214,7 +218,7 @@ public class ObjectFactoryTests extends StripesTestFixture {
     }
 
     /** Alter an instance via {@link DefaultObjectFactory#postProcess(Object)}. */
-    @Test(groups = "fast")
+    @Test
     public void interfacePostProcessor() {
         final String prefix = "Stripey!";
         class MyObjectPostProcessor implements ObjectPostProcessor<CharSequence> {
@@ -255,7 +259,7 @@ public class ObjectFactoryTests extends StripesTestFixture {
         Assert.assertEquals(string, MyRunnable.class.getName());
     }
 
-    @Test(groups = "fast")
+    @Test
     public void multipleSequentialPostProcessors() {
         final AtomicInteger counter = new AtomicInteger(0);
         class MyObjectPostProcessor implements ObjectPostProcessor<StringBuilder> {

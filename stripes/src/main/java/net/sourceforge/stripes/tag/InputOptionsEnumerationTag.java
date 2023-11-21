@@ -20,7 +20,7 @@ import net.sourceforge.stripes.util.ReflectUtil;
 import net.sourceforge.stripes.util.bean.BeanUtil;
 import net.sourceforge.stripes.util.bean.ExpressionException;
 
-import javax.servlet.jsp.JspException;
+import jakarta.servlet.jsp.JspException;
 import java.util.Locale;
 
 /**

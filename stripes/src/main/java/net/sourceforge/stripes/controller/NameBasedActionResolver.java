@@ -23,7 +23,7 @@ import net.sourceforge.stripes.exception.StripesServletException;
 import net.sourceforge.stripes.util.Literal;
 import net.sourceforge.stripes.util.Log;
 
-import javax.servlet.ServletContext;
+import jakarta.servlet.ServletContext;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.MalformedURLException;

@@ -17,8 +17,8 @@ package net.sourceforge.stripes.tag.layout;
 import java.io.IOException;
 import java.util.regex.Pattern;
 
-import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.PageContext;
+import jakarta.servlet.jsp.JspException;
+import jakarta.servlet.jsp.PageContext;
 
 import net.sourceforge.stripes.exception.StripesJspException;
 import net.sourceforge.stripes.exception.StripesRuntimeException;

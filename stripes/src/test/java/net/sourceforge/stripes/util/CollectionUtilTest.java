@@ -1,7 +1,11 @@
 package net.sourceforge.stripes.util;
 
-import org.testng.annotations.Test;
-import org.testng.Assert;
+import org.junit.Test;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.AfterClass;
+
 
 import java.util.List;
 
@@ -11,42 +15,42 @@ import java.util.List;
  * @author Tim Fennell
  */
 public class CollectionUtilTest {
-    @Test(groups="fast")
+    @Test
     public void testEmptyOnNullCollection() {
         Assert.assertTrue(CollectionUtil.empty(null));
     }
 
-    @Test(groups="fast")
+    @Test
     public void testEmptyOnCollectionOfNulls() {
         Assert.assertTrue(CollectionUtil.empty(new String[] {null, null, null}));
     }
 
-    @Test(groups="fast")
+    @Test
     public void testEmptyZeroLengthCollection() {
         Assert.assertTrue(CollectionUtil.empty(new String[] {}));
     }
 
-    @Test(groups="fast")
+    @Test
     public void testEmptyOnCollectionOfEmptyStrings() {
         Assert.assertTrue(CollectionUtil.empty(new String[] {"", null, ""}));
     }
 
-    @Test(groups="fast")
+    @Test
     public void testEmptyOnNonEmptyCollection1() {
         Assert.assertFalse(CollectionUtil.empty(new String[] {"", null, "foo"}));
     }
 
-    @Test(groups="fast")
+    @Test
     public void testEmptyOnNonEmptyCollection2() {
         Assert.assertFalse(CollectionUtil.empty(new String[] {"bar"}));
     }
 
-    @Test(groups="fast")
+    @Test
     public void testEmptyOnNonEmptyCollection3() {
         Assert.assertFalse(CollectionUtil.empty(new String[] {"bar", "splat", "foo"}));
     }
 
-    @Test(groups="fast")
+    @Test
     public void testApplies() {
         Assert.assertTrue(CollectionUtil.applies(null, "foo"));
         Assert.assertTrue(CollectionUtil.applies(new String[] {}, "foo"));
@@ -56,7 +60,7 @@ public class CollectionUtilTest {
         Assert.assertTrue(CollectionUtil.applies(new String[] {"!bar", "!f00"}, "foo"));
     }
 
-    @Test(groups="fast")
+    @Test
     public void testAsList() {
         List<Object> list = CollectionUtil.asList(new String[] {"foo", "bar"});
         Assert.assertEquals(list.get(0), "foo");
@@ -66,9 +70,9 @@ public class CollectionUtilTest {
         Assert.assertEquals(list.size(), 0);
 
         list = CollectionUtil.asList(new int[] {0,1,2,3});
-        Assert.assertEquals(list.get(0), new Integer(0));
-        Assert.assertEquals(list.get(1), new Integer(1));
-        Assert.assertEquals(list.get(2), new Integer(2));
-        Assert.assertEquals(list.get(3), new Integer(3));
+        Assert.assertEquals(list.get(0), 0);
+        Assert.assertEquals(list.get(1), 1);
+        Assert.assertEquals(list.get(2), 2);
+        Assert.assertEquals(list.get(3), 3);
     }
 }

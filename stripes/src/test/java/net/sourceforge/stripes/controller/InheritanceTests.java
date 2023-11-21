@@ -13,10 +13,12 @@ import net.sourceforge.stripes.validation.Validate;
 import net.sourceforge.stripes.validation.ValidationErrors;
 import net.sourceforge.stripes.mock.MockRoundtrip;
 import net.sourceforge.stripes.StripesTestFixture;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
-import org.testng.Assert;
+import org.junit.Test;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.AfterClass;
+
 
 /**
  * Tests that when one ActionBean extends another that the results are predictable
@@ -50,7 +52,7 @@ public class InheritanceTests extends SuperclassActionBean {
      * When we invoke the action without an event it should get routed to the default
      * handler in this class, not the one in the super class!
      */
-    @Test(groups="fast")
+    @Test
     public void invokeDefault() throws Exception {
         MockRoundtrip trip = new MockRoundtrip(ctx,
                                                InheritanceTests.class);
@@ -76,7 +78,7 @@ public class InheritanceTests extends SuperclassActionBean {
      * Check that the validations from the superclass are active, except where
      * overridden by this class.
      */
-    @Test(groups="fast")
+    @Test
     public void testInheritedValidations() throws Exception {
         MockServletContext ctx = StripesTestFixture.createServletContext();
         try {
@@ -87,10 +89,10 @@ public class InheritanceTests extends SuperclassActionBean {
             trip.execute("/Validate.action");
 
             ValidationErrors errors = trip.getValidationErrors();
-            Assert.assertNull(errors.get("one"), "Field one should not have errors.");
-            Assert.assertEquals(errors.get("two").size(), 1, "Field two should not have 1 error.");
-            Assert.assertEquals(errors.get("three").size(), 1, "Field three should not have errors.");
-            Assert.assertEquals(errors.get("four").size(), 1, "Field one should not have errors.");
+            Assert.assertNull("Field one should not have errors.", errors.get("one"));
+            Assert.assertEquals("Field two should not have 1 error.", errors.get("two").size(), 1 );
+            Assert.assertEquals("Field three should not have errors.", errors.get("three").size(), 1);
+            Assert.assertEquals( "Field one should not have errors.", errors.get("four").size(), 1);
         } finally {
             ctx.close();
         }

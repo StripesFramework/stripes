@@ -16,9 +16,9 @@ package net.sourceforge.stripes.tag;
 
 import net.sourceforge.stripes.validation.ValidationError;
 
-import javax.servlet.jsp.tagext.TagExtraInfo;
-import javax.servlet.jsp.tagext.VariableInfo;
-import javax.servlet.jsp.tagext.TagData;
+import jakarta.servlet.jsp.tagext.TagExtraInfo;
+import jakarta.servlet.jsp.tagext.VariableInfo;
+import jakarta.servlet.jsp.tagext.TagData;
 
 /**
  * This tag extra info exposes index and error context variables for the body

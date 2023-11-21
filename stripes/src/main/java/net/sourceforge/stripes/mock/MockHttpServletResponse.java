@@ -14,18 +14,12 @@
  */
 package net.sourceforge.stripes.mock;
 
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.Cookie;
-import javax.servlet.ServletOutputStream;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.ServletOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Collections;
-import java.util.ListIterator;
-import java.util.Locale;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.List;
-import java.util.ArrayList;
+import java.util.*;
 
 /**
  * <p>Mock implementation of an HttpServletResponse.  Captures any output is written along with
@@ -174,6 +168,21 @@ public class MockHttpServletResponse implements HttpServletResponse {
     /** Gets the status (or error) code if one was set. Defaults to 200 (HTTP OK). */
     public int getStatus() { return this.status; }
 
+    @Override
+    public String getHeader(String name) {
+        return null;
+    }
+
+    @Override
+    public Collection<String> getHeaders(String name) {
+        return null;
+    }
+
+    @Override
+    public Collection<String> getHeaderNames() {
+        return null;
+    }
+
     /** Gets the error message if one was set with setStatus() or sendError(). */
     public String getErrorMessage() { return this.errorMessage; }
 
@@ -220,6 +229,11 @@ public class MockHttpServletResponse implements HttpServletResponse {
 
     /** Sets a custom content length on the response. */
     public void setContentLength(int contentLength) { this.contentLength = contentLength; }
+
+    @Override
+    public void setContentLengthLong(long len) {
+
+    }
 
     /** Returns the content length if one was set on the response by calling setContentLength(). */
     public int getContentLength() { return this.contentLength; }

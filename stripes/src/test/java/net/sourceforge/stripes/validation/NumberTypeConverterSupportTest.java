@@ -1,7 +1,11 @@
 package net.sourceforge.stripes.validation;
 
-import org.testng.annotations.Test;
-import org.testng.Assert;
+import org.junit.Test;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.AfterClass;
+
 
 import java.util.Locale;
 import java.util.ArrayList;
@@ -21,7 +25,7 @@ public class NumberTypeConverterSupportTest {
         return c;
     }
 
-    @Test(groups="fast")
+    @Test
     public void basicPositiveTests() {
         Number number = getConverter().parse("10912", new ArrayList<ValidationError>());
         Assert.assertEquals(number.intValue(), 10912);
@@ -30,25 +34,25 @@ public class NumberTypeConverterSupportTest {
         Assert.assertEquals(number.intValue(), -1000000);
     }
 
-    @Test(groups="fast")
+    @Test
     public void testNumbersWithWhiteSpace() {
         Number number = getConverter().parse("   5262  ", new ArrayList<ValidationError>());
-        Assert.assertEquals(number.intValue(), 5262, "White space should have no effect.");
+        Assert.assertEquals("White space should have no effect.", number.intValue(), 5262);
     }
 
-    @Test(groups="fast")
+    @Test
     public void testFloatingPointsNumbers() {
         Number number = getConverter().parse("123.456", new ArrayList<ValidationError>());
         Assert.assertEquals(number.doubleValue(), 123.456);
     }
 
-    @Test(groups="fast")
+    @Test
     public void testParentheticalNumbers() {
         Number number = getConverter().parse("(891)", new ArrayList<ValidationError>());
-        Assert.assertEquals(number.intValue(), -891, "Brackets mean negative values.");
+        Assert.assertEquals( "Brackets mean negative values.", number.intValue(), -891);
     }
 
-    @Test(groups="fast")
+    @Test
     public void testCurrency() {
         Number number = getConverter().parse("$57", new ArrayList<ValidationError>());
         Assert.assertEquals(number.intValue(), 57);
@@ -57,7 +61,7 @@ public class NumberTypeConverterSupportTest {
         Assert.assertEquals(number.doubleValue(), 1999.95);
     }
 
-    @Test(groups = "fast")
+    @Test
     public void testCurrencyWithSpace() {
         Number number = getConverter().parse("$ 57", new ArrayList<ValidationError>());
         Assert.assertNotNull(number);
@@ -68,7 +72,7 @@ public class NumberTypeConverterSupportTest {
         Assert.assertEquals(number.doubleValue(), 1999.95);
     }
 
-    @Test(groups = "fast")
+    @Test
     public void testNegativeCurrency() {
         Number number = getConverter().parse("-$57", new ArrayList<ValidationError>());
         Assert.assertEquals(number.intValue(), -57);
@@ -83,33 +87,33 @@ public class NumberTypeConverterSupportTest {
         Assert.assertEquals(number.doubleValue(), -1999.95);
     }
 
-    @Test(groups="fast")
+    @Test
     public void testComplicatedString() {
         Number number = getConverter().parse("  ($2,154,123.66) ", new ArrayList<ValidationError>());
         Assert.assertEquals(number.doubleValue(), -2154123.66);
     }
 
-    @Test(groups="fast")
+    @Test
     public void testWithText() {
         Collection<ValidationError> errors = new ArrayList<ValidationError>();
         Number number = getConverter().parse("not-a-number", errors);
         Assert.assertNull(number);
-        Assert.assertEquals(errors.size(), 1, "We should have gotten a parse error.");
+        Assert.assertEquals("We should have gotten a parse error.", errors.size(), 1);
     }
 
-    @Test(groups="fast")
+    @Test
     public void testWithBogusTrailingText() {
         Collection<ValidationError> errors = new ArrayList<ValidationError>();
         Number number = getConverter().parse("12345six", errors);
         Assert.assertNull(number);
-        Assert.assertEquals(errors.size(), 1, "We should have gotten a parse error.");
+        Assert.assertEquals("We should have gotten a parse error.", errors.size(), 1);
     }
 
-    @Test(groups="fast")
+    @Test
     public void testWithMultipleDecimalPoints() {
         Collection<ValidationError> errors = new ArrayList<ValidationError>();
         Number number = getConverter().parse("123.456.789", errors);
         Assert.assertNull(number);
-        Assert.assertEquals(errors.size(), 1, "We should have gotten a parse error.");
+        Assert.assertEquals( "We should have gotten a parse error.", errors.size(), 1);
     }
 }

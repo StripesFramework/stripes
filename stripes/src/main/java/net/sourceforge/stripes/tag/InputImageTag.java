@@ -14,8 +14,8 @@
  */
 package net.sourceforge.stripes.tag;
 
-import javax.servlet.jsp.JspException;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.jsp.JspException;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * <p>Tag class that generates an image button for use in HTML forms, e.g:</p>

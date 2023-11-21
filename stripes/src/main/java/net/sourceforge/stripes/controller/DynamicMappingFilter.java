@@ -30,20 +30,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpServletResponseWrapper;
+import jakarta.servlet.*;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequestWrapper;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponseWrapper;
+
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -108,7 +100,7 @@ import org.xml.sax.SAXException;
  * <p>
  * This is the suggested mapping for this filter in {@code web.xml}.
  * </p>
- * 
+ *
  * <pre>
  *  &lt;filter&gt;
  *      &lt;description&gt;Dynamically maps URLs to ActionBeans.&lt;/description&gt;
@@ -122,7 +114,7 @@ import org.xml.sax.SAXException;
  *          &lt;param-value&gt;com.yourcompany.stripes.action&lt;/param-value&gt;
  *      &lt;/init-param&gt;
  *  &lt;/filter&gt;
- *  
+ *
  *  &lt;filter-mapping&gt;
  *      &lt;filter-name&gt;DynamicMappingFilter&lt;/filter-name&gt;
  *      &lt;url-pattern&gt;/*&lt;/url-pattern&gt;
@@ -131,10 +123,10 @@ import org.xml.sax.SAXException;
  *      &lt;dispatcher&gt;INCLUDE&lt;/dispatcher&gt;
  *  &lt;/filter-mapping&gt;
  * </pre>
- * 
+ *
  * @author Ben Gunter
- * @since Stripes 1.5
  * @see UrlBinding
+ * @since Stripes 1.5
  */
 public class DynamicMappingFilter implements Filter {
     /**
@@ -161,13 +153,13 @@ public class DynamicMappingFilter implements Filter {
      * normally. If there is a 404 and the URL does not match an ActionBean then the "missing
      * resource" message is sent through.
      * </p>
-     * 
+     *
      * @author Ben Gunter
      * @since Stripes 1.5
      */
     public static class TempBufferWriter extends Writer {
         private StringWriter buffer;
-        private PrintWriter out;
+        private final PrintWriter out;
 
         public TempBufferWriter(PrintWriter out) {
             this.out = out;
@@ -181,7 +173,7 @@ public class DynamicMappingFilter implements Filter {
         }
 
         @Override
-        public void flush() throws IOException {
+        public void flush() {
             overflow();
             out.flush();
         }
@@ -190,24 +182,22 @@ public class DynamicMappingFilter implements Filter {
         public void write(char[] chars, int offset, int length) throws IOException {
             if (buffer == null) {
                 out.write(chars, offset, length);
-            }
-            else if (buffer.getBuffer().length() + length > includeBufferSize) {
+            } else if (buffer.getBuffer().length() + length > includeBufferSize) {
                 overflow();
                 out.write(chars, offset, length);
-            }
-            else {
+            } else {
                 buffer.write(chars, offset, length);
             }
         }
 
         /**
          * Write the contents of the buffer to the underlying writer. After a call to
-         * {@link #overflow()}, all future writes to this writer will pass directly to the
+         * this method, all future writes to this writer will pass directly to the
          * underlying writer.
          */
         protected void overflow() {
             if (buffer != null) {
-                out.print(buffer.toString());
+                out.print(buffer);
                 buffer = null;
             }
         }
@@ -217,7 +207,7 @@ public class DynamicMappingFilter implements Filter {
      * An {@link HttpServletResponseWrapper} that traps HTTP errors by overriding
      * {@code sendError(int, ..)}. The error code can be retrieved by calling
      * {@link #getErrorCode()}. A call to {@link #proceed()} sends the error to the client.
-     * 
+     *
      * @author Ben Gunter
      * @since Stripes 1.5
      */
@@ -228,19 +218,21 @@ public class DynamicMappingFilter implements Filter {
         private PrintWriter printWriter;
         private TempBufferWriter tempBufferWriter;
 
-        /** Wrap the given {@code response}. */
+        /**
+         * Wrap the given {@code response}.
+         */
         public ErrorTrappingResponseWrapper(HttpServletResponse response) {
             super(response);
         }
 
         @Override
-        public void sendError(int errorCode, String errorMessage) throws IOException {
+        public void sendError(int errorCode, String errorMessage) {
             this.errorCode = errorCode;
             this.errorMessage = errorMessage;
         }
 
         @Override
-        public void sendError(int errorCode) throws IOException {
+        public void sendError(int errorCode) {
             this.errorCode = errorCode;
             this.errorMessage = null;
         }
@@ -253,31 +245,30 @@ public class DynamicMappingFilter implements Filter {
                     printWriter = new PrintWriter(tempBufferWriter);
                 }
                 return printWriter;
-            }
-            else {
+            } else {
                 return super.getWriter();
             }
         }
 
-        /** True if the currently executing request is an include. */
+        /**
+         * True if the currently executing request is an include.
+         */
         public boolean isInclude() {
             return include;
         }
 
-        /** Indicate if the currently executing request is an include. */
+        /**
+         * Indicate if the currently executing request is an include.
+         */
         public void setInclude(boolean include) {
             this.include = include;
         }
 
-        /** Get the error code that was passed into {@code sendError(int, ..)} */
+        /**
+         * Get the error code that was passed into {@code sendError(int, ..)}
+         */
         public Integer getErrorCode() {
             return errorCode;
-        }
-
-        /** Clear error code and error message. */
-        public void clearError() {
-            this.errorCode = null;
-            this.errorMessage = null;
         }
 
         /**
@@ -286,26 +277,17 @@ public class DynamicMappingFilter implements Filter {
          */
         public void proceed() throws IOException {
             // Explicitly overflow the buffer so the output gets written
-            if (tempBufferWriter != null)
-                tempBufferWriter.overflow();
+            if (tempBufferWriter != null) tempBufferWriter.overflow();
 
             if (errorCode != null) {
-                if (errorMessage == null)
-                    super.sendError(errorCode);
-                else
-                    super.sendError(errorCode, errorMessage);
+                if (errorMessage == null) super.sendError(errorCode);
+                else super.sendError(errorCode, errorMessage);
             }
         }
 
         @Override
         public void setStatus(int sc) {
             this.errorCode = sc;
-        }
-
-        @Override
-        public void setStatus(int sc, String sm) {
-            this.errorCode = sc;
-            this.errorMessage = sm;
         }
     }
 
@@ -327,11 +309,15 @@ public class DynamicMappingFilter implements Filter {
      */
     private static final String REQ_HEADER_INIT_FLAG = "X-Dynamic-Mapping-Filter-Init";
 
-    /** The size of the buffer used by {@link TempBufferWriter} before it overflows. */
+    /**
+     * The size of the buffer used by {@link TempBufferWriter} before it overflows.
+     */
     private static int includeBufferSize = 1024;
 
-    /** Logger */
-    private static Log log = Log.getInstance(DynamicMappingFilter.class);
+    /**
+     * Logger
+     */
+    private static final Log log = Log.getInstance(DynamicMappingFilter.class);
 
     private FilterConfig filterConfig;
     private ServletContext servletContext;
@@ -343,15 +329,11 @@ public class DynamicMappingFilter implements Filter {
         try {
             String value = config.getInitParameter(INCLUDE_BUFFER_SIZE_PARAM);
             if (value != null) {
-                includeBufferSize = Integer.valueOf(value.trim());
+                includeBufferSize = Integer.parseInt(value.trim());
                 log.info(getClass().getSimpleName(), " include buffer size is ", includeBufferSize);
             }
-        }
-        catch (Exception e) {
-            log.warn(e, "Could not interpret '",
-                    config.getInitParameter(INCLUDE_BUFFER_SIZE_PARAM),
-                    "' as a number for init-param '", INCLUDE_BUFFER_SIZE_PARAM,
-                    "'. Using default value ", includeBufferSize, ".");
+        } catch (Exception e) {
+            log.warn(e, "Could not interpret '", config.getInitParameter(INCLUDE_BUFFER_SIZE_PARAM), "' as a number for init-param '", INCLUDE_BUFFER_SIZE_PARAM, "'. Using default value ", includeBufferSize, ".");
         }
 
         this.filterConfig = config;
@@ -362,7 +344,7 @@ public class DynamicMappingFilter implements Filter {
                 return config.getInitParameter(name);
             }
 
-            public Enumeration<?> getInitParameterNames() {
+            public Enumeration<String> getInitParameterNames() {
                 return config.getInitParameterNames();
             }
 
@@ -378,27 +360,21 @@ public class DynamicMappingFilter implements Filter {
 
     public void destroy() {
         try {
-            if (stripesDispatcher != null)
-                stripesDispatcher.destroy();
-        }
-        finally {
+            if (stripesDispatcher != null) stripesDispatcher.destroy();
+        } finally {
             stripesDispatcher = null;
 
             try {
-                if (stripesFilterIsInternal && stripesFilter != null)
-                    stripesFilter.destroy();
-            }
-            finally {
+                if (stripesFilterIsInternal && stripesFilter != null) stripesFilter.destroy();
+            } finally {
                 stripesFilter = null;
             }
         }
     }
 
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
-            throws IOException, ServletException {
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         // Wrap the response in a wrapper that catches errors (but not exceptions)
-        final ErrorTrappingResponseWrapper wrapper = new ErrorTrappingResponseWrapper(
-                (HttpServletResponse) response);
+        final ErrorTrappingResponseWrapper wrapper = new ErrorTrappingResponseWrapper((HttpServletResponse) response);
         wrapper.setInclude(request.getAttribute(StripesConstants.REQ_ATTR_INCLUDE_PATH) != null);
 
         // Catch FileNotFoundException, which some containers (e.g. GlassFish) throw instead of setting SC_NOT_FOUND
@@ -406,11 +382,9 @@ public class DynamicMappingFilter implements Filter {
 
         try {
             chain.doFilter(request, wrapper);
-        }
-        catch (FileNotFoundException exc) {
+        } catch (FileNotFoundException exc) {
             fileNotFoundExceptionThrown = true;
-        }
-        catch(ServletException e) {
+        } catch (ServletException e) {
             // IBM Liberty basically wraps the FileNotFound into a ServletException
             if (e.getRootCause() instanceof FileNotFoundException) {
                 fileNotFoundExceptionThrown = true;
@@ -422,24 +396,10 @@ public class DynamicMappingFilter implements Filter {
 
         // Check the instance field as well as request header for initialization request
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
-        boolean initializing = this.initializing
-                || httpServletRequest.getHeader(REQ_HEADER_INIT_FLAG) != null;
+        boolean initializing = this.initializing || httpServletRequest.getHeader(REQ_HEADER_INIT_FLAG) != null;
 
         // If a FileNotFoundException or SC_NOT_FOUND error occurred, then try to match an ActionBean to the URL
-        boolean notFound = false;
-        Integer errorCode = wrapper.getErrorCode();
-        if (errorCode!=null) {
-            if (errorCode==HttpServletResponse.SC_NOT_FOUND) {
-                notFound = true;
-            } else {
-                // special handling for WildFly,
-                // see http://www.stripesframework.org/jira/browse/STS-916
-                if ("POST".equals(httpServletRequest.getMethod())
-                        && errorCode == HttpServletResponse.SC_METHOD_NOT_ALLOWED) {
-                    notFound = true;
-                }
-            }
-        }
+        boolean notFound = isNotFound(wrapper, httpServletRequest);
         if (!initializing && (notFound || fileNotFoundExceptionThrown)) {
             // Get a reference to a StripesFilter instance
             StripesFilter sf = getStripesFilter();
@@ -448,27 +408,38 @@ public class DynamicMappingFilter implements Filter {
                 sf = getStripesFilter();
             }
 
-            sf.doFilter(request, response, new FilterChain() {
-                public void doFilter(ServletRequest request, ServletResponse response)
-                        throws IOException, ServletException {
-                    // Look for an ActionBean that is mapped to the URI
-                    String uri = HttpUtil.getRequestedPath((HttpServletRequest) request);
-                    Class<? extends ActionBean> beanType = getStripesFilter()
-                            .getInstanceConfiguration().getActionResolver().getActionBeanType(uri);
+            sf.doFilter(request, response, (request1, response1) -> {
+                // Look for an ActionBean that is mapped to the URI
+                String uri = HttpUtil.getRequestedPath((HttpServletRequest) request1);
+                Class<? extends ActionBean> beanType = getStripesFilter().getInstanceConfiguration().getActionResolver().getActionBeanType(uri);
 
-                    // If found then call the dispatcher directly. Otherwise, send the error.
-                    if (beanType == null) {
-                        wrapper.proceed();
-                    }
-                    else {
-                        stripesDispatcher.service(request, response);
-                    }
+                // If found then call the dispatcher directly. Otherwise, send the error.
+                if (beanType == null) {
+                    wrapper.proceed();
+                } else {
+                    stripesDispatcher.service(request1, response1);
                 }
             });
-        }
-        else {
+        } else {
             wrapper.proceed();
         }
+    }
+
+    private static boolean isNotFound(ErrorTrappingResponseWrapper wrapper, HttpServletRequest httpServletRequest) {
+        boolean notFound = false;
+        Integer errorCode = wrapper.getErrorCode();
+        if (errorCode != null) {
+            if (errorCode == HttpServletResponse.SC_NOT_FOUND) {
+                notFound = true;
+            } else {
+                // special handling for WildFly,
+                // see http://www.stripesframework.org/jira/browse/STS-916
+                if ("POST".equals(httpServletRequest.getMethod()) && errorCode == HttpServletResponse.SC_METHOD_NOT_ALLOWED) {
+                    notFound = true;
+                }
+            }
+        }
+        return notFound;
     }
 
     /**
@@ -492,44 +463,37 @@ public class DynamicMappingFilter implements Filter {
      * from the servlet context, we really need {@link StripesFilter} to have been initialized at
      * the time we process our first request. If that didn't happen automatically, this method does
      * its best to force it to happen.
-     * 
-     * @param request The current request
+     *
+     * @param request  The current request
      * @param response The current response
      * @throws ServletException If anything goes wrong that simply can't be ignored.
      */
-    protected synchronized void initStripesFilter(HttpServletRequest request,
-            HttpServletResponse response) throws ServletException {
+    protected synchronized void initStripesFilter(HttpServletRequest request, HttpServletResponse response) throws ServletException {
         try {
             // Check if another thread got into this method before the current thread
-            if (getStripesFilter() != null)
-                return;
+            if (getStripesFilter() != null) return;
 
             log.info("StripesFilter not initialized. Checking the situation in web.xml ...");
             Document document = parseWebXml();
-            NodeList filterNodes = eval("/web-app/filter/filter-class[text()='"
-                    + StripesFilter.class.getName() + "']/..", document, XPathConstants.NODESET);
+            NodeList filterNodes = eval("/web-app/filter/filter-class[text()='" + StripesFilter.class.getName() + "']/..", document, XPathConstants.NODESET);
             if (filterNodes == null || filterNodes.getLength() != 1) {
                 String msg;
                 if (filterNodes == null || filterNodes.getLength() < 1) {
                     msg = "StripesFilter is not declared in web.xml. ";
-                }
-                else {
+                } else {
                     msg = "StripesFilter is declared multiple times in web.xml; refusing to use either one. ";
                 }
 
-                log.info(msg, "Initializing with \"", filterConfig.getFilterName(),
-                        "\" configuration.");
+                log.info(msg, "Initializing with \"", filterConfig.getFilterName(), "\" configuration.");
                 createStripesFilter(filterConfig);
-            }
-            else {
+            } else {
                 Node filterNode = filterNodes.item(0);
                 final String name = eval("filter-name", filterNode, XPathConstants.STRING);
                 log.debug("Found StripesFilter declared as ", name, " in web.xml");
 
                 List<String> patterns = getFilterUrlPatterns(filterNode);
                 if (patterns.isEmpty()) {
-                    log.info("StripesFilter is declared but not mapped in web.xml. ",
-                            "Initializing with \"", name, "\" configuration from web.xml.");
+                    log.info("StripesFilter is declared but not mapped in web.xml. ", "Initializing with \"", name, "\" configuration from web.xml.");
 
                     final Map<String, String> parameters = getFilterParameters(filterNode);
                     createStripesFilter(new FilterConfig() {
@@ -549,25 +513,19 @@ public class DynamicMappingFilter implements Filter {
                             return name;
                         }
                     });
-                }
-                else {
+                } else {
                     issueRequests(patterns, request, response);
                 }
             }
-        }
-        catch (RuntimeException e) {
+        } catch (RuntimeException e) {
             throw e;
-        }
-        catch (Exception e) {
-            throw new StripesServletException(
-                    "Unhandled exception trying to force initialization of StripesFilter", e);
+        } catch (Exception e) {
+            throw new StripesServletException("Unhandled exception trying to force initialization of StripesFilter", e);
         }
 
         // Blow up if no StripesFilter instance could be acquired or created
         if (getStripesFilter() == null) {
-            String msg = "There is no StripesFilter instance available in the servlet context, "
-                    + "and DynamicMappingFilter was unable to initialize one. See previous log "
-                    + "messages for more information.";
+            String msg = "There is no StripesFilter instance available in the servlet context, " + "and DynamicMappingFilter was unable to initialize one. See previous log " + "messages for more information.";
             log.error(msg);
             throw new StripesServletException(msg);
         }
@@ -575,28 +533,26 @@ public class DynamicMappingFilter implements Filter {
 
     /**
      * Parse the application's {@code web.xml} file and return a DOM {@link Document}.
-     * 
+     *
      * @throws ParserConfigurationException If thrown by the XML parser
-     * @throws IOException If thrown by the XML parser
-     * @throws SAXException If thrown by the XML parser
+     * @throws IOException                  If thrown by the XML parser
+     * @throws SAXException                 If thrown by the XML parser
      */
     protected Document parseWebXml() throws SAXException, IOException, ParserConfigurationException {
-        return DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(
-                servletContext.getResourceAsStream("/WEB-INF/web.xml"));
+        return DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(servletContext.getResourceAsStream("/WEB-INF/web.xml"));
     }
 
     /**
-     * Evaluate an xpath expression against a DOM {@link Node} and return the result.
-     * 
+     * Evaluate a xpath expression against a DOM {@link Node} and return the result.
+     *
      * @param expression The expression to evaluate
-     * @param source The node against which the expression will be evaluated
+     * @param source     The node against which the expression will be evaluated
      * @param returnType One of the constants defined in {@link XPathConstants}
      * @return The result returned by {@link XPath#evaluate(String, Object, QName)}
      * @throws XPathExpressionException If the xpath expression is invalid
      */
     @SuppressWarnings("unchecked")
-    protected <T> T eval(String expression, Node source, QName returnType)
-            throws XPathExpressionException {
+    protected <T> T eval(String expression, Node source, QName returnType) throws XPathExpressionException {
         XPath xpath = XPathFactory.newInstance().newXPath();
         return (T) xpath.evaluate(expression, source, returnType);
     }
@@ -605,22 +561,20 @@ public class DynamicMappingFilter implements Filter {
      * Get all the URL patterns to which a filter is mapped in {@code web.xml}. This includes direct
      * mappings using {@code filter-mapping/url-pattern} and indirect mappings using
      * {@code filter-mapping/servlet-name} and {@code servlet-mapping/url-pattern}.
-     * 
+     *
      * @param filterNode The DOM ({@code &lt;filter&gt;}) {@link Node} containing the filter
-     *            declaration from {@code web.xml}
+     *                   declaration from {@code web.xml}
      * @return A list of all the patterns to which the filter is mapped
-     * @throws XPathExpressionException In case of failure evaluating an xpath expression
+     * @throws XPathExpressionException In case of failure evaluating a xpath expression
      */
     protected List<String> getFilterUrlPatterns(Node filterNode) throws XPathExpressionException {
         String filterName = eval("filter-name", filterNode, XPathConstants.STRING);
         Document document = filterNode.getOwnerDocument();
 
-        NodeList urlMappings = eval("/web-app/filter-mapping/filter-name[text()='" + filterName
-                + "']/../url-pattern", document, XPathConstants.NODESET);
-        NodeList servletMappings = eval("/web-app/filter-mapping/filter-name[text()='" + filterName
-                + "']/../servlet-name", document, XPathConstants.NODESET);
+        NodeList urlMappings = eval("/web-app/filter-mapping/filter-name[text()='" + filterName + "']/../url-pattern", document, XPathConstants.NODESET);
+        NodeList servletMappings = eval("/web-app/filter-mapping/filter-name[text()='" + filterName + "']/../servlet-name", document, XPathConstants.NODESET);
 
-        List<String> patterns = new ArrayList<String>();
+        List<String> patterns = new ArrayList<>();
         if (urlMappings != null && urlMappings.getLength() > 0) {
             for (int i = 0; i < urlMappings.getLength(); i++) {
                 patterns.add(urlMappings.item(i).getTextContent().trim());
@@ -630,8 +584,7 @@ public class DynamicMappingFilter implements Filter {
         if (servletMappings != null && servletMappings.getLength() > 0) {
             for (int i = 0; i < servletMappings.getLength(); i++) {
                 String servletName = servletMappings.item(i).getTextContent().trim();
-                urlMappings = eval("/web-app/servlet-mapping/servlet-name[text()='" + servletName
-                        + "']/../url-pattern", document, XPathConstants.NODESET);
+                urlMappings = eval("/web-app/servlet-mapping/servlet-name[text()='" + servletName + "']/../url-pattern", document, XPathConstants.NODESET);
                 for (int j = 0; j < urlMappings.getLength(); j++) {
                     patterns.add(urlMappings.item(j).getTextContent().trim());
                 }
@@ -644,15 +597,14 @@ public class DynamicMappingFilter implements Filter {
 
     /**
      * Get the initialization parameters for a filter declared in {@code web.xml}.
-     * 
+     *
      * @param filterNode The DOM ({@code &lt;filter&gt;}) {@link Node} containing the filter
-     *            declaration from {@code web.xml}
+     *                   declaration from {@code web.xml}
      * @return A map of parameter names to parameter values
-     * @throws XPathExpressionException In case of failure evaluation an xpath expression
+     * @throws XPathExpressionException In case of failure evaluation a xpath expression
      */
-    protected Map<String, String> getFilterParameters(Node filterNode)
-            throws XPathExpressionException {
-        Map<String, String> params = new LinkedHashMap<String, String>();
+    protected Map<String, String> getFilterParameters(Node filterNode) throws XPathExpressionException {
+        Map<String, String> params = new LinkedHashMap<>();
         NodeList paramNodes = eval("init-param", filterNode, XPathConstants.NODESET);
         for (int i = 0; i < paramNodes.getLength(); i++) {
             Node node = paramNodes.item(i);
@@ -665,7 +617,7 @@ public class DynamicMappingFilter implements Filter {
 
     /**
      * Create and initialize an instance of {@link StripesFilter} with the given configuration.
-     * 
+     *
      * @param config The filter configuration
      * @throws ServletException If initialization of the filter fails
      */
@@ -679,24 +631,22 @@ public class DynamicMappingFilter implements Filter {
     /**
      * Issue a series of requests in an attempt to force an invocation (and initialization) of
      * {@link StripesFilter} in the application context. All patterns will be requested first with
-     * an internal forward, then an include and finally with a brand new request to the address and
+     * an internal forward, then an include and finally with a brand-new request to the address and
      * port returned by {@link HttpServletRequest#getLocalAddr()} and
      * {@link HttpServletRequest#getLocalPort()}, respectively.
-     * 
+     *
      * @param patterns The list of patterns to request, as specified by {@code url-pattern} elements
-     *            in {@code web.xml}
-     * @param request The current request, required to process a forward or include
+     *                 in {@code web.xml}
+     * @param request  The current request, required to process a forward or include
      * @param response The current response, required to process a forward or include
      */
-    protected void issueRequests(List<String> patterns, HttpServletRequest request,
-            HttpServletResponse response) {
+    protected void issueRequests(List<String> patterns, HttpServletRequest request, HttpServletResponse response) {
         // Replace globs in the patterns with a random string
         String random = "stripes-dmf-request-" + UUID.randomUUID();
-        List<String> uris = new ArrayList<String>(patterns.size());
+        List<String> uris = new ArrayList<>(patterns.size());
         for (String pattern : patterns) {
             String uri = pattern.replace("*", random);
-            if (!uri.startsWith("/"))
-                uri = "/" + uri;
+            if (!uri.startsWith("/")) uri = "/" + uri;
             uris.add(uri);
         }
 
@@ -711,17 +661,28 @@ public class DynamicMappingFilter implements Filter {
         // Response swallows all output
         HttpServletResponseWrapper rsp = new HttpServletResponseWrapper(response) {
             @Override
-            public ServletOutputStream getOutputStream() throws IOException {
+            public ServletOutputStream getOutputStream() {
                 return new ServletOutputStream() {
                     @Override
-                    public void write(int b) throws IOException {
+                    public boolean isReady() {
+                        // Never ready
+                        return false;
+                    }
+
+                    @Override
+                    public void setWriteListener(WriteListener writeListener) {
+                        // No write listener
+                    }
+
+                    @Override
+                    public void write(int b) {
                         // No output
                     }
                 };
             }
 
             @Override
-            public PrintWriter getWriter() throws IOException {
+            public PrintWriter getWriter() {
                 return new PrintWriter(getOutputStream());
             }
         };
@@ -732,18 +693,7 @@ public class DynamicMappingFilter implements Filter {
         while (getStripesFilter() == null && iterator.hasNext()) {
             String uri = iterator.next();
             log.info("Try to force initialization of StripesFilter with forward to ", uri);
-            try {
-                initializing = true;
-                RequestDispatcher dispatcher = servletContext.getRequestDispatcher(uri);
-                dispatcher.forward(req, rsp);
-            }
-            catch (Exception e) {
-                log.debug(e, "Ignored exception during forward");
-            }
-            finally {
-                initializing = false;
-                response.reset();
-            }
+            doDispatcherForward(response, req, rsp, uri);
         }
 
         // If forward failed, try include
@@ -751,18 +701,7 @@ public class DynamicMappingFilter implements Filter {
         while (getStripesFilter() == null && iterator.hasNext()) {
             String uri = iterator.next();
             log.info("Try to force initialization of StripesFilter with include of ", uri);
-            try {
-                initializing = true;
-                RequestDispatcher dispatcher = servletContext.getRequestDispatcher(uri);
-                dispatcher.forward(req, rsp);
-            }
-            catch (Exception e) {
-                log.debug(e, "Ignored exception during forward");
-            }
-            finally {
-                initializing = false;
-                response.reset();
-            }
+            doDispatcherForward(response, req, rsp, uri);
         }
 
         // If both forward and include failed, then do something truly abominable ...
@@ -772,10 +711,22 @@ public class DynamicMappingFilter implements Filter {
                 String uri = iterator.next();
                 log.info("Try to force initialization of StripesFilter with request to ", uri);
                 requestRemotely(request, uri);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 log.debug(e, "Ignored exception during request");
             }
+        }
+    }
+
+    private void doDispatcherForward(HttpServletResponse response, HttpServletRequestWrapper req, HttpServletResponseWrapper rsp, String uri) {
+        try {
+            initializing = true;
+            RequestDispatcher dispatcher = servletContext.getRequestDispatcher(uri);
+            dispatcher.forward(req, rsp);
+        } catch (Exception e) {
+            log.debug(e, "Ignored exception during forward");
+        } finally {
+            initializing = false;
+            response.reset();
         }
     }
 
@@ -783,11 +734,10 @@ public class DynamicMappingFilter implements Filter {
      * Issue a new request to a path relative to the request's context. The connection is made to
      * the address and port returned by {@link HttpServletRequest#getLocalAddr()} and
      * {@link HttpServletRequest#getLocalPort()}, respectively.
-     * 
-     * @param request The current request
+     *
+     * @param request      The current request
      * @param relativePath The context-relative path to request
      */
-    @SuppressWarnings("unchecked")
     public void requestRemotely(HttpServletRequest request, String relativePath) {
         HttpURLConnection cxn = null;
         try {
@@ -811,17 +761,15 @@ public class DynamicMappingFilter implements Filter {
             cxn.setRequestProperty(REQ_HEADER_INIT_FLAG, "true");
 
             // Log the HTTP status
-            log.debug(cxn.getResponseCode(), " ", cxn.getResponseMessage(), " (", cxn
-                    .getContentLength(), " bytes) from ", url);
-        }
-        catch (Exception e) {
+            log.debug(cxn.getResponseCode(), " ", cxn.getResponseMessage(), " (", cxn.getContentLength(), " bytes) from ", url);
+        } catch (Exception e) {
             log.debug(e, "Request failed trying to force initialization of StripesFilter");
-        }
-        finally {
+        } finally {
             try {
-                cxn.disconnect();
-            }
-            catch (Exception e) {
+                if (cxn != null) {
+                    cxn.disconnect();
+                }
+            } catch (Exception e) {
                 // Ignore
             }
         }

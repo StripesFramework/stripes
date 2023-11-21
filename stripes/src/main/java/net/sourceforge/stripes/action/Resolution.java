@@ -14,8 +14,8 @@
  */
 package net.sourceforge.stripes.action;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * Type that is designed to be returned by &quot;handler&quot; methods in ActionBeans. The

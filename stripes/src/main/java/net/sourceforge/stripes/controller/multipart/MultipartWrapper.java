@@ -17,7 +17,7 @@ package net.sourceforge.stripes.controller.multipart;
 import net.sourceforge.stripes.controller.FileUploadLimitExceededException;
 import net.sourceforge.stripes.action.FileBean;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.File;
 import java.util.Enumeration;

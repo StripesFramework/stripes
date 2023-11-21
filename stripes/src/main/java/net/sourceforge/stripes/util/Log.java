@@ -14,7 +14,8 @@
  */
 package net.sourceforge.stripes.util;
 
-import org.apache.commons.logging.LogFactory;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * <p>A <em>wafer thin</em> wrapper around Commons logging that uses var-args to make it
@@ -27,9 +28,9 @@ import org.apache.commons.logging.LogFactory;
  * @author Tim Fennell
  */
 public final class Log {
-    private org.apache.commons.logging.Log realLog;
+    private java.util.logging.Logger realLog;
 
-    public org.apache.commons.logging.Log getRealLog() {
+    public java.util.logging.Logger getRealLog() {
         return realLog;
     }
 
@@ -40,22 +41,20 @@ public final class Log {
      * @return a Log instance with which to log
      */
     public static Log getInstance(Class<?> clazz) {
-        return new Log( LogFactory.getLog(clazz) );
+        return new Log(Logger.getLogger(clazz.getName()));
     }
 
     /**
      * Forces Log to cleanup any cached resources. This is called by the StripesFilter when
      * it is destroyed, but can be called from user code as well if necessary.
      */
-    public static void cleanup() {
-        LogFactory.release(Thread.currentThread().getContextClassLoader());
-    }
+    public static void cleanup() { }
 
     /**
      * Private constructor which creates a new Log instance wrapping the commons Log instance
      * provided.  Only used by the static getInstance() method on this class.
      */
-    private Log(org.apache.commons.logging.Log realLog) {
+    private Log(java.util.logging.Logger realLog) {
         this.realLog = realLog;
     }
 
@@ -66,8 +65,8 @@ public final class Log {
      *        to form the log message.
      */
     public final void fatal(Throwable throwable, Object... messageParts) {
-        if (this.realLog.isFatalEnabled()) {
-            this.realLog.fatal(StringUtil.combineParts(messageParts), throwable);
+        if (this.realLog.isLoggable(Level.SEVERE)) {
+            this.realLog.log(Level.SEVERE, StringUtil.combineParts(messageParts), throwable);
         }
     }
 
@@ -78,9 +77,7 @@ public final class Log {
      *        to form the log message.
      */
     public final void error(Throwable throwable, Object... messageParts) {
-        if (this.realLog.isErrorEnabled()) {
-            this.realLog.error(StringUtil.combineParts(messageParts), throwable);
-        }
+        fatal(throwable, messageParts);
     }
 
     /**
@@ -90,8 +87,8 @@ public final class Log {
      *        to form the log message.
      */
     public final void warn(Throwable throwable, Object... messageParts) {
-        if (this.realLog.isWarnEnabled()) {
-            this.realLog.warn(StringUtil.combineParts(messageParts), throwable);
+        if (this.realLog.isLoggable(Level.WARNING)) {
+            this.realLog.log(Level.WARNING, StringUtil.combineParts(messageParts), throwable);
         }
     }
 
@@ -102,8 +99,8 @@ public final class Log {
      *        to form the log message.
      */
     public final void info(Throwable throwable, Object... messageParts) {
-        if (this.realLog.isInfoEnabled()) {
-            this.realLog.info(StringUtil.combineParts(messageParts), throwable);
+        if (this.realLog.isLoggable(Level.INFO)) {
+            this.realLog.log(Level.INFO, StringUtil.combineParts(messageParts), throwable);
         }
     }
 
@@ -114,8 +111,8 @@ public final class Log {
      *        to form the log message.
      */
     public final void debug(Throwable throwable, Object... messageParts) {
-        if (this.realLog.isDebugEnabled()) {
-            this.realLog.debug(StringUtil.combineParts(messageParts), throwable);
+        if (this.realLog.isLoggable(Level.FINE)) {
+            this.realLog.log(Level.FINE, StringUtil.combineParts(messageParts), throwable);
         }
     }
 
@@ -126,8 +123,8 @@ public final class Log {
      *        to form the log message.
      */
     public final void trace(Throwable throwable, Object... messageParts) {
-        if (this.realLog.isTraceEnabled()) {
-            this.realLog.trace(StringUtil.combineParts(messageParts), throwable);
+        if (this.realLog.isLoggable(Level.FINER)) {
+            this.realLog.log(Level.FINER, StringUtil.combineParts(messageParts), throwable);
         }
     }
 
@@ -139,9 +136,7 @@ public final class Log {
      *        to form the log message.
      */
     public final void fatal(Object... messageParts) {
-        if (this.realLog.isFatalEnabled()) {
-            this.realLog.fatal(StringUtil.combineParts(messageParts));
-        }
+        fatal(null, messageParts);
     }
 
     /**
@@ -150,9 +145,7 @@ public final class Log {
      *        to form the log message.
      */
     public final void error(Object... messageParts) {
-        if (this.realLog.isErrorEnabled()) {
-            this.realLog.error(StringUtil.combineParts(messageParts));
-        }
+        error(null, messageParts);
     }
 
     /**
@@ -161,9 +154,7 @@ public final class Log {
      *        to form the log message.
      */
     public final void warn(Object... messageParts) {
-        if (this.realLog.isWarnEnabled()) {
-            this.realLog.warn(StringUtil.combineParts(messageParts));
-        }
+        warn(null, messageParts);
     }
 
     /**
@@ -172,9 +163,7 @@ public final class Log {
      *        to form the log message.
      */
     public final void info(Object... messageParts) {
-        if (this.realLog.isInfoEnabled()) {
-            this.realLog.info(StringUtil.combineParts(messageParts));
-        }
+        info(null, messageParts);
     }
 
     /**
@@ -183,9 +172,7 @@ public final class Log {
      *        to form the log message.
      */
     public final void debug(Object... messageParts) {
-        if (this.realLog.isDebugEnabled()) {
-            this.realLog.debug(StringUtil.combineParts(messageParts));
-        }
+        debug(null, messageParts);
     }
 
     /**
@@ -194,8 +181,6 @@ public final class Log {
      *        to form the log message.
      */
     public final void trace(Object... messageParts) {
-        if (this.realLog.isTraceEnabled()) {
-            this.realLog.trace(StringUtil.combineParts(messageParts));
-        }
+        trace(null, messageParts);
     }
 }

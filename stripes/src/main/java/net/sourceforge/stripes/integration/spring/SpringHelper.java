@@ -1,4 +1,5 @@
 /* Copyright 2005-2006 Tim Fennell
+ * Copyright 2023 Rick Grashel
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +15,7 @@
  */
 package net.sourceforge.stripes.integration.spring;
 
+import jakarta.servlet.ServletContext;
 import net.sourceforge.stripes.action.ActionBeanContext;
 import net.sourceforge.stripes.controller.StripesFilter;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
@@ -23,7 +25,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.core.NestedRuntimeException;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
-import javax.servlet.ServletContext;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Collection;
@@ -62,12 +63,12 @@ public class SpringHelper {
     private static final Log log = Log.getInstance(SpringHelper.class);
 
     /** Lazily filled in map of Class to methods annotated with SpringBean. */
-    private static Map<Class<?>, Collection<Method>> methodMap =
-            new ConcurrentHashMap<Class<?>, Collection<Method>>();
+    private static final Map<Class<?>, Collection<Method>> methodMap =
+            new ConcurrentHashMap<>();
 
     /** Lazily filled in map of Class to fields annotated with SpringBean. */
-    private static Map<Class<?>, Collection<Field>> fieldMap =
-            new ConcurrentHashMap<Class<?>, Collection<Field>>();
+    private static final Map<Class<?>, Collection<Field>> fieldMap =
+            new ConcurrentHashMap<>();
 
     /**
      * Injects Spring managed beans into using a Web Application Context that is

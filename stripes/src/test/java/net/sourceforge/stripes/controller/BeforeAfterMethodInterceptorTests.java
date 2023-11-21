@@ -6,8 +6,11 @@ import net.sourceforge.stripes.action.After;
 import net.sourceforge.stripes.action.Before;
 import net.sourceforge.stripes.action.ForwardResolution;
 import net.sourceforge.stripes.action.Resolution;
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import org.junit.Test;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.AfterClass;
+
 
 /**
  * TestNG based unit test of the {@link BeforeAfterMethodInterceptor} class.
@@ -16,7 +19,7 @@ import org.testng.annotations.Test;
  */
 public class BeforeAfterMethodInterceptorTests {
 
-    @Test(groups="fast")
+    @Test
     public void testInterceptAtLifeCycleStage_ActionBeanResolution() throws Exception {
         ExecutionContext context = new TestExecutionContext();
         TestActionBean2 actionBean = new TestActionBean2();
@@ -45,7 +48,7 @@ public class BeforeAfterMethodInterceptorTests {
         Assert.assertEquals(actionBean.getHasCalledProtectedBeforeMethod(), 0);
     }
 
-    @Test(groups="fast")
+    @Test
     public void testInterceptAtLifeCycleStage_BindingAndValidation() throws Exception {
         ExecutionContext context = new TestExecutionContext();
         TestActionBean2 actionBean = new TestActionBean2();
@@ -75,7 +78,7 @@ public class BeforeAfterMethodInterceptorTests {
         Assert.assertEquals(actionBean.getHasCalledProtectedBeforeMethod(), 0);
     }
 
-    @Test(groups="fast")
+    @Test
     public void testInterceptAtLifeCycleStage_CustomValidation() throws Exception {
         ExecutionContext context = new TestExecutionContext();
         TestActionBean2 actionBean = new TestActionBean2();
@@ -105,7 +108,7 @@ public class BeforeAfterMethodInterceptorTests {
         Assert.assertEquals(actionBean.getHasCalledProtectedBeforeMethod(), 0);
     }
 
-    @Test(groups="fast")
+    @Test
     public void testInterceptAtLifeCycleStage_EventHandling() throws Exception {
         ExecutionContext context = new TestExecutionContext();
         TestActionBean2 actionBean = new TestActionBean2();
@@ -136,7 +139,7 @@ public class BeforeAfterMethodInterceptorTests {
         Assert.assertEquals(actionBean.getHasCalledProtectedBeforeMethod(), 1);
     }
 
-    @Test(groups="fast")
+    @Test
     public void testInterceptAtLifeCycleStage_HandlerResolution() throws Exception {
         ExecutionContext context = new TestExecutionContext();
         TestActionBean2 actionBean = new TestActionBean2();
@@ -166,7 +169,7 @@ public class BeforeAfterMethodInterceptorTests {
         Assert.assertEquals(actionBean.getHasCalledProtectedBeforeMethod(), 0);
     }
 
-    @Test(groups="fast")
+    @Test
     public void testIntercept_withEventSpecifier() throws Exception {
         ExecutionContext context = new TestExecutionContext();
         BeforeAfterMethodInterceptor interceptor = new BeforeAfterMethodInterceptor();

@@ -4,11 +4,15 @@ import java.util.Locale;
 
 import net.sourceforge.stripes.StripesTestFixture;
 
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import org.junit.Test;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.AfterClass;
+
 
 public class DefaultFormatterFactoryTest {
-    @Test(groups = "fast")
+    @Test
     public void testFormatterSuperclass() throws Exception {
         DefaultFormatterFactory factory = new DefaultFormatterFactory();
         factory.init(StripesTestFixture.getDefaultConfiguration());
@@ -44,7 +48,7 @@ public class DefaultFormatterFactoryTest {
         Assert.assertEquals(CFormatter.class, formatter.getClass());
     }
 
-    @Test(groups = "fast")
+    @Test
     public void testFormatterInterface() throws Exception {
         DefaultFormatterFactory factory = new DefaultFormatterFactory();
         factory.init(StripesTestFixture.getDefaultConfiguration());
@@ -92,7 +96,7 @@ public class DefaultFormatterFactoryTest {
         Assert.assertEquals(ZFormatter.class, formatter.getClass());
     }
 
-    @Test(groups = "fast")
+    @Test
     public void testNullFormatterIsNeverBestMatch() throws Exception {
         DefaultFormatterFactory factory = new DefaultFormatterFactory();
         factory.init(StripesTestFixture.getDefaultConfiguration());
@@ -110,7 +114,7 @@ public class DefaultFormatterFactoryTest {
         Assert.assertEquals(AFormatter.class, formatter.getClass());
     }
 
-    @Test(groups = "fast")
+    @Test
     public void testFormatterSuperclassImplementsInterface() throws Exception {
         DefaultFormatterFactory factory = new DefaultFormatterFactory();
         factory.init(StripesTestFixture.getDefaultConfiguration());

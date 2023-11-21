@@ -1,12 +1,11 @@
 package net.sourceforge.stripes.action;
 
-import org.testng.annotations.Test;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.AfterMethod;
-import org.testng.Assert;
-
 import java.io.*;
 import java.nio.charset.Charset;
+import org.junit.Before;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * Basic set of tests for the FileBean object.
@@ -17,7 +16,7 @@ public class FileBeanTests {
     public static final String[] LINES = {"Hello World!", "How have you been?"};
     File from, to;
 
-    @BeforeMethod(alwaysRun=true)
+    @Before
     public void setupFiles() throws IOException {
         // The from file
         this.from = File.createTempFile("foo", "bar");
@@ -35,7 +34,7 @@ public class FileBeanTests {
         this.to = new File(System.getProperty("java.io.tmpdir"), "foo-" + System.currentTimeMillis());
     }
 
-    @AfterMethod(alwaysRun=true)
+    @After
     public void cleanupFiles() {
         if (this.from != null && this.from.exists()) this.from.delete();
         if (this.to != null && this.to.exists()) this.to.delete();
@@ -81,7 +80,7 @@ public class FileBeanTests {
         }
     }
 
-    @Test(groups="fast")
+    @Test
     public void testBasicSave() throws Exception {
         FileBean bean = new FileBean(from, "text/plain", "somefile.txt");
 
@@ -91,7 +90,7 @@ public class FileBeanTests {
         assertContents(this.to);
     }
 
-    @Test(groups = "fast")
+    @Test
     public void testReader() throws Exception {
         FileBean bean = new FileBean(from, "text/plain", "somefile.txt");
 
@@ -102,7 +101,7 @@ public class FileBeanTests {
         assertContents(this.to);
     }
 
-    @Test(groups = "fast")
+    @Test
     public void testReaderWithCharset1() throws Exception {
         String charset = Charset.defaultCharset().name();
         FileBean bean = new FileBean(from, "text/plain", "somefile.txt", charset);
@@ -114,7 +113,7 @@ public class FileBeanTests {
         assertContents(this.to);
     }
 
-    @Test(groups = "fast")
+    @Test
     public void testReaderWithCharset2() throws Exception {
         String charset = Charset.defaultCharset().name();
         FileBean bean = new FileBean(from, "text/plain", "somefile.txt");
@@ -126,7 +125,7 @@ public class FileBeanTests {
         assertContents(this.to);
     }
 
-    @Test(groups="fast")
+    @Test
     public void testSaveByCopy() throws Exception {
         FileBean bean = new FileBean(from, "text/plain", "somefile.txt");
 
@@ -136,7 +135,7 @@ public class FileBeanTests {
         assertContents(this.to);
     }
 
-    @Test(groups="fast")
+    @Test
     public void testSaveOverExistingFile() throws Exception {
         FileBean bean = new FileBean(from, "text/plain", "somefile.txt");
 
@@ -147,7 +146,7 @@ public class FileBeanTests {
         assertContents(this.to);
     }
 
-    @Test(groups="fast")
+    @Test
     public void testSaveOverExistingFileWithContents() throws Exception {
         FileBean bean = new FileBean(from, "text/plain", "somefile.txt");
 
@@ -168,7 +167,7 @@ public class FileBeanTests {
         assertContents(this.to);
     }
 
-    @Test(groups="fast")
+    @Test
     public void testIntoDirectoryThatDoesNotExistYet() throws Exception {
         FileBean bean = new FileBean(from, "text/plain", "somefile.txt");
         File realTo = this.to;

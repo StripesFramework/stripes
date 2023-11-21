@@ -14,7 +14,7 @@
  */
 package net.sourceforge.stripes.examples.bugzooky.ext;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.action.RedirectResolution;

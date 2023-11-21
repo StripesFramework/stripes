@@ -178,12 +178,9 @@ public class DefaultObjectFactory implements ObjectFactory {
             if (clazz.isInterface())
                 return postProcess(newInterfaceInstance(clazz));
             else
-                return postProcess(clazz.newInstance());
+                return postProcess(clazz.getDeclaredConstructor().newInstance());
         }
-        catch (InstantiationException e) {
-            throw new StripesRuntimeException("Could not instantiate " + clazz, e);
-        }
-        catch (IllegalAccessException e) {
+        catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
             throw new StripesRuntimeException("Could not instantiate " + clazz, e);
         }
     }
