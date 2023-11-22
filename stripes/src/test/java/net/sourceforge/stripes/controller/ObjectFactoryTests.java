@@ -113,7 +113,7 @@ public class ObjectFactoryTests extends StripesTestFixture {
     }
 
     /** Attempt to instantiate an interface that does not have a known implementing class. */
-    @Test
+    @Test(expected = InstantiationException.class)
     public void missingInterfaceImpl() throws Throwable {
         try {
             log.debug("Attempting to instantiate ", Runnable.class, " expecting failure");
@@ -135,7 +135,7 @@ public class ObjectFactoryTests extends StripesTestFixture {
     }
 
     /** Attempt to instantiate a class that does not have a no-arg constructor. */
-    @Test
+    @Test(expected = NoSuchMethodException.class)
     public void missingNoArgsConstructor() throws Throwable {
         try {
             log.debug("Attempting to instantiate ", Adder.class, " expecting failure");

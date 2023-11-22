@@ -105,7 +105,7 @@ public class TestMockRoundtrip extends FilterEnabledTestBase implements ActionBe
         trip.execute();
 
         TestMockRoundtrip bean = trip.getActionBean(TestMockRoundtrip.class);
-        Assert.assertEquals(bean.getResult(), 4.0);
+        Assert.assertEquals(bean.getResult(), 4.0, 0);
         Assert.assertEquals(trip.getValidationErrors().size(), 0);
         Assert.assertEquals(trip.getDestination(), "/mock/success.jsp");
     }
@@ -118,7 +118,7 @@ public class TestMockRoundtrip extends FilterEnabledTestBase implements ActionBe
         trip.execute("add");
 
         TestMockRoundtrip bean = trip.getActionBean(TestMockRoundtrip.class);
-        Assert.assertEquals(bean.getResult(), 4.0);
+        Assert.assertEquals(bean.getResult(), 4.0, 0);
         Assert.assertEquals(trip.getValidationErrors().size(), 0);
         Assert.assertEquals(trip.getDestination(), "/mock/success.jsp");
     }
@@ -131,7 +131,7 @@ public class TestMockRoundtrip extends FilterEnabledTestBase implements ActionBe
         trip.execute("addAndRedirect");
 
         TestMockRoundtrip bean = trip.getActionBean(TestMockRoundtrip.class);
-        Assert.assertEquals(bean.getResult(), 4.0);
+        Assert.assertEquals(bean.getResult(), 4.0, 0);
         Assert.assertEquals(trip.getValidationErrors().size(), 0);
         Assert.assertEquals(trip.getDestination(), "/mock/success.jsp");
         Assert.assertNull(trip.getRequest().getForwardUrl());
@@ -145,7 +145,7 @@ public class TestMockRoundtrip extends FilterEnabledTestBase implements ActionBe
         trip.execute("addAndStream");
 
         TestMockRoundtrip bean = trip.getActionBean(TestMockRoundtrip.class);
-        Assert.assertEquals(bean.getResult(), 4.0);
+        Assert.assertEquals(bean.getResult(), 4.0, 0);
         Assert.assertEquals(trip.getValidationErrors().size(), 0);
         Assert.assertNull(trip.getDestination());
         Assert.assertEquals(trip.getOutputString(), "4.0");
@@ -170,7 +170,7 @@ public class TestMockRoundtrip extends FilterEnabledTestBase implements ActionBe
         trip.execute("multiply");
 
         TestMockRoundtrip bean = trip.getActionBean(TestMockRoundtrip.class);
-        Assert.assertEquals(bean.getResult(), 16.0);
+        Assert.assertEquals(bean.getResult(), 16.0, 0);
         Assert.assertEquals(trip.getValidationErrors().size(), 0);
         Assert.assertEquals(trip.getDestination(), "/mock/success.jsp");
     }
@@ -194,7 +194,7 @@ public class TestMockRoundtrip extends FilterEnabledTestBase implements ActionBe
         trip.execute("divide");
 
         TestMockRoundtrip bean = trip.getActionBean(TestMockRoundtrip.class);
-        Assert.assertEquals(bean.getResult(), 2.5);
+        Assert.assertEquals(bean.getResult(), 2.5, 0);
         Assert.assertEquals(trip.getValidationErrors().size(), 0);
         Assert.assertEquals(trip.getDestination(), "/mock/success.jsp");
         Assert.assertEquals(trip.getRequest().getAttribute("integerResult"), 2);
@@ -209,8 +209,7 @@ public class TestMockRoundtrip extends FilterEnabledTestBase implements ActionBe
         request.addHeader(headerName, value);
         String[] variants = { headerName, headerName.toLowerCase(), headerName.toUpperCase() };
         for (String v : variants) {
-            Assert.assertEquals(request.getHeader(v), value,
-                    "MockHttpServletRequest.addHeader/getHeader are case sensitive");
+            Assert.assertEquals("MockHttpServletRequest.addHeader/getHeader are case sensitive", request.getHeader(v), value);
         }
 
         headerName = "Content-Length";

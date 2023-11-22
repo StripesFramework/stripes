@@ -43,7 +43,7 @@ public class NumberTypeConverterSupportTest {
     @Test
     public void testFloatingPointsNumbers() {
         Number number = getConverter().parse("123.456", new ArrayList<ValidationError>());
-        Assert.assertEquals(number.doubleValue(), 123.456);
+        Assert.assertEquals(number.doubleValue(), 123.456, 0);
     }
 
     @Test
@@ -58,7 +58,7 @@ public class NumberTypeConverterSupportTest {
         Assert.assertEquals(number.intValue(), 57);
 
         number = getConverter().parse("$1,999.95", new ArrayList<ValidationError>());
-        Assert.assertEquals(number.doubleValue(), 1999.95);
+        Assert.assertEquals(number.doubleValue(), 1999.95, 0);
     }
 
     @Test
@@ -69,7 +69,7 @@ public class NumberTypeConverterSupportTest {
 
         number = getConverter().parse("1,999.95 $", new ArrayList<ValidationError>());
         Assert.assertNotNull(number);
-        Assert.assertEquals(number.doubleValue(), 1999.95);
+        Assert.assertEquals(number.doubleValue(), 1999.95, 0);
     }
 
     @Test
@@ -81,16 +81,16 @@ public class NumberTypeConverterSupportTest {
         Assert.assertEquals(number.intValue(), -57);
 
         number = getConverter().parse("($1,999.95)", new ArrayList<ValidationError>());
-        Assert.assertEquals(number.doubleValue(), -1999.95);
+        Assert.assertEquals(number.doubleValue(), -1999.95, 0);
 
         number = getConverter().parse("$(1,999.95)", new ArrayList<ValidationError>());
-        Assert.assertEquals(number.doubleValue(), -1999.95);
+        Assert.assertEquals(number.doubleValue(), -1999.95, 0);
     }
 
     @Test
     public void testComplicatedString() {
         Number number = getConverter().parse("  ($2,154,123.66) ", new ArrayList<ValidationError>());
-        Assert.assertEquals(number.doubleValue(), -2154123.66);
+        Assert.assertEquals(number.doubleValue(), -2154123.66, 0);
     }
 
     @Test

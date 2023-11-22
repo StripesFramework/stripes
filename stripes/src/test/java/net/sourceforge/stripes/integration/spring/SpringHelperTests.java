@@ -9,6 +9,7 @@ import net.sourceforge.stripes.exception.StripesRuntimeException;
 import net.sourceforge.stripes.test.TestActionBean;
 import net.sourceforge.stripes.test.TestBean;
 
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.support.StaticApplicationContext;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.StaticWebApplicationContext;
@@ -26,10 +27,10 @@ import org.junit.AfterClass;
  * @author Tim Fennell
  */
 public class SpringHelperTests {
-    StaticApplicationContext ctx;
+    static StaticApplicationContext ctx;
 
     @BeforeClass
-    protected void setupSpringContext() {
+    public static void setupSpringContext() {
         ctx = new StaticWebApplicationContext();
         ctx.registerSingleton("test/TestBean", TestBean.class);
         ctx.registerSingleton("testActionBean", TestActionBean.class);
@@ -207,7 +208,7 @@ public class SpringHelperTests {
         @SpringBean TestActionBean someBeanOrOther;
     }
 
-    @Test
+    @Test(expected = StripesRuntimeException.class)
     public void testAmbiguousByTypeInjection() {
         AmbiguousByTypeTarget target = new AmbiguousByTypeTarget();
         SpringHelper.injectBeans(target, ctx);
@@ -220,7 +221,7 @@ public class SpringHelperTests {
         @SpringBean("nonExistentBean") TestActionBean someBeanOrOther;
     }
 
-    @Test
+    @Test(expected = StripesRuntimeException.class)
     public void testExplicitMisNamedTargetInjection() {
     ExplicitMisNamedTarget target = new ExplicitMisNamedTarget();
         SpringHelper.injectBeans(target, ctx);
@@ -233,7 +234,7 @@ public class SpringHelperTests {
         @SpringBean TestActionBean tstActionBea;
     }
 
-    @Test
+    @Test(expected = StripesRuntimeException.class)
     public void testImplicitMisNamedTargetInjection() {
         ImplicitMisNamedTarget target = new ImplicitMisNamedTarget();
         SpringHelper.injectBeans(target, ctx);
@@ -246,7 +247,7 @@ public class SpringHelperTests {
         @SpringBean SpringHelperTests noBeansOfType;
     }
 
-    @Test
+    @Test(expected = StripesRuntimeException.class)
     public void testNoBeansOfTargetTypeInjection() {
         NoBeanOfTypeTarget target = new NoBeanOfTypeTarget();
         SpringHelper.injectBeans(target, ctx);
@@ -264,7 +265,7 @@ public class SpringHelperTests {
         }
     }
 
-    @Test
+    @Test(expected = StripesRuntimeException.class)
     public void testInvalidSetterSignatureInjection() {
         InvalidSetterSignatureTarget target = new InvalidSetterSignatureTarget();
         SpringHelper.injectBeans(target, ctx);

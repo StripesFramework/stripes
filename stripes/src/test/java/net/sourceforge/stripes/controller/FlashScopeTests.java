@@ -78,8 +78,7 @@ public class FlashScopeTests implements ActionBean {
             Matcher matcher = FLASH_ID_REGEX.matcher(url);
             Assert.assertTrue("Redirect URL should contain request parameter for flash scope id.", matcher.matches());
 
-            Assert.assertEquals("foo123", trip.getRequest().getAttribute("foo"),
-                                "FlashScope should have inserted 'foo' into a request attribute.");
+            Assert.assertEquals("FlashScope should have inserted 'foo' into a request attribute.", "foo123", trip.getRequest().getAttribute("foo"));
 
             MockRoundtrip trip2 = new MockRoundtrip
                     (ctx, FlashScopeTests.class, (MockHttpSession) trip.getRequest().getSession());
@@ -91,8 +90,7 @@ public class FlashScopeTests implements ActionBean {
             Assert.assertNull("Request attribute 'foo' should not exist prior to request.", trip2.getRequest().getAttribute("foo"));
 
             trip2.execute("DoNothing");
-            Assert.assertEquals("foo123", trip2.getRequest().getAttribute("foo"),
-                                "Request attribute 'foo' should have been set by FlashScope.");
+            Assert.assertEquals("Request attribute 'foo' should have been set by FlashScope.", "foo123", trip2.getRequest().getAttribute("foo"));
 
             Assert.assertEquals("FlashScope should have been removed from session after use.", FlashScope.getAllFlashScopes(trip2.getRequest()).size(), 0);
 

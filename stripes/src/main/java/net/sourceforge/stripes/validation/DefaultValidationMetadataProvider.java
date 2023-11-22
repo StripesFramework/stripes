@@ -97,7 +97,7 @@ public class DefaultValidationMetadataProvider implements ValidationMetadataProv
         Map<String, AnnotationInfo> annotationInfoMap =
             getAnnotationInfoMap(beanType, Validate.class, ValidateNestedProperties.class);
 
-        for (String propertyName : annotationInfoMap.keySet()) {
+                for (String propertyName : annotationInfoMap.keySet()) {
             AnnotationInfo annotationInfo = annotationInfoMap.get(propertyName);
 
             // get the @Validate and/or @ValidateNestedProperties

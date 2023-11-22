@@ -36,15 +36,15 @@ public class InheritanceTests extends SuperclassActionBean {
     @HandlesEvent("/Validate.action")
     public Resolution another() { return new RedirectResolution("/child.jsp"); }
 
-    private MockServletContext ctx;
+    private static MockServletContext ctx;
 
     @BeforeClass
-    public void setupServletContext(){
+    public static void setupServletContext(){
         ctx = StripesTestFixture.createServletContext();
     }
 
     @AfterClass
-    public void closeServletContext(){
+    public static void closeServletContext(){
         ctx.close();
     }
 
@@ -57,7 +57,7 @@ public class InheritanceTests extends SuperclassActionBean {
         MockRoundtrip trip = new MockRoundtrip(ctx,
                                                InheritanceTests.class);
         trip.execute();
-        Assert.assertEquals(trip.getDestination(), "/child.jsp", "Wrong default handler called!");
+        Assert.assertEquals("Wrong default handler called!", trip.getDestination(), "/child.jsp");
     }
 
     // Overridden getter methods that simply allow additional validations to be added

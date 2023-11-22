@@ -49,15 +49,15 @@ public class GenericsBindingTests2
     // Test and Support Methods
     ///////////////////////////////////////////////////////////////////////////
 
-    private MockServletContext ctx;
+    private static MockServletContext ctx;
 
     @BeforeClass
-    public void setupServletContext(){
+    public static void setupServletContext(){
         ctx = StripesTestFixture.createServletContext();
     }
 
     @AfterClass
-    public void closeServletContext(){
+    public static void closeServletContext(){
         ctx.close();
     }
 

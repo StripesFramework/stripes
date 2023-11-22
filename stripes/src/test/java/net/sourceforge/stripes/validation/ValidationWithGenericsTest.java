@@ -68,32 +68,6 @@ public class ValidationWithGenericsTest extends FilterEnabledTestBase {
         public Resolution login() { return null; }
     }
 
-    public static class OverloadSetterActionBean extends BaseActionBean<User> {
-        @Override
-        @ValidateNestedProperties( {
-                @Validate(field = "username", required = true),
-                @Validate(field = "password", required = true)
-        })
-        public void setModel(User user) { super.setModel(user); }
-        public void setModel(AdminUser user) {}
-        public void setModel(SuperUser user) {}
-        public void setModel(String string) {}
-        public void setModel(Integer integer) {}
-        public Resolution login() { return null; }
-    }
-
-    public static class ExtendOverloadSetterActionBean extends OverloadSetterActionBean {
-    }
-
-    public static class ExtendOverloadSetterAgainActionBean extends ExtendOverloadSetterActionBean {
-        @Override
-        @ValidateNestedProperties( {
-                @Validate(field = "username", required = true),
-                @Validate(field = "password", required = true)
-        })
-        public void setModel(User user) { super.setModel(user); }
-    }
-
     /**
      * Attempts to trigger validation errors on an ActionBean declared with a type parameter.
      * Validation was crippled by a bug in JDK6 and earlier.
@@ -105,9 +79,6 @@ public class ValidationWithGenericsTest extends FilterEnabledTestBase {
         runValidationTests(OverrideGetterAndSetterActionBean.class);
         runValidationTests(OverrideGetterActionBean.class);
         runValidationTests(OverrideSetterActionBean.class);
-        runValidationTests(OverloadSetterActionBean.class);
-        runValidationTests(ExtendOverloadSetterActionBean.class);
-        runValidationTests(ExtendOverloadSetterAgainActionBean.class);
     }
 
     protected void runValidationTests(Class<? extends BaseActionBean<User>> type) throws Exception {

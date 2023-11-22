@@ -118,7 +118,7 @@ public class UrlBindingFactoryTests {
 
     @BeforeClass
     @SuppressWarnings("unchecked")
-    public void setupClass() {
+    public static void setupClass() {
         Class<? extends ActionBean>[] classes = new Class[] { ConflictActionBean1.class,
                 ConflictActionBean2.class, ConflictActionBean3.class, ConflictActionBean4.class,
                 FooActionBean.class, FooActionBean1.class, FooActionBean2.class,
@@ -188,8 +188,7 @@ public class UrlBindingFactoryTests {
             UrlBinding binding = UrlBindingFactory.parseUrlBinding(clazz);
             log.debug("Expression parsed to ", binding);
             Assert.assertNotNull(binding);
-            Assert.assertEquals(binding.toString(), removeEscapes(annotation.value()),
-                    "Parsed expression is not the same as original expression");
+            Assert.assertEquals("Parsed expression is not the same as original expression", binding.toString(), removeEscapes(annotation.value()));
         }
 
         // Check weird parameter names
@@ -210,7 +209,7 @@ public class UrlBindingFactoryTests {
         }
     }
 
-    @Test
+    @Test(expected = UrlBindingConflictException.class)
     public void testUrlBindingConflict() {
         checkBinding("/clash/not", ConflictActionBean4.class);
         checkBinding("/clash/not/", ConflictActionBean4.class);

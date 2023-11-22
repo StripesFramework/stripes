@@ -23,6 +23,8 @@ import java.util.UUID;
 import jakarta.mail.internet.ContentDisposition;
 import jakarta.mail.internet.ParseException;
 
+import net.sourceforge.stripes.localization.DefaultLocalePicker;
+import net.sourceforge.stripes.localization.LocalePicker;
 import net.sourceforge.stripes.mock.MockHttpServletResponse;
 
 import org.junit.Test;
@@ -51,7 +53,7 @@ public class TestStreamingResolution {
         MockHttpServletResponse response = new MockHttpServletResponse();
         resolution.applyHeaders(response);
         resolution.stream(response);
-        Assert.assertEquals(data, response.getOutputBytes());
+        Assert.assertArrayEquals(data, response.getOutputBytes());
 
         ContentDisposition disposition = getContentDisposition(response);
         if (attachment) {

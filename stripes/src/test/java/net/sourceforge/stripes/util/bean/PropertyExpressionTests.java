@@ -64,7 +64,7 @@ public class PropertyExpressionTests {
         Assert.assertEquals(root.getNext().getNext().getStringValue(), "bar");
     }
 
-    @Test
+    @Test(expected = ParseException.class)
     public void testBackToBackQuotedStrings() {
         @SuppressWarnings("unused")
         PropertyExpression expr = PropertyExpression.getExpression("foo['bar''splat']");

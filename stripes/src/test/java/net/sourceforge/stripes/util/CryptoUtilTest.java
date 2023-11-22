@@ -1,6 +1,7 @@
 package net.sourceforge.stripes.util;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.security.SecureRandom;
@@ -51,7 +52,7 @@ public class CryptoUtilTest {
         String encrypted = CryptoUtil.encrypt(input);
         String decrypted = CryptoUtil.decrypt(encrypted);
 
-        Assert.assertEquals(decrypted, "", "Encrypting and then decrypting null should yield \"\"");
+        Assert.assertEquals("Encrypting and then decrypting null should yield \"\"", decrypted, "");
     }
 
     @Test
@@ -92,7 +93,7 @@ public class CryptoUtilTest {
 	 * This test is disabled because it is very very slow.
 	 * It will launch a modified ciphertext attack, which should always be rejected by hmac verification.
 	 */
-    @Test
+    @Test @Ignore
 	public void failOnWeakHash() throws Exception {
 		String input = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
 		String encrypted = CryptoUtil.encrypt(input);

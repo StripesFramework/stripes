@@ -189,12 +189,10 @@ public class PropertyExpressionEvaluationTests extends FilterEnabledTestBase {
 
         for (int i=0; i<10; ++i) {
             if (i%2 == 0) {
-                Assert.assertNull(root.getStringList().get(i),
-                                  "String list index " + i + " should be null.");
+                Assert.assertNull("String list index " + i + " should be null.", root.getStringList().get(i));
             }
             else {
-                Assert.assertEquals("testValue", root.getStringList().get(i),
-                                    "String list index " + i + " should be 'testValue'.");
+                Assert.assertEquals("String list index " + i + " should be 'testValue'.", "testValue", root.getStringList().get(i));
             }
         }
     }
