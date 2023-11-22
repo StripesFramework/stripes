@@ -22,7 +22,7 @@ import java.lang.annotation.Target;
 
 /**
  * Annotation that is used to specify that an ActionBean should be instantiated and stored across
- * requests in the Session scope. By default ActionBeans are instantiated per-request, populated,
+ * requests in the Session scope. By default, ActionBeans are instantiated per-request, populated,
  * used and then discarded at the end of the request cycle. Using this annotation causes an
  * ActionBean to live for multiple request cycles. It will be instantiated and put into session on
  * the first request that references the ActionBean. A reference to the bean will also be placed
@@ -45,7 +45,7 @@ import java.lang.annotation.Target;
  * fields.
  *
  * <p>A second major issue is in using the validation service. The validation service validates
- * <em>what was submitted in the request</em>. Therefore if a property is marked are required, is
+ * <em>what was submitted in the request</em>. Therefore, if a property is marked are required, is
  * present in the session scope bean, but is not submitted by the user, it will generate a required
  * field error. This may or may not be desired behaviour. If it is not, it is suggested that the
  * ActionBean implement the ValidationErrorHandler interface to find out about the validation errors

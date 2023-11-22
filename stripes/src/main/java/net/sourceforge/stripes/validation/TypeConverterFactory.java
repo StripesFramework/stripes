@@ -38,7 +38,7 @@ public interface TypeConverterFactory extends ConfigurableComponent {
    * @return an instance of a TypeConverter which will convert Strings to the desired type
    * @throws Exception if the TypeConverter cannot be instantiated
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings("rawtypes")
   TypeConverter getTypeConverter(Class forType, Locale locale) throws Exception;
 
   /**
@@ -49,7 +49,7 @@ public interface TypeConverterFactory extends ConfigurableComponent {
    * @return an instance of the TypeConverter specified
    * @throws Exception if the TypeConverter cannot be instantiated
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings("rawtypes")
   TypeConverter getInstance(Class<? extends TypeConverter> clazz, Locale locale) throws Exception;
 
   /**
@@ -63,5 +63,5 @@ public interface TypeConverterFactory extends ConfigurableComponent {
    * @throws UnsupportedOperationException if the implementation does not support adding type
    *     converters at runtime
    */
-  public void add(Class<?> targetType, Class<? extends TypeConverter<?>> converterClass);
+  void add(Class<?> targetType, Class<? extends TypeConverter<?>> converterClass);
 }

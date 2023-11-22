@@ -18,6 +18,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import net.sourceforge.stripes.controller.StripesConstants;
 import net.sourceforge.stripes.exception.StripesJspException;
 import net.sourceforge.stripes.util.CryptoUtil;
@@ -26,7 +27,7 @@ import net.sourceforge.stripes.util.UrlBuilder;
 
 /**
  * Abstract support class for generating links. Used by both the LinkTag (which generates regular
- * {@literal <a href=""/>} style links) and the UrlTag which is a rough similie of the JSTL url tag.
+ * {@literal <a href=""/>} style links) and the UrlTag which is a rough simile of the JSTL url tag.
  *
  * @author Tim Fennell
  * @since Stripes 1.4
@@ -37,7 +38,7 @@ public abstract class LinkTagSupport extends HtmlTagSupport implements Parameter
   /** Initial value for fields to indicate they were not set by a tag attribute. */
   private static final String VALUE_NOT_SET = "VALUE_NOT_SET";
 
-  private Map<String, Object> parameters = new HashMap<String, Object>();
+  private final Map<String, Object> parameters = new HashMap<>();
   private String event = VALUE_NOT_SET;
   private Object beanclass;
   private String url;
@@ -70,7 +71,7 @@ public abstract class LinkTagSupport extends HtmlTagSupport implements Parameter
    * a parameter to the parent link tag.
    *
    * @param name the name of the parameter(s) to add
-   * @param valueOrValues
+   * @param valueOrValues the value(s) of the parameter(s) to add
    */
   public void addParameter(String name, Object valueOrValues) {
     this.parameters.put(name, valueOrValues);
@@ -172,7 +173,7 @@ public abstract class LinkTagSupport extends HtmlTagSupport implements Parameter
    *     existing ActionBean
    */
   protected String getPreferredBaseUrl() throws StripesJspException {
-    // If the beanclass attribute was supplied we'll prefer that to an href
+    // If the beanclass attribute was supplied we'll prefer that to a href
     if (this.beanclass != null) {
       String beanHref = getActionBeanUrl(beanclass);
       if (beanHref == null) {
@@ -206,8 +207,8 @@ public abstract class LinkTagSupport extends HtmlTagSupport implements Parameter
     // the HtmlTagSupport will HtmlEncode the ampersands for us
     String base = getPreferredBaseUrl();
     UrlBuilder builder = new UrlBuilder(pageContext.getRequest().getLocale(), base, false);
-    if (this.event != VALUE_NOT_SET) {
-      builder.setEvent(this.event == null || this.event.length() < 1 ? null : this.event);
+    if (!Objects.equals(this.event, VALUE_NOT_SET)) {
+      builder.setEvent(this.event == null || this.event.isEmpty() ? null : this.event);
     }
     if (addSourcePage) {
       builder.addParameter(

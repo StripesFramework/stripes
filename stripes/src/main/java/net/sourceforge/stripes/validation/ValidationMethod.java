@@ -47,15 +47,15 @@ import java.lang.annotation.Target;
  * example 'on="!delete"', in which case the validation will be run for all events except those
  * listed.
  *
- * <p>The {@code when} attribute controls whether or not the validation method is executed when one
- * or more validation errors exist. It has no affect when there are no validation errors. A value of
- * {@link ValidationState#ALWAYS} will cause the method to be invoked even if errors exist. This is
- * useful when you wish to perform additional validations that do not depend on having a
- * well-validated ActionBean since it allows the user to see more validation errors at the same
- * time. A value of {@link ValidationState#NO_ERRORS} causes the method to be invoked only when
- * there are no pre-existing validation errors. This is useful if the method relies on a valid
- * ActionBean and might throw exceptions otherwise. The value {@link ValidationState#DEFAULT} causes
- * Stripes to apply the system level default for this attribute.
+ * <p>The {@code when} attribute controls whether the validation method is executed when one or more
+ * validation errors exist. It has no affect when there are no validation errors. A value of {@link
+ * ValidationState#ALWAYS} will cause the method to be invoked even if errors exist. This is useful
+ * when you wish to perform additional validations that do not depend on having a well-validated
+ * ActionBean since it allows the user to see more validation errors at the same time. A value of
+ * {@link ValidationState#NO_ERRORS} causes the method to be invoked only when there are no
+ * pre-existing validation errors. This is useful if the method relies on a valid ActionBean and
+ * might throw exceptions otherwise. The value {@link ValidationState#DEFAULT} causes Stripes to
+ * apply the system level default for this attribute.
  *
  * <p>The default behaviour is such that if validation errors arise from the annotated validations
  * (or type conversion), validation methods will not be called (nor will the handler method). This
@@ -79,7 +79,7 @@ public @interface ValidationMethod {
   int priority() default 0;
 
   /**
-   * Allows the validation method to be restricted to one or more events. By default the validation
+   * Allows the validation method to be restricted to one or more events. By default, the validation
    * method will execute on all events not marked with {@literal @}DontValidate. Can be used to
    * specify one or more events to apply the method to (e.g. on={"save", "update"}) or to specify
    * one or more events <i>not</i> to apply the method to (e.g. on="!delete").
@@ -87,8 +87,8 @@ public @interface ValidationMethod {
   String[] on() default {};
 
   /**
-   * Controls whether or not the validation method will be executed when earlier phases of
-   * validation generated validation errors. Valid values are {@link ValidationState#ALWAYS}, {@link
+   * Controls whether the validation method will be executed when earlier phases of validation
+   * generated validation errors. Valid values are {@link ValidationState#ALWAYS}, {@link
    * ValidationState#NO_ERRORS} and {@link ValidationState#DEFAULT}. By specifying {@code ALWAYS}
    * you can ensure that all error messages are presented to the user at once. By specifying {@code
    * NO_ERRORS} you can be sure of the state of the ActionBean has been validated successfully prior

@@ -17,7 +17,6 @@ package net.sourceforge.stripes.tag;
 import jakarta.servlet.jsp.JspException;
 import jakarta.servlet.jsp.JspWriter;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -97,17 +96,17 @@ public class InputOptionsCollectionTag extends HtmlTagSupport {
   private final HtmlTagSupport optgroupSupport =
       new HtmlTagSupport() {
         @Override
-        public int doStartTag() throws JspException {
+        public int doStartTag() {
           return 0;
         }
 
         @Override
-        public int doEndTag() throws JspException {
+        public int doEndTag() {
           return 0;
         }
       };
 
-  private Collection<? extends Object> collection;
+  private Collection<?> collection;
   private String value;
   private String label;
   private String sort;
@@ -131,11 +130,11 @@ public class InputOptionsCollectionTag extends HtmlTagSupport {
   }
 
   /** Internal list of entries that is assembled from the items in the collection. */
-  private List<Entry> entries = new LinkedList<Entry>();
+  private final List<Entry> entries = new LinkedList<>();
 
   /**
    * Sets the collection that will be used to generate options. In this case the term collection is
-   * used in the loosest possible sense - it means either a bonafide instance of {@link
+   * used in the loosest possible sense - it means either a bona-fide instance of {@link
    * java.util.Collection}, or an implementation of {@link Iterable} other than a Collection, or an
    * array of Objects or primitives.
    *
@@ -144,7 +143,7 @@ public class InputOptionsCollectionTag extends HtmlTagSupport {
    *
    * @param in either a Collection, an Iterable or an Array
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "rawtypes"})
   public void setCollection(Object in) {
     if (in == null) this.collection = null;
     else if (in instanceof Collection) this.collection = (Collection) in;
@@ -211,18 +210,18 @@ public class InputOptionsCollectionTag extends HtmlTagSupport {
     return sort;
   }
 
-  /** Sets the flag that indicates whether or not attempts to localize labels should be made. */
+  /** Sets the flag that indicates whether attempts to localize labels should be made. */
   public void setLocalizeLabels(Boolean localizeLabels) {
     this.localizeLabels = localizeLabels;
   }
 
-  /** Gets the flag that indicates whether or not attempts to localize labels should be made. */
+  /** Gets the flag that indicates whether attempts to localize labels should be made. */
   public Boolean getLocalizeLabels() {
     return localizeLabels;
   }
 
   protected boolean isAttemptToLocalizeLabels() {
-    return (localizeLabels == null) || (localizeLabels != null && localizeLabels.booleanValue());
+    return localizeLabels == null || localizeLabels;
   }
 
   /**
@@ -270,7 +269,7 @@ public class InputOptionsCollectionTag extends HtmlTagSupport {
       boolean attemptToLocalizeLabels = isAttemptToLocalizeLabels();
 
       for (Object item : this.collection) {
-        Class<? extends Object> clazz = item.getClass();
+        Class<?> clazz = item.getClass();
 
         // Lookup the bean properties for the label, value and group
         Object label =
@@ -332,7 +331,7 @@ public class InputOptionsCollectionTag extends HtmlTagSupport {
   @Override
   public int doEndTag() throws JspException {
     // Determine if we're going to be sorting the collection
-    List<Entry> sortedEntries = new LinkedList<Entry>(this.entries);
+    List<Entry> sortedEntries = new LinkedList<>(this.entries);
     if (this.sort != null) {
       String[] props = StringUtil.standardSplit(this.sort);
       for (int i = 0; i < props.length; ++i) {
@@ -341,8 +340,7 @@ public class InputOptionsCollectionTag extends HtmlTagSupport {
         }
       }
 
-      Collections.sort(
-          sortedEntries, new BeanComparator(getPageContext().getRequest().getLocale(), props));
+      sortedEntries.sort(new BeanComparator(getPageContext().getRequest().getLocale(), props));
     }
 
     InputOptionTag tag = new InputOptionTag();
@@ -374,7 +372,7 @@ public class InputOptionsCollectionTag extends HtmlTagSupport {
         tag.doAfterBody();
         tag.doEndTag();
       } catch (Throwable t) {
-        /** Catch whatever comes back out of the doCatch() method and deal with it */
+        /* Catch whatever comes back out of the doCatch() method and deal with it */
         try {
           tag.doCatch(t);
         } catch (Throwable t2) {

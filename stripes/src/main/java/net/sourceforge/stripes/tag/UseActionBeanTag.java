@@ -25,7 +25,6 @@ import net.sourceforge.stripes.controller.ActionResolver;
 import net.sourceforge.stripes.controller.DispatcherHelper;
 import net.sourceforge.stripes.controller.DispatcherServlet;
 import net.sourceforge.stripes.controller.ExecutionContext;
-import net.sourceforge.stripes.controller.Interceptor;
 import net.sourceforge.stripes.controller.LifecycleStage;
 import net.sourceforge.stripes.controller.StripesFilter;
 import net.sourceforge.stripes.exception.StripesJspException;
@@ -74,7 +73,7 @@ public class UseActionBeanTag extends StripesTagSupport {
    * then runs either the named event or the default.
    *
    * @return SKIP_BODY in all cases.
-   * @throws JspException if the ActionBean could not be instantiate and executed
+   * @throws JspException if the ActionBean could not be instantiated and executed
    */
   @Override
   public int doStartTag() throws JspException {
@@ -102,12 +101,10 @@ public class UseActionBeanTag extends StripesTagSupport {
         ctx.setInterceptors(config.getInterceptors(LifecycleStage.ActionBeanResolution));
         resolution =
             ctx.wrap(
-                new Interceptor() {
-                  public Resolution intercept(ExecutionContext ec) throws Exception {
-                    ActionBean bean = resolver.getActionBean(ec.getActionBeanContext(), binding);
-                    ec.setActionBean(bean);
-                    return null;
-                  }
+                ec -> {
+                  ActionBean bean = resolver.getActionBean(ec.getActionBeanContext(), binding);
+                  ec.setActionBean(bean);
+                  return null;
                 });
       } else {
         ctx.setActionBean(actionBean);
@@ -120,12 +117,10 @@ public class UseActionBeanTag extends StripesTagSupport {
         ctx.setInterceptors(config.getInterceptors(LifecycleStage.HandlerResolution));
         resolution =
             ctx.wrap(
-                new Interceptor() {
-                  public Resolution intercept(ExecutionContext ec) throws Exception {
-                    ec.setHandler(resolver.getHandler(ec.getActionBean().getClass(), event));
-                    ec.getActionBeanContext().setEventName(event);
-                    return null;
-                  }
+                ec -> {
+                  ec.setHandler(resolver.getHandler(ec.getActionBean().getClass(), event));
+                  ec.getActionBeanContext().setEventName(event);
+                  return null;
                 });
       }
 
@@ -135,17 +130,17 @@ public class UseActionBeanTag extends StripesTagSupport {
         DispatcherHelper.setPageContext(getPageContext());
 
         // Bind applicable request parameters to the ActionBean
-        if (resolution == null && (beanNotPresent || this.validate == true)) {
+        if (resolution == null && (beanNotPresent || this.validate)) {
           resolution = DispatcherHelper.doBindingAndValidation(ctx, this.validate);
         }
 
         // Run custom validations if we're validating
-        if (resolution == null && this.validate == true) {
+        if (resolution == null && this.validate) {
           String temp =
               config
                   .getBootstrapPropertyResolver()
                   .getProperty(DispatcherServlet.RUN_CUSTOM_VALIDATION_WHEN_ERRORS);
-          boolean validateWhenErrors = temp != null && Boolean.valueOf(temp);
+          boolean validateWhenErrors = Boolean.parseBoolean(temp);
 
           resolution = DispatcherHelper.doCustomValidation(ctx, validateWhenErrors);
         }
@@ -154,7 +149,7 @@ public class UseActionBeanTag extends StripesTagSupport {
       }
 
       // Fill in any validation errors if they exist
-      if (resolution == null && this.validate == true) {
+      if (resolution == null && this.validate) {
         resolution = DispatcherHelper.handleValidationErrors(ctx);
       }
 
@@ -176,7 +171,7 @@ public class UseActionBeanTag extends StripesTagSupport {
 
       return SKIP_BODY;
     } catch (Exception e) {
-      throw new StripesJspException("Unabled to prepare ActionBean for JSP Usage", e);
+      throw new StripesJspException("Unable to prepare ActionBean for JSP Usage", e);
     }
   }
 

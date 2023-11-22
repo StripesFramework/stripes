@@ -131,13 +131,13 @@ public class LayoutContext {
   }
 
   private LayoutContext previous, next;
-  private LayoutRenderTag renderTag;
+  private final LayoutRenderTag renderTag;
   private LayoutWriter out;
-  private Map<String, LayoutComponentRenderer> components =
-      new HashMap<String, LayoutComponentRenderer>();
-  private Map<String, Object> parameters = new HashMap<String, Object>();
-  private String renderPage, component;
-  private LayoutRenderTagPath componentPath;
+  private final Map<String, LayoutComponentRenderer> components = new HashMap<>();
+  private final Map<String, Object> parameters = new HashMap<>();
+  private final String renderPage;
+  private String component;
+  private final LayoutRenderTagPath componentPath;
   private boolean componentRenderPhase, rendered;
 
   /**
@@ -227,7 +227,7 @@ public class LayoutContext {
   protected void doIncludeHack(PageContext pageContext, String relativeUrlPath)
       throws ServletException, IOException {
 
-    /**
+    /*
      * A servlet output stream implementation that decodes bytes to characters and writes the
      * characters to an underlying writer.
      */
@@ -235,11 +235,11 @@ public class LayoutContext {
       static final String DEFAULT_CHARSET = "UTF-8";
       static final int BUFFER_SIZE = 1024;
 
-      Writer out;
+      final Writer out;
       String charset = DEFAULT_CHARSET;
       CharsetDecoder decoder;
-      ByteBuffer bbuf;
-      CharBuffer cbuf;
+      ByteBuffer byteBuffer;
+      CharBuffer charBuffer;
 
       /** Construct a new instance that sends output to the specified writer. */
       MyServletOutputStream(Writer out) {
@@ -266,10 +266,11 @@ public class LayoutContext {
         if (decoder == null) {
           decoder = Charset.forName(getCharset()).newDecoder();
 
-          if (bbuf == null) bbuf = ByteBuffer.allocate(BUFFER_SIZE);
+          if (byteBuffer == null) byteBuffer = ByteBuffer.allocate(BUFFER_SIZE);
 
           int size = (int) Math.ceil(BUFFER_SIZE * decoder.maxCharsPerByte());
-          if (cbuf == null || cbuf.capacity() != size) cbuf = CharBuffer.allocate(size);
+          if (charBuffer == null || charBuffer.capacity() != size)
+            charBuffer = CharBuffer.allocate(size);
         }
       }
 
@@ -279,12 +280,12 @@ public class LayoutContext {
        * accordingly.
        */
       void resetBuffer() {
-        if (bbuf.hasRemaining()) {
-          ByteBuffer slice = bbuf.slice();
-          bbuf.clear();
-          bbuf.put(slice);
+        if (byteBuffer.hasRemaining()) {
+          ByteBuffer slice = byteBuffer.slice();
+          byteBuffer.clear();
+          byteBuffer.put(slice);
         } else {
-          bbuf.clear();
+          byteBuffer.clear();
         }
       }
 
@@ -293,11 +294,11 @@ public class LayoutContext {
        * of the character buffer to the underlying writer.
        */
       void decodeBuffer() throws IOException {
-        bbuf.flip();
-        cbuf.clear();
-        decoder.decode(bbuf, cbuf, false);
-        cbuf.flip();
-        out.write(cbuf.array(), cbuf.position(), cbuf.remaining());
+        byteBuffer.flip();
+        charBuffer.clear();
+        decoder.decode(byteBuffer, charBuffer, false);
+        charBuffer.flip();
+        out.write(charBuffer.array(), charBuffer.position(), charBuffer.remaining());
         resetBuffer();
       }
 
@@ -322,7 +323,7 @@ public class LayoutContext {
       @Override
       public void write(int b) throws IOException {
         initDecoder();
-        bbuf.put((byte) b);
+        byteBuffer.put((byte) b);
         decodeBuffer();
       }
 
@@ -330,11 +331,11 @@ public class LayoutContext {
       public void write(byte[] buf, int off, int len) throws IOException {
         initDecoder();
 
-        for (int i = 0; i < len; i += bbuf.remaining()) {
+        for (int i = 0; i < len; i += byteBuffer.remaining()) {
           int n = len - i;
-          if (n > bbuf.remaining()) n = bbuf.remaining();
+          if (n > byteBuffer.remaining()) n = byteBuffer.remaining();
 
-          bbuf.put(buf, i, n);
+          byteBuffer.put(buf, i, n);
           decodeBuffer();
         }
       }
@@ -360,12 +361,12 @@ public class LayoutContext {
           }
 
           @Override
-          public ServletOutputStream getOutputStream() throws IOException {
+          public ServletOutputStream getOutputStream() {
             return os;
           }
 
           @Override
-          public PrintWriter getWriter() throws IOException {
+          public PrintWriter getWriter() {
             return writer;
           }
         };

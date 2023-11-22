@@ -33,7 +33,7 @@ import net.sourceforge.stripes.validation.ValidationMetadata;
  *
  * <p>If there is no value in the request then an ActionBean bound to the current form will be
  * looked for. If the ActionBean is found and the value is non-null it will be returned. If no value
- * can be found in either place, null will returned.
+ * can be found in either place, null will be returned.
  *
  * @author Tim Fennell
  */
@@ -165,7 +165,7 @@ public class DefaultPopulationStrategy implements PopulationStrategy {
     ActionBean actionBean = tag.getParentFormTag().getActionBean();
     if (actionBean != null) {
       ValidationErrors errors = actionBean.getContext().getValidationErrors();
-      inError = (errors != null && errors.size() > 0);
+      inError = (errors != null && !errors.isEmpty());
     }
 
     return inError;

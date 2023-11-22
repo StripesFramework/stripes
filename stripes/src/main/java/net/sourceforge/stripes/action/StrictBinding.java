@@ -46,7 +46,7 @@ import net.sourceforge.stripes.validation.ValidateNestedProperties;
  * </ul>
  *
  * <p>The {@link #allow()} and {@link #deny()} elements are of type String[], but each string in the
- * array may be a comma-separated list of properties. Thus the {@code @StrictBinding(allow="user,
+ * array may be a comma-separated list of properties. Thus, the {@code @StrictBinding(allow="user,
  * user.*")} is equivalent to {@code @StrictBinding(allow={ "user", "user.*" }}.
  *
  * @author Ben Gunter
@@ -56,7 +56,7 @@ import net.sourceforge.stripes.validation.ValidateNestedProperties;
 @Documented
 public @interface StrictBinding {
   /** The options for the {@link StrictBinding#defaultPolicy()} element. */
-  public enum Policy {
+  enum Policy {
     /** In the event of a conflict, binding is allowed */
     ALLOW,
 

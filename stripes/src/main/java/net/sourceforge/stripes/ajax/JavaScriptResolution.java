@@ -28,7 +28,7 @@ import net.sourceforge.stripes.action.Resolution;
  * @since Stripes 1.1
  */
 public class JavaScriptResolution implements Resolution {
-  private JavaScriptBuilder builder;
+  private final JavaScriptBuilder builder;
 
   /**
    * Constructs a new JavaScriptResolution that will convert the supplied object to JavaScript.

@@ -70,12 +70,12 @@ import net.sourceforge.stripes.util.ReflectUtil;
   LifecycleStage.RequestComplete
 })
 public class BeforeAfterMethodInterceptor implements Interceptor {
-  /** Log used throughout the intercetor */
+  /** Log used throughout the interceptor */
   private static final Log log = Log.getInstance(BeforeAfterMethodInterceptor.class);
 
   /** Cache of the FilterMethods for the different ActionBean classes */
-  private Map<Class<? extends ActionBean>, FilterMethods> filterMethodsCache =
-      new ConcurrentHashMap<Class<? extends ActionBean>, FilterMethods>();
+  private final Map<Class<? extends ActionBean>, FilterMethods> filterMethodsCache =
+      new ConcurrentHashMap<>();
 
   /**
    * Does the main work of the interceptor as described in the class level javadoc. Executed the
@@ -92,7 +92,7 @@ public class BeforeAfterMethodInterceptor implements Interceptor {
     LifecycleStage stage = context.getLifecycleStage();
     ActionBeanContext abc = context.getActionBeanContext();
     String event = abc == null ? null : abc.getEventName();
-    Resolution resolution = null;
+    Resolution resolution;
 
     // Run @Before methods, as long as there's a bean to run them on
     if (context.getActionBean() != null) {
@@ -124,7 +124,7 @@ public class BeforeAfterMethodInterceptor implements Interceptor {
       // in which case the name will have been null before, and non-null now
       event = abc == null ? null : abc.getEventName();
 
-      Resolution overrideResolution = null;
+      Resolution overrideResolution;
       for (Method method : afterMethods) {
         String[] on = method.getAnnotation(After.class).on();
         if (event == null || CollectionUtil.applies(on, event)) {
@@ -149,7 +149,7 @@ public class BeforeAfterMethodInterceptor implements Interceptor {
       ActionBean bean, Method m, LifecycleStage stage, Class<? extends Annotation> when)
       throws Exception {
     Class<? extends ActionBean> beanClass = bean.getClass();
-    Object retval = null;
+    Object returnValue = null;
 
     log.debug(
         "Calling @",
@@ -162,7 +162,7 @@ public class BeforeAfterMethodInterceptor implements Interceptor {
         beanClass.getSimpleName(),
         "'");
     try {
-      retval = m.invoke(bean);
+      returnValue = m.invoke(bean);
     } catch (IllegalArgumentException e) {
       log.error(
           e,
@@ -196,9 +196,9 @@ public class BeforeAfterMethodInterceptor implements Interceptor {
       }
     }
 
-    // If we got a return value and it is a resolution, return it
-    if (retval != null && retval instanceof Resolution) {
-      return (Resolution) retval;
+    // If we got a return value, and it is a resolution, return it
+    if (returnValue instanceof Resolution) {
+      return (Resolution) returnValue;
     } else {
       return null;
     }
@@ -282,12 +282,10 @@ public class BeforeAfterMethodInterceptor implements Interceptor {
    */
   protected static class FilterMethods {
     /** Map of Before methods, keyed by the LifecycleStage that they should be invoked before. */
-    private Map<LifecycleStage, List<Method>> beforeMethods =
-        new HashMap<LifecycleStage, List<Method>>();
+    private final Map<LifecycleStage, List<Method>> beforeMethods = new HashMap<>();
 
     /** Map of After methods, keyed by the LifecycleStage that they should be invoked after. */
-    private Map<LifecycleStage, List<Method>> afterMethods =
-        new HashMap<LifecycleStage, List<Method>>();
+    private final Map<LifecycleStage, List<Method>> afterMethods = new HashMap<>();
 
     /**
      * Adds a method to be executed before the supplied LifecycleStages.
@@ -332,11 +330,7 @@ public class BeforeAfterMethodInterceptor implements Interceptor {
      */
     private void addFilterMethod(
         Map<LifecycleStage, List<Method>> methodMap, LifecycleStage stage, Method method) {
-      List<Method> methods = methodMap.get(stage);
-      if (methods == null) {
-        methods = new ArrayList<Method>();
-        methodMap.put(stage, methods);
-      }
+      List<Method> methods = methodMap.computeIfAbsent(stage, k -> new ArrayList<>());
       methods.add(method);
     }
 

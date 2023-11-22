@@ -28,7 +28,6 @@ import java.beans.Introspector;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Locale;
 import java.util.Set;
 import net.sourceforge.stripes.config.BootstrapPropertyResolver;
@@ -49,7 +48,7 @@ import net.sourceforge.stripes.util.Log;
  * @author Tim Fennell
  */
 public class StripesFilter implements Filter {
-  /** Key used to lookup the name of the Configuration class used to configure Stripes. */
+  /** Key used to look up the name of the Configuration class used to configure Stripes. */
   public static final String CONFIG_CLASS = "Configuration.Class";
 
   /** Log used throughout the class. */
@@ -67,8 +66,7 @@ public class StripesFilter implements Filter {
    * Configuration. Doing this allows multiple Stripes Configurations to exist in a single
    * Classloader since the Configuration is not located statically.
    */
-  private static final ThreadLocal<Configuration> configurationStash =
-      new ThreadLocal<Configuration>();
+  private static final ThreadLocal<Configuration> configurationStash = new ThreadLocal<>();
 
   /**
    * A set of weak references to all the Configuration objects that this class has ever seen. Uses
@@ -76,21 +74,14 @@ public class StripesFilter implements Filter {
    * left. Used to determine if there is only one active Configuration for the VM, and if so return
    * it even when the Configuration isn't set in the thread local.
    */
-  private static final Set<WeakReference<Configuration>> configurations =
-      new HashSet<WeakReference<Configuration>>();
+  private static final Set<WeakReference<Configuration>> configurations = new HashSet<>();
 
   /**
    * Some operations should only be done if the current invocation of {@link
    * #doFilter(ServletRequest, ServletResponse, FilterChain)} is the first in the filter chain. This
    * {@link ThreadLocal} keeps track of whether such operations should be done or not.
    */
-  private static final ThreadLocal<Boolean> initialInvocation =
-      new ThreadLocal<Boolean>() {
-        @Override
-        protected Boolean initialValue() {
-          return true;
-        }
-      };
+  private static final ThreadLocal<Boolean> initialInvocation = ThreadLocal.withInitial(() -> true);
 
   /**
    * Performs the necessary initialization for the StripesFilter. Mainly this involves deciding what
@@ -100,7 +91,7 @@ public class StripesFilter implements Filter {
    */
   public void init(FilterConfig filterConfig) throws ServletException {
     this.configuration = createConfiguration(filterConfig);
-    StripesFilter.configurations.add(new WeakReference<Configuration>(this.configuration));
+    StripesFilter.configurations.add(new WeakReference<>(this.configuration));
 
     this.servletContext = filterConfig.getServletContext();
     this.servletContext.setAttribute(StripesFilter.class.getName(), this);
@@ -112,7 +103,7 @@ public class StripesFilter implements Filter {
   }
 
   /**
-   * Create and configure a new {@link Configuration} instance using the suppied {@link
+   * Create and configure a new {@link Configuration} instance using the supplied {@link
    * FilterConfig}.
    *
    * @param filterConfig The filter configuration supplied by the container.
@@ -160,11 +151,7 @@ public class StripesFilter implements Filter {
     if (configuration == null) {
       synchronized (StripesFilter.configurations) {
         // Remove any references from the set that have been cleared
-        Iterator<WeakReference<Configuration>> iterator = StripesFilter.configurations.iterator();
-        while (iterator.hasNext()) {
-          WeakReference<Configuration> ref = iterator.next();
-          if (ref.get() == null) iterator.remove();
-        }
+        StripesFilter.configurations.removeIf(ref -> ref.get() == null);
 
         // If there is one and only one Configuration active, take it
         if (StripesFilter.configurations.size() == 1) {
@@ -182,7 +169,7 @@ public class StripesFilter implements Filter {
                   + "at the exact URL in your browser's address bar and ensure that any "
                   + "requests to that URL will be filtered through the StripesFilter according "
                   + "to the filter mappings in your web.xml.");
-      log.error(sre); // log through an exception so that users get a stracktrace
+      log.error(sre); // log through an exception so that users get a stacktrace
     }
 
     return configuration;

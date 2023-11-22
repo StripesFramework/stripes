@@ -17,6 +17,7 @@ package net.sourceforge.stripes.action;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import net.sourceforge.stripes.controller.StripesFilter;
 import net.sourceforge.stripes.format.Formatter;
 import net.sourceforge.stripes.util.UrlBuilder;
@@ -40,7 +41,7 @@ public abstract class OnwardResolution<T extends OnwardResolution<T>> implements
 
   private String path;
   private String event = VALUE_NOT_SET;
-  private Map<String, Object> parameters = new HashMap<String, Object>();
+  private final Map<String, Object> parameters = new HashMap<>();
   private String anchor;
 
   /**
@@ -79,12 +80,12 @@ public abstract class OnwardResolution<T extends OnwardResolution<T>> implements
 
   /** Get the event name that was specified in one of the constructor calls. */
   public String getEvent() {
-    return event == VALUE_NOT_SET ? null : event;
+    return Objects.equals(event, VALUE_NOT_SET) ? null : event;
   }
 
   /** Return true if an event name was specified when this instance was constructed. */
   public boolean isEventSpecified() {
-    return event != VALUE_NOT_SET;
+    return !Objects.equals(event, VALUE_NOT_SET);
   }
 
   /** Accessor for the path that the user should be sent to. */
@@ -120,10 +121,10 @@ public abstract class OnwardResolution<T extends OnwardResolution<T>> implements
 
   /**
    * Adds a request parameter with zero or more values to the URL. Values may be supplied using
-   * varargs, or alternatively by suppling a single value parameter which is an instance of
+   * varargs, or alternatively by supplying a single value parameter which is an instance of
    * Collection.
    *
-   * <p>Note that this method is additive. Therefore writing things like {@code
+   * <p>Note that this method is additive. Therefore, writing things like {@code
    * builder.addParameter("p", "one").addParameter("p", "two");} will add both {@code p=one} and
    * {@code p=two} to the URL.
    *
@@ -158,8 +159,8 @@ public abstract class OnwardResolution<T extends OnwardResolution<T>> implements
    * @return this Resolution so that methods can be chained
    */
   @SuppressWarnings("unchecked")
-  public T addParameters(Map<String, ? extends Object> parameters) {
-    for (Map.Entry<String, ? extends Object> entry : parameters.entrySet()) {
+  public T addParameters(Map<String, ?> parameters) {
+    for (Map.Entry<String, ?> entry : parameters.entrySet()) {
       addParameter(entry.getKey(), entry.getValue());
     }
 
@@ -185,8 +186,8 @@ public abstract class OnwardResolution<T extends OnwardResolution<T>> implements
    */
   public String getUrl(Locale locale) {
     UrlBuilder builder = new UrlBuilder(locale, getPath(), false);
-    if (event != VALUE_NOT_SET) {
-      builder.setEvent(event == null || event.length() < 1 ? null : event);
+    if (!Objects.equals(event, VALUE_NOT_SET)) {
+      builder.setEvent(event == null || event.isEmpty() ? null : event);
     }
     if (anchor != null) {
       builder.setAnchor(anchor);

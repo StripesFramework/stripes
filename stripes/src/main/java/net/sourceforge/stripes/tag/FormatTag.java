@@ -73,7 +73,7 @@ public class FormatTag extends VarTagSupport {
    * @param value the object to be formatted
    * @return the formatted value
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "rawtypes"})
   protected String format(Object value) {
     if (value == null) return "";
 
@@ -92,21 +92,21 @@ public class FormatTag extends VarTagSupport {
    * Calls {@link #format(Object)} and writes the resulting {@link String} to the JSP output.
    *
    * @param value the object to be formatted and written
-   * @throws JspException
+   * @throws JspException if an error occurs while writing to the JSP output
    */
   protected void writeOut(Object value) throws JspException {
     String formatted = format(value);
     try {
       pageContext.getOut().print(formatted);
     } catch (IOException e) {
-      JspException jspe =
+      JspException jspException =
           new JspException(
               "IOException encountered while writing formatted value '"
                   + formatted
                   + " to the JspWriter.",
               e);
-      log.warn(jspe);
-      throw jspe;
+      log.warn(jspException);
+      throw jspException;
     }
   }
 

@@ -41,7 +41,8 @@ public interface ExpressionExecutor {
   /**
    * The special name given to the field that the expression is annotated on.
    *
-   * @deprecated See http://www.stripesframework.org/jira/browse/STS-822 - replaced by SELF
+   * @deprecated See <a href="http://www.stripesframework.org/jira/browse/STS-822">...</a> -
+   *     replaced by SELF
    */
   @Deprecated String THIS = "this";
 
@@ -49,14 +50,14 @@ public interface ExpressionExecutor {
    * . This constant is the keyword to be used to refer to the 'this' in EL expressions, which is
    * invalid in EL implementations.
    *
-   * <p>http://www.stripesframework.org/jira/browse/STS-822
+   * <p><a href="http://www.stripesframework.org/jira/browse/STS-822">...</a>
    */
-  final String SELF = "self";
+  String SELF = "self";
 
   /**
    * Performs validation of an ActionBean property using the expression contained within the
    * validation metadata. If the expression does not evaluate to true then an error will be added to
-   * the validation errors. Otherwise there are no side effects.
+   * the validation errors. Otherwise, there are no side effects.
    *
    * @param bean the ActionBean instance owning the field being validated
    * @param name the name of the field being validated
@@ -64,7 +65,7 @@ public interface ExpressionExecutor {
    * @param validationInfo the validation metadata for the field
    * @param errors the ValidationErrors object into which to place any errors
    */
-  public void evaluate(
+  void evaluate(
       ActionBean bean,
       ParameterName name,
       List<Object> values,

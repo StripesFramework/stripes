@@ -22,7 +22,7 @@ import jakarta.servlet.http.HttpServletRequestWrapper;
 import java.io.IOException;
 
 /**
- * Mock implementation of a RequesetDispatcher used for testing purposes. Note that the mock
+ * Mock implementation of a RequestDispatcher used for testing purposes. Note that the mock
  * implementation does not support actually forwarding the request, or including other resources.
  * The methods are implemented to record that a forward/include took place and then simply return.
  *
@@ -30,7 +30,7 @@ import java.io.IOException;
  * @since Stripes 1.1.1
  */
 public class MockRequestDispatcher implements RequestDispatcher {
-  private String url;
+  private final String url;
 
   /** Constructs a request dispatcher, giving it a handle to the creating request. */
   public MockRequestDispatcher(String url) {
@@ -43,7 +43,7 @@ public class MockRequestDispatcher implements RequestDispatcher {
     getMockRequest(req).setForwardUrl(this.url);
   }
 
-  /** Simply stores that the URL was included an then returns. */
+  /** Simply stores that the URL was included and then returns. */
   public void include(ServletRequest req, ServletResponse res)
       throws ServletException, IOException {
     getMockRequest(req).addIncludedUrl(this.url);

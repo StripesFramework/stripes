@@ -20,7 +20,6 @@ import java.lang.ref.WeakReference;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -46,7 +45,7 @@ import net.sourceforge.stripes.validation.ValidationState;
 
 /**
  * Helper class that contains much of the logic used when dispatching requests in Stripes. Used
- * primarily by the DispatcherSerlvet, but also by the UseActionBean tag.
+ * primarily by the DispatcherServlet, but also by the UseActionBean tag.
  *
  * @author Tim Fennell
  */
@@ -60,10 +59,10 @@ public class DispatcherHelper {
    * methods.
    */
   private static final Map<Class<?>, WeakReference<Method[]>> customValidations =
-      Collections.synchronizedMap(new WeakHashMap<Class<?>, WeakReference<Method[]>>());
+      Collections.synchronizedMap(new WeakHashMap<>());
 
   /** A place to hide a page context object so that we can get access to EL classes. */
-  private static ThreadLocal<PageContext> pageContextStash = new ThreadLocal<PageContext>();
+  private static final ThreadLocal<PageContext> pageContextStash = new ThreadLocal<>();
 
   /**
    * Should be called prior to invoking validation related methods to provide the helper with access
@@ -100,30 +99,28 @@ public class DispatcherHelper {
     ctx.setLifecycleStage(LifecycleStage.ActionBeanResolution);
     ctx.setInterceptors(config.getInterceptors(LifecycleStage.ActionBeanResolution));
     return ctx.wrap(
-        new Interceptor() {
-          public Resolution intercept(ExecutionContext ctx) throws Exception {
-            // Look up the ActionBean and set it on the context
-            ActionBeanContext context = ctx.getActionBeanContext();
-            ActionBean bean =
-                StripesFilter.getConfiguration().getActionResolver().getActionBean(context);
-            ctx.setActionBean(bean);
+        ctx1 -> {
+          // Look up the ActionBean and set it on the context
+          ActionBeanContext context = ctx1.getActionBeanContext();
+          ActionBean bean =
+              StripesFilter.getConfiguration().getActionResolver().getActionBean(context);
+          ctx1.setActionBean(bean);
 
-            // Prefer the context from the resolved bean if it differs from the ExecutionContext
-            if (context != bean.getContext()) {
-              ActionBeanContext other = bean.getContext();
-              other.setEventName(context.getEventName());
-              other.setRequest(context.getRequest());
-              other.setResponse(context.getResponse());
+          // Prefer the context from the resolved bean if it differs from the ExecutionContext
+          if (context != bean.getContext()) {
+            ActionBeanContext other = bean.getContext();
+            other.setEventName(context.getEventName());
+            other.setRequest(context.getRequest());
+            other.setResponse(context.getResponse());
 
-              context = other;
-              ctx.setActionBeanContext(context);
-            }
-
-            // Then register it in the Request as THE ActionBean for this request
-            HttpServletRequest request = context.getRequest();
-            request.setAttribute(StripesConstants.REQ_ATTR_ACTION_BEAN, bean);
-            return null;
+            context = other;
+            ctx1.setActionBeanContext(context);
           }
+
+          // Then register it in the Request as THE ActionBean for this request
+          HttpServletRequest request = context.getRequest();
+          request.setAttribute(StripesConstants.REQ_ATTR_ACTION_BEAN, bean);
+          return null;
         });
   }
 
@@ -143,48 +140,46 @@ public class DispatcherHelper {
     ctx.setInterceptors(config.getInterceptors(LifecycleStage.HandlerResolution));
 
     return ctx.wrap(
-        new Interceptor() {
-          public Resolution intercept(ExecutionContext ctx) throws Exception {
-            ActionBean bean = ctx.getActionBean();
-            ActionBeanContext context = ctx.getActionBeanContext();
-            ActionResolver resolver = config.getActionResolver();
+        ctx1 -> {
+          ActionBean bean = ctx1.getActionBean();
+          ActionBeanContext context = ctx1.getActionBeanContext();
+          ActionResolver resolver = config.getActionResolver();
 
-            // Then lookup the event name and handler method etc.
-            String eventName = resolver.getEventName(bean.getClass(), context);
-            context.setEventName(eventName);
+          // Then lookup the event name and handler method etc.
+          String eventName = resolver.getEventName(bean.getClass(), context);
+          context.setEventName(eventName);
 
-            final Method handler;
-            if (eventName != null) {
-              handler = resolver.getHandler(bean.getClass(), eventName);
-            } else {
-              handler = resolver.getDefaultHandler(bean.getClass());
-              if (handler != null) {
-                context.setEventName(resolver.getHandledEvent(handler));
-              }
+          final Method handler;
+          if (eventName != null) {
+            handler = resolver.getHandler(bean.getClass(), eventName);
+          } else {
+            handler = resolver.getDefaultHandler(bean.getClass());
+            if (handler != null) {
+              context.setEventName(resolver.getHandledEvent(handler));
             }
-
-            // Insist that we have a handler
-            if (handler == null) {
-              throw new StripesServletException(
-                  "No handler method found for request with  ActionBean ["
-                      + bean.getClass().getName()
-                      + "] and eventName [ "
-                      + eventName
-                      + "]");
-            }
-
-            log.debug(
-                "Resolved event: ",
-                context.getEventName(),
-                "; will invoke: ",
-                bean.getClass().getSimpleName(),
-                ".",
-                handler.getName(),
-                "()");
-
-            ctx.setHandler(handler);
-            return null;
           }
+
+          // Insist that we have a handler
+          if (handler == null) {
+            throw new StripesServletException(
+                "No handler method found for request with  ActionBean ["
+                    + bean.getClass().getName()
+                    + "] and eventName [ "
+                    + eventName
+                    + "]");
+          }
+
+          log.debug(
+              "Resolved event: ",
+              context.getEventName(),
+              "; will invoke: ",
+              bean.getClass().getSimpleName(),
+              ".",
+              handler.getName(),
+              "()");
+
+          ctx1.setHandler(handler);
+          return null;
         });
   }
 
@@ -213,15 +208,13 @@ public class DispatcherHelper {
     ctx.setInterceptors(config.getInterceptors(LifecycleStage.BindingAndValidation));
 
     return ctx.wrap(
-        new Interceptor() {
-          public Resolution intercept(ExecutionContext ctx) throws Exception {
-            if (doBind) {
-              ActionBeanPropertyBinder binder = config.getActionBeanPropertyBinder();
-              binder.bind(ctx.getActionBean(), ctx.getActionBeanContext(), doValidate);
-              fillInValidationErrors(ctx);
-            }
-            return null;
+        ctx1 -> {
+          if (doBind) {
+            ActionBeanPropertyBinder binder = config.getActionBeanPropertyBinder();
+            binder.bind(ctx1.getActionBean(), ctx1.getActionBeanContext(), doValidate);
+            fillInValidationErrors(ctx1);
           }
+          return null;
         });
   }
 
@@ -253,31 +246,29 @@ public class DispatcherHelper {
       ctx.setInterceptors(config.getInterceptors(LifecycleStage.CustomValidation));
 
       return ctx.wrap(
-          new Interceptor() {
-            public Resolution intercept(ExecutionContext context) throws Exception {
-              // Run any of the annotated validation methods
-              Method[] validations = findCustomValidationMethods(bean.getClass());
-              for (Method validation : validations) {
-                ValidationMethod ann = validation.getAnnotation(ValidationMethod.class);
+          context -> {
+            // Run any of the annotated validation methods
+            Method[] validations = findCustomValidationMethods(bean.getClass());
+            for (Method validation : validations) {
+              ValidationMethod ann = validation.getAnnotation(ValidationMethod.class);
 
-                boolean run =
-                    (ann.when() == ValidationState.ALWAYS)
-                        || (ann.when() == ValidationState.DEFAULT && alwaysInvokeValidate)
-                        || errors.isEmpty();
+              boolean run =
+                  (ann.when() == ValidationState.ALWAYS)
+                      || (ann.when() == ValidationState.DEFAULT && alwaysInvokeValidate)
+                      || errors.isEmpty();
 
-                if (run && applies(ann, ctx.getActionBeanContext().getEventName())) {
-                  Class<?>[] args = validation.getParameterTypes();
-                  if (args.length == 1 && args[0].equals(ValidationErrors.class)) {
-                    validation.invoke(bean, errors);
-                  } else {
-                    validation.invoke(bean);
-                  }
+              if (run && applies(ann, ctx.getActionBeanContext().getEventName())) {
+                Class<?>[] args = validation.getParameterTypes();
+                if (args.length == 1 && args[0].equals(ValidationErrors.class)) {
+                  validation.invoke(bean, errors);
+                } else {
+                  validation.invoke(bean);
                 }
               }
-
-              fillInValidationErrors(ctx);
-              return null;
             }
+
+            fillInValidationErrors(ctx);
+            return null;
           });
     } else {
       return null;
@@ -316,8 +307,7 @@ public class DispatcherHelper {
    * @return a Method[] containing all methods marked as custom validations. May return an empty
    *     array, but never null.
    */
-  public static Method[] findCustomValidationMethods(Class<? extends ActionBean> type)
-      throws Exception {
+  public static Method[] findCustomValidationMethods(Class<? extends ActionBean> type) {
     Method[] validations = null;
     WeakReference<Method[]> ref = customValidations.get(type);
     if (ref != null) validations = ref.get();
@@ -327,25 +317,23 @@ public class DispatcherHelper {
       // A sorted set with a custom comparator that will order the methods in
       // the set based upon the priority in their custom validation annotation
       SortedSet<Method> validationMethods =
-          new TreeSet<Method>(
-              new Comparator<Method>() {
-                public int compare(Method o1, Method o2) {
-                  // If one of the methods overrides the others, return equal!
-                  if (o1.getName().equals(o2.getName())
-                      && Arrays.equals(o1.getParameterTypes(), o2.getParameterTypes())) {
-                    return 0;
-                  }
-
-                  ValidationMethod ann1 = o1.getAnnotation(ValidationMethod.class);
-                  ValidationMethod ann2 = o2.getAnnotation(ValidationMethod.class);
-                  int returnValue = Integer.compare(ann1.priority(), ann2.priority());
-
-                  if (returnValue == 0) {
-                    returnValue = o1.getName().compareTo(o2.getName());
-                  }
-
-                  return returnValue;
+          new TreeSet<>(
+              (o1, o2) -> {
+                // If one of the methods overrides the others, return equal!
+                if (o1.getName().equals(o2.getName())
+                    && Arrays.equals(o1.getParameterTypes(), o2.getParameterTypes())) {
+                  return 0;
                 }
+
+                ValidationMethod ann1 = o1.getAnnotation(ValidationMethod.class);
+                ValidationMethod ann2 = o2.getAnnotation(ValidationMethod.class);
+                int returnValue = Integer.compare(ann1.priority(), ann2.priority());
+
+                if (returnValue == 0) {
+                  returnValue = o1.getName().compareTo(o2.getName());
+                }
+
+                return returnValue;
               });
 
       Class<?> temp = type;
@@ -363,8 +351,8 @@ public class DispatcherHelper {
         temp = temp.getSuperclass();
       }
 
-      validations = validationMethods.toArray(new Method[validationMethods.size()]);
-      customValidations.put(type, new WeakReference<Method[]>(validations));
+      validations = validationMethods.toArray(new Method[0]);
+      customValidations.put(type, new WeakReference<>(validations));
     }
 
     return validations;
@@ -393,13 +381,13 @@ public class DispatcherHelper {
       ValidationErrors errors = context.getValidationErrors();
 
       // Now if we have errors and the bean wants to handle them...
-      if (errors.size() > 0 && bean instanceof ValidationErrorHandler) {
+      if (!errors.isEmpty() && bean instanceof ValidationErrorHandler) {
         resolution = ((ValidationErrorHandler) bean).handleValidationErrors(errors);
         fillInValidationErrors(ctx);
       }
 
-      // If there are still errors see if we need to lookup the resolution
-      if (errors.size() > 0 && resolution == null) {
+      // If there are still errors see if we need to look up the resolution
+      if (!errors.isEmpty() && resolution == null) {
         logValidationErrors(context);
         resolution = context.getSourcePageResolution();
       }
@@ -419,14 +407,14 @@ public class DispatcherHelper {
     ActionBeanContext context = ctx.getActionBeanContext();
     ValidationErrors errors = context.getValidationErrors();
 
-    if (errors.size() > 0) {
+    if (!errors.isEmpty()) {
       String formAction =
           StripesFilter.getConfiguration()
               .getActionResolver()
               .getUrlBinding(ctx.getActionBean().getClass());
       HttpServletRequest request = ctx.getActionBeanContext().getRequest();
 
-      /** Since we don't pass form action down the stack, we add it to the errors here. */
+      /* Since we don't pass form action down the stack, we add it to the errors here. */
       for (Map.Entry<String, List<ValidationError>> entry : errors.entrySet()) {
         String parameterName = entry.getKey();
         List<ValidationError> listOfErrors = entry.getValue();
@@ -469,27 +457,25 @@ public class DispatcherHelper {
     ctx.setInterceptors(config.getInterceptors(LifecycleStage.EventHandling));
 
     return ctx.wrap(
-        new Interceptor() {
-          public Resolution intercept(ExecutionContext ctx) throws Exception {
-            Object returnValue = handler.invoke(bean);
-            fillInValidationErrors(ctx);
+        ctx1 -> {
+          Object returnValue = handler.invoke(bean);
+          fillInValidationErrors(ctx1);
 
-            if (returnValue != null && returnValue instanceof Resolution) {
-              ctx.setResolutionFromHandler(true);
-              return (Resolution) returnValue;
-            } else if (returnValue != null) {
-              log.warn(
-                  "Expected handler method ",
-                  handler.getName(),
-                  " on class ",
-                  bean.getClass().getSimpleName(),
-                  " to return a Resolution. Instead it ",
-                  "returned: ",
-                  returnValue);
-            }
-
-            return null;
+          if (returnValue instanceof Resolution) {
+            ctx1.setResolutionFromHandler(true);
+            return (Resolution) returnValue;
+          } else if (returnValue != null) {
+            log.warn(
+                "Expected handler method ",
+                handler.getName(),
+                " on class ",
+                bean.getClass().getSimpleName(),
+                " to return a Resolution. Instead it ",
+                "returned: ",
+                returnValue);
           }
+
+          return null;
         });
   }
 
@@ -511,22 +497,20 @@ public class DispatcherHelper {
     ctx.setInterceptors(config.getInterceptors(LifecycleStage.ResolutionExecution));
     ctx.setResolution(resolution);
 
-    Resolution retval =
+    Resolution returnValue =
         ctx.wrap(
-            new Interceptor() {
-              public Resolution intercept(ExecutionContext context) throws Exception {
-                ActionBeanContext abc = context.getActionBeanContext();
-                Resolution resolution = context.getResolution();
+            context -> {
+              ActionBeanContext abc = context.getActionBeanContext();
+              Resolution resolution1 = context.getResolution();
 
-                if (resolution != null) {
-                  resolution.execute(abc.getRequest(), abc.getResponse());
-                }
-
-                return null;
+              if (resolution1 != null) {
+                resolution1.execute(abc.getRequest(), abc.getResponse());
               }
+
+              return null;
             });
 
-    if (retval != null) {
+    if (returnValue != null) {
       log.warn(
           "An interceptor wrapping LifecycleStage.ResolutionExecution returned ",
           "a Resolution. This almost certainly did NOT have the desired effect. ",
@@ -543,7 +527,7 @@ public class DispatcherHelper {
   }
 
   /** Log validation errors at DEBUG to help during development. */
-  public static final void logValidationErrors(ActionBeanContext context) {
+  public static void logValidationErrors(ActionBeanContext context) {
     StringBuilder buf = new StringBuilder("The following validation errors need to be fixed:");
 
     for (List<ValidationError> list : context.getValidationErrors().values()) {

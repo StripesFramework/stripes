@@ -24,17 +24,19 @@ import java.util.Collection;
  */
 public class ShortTypeConverter extends NumberTypeConverterSupport implements TypeConverter<Short> {
   /**
-   * @param input
-   * @param errors
-   * @return Integer an Integer object if one can be parsed from the input
+   * Converts the input to an object of type Short.
+   *
+   * @param input the String to convert into a single Short
+   * @param errors the collection to which validation errors should be added
+   * @return Short a Short object if one can be parsed from the input
    */
   public Short convert(
       String input, Class<? extends Short> targetType, Collection<ValidationError> errors) {
 
     Number number = parse(input, errors);
-    Short retval = null;
+    Short returnValue = null;
 
-    if (errors.size() == 0) {
+    if (errors.isEmpty()) {
       long output = number.longValue();
 
       if (output < Short.MIN_VALUE || output > Short.MAX_VALUE) {
@@ -42,11 +44,11 @@ public class ShortTypeConverter extends NumberTypeConverterSupport implements Ty
             new ScopedLocalizableError(
                 "converter.short", "outOfRange", Short.MIN_VALUE, Short.MAX_VALUE));
       } else {
-        retval = (short) output;
+        returnValue = (short) output;
       }
     }
 
-    return retval;
+    return returnValue;
   }
 
   /** Overridden to return integer instances instead. */

@@ -42,7 +42,7 @@ public class DefaultFormatterFactory implements FormatterFactory {
   /** Stores a reference to the configuration and configures the default formatters. */
   public void init(Configuration configuration) throws Exception {
     this.configuration = configuration;
-    this.cache = new TypeHandlerCache<Class<? extends Formatter<?>>>();
+    this.cache = new TypeHandlerCache<>();
     this.cache.setDefaultHandler(ObjectFormatter.class);
 
     add(Date.class, DateFormatter.class);
@@ -78,7 +78,7 @@ public class DefaultFormatterFactory implements FormatterFactory {
 
   /**
    * Check to see if the there is a Formatter for the specified clazz. If a Formatter is found an
-   * instance is created, configured and returned. Otherwise returns null.
+   * instance is created, configured and returned. Otherwise, returns null.
    *
    * @param clazz the type of object being formatted
    * @param locale the Locale into which the object should be formatted

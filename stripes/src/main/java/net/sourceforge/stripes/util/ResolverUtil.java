@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import net.sourceforge.stripes.vfs.VFS;
 
@@ -29,12 +30,12 @@ import net.sourceforge.stripes.vfs.VFS;
  *
  * <p>A ClassLoader is used to locate all locations (directories and jar files) in the class path
  * that contain classes within certain packages, and then to load those classes and check them. By
- * default the ClassLoader returned by {@code Thread.currentThread().getContextClassLoader()} is
+ * default, the ClassLoader returned by {@code Thread.currentThread().getContextClassLoader()} is
  * used, but this can be overridden by calling {@link #setClassLoader(ClassLoader)} prior to
  * invoking any of the {@code find()} methods.
  *
  * <p>General searches are initiated by calling the {@link
- * #find(net.sourceforge.stripes.util.ResolverUtil.Test, String)} ()} method and supplying a package
+ * #find(net.sourceforge.stripes.util.ResolverUtil.Test, String)} method and supplying a package
  * name and a Test instance. This will cause the named package <b>and all sub-packages</b> to be
  * scanned for classes that meet the test. There are also utility methods for the common use cases
  * of scanning multiple packages for extensions of particular classes, or classes annotated with a
@@ -60,7 +61,7 @@ public class ResolverUtil<T> {
    * A simple interface that specifies how to test classes to determine if they are to be included
    * in the results produced by the ResolverUtil.
    */
-  public static interface Test {
+  public interface Test {
     /**
      * Will be called repeatedly with candidate classes. Must return True if a class is to be
      * included in the results, false otherwise.
@@ -73,7 +74,7 @@ public class ResolverUtil<T> {
    * test will match the parent type itself if it is presented for matching.
    */
   public static class IsA implements Test {
-    private Class<?> parent;
+    private final Class<?> parent;
 
     /** Constructs an IsA test using the supplied Class as the parent class/interface. */
     public IsA(Class<?> parentType) {
@@ -96,7 +97,7 @@ public class ResolverUtil<T> {
    * the test returns true, otherwise false.
    */
   public static class AnnotatedWith implements Test {
-    private Class<? extends Annotation> annotation;
+    private final Class<? extends Annotation> annotation;
 
     /** Constructs an AnnotatedWith test for the specified annotation type. */
     public AnnotatedWith(Class<? extends Annotation> annotation) {
@@ -115,7 +116,7 @@ public class ResolverUtil<T> {
   }
 
   /** The set of matches being accumulated. */
-  private Set<Class<? extends T>> matches = new HashSet<Class<? extends T>>();
+  private final Set<Class<? extends T>> matches = new HashSet<>();
 
   /**
    * The ClassLoader to use when looking for classes. If null then the ClassLoader returned by
@@ -205,7 +206,7 @@ public class ResolverUtil<T> {
     String path = getPackagePath(packageName);
 
     try {
-      List<String> children = VFS.getInstance().list(path);
+      List<String> children = Objects.requireNonNull(VFS.getInstance()).list(path);
       for (String child : children) {
         if (child.endsWith(".class")) addIfMatching(test, child);
       }

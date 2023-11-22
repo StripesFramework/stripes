@@ -18,7 +18,7 @@ import java.util.Locale;
 
 /**
  * Interface that is used to provide a relatively simple formatting interface to the rest of the
- * system. Designed to wrap the complexity of the java.text format classes in an interface that can
+ * system. Designed to wrap the complexity of the @link{DateFormat} classes in an interface that can
  * take two (or three if you include Locale) parameters from tags and apply formats in an
  * intelligent way.
  *
@@ -28,7 +28,7 @@ import java.util.Locale;
  * reasonable defaults. Locale will always be provided. After the setters have been called, init()
  * will be called, and the Formatter should use this opportunity to construct any internal objects
  * necessary to perform formatting. The format() method will then be called one or more times before
- * the Formatter is eventually dereferenced.
+ * the Formatter is eventually de-referenced.
  *
  * @author Tim Fennell
  */
@@ -49,7 +49,7 @@ public interface Formatter<T> {
   /**
    * Formats the supplied value as a String. If the value cannot be formatted because it is an
    * inappropriate type, or because faulty pattern information was supplied, should fail loudly by
-   * throwing a RuntimeException or subclass thereof. Therefore this method should never return
+   * throwing a RuntimeException or subclass thereof. Therefore, this method should never return
    * {@code null}.
    *
    * @param input an object of a type that the formatter knows how to format

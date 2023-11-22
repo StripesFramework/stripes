@@ -14,8 +14,10 @@
  */
 package net.sourceforge.stripes.validation;
 
+import java.io.Serial;
 import java.util.Locale;
 import java.util.MissingResourceException;
+import java.util.Objects;
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.localization.LocalizationUtility;
 
@@ -37,7 +39,7 @@ import net.sourceforge.stripes.localization.LocalizationUtility;
  * <em>bug</em>&quot;.
  *
  * <p>First looks for a resource with the action bean FQN prepended to the supplied message key. If
- * If that cannot be found then looks with the action path as a prefix instead of the FQN. Failing
+ * Is that cannot be found then looks with the action path as a prefix instead of the FQN. Failing
  * that, the last attempt looks for a resource with the exact message key provided. This allows
  * developers to segregate their error messages by action without having to repeat the action path
  * in the ActionBean. For example a message constructed with {@code new
@@ -50,7 +52,7 @@ import net.sourceforge.stripes.localization.LocalizationUtility;
  *   <li>{@code insufficientBalance}
  * </ul>
  *
- * <p>One last point of interest is where the user friendly field name comes from. Firstly an
+ * <p>One last point of interest is where the user-friendly field name comes from. Firstly an
  * attempt is made to look up the localized name in the applicable resource bundle using the String
  * <em>beanClassFQN.fieldName</em> where beanClassFQN is the fully qualified name of the bean class,
  * and fieldName is the name of the field on the form. The second attempt is made with String
@@ -62,16 +64,16 @@ import net.sourceforge.stripes.localization.LocalizationUtility;
  * @see java.util.ResourceBundle
  */
 public class LocalizableError extends SimpleError {
-  private static final long serialVersionUID = 1L;
+  @Serial private static final long serialVersionUID = 1L;
 
-  private String messageKey;
+  private final String messageKey;
 
   /**
    * Creates a new LocalizableError with the message key provided, and optionally zero or more
    * replacement parameters to use in the message. It should be noted that the replacement
    * parameters provided here can be referenced in the error message <b>starting with number 2</b>.
    *
-   * @param messageKey a key to lookup a message in the resource bundle
+   * @param messageKey a key to look up a message in the resource bundle
    * @param parameter one or more replacement parameters to insert into the message
    */
   public LocalizableError(String messageKey, Object... parameter) {
@@ -127,11 +129,7 @@ public class LocalizableError extends SimpleError {
 
     final LocalizableError that = (LocalizableError) o;
 
-    if (messageKey != null ? !messageKey.equals(that.messageKey) : that.messageKey != null) {
-      return false;
-    }
-
-    return true;
+    return Objects.equals(messageKey, that.messageKey);
   }
 
   /** Generated hashCode method. */

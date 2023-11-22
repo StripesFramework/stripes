@@ -18,6 +18,7 @@ package net.sourceforge.stripes.tag;
 
 import jakarta.servlet.jsp.JspException;
 import jakarta.servlet.jsp.PageContext;
+import java.util.Objects;
 import net.sourceforge.stripes.controller.StripesFilter;
 
 /**
@@ -89,7 +90,7 @@ public class PageOptionsTag extends StripesTagSupport {
   @Override
   public int doEndTag() throws JspException {
     // This is an intentional use of identity instead of equality
-    if (this.htmlMode != REQ_ATTR_HTML_MODE) {
+    if (!Objects.equals(this.htmlMode, REQ_ATTR_HTML_MODE)) {
       pageContext.getRequest().setAttribute(REQ_ATTR_HTML_MODE, this.htmlMode);
     }
 

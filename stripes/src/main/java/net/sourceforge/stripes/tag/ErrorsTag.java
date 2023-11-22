@@ -229,7 +229,7 @@ public class ErrorsTag extends HtmlTagSupport implements BodyTag {
       }
 
     }
-    // Else if no name was set, and we're not in a action tag, we're global and ok to display
+    // Else if no name was set, and we're not in an action tag, we're global and ok to display
     else if (mainBean != null) {
       errors = mainBean.getContext().getValidationErrors();
     }
@@ -238,7 +238,7 @@ public class ErrorsTag extends HtmlTagSupport implements BodyTag {
     if (errors != null) {
       // Using a set ensures that duplicate messages get filtered out, which can
       // happen during multi-row validation
-      this.allErrors = new TreeSet<ValidationError>(new ErrorComparator());
+      this.allErrors = new TreeSet<>(new ErrorComparator());
 
       if (this.field != null) {
         // we're filtering for a specific field
@@ -261,7 +261,7 @@ public class ErrorsTag extends HtmlTagSupport implements BodyTag {
     }
 
     // Make sure that after all this we really do have some errors
-    if (this.allErrors != null && this.allErrors.size() > 0) {
+    if (this.allErrors != null && !this.allErrors.isEmpty()) {
       this.display = true;
       this.errorIterator = this.allErrors.iterator();
       this.currentError = this.errorIterator.next(); // load up the first error
@@ -300,10 +300,10 @@ public class ErrorsTag extends HtmlTagSupport implements BodyTag {
   }
 
   /**
-   * Output the error list if this was an empty body tag and we're fully controlling output*
+   * Output the error list if this was an empty body tag, and we're fully controlling output*
    *
    * @return EVAL_PAGE always
-   * @throws JspException
+   * @throws JspException if an IOException is encountered while writing to the JspWriter
    */
   @Override
   public int doEndTag() throws JspException {
@@ -339,7 +339,7 @@ public class ErrorsTag extends HtmlTagSupport implements BodyTag {
 
         for (ValidationError fieldError : this.allErrors) {
           String message = fieldError.getMessage(locale);
-          if (message != null && message.length() > 0) {
+          if (message != null && !message.isEmpty()) {
             writer.write(openElement);
             writer.write(message);
             writer.write(closeElement);
@@ -347,7 +347,7 @@ public class ErrorsTag extends HtmlTagSupport implements BodyTag {
         }
 
         writer.write(footer);
-      } else if (this.display && this.nestedErrorTagPresent) {
+      } else if (this.display) {
         // Output the collective body content
         getBodyContent().writeOut(writer);
       }
@@ -362,17 +362,17 @@ public class ErrorsTag extends HtmlTagSupport implements BodyTag {
 
       return EVAL_PAGE;
     } catch (IOException e) {
-      JspException jspe =
+      JspException jspException =
           new JspException(
               "IOException encountered while writing errors " + "tag to the JspWriter.", e);
-      log.warn(jspe);
-      throw jspe;
+      log.warn(jspException);
+      throw jspException;
     }
   }
 
   /**
-   * Utility method that is used to lookup the resources used for the errors header, footer, and the
-   * strings that go before and after each error.
+   * Utility method that is used to look up the resources used for the errors header, footer, and
+   * the strings that go before and after each error.
    *
    * @param bundle the bundle to look up the resource from
    * @param name the name of the resource to lookup (prefixes will be added)
@@ -407,7 +407,7 @@ public class ErrorsTag extends HtmlTagSupport implements BodyTag {
   /**
    * Inner class Comparator used to provide a consistent ordering of validation errors. Sorting is
    * done by field name (the programmatic one, not the user visible one). Errors without field names
-   * sort to the top since it is assumed that these are global errors as oppose to field specific
+   * sort to the top since it is assumed that these are global errors as opposed to field specific
    * ones.
    */
   private static class ErrorComparator implements Comparator<ValidationError> {

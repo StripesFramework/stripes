@@ -18,7 +18,7 @@ import jakarta.servlet.jsp.PageContext;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import net.sourceforge.stripes.exception.StripesJspException;
+import java.util.Objects;
 
 /**
  * Uniquely identifies a {@link LayoutRenderTag} within a page. Within a single page, any number of
@@ -30,8 +30,8 @@ import net.sourceforge.stripes.exception.StripesJspException;
  * @since Stripes 1.5.7
  */
 public class LayoutRenderTagPath {
-  private List<String> componentPath;
-  private int index;
+  private final List<String> componentPath;
+  private final int index;
 
   /** Construct a new instance to identify the specified tag. */
   public LayoutRenderTagPath(LayoutRenderTag tag) {
@@ -50,7 +50,7 @@ public class LayoutRenderTagPath {
     LinkedList<String> path = null;
 
     for (LayoutTag parent = tag.getLayoutParent(); parent instanceof LayoutComponentTag; ) {
-      if (path == null) path = new LinkedList<String>();
+      if (path == null) path = new LinkedList<>();
 
       path.addFirst(((LayoutComponentTag) parent).getName());
 
@@ -87,9 +87,9 @@ public class LayoutRenderTagPath {
    *
    * @param tag The tag to check to see if it is part of this path.
    */
-  public boolean isPathComponent(LayoutComponentTag tag) throws StripesJspException {
+  public boolean isPathComponent(LayoutComponentTag tag) {
     List<String> path = getComponentPath();
-    return path == null ? false : isPathComponent(tag, path.iterator());
+    return path != null && isPathComponent(tag, path.iterator());
   }
 
   /**
@@ -108,9 +108,7 @@ public class LayoutRenderTagPath {
     if (parent instanceof LayoutRenderTag) {
       parent = parent.getLayoutParent();
       if (!(parent instanceof LayoutComponentTag)
-          || parent instanceof LayoutComponentTag
-              && isPathComponent((LayoutComponentTag) parent, path)
-              && path.hasNext()) {
+          || isPathComponent((LayoutComponentTag) parent, path) && path.hasNext()) {
         return tag.getName().equals(path.next());
       }
     }
@@ -119,12 +117,11 @@ public class LayoutRenderTagPath {
   }
 
   @Override
-  public boolean equals(Object obj) {
-    LayoutRenderTagPath that = (LayoutRenderTagPath) obj;
-    if (index != that.index) return false;
-    if (componentPath == that.componentPath) return true;
-    if (componentPath == null || that.componentPath == null) return false;
-    return componentPath.equals(that.componentPath);
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    LayoutRenderTagPath that = (LayoutRenderTagPath) o;
+    return index == that.index && Objects.equals(componentPath, that.componentPath);
   }
 
   @Override

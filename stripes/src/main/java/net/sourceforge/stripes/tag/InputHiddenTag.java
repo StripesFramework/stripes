@@ -46,8 +46,8 @@ public class InputHiddenTag extends InputTagSupport implements BodyTag {
   }
 
   /**
-   * Sets the value that will be used for the hidden field(s) if no body or repopulation value is
-   * found.
+   * Sets the value that will be used for the hidden field(s) if re-population value or body content
+   * is found.
    *
    * @param value the result of an EL evaluation, can be a Collection, Array or other.
    */
@@ -97,22 +97,22 @@ public class InputHiddenTag extends InputTagSupport implements BodyTag {
     // Figure out how many times to write it out
     if (valueOrValues == null) {
       getAttributes().put("value", "");
-      writeSingletonTag(getPageContext().getOut(), "input");
+      writeSingletonTag(getPageContext().getOut());
     } else if (valueOrValues.getClass().isArray()) {
       int len = Array.getLength(valueOrValues);
       for (int i = 0; i < len; ++i) {
         Object value = Array.get(valueOrValues, i);
         getAttributes().put("value", format(value));
-        writeSingletonTag(getPageContext().getOut(), "input");
+        writeSingletonTag(getPageContext().getOut());
       }
     } else if (valueOrValues instanceof Collection<?>) {
       for (Object value : (Collection<?>) valueOrValues) {
         getAttributes().put("value", format(value));
-        writeSingletonTag(getPageContext().getOut(), "input");
+        writeSingletonTag(getPageContext().getOut());
       }
     } else {
       getAttributes().put("value", format(valueOrValues));
-      writeSingletonTag(getPageContext().getOut(), "input");
+      writeSingletonTag(getPageContext().getOut());
     }
 
     // Clear out the value from the attributes

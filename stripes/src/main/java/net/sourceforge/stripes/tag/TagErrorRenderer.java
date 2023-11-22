@@ -31,7 +31,7 @@ public interface TagErrorRenderer {
   /**
    * Initialize this renderer for a specific tag instance
    *
-   * @param tag The InputTagSuppport subclass that will be modified
+   * @param tag The InputTagSupport subclass that will be modified
    */
   void init(InputTagSupport tag);
 

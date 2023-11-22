@@ -50,5 +50,5 @@ public interface FormatterFactory extends ConfigurableComponent {
    * @throws UnsupportedOperationException if the implementation does not support adding formatters
    *     at runtime
    */
-  public void add(Class<?> targetType, Class<? extends Formatter<?>> formatterClass);
+  void add(Class<?> targetType, Class<? extends Formatter<?>> formatterClass);
 }

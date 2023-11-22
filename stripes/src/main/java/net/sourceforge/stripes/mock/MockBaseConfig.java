@@ -29,14 +29,14 @@ import java.util.Map;
  */
 public class MockBaseConfig {
   private ServletContext servletContext;
-  private Map<String, String> initParameters = new HashMap<String, String>();
+  private final Map<String, String> initParameters = new HashMap<>();
 
   /** Sets the ServletContext that will be returned by getServletContext(). */
   public void setServletContext(ServletContext ctx) {
     this.servletContext = ctx;
   }
 
-  /** Gets the ServletContext in whiich the filter is running. */
+  /** Gets the ServletContext in which the filter is running. */
   public ServletContext getServletContext() {
     return this.servletContext;
   }

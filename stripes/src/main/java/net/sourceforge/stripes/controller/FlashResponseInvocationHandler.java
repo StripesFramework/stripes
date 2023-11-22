@@ -1,5 +1,6 @@
 package net.sourceforge.stripes.controller;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -14,7 +15,7 @@ import java.lang.reflect.Method;
  * @since Stripes 1.4.3
  */
 public class FlashResponseInvocationHandler implements InvocationHandler, Serializable {
-  private static final long serialVersionUID = 1L;
+  @Serial private static final long serialVersionUID = 1L;
 
   public Object invoke(Object object, Method method, Object[] objects) throws Throwable {
     throw new IllegalStateException(

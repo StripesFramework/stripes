@@ -187,10 +187,13 @@ public class ActionBeanContext {
   @SuppressWarnings("unchecked")
   public List<Message> getMessages(String key) {
     FlashScope scope = FlashScope.getCurrent(getRequest(), true);
-    List<Message> messages = (List<Message>) scope.get(key);
+    List<Message> messages = null;
+    if (scope != null) {
+      messages = (List<Message>) scope.get(key);
+    }
 
     if (messages == null) {
-      messages = new ArrayList<Message>();
+      messages = new ArrayList<>();
 
       /*
        * Messages imported from previous flash scope will be present in request scope but not
@@ -199,15 +202,15 @@ public class ActionBeanContext {
        */
       if (getRequest().getAttribute(key) instanceof List) {
         try {
-          for (Message message : ((List<Message>) getRequest().getAttribute(key))) {
-            messages.add(message);
-          }
+          messages.addAll(((List<Message>) getRequest().getAttribute(key)));
         } catch (ClassCastException e) {
           messages.clear();
         }
       }
 
-      scope.put(key, messages);
+      if (scope != null) {
+        scope.put(key, messages);
+      }
     }
 
     return messages;
@@ -227,7 +230,7 @@ public class ActionBeanContext {
 
   /**
    * Returns a resolution that can be used to return the user to the page from which they submitted
-   * they current request. Most useful in situations where a user-correctable error has occurred
+   * they currently request. Most useful in situations where a user-correctable error has occurred
    * that was too difficult or expensive to check at validation time. In that case an ActionBean can
    * call setValidationErrors() and then return the resolution provided by this method.
    *
@@ -246,7 +249,7 @@ public class ActionBeanContext {
   }
 
   /**
-   * Returns the context-relative path to the page from which the user submitted they current
+   * Returns the context-relative path to the page from which the user submitted they currently
    * request.
    *
    * @return Resolution a resolution that will forward the user to the page they came from

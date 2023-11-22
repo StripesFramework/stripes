@@ -16,6 +16,7 @@ package net.sourceforge.stripes.tag;
 
 import jakarta.servlet.jsp.JspException;
 import java.util.Locale;
+import java.util.Objects;
 import net.sourceforge.stripes.exception.StripesJspException;
 import net.sourceforge.stripes.localization.LocalizationUtility;
 import net.sourceforge.stripes.util.ReflectUtil;
@@ -24,7 +25,7 @@ import net.sourceforge.stripes.util.bean.ExpressionException;
 
 /**
  * Writes a set of {@literal <option value="foo">bar</option>} tags to the page based on the values
- * of a enum. Each value in the enum is represented by a single option tag on the page. The options
+ * of an enum. Each value in the enum is represented by a single option tag on the page. The options
  * will be generated in ordinal value order (i.e. the order they are declared in the enum).
  *
  * <p>Please note that as with the options-collection and options-map tags, resource bundle lookups
@@ -32,8 +33,8 @@ import net.sourceforge.stripes.util.bean.ExpressionException;
  *
  * <p>The label (the value the user sees) is generated in one of three ways: by looking up a
  * localized value (unless localizeLabels is set to false), by using the property named by the
- * 'label' tag attribute if it is supplied and lastly by toString()'ing the enumeration value. For
- * example the following tag:
+ * 'label' tag attribute if it is supplied and lastly by converting the enumeration value to a
+ * string. For example the following tag:
  *
  * <pre>{@literal <stripes:options-enumeration enum="net.kitty.EyeColor" label="description"/>}
  * </pre>
@@ -82,7 +83,7 @@ public class InputOptionsEnumerationTag extends InputOptionsCollectionTag {
    *     Class<Enum>.
    */
   @Override
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "rawtypes"})
   public int doStartTag() throws JspException {
     Class<Enum> clazz = null;
     try {
@@ -109,7 +110,7 @@ public class InputOptionsEnumerationTag extends InputOptionsCollectionTag {
       }
     }
 
-    if (!clazz.isEnum()) {
+    if (!Objects.requireNonNull(clazz).isEnum()) {
       throw new StripesJspException(
           "The class name supplied, ["
               + this.className

@@ -55,7 +55,7 @@ public class CreditCardTypeConverter implements TypeConverter<String> {
    * Locale-less.
    */
   public void setLocale(Locale locale) {
-    /** Doesn't matter for credit cards. */
+    /* Doesn't matter for credit cards. */
   }
 
   /**

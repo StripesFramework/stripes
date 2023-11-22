@@ -27,7 +27,7 @@ import java.io.IOException;
  * @since Stripes 1.1
  */
 public class MockServletOutputStream extends ServletOutputStream {
-  private ByteArrayOutputStream out = new ByteArrayOutputStream();
+  private final ByteArrayOutputStream out = new ByteArrayOutputStream();
 
   /** Pass through method calls ByteArrayOutputStream.write(int b). */
   @Override

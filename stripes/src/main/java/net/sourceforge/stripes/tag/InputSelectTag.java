@@ -19,10 +19,10 @@ import jakarta.servlet.jsp.tagext.BodyTag;
 import net.sourceforge.stripes.validation.BooleanTypeConverter;
 
 /**
- * Coordinates with one or more other tags to produce a well formed HTML select tag with state
- * repopulation. The select tag itself really only writes out the basic {@literal <select
+ * Coordinates with one or more other tags to produce a well-formed HTML select tag with state
+ * re-population. The select tag itself really only writes out the basic {@literal <select
  * name="foo"> ... </select>} piece of the structure, and provides mechanisms for child options to
- * determine whether or not they should render themselves as selected.
+ * determine whether they should render themselves as selected.
  *
  * @author Tim Fennell
  * @see InputOptionTag
@@ -109,7 +109,7 @@ public class InputSelectTag extends InputTagSupport implements BodyTag {
 
   /**
    * Writes out the opening {@literal <select name="foo">} tag. Looks for values in the request and
-   * in the ActionBean if one is present, and caches those values so it can efficiently determine
+   * in the ActionBean if one is present, and caches those values, so it can efficiently determine
    * which child options should be selected or not.
    *
    * @return EVAL_BODY_INCLUDE in all cases

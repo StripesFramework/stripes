@@ -50,8 +50,8 @@ public interface StripesConstants {
 
   /**
    * An immutable set of URL keys or request parameters that have special meaning to Stripes and as
-   * a result should not be referenced in binding, validation or other other places that work on the
-   * full set of request parameters.
+   * a result should not be referenced in binding, validation or other places that work on the full
+   * set of request parameters.
    */
   Set<String> SPECIAL_URL_KEYS =
       Collections.unmodifiableSet(
@@ -68,7 +68,7 @@ public interface StripesConstants {
   String REQ_ATTR_ACTION_BEAN = "actionBean";
 
   /**
-   * The name of a request attribute in which a Stack of action beans is some times stored when a
+   * The name of a request attribute in which a Stack of action beans is sometimes stored when a
    * single request involves includes of action beans.
    */
   String REQ_ATTR_ACTION_BEAN_STACK = "__stripes_actionBeanStack";

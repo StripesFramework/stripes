@@ -1,6 +1,8 @@
 package net.sourceforge.stripes.util;
 
 import java.security.SecureRandom;
+import java.util.Arrays;
+import java.util.Base64;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import org.junit.Assert;
@@ -97,13 +99,12 @@ public class CryptoUtilTest {
     String encrypted = CryptoUtil.encrypt(input);
     SecureRandom rnd = new SecureRandom();
     byte[] random = new byte[64];
-    int options = Base64.URL_SAFE | Base64.DONT_BREAK_LINES;
-    byte[] choosen = Base64.decode(encrypted, options);
+    byte[] choosen = Base64.getDecoder().decode(encrypted);
     for (int attempts = 0; attempts < Integer.MAX_VALUE; attempts++) {
       rnd.nextBytes(random);
       System.arraycopy(
           random, 0, choosen, CryptoUtil.CIPHER_BLOCK_LENGTH, CryptoUtil.CIPHER_BLOCK_LENGTH);
-      String choosenciphertext = Base64.encodeBytes(choosen, options);
+      String choosenciphertext = Arrays.toString(Base64.getEncoder().encode(choosen));
       String broken = CryptoUtil.decrypt(choosenciphertext);
       Assert.assertNull("hash failed: " + choosenciphertext + " derived from " + encrypted, broken);
     }

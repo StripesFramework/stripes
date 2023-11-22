@@ -68,9 +68,9 @@ public enum LifecycleStage {
   ResolutionExecution,
 
   /**
-   * Final lifecycle stage. Executes in the finally block of the request so it will always be called
-   * when a request terminates regardless of any other conditions. This is only useful for cleaning
-   * up because Resolution execution has already occurred.
+   * Final lifecycle stage. Executes in the "finally" block of the request, so it will always be
+   * called when a request terminates regardless of any other conditions. This is only useful for
+   * cleaning up because Resolution execution has already occurred.
    */
   RequestComplete
 }

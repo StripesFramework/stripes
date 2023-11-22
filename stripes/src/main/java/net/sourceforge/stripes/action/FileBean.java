@@ -25,7 +25,7 @@ import java.io.*;
  *
  * <p>The application developer is responsible for removing this temporary file once they have
  * processed it. This can be accomplished in one of two ways. Firstly a call to save(File) will
- * effect a save by <em>moving</em> the temporary file to the desired location. In this case there
+ * affect a save by <em>moving</em> the temporary file to the desired location. In this case there
  * is no need to call delete(), although doing so will not delete the saved file. The second way is
  * to simply call delete(). This is more applicable when consuming the file as an InputStream. An
  * example code fragment for reading a text based file might look like this:
@@ -45,9 +45,9 @@ import java.io.*;
  * @author Tim Fennell
  */
 public class FileBean {
-  private String contentType;
-  private String fileName;
-  private File file;
+  private final String contentType;
+  private final String fileName;
+  private final File file;
   private String charset;
   private boolean saved;
 
@@ -107,10 +107,8 @@ public class FileBean {
    * charset, then that charset is used. Otherwise, the reader uses the default charset.
    *
    * @return a new reader
-   * @throws UnsupportedEncodingException
-   * @throws IOException
    */
-  public Reader getReader() throws UnsupportedEncodingException, IOException {
+  public Reader getReader() throws IOException {
     if (charset == null) {
       return new InputStreamReader(getInputStream());
     } else {
@@ -123,10 +121,8 @@ public class FileBean {
    *
    * @param charset the charset the reader should use
    * @return a new reader
-   * @throws UnsupportedEncodingException
-   * @throws IOException
    */
-  public Reader getReader(String charset) throws UnsupportedEncodingException, IOException {
+  public Reader getReader(String charset) throws IOException {
     return new InputStreamReader(getInputStream(), charset);
   }
 
@@ -154,7 +150,7 @@ public class FileBean {
       throw new IOException(
           "Some time between uploading and saving we lost the ability to write to the file "
               + this.file.getAbsolutePath()
-              + " - writability is required to move the file.");
+              + " - writ-ability is required to move the file.");
     }
 
     File parent = toFile.getAbsoluteFile().getParentFile();
@@ -172,7 +168,7 @@ public class FileBean {
     this.saved = this.file.renameTo(toFile);
 
     // If the rename didn't work, try copying the darn thing bit by bit
-    if (this.saved == false) {
+    if (!this.saved) {
       saveViaCopy(toFile);
     }
   }
@@ -206,21 +202,21 @@ public class FileBean {
     } finally {
       try {
         if (out != null) out.close();
-      } catch (Exception e) {
+      } catch (Exception ignored) {
       }
       try {
         if (in != null) in.close();
-      } catch (Exception e) {
+      } catch (Exception ignored) {
       }
     }
   }
 
   /**
    * Deletes the temporary file associated with this file upload if one still exists. If save() has
-   * already been called then there is no temporary file any more, and this is a no-op.
+   * already been called then there is no temporary file anymore, and this is a no-op.
    *
-   * @throws IOException if the delete will fail for a reason we can detect up front, or if we try
-   *     to delete and get a failure
+   * @throws IOException if to delete will fail for a reason we can detect up front, or if we try to
+   *     delete and get a failure
    */
   public void delete() throws IOException {
     if (!this.saved) {
@@ -237,7 +233,7 @@ public class FileBean {
         throw new IOException(
             "Some time between uploading and saving we lost the ability to write to the file "
                 + this.file.getAbsolutePath()
-                + " - writability is required to delete the file.");
+                + " - writ-ability is required to delete the file.");
       }
       this.file.delete();
     }

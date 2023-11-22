@@ -63,7 +63,7 @@ public class Jsp21ExpressionExecutor implements ExpressionExecutor {
    */
   @SuppressWarnings("removal")
   protected static class StripesELResolver extends ELResolver {
-    private ActionBean bean;
+    private final ActionBean bean;
     private Object currentValue;
 
     /** Constructs a resolver based on the action bean . */
@@ -95,9 +95,9 @@ public class Jsp21ExpressionExecutor implements ExpressionExecutor {
       } else {
         try {
           base = base == null ? this.bean : base;
-          Object retval = BeanUtil.getPropertyValue(String.valueOf(prop), base);
+          Object returnValue = BeanUtil.getPropertyValue(String.valueOf(prop), base);
           ctx.setPropertyResolved(true);
-          return retval;
+          return returnValue;
         } catch (Exception e) {
           return null;
         }
@@ -148,10 +148,10 @@ public class Jsp21ExpressionExecutor implements ExpressionExecutor {
    */
   protected static class StripesELContext extends ELContext {
     @SuppressWarnings("unused")
-    private ActionBean bean;
+    private final ActionBean bean;
 
-    private StripesELResolver resolver;
-    private VariableMapper vmapper;
+    private final StripesELResolver resolver;
+    private final VariableMapper vmapper;
     private static final FunctionMapper fmapper =
         new FunctionMapper() {
           @Override
@@ -230,7 +230,7 @@ public class Jsp21ExpressionExecutor implements ExpressionExecutor {
 
     try {
       if (expressionString != null) {
-        // Make sure we can get an factory
+        // Make sure we can get a factory
         ExpressionFactory factory = getExpressionFactory();
         if (factory == null) return;
 
@@ -254,7 +254,7 @@ public class Jsp21ExpressionExecutor implements ExpressionExecutor {
       if (expression != null) {
         try {
           ctx.setCurrentValue(value);
-          Boolean result = (Boolean) expression.getValue(ctx);
+          Boolean result = expression.getValue(ctx);
           if (!Boolean.TRUE.equals(result)) {
             ValidationError error = new ScopedLocalizableError(ERROR_DEFAULT_SCOPE, ERROR_KEY);
             error.setFieldValue(String.valueOf(value));

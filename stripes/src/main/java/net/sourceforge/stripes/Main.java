@@ -52,6 +52,6 @@ public class Main {
             + " on "
             + System.getProperty("os.arch"));
 
-    System.out.println("For more information on Stripes please visit http://stripesframework.org");
+    System.out.println("For more information on Stripes please visit https://stripesframework.org");
   }
 }

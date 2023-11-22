@@ -38,7 +38,7 @@ import net.sourceforge.stripes.exception.StripesRuntimeException;
  *
  * <p>The splitting of the input String is done using the {@link java.lang.String#split(String)}
  * method. The regular expression passed to {@code split()} is obtained by calling {@link
- * #getSplitRegex()}. By default the regular expression used will match an optional comma followed
+ * #getSplitRegex()}. By default, the regular expression used will match an optional comma followed
  * by one or spaces (e.g. " " or ", " or " &nbsp; " etc.). This behaviour can easily be modified by
  * subclassing and overriding {@link #getSplitRegex()} to return a different regular expression
  * string.
@@ -82,9 +82,9 @@ public class OneToManyTypeConverter implements TypeConverter<Object> {
    * @return a Collection containing one or more items of targetType, or null if any
    *     ValidationErrors occur.
    */
-  @SuppressWarnings("unchecked")
-  public Collection<? extends Object> convert(
-      String input, Class<? extends Object> targetType, Collection<ValidationError> errors) {
+  @SuppressWarnings({"unchecked", "rawtypes"})
+  public Collection<?> convert(
+      String input, Class<?> targetType, Collection<ValidationError> errors) {
 
     TypeConverter converter = getSingleItemTypeConverter(targetType);
     String[] splits = input.split(getSplitRegex());
@@ -97,18 +97,18 @@ public class OneToManyTypeConverter implements TypeConverter<Object> {
       }
     }
 
-    return items.size() > 0 ? items : null;
+    return !items.isEmpty() ? items : null;
   }
 
   /**
    * Instantiates and returns a Collection of a type that can be set on ActionBeans using this
-   * converter. By default returns an instance of {@link java.util.List}.
+   * converter. By default, returns an instance of {@link java.util.List}.
    *
    * @return an instance of {@link java.util.List}
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings("rawtypes")
   public Collection getCollectionInstance() {
-    return new LinkedList<Object>();
+    return new LinkedList<>();
   }
 
   /**
@@ -123,13 +123,13 @@ public class OneToManyTypeConverter implements TypeConverter<Object> {
 
   /**
    * Fetches an instance of {@link TypeConverter} that can be used to convert the individual items
-   * split out of the input String. By default uses the {@link TypeConverterFactory} to find an
+   * split out of the input String. By default, uses the {@link TypeConverterFactory} to find an
    * appropriate {@link TypeConverter}.
    *
    * @param targetType the type that each item should be converted to.
    * @return a TypeConverter for use in converting each individual item.
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings("rawtypes")
   protected TypeConverter getSingleItemTypeConverter(Class targetType) {
     try {
       TypeConverterFactory factory = StripesFilter.getConfiguration().getTypeConverterFactory();

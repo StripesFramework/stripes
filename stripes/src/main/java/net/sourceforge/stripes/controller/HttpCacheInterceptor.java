@@ -17,6 +17,7 @@ package net.sourceforge.stripes.controller;
 import jakarta.servlet.http.HttpServletResponse;
 import java.lang.reflect.Method;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.action.HttpCache;
@@ -49,9 +50,12 @@ public class HttpCacheInterceptor implements Interceptor {
     }
 
     @Override
-    public boolean equals(Object obj) {
-      final CacheKey that = (CacheKey) obj;
-      return this.method.equals(that.method) && this.beanClass.equals(that.beanClass);
+    public boolean equals(Object o) {
+      if (this == o) return true;
+      if (o == null || getClass() != o.getClass()) return false;
+      CacheKey cacheKey = (CacheKey) o;
+      return Objects.equals(method, cacheKey.method)
+          && Objects.equals(beanClass, cacheKey.beanClass);
     }
 
     @Override
@@ -65,7 +69,7 @@ public class HttpCacheInterceptor implements Interceptor {
     }
   }
 
-  private Map<CacheKey, HttpCache> cache = new ConcurrentHashMap<CacheKey, HttpCache>(128);
+  private final Map<CacheKey, HttpCache> cache = new ConcurrentHashMap<>(128);
 
   /** Null values are not allowed by {@link ConcurrentHashMap} so use this reference instead. */
   private static final HttpCache NULL_CACHE = CacheKey.class.getAnnotation(HttpCache.class);

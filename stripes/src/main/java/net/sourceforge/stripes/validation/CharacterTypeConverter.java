@@ -38,7 +38,7 @@ public class CharacterTypeConverter implements TypeConverter<Character> {
    */
   public Character convert(
       String input, Class<? extends Character> targetType, Collection<ValidationError> errors) {
-    if (input != null && !"".equals(input)) {
+    if (input != null && !input.isEmpty()) {
       return input.charAt(0);
     } else {
       return '\0';

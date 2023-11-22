@@ -49,7 +49,7 @@ import java.lang.annotation.Target;
 @Documented
 public @interface HttpCache {
   /** Default value for {@link #expires()}. */
-  public static final int DEFAULT_EXPIRES = Integer.MIN_VALUE;
+  int DEFAULT_EXPIRES = Integer.MIN_VALUE;
 
   /** Indicates whether the response should be cached by the client. */
   boolean allow() default true;

@@ -80,7 +80,7 @@ public class Literal {
   /** Returns a new List instance containing the supplied elements. */
   @SafeVarargs
   public static <T> List<T> list(T... elements) {
-    List<T> list = new ArrayList<T>();
+    List<T> list = new ArrayList<>();
     Collections.addAll(list, elements);
     return list;
   }
@@ -88,7 +88,7 @@ public class Literal {
   /** Returns a new Set instance containing the supplied elements. */
   @SafeVarargs
   public static <T> Set<T> set(T... elements) {
-    Set<T> set = new HashSet<T>();
+    Set<T> set = new HashSet<>();
     Collections.addAll(set, elements);
     return set;
   }
@@ -96,7 +96,7 @@ public class Literal {
   /** Returns a new SortedSet instance containing the supplied elements. */
   @SafeVarargs
   public static <T extends Comparable<?>> SortedSet<T> sortedSet(T... elements) {
-    SortedSet<T> set = new TreeSet<T>();
+    SortedSet<T> set = new TreeSet<>();
     Collections.addAll(set, elements);
     return set;
   }

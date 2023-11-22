@@ -37,7 +37,7 @@ public class IndividualErrorTag extends HtmlTagSupport {
    * Does nothing
    *
    * @return SKIP_BODY always
-   * @throws JspException
+   * @throws JspException if an error occurs
    */
   @Override
   public int doStartTag() throws JspException {
@@ -62,11 +62,11 @@ public class IndividualErrorTag extends HtmlTagSupport {
         ValidationError error = parentErrorsTag.getCurrentError();
         writer.write(error.getMessage(locale));
       } catch (IOException ioe) {
-        JspException jspe =
+        JspException jspException =
             new JspException(
                 "IOException encountered while writing " + "error tag to the JspWriter.", ioe);
-        log.warn(jspe);
-        throw jspe;
+        log.warn(jspException);
+        throw jspException;
       }
     }
 

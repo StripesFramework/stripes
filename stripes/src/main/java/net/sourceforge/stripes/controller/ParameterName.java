@@ -18,8 +18,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Encapsulates the name of a parameter in the HttpServletRequest. Detects whether or not the name
- * refers to an indexed or mapped property.
+ * Encapsulates the name of a parameter in the HttpServletRequest. Detects whether the name refers
+ * to an indexed or mapped property.
  *
  * @author Tim Fennell
  */
@@ -28,18 +28,18 @@ public class ParameterName implements Comparable<ParameterName> {
   public static final Pattern pattern = Pattern.compile("\\[.*?\\]");
 
   /** Stores the name passed in at construction time. */
-  private String name;
+  private final String name;
 
   /** Stores the name with all indexing and mapping stripped out of it. */
-  private String strippedName;
+  private final String strippedName;
 
   /** True if the name has indexing or mapping in it. */
-  private boolean indexed;
+  private final boolean indexed;
 
   /**
    * Constructs a ParameterName for a given name from the HttpServletRequest. As it is constructed,
-   * detects whether or not the name contains indexing or mapping components, and if it does, also
-   * creates and stores the stripped name.
+   * detects whether the name contains indexing or mapping components, and if it does, also creates
+   * and stores the stripped name.
    *
    * @param name a name that may or may not contain indexing or mapping
    */
@@ -81,7 +81,7 @@ public class ParameterName implements Comparable<ParameterName> {
   }
 
   /**
-   * Orders ParameterNames so that those with shorter (unstripped) names come first. Two names of
+   * Orders ParameterNames so that those with shorter (non-stripped) names come first. Two names of
    * the same length are then ordered alphabetically by String.compareTo().
    *
    * @param that another ParameterName to compare to

@@ -25,17 +25,17 @@ import java.util.Collection;
 public class IntegerTypeConverter extends NumberTypeConverterSupport
     implements TypeConverter<Integer> {
   /**
-   * @param input
-   * @param errors
+   * @param input the String to convert into a single Integer
+   * @param errors the collection to which validation errors should be added
    * @return Integer an Integer object if one can be parsed from the input
    */
   public Integer convert(
       String input, Class<? extends Integer> targetType, Collection<ValidationError> errors) {
 
     Number number = parse(input, errors);
-    Integer retval = null;
+    Integer returnValue = null;
 
-    if (errors.size() == 0) {
+    if (errors.isEmpty()) {
       long output = number.longValue();
 
       if (output < Integer.MIN_VALUE || output > Integer.MAX_VALUE) {
@@ -43,11 +43,11 @@ public class IntegerTypeConverter extends NumberTypeConverterSupport
             new ScopedLocalizableError(
                 "converter.integer", "outOfRange", Integer.MIN_VALUE, Integer.MAX_VALUE));
       } else {
-        retval = (int) output;
+        returnValue = (int) output;
       }
     }
 
-    return retval;
+    return returnValue;
   }
 
   /** Overridden to return integer instances instead. */

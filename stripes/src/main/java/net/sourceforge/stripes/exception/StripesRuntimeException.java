@@ -14,6 +14,8 @@
  */
 package net.sourceforge.stripes.exception;
 
+import java.io.Serial;
+
 /**
  * Stripes' version of a RuntimeException that is to be preferred in Stripes code to throwing plain
  * RuntimeExceptions.
@@ -21,7 +23,7 @@ package net.sourceforge.stripes.exception;
  * @author Tim Fennell
  */
 public class StripesRuntimeException extends RuntimeException {
-  private static final long serialVersionUID = 1L;
+  @Serial private static final long serialVersionUID = 1L;
 
   public StripesRuntimeException(String message) {
     super(message);

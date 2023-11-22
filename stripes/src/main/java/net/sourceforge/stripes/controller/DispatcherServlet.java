@@ -20,6 +20,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.jsp.JspFactory;
 import jakarta.servlet.jsp.PageContext;
+import java.io.Serial;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Stack;
 import net.sourceforge.stripes.action.ActionBean;
@@ -44,11 +45,11 @@ import net.sourceforge.stripes.validation.expression.Jsp20ExpressionExecutor;
  * @author Tim Fennell
  */
 public class DispatcherServlet extends HttpServlet {
-  private static final long serialVersionUID = 1L;
+  @Serial private static final long serialVersionUID = 1L;
 
   /**
-   * Configuration key used to lookup up a property that determines whether or not beans' custom
-   * validate() method gets invoked when validation errors are generated during the binding process
+   * Configuration key used to lookup up a property that determines whether beans' custom validate()
+   * method gets invoked when validation errors are generated during the binding process
    */
   public static final String RUN_CUSTOM_VALIDATION_WHEN_ERRORS =
       "Validation.InvokeValidateWhenErrorsExist";
@@ -101,7 +102,7 @@ public class DispatcherServlet extends HttpServlet {
           config.getActionBeanContextFactory().getContextInstance(request, response);
       context.setServletContext(getServletContext());
 
-      // Then setup the ExecutionContext that we'll use to process this request
+      // Then set up the ExecutionContext that we'll use to process this request
       ctx.setActionBeanContext(context);
 
       try {
@@ -124,7 +125,7 @@ public class DispatcherServlet extends HttpServlet {
                           != null), // needsSession - don't force a session creation if one doesn't
                       // already exist
                       abc.getResponse().getBufferSize(),
-                      true); // autoflush
+                      true); // auto-flush
           DispatcherHelper.setPageContext(pageContext);
         }
 
@@ -170,10 +171,8 @@ public class DispatcherServlet extends HttpServlet {
       if (resolution != null) {
         executeResolution(ctx, resolution);
       }
-    } catch (ServletException se) {
+    } catch (ServletException | RuntimeException se) {
       throw se;
-    } catch (RuntimeException re) {
-      throw re;
     } catch (InvocationTargetException ite) {
       if (ite.getTargetException() instanceof ServletException) {
         throw (ServletException) ite.getTargetException();
@@ -206,12 +205,7 @@ public class DispatcherServlet extends HttpServlet {
     ctx.setLifecycleStage(LifecycleStage.RequestInit);
     ctx.setInterceptors(
         StripesFilter.getConfiguration().getInterceptors(LifecycleStage.RequestInit));
-    return ctx.wrap(
-        new Interceptor() {
-          public Resolution intercept(ExecutionContext context) throws Exception {
-            return null;
-          }
-        });
+    return ctx.wrap(context -> null);
   }
 
   /**
@@ -224,13 +218,7 @@ public class DispatcherServlet extends HttpServlet {
     ctx.setInterceptors(
         StripesFilter.getConfiguration().getInterceptors(LifecycleStage.RequestComplete));
     try {
-      Resolution resolution =
-          ctx.wrap(
-              new Interceptor() {
-                public Resolution intercept(ExecutionContext context) throws Exception {
-                  return null;
-                }
-              });
+      Resolution resolution = ctx.wrap(context -> null);
       if (resolution != null)
         log.warn(
             "Resolutions returned from interceptors for ",
@@ -331,7 +319,7 @@ public class DispatcherServlet extends HttpServlet {
     Stack<ActionBean> stack =
         (Stack<ActionBean>) request.getAttribute(StripesConstants.REQ_ATTR_ACTION_BEAN_STACK);
     if (stack == null && create) {
-      stack = new Stack<ActionBean>();
+      stack = new Stack<>();
       request.setAttribute(StripesConstants.REQ_ATTR_ACTION_BEAN_STACK, stack);
     }
 

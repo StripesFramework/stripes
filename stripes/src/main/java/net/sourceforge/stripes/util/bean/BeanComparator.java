@@ -21,15 +21,15 @@ import java.util.Locale;
 /**
  * A comparator which compares objects based on one or more bean properties. Nested properties are
  * fully supported. If a property is non-String and implements {@link Comparable} then the {@code
- * compareTo()} method is delegated to. Otherwise the property is converted to a String and a {@link
- * Locale} aware {@link Collator} is used to to compare property values.
+ * compareTo()} method is delegated to. Otherwise, the property is converted to a String and a
+ * {@link Locale} aware {@link Collator} is used to compare property values.
  *
  * @author Tim Fennell
  * @since Stripes 1.5
  */
 public class BeanComparator implements Comparator<Object> {
-  private Locale locale;
-  private PropertyExpression[] expressions;
+  private final Locale locale;
+  private final PropertyExpression[] expressions;
 
   /**
    * Constructs a BeanComparator for comparing beans based on the supplied set of properties, using
@@ -72,9 +72,9 @@ public class BeanComparator implements Comparator<Object> {
    * @throws ClassCastException if the arguments' types, or the types of the properties, prevent
    *     them from being compared by this Comparator.
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "StatementWithEmptyBody", "rawtypes"})
   public int compare(Object o1, Object o2) {
-    int retval = 0;
+    int returnValue = 0;
     Collator collator = Collator.getInstance(this.locale);
 
     for (PropertyExpression expression : this.expressions) {
@@ -85,22 +85,22 @@ public class BeanComparator implements Comparator<Object> {
       Object prop2 = e2.getValue();
 
       if (prop1 == null && prop2 == null) {
-        retval = 0;
+        // Return value is zero by default already, no need to assign it.
       } else if (prop1 == null) {
-        retval = 1;
+        returnValue = 1;
       } else if (prop2 == null) {
-        retval = -1;
+        returnValue = -1;
       } else if (!(prop1 instanceof String) && prop1 instanceof Comparable) {
-        retval = ((Comparable) prop1).compareTo(prop2);
+        returnValue = ((Comparable) prop1).compareTo(prop2);
       } else {
         String string1 = prop1.toString();
         String string2 = prop2.toString();
-        retval = collator.compare(string1, string2);
+        returnValue = collator.compare(string1, string2);
       }
 
-      if (retval != 0) break;
+      if (returnValue != 0) break;
     }
 
-    return retval;
+    return returnValue;
   }
 }

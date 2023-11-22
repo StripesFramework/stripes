@@ -29,11 +29,11 @@ public class DoubleTypeConverter extends NumberTypeConverterSupport
       String input, Class<? extends Double> targetType, Collection<ValidationError> errors) {
 
     Number number = parse(input, errors);
-    Double retval = null;
+    Double returnValue = null;
     if (errors.isEmpty()) {
-      retval = number.doubleValue();
+      returnValue = number.doubleValue();
     }
 
-    return retval;
+    return returnValue;
   }
 }

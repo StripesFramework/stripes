@@ -106,7 +106,7 @@ public class Range<T extends Comparable<T>> implements Comparable<Range<T>> {
         + " { type: "
         + start.getClass().getName()
         + ", start: "
-        + start.toString()
+        + start
         + ", end: "
         + end.toString()
         + " }";

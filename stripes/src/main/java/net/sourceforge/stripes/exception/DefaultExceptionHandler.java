@@ -61,7 +61,7 @@ import net.sourceforge.stripes.validation.LocalizableError;
  * <p>When an exception is caught the exception handler attempts to find a method that can handle
  * that type of exception. If none is found the exception's super-types are iterated through and
  * methods looked for which match the super-types. If a matching method is found it will be invoked.
- * Otherwise the exception will simply be rethrown by the exception handler - though first it will
+ * Otherwise, the exception will simply be rethrown by the exception handler - though first it will
  * be wrapped in a StripesServletException if necessary in order to make it acceptable to the
  * container.
  *
@@ -81,8 +81,7 @@ public class DefaultExceptionHandler implements ExceptionHandler {
   private Configuration configuration;
 
   /** A cache of exception types handled mapped to proxy objects that can do the handling. */
-  private Map<Class<? extends Throwable>, HandlerProxy> handlers =
-      new HashMap<Class<? extends Throwable>, HandlerProxy>();
+  private final Map<Class<? extends Throwable>, HandlerProxy> handlers = new HashMap<>();
 
   /**
    * Inner class that ties a class and method together an invokable object.
@@ -91,8 +90,8 @@ public class DefaultExceptionHandler implements ExceptionHandler {
    * @since Stripes 1.3
    */
   protected static class HandlerProxy {
-    private Object handler;
-    private Method handlerMethod;
+    private final Object handler;
+    private final Method handlerMethod;
 
     /** Constructs a new HandlerProxy that will tie together the instance and method used. */
     public HandlerProxy(Object handler, Method handlerMethod) {
@@ -105,7 +104,7 @@ public class DefaultExceptionHandler implements ExceptionHandler {
         throws Exception {
       try {
         Object resolution = handlerMethod.invoke(this.handler, t, req, res);
-        if (resolution != null && resolution instanceof Resolution) {
+        if (resolution instanceof Resolution) {
           ((Resolution) resolution).execute(req, res);
         }
       } catch (InvocationTargetException e) {
@@ -124,7 +123,7 @@ public class DefaultExceptionHandler implements ExceptionHandler {
   /**
    * Implementation of the ExceptionHandler interface that attempts to find a method that is capable
    * of handing the exception. If it finds one then it is delegated to, and if it returns a
-   * resolution it will be executed. Otherwise rethrows any unhandled exceptions, wrapped in a
+   * resolution it will be executed. Otherwise, rethrows any unhandled exceptions, wrapped in a
    * StripesServletException if necessary.
    *
    * @param throwable the exception being handled
@@ -158,10 +157,8 @@ public class DefaultExceptionHandler implements ExceptionHandler {
         log.warn(throwable, "Unhandled exception caught by the Stripes default exception handler.");
         throw throwable;
       }
-    } catch (ServletException se) {
+    } catch (ServletException | IOException se) {
       throw se;
-    } catch (IOException ioe) {
-      throw ioe;
     } catch (Throwable t) {
       String message = "Unhandled exception in exception handler.";
       log.error(t, message);
@@ -217,9 +214,10 @@ public class DefaultExceptionHandler implements ExceptionHandler {
    * validation error to report the field name, maximum POST size, and actual POST size. Finally, it
    * forwards to the referer.
    *
-   * <p>While this is a best effort, it won't be ideal for all situations. If this method is unable
-   * to handle the exception properly for any reason, it rethrows the exception. Subclasses can call
-   * this method in a {@code try} block, providing additional processing in the {@code catch} block.
+   * <p>While this is the best effort, it won't be ideal for all situations. If this method is
+   * unable to handle the exception properly for any reason, it rethrows the exception. Subclasses
+   * can call this method in a {@code try} block, providing additional processing in the {@code
+   * catch} block.
    *
    * <p>A simple way to provide a single, global error page for this type of exception is to
    * override {@link #getFileUploadExceededExceptionPath(HttpServletRequest)} to return the path to
@@ -253,8 +251,7 @@ public class DefaultExceptionHandler implements ExceptionHandler {
       wrapper =
           new StripesRequestWrapper(request) {
             @Override
-            protected void constructMultipartWrapper(HttpServletRequest request)
-                throws StripesServletException {
+            protected void constructMultipartWrapper(HttpServletRequest request) {
               setLocale(configuration.getLocalePicker().pickLocale(request));
             }
           };
@@ -299,10 +296,10 @@ public class DefaultExceptionHandler implements ExceptionHandler {
     else context.getValidationErrors().add(fieldName, error);
 
     // Create an ExecutionContext so that the validation errors can be filled in
-    ExecutionContext exectx = new ExecutionContext();
-    exectx.setActionBean(actionBean);
-    exectx.setActionBeanContext(context);
-    DispatcherHelper.fillInValidationErrors(exectx);
+    ExecutionContext execContext = new ExecutionContext();
+    execContext.setActionBean(actionBean);
+    execContext.setActionBeanContext(context);
+    DispatcherHelper.fillInValidationErrors(execContext);
 
     // Forward back to referer, using the wrapped request
     return new ForwardResolution(path) {
@@ -326,8 +323,8 @@ public class DefaultExceptionHandler implements ExceptionHandler {
    * @return The context-relative path from which the request was submitted
    */
   protected String getFileUploadExceededExceptionPath(HttpServletRequest request) {
-    // Get the referer URL so we can bounce back to it
-    URL referer = null;
+    // Get the referer URL, so we can bounce back to it
+    URL referer;
     try {
       referer = new URL(request.getHeader("referer"));
     } catch (Exception e) {
@@ -361,9 +358,8 @@ public class DefaultExceptionHandler implements ExceptionHandler {
    * type it takes.
    *
    * @param handlerClass the class being configured
-   * @throws Exception if the handler class cannot be instantiated
    */
-  protected void addHandler(Class<?> handlerClass) throws Exception {
+  protected void addHandler(Class<?> handlerClass) {
     addHandler(getConfiguration().getObjectFactory().newInstance(handlerClass));
   }
 
@@ -375,8 +371,8 @@ public class DefaultExceptionHandler implements ExceptionHandler {
    *
    * @param handler the handler instance being configured
    */
-  @SuppressWarnings("unchecked")
-  protected void addHandler(Object handler) throws Exception {
+  @SuppressWarnings({"unchecked", "rawtypes"})
+  protected void addHandler(Object handler) {
     Method[] methods = handler.getClass().getMethods();
     for (Method method : methods) {
       // Check the method Signature
@@ -432,7 +428,7 @@ public class DefaultExceptionHandler implements ExceptionHandler {
    * the root cause is returned, otherwise the throwable is returned as is.
    *
    * @param throwable a throwable
-   * @return another thowable, either the root cause of the one passed in
+   * @return another throwable, either the root cause of the one passed in
    */
   protected Throwable unwrap(Throwable throwable) {
     if (throwable instanceof ServletException) {

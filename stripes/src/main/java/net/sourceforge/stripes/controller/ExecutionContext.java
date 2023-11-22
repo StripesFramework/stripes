@@ -36,11 +36,10 @@ import net.sourceforge.stripes.util.Log;
  */
 public class ExecutionContext {
   private static final Log log = Log.getInstance(ExecutionContext.class);
-  private static final ThreadLocal<ExecutionContext> currentContext =
-      new ThreadLocal<ExecutionContext>();
+  private static final ThreadLocal<ExecutionContext> currentContext = new ThreadLocal<>();
 
   /** Get the execution context for the current thread. */
-  public static final ExecutionContext currentContext() {
+  public static ExecutionContext currentContext() {
     return currentContext.get();
   }
 
@@ -85,7 +84,7 @@ public class ExecutionContext {
       return proceed();
     } finally {
       // Make sure the current execution context gets cleared after RequestComplete
-      if (LifecycleStage.RequestComplete == getLifecycleStage()) currentContext.set(null);
+      if (LifecycleStage.RequestComplete == getLifecycleStage()) currentContext.remove();
     }
   }
 
@@ -168,7 +167,7 @@ public class ExecutionContext {
   /**
    * Continues the flow of execution. If there are more interceptors in the stack intercepting the
    * current lifecycle stage then the flow continues by calling the next interceptor. If there are
-   * no more interceptors then the lifecycle code is invoked.
+   * no more interceptors, then the lifecycle code is invoked.
    *
    * @return a Resolution if the lifecycle code or one of the interceptors returns one
    * @throws Exception if the lifecycle code or one of the interceptors throws one

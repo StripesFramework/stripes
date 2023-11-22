@@ -23,7 +23,7 @@ import jakarta.servlet.jsp.JspException;
  * type of the form is properly set to multipart/form-data as both these settings are necessary to
  * correctly perform file uploads.
  *
- * <p>Does not perform repopulation because default values for {@literal <input type="file/>} are
+ * <p>Does not perform re-population because default values for {@literal <input type="file/>} are
  * not allowed by the HTML specification. One can only imagine this is because a malicious page
  * author could steal a user's files by defaulting the value and using JavaScript to auto-submit
  * forms! As a result the tag does not accept a body because it would have no use for any generated
@@ -49,14 +49,14 @@ public class InputFileTag extends InputTagSupport {
   }
 
   /**
-   * Locates the parent tag and modifies it's method and enctype to be suitable for file upload.
+   * Locates the parent tag and modifies its method and enctype to be suitable for file upload.
    *
    * @return SKIP_BODY because the tag does not allow a body
    * @throws JspException if the enclosing form tag cannot be located
    */
   @Override
   public int doStartInputTag() throws JspException {
-    // Make sure the form is setup to do file uploads
+    // Make sure the form is set up to do file uploads
     FormTag form = getParentFormTag();
     form.setMethod("post");
     form.setEnctype("multipart/form-data");
@@ -72,7 +72,7 @@ public class InputFileTag extends InputTagSupport {
    */
   @Override
   public int doEndInputTag() throws JspException {
-    writeSingletonTag(getPageContext().getOut(), "input");
+    writeSingletonTag(getPageContext().getOut());
     return EVAL_PAGE;
   }
 }

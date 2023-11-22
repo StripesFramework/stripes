@@ -14,7 +14,9 @@
  */
 package net.sourceforge.stripes.validation;
 
+import java.io.Serial;
 import java.util.Locale;
+import java.util.Objects;
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.action.SimpleMessage;
 import net.sourceforge.stripes.localization.LocalizationUtility;
@@ -23,7 +25,7 @@ import net.sourceforge.stripes.util.Log;
 /**
  * Validation error message that allows for supplying the error message at the time of creation -
  * i.e. not through a resource bundle or other external mechanism. SimpleError will still attempt to
- * lookup the field name in the field name bundle, but as with other errors, it will fall back to a
+ * look up the field name in the field name bundle, but as with other errors, it will fall back to a
  * prettified version of the field name that is used in the input tag.
  *
  * <p>Messages may contain one or more &quot;replacement parameters&quot;. Two replacement
@@ -40,7 +42,7 @@ import net.sourceforge.stripes.util.Log;
  * like &quot;<em>Fixed</em> is not a valid <em>status</em> when trying to create a new
  * <em>bug</em>&quot;.
  *
- * <p>One last point of interest is where the user friendly field name comes from. Firstly an
+ * <p>One last point of interest is where the user-friendly field name comes from. Firstly an
  * attempt is made to look up the localized name in the applicable resource bundle using the String
  * <em>beanClassFQN.fieldName</em> where beanClassFQN is the fully qualified name of the bean class,
  * and fieldName is the name of the field on the form. The second attempt is made with String
@@ -51,7 +53,7 @@ import net.sourceforge.stripes.util.Log;
  * @see java.text.MessageFormat
  */
 public class SimpleError extends SimpleMessage implements ValidationError {
-  private static final long serialVersionUID = 1L;
+  @Serial private static final long serialVersionUID = 1L;
 
   private static final Log log = Log.getInstance(SimpleError.class);
 
@@ -87,7 +89,7 @@ public class SimpleError extends SimpleMessage implements ValidationError {
 
   /**
    * Looks up the field name in the resource bundle (if it exists) so that it can be used in the
-   * message, and then defers to it's super class to combine the message template with the
+   * message, and then defers to its super class to combine the message template with the
    * replacement parameters provided.
    *
    * @param locale the locale of the current request
@@ -177,12 +179,8 @@ public class SimpleError extends SimpleMessage implements ValidationError {
 
     final SimpleError that = (SimpleError) o;
 
-    if (actionPath != null ? !actionPath.equals(that.actionPath) : that.actionPath != null)
-      return false;
-    if (fieldNameKey != null ? !fieldNameKey.equals(that.fieldNameKey) : that.fieldNameKey != null)
-      return false;
-
-    return true;
+    if (!Objects.equals(actionPath, that.actionPath)) return false;
+    return Objects.equals(fieldNameKey, that.fieldNameKey);
   }
 
   /** Hash code based on the message, field name key, action path and parameters. */

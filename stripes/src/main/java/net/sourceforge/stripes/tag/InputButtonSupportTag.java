@@ -20,9 +20,9 @@ import jakarta.servlet.jsp.tagext.BodyTag;
 /**
  * Support tag class that can generate HTML form fields with localized value attributes. Primarily
  * used to contain identical functionality between submit, reset and button input types. The only
- * capability offered above and beyond a pure html tag is the ability to lookup the value of the
+ * capability offered above and beyond a pure html tag is the ability to look up the value of the
  * button (i.e. the text on the button that the user sees) from a localized resource bundle. The tag
- * will set it's value using the first non-null result from the following list:
+ * will set its value using the first non-null result from the following list:
  *
  * <ul>
  *   <li>formName.buttonName from the localized resource bundle
@@ -90,7 +90,7 @@ public class InputButtonSupportTag extends InputTagSupport implements BodyTag {
       getAttributes().put("value", this.value);
     }
 
-    writeSingletonTag(getPageContext().getOut(), "input");
+    writeSingletonTag(getPageContext().getOut());
 
     // Restore the original state before we mucked with it
     getAttributes().remove("value");

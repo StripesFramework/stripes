@@ -19,8 +19,8 @@ import java.util.Collection;
 
 /**
  * Basic type converter for converting strings to bytes. Will produce one error if the String
- * supplied is not a parsable number, and another error if the number is parseable but outside of
- * the range Byte.MIN_VALUE =< X =< Byte.MAX_VALUE.
+ * supplied is not a parsable number, and another error if the number is parseable but outside the
+ * range Byte.MIN_VALUE =< X =< Byte.MAX_VALUE.
  *
  * @author Tim Fennell
  */
@@ -33,9 +33,9 @@ public class ByteTypeConverter extends NumberTypeConverterSupport implements Typ
       String input, Class<? extends Byte> targetType, Collection<ValidationError> errors) {
 
     Number number = parse(input, errors);
-    Byte retval = null;
+    Byte returnValue = null;
 
-    if (errors.size() == 0) {
+    if (errors.isEmpty()) {
       long output = number.longValue();
 
       if (output < Byte.MIN_VALUE || output > Byte.MAX_VALUE) {
@@ -43,11 +43,11 @@ public class ByteTypeConverter extends NumberTypeConverterSupport implements Typ
             new ScopedLocalizableError(
                 "converter.byte", "outOfRange", Byte.MIN_VALUE, Byte.MAX_VALUE));
       } else {
-        retval = (byte) output;
+        returnValue = (byte) output;
       }
     }
 
-    return retval;
+    return returnValue;
   }
 
   /** Overridden to return integer instances instead. */

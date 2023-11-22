@@ -15,7 +15,7 @@
 package net.sourceforge.stripes.util.bean;
 
 /**
- * Enum representing the type of a node in a property expression. The primary purpose of this
+ * Enum representing the type of node in a property expression. The primary purpose of this
  * enumeration is to provide a way to determine which property accessor to use when attempting to
  * get or set a particular node in an expression.
  *
@@ -32,7 +32,7 @@ public enum NodeType {
   /** Represents an item stored in a Java array. */
   ArrayEntry(new ArrayPropertyAccessor());
 
-  private PropertyAccessor<?> propertyAccessor;
+  private final PropertyAccessor<?> propertyAccessor;
 
   /**
    * Private constructor which allows each enum to specify the type of property accessor that should
@@ -40,7 +40,7 @@ public enum NodeType {
    *
    * @param accessor an instance of a PropertyAccessor applicable for this node type
    */
-  private NodeType(PropertyAccessor<?> accessor) {
+  NodeType(PropertyAccessor<?> accessor) {
     this.propertyAccessor = accessor;
   }
 
@@ -49,7 +49,7 @@ public enum NodeType {
    *
    * @return an instance of PropertyAccessor
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings("rawtypes")
   public PropertyAccessor getPropertyAccessor() {
     return propertyAccessor;
   }

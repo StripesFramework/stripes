@@ -27,14 +27,14 @@ import java.util.Map;
  * @author Aaron Porter
  */
 public class InputOptionsMapTag extends InputOptionsCollectionTag {
-  private Map<? extends Object, ? extends Object> map;
+  private Map<?, ?> map;
 
   /**
    * Returns the {@link java.util.Map} that was passed in via setMap().
    *
    * @return the {@link java.util.Map} passed in via setMap().
    */
-  public Map<? extends Object, ? extends Object> getMap() {
+  public Map<?, ?> getMap() {
     return map;
   }
 
@@ -44,7 +44,7 @@ public class InputOptionsMapTag extends InputOptionsCollectionTag {
    *
    * @param map a Map
    */
-  public void setMap(Map<? extends Object, ? extends Object> map) {
+  public void setMap(Map<?, ?> map) {
     this.map = map;
 
     setCollection(map.entrySet());
@@ -57,8 +57,7 @@ public class InputOptionsMapTag extends InputOptionsCollectionTag {
   /** Calls super.doEndTag() and cleans up instance variables so this instance may be reused. */
   @Override
   public int doEndTag() throws JspException {
-    int result = super.doEndTag();
 
-    return result;
+    return super.doEndTag();
   }
 }

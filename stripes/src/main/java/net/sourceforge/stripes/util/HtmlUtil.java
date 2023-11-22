@@ -47,22 +47,13 @@ public class HtmlUtil {
     // turns out that it's not strictly necessary since Stripes uses double-quotes
     // around all form fields, and stupid IE6 will render &apos; verbatim instead
     // of as a single quote.
-    for (int i = 0; i < characters.length; ++i) {
-      switch (characters[i]) {
-        case '<':
-          builder.append("&lt;");
-          break;
-        case '>':
-          builder.append("&gt;");
-          break;
-        case '"':
-          builder.append("&quot;");
-          break;
-        case '&':
-          builder.append("&amp;");
-          break;
-        default:
-          builder.append(characters[i]);
+    for (char character : characters) {
+      switch (character) {
+        case '<' -> builder.append("&lt;");
+        case '>' -> builder.append("&gt;");
+        case '"' -> builder.append("&quot;");
+        case '&' -> builder.append("&amp;");
+        default -> builder.append(character);
       }
     }
 
@@ -78,7 +69,7 @@ public class HtmlUtil {
    *     be converted back into a Collection of Strings with splitValues().
    */
   public static String combineValues(Collection<String> values) {
-    if (values == null || values.size() == 0) {
+    if (values == null || values.isEmpty()) {
       return "";
     } else {
       StringBuilder builder = new StringBuilder(values.size() * 30);
@@ -99,7 +90,7 @@ public class HtmlUtil {
    * @return a Collection of zero or more Strings
    */
   public static Collection<String> splitValues(String value) {
-    if (value == null || value.length() == 0) {
+    if (value == null || value.isEmpty()) {
       return Collections.emptyList();
     } else {
       String[] splits = FIELD_DELIMITER_PATTERN.split(value);

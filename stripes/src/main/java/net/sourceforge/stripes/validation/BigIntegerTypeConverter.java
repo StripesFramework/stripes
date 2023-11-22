@@ -32,7 +32,7 @@ public class BigIntegerTypeConverter extends NumberTypeConverterSupport
     implements TypeConverter<BigInteger> {
 
   /**
-   * Uses the parent implementation to fetch a number format, but then downcasts it to a decimal
+   * Uses the parent implementation to fetch a number format, but then down-casting it to a decimal
    * format and ensures that a BigDecimal is parsed instead of a Long or Double.
    */
   @Override
@@ -53,7 +53,7 @@ public class BigIntegerTypeConverter extends NumberTypeConverterSupport
 
     BigDecimal decimal = (BigDecimal) parse(input, errors);
 
-    if (errors.size() == 0) {
+    if (errors.isEmpty()) {
       return decimal.toBigInteger();
     } else {
       return null;

@@ -96,7 +96,7 @@ public class LayoutRenderTag extends LayoutTag implements BodyTag, DynamicAttrib
   }
 
   /** Used by the JSP container to provide the tag with dynamic attributes. */
-  public void setDynamicAttribute(String uri, String localName, Object value) throws JspException {
+  public void setDynamicAttribute(String uri, String localName, Object value) {
     context.getParameters().put(localName, value);
   }
 
@@ -200,7 +200,7 @@ public class LayoutRenderTag extends LayoutTag implements BodyTag, DynamicAttrib
 
         context.getOut().setSilent(silent, pageContext);
         LayoutContext.pop(pageContext);
-        popPageContextAttributes(); // remove any dynattrs from page scope
+        popPageContextAttributes(); // remove any dyn-attrs from page scope
       } else {
         context.getOut().setSilent(silent, pageContext);
       }

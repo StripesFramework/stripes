@@ -60,7 +60,7 @@ public class LinkTag extends LinkTagSupport implements BodyTag {
    * parameters into the URL.
    *
    * @return EVAL_PAGE in all cases
-   * @throws JspException
+   * @throws JspException if the body of the tag cannot be written out
    */
   @Override
   public int doEndTag() throws JspException {
@@ -68,7 +68,7 @@ public class LinkTag extends LinkTagSupport implements BodyTag {
       set("href", buildUrl());
       writeOpenTag(getPageContext().getOut(), "a");
       String body = getBodyContentAsString();
-      if (body == null || body.trim().length() == 0) {
+      if (body == null || body.trim().isEmpty()) {
         body = get("href");
       }
       if (body != null) {

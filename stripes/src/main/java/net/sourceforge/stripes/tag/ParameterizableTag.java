@@ -25,7 +25,7 @@ package net.sourceforge.stripes.tag;
 public interface ParameterizableTag {
   /**
    * Adds a parameter to the tag. It is up to the tag to determine whether the new value(s) supplied
-   * supercede or add to previous values. The value can be of any type, and tags should handle
+   * supersede or add to previous values. The value can be of any type, and tags should handle
    * Arrays and Collections gracefully.
    *
    * @param name the name of the parameter

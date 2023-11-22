@@ -15,6 +15,7 @@
 package net.sourceforge.stripes.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
+import java.io.Serial;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -115,8 +116,7 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
 
     // Converted values for all fields are accumulated in this map to make post-conversion
     // validation go a little easier
-    Map<ParameterName, List<Object>> allConvertedFields =
-        new TreeMap<ParameterName, List<Object>>();
+    Map<ParameterName, List<Object>> allConvertedFields = new TreeMap<>();
 
     // First we bind all the regular parameters
     for (Map.Entry<ParameterName, String[]> entry : parameters.entrySet()) {
@@ -124,17 +124,19 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
       ParameterName name = entry.getKey();
 
       try {
-        String pname = name.getName(); // exact name of the param in the request
-        if (!StripesConstants.SPECIAL_URL_KEYS.contains(pname) && !fieldErrors.containsKey(pname)) {
+        String paramName = name.getName(); // exact name of the param in the request
+        if (!StripesConstants.SPECIAL_URL_KEYS.contains(paramName)
+            && !fieldErrors.containsKey(paramName)) {
           log.trace("Running binding for property with name: ", name);
 
           // Determine the target type
           ValidationMetadata validationInfo = validationInfos.get(name.getStrippedName());
           PropertyExpressionEvaluation eval;
           try {
-            eval = new PropertyExpressionEvaluation(PropertyExpression.getExpression(pname), bean);
+            eval =
+                new PropertyExpressionEvaluation(PropertyExpression.getExpression(paramName), bean);
           } catch (Exception e) {
-            if (pname.equals(context.getEventName())) continue;
+            if (paramName.equals(context.getEventName())) continue;
             else throw e;
           }
           Class<?> type = eval.getType();
@@ -144,7 +146,7 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
           if (!isBindingAllowed(eval)) continue;
 
           if (type == null && (validationInfo == null || validationInfo.converter() == null)) {
-            if (!pname.equals(context.getEventName())) {
+            if (!paramName.equals(context.getEventName())) {
               log.trace(
                   "Could not find type for property '",
                   name.getName(),
@@ -158,7 +160,7 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
           String[] values = entry.getValue();
 
           // Do Validation and type conversion
-          List<ValidationError> errors = new ArrayList<ValidationError>();
+          List<ValidationError> errors = new ArrayList<>();
 
           // If the property should be ignored, skip to the next property
           if (validationInfo != null && validationInfo.ignore()) {
@@ -176,10 +178,12 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
           }
 
           // If we have errors, save them, otherwise bind the parameter to the form
-          if (errors.size() > 0) {
+          if (!errors.isEmpty()) {
             fieldErrors.addAll(name.getName(), errors);
-          } else if (convertedValues.size() > 0) {
-            bindNonNullValue(bean, eval, convertedValues, type, scalarType);
+          } else if (!convertedValues.isEmpty()) {
+            if (type != null) {
+              bindNonNullValue(bean, eval, convertedValues, type, scalarType);
+            }
           } else {
             bindNullValue(bean, name.getName(), type);
           }
@@ -260,7 +264,7 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
 
   /**
    * Invoked whenever an exception is thrown when attempting to bind a property to an ActionBean. By
-   * default logs some information about the occurrence, but could be overridden to do more
+   * default, logs some information about the occurrence, but could be overridden to do more
    * intelligent things based on the application.
    *
    * @param bean the ActionBean that was the subject of binding
@@ -276,8 +280,7 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
       List<Object> values,
       Exception e,
       ValidationErrors errors) {
-    if (e instanceof NoSuchPropertyException) {
-      NoSuchPropertyException nspe = (NoSuchPropertyException) e;
+    if (e instanceof NoSuchPropertyException noSuchPropertyException) {
       // No stack trace if it's a no such property exception
       log.debug(
           "Could not bind property with name [",
@@ -285,7 +288,7 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
           "] to bean of type: ",
           bean.getClass().getSimpleName(),
           " : ",
-          nspe.getMessage());
+          noSuchPropertyException.getMessage());
     } else {
       log.debug(
           e,
@@ -304,7 +307,6 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
    * @param bean the ActionBean being bound to
    * @param context the current ActionBeanContext
    */
-  @SuppressWarnings("unchecked")
   protected void bindMissingValuesAsNull(ActionBean bean, ActionBeanContext context) {
     Set<String> parametersSubmitted = context.getRequest().getParameterMap().keySet();
 
@@ -335,7 +337,7 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
     Wizard wizard = bean.getClass().getAnnotation(Wizard.class);
     boolean isWizard = wizard != null;
 
-    if (fieldsPresent == null || "".equals(fieldsPresent)) {
+    if (fieldsPresent == null || fieldsPresent.isEmpty()) {
       if (isWizard && !CollectionUtil.contains(wizard.startEvents(), ctx.getEventName())) {
         throw new StripesRuntimeException(
             "Submission of a wizard form in Stripes absolutely requires that "
@@ -361,7 +363,6 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
    * @param propertyEvaluation the property evaluation to be used to set the property
    * @param valueOrValues a List containing one or more values
    * @param targetType the declared type of the property on the ActionBean
-   * @throws Exception if the property cannot be bound for any reason
    */
   @SuppressWarnings({"unchecked", "rawtypes"})
   protected void bindNonNullValue(
@@ -369,8 +370,7 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
       PropertyExpressionEvaluation propertyEvaluation,
       List<Object> valueOrValues,
       Class targetType,
-      Class scalarType)
-      throws Exception {
+      Class scalarType) {
     Class valueType = valueOrValues.iterator().next().getClass();
 
     // If the target type is an array, set it as one, otherwise set as scalar
@@ -422,14 +422,13 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
    * a SortedMap so that when iterated over parameter names are accessed in order of length of
    * parameter name.
    */
-  @SuppressWarnings("unchecked")
   protected SortedMap<ParameterName, String[]> getParameters(ActionBean bean) {
     Map<String, String[]> requestParameters = bean.getContext().getRequest().getParameterMap();
     Map<String, ValidationMetadata> validations =
         StripesFilter.getConfiguration()
             .getValidationMetadataProvider()
             .getValidationMetadata(bean.getClass());
-    SortedMap<ParameterName, String[]> parameters = new TreeMap<ParameterName, String[]>();
+    SortedMap<ParameterName, String[]> parameters = new TreeMap<>();
 
     for (Map.Entry<String, String[]> entry : requestParameters.entrySet()) {
       ParameterName paramName = new ParameterName(entry.getKey().trim());
@@ -465,7 +464,7 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
 
     // Assemble a set of names that we know have indexed parameters, so we won't check
     // for required-ness the regular way
-    Set<String> indexedParams = new HashSet<String>();
+    Set<String> indexedParams = new HashSet<>();
     for (ParameterName name : parameters.keySet()) {
       if (name.isIndexed()) {
         indexedParams.add(name.getStrippedName());
@@ -512,8 +511,8 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
 
     // Now the easy work is done, figure out which rows of indexed props had values submitted
     // and what to flag up as failing required field validation
-    if (indexedParams.size() > 0) {
-      Map<String, Row> rows = new HashMap<String, Row>();
+    if (!indexedParams.isEmpty()) {
+      Map<String, Row> rows = new HashMap<>();
 
       for (Map.Entry<ParameterName, String[]> entry : parameters.entrySet()) {
         ParameterName name = entry.getKey();
@@ -534,7 +533,10 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
           for (Map.Entry<ParameterName, String[]> entry : row.entrySet()) {
             ParameterName name = entry.getKey();
             String[] values = entry.getValue();
-            ValidationMetadata validationInfo = validationInfos.get(name.getStrippedName());
+            ValidationMetadata validationInfo = null;
+            if (validationInfos != null) {
+              validationInfo = validationInfos.get(name.getStrippedName());
+            }
 
             if (validationInfo != null && validationInfo.requiredOn(context.getEventName())) {
               checkSingleRequiredField(
@@ -559,7 +561,7 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
    *
    * <p>
    *
-   * <p>For any fields that fail validation, creates a ScopedLocaliableError that uses the stripped
+   * <p>For any fields that fail validation, creates a ScopedLocalizableError that uses the stripped
    * name of the field to find localized info (e.g. foo.bar instead of foo[1].bar). The error is
    * bound to the actual field on the form though, e.g. foo[1].bar.
    *
@@ -590,7 +592,7 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
       errors.add(name, error);
     } else {
       for (String value : values) {
-        if (value == null || value.length() == 0) {
+        if (value == null || value.isEmpty()) {
           ValidationError error =
               new ScopedLocalizableError("validation.required", "valueNotPresent");
           error.setFieldValue(value);
@@ -617,7 +619,7 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
 
     for (String value : values) {
       // Only run validations when there are non-empty values
-      if (value != null && value.length() > 0) {
+      if (value != null && !value.isEmpty()) {
         if (validationInfo.minlength() != null && value.length() < validationInfo.minlength()) {
           ValidationError error =
               new ScopedLocalizableError(
@@ -667,7 +669,7 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
       List<Object> values = entry.getValue();
       ValidationMetadata validationInfo = validationInfos.get(name.getStrippedName());
 
-      if (values.size() == 0 || validationInfo == null) {
+      if (values.isEmpty() || validationInfo == null) {
         continue;
       }
 
@@ -675,8 +677,7 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
         // If the value is a number then we should check to see if there are range
         // boundaries
         // established, and check them.
-        if (value instanceof Number) {
-          Number number = (Number) value;
+        if (value instanceof Number number) {
 
           if (validationInfo.minvalue() != null
               && number.doubleValue() < validationInfo.minvalue()) {
@@ -709,7 +710,7 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
    * {@link net.sourceforge.stripes.validation.expression.ExpressionValidator} for details on how
    * this is implemented.
    *
-   * @param bean the ActionBean who's property is being validated
+   * @param bean the ActionBean whose property is being validated
    * @param name the name of the property being validated
    * @param values the non-null post-conversion values for the property
    * @param validationInfo the validation metadata for the property
@@ -763,21 +764,21 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
       List<ValidationError> errors)
       throws Exception {
 
-    List<Object> returns = new ArrayList<Object>();
-    Class returnType = null;
+    List<Object> returns = new ArrayList<>();
+    Class returnType;
 
     // Dig up the type converter.  This gets a bit tricky because we need to handle
     // the following cases:
-    // 1. We need to simply find a converter for the declared type of a simple property
+    // 1. We need to simply find a converter for the declared type of simple property
     // 2. We need to find a converter for the element type in a list/array/map
     // 3. We have a domain model object that implements List/Map and has a converter itself!
     TypeConverterFactory factory = this.configuration.getTypeConverterFactory();
-    TypeConverter<?> converter = null;
+    TypeConverter<?> converter;
     Locale locale = bean.getContext().getRequest().getLocale();
 
     converter = factory.getTypeConverter(declaredType, locale);
     if (validationInfo != null && validationInfo.converter() != null) {
-      // If a specific converter was requested and it's the same type as one we'd use
+      // If a specific converter was requested, and it's the same type as one we'd use
       // for the declared type, set the return type appropriately
       if (converter != null && validationInfo.converter().isAssignableFrom(converter.getClass())) {
         returnType = declaredType;
@@ -812,14 +813,14 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
         value = CryptoUtil.decrypt(value);
       }
 
-      if (value != null && value.length() > 0) {
+      if (value != null && !value.isEmpty()) {
         try {
-          Object retval = null;
+          Object returnValue = null;
           if (converter != null) {
-            retval = converter.convert(value, returnType, errors);
+            returnValue = converter.convert(value, returnType, errors);
           } else {
             try {
-              retval =
+              returnValue =
                   getConfiguration()
                       .getObjectFactory()
                       .constructor(returnType, String.class)
@@ -838,8 +839,8 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
           }
 
           // If we managed to get a non-null converted value, add it to the return set
-          if (retval != null) {
-            returns.add(retval);
+          if (returnValue != null) {
+            returns.add(returnValue);
           }
 
           // Set the field name and value on the error
@@ -879,7 +880,7 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
    * we can validate all those properties together.
    */
   protected static class Row extends HashMap<ParameterName, String[]> {
-    private static final long serialVersionUID = 1L;
+    @Serial private static final long serialVersionUID = 1L;
 
     private boolean hasNonEmptyValues = false;
 
@@ -894,7 +895,7 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
             (values != null)
                 && (values.length > 0)
                 && (values[0] != null)
-                && (values[0].trim().length() > 0);
+                && (!values[0].trim().isEmpty());
       }
       return super.put(key, values);
     }

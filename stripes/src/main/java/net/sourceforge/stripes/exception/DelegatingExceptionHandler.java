@@ -32,7 +32,7 @@ import net.sourceforge.stripes.util.StringUtil;
  * An alternative implementation of {@link ExceptionHandler} that discovers and automatically
  * configures individual {@link AutoExceptionHandler} classes to handle specific types of
  * exceptions. This implementation is most useful when ActionBeans may produce many different types
- * of exceptions and it is desirable to separate exception handling logic for different groups or
+ * of exceptions, and it is desirable to separate exception handling logic for different groups or
  * classes of exceptions. Using this approach multiple AutoExceptionHandlers can be configured
  * simultaneously but do not have to be co-located.
  *
@@ -59,7 +59,7 @@ import net.sourceforge.stripes.util.StringUtil;
  *
  * <p>If it is desirable to ensure that all exceptions are handled simply create an
  * AutoExceptionHandler that takes with {@link java.lang.Exception} (preferable) or {@link
- * java.lang.Throwable} (this may catch unhandlable errors like OutOfMemoryError).
+ * java.lang.Throwable} (this may catch unhandled errors like OutOfMemoryError).
  *
  * @author Jeppe Cramon, Tim Fennell
  * @since Stripes 1.3
@@ -69,7 +69,7 @@ public class DelegatingExceptionHandler extends DefaultExceptionHandler {
   private static final Log log = Log.getInstance(DelegatingExceptionHandler.class);
 
   /**
-   * Configuration key used to lookup the list of packages to scan for auto handlers.
+   * Configuration key used to look up the list of packages to scan for auto handlers.
    *
    * @since Stripes 1.5
    */
@@ -114,7 +114,7 @@ public class DelegatingExceptionHandler extends DefaultExceptionHandler {
       List<Class<? extends AutoExceptionHandler>> classes =
           bootstrap.getClassPropertyList(AutoExceptionHandler.class);
       if (!classes.isEmpty()) {
-        return new HashSet<Class<? extends AutoExceptionHandler>>(classes);
+        return new HashSet<>(classes);
       } else {
         // Autodiscovery found nothing so resort to looking at the ActionBean packages
         log.info(
@@ -128,7 +128,7 @@ public class DelegatingExceptionHandler extends DefaultExceptionHandler {
     }
 
     if (packages != null && packages.length > 0) {
-      ResolverUtil<AutoExceptionHandler> resolver = new ResolverUtil<AutoExceptionHandler>();
+      ResolverUtil<AutoExceptionHandler> resolver = new ResolverUtil<>();
       resolver.findImplementations(AutoExceptionHandler.class, packages);
       return resolver.getClasses();
     } else {

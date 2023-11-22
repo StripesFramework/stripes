@@ -14,7 +14,9 @@
  */
 package net.sourceforge.stripes.action;
 
+import java.io.Serial;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.ResourceBundle;
 import net.sourceforge.stripes.controller.StripesFilter;
 
@@ -27,19 +29,19 @@ import net.sourceforge.stripes.controller.StripesFilter;
  * @author Tim Fennell
  */
 public class LocalizableMessage extends SimpleMessage {
-  private static final long serialVersionUID = 1L;
+  @Serial private static final long serialVersionUID = 1L;
 
-  private String messageKey;
+  private final String messageKey;
 
   /**
    * Creates a new LocalizableMessage with the message key provided, and optionally zero or more
    * replacement parameters to use in the message.
    *
-   * @param messageKey a key to lookup a message in the resource bundle
+   * @param messageKey a key to look up a message in the resource bundle
    * @param parameter one or more replacement parameters to insert into the message
    */
   public LocalizableMessage(String messageKey, Object... parameter) {
-    super((String) null, parameter);
+    super(null, parameter);
     this.messageKey = messageKey;
   }
 
@@ -79,11 +81,7 @@ public class LocalizableMessage extends SimpleMessage {
 
     final LocalizableMessage that = (LocalizableMessage) o;
 
-    if (messageKey != null ? !messageKey.equals(that.messageKey) : that.messageKey != null) {
-      return false;
-    }
-
-    return true;
+    return Objects.equals(messageKey, that.messageKey);
   }
 
   /** Generated hashCode method. */

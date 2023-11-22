@@ -42,7 +42,7 @@ public class DefaultTypeConverterFactory implements TypeConverterFactory {
   /** Places all the known convertible types and type converters into an instance level Map. */
   public void init(final Configuration configuration) {
     this.configuration = configuration;
-    this.cache = new TypeHandlerCache<Class<? extends TypeConverter<?>>>();
+    this.cache = new TypeHandlerCache<>();
     this.cache.setSearchHierarchy(false);
 
     cache.add(Boolean.class, BooleanTypeConverter.class);
@@ -106,10 +106,9 @@ public class DefaultTypeConverterFactory implements TypeConverterFactory {
    *     input type is String, so to convert a String to a Date object you would supply
    *     java.util.Date.class.
    * @return an instance of a TypeConverter which will convert Strings to the desired type
-   * @throws Exception if the TypeConverter cannot be instantiated
    */
-  @SuppressWarnings("unchecked")
-  public TypeConverter getTypeConverter(Class forType, Locale locale) throws Exception {
+  @SuppressWarnings("rawtypes")
+  public TypeConverter getTypeConverter(Class forType, Locale locale) {
     Class<? extends TypeConverter<?>> converterClass = cache.getHandler(forType);
     if (converterClass != null) {
       try {
@@ -131,7 +130,7 @@ public class DefaultTypeConverterFactory implements TypeConverterFactory {
    * @return an instance of the TypeConverter specified
    * @throws Exception if there is a problem instantiating the TypeConverter
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings("rawtypes")
   public TypeConverter getInstance(Class<? extends TypeConverter> clazz, Locale locale)
       throws Exception {
     TypeConverter converter = getConfiguration().getObjectFactory().newInstance(clazz);

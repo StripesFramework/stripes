@@ -56,7 +56,7 @@ public class LocalizationUtility {
     ParameterName parameterName = new ParameterName(fieldName);
     String strippedName = parameterName.getStrippedName();
     String localizedValue = null;
-    ResourceBundle bundle = null;
+    ResourceBundle bundle;
 
     try {
       bundle =
@@ -101,32 +101,31 @@ public class LocalizationUtility {
   }
 
   /**
-   * Makes a half hearted attempt to convert the property name of a field into a human friendly name
+   * Makes a half-hearted attempt to convert the property name of a field into a human friendly name
    * by breaking it on periods and upper case letters and capitalizing each word. This is only used
    * when developers do not provide names for their fields.
    *
    * @param fieldNameKey the programmatic name of a form field
-   * @return String a more user friendly name for the field in the absence of anything better
+   * @return String a more user-friendly name for the field in the absence of anything better
    */
   public static String makePseudoFriendlyName(String fieldNameKey) {
     StringBuilder builder = new StringBuilder(fieldNameKey.length() + 10);
     char[] characters = fieldNameKey.toCharArray();
     builder.append(Character.toUpperCase(characters[0]));
-    boolean upcaseNextChar = false;
+    boolean uppercaseNextChar = false;
 
     for (int i = 1; i < characters.length; ++i) {
       if (characters[i] == '.') {
         builder.append(' ');
-        upcaseNextChar = true;
+        uppercaseNextChar = true;
       } else if (Character.isUpperCase(characters[i])) {
         builder.append(' ').append(characters[i]);
-        upcaseNextChar = false;
-      } else if (upcaseNextChar) {
+        uppercaseNextChar = false;
+      } else if (uppercaseNextChar) {
         builder.append(Character.toUpperCase(characters[i]));
-        upcaseNextChar = false;
+        uppercaseNextChar = false;
       } else {
         builder.append(characters[i]);
-        upcaseNextChar = false;
       }
     }
 
@@ -137,7 +136,7 @@ public class LocalizationUtility {
    * Looks up the specified key in the error message resource bundle. If the bundle is missing or if
    * the resource cannot be found, will return null instead of throwing an exception.
    *
-   * @param locale the locale in which to lookup the resource
+   * @param locale the locale in which to look up the resource
    * @param key the exact resource key to lookup
    * @return the resource String or null
    */

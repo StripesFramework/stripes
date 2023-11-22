@@ -46,19 +46,19 @@ public class TypeHandlerCache<T> {
   private static final Log log = Log.getInstance(TypeHandlerCache.class);
 
   /** A direct map of target types to handlers. */
-  private Map<Class<?>, T> handlers = new ConcurrentHashMap<Class<?>, T>();
+  private final Map<Class<?>, T> handlers = new ConcurrentHashMap<>();
 
   /**
    * Cache of indirect type handler results, determined by examining a target type's implemented
    * interfaces and superclasses.
    */
-  private Map<Class<?>, T> indirectCache = new ConcurrentHashMap<Class<?>, T>();
+  private final Map<Class<?>, T> indirectCache = new ConcurrentHashMap<>();
 
   /**
    * Cache of classes that have been searched, yet no handler (besides the default one) could be
    * found for them.
    */
-  private Set<Class<?>> negativeCache = new ConcurrentHashSet<Class<?>>();
+  private final Set<Class<?>> negativeCache = new ConcurrentHashSet<>();
 
   private T defaultHandler;
   private boolean searchHierarchy = true, searchAnnotations = true;
@@ -236,7 +236,7 @@ public class TypeHandlerCache<T> {
    * @return The first applicable handler found or null if no match could be found
    */
   protected T findInInterfaces(Class<?> targetType, Class<?>... ifaces) {
-    T handler = null;
+    T handler;
     for (Class<?> iface : ifaces) {
       if ((handler = handlers.get(iface)) != null) {
         return cacheHandler(targetType, handler);

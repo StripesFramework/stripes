@@ -22,7 +22,7 @@ import net.sourceforge.stripes.util.HtmlUtil;
 
 /**
  * Tag that generates HTML form fields of type {@literal <textarea name="foo"> ... </textarea>},
- * which can dynamically re-populate their value. Textareas may have only a single value, whose
+ * which can dynamically re-populate their value. A textarea may have only a single value, whose
  * default may be set using either the body of the textarea, or using the value="" attribute of the
  * tag. At runtime the contents of the textarea are determined by looking for the first non-null
  * value in the following list:
@@ -38,7 +38,7 @@ import net.sourceforge.stripes.util.HtmlUtil;
 public class InputTextAreaTag extends InputTagSupport implements BodyTag {
   private Object value;
 
-  /** Sets the default value of the textarea (if no body is present). */
+  /** Sets the default value of the textarea (if body content is not present). */
   public void setValue(Object value) {
     this.value = value;
   }

@@ -37,9 +37,9 @@ public class CollectionUtil {
   public static boolean contains(Object[] arr, Object item) {
     if (arr == null) return false;
 
-    for (int i = 0; i < arr.length; ++i) {
-      if (item == null && arr[i] == null) return true;
-      if (item != null && item.equals(arr[i])) return true;
+    for (Object o : arr) {
+      if (item == null && o == null) return true;
+      if (item != null && item.equals(o)) return true;
     }
 
     return false;
@@ -51,9 +51,9 @@ public class CollectionUtil {
    * consisting only of nulls and empty strings.
    */
   public static boolean empty(String[] arr) {
-    if (arr == null || arr.length == 0) return true;
+    if (arr == null) return true;
     for (String s : arr) {
-      if (s != null && !"".equals(s)) return false;
+      if (s != null && !s.isEmpty()) return false;
     }
 
     return true;
@@ -73,7 +73,7 @@ public class CollectionUtil {
    * @param event the event name to check for applicability given the array
    * @return true if the array indicates the event is applicable, false otherwise
    */
-  public static boolean applies(String events[], String event) {
+  public static boolean applies(String[] events, String event) {
     if (events == null || events.length == 0) return true;
     boolean isPositive = events[0].charAt(0) != '!';
 
@@ -83,7 +83,7 @@ public class CollectionUtil {
 
   /**
    * Converts an Object reference that is known to be an array into an Object[]. If the array is
-   * assignable to Object[], the array passed in is simply cast and returned. Otherwise a new
+   * assignable to Object[], the array passed in is simply cast and returned. Otherwise, a new
    * Object[] of equal size is constructed and the elements are wrapped and inserted into the new
    * array before being returned.
    *
@@ -126,7 +126,7 @@ public class CollectionUtil {
       throw new IllegalArgumentException("Parameter to asObjectArray must be a non-null array.");
     } else {
       int length = Array.getLength(in);
-      LinkedList<Object> list = new LinkedList<Object>();
+      LinkedList<Object> list = new LinkedList<>();
       for (int i = 0; i < length; ++i) {
         list.add(i, Array.get(in, i));
       }
@@ -138,7 +138,7 @@ public class CollectionUtil {
   /**
    * Converts an Iterable into a List that can be navigated in ways other than simple iteration. If
    * the underlying implementation of the Iterable is a List, it is cast to List and returned.
-   * Otherwise it is iterated and the items placed, in order, into a new List.
+   * Otherwise, it is iterated and the items placed, in order, into a new List.
    *
    * @param in an Iterable to serve as the source for a List
    * @return either the Iterable itself if it is a List, or a new List with the same elements
@@ -146,7 +146,7 @@ public class CollectionUtil {
   public static <T> List<T> asList(Iterable<T> in) {
     if (in instanceof List<?>) return (List<T>) in;
     else {
-      LinkedList<T> list = new LinkedList<T>();
+      LinkedList<T> list = new LinkedList<>();
       for (T item : in) {
         list.add(item);
       }

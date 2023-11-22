@@ -50,8 +50,7 @@ public class DefaultValidationMetadataProvider implements ValidationMetadataProv
   private Configuration configuration;
 
   /** Map class -> field -> validation meta data */
-  private final Map<Class<?>, Map<String, ValidationMetadata>> cache =
-      new ConcurrentHashMap<Class<?>, Map<String, ValidationMetadata>>();
+  private final Map<Class<?>, Map<String, ValidationMetadata>> cache = new ConcurrentHashMap<>();
 
   /** Currently does nothing except store a reference to {@code configuration}. */
   public void init(Configuration configuration) throws Exception {
@@ -91,9 +90,8 @@ public class DefaultValidationMetadataProvider implements ValidationMetadataProv
    * @throws StripesRuntimeException if conflicts are found in the validation annotations
    */
   protected Map<String, ValidationMetadata> loadForClass(Class<?> beanType) {
-    Map<String, ValidationMetadata> meta = new HashMap<String, ValidationMetadata>();
+    Map<String, ValidationMetadata> meta = new HashMap<>();
 
-    @SuppressWarnings("unchecked")
     Map<String, AnnotationInfo> annotationInfoMap =
         getAnnotationInfoMap(beanType, Validate.class, ValidateNestedProperties.class);
 
@@ -108,7 +106,7 @@ public class DefaultValidationMetadataProvider implements ValidationMetadataProv
 
       // add to allow list if @Validate present
       if (simple != null) {
-        if (simple.field() == null || "".equals(simple.field())) {
+        if (simple.field() == null || simple.field().isEmpty()) {
           meta.put(propertyName, new ValidationMetadata(propertyName, simple));
         } else {
           log.warn(
@@ -126,7 +124,7 @@ public class DefaultValidationMetadataProvider implements ValidationMetadataProv
         Validate[] validates = nested.value();
         if (validates != null) {
           for (Validate validate : validates) {
-            if (validate.field() != null && !"".equals(validate.field())) {
+            if (validate.field() != null && !validate.field().isEmpty()) {
               String fullName = propertyName + '.' + validate.field();
               if (meta.containsKey(fullName)) {
                 log.warn(
@@ -162,14 +160,13 @@ public class DefaultValidationMetadataProvider implements ValidationMetadataProv
   @SafeVarargs
   protected final Map<String, AnnotationInfo> getAnnotationInfoMap(
       Class<?> beanType, Class<? extends Annotation>... annotationClasses) {
-    Map<String, AnnotationInfo> annotationInfoMap = new HashMap<String, AnnotationInfo>();
+    Map<String, AnnotationInfo> annotationInfoMap = new HashMap<>();
 
-    Set<String> seen = new HashSet<String>();
+    Set<String> seen = new HashSet<>();
     try {
       for (Class<?> clazz = beanType; clazz != null; clazz = clazz.getSuperclass()) {
         List<PropertyDescriptor> pds =
-            new ArrayList<PropertyDescriptor>(
-                Arrays.asList(ReflectUtil.getPropertyDescriptors(clazz)));
+            new ArrayList<>(Arrays.asList(ReflectUtil.getPropertyDescriptors(clazz)));
 
         // Also look at public fields
         Field[] publicFields = clazz.getFields();
@@ -184,7 +181,7 @@ public class DefaultValidationMetadataProvider implements ValidationMetadataProv
           Field field = null;
           try {
             field = clazz.getDeclaredField(propertyName);
-          } catch (NoSuchFieldException e) {
+          } catch (NoSuchFieldException ignored) {
           }
 
           // this method throws an exception if there are conflicts
@@ -240,12 +237,10 @@ public class DefaultValidationMetadataProvider implements ValidationMetadataProv
       Class<? extends Annotation>... annotationClasses) {
     AnnotationInfo annotationInfo = new AnnotationInfo(clazz);
 
-    Map<PropertyWrapper, Map<Class<? extends Annotation>, Annotation>> map =
-        new HashMap<PropertyWrapper, Map<Class<? extends Annotation>, Annotation>>();
+    Map<PropertyWrapper, Map<Class<? extends Annotation>, Annotation>> map = new HashMap<>();
 
     for (PropertyWrapper property : propertyWrappers) {
-      Map<Class<? extends Annotation>, Annotation> annotationMap =
-          new HashMap<Class<? extends Annotation>, Annotation>();
+      Map<Class<? extends Annotation>, Annotation> annotationMap = new HashMap<>();
 
       for (Class<? extends Annotation> annotationClass : annotationClasses) {
         Annotation annotation = findAnnotation(clazz, property, annotationClass);
@@ -320,7 +315,7 @@ public class DefaultValidationMetadataProvider implements ValidationMetadataProv
       Class<?> beanType, Map<String, ValidationMetadata> meta) {
     StringBuilder builder = new StringBuilder(128);
     for (Map.Entry<String, ValidationMetadata> entry : meta.entrySet()) {
-      if (builder.length() > 0) {
+      if (!builder.isEmpty()) {
         builder.append(", ");
       }
       builder.append(entry.getKey());
@@ -331,15 +326,15 @@ public class DefaultValidationMetadataProvider implements ValidationMetadataProv
         "Loaded validations for ActionBean ",
         beanType.getSimpleName(),
         ": ",
-        builder.length() > 0 ? builder : "<none>");
+        !builder.isEmpty() ? builder : "<none>");
   }
 
   /**
    * Contains the class on which the annotations were found (if any), and the annotation objects
    * that correspond to the annotation classes.
    */
-  protected class AnnotationInfo {
-    private Class<?> targetClass;
+  protected static class AnnotationInfo {
+    private final Class<?> targetClass;
     private Map<Class<? extends Annotation>, Annotation> annotationMap;
 
     public AnnotationInfo(Class<?> targetClass) {
@@ -368,10 +363,10 @@ public class DefaultValidationMetadataProvider implements ValidationMetadataProv
    * For some reason, methods common to both the Field and Method classes are not in their parent
    * class, AccessibleObject, so this class works around that limitation.
    */
-  protected class PropertyWrapper {
+  protected static class PropertyWrapper {
     private Field field;
     private Method method;
-    private String type;
+    private final String type;
 
     public PropertyWrapper(Field field) {
       this.field = field;

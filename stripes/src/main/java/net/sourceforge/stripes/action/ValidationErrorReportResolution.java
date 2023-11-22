@@ -37,7 +37,7 @@ import net.sourceforge.stripes.validation.ValidationError;
  */
 public class ValidationErrorReportResolution implements Resolution {
   private static final Log log = Log.getInstance(ValidationErrorReportResolution.class);
-  private ActionBeanContext context;
+  private final ActionBeanContext context;
 
   /** Construct a new instance to report validation errors in the specified context. */
   public ValidationErrorReportResolution(ActionBeanContext context) {

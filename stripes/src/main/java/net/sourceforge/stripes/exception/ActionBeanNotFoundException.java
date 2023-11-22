@@ -14,6 +14,7 @@
  */
 package net.sourceforge.stripes.exception;
 
+import java.io.Serial;
 import java.util.Map;
 import net.sourceforge.stripes.action.ActionBean;
 
@@ -24,7 +25,7 @@ import net.sourceforge.stripes.action.ActionBean;
  * @since Stripes 1.5
  */
 public class ActionBeanNotFoundException extends StripesServletException {
-  private static final long serialVersionUID = 1L;
+  @Serial private static final long serialVersionUID = 1L;
 
   public ActionBeanNotFoundException(String message) {
     super(message);

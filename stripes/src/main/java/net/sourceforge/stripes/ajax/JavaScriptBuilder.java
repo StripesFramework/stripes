@@ -20,6 +20,7 @@ import java.io.Writer;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -33,7 +34,7 @@ import net.sourceforge.stripes.util.ReflectUtil;
 /**
  * Builds a set of JavaScript statements that will re-construct the value of a Java object,
  * including all Number, String, Enum, Boolean, Collection, Map and Array properties. Safely handles
- * object graph circularities - each object will be translated only once, and all references will be
+ * object graph circularises - each object will be translated only once, and all references will be
  * valid.
  *
  * <p>The JavaScript created by the builder can be evaluated in JavaScript using:
@@ -50,10 +51,10 @@ public class JavaScriptBuilder {
   private static final Log log = Log.getInstance(JavaScriptBuilder.class);
 
   /** Holds the set of classes representing the primitive types in Java. */
-  static Set<Class<?>> simpleTypes = new HashSet<Class<?>>();
+  static Set<Class<?>> simpleTypes = new HashSet<>();
 
   /** Holds the set of types that will be skipped over by default. */
-  static Set<Class<?>> ignoredTypes = new HashSet<Class<?>>();
+  static Set<Class<?>> ignoredTypes = new HashSet<>();
 
   static {
     simpleTypes.add(Byte.TYPE);
@@ -69,22 +70,22 @@ public class JavaScriptBuilder {
   }
 
   /** Holds the set of objects that have been visited during conversion. */
-  private Set<Integer> visitedIdentities = new HashSet<Integer>();
+  private final Set<Integer> visitedIdentities = new HashSet<>();
 
   /** Holds a map of name to JSON value for JS Objects and Arrays. */
-  private Map<String, String> objectValues = new HashMap<String, String>();
+  private final Map<String, String> objectValues = new HashMap<>();
 
   /** Holds a map of object.property = object. */
-  private Map<String, String> assignments = new HashMap<String, String>();
+  private final Map<String, String> assignments = new HashMap<>();
 
   /** Holds the root object which is to be converted to JavaScript. */
-  private Object rootObject;
+  private final Object rootObject;
 
   /** Holds the (potentially empty) set of user classes that should be skipped over. */
-  private Set<Class<?>> excludeClasses;
+  private final Set<Class<?>> excludeClasses;
 
   /** Holds the (potentially empty) set of properties that should be skipped over. */
-  private Set<String> excludeProperties;
+  private final Set<String> excludeProperties;
 
   /** Holds an optional user-supplied name for the root property. */
   private String rootVariableName = "_sj_root_" + new Random().nextInt(Integer.MAX_VALUE);
@@ -92,13 +93,13 @@ public class JavaScriptBuilder {
   /**
    * Constructs a new JavaScriptBuilder to build JS for the root object supplied.
    *
-   * @param root The root object from which to being translation into JavaScript
+   * @param root The root object from which to be translation into JavaScript
    * @param objectsToExclude Zero or more Strings and/or Classes to be excluded from translation.
    */
   public JavaScriptBuilder(Object root, Object... objectsToExclude) {
     this.rootObject = root;
-    this.excludeClasses = new HashSet<Class<?>>();
-    this.excludeProperties = new HashSet<String>();
+    this.excludeClasses = new HashSet<>();
+    this.excludeProperties = new HashSet<>();
 
     for (Object object : objectsToExclude) {
       if (object instanceof Class<?>) addClassExclusion((Class<?>) object);
@@ -120,9 +121,7 @@ public class JavaScriptBuilder {
    * @return the JavaScripBuilder instance to simplify method chaining
    */
   public JavaScriptBuilder addPropertyExclusion(String... property) {
-    for (String prop : property) {
-      this.excludeProperties.add(prop);
-    }
+    Collections.addAll(this.excludeProperties, property);
     return this;
   }
 
@@ -134,15 +133,13 @@ public class JavaScriptBuilder {
    * @return the JavaScripBuilder instance to simplify method chaining
    */
   public JavaScriptBuilder addClassExclusion(Class<?>... clazz) {
-    for (Class<?> c : clazz) {
-      this.excludeClasses.add(c);
-    }
+    Collections.addAll(this.excludeClasses, clazz);
     return this;
   }
 
   /**
    * Sets an optional user-supplied root variable name. If set this name will be used by the
-   * building when declarind the root variable to which the JS is assigned. If not provided then a
+   * building when declaring the root variable to which the JS is assigned. If not provided then a
    * randomly generated name will be used.
    *
    * @param rootVariableName the name to use when declaring the root variable
@@ -253,12 +250,12 @@ public class JavaScriptBuilder {
 
   /**
    * Fetches the value of a scalar type as a String. The input to this method may not be null, and
-   * must be a of a type that will return true when supplied to isScalarType().
+   * must be of a type that will return true when supplied to isScalarType().
    */
   public String getScalarAsString(Object in) {
     if (in == null) return "null";
 
-    Class<? extends Object> type = in.getClass();
+    Class<?> type = in.getClass();
 
     if (String.class.isAssignableFrom(type)) {
       return quote((String) in);
@@ -272,7 +269,7 @@ public class JavaScriptBuilder {
   }
 
   /**
-   * Quotes the supplied String and escapes all characters that could be problematic when eval()'ing
+   * Quotes the supplied String and escapes all characters that could be problematic when eval()-ing
    * the String in JavaScript.
    *
    * @param string a String to be escaped and quoted
@@ -280,11 +277,11 @@ public class JavaScriptBuilder {
    * @since Stripes 1.2 (thanks to Sergey Pariev)
    */
   public static String quote(String string) {
-    if (string == null || string.length() == 0) {
+    if (string == null || string.isEmpty()) {
       return "\"\"";
     }
 
-    char c = 0;
+    char c;
     int len = string.length();
     StringBuilder sb = new StringBuilder(len + 10);
 
@@ -292,39 +289,25 @@ public class JavaScriptBuilder {
     for (int i = 0; i < len; ++i) {
       c = string.charAt(i);
       switch (c) {
-        case '\\':
-        case '"':
-          sb.append('\\').append(c);
-          break;
-        case '\b':
-          sb.append("\\b");
-          break;
-        case '\t':
-          sb.append("\\t");
-          break;
-        case '\n':
-          sb.append("\\n");
-          break;
-        case '\f':
-          sb.append("\\f");
-          break;
-        case '\r':
-          sb.append("\\r");
-          break;
-        default:
+        case '\\', '"' -> sb.append('\\').append(c);
+        case '\b' -> sb.append("\\b");
+        case '\t' -> sb.append("\\t");
+        case '\n' -> sb.append("\\n");
+        case '\f' -> sb.append("\\f");
+        case '\r' -> sb.append("\\r");
+        default -> {
           if (c < ' ') {
             // The following takes lower order chars and creates unicode style
-            // char literals for them (e.g. \u00F3)
+            // char literals for them (e.g. ó)
             sb.append("\\u");
             String hex = Integer.toHexString(c);
             int pad = 4 - hex.length();
-            for (int j = 0; j < pad; ++j) {
-              sb.append("0");
-            }
+            sb.append("0".repeat(pad));
             sb.append(hex);
           } else {
             sb.append(c);
           }
+        }
       }
     }
 
@@ -342,6 +325,7 @@ public class JavaScriptBuilder {
    *     a value for the object has been generated.
    * @param in The object being translated.
    */
+  @SuppressWarnings("StatementWithEmptyBody")
   void buildNode(String name, Object in, String propertyPrefix) throws Exception {
     int systemId = System.identityHashCode(in);
     String targetName = "_sj_" + systemId;
@@ -380,7 +364,7 @@ public class JavaScriptBuilder {
    * @param targetName The generated name assigned to the Object being translated
    * @param in The Object who's JavaBean properties are to be translated
    */
-  void buildObjectNode(String targetName, Object in, String propertyPrefix) throws Exception {
+  void buildObjectNode(String targetName, Object in, String propertyPrefix) {
     StringBuilder out = new StringBuilder();
     out.append("{");
     PropertyDescriptor[] props = ReflectUtil.getPropertyDescriptors(in.getClass());
@@ -389,7 +373,7 @@ public class JavaScriptBuilder {
       try {
         Method readMethod = property.getReadMethod();
         String fullPropertyName =
-            (propertyPrefix != null && propertyPrefix.length() > 0 ? propertyPrefix + '.' : "")
+            (propertyPrefix != null && !propertyPrefix.isEmpty() ? propertyPrefix + '.' : "")
                 + property.getName();
         if ((readMethod != null) && !this.excludeProperties.contains(fullPropertyName)) {
           Object value = property.getReadMethod().invoke(in);
@@ -445,6 +429,7 @@ public class JavaScriptBuilder {
    * @param targetName The generated name assigned to the Map being translated
    * @param in The Map being translated
    */
+  @SuppressWarnings("StatementWithEmptyBody")
   void buildMapNode(String targetName, Map<?, ?> in, String propertyPrefix) throws Exception {
     StringBuilder out = new StringBuilder();
     out.append("{");

@@ -26,7 +26,7 @@ import net.sourceforge.stripes.action.Resolution;
  * binding and/or validation phase(s) generate errors. The handleValidationErrors method is invoked
  * after all validation has completed - i.e. after annotation based validation and any {@link
  * ValidationMethod}s that are applicable for the current request. Invocation only happens when one
- * or more validation errors exist. Also, note that {@code setContext()} will always have been
+ * or more validation errors exist. Also, note that {@code setContext()} will have always been
  * invoked prior to {@link #handleValidationErrors(ValidationErrors)}, allowing the bean access to
  * the event name and other information.
  *

@@ -54,7 +54,7 @@ public class JBoss6VFS extends net.sourceforge.stripes.vfs.VFS {
 
     List<VirtualFile> getChildren() throws IOException {
       List<?> objects = invoke(getChildrenRecursively, virtualFile);
-      List<VirtualFile> children = new ArrayList<VirtualFile>(objects.size());
+      List<VirtualFile> children = new ArrayList<>(objects.size());
       for (Object object : objects) {
         children.add(new VirtualFile(object));
       }
@@ -113,7 +113,7 @@ public class JBoss6VFS extends net.sourceforge.stripes.vfs.VFS {
   }
 
   /**
-   * Verifies that the return type of a method is what it is expected to be. If it is not, then this
+   * Verifies that the return type of method is what it is expected to be. If it is not, then this
    * VFS is marked as invalid for the current environment.
    *
    * @param method The method whose return type is to be checked.
@@ -162,7 +162,7 @@ public class JBoss6VFS extends net.sourceforge.stripes.vfs.VFS {
     if (!path.endsWith("/")) path += "/";
 
     List<VirtualFile> children = directory.getChildren();
-    List<String> names = new ArrayList<String>(children.size());
+    List<String> names = new ArrayList<>(children.size());
     for (VirtualFile vf : children) {
       String relative = vf.getPathNameRelativeTo(directory);
       names.add(path + relative);

@@ -53,17 +53,17 @@ import java.util.Set;
 public class MockHttpServletRequest implements HttpServletRequest {
   private String authType;
   private Cookie[] cookies;
-  private Map<String, Object> headers = new HashMap<String, Object>();
-  private Map<String, Object> attributes = new HashMap<String, Object>();
-  private Map<String, String[]> parameters = new HashMap<String, String[]>();
+  private final Map<String, Object> headers = new HashMap<>();
+  private final Map<String, Object> attributes = new HashMap<>();
+  private final Map<String, String[]> parameters = new HashMap<>();
   private String method = "POST";
   private HttpSession session;
   private String characterEncoding = "UTF-8";
-  private List<Locale> locales = new ArrayList<Locale>();
+  private final List<Locale> locales = new ArrayList<>();
   private Principal userPrincipal;
-  private Set<String> roles = new HashSet<String>();
+  private Set<String> roles = new HashSet<>();
   private String forwardUrl;
-  private List<String> includedUrls = new ArrayList<String>();
+  private final List<String> includedUrls = new ArrayList<>();
 
   // All the bits of the URL
   private String protocol = "https";
@@ -79,8 +79,8 @@ public class MockHttpServletRequest implements HttpServletRequest {
    * of the servlet context, prepended with a '/') and a servlet path. E.g. new
    * MockHttpServletRequest("/myapp", "/actionType/foo.action").
    *
-   * @param contextPath
-   * @param servletPath
+   * @param contextPath the context path
+   * @param servletPath the servlet path
    */
   public MockHttpServletRequest(String contextPath, String servletPath) {
     this.contextPath = contextPath;
@@ -130,7 +130,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
   /** Returns an enumeration with single value of the named header, or an empty enum if no value. */
   public Enumeration<String> getHeaders(String name) {
     String header = getHeader(name);
-    Collection<String> values = new ArrayList<String>();
+    Collection<String> values = new ArrayList<>();
     if (header != null) {
       values.add(header);
     }
@@ -220,7 +220,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
     return this.userPrincipal;
   }
 
-  /** Returns the ID of the session if one is attached to this request. Otherwise null. */
+  /** Returns the ID of the session if one is attached to this request. Otherwise, null. */
   public String getRequestedSessionId() {
     if (this.session == null) {
       return null;
@@ -233,7 +233,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
     return this.contextPath + this.servletPath + this.pathInfo;
   }
 
-  /** Returns (an attempt at) a reconstructed URL based on it's constituent parts. */
+  /** Returns (an attempt at) a reconstructed URL based on its constituent parts. */
   public StringBuffer getRequestURL() {
     return new StringBuffer()
         .append(this.protocol)
@@ -287,29 +287,28 @@ public class MockHttpServletRequest implements HttpServletRequest {
   }
 
   @Override
-  public boolean authenticate(HttpServletResponse response) throws IOException, ServletException {
+  public boolean authenticate(HttpServletResponse response) {
     return false;
   }
 
   @Override
-  public void login(String username, String password) throws ServletException {}
+  public void login(String username, String password) {}
 
   @Override
-  public void logout() throws ServletException {}
+  public void logout() {}
 
   @Override
-  public Collection<Part> getParts() throws IOException, ServletException {
+  public Collection<Part> getParts() {
     return null;
   }
 
   @Override
-  public Part getPart(String name) throws IOException, ServletException {
+  public Part getPart(String name) {
     return null;
   }
 
   @Override
-  public <T extends HttpUpgradeHandler> T upgrade(Class<T> handlerClass)
-      throws IOException, ServletException {
+  public <T extends HttpUpgradeHandler> T upgrade(Class<T> handlerClass) {
     return null;
   }
 
@@ -423,11 +422,11 @@ public class MockHttpServletRequest implements HttpServletRequest {
   }
 
   /** Always returns null. */
-  public BufferedReader getReader() throws IOException {
+  public BufferedReader getReader() {
     return null;
   }
 
-  /** Aways returns "127.0.0.1". */
+  /** Always returns "127.0.0.1". */
   public String getRemoteAddr() {
     return "127.0.0.1";
   }
@@ -459,7 +458,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
   /** Returns an enumeration of requested locales. Defaults to the system locale. */
   public Enumeration<Locale> getLocales() {
-    if (this.locales.size() == 0) {
+    if (this.locales.isEmpty()) {
       this.locales.add(Locale.getDefault());
     }
 

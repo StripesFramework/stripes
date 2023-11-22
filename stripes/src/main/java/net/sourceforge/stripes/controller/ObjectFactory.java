@@ -40,12 +40,12 @@ public interface ObjectFactory extends ConfigurableComponent {
    * configuration.getObjectFactory().constructor(targetType, String.class).newInstance("FOO");
    * </code>
    */
-  public static interface ConstructorWrapper<T> {
+  interface ConstructorWrapper<T> {
     /** Get the {@link Constructor} object wrapped by this instance. */
-    public Constructor<T> getConstructor();
+    Constructor<T> getConstructor();
 
     /** Invoke the constructor with the specified arguments and return the new object. */
-    public T newInstance(Object... args);
+    T newInstance(Object... args);
   }
 
   /**

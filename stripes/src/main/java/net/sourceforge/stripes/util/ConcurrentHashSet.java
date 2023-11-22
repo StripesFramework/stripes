@@ -33,13 +33,13 @@ public class ConcurrentHashSet<T> implements Set<T> {
   private static final Object VALUE = new Object();
 
   /** The map that backs this set. */
-  private ConcurrentMap<T, Object> map;
+  private final ConcurrentMap<T, Object> map;
 
   /**
    * Creates a new, empty map with a default initial capacity, load factor, and concurrencyLevel.
    */
   public ConcurrentHashSet() {
-    map = new ConcurrentHashMap<T, Object>();
+    map = new ConcurrentHashMap<>();
   }
 
   /**
@@ -51,7 +51,7 @@ public class ConcurrentHashSet<T> implements Set<T> {
    * @throws IllegalArgumentException if the initial capacity of elements is negative.
    */
   public ConcurrentHashSet(int initialCapacity) {
-    map = new ConcurrentHashMap<T, Object>(initialCapacity);
+    map = new ConcurrentHashMap<>(initialCapacity);
   }
 
   /**
@@ -65,10 +65,10 @@ public class ConcurrentHashSet<T> implements Set<T> {
    * @param concurrencyLevel - the estimated number of concurrently updating threads. The
    *     implementation performs internal sizing to try to accommodate this many threads.
    * @throws IllegalArgumentException if the initial capacity is negative or the load factor or
-   *     concurrencyLevel are nonpositive.
+   *     concurrencyLevel are non-positive.
    */
   public ConcurrentHashSet(int initialCapacity, float loadFactor, int concurrencyLevel) {
-    map = new ConcurrentHashMap<T, Object>(initialCapacity, loadFactor, concurrencyLevel);
+    map = new ConcurrentHashMap<>(initialCapacity, loadFactor, concurrencyLevel);
   }
 
   /**
@@ -99,8 +99,9 @@ public class ConcurrentHashSet<T> implements Set<T> {
     map.clear();
   }
 
+  @SuppressWarnings("SuspiciousMethodCalls")
   public boolean contains(Object o) {
-    return map.keySet().contains(o);
+    return map.containsKey(o);
   }
 
   public boolean containsAll(Collection<?> c) {

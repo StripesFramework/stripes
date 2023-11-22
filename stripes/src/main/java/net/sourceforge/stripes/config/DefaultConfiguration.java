@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import net.sourceforge.stripes.controller.ActionBeanContextFactory;
 import net.sourceforge.stripes.controller.ActionBeanPropertyBinder;
@@ -61,11 +62,11 @@ import net.sourceforge.stripes.validation.ValidationMetadataProvider;
 
 /**
  * Centralized location for defaults for all Configuration properties. This implementation does not
- * lookup configuration information anywhere! It returns hard-coded defaults that will result in a
+ * look up configuration information anywhere! It returns hard-coded defaults that will result in a
  * working system without any user intervention.
  *
  * <p>Despite it's name the DefaultConfiguration is not in fact the default Configuration
- * implementation in Stripes! Instead it is the retainer of default configuration values. The
+ * implementation in Stripes! Instead, it is the retainer of default configuration values. The
  * Configuration implementation that is used when no alternative is configured is the {@link
  * RuntimeConfiguration}, which is a direct subclass of DefaultConfiguration, and when no further
  * configuration properties are supplied behaves identically to the DefaultConfiguration.
@@ -109,15 +110,11 @@ public class DefaultConfiguration implements Configuration {
    * Creates and stores instances of the objects of the type that the Configuration is responsible
    * for providing, except where subclasses have already provided instances.
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings("rawtypes")
   public void init() {
     try {
       Boolean debugMode = initDebugMode();
-      if (debugMode != null) {
-        this.debugMode = debugMode;
-      } else {
-        this.debugMode = false;
-      }
+      this.debugMode = Objects.requireNonNullElse(debugMode, false);
 
       this.objectFactory = initObjectFactory();
       if (this.objectFactory == null) {
@@ -127,7 +124,7 @@ public class DefaultConfiguration implements Configuration {
       if (this.objectFactory instanceof DefaultObjectFactory) {
         List<Class<? extends ObjectPostProcessor>> classes =
             getBootstrapPropertyResolver().getClassPropertyList(ObjectPostProcessor.class);
-        List<ObjectPostProcessor> instances = new ArrayList<ObjectPostProcessor>();
+        List<ObjectPostProcessor> instances = new ArrayList<>();
         for (Class<? extends ObjectPostProcessor> clazz : classes) {
           log.debug("Instantiating object post-processor ", clazz);
           instances.add(this.objectFactory.newInstance(clazz));
@@ -209,7 +206,7 @@ public class DefaultConfiguration implements Configuration {
         this.validationMetadataProvider.init(this);
       }
 
-      this.interceptors = new HashMap<LifecycleStage, Collection<Interceptor>>();
+      this.interceptors = new HashMap<>();
       Map<LifecycleStage, Collection<Interceptor>> map = initCoreInterceptors();
       if (map != null) {
         mergeInterceptorMaps(this.interceptors, map);
@@ -222,7 +219,7 @@ public class DefaultConfiguration implements Configuration {
       // do a quick check to see if any interceptor classes are configured more than once
       for (Map.Entry<LifecycleStage, Collection<Interceptor>> entry :
           this.interceptors.entrySet()) {
-        Set<Class<? extends Interceptor>> classes = new HashSet<Class<? extends Interceptor>>();
+        Set<Class<? extends Interceptor>> classes = new HashSet<>();
         Collection<Interceptor> interceptors = entry.getValue();
         if (interceptors == null) continue;
 
@@ -295,7 +292,7 @@ public class DefaultConfiguration implements Configuration {
     return this.actionResolver;
   }
 
-  /** Allows subclasses to initialize a non-default ActionResovler. */
+  /** Allows subclasses to initialize a non-default ActionResolver. */
   protected ActionResolver initActionResolver() {
     return null;
   }
@@ -332,7 +329,7 @@ public class DefaultConfiguration implements Configuration {
 
   /**
    * Returns an instance of {@link DefaultTypeConverterFactory} unless a subclass has overridden the
-   * default..
+   * default.
    *
    * @return TypeConverterFactory an instance of the configured factory.
    */
@@ -346,7 +343,7 @@ public class DefaultConfiguration implements Configuration {
   }
 
   /**
-   * Returns an instance of a LocalizationBundleFactory. By default this will be an instance of
+   * Returns an instance of a LocalizationBundleFactory. By default, this will be an instance of
    * DefaultLocalizationBundleFactory unless another type has been configured.
    */
   public LocalizationBundleFactory getLocalizationBundleFactory() {
@@ -460,7 +457,7 @@ public class DefaultConfiguration implements Configuration {
 
   /**
    * Returns a list of interceptors that should be executed around the lifecycle stage indicated. By
-   * default returns a single element list containing the {@link BeforeAfterMethodInterceptor}.
+   * default, returns a single element list containing the {@link BeforeAfterMethodInterceptor}.
    */
   public Collection<Interceptor> getInterceptors(LifecycleStage stage) {
     Collection<Interceptor> interceptors = this.interceptors.get(stage);
@@ -479,11 +476,8 @@ public class DefaultConfiguration implements Configuration {
       Map<LifecycleStage, Collection<Interceptor>> dst,
       Map<LifecycleStage, Collection<Interceptor>> src) {
     for (Map.Entry<LifecycleStage, Collection<Interceptor>> entry : src.entrySet()) {
-      Collection<Interceptor> collection = dst.get(entry.getKey());
-      if (collection == null) {
-        collection = new LinkedList<Interceptor>();
-        dst.put(entry.getKey(), collection);
-      }
+      Collection<Interceptor> collection =
+          dst.computeIfAbsent(entry.getKey(), k -> new LinkedList<>());
       collection.addAll(entry.getValue());
     }
   }
@@ -525,11 +519,7 @@ public class DefaultConfiguration implements Configuration {
     }
 
     for (LifecycleStage stage : intercepts.value()) {
-      Collection<Interceptor> stack = map.get(stage);
-      if (stack == null) {
-        stack = new LinkedList<Interceptor>();
-        map.put(stage, stack);
-      }
+      Collection<Interceptor> stack = map.computeIfAbsent(stage, k -> new LinkedList<>());
 
       stack.add(interceptor);
     }
@@ -537,8 +527,7 @@ public class DefaultConfiguration implements Configuration {
 
   /** Instantiates the core interceptors, allowing subclasses to override the default behavior */
   protected Map<LifecycleStage, Collection<Interceptor>> initCoreInterceptors() {
-    Map<LifecycleStage, Collection<Interceptor>> interceptors =
-        new HashMap<LifecycleStage, Collection<Interceptor>>();
+    Map<LifecycleStage, Collection<Interceptor>> interceptors = new HashMap<>();
     addInterceptor(interceptors, new BeforeAfterMethodInterceptor());
     addInterceptor(interceptors, new HttpCacheInterceptor());
     return interceptors;

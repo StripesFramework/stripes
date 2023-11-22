@@ -23,7 +23,7 @@ import java.util.Locale;
  *
  * @author Tim Fennell
  */
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class EnumeratedTypeConverter implements TypeConverter<Enum> {
 
   /**

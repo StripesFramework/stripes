@@ -69,7 +69,7 @@ public class FieldMetadataTag extends HtmlTagSupport implements BodyTag {
     if (form != null) {
       if (action != null)
         log.warn(
-            "Parameters action and/or beanclass specified but field-metadata tag is inside of a Stripes form tag. The bean will be pulled from the form tag.");
+            "Parameters action and/or bean-class specified but field-metadata tag is inside of a Stripes form tag. The bean will be pulled from the form tag.");
 
       action = form.getAction();
     }
@@ -96,7 +96,7 @@ public class FieldMetadataTag extends HtmlTagSupport implements BodyTag {
           "Couldn't determine ActionBean class from FormTag! One of the following conditions must be met:\r\n\t",
           "1. Include this tag inside of a stripes:form tag\r\n\t",
           "2. Use the action parameter\r\n\t",
-          "3. Use the beanclass parameter");
+          "3. Use the bean-class parameter");
       return null;
     }
 
@@ -112,7 +112,7 @@ public class FieldMetadataTag extends HtmlTagSupport implements BodyTag {
 
     StringBuilder sb = new StringBuilder("{\r\n\t\t");
 
-    Set<String> fields = new HashSet<String>();
+    Set<String> fields = new HashSet<>();
 
     if (form != null) {
       for (String field : form.getRegisteredFields()) {
@@ -120,7 +120,7 @@ public class FieldMetadataTag extends HtmlTagSupport implements BodyTag {
       }
     }
 
-    if ((this.fields != null) && (this.fields.trim().length() > 0))
+    if ((this.fields != null) && (!this.fields.trim().isEmpty()))
       fields.addAll(Arrays.asList(this.fields.split(",")));
     else if (form == null) {
       log.error(
@@ -134,7 +134,7 @@ public class FieldMetadataTag extends HtmlTagSupport implements BodyTag {
 
     for (String field : fields) {
 
-      PropertyExpressionEvaluation eval = null;
+      PropertyExpressionEvaluation eval;
 
       try {
         eval = new PropertyExpressionEvaluation(PropertyExpression.getExpression(field), bean);
@@ -160,7 +160,7 @@ public class FieldMetadataTag extends HtmlTagSupport implements BodyTag {
       Class<?> typeConverterClass = null;
 
       if (data != null) {
-        if (fieldInfo.length() > 0) fieldInfo.append(',');
+        if (!fieldInfo.isEmpty()) fieldInfo.append(',');
 
         fieldInfo
             .append("required:")
@@ -222,14 +222,14 @@ public class FieldMetadataTag extends HtmlTagSupport implements BodyTag {
 
       if (typeConverterClass != null) {
         fieldInfo
-            .append(fieldInfo.length() > 0 ? "," : "")
+            .append(!fieldInfo.isEmpty() ? "," : "")
             .append("typeConverter:")
             .append(
                 JavaScriptBuilder.quote(
                     fqn ? typeConverterClass.getName() : typeConverterClass.getSimpleName()));
       }
 
-      if (fieldInfo.length() > 0) {
+      if (!fieldInfo.isEmpty()) {
         if (first) first = false;
         else sb.append(",\r\n\t\t");
 
@@ -385,7 +385,7 @@ public class FieldMetadataTag extends HtmlTagSupport implements BodyTag {
    *
    * @param beanclass the String FQN of the class, or a Class representing the class
    * @throws StripesJspException if the URL cannot be determined for any reason, most likely because
-   *     of a mis-spelled class name, or a class that's not an ActionBean
+   *     of a misspelled class name, or a class that's not an ActionBean
    */
   public void setBeanclass(Object beanclass) throws StripesJspException {
     String url = getActionBeanUrl(beanclass);
@@ -412,7 +412,8 @@ public class FieldMetadataTag extends HtmlTagSupport implements BodyTag {
    * well as the form id.
    */
   public class Var {
-    private String fieldMetadata, formId;
+    private final String fieldMetadata;
+    private String formId;
 
     private Var(String fieldMetadata) {
       this.fieldMetadata = fieldMetadata;

@@ -21,6 +21,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,7 +53,7 @@ public class BindingPolicyManager {
    * type.
    */
   private static final List<Class<?>> ILLEGAL_NODE_VALUE_TYPES =
-      Arrays.<Class<?>>asList(
+      Arrays.asList(
           ActionBeanContext.class,
           Class.class,
           ClassLoader.class,
@@ -71,8 +72,7 @@ public class BindingPolicyManager {
   private static final Log log = Log.getInstance(BindingPolicyManager.class);
 
   /** Cached instances */
-  private static final Map<Class<?>, BindingPolicyManager> instances =
-      new HashMap<Class<?>, BindingPolicyManager>();
+  private static final Map<Class<?>, BindingPolicyManager> instances = new HashMap<>();
 
   /**
    * Get the policy manager for the given class. Instances are cached and returned on subsequent
@@ -90,7 +90,7 @@ public class BindingPolicyManager {
   }
 
   /** The class to which the binding policy applies */
-  private Class<?> beanClass;
+  private final Class<?> beanClass;
 
   /** The default policy to honor, in case of conflicts */
   private Policy defaultPolicy;
@@ -163,19 +163,18 @@ public class BindingPolicyManager {
             || (validatePattern != null && validatePattern.matcher(paramName).matches());
 
     /*
-     * if path appears on neither or both lists ( i.e. !(allow ^ deny) ) and default policy is
+     * if path appears on neither nor both lists ( i.e. !(allow ^ deny) ) and default policy is
      * to deny access, then fail
      */
-    if (defaultPolicy == Policy.DENY && !(allow ^ deny)) return false;
+    if (defaultPolicy == Policy.DENY && allow == deny) return false;
 
     /*
      * regardless of default policy, if it's in the deny list but not in the allow list, then
      * fail
      */
-    if (!allow && deny) return false;
+    return allow || !deny;
 
     // any other conditions pass the test
-    return true;
   }
 
   /**
@@ -191,8 +190,7 @@ public class BindingPolicyManager {
       if (type instanceof ParameterizedType) {
         type = ((ParameterizedType) type).getRawType();
       }
-      if (type instanceof Class) {
-        final Class<?> nodeClass = (Class<?>) type;
+      if (type instanceof Class<?> nodeClass) {
         for (Class<?> protectedClass : ILLEGAL_NODE_VALUE_TYPES) {
           if (protectedClass.isAssignableFrom(nodeClass)) {
             return true;
@@ -239,7 +237,7 @@ public class BindingPolicyManager {
             .getValidationMetadataProvider()
             .getValidationMetadata(beanClass)
             .keySet();
-    return new ArrayList<String>(properties).toArray(new String[properties.size()]);
+    return new ArrayList<>(properties).toArray(new String[properties.size()]);
   }
 
   /**
@@ -271,15 +269,13 @@ public class BindingPolicyManager {
     if (globArray == null || globArray.length == 0) return null;
 
     // things are much easier if we convert to a single list
-    List<String> globs = new ArrayList<String>();
+    List<String> globs = new ArrayList<>();
     for (String glob : globArray) {
       String[] subs = glob.split("(\\s*,\\s*)+");
-      for (String sub : subs) {
-        globs.add(sub);
-      }
+      Collections.addAll(globs, subs);
     }
 
-    List<String> subs = new ArrayList<String>();
+    List<String> subs = new ArrayList<>();
     StringBuilder buf = new StringBuilder();
     for (String glob : globs) {
       buf.setLength(0);
@@ -290,7 +286,7 @@ public class BindingPolicyManager {
           buf.append(PROPERTY_REGEX);
         } else if ("**".equals(property)) {
           buf.append(PROPERTY_REGEX).append("(\\.").append(PROPERTY_REGEX).append(")*");
-        } else if (property.length() > 0) {
+        } else if (!property.isEmpty()) {
           Matcher matcher = PROPERTY_PATTERN.matcher(property);
           if (matcher.matches()) {
             buf.append(property);
@@ -305,7 +301,7 @@ public class BindingPolicyManager {
       }
 
       // add to the list of subs
-      if (buf.length() != 0) subs.add(buf.toString());
+      if (!buf.isEmpty()) subs.add(buf.toString());
     }
 
     // join subs together with pipes and compile
@@ -313,11 +309,11 @@ public class BindingPolicyManager {
     for (String sub : subs) {
       buf.append(sub).append('|');
     }
-    if (buf.length() > 0) buf.setLength(buf.length() - 1);
+    if (!buf.isEmpty()) buf.setLength(buf.length() - 1);
     log.debug("Translated globs ", Arrays.toString(globArray), " to regex ", buf);
 
     // return null if pattern is empty
-    if (buf.length() == 0) return null;
+    if (buf.isEmpty()) return null;
     else return Pattern.compile(buf.toString());
   }
 }

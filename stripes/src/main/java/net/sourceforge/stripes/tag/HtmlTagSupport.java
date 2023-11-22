@@ -38,7 +38,7 @@ public abstract class HtmlTagSupport extends StripesTagSupport implements Dynami
   private static final Log log = Log.getInstance(HtmlTagSupport.class);
 
   /** Map containing all attributes of the tag. */
-  private final Map<String, String> attributes = new HashMap<String, String>();
+  private final Map<String, String> attributes = new HashMap<>();
 
   /** Storage for a BodyContent instance, should the eventual child class implement BodyTag. */
   private BodyContent bodyContent;
@@ -69,10 +69,8 @@ public abstract class HtmlTagSupport extends StripesTagSupport implements Dynami
    * @param uri the URI of the namespace of the attribute if it has one. Totally ignored!
    * @param name the name of the attribute
    * @param value the value of the attribute
-   * @throws JspException not thrown from this class; included so that subclasses can override the
-   *     method and throw the interface exception
    */
-  public void setDynamicAttribute(String uri, String name, Object value) throws JspException {
+  public void setDynamicAttribute(String uri, String name, Object value) {
     set(name, value == null ? "" : value.toString());
   }
 
@@ -107,7 +105,7 @@ public abstract class HtmlTagSupport extends StripesTagSupport implements Dynami
     if (this.bodyContent != null) {
       String body = getBodyContent().getString();
 
-      if (body != null && body.length() > 0) {
+      if (body != null && !body.isEmpty()) {
         returnValue = body;
       }
     }
@@ -116,8 +114,8 @@ public abstract class HtmlTagSupport extends StripesTagSupport implements Dynami
   }
 
   /**
-   * Returns true if HTML tags that have no body should be closed like XML tags, with "/&gt;". False
-   * if such HTML tags should be closed in the style of HTML4, with just a "&gt;".
+   * Returns true if HTML tags that have no body tags and should be closed like XML tags, with
+   * "/&gt;". False if such HTML tags should be closed in the style of HTML4, with just a "&gt;".
    *
    * @see PageOptionsTag#setHtmlMode(String)
    */
@@ -141,12 +139,12 @@ public abstract class HtmlTagSupport extends StripesTagSupport implements Dynami
       writeAttributes(writer);
       writer.print(">");
     } catch (IOException ioe) {
-      JspException jspe =
+      JspException jspException =
           new JspException(
               "IOException encountered while writing open tag <" + tag + "> to the JspWriter.",
               ioe);
-      log.warn(jspe);
-      throw jspe;
+      log.warn(jspException);
+      throw jspException;
     }
   }
 
@@ -163,12 +161,12 @@ public abstract class HtmlTagSupport extends StripesTagSupport implements Dynami
       writer.print(tag);
       writer.print(">");
     } catch (IOException ioe) {
-      JspException jspe =
+      JspException jspException =
           new JspException(
               "IOException encountered while writing close tag </" + tag + "> to the JspWriter.",
               ioe);
-      log.warn(jspe);
-      throw jspe;
+      log.warn(jspException);
+      throw jspException;
     }
   }
 
@@ -177,24 +175,23 @@ public abstract class HtmlTagSupport extends StripesTagSupport implements Dynami
    * except that instead of leaving the tag open, it closes the tag.
    *
    * @param writer the JspWriter to write the open tag to
-   * @param tag the name of the tag to use
    * @throws JspException if the JspWriter causes an exception
    */
-  protected void writeSingletonTag(JspWriter writer, String tag) throws JspException {
+  protected void writeSingletonTag(JspWriter writer) throws JspException {
     try {
       writer.print("<");
-      writer.print(tag);
+      writer.print("input");
       writeAttributes(writer);
       writer.print(isXmlTags() ? " />" : ">");
     } catch (IOException ioe) {
-      JspException jspe =
+      JspException jspException =
           new JspException(
               "IOException encountered while writing singleton tag <"
-                  + tag
+                  + "input"
                   + "/> to the JspWriter.",
               ioe);
-      log.warn(jspe);
-      throw jspe;
+      log.warn(jspException);
+      throw jspException;
     }
   }
 

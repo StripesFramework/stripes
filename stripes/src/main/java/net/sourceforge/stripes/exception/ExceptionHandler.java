@@ -47,7 +47,7 @@ public interface ExceptionHandler extends ConfigurableComponent {
    *
    * @param throwable the exception/throwable being handled
    * @param request the current request. Notably, if the request progressed as far as
-   *     ActionBeanResolution the ActionBean can be retreived by calling {@code
+   *     ActionBeanResolution the ActionBean can be retrieved by calling {@code
    *     request.getAttribute(StripesConstants.REQ_ATTR_ACTION_BEAN)}.
    * @param response the current response.
    * @throws ServletException if the exception passed in cannot be handled

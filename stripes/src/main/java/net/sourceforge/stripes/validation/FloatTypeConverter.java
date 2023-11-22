@@ -35,18 +35,18 @@ public class FloatTypeConverter extends NumberTypeConverterSupport implements Ty
       String input, Class<? extends Float> targetType, Collection<ValidationError> errors) {
 
     Number number = parse(input, errors);
-    Float retval = null;
+    Float returnValue = null;
 
-    if (errors.size() == 0) {
+    if (errors.isEmpty()) {
       double output = number.doubleValue();
       if (output > MAX_VALUE || output < MIN_VALUE) {
         errors.add(
             new ScopedLocalizableError("converter.float", "outOfRange", MIN_VALUE, MAX_VALUE));
       } else {
-        retval = number.floatValue();
+        returnValue = number.floatValue();
       }
     }
 
-    return retval;
+    return returnValue;
   }
 }

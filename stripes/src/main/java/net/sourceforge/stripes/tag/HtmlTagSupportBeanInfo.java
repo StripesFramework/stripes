@@ -39,7 +39,7 @@ public class HtmlTagSupportBeanInfo extends SimpleBeanInfo {
   @Override
   public PropertyDescriptor[] getPropertyDescriptors() {
     try {
-      List<PropertyDescriptor> descriptors = new ArrayList<PropertyDescriptor>();
+      List<PropertyDescriptor> descriptors = new ArrayList<>();
 
       // Add the tricky one first
       Method getter = HtmlTagSupport.class.getMethod("getCssClass");
@@ -73,7 +73,7 @@ public class HtmlTagSupportBeanInfo extends SimpleBeanInfo {
       return descriptors.toArray(array);
     } catch (Exception e) {
       // This is crazy talk, we're only doing things that should always succeed
-      log.fatal(e, "Could not contruct bean info for HtmlTagSupport. This is very bad.");
+      log.fatal(e, "Could not construct bean info for HtmlTagSupport. This is very bad.");
       return null;
     }
   }

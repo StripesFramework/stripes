@@ -18,6 +18,7 @@ import jakarta.servlet.Filter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import net.sourceforge.stripes.action.ActionBean;
@@ -34,7 +35,7 @@ import net.sourceforge.stripes.validation.ValidationErrors;
  * interact with Stripes and to interrogate the results. Everything that is done in this class is
  * do-able without this class! It simply exists to make things a bit easier. As a result all the
  * methods in this class simply manipulate one or more of the underlying Mock objects. If some
- * needed capability is not exposed through the MockRoundtrip it is always possible to fetch the
+ * needed capability is not exposed through the MockRound-trip it is always possible to fetch the
  * underlying request, response and context and interact with them directly.
  *
  * <p>It is worth noting that the Mock system <b>does not process forwards, includes and
@@ -48,7 +49,7 @@ import net.sourceforge.stripes.validation.ValidationErrors;
  *
  * <pre>
  * MockServletContext context = ...;
- * MockRoundtrip trip = new MockRoundtrip(context, CalculatorActionBean.class);
+ * MockRound-trip trip = new MockRound-trip(context, CalculatorActionBean.class);
  * trip.setParameter("numberOne", "2");
  * trip.setParameter("numberTwo", "2");
  * trip.execute();
@@ -71,7 +72,7 @@ public class MockRoundtrip {
   /**
    * Preferred constructor that will manufacture a request. Uses the ServletContext to ensure that
    * the request's context path matches. Pulls the UrlBinding of the ActionBean and uses that as the
-   * requst URL. Constructs a new session for the request.
+   * request URL. Constructs a new session for the request.
    *
    * @param context the MockServletContext that will receive this request
    * @param beanType a Class object representing the ActionBean that should receive the request
@@ -83,7 +84,7 @@ public class MockRoundtrip {
   /**
    * Preferred constructor that will manufacture a request. Uses the ServletContext to ensure that
    * the request's context path matches. Pulls the UrlBinding of the ActionBean and uses that as the
-   * requst URL. Constructs a new session for the request.
+   * request URL. Constructs a new session for the request.
    *
    * @param context the MockServletContext that will receive this request
    * @param beanType a Class object representing the ActionBean that should receive the request
@@ -94,8 +95,8 @@ public class MockRoundtrip {
   }
 
   /**
-   * Constructor that will create a requeset suitable for the provided servlet context and URL. Note
-   * that in general the contructors that take an ActionBean Class object are preferred over those
+   * Constructor that will create a request suitable for the provided servlet context and URL. Note
+   * that in general the constructors that take an ActionBean Class object are preferred over those
    * that take a URL. Constructs a new session for the request.
    *
    * @param context the MockServletContext that will receive this request
@@ -106,8 +107,8 @@ public class MockRoundtrip {
   }
 
   /**
-   * Constructor that will create a requeset suitable for the provided servlet context and URL. Note
-   * that in general the contructors that take an ActionBean Class object are preferred over those
+   * Constructor that will create a request suitable for the provided servlet context and URL. Note
+   * that in general the constructors that take an ActionBean Class object are preferred over those
    * that take a URL. The request will use the provided session instead of creating a new one.
    *
    * @param context the MockServletContext that will receive this request
@@ -121,29 +122,27 @@ public class MockRoundtrip {
     int qmark = actionBeanUrl.indexOf("?");
     if (qmark > 0) {
       path = actionBeanUrl.substring(0, qmark);
-      if (qmark < actionBeanUrl.length()) {
-        String query = actionBeanUrl.substring(qmark + 1);
-        if (query != null && query.length() > 0) {
-          parameters = new TreeMap<String, List<String>>();
-          for (String kv : query.split("&")) {
-            String[] parts = kv.split("=");
-            String key, value;
-            if (parts.length == 1) {
-              key = parts[0];
-              value = null;
-            } else if (parts.length == 2) {
-              key = parts[0];
-              value = parts[1];
-            } else {
-              key = value = null;
-            }
+      String query = actionBeanUrl.substring(qmark + 1);
+      if (!query.isEmpty()) {
+        parameters = new TreeMap<>();
+        for (String kv : query.split("&")) {
+          String[] parts = kv.split("=");
+          String key, value;
+          if (parts.length == 1) {
+            key = parts[0];
+            value = null;
+          } else if (parts.length == 2) {
+            key = parts[0];
+            value = parts[1];
+          } else {
+            key = value = null;
+          }
 
-            if (key != null) {
-              List<String> values = parameters.get(key);
-              if (values == null) values = new ArrayList<String>();
-              values.add(value);
-              parameters.put(key, values);
-            }
+          if (key != null) {
+            List<String> values = parameters.get(key);
+            if (values == null) values = new ArrayList<>();
+            values.add(value);
+            parameters.put(key, values);
           }
         }
       }
@@ -347,9 +346,9 @@ public class MockRoundtrip {
 
   /** Find and return the {@link UrlBindingFactory} for the given context. */
   private static UrlBindingFactory getUrlBindingFactory(MockServletContext context) {
-    ActionResolver resolver = getActionResolver(context);
-    if (resolver instanceof AnnotatedClassActionResolver) {
-      return ((AnnotatedClassActionResolver) resolver).getUrlBindingFactory();
+    AnnotatedClassActionResolver resolver = getActionResolver(context);
+    if (resolver != null) {
+      return resolver.getUrlBindingFactory();
     }
 
     return null;
@@ -361,12 +360,14 @@ public class MockRoundtrip {
    */
   private static String getUrlBinding(
       Class<? extends ActionBean> clazz, MockServletContext context) {
-    return getActionResolver(context).getUrlBinding(clazz);
+    return Objects.requireNonNull(getActionResolver(context)).getUrlBinding(clazz);
   }
 
   /** Get the URL binding for an {@link ActionBean} class up to the first parameter. */
   private static String getUrlBindingStub(
       Class<? extends ActionBean> clazz, MockServletContext context) {
-    return getUrlBindingFactory(context).getBindingPrototype(clazz).getPath();
+    return Objects.requireNonNull(getUrlBindingFactory(context))
+        .getBindingPrototype(clazz)
+        .getPath();
   }
 }

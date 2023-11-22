@@ -28,12 +28,11 @@ import java.util.Random;
  * @author Tim Fennell
  * @since Stripes 1.1.1
  */
-@SuppressWarnings("deprecation")
 public class MockHttpSession implements HttpSession {
-  private long creationTime = System.currentTimeMillis();
-  private String sessionId = String.valueOf(new Random().nextLong());
+  private final long creationTime = System.currentTimeMillis();
+  private final String sessionId = String.valueOf(new Random().nextLong());
   private ServletContext context;
-  private Map<String, Object> attributes = new HashMap<String, Object>();
+  private final Map<String, Object> attributes = new HashMap<>();
 
   /** Default constructor which provides the session with access to the context. */
   public MockHttpSession(ServletContext context) {
@@ -90,7 +89,7 @@ public class MockHttpSession implements HttpSession {
 
   /** Returns a String[] of all the attribute names in session. Deprecated. */
   public String[] getValueNames() {
-    return this.attributes.keySet().toArray(new String[this.attributes.size()]);
+    return this.attributes.keySet().toArray(new String[0]);
   }
 
   /** Stores the value in session, replacing any existing value with the same key. */

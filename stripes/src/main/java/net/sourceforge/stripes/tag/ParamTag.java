@@ -19,6 +19,7 @@ import jakarta.servlet.jsp.PageContext;
 import jakarta.servlet.jsp.tagext.BodyContent;
 import jakarta.servlet.jsp.tagext.BodyTag;
 import jakarta.servlet.jsp.tagext.Tag;
+import java.util.Objects;
 
 /**
  * Used to supply parameters when nested inside tags that implement {@link ParameterizableTag}. The
@@ -71,7 +72,7 @@ public class ParamTag implements BodyTag {
     this.pageContext = pageContext;
   }
 
-  /** Used by the container to provide the tag with access to it's parent tag on the page. */
+  /** Used by the container to provide the tag with access to its parent tag on the page. */
   public void setParent(Tag tag) {
     this.parentTag = tag;
   }
@@ -127,7 +128,7 @@ public class ParamTag implements BodyTag {
       parameterizable = parameterizable.getParent();
     }
 
-    ((ParameterizableTag) parameterizable).addParameter(name, valueToSet);
+    ((ParameterizableTag) Objects.requireNonNull(parameterizable)).addParameter(name, valueToSet);
     return EVAL_PAGE;
   }
 

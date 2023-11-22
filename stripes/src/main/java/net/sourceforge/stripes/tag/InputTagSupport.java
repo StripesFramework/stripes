@@ -90,20 +90,20 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
    *
    * @return Object either a value/values for this tag or null
    * @throws StripesJspException if the enclosing form tag (which is required at all times, and
-   *     necessary to perform repopulation) cannot be located
+   *     necessary to perform re-population) cannot be located
    */
   protected Object getOverrideValueOrValues() throws StripesJspException {
     return StripesFilter.getConfiguration().getPopulationStrategy().getValue(this);
   }
 
   /**
-   * Returns a single value for the the value of this field. This can be used to ensure that only a
+   * Returns a single value for the value of this field. This can be used to ensure that only a
    * single value is returned by the population strategy, which is useful in the case of text inputs
    * etc. which can have only a single value.
    *
    * @return Object either a single value or null
    * @throws StripesJspException if the enclosing form tag (which is required at all times, and
-   *     necessary to perform repopulation) cannot be located
+   *     necessary to perform re-population) cannot be located
    */
   protected Object getSingleOverrideValue() throws StripesJspException {
     Object unknown = getOverrideValueOrValues();
@@ -113,9 +113,8 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
       if (Array.getLength(unknown) > 0) {
         returnValue = Array.get(unknown, 0);
       }
-    } else if (unknown != null && unknown instanceof Collection<?>) {
-      Collection<?> collection = (Collection<?>) unknown;
-      if (collection.size() > 0) {
+    } else if (unknown instanceof Collection<?> collection) {
+      if (!collection.isEmpty()) {
         returnValue = collection.iterator().next();
       }
     } else {
@@ -126,9 +125,9 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
   }
 
   /**
-   * Used during repopulation to query the tag for a value of values provided to the tag on the JSP.
-   * This allows the PopulationStrategy to encapsulate all decisions about which source to use when
-   * repopulating tags.
+   * Used during re-population to query the tag for a value of values provided to the tag on the
+   * JSP. This allows the PopulationStrategy to encapsulate all decisions about which source to use
+   * when repopulating tags.
    *
    * @return May return any of String[], Collection or Object
    */
@@ -209,17 +208,14 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
             return true;
           }
         }
-      } else if (selected instanceof Collection<?>) {
-        Collection<?> selectedIf = (Collection<?>) selected;
+      } else if (selected instanceof Collection<?> selectedIf) {
         for (Object item : selectedIf) {
           if ((format(item, false).equals(stringValue))) {
             return true;
           }
         }
       } else {
-        if (format(selected, false).equals(stringValue)) {
-          return true;
-        }
+        return format(selected, false).equals(stringValue);
       }
     }
 
@@ -246,7 +242,7 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
    *
    * @param name the field name or resource to look up
    * @return the localized String corresponding to the name provided
-   * @throws StripesJspException
+   * @throws StripesJspException if the parent form tag cannot be found
    */
   protected String getLocalizedFieldName(final String name) throws StripesJspException {
     Locale locale = getPageContext().getRequest().getLocale();
@@ -319,7 +315,7 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
    *     that means that if encryption is enabled for the ActionBean property with the same name as
    *     this tag then the formatted value will be encrypted before it is returned.
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "rawtypes"})
   protected String format(Object input, boolean forOutput) {
     if (input == null) {
       return "";
@@ -527,8 +523,8 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
 
   /**
    * Checks to see if the value provided is either 'disabled' or a value that the {@link
-   * BooleanTypeConverter} believes it true. If so, adds a disabled attribute to the tag, otherwise
-   * does not.
+   * BooleanTypeConverter} believes it's true. If so, adds a disabled attribute to the tag,
+   * otherwise does not.
    */
   public void setDisabled(String disabled) {
     boolean isDisabled = "disabled".equalsIgnoreCase(disabled);

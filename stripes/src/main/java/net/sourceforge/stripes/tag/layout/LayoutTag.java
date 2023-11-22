@@ -72,10 +72,10 @@ public abstract class LayoutTag extends StripesTagSupport {
   }
 
   /**
-   * Starting from the outer-most context and working up the stack, put a reference to each
-   * component renderer by name into the page context and push this tag's page context onto the
-   * renderer's page context stack. Working from the bottom of the stack up ensures that newly
-   * defined components override any that might have been defined previously by the same name.
+   * Starting from the outermost context and working up the stack, put a reference to each component
+   * renderer by name into the page context and push this tag's page context onto the renderer's
+   * page context stack. Working from the bottom of the stack up ensures that newly defined
+   * components override any that might have been defined previously by the same name.
    */
   public void exportComponentRenderers() {
     for (LayoutContext c = LayoutContext.lookup(pageContext).getFirst();

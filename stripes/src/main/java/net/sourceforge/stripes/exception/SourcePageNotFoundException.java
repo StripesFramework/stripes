@@ -25,7 +25,7 @@ import net.sourceforge.stripes.controller.StripesConstants;
  * @since Stripes 1.5.5
  */
 public class SourcePageNotFoundException extends IllegalStateException {
-  private ActionBeanContext actionBeanContext;
+  private final ActionBeanContext actionBeanContext;
 
   /**
    * Construct a new instance for the given action bean context.

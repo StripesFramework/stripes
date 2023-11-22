@@ -52,8 +52,8 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
  * raised.
  *
  * <p>The first time that any of the injection methods in this class is called with a specific type
- * of object, the object's class is examined for annotated fields and methods. The discovered fields
- * and methods are then cached for future usage.
+ * of object, object's class will be examined for annotated fields and methods. The discovered
+ * fields and methods are then cached for future usage.
  *
  * @see SpringBean
  * @author Dan Hayes, Tim Fennell
@@ -98,7 +98,7 @@ public class SpringHelper {
   }
 
   /**
-   * Looks for all methods and fields annotated with {@code @SpringBean} and attempts to lookup and
+   * Looks for all methods and fields annotated with {@code @SpringBean} and attempts to look up and
    * inject a managed bean into the field/property. If any annotated element cannot be injected an
    * exception is thrown.
    *
@@ -261,8 +261,8 @@ public class SpringHelper {
    * @param ctx the Spring Application Context
    * @param name the name of the spring bean to look for
    * @param type the type of bean to look for
-   * @param allowFindByType true to indicate that finding a bean by type is acceptable if find by
-   *     name fails.
+   * @param allowFindByType true to indicate that finding a bean by type is acceptable if the find
+   *     by name fails.
    * @exception RuntimeException various subclasses of RuntimeException are thrown if it is not
    *     possible to find a unique matching bean in the spring context given the constraints
    *     supplied.
@@ -272,10 +272,8 @@ public class SpringHelper {
     // First try to lookup using the name provided
     try {
       Object bean = ctx.getBean(name, type);
-      if (bean != null) {
-        log.debug(
-            "Found spring bean with name [", name, "] and type [", bean.getClass().getName(), "]");
-      }
+      log.debug(
+          "Found spring bean with name [", name, "] and type [", bean.getClass().getName(), "]");
       return bean;
     } catch (NestedRuntimeException nre) {
       if (!allowFindByType) throw nre;

@@ -14,20 +14,21 @@
  */
 package net.sourceforge.stripes.validation;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import net.sourceforge.stripes.controller.ParameterName;
 
 /**
- * Container class for ValidationErrors that are tied to form fields. All of the regular Map methods
- * are available and can be used. In addition there are a number of utility methods which are design
- * to make it easier to interact with the data.
+ * Container class for ValidationErrors that are tied to form fields. All the regular Map methods
+ * are available and can be used. In addition, there are a number of utility methods which are
+ * design to make it easier to interact with the data.
  *
  * @author Tim Fennell
  */
 public class ValidationErrors extends HashMap<String, List<ValidationError>> {
-  private static final long serialVersionUID = 1L;
+  @Serial private static final long serialVersionUID = 1L;
 
   /** Key that is used to store global (i.e. non-field specific) errors. */
   public static final String GLOBAL_ERROR = "__stripes_global_error";
@@ -42,7 +43,7 @@ public class ValidationErrors extends HashMap<String, List<ValidationError>> {
   public void put(String field, ValidationError error) {
     List<ValidationError> errors = get(field);
     if (errors == null) {
-      errors = new ArrayList<ValidationError>();
+      errors = new ArrayList<>();
       put(field, errors);
     }
 
@@ -59,7 +60,7 @@ public class ValidationErrors extends HashMap<String, List<ValidationError>> {
    * @param error a ValidationError to add to that field
    */
   public void add(String field, ValidationError error) {
-    if (field == null || field.length() == 0)
+    if (field == null || field.isEmpty())
       throw new IllegalArgumentException("field must not be empty or null");
     put(field, error);
   }

@@ -51,6 +51,7 @@ public class CommonsMultipartWrapper implements MultipartWrapper {
    * Ensure this class will not load unless Commons FileUpload is on the classpath.
    */
   static {
+    //noinspection ResultOfMethodCallIgnored
     FileUploadException.class.getName();
   }
 
@@ -151,6 +152,7 @@ public class CommonsMultipartWrapper implements MultipartWrapper {
    * @param name the name of the file parameter
    * @return a FileBean object wrapping the uploaded file
    */
+  @SuppressWarnings("rawtypes")
   public FileBean getFileParameterValue(String name) {
     final FileItem item = this.files.get(name);
     if (item == null

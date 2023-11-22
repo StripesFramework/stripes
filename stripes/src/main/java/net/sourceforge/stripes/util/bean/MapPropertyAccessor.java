@@ -32,6 +32,7 @@ import net.sourceforge.stripes.validation.ValidationError;
  * @author Tim Fennell
  * @since Stripes 1.4
  */
+@SuppressWarnings("rawtypes")
 public class MapPropertyAccessor implements PropertyAccessor<Map<?, ?>> {
   private static final Log log = Log.getInstance(MapPropertyAccessor.class);
 
@@ -92,9 +93,7 @@ public class MapPropertyAccessor implements PropertyAccessor<Map<?, ?>> {
     Class declaredType = evaluation.getKeyType();
     Class nodeType = evaluation.getNode().getTypedValue().getClass();
 
-    if (nodeType.equals(declaredType) || declaredType == null) {
-      return evaluation.getNode().getTypedValue();
-    } else {
+    if (!nodeType.equals(declaredType) && declaredType != null) {
       try {
         // Collect the things needed to grab a type converter
         String stringKey = evaluation.getNode().getStringValue();
@@ -109,8 +108,8 @@ public class MapPropertyAccessor implements PropertyAccessor<Map<?, ?>> {
 
         // If there is a type converter, try using it!
         if (tc != null) {
-          Object retval = tc.convert(stringKey, declaredType, errors);
-          if (errors.size() == 0) return retval;
+          Object returnValue = tc.convert(stringKey, declaredType, errors);
+          if (errors.isEmpty()) return returnValue;
         }
         // Otherwise look for a String constructor
         else {
@@ -126,7 +125,7 @@ public class MapPropertyAccessor implements PropertyAccessor<Map<?, ?>> {
       }
 
       // Return the original key if we couldn't type convert it
-      return evaluation.getNode().getTypedValue();
     }
+    return evaluation.getNode().getTypedValue();
   }
 }

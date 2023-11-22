@@ -54,8 +54,7 @@ public class UseActionBeanTagExtraInfo extends TagExtraInfo {
       if (beanclass instanceof Class<?>) beanclass = ((Class<?>) beanclass).getName();
 
       // Return the variable info
-      if (beanclass instanceof String) {
-        String string = (String) beanclass;
+      if (beanclass instanceof String string) {
         if (!string.startsWith("${")) {
           return new VariableInfo[] {new VariableInfo(var, string, true, VariableInfo.AT_BEGIN)};
         }
@@ -70,11 +69,11 @@ public class UseActionBeanTagExtraInfo extends TagExtraInfo {
    */
   @Override
   public ValidationMessage[] validate(final TagData tag) {
-    Collection<ValidationMessage> errors = new ArrayList<ValidationMessage>();
+    Collection<ValidationMessage> errors = new ArrayList<>();
 
     Object beanclass = tag.getAttribute("beanclass");
     Object binding = tag.getAttribute("binding");
-    if (!(beanclass != null ^ binding != null)) {
+    if ((beanclass != null) == (binding != null)) {
       errors.add(
           new ValidationMessage(
               tag.getId(), "Exactly one of 'beanclass' or 'binding' must be supplied."));
@@ -82,11 +81,11 @@ public class UseActionBeanTagExtraInfo extends TagExtraInfo {
 
     String var = tag.getAttributeString("var");
     String id = tag.getAttributeString("id");
-    if (!(var != null ^ id != null)) {
+    if ((var != null) == (id != null)) {
       errors.add(
           new ValidationMessage(tag.getId(), "Exactly one of 'var' or 'id' must be supplied."));
     }
 
-    return errors.toArray(new ValidationMessage[errors.size()]);
+    return errors.toArray(new ValidationMessage[0]);
   }
 }

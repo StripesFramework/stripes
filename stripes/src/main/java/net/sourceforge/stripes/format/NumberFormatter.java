@@ -22,11 +22,11 @@ import java.util.Set;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
 
 /**
- * Formats numbers into localized Strings for display. This class relies heavily on the NumberFormat
- * and DecimalFormat classes in the java.text package, and it is suggested that you become familiar
- * with those classes before using custom formats.
+ * Formats numbers into localized Strings for display. This class relies heavily on the ${link
+ * NumberFormat} and @link{DecimalFormat} classes, and it is suggested that you become familiar with
+ * those classes before using custom formats.
  *
- * <p>Accepts the following named formatTypes (not case sensitive):
+ * <p>Accepts the following named formatTypes (not case-sensitive):
  *
  * <ul>
  *   <li>number
@@ -36,7 +36,7 @@ import net.sourceforge.stripes.exception.StripesRuntimeException;
  *
  * <p>If a format type is not supplied the default value of "number" will be used. Format String can
  * be either a custom pattern as used by NumberFormat, or one of the following named formats (not
- * case sensitive):
+ * case-sensitive):
  *
  * <ul>
  *   <li>plain - Outputs text in a manner similar to toString(), but appropriate to a locale.
@@ -49,7 +49,7 @@ import net.sourceforge.stripes.exception.StripesRuntimeException;
 public class NumberFormatter implements Formatter<Number> {
 
   /** Maintains a set of named formats that can be used instead of patterns. */
-  protected static final Set<String> namedPatterns = new HashSet<String>();
+  protected static final Set<String> namedPatterns = new HashSet<>();
 
   static {
     namedPatterns.add("plain");

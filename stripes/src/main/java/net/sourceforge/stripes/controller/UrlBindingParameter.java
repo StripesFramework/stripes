@@ -15,6 +15,7 @@
 package net.sourceforge.stripes.controller;
 
 import java.lang.reflect.Method;
+import java.util.Objects;
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.action.HandlesEvent;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
@@ -97,8 +98,8 @@ public class UrlBindingParameter {
 
   /**
    * Ensure the default event name is set if the binding uses the $event parameter. Can only be done
-   * safely after the event mappings have been processed. see
-   * http://www.stripesframework.org/jira/browse/STS-803
+   * safely after the event mappings have been processed. see <a
+   * href="http://www.stripesframework.org/jira/browse/STS-803">...</a>
    */
   void initDefaultValueWithDefaultHandlerIfNeeded(ActionResolver actionResolver) {
     if (PARAMETER_NAME_EVENT.equals(name)) {
@@ -141,10 +142,9 @@ public class UrlBindingParameter {
 
   @Override
   public boolean equals(Object o) {
-    if (!(o instanceof UrlBindingParameter)) return false;
+    if (!(o instanceof UrlBindingParameter that)) return false;
 
-    UrlBindingParameter that = (UrlBindingParameter) o;
-    return this.value == null ? that.value == null : this.value.equals(that.value);
+    return Objects.equals(this.value, that.value);
   }
 
   @Override

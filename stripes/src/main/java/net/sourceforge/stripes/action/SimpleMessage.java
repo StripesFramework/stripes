@@ -14,9 +14,11 @@
  */
 package net.sourceforge.stripes.action;
 
+import java.io.Serial;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Locale;
+import java.util.Objects;
 
 /**
  * A simple non-error message that uses the String supplied to it as the message (i.e. it does not
@@ -42,7 +44,7 @@ import java.util.Locale;
  * @see java.text.MessageFormat
  */
 public class SimpleMessage implements Message {
-  private static final long serialVersionUID = 1L;
+  @Serial private static final long serialVersionUID = 1L;
 
   private String message;
 
@@ -51,7 +53,7 @@ public class SimpleMessage implements Message {
    * template. Note that position 0 is reserved for the field name and position 1 is reserved for
    * the field value.
    */
-  private Object[] replacementParameters;
+  private final Object[] replacementParameters;
 
   /**
    * Constructs a message with the supplied message string and zero or more parameters to be merged
@@ -60,7 +62,7 @@ public class SimpleMessage implements Message {
    *
    * @param message the String message to display to the user, optionally with placeholders for
    *     replacement parameters
-   * @param parameters
+   * @param parameters Message parameters to be merged into the message
    */
   public SimpleMessage(String message, Object... parameters) {
     this.replacementParameters = parameters;
@@ -80,7 +82,7 @@ public class SimpleMessage implements Message {
   /**
    * Uses the String message passed in as the message template and combines it with any replacement
    * parameters provided to construct a message for display to the user. Although SimpleMessage does
-   * not localize it's message string, any formatters invoked as a result of using replacement
+   * not localize its message string, any formatters invoked as a result of using replacement
    * parameters will be in the correct locale.
    *
    * @param locale the locale of the current request
@@ -144,14 +146,10 @@ public class SimpleMessage implements Message {
 
     final SimpleMessage that = (SimpleMessage) o;
 
-    if (message != null ? !message.equals(that.message) : that.message != null) {
+    if (!Objects.equals(message, that.message)) {
       return false;
     }
-    if (!Arrays.equals(replacementParameters, that.replacementParameters)) {
-      return false;
-    }
-
-    return true;
+    return Arrays.equals(replacementParameters, that.replacementParameters);
   }
 
   /** Generated hash code method. */

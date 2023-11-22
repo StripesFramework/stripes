@@ -44,7 +44,7 @@ import net.sourceforge.stripes.util.Log;
  * extraneous packages at the front of the name, removing the strings "Action" and "Bean" from the
  * end of the name, substituting slashes for periods and appending a suffix (.action by default).
  * The set of packages that are trimmed is specified by the {@code getBasePackages()} method. By
- * default this method returns the set [web, www, stripes, action]. These packages (and their
+ * default, this method returns the set [web, www, stripes, action]. These packages (and their
  * parents) are removed from the class name. E.g. {@code com.myco.web.foo.BarActionBean} would
  * become {@code foo.BarActionBean}. Continuing on, the list of Action Bean suffixes, specified by
  * the {@code getActionBeanSuffixes()} method, are trimmed from the end of the Action Bean class
@@ -57,12 +57,12 @@ import net.sourceforge.stripes.util.Log;
  * getBasePackages()} and/or {@code getBindingSuffix()}, or completely customize the behaviour by
  * overriding {@code getUrlBinding(String)}.
  *
- * <p>Mapping of method names to event names is simpler. Again the parent class is delegated to in
- * case the method is annotated. If it is not, and the method is a concrete public method that
+ * <p>Mapping of method names to event names is simpler. Again, the parent class is delegated to in
+ * case the method has an annotation. If it is not, and the method is a concrete public method that
  * returns a Resolution (or subclass thereof) it is mapped to an event of the same name as the
  * method. So an un-annotated method "{@code public Resolution view()}" is mapped to an event called
  * "view". It should be noted that there is no special method name that signifies the default
- * handler. If there is more than one handler and you require a default handler you must still mark
+ * handler. If there is more than one handler, and you require a default handler you must still mark
  * the default method with {@code @DefaultHandler}.
  *
  * <p>Another useful feature of the NameBasedActionResolver is that when a request arrives for a URL
@@ -82,8 +82,8 @@ import net.sourceforge.stripes.util.Log;
  * </ul>
  *
  * <p>The value of this approach comes from the fact that by default all pages can appear to have a
- * pre-action whether they actually have one or not. In the above can you might chose to link to
- * {@code /account/ViewAccount.action} even though you know that no action exists and you want to
+ * pre-action whether they actually have one or not. In the above can you might choose to link to
+ * {@code /account/ViewAccount.action} even though you know that no action exists, and you want to
  * navigate directly to a page. This way, if you later decide you do need a pre-action for any
  * reason you can simply code the ActionBean and be done. No URLs or links need to be modified and
  * all requests to {@code /account/ViewAccount.action} will flow through the ActionBean.
@@ -186,8 +186,8 @@ public class NameBasedActionResolver extends AnnotatedClassActionResolver {
 
   /**
    * Returns a set of package names (fully qualified or not) that should be removed from the start
-   * of a classname before translating the name into a URL Binding. By default returns "web", "www",
-   * "stripes" and "action".
+   * of a classname before translating the name into a URL Binding. By default, returns "web",
+   * "www", "stripes" and "action".
    *
    * @return a non-null set of String package names.
    */
@@ -327,7 +327,7 @@ public class NameBasedActionResolver extends AnnotatedClassActionResolver {
         if (ctx.getResource(jsp) != null) {
           return new ForwardResolution(jsp);
         }
-      } catch (MalformedURLException mue) {
+      } catch (MalformedURLException ignored) {
       }
     }
     return null;
@@ -351,7 +351,7 @@ public class NameBasedActionResolver extends AnnotatedClassActionResolver {
    * @since Stripes 1.5
    */
   protected List<String> getFindViewAttempts(String urlBinding) {
-    List<String> attempts = new ArrayList<String>(3);
+    List<String> attempts = new ArrayList<>(3);
 
     int lastPeriod = urlBinding.lastIndexOf('.');
     String path = urlBinding.substring(0, urlBinding.lastIndexOf("/") + 1);
@@ -360,7 +360,7 @@ public class NameBasedActionResolver extends AnnotatedClassActionResolver {
             ? urlBinding.substring(path.length(), lastPeriod)
             : urlBinding.substring(path.length());
 
-    if (name.length() > 0) {
+    if (!name.isEmpty()) {
       // This will try /account/ViewAccount.jsp
       attempts.add(path + name + ".jsp");
 
@@ -379,7 +379,7 @@ public class NameBasedActionResolver extends AnnotatedClassActionResolver {
           builder.append(ch);
         }
       }
-      attempts.add(path + builder.toString() + ".jsp");
+      attempts.add(path + builder + ".jsp");
     }
 
     return attempts;
@@ -387,7 +387,7 @@ public class NameBasedActionResolver extends AnnotatedClassActionResolver {
 
   /**
    * In addition to the {@link net.sourceforge.stripes.action.ActionBean} class simple name, also
-   * add aliases for short hand names. For instance, ManageUsersActionBean would get:
+   * add aliases for shorthand names. For instance, ManageUsersActionBean would get:
    *
    * <ul>
    *   <li>ManageUsersActionBean (simple name)
@@ -399,8 +399,8 @@ public class NameBasedActionResolver extends AnnotatedClassActionResolver {
   protected void addBeanNameMappings() {
     super.addBeanNameMappings();
 
-    Set<String> generatedAliases = new HashSet<String>();
-    Set<String> duplicateAliases = new HashSet<String>();
+    Set<String> generatedAliases = new HashSet<>();
+    Set<String> duplicateAliases = new HashSet<>();
     for (Class<? extends ActionBean> clazz : getActionBeanClasses()) {
       String name = clazz.getSimpleName();
       for (String suffix : getActionBeanSuffixes()) {

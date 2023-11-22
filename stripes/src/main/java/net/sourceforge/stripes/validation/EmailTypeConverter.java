@@ -44,7 +44,7 @@ import java.util.Locale;
 public class EmailTypeConverter implements TypeConverter<String> {
   /** Accepts the Locale provided, but does nothing with it since emails are Locale-less. */
   public void setLocale(Locale locale) {
-    /** Doesn't matter for email. */
+    /* Doesn't matter for email. */
   }
 
   /**

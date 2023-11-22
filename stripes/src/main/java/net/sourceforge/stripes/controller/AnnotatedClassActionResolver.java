@@ -15,6 +15,7 @@
 package net.sourceforge.stripes.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
+import java.io.Serial;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -58,7 +59,7 @@ import net.sourceforge.stripes.util.StringUtil;
  */
 public class AnnotatedClassActionResolver implements ActionResolver {
   /**
-   * Configuration key used to lookup a comma-separated list of package names. The packages (and
+   * Configuration key used to look up a comma-separated list of package names. The packages (and
    * their sub-packages) will be scanned for implementations of ActionBean.
    *
    * @since Stripes 1.5
@@ -75,19 +76,19 @@ public class AnnotatedClassActionResolver implements ActionResolver {
   private Configuration configuration;
 
   /** Parses {@link UrlBinding} values and maps request URLs to {@link ActionBean}s. */
-  private UrlBindingFactory urlBindingFactory = new UrlBindingFactory();
+  private final UrlBindingFactory urlBindingFactory = new UrlBindingFactory();
 
   /** Maps action bean classes simple name -> action bean class */
   protected final Map<String, Class<? extends ActionBean>> actionBeansByName =
-      new ConcurrentHashMap<String, Class<? extends ActionBean>>();
+      new ConcurrentHashMap<>();
 
   /**
    * Map used to resolve the methods handling events within form beans. Maps the class representing
    * a subclass of ActionBean to a Map of event names to Method objects.
    */
-  private Map<Class<? extends ActionBean>, Map<String, Method>> eventMappings =
-      new HashMap<Class<? extends ActionBean>, Map<String, Method>>() {
-        private static final long serialVersionUID = 1L;
+  private final Map<Class<? extends ActionBean>, Map<String, Method>> eventMappings =
+      new HashMap<>() {
+        @Serial private static final long serialVersionUID = 1L;
 
         @Override
         public Map<String, Method> get(Object key) {
@@ -115,7 +116,7 @@ public class AnnotatedClassActionResolver implements ActionResolver {
   }
 
   protected void addBeanNameMappings() {
-    Set<String> foundBeanNames = new HashSet<String>();
+    Set<String> foundBeanNames = new HashSet<>();
     for (Class<? extends ActionBean> clazz : getActionBeanClasses()) {
       if (foundBeanNames.contains(clazz.getSimpleName())) {
         log.warn(
@@ -157,7 +158,7 @@ public class AnnotatedClassActionResolver implements ActionResolver {
     }
 
     // Construct the mapping of event->method for the class
-    Map<String, Method> classMappings = new HashMap<String, Method>();
+    Map<String, Method> classMappings = new HashMap<>();
     processMethods(clazz, classMappings);
 
     // Put the event->method mapping for the class into the set of mappings
@@ -277,7 +278,7 @@ public class AnnotatedClassActionResolver implements ActionResolver {
 
   /**
    * Responsible for determining the name of the event handled by this method, if indeed it handles
-   * one at all. By default looks for the HandlesEvent annotations and returns it's value if
+   * one at all. By default, looks for the HandlesEvent annotations and returns its value if
    * present.
    *
    * @param handler a method that might or might not be a handler method
@@ -365,10 +366,8 @@ public class AnnotatedClassActionResolver implements ActionResolver {
 
       setActionBeanContext(bean, context);
     } catch (Exception e) {
-      StripesServletException sse =
-          new StripesServletException(
-              "Could not create instance of ActionBean type [" + beanClass.getName() + "].", e);
-      throw sse;
+      throw new StripesServletException(
+          "Could not create instance of ActionBean type [" + beanClass.getName() + "].", e);
     }
 
     assertGetContextWorks(bean);
@@ -424,10 +423,9 @@ public class AnnotatedClassActionResolver implements ActionResolver {
    * @param type the type of ActionBean to create
    * @param context the current ActionBeanContext
    * @return the new ActionBean instance
-   * @throws Exception if anything goes wrong!
    */
   protected ActionBean makeNewActionBean(
-      Class<? extends ActionBean> type, ActionBeanContext context) throws Exception {
+      Class<? extends ActionBean> type, ActionBeanContext context) {
 
     return getConfiguration().getObjectFactory().newInstance(type);
   }
@@ -454,7 +452,7 @@ public class AnnotatedClassActionResolver implements ActionResolver {
    * matches an event name.
    *
    * @param bean the ActionBean type bound to the request
-   * @param context the ActionBeanContect for the current request
+   * @param context the ActionBeanContext for the current request
    * @return String the name of the event submitted, or null if none can be found
    */
   public String getEventName(Class<? extends ActionBean> bean, ActionBeanContext context) {
@@ -471,7 +469,7 @@ public class AnnotatedClassActionResolver implements ActionResolver {
    * determine which event to fire.
    *
    * @param bean the ActionBean type bound to the request
-   * @param context the ActionBeanContect for the current request
+   * @param context the ActionBeanContext for the current request
    * @return the name of the event submitted, or null if none can be found
    * @see StripesConstants#REQ_ATTR_EVENT_NAME
    */
@@ -489,11 +487,10 @@ public class AnnotatedClassActionResolver implements ActionResolver {
    * @param context the ActionBeanContext for the current request
    * @return String the name of the event submitted, or null if none can be found
    */
-  @SuppressWarnings("unchecked")
   protected String getEventNameFromRequestParams(
       Class<? extends ActionBean> bean, ActionBeanContext context) {
 
-    List<String> eventParams = new ArrayList<String>();
+    List<String> eventParams = new ArrayList<>();
     Map<String, String[]> parameterMap = context.getRequest().getParameterMap();
     for (String event : this.eventMappings.get(bean).keySet()) {
       if (parameterMap.containsKey(event) || parameterMap.containsKey(event + ".x")) {
@@ -501,7 +498,7 @@ public class AnnotatedClassActionResolver implements ActionResolver {
       }
     }
 
-    if (eventParams.size() == 0) {
+    if (eventParams.isEmpty()) {
       return null;
     } else if (eventParams.size() == 1) {
       return eventParams.get(0);
@@ -521,7 +518,7 @@ public class AnnotatedClassActionResolver implements ActionResolver {
    * bean, that event name will be returned, otherwise null.
    *
    * @param bean the ActionBean type bound to the request
-   * @param context the ActionBeanContect for the current request
+   * @param context the ActionBeanContext for the current request
    * @return String the name of the event submitted, or null if none can be found
    */
   protected String getEventNameFromPath(
@@ -549,7 +546,7 @@ public class AnnotatedClassActionResolver implements ActionResolver {
    * returned, otherwise returns null.
    *
    * @param bean the ActionBean type bound to the request
-   * @param context the ActionBeanContect for the current request
+   * @param context the ActionBeanContext for the current request
    * @return String the name of the event submitted, or null if none can be found
    */
   protected String getEventNameFromEventNameParam(
@@ -666,9 +663,9 @@ public class AnnotatedClassActionResolver implements ActionResolver {
               + "subpackages are examined for implementations of ActionBean.");
     }
 
-    String[] pkgs = StringUtil.standardSplit(packages);
-    ResolverUtil<ActionBean> resolver = new ResolverUtil<ActionBean>();
-    resolver.findImplementations(ActionBean.class, pkgs);
+    String[] strPackages = StringUtil.standardSplit(packages);
+    ResolverUtil<ActionBean> resolver = new ResolverUtil<>();
+    resolver.findImplementations(ActionBean.class, strPackages);
     return resolver.getClasses();
   }
 

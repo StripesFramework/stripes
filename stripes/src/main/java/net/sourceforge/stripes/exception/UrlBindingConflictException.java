@@ -14,6 +14,7 @@
  */
 package net.sourceforge.stripes.exception;
 
+import java.io.Serial;
 import java.util.Collection;
 import net.sourceforge.stripes.action.ActionBean;
 
@@ -31,7 +32,7 @@ import net.sourceforge.stripes.action.ActionBean;
  * @since Stripes 1.5.1
  */
 public class UrlBindingConflictException extends StripesRuntimeException {
-  private static final long serialVersionUID = 1L;
+  @Serial private static final long serialVersionUID = 1L;
 
   /** Generate the message to pass to the superclass constructor */
   protected static String getMessage(
@@ -50,9 +51,9 @@ public class UrlBindingConflictException extends StripesRuntimeException {
         + "information in the URL to achieve the same end.";
   }
 
-  private String path;
-  private Collection<String> matches;
-  private Class<? extends ActionBean> targetClass;
+  private final String path;
+  private final Collection<String> matches;
+  private final Class<? extends ActionBean> targetClass;
 
   /**
    * New exception indicating that the {@code path} does not map to a single ActionBean because it

@@ -197,13 +197,14 @@ public class LayoutComponentTag extends LayoutTag {
             context.getOut().setSilent(false, pageContext);
             return EVAL_BODY_INCLUDE;
           }
-        } else if (isChildOfComponent()) {
-          /*
-           * This condition cannot be true since component tags do not execute except in
-           * component render phase, thus any component tags embedded with them will not
-           * execute either. I've left this block here just as a placeholder for this
-           * explanation.
-           */
+        }
+        /*
+         * This condition cannot be true since component tags do not execute except in
+         * component render phase, thus any component tags embedded with them will not
+         * execute either. I've left this block here just as a placeholder for this
+         * explanation.
+         */
+        else if (isChildOfComponent()) {
         }
       }
 
@@ -235,7 +236,7 @@ public class LayoutComponentTag extends LayoutTag {
   public int doEndTag() throws JspException {
     try {
       // Set current component name back to null as a signal to the component tag within the
-      // definition tag that the component did, indeed, render and it should not output the
+      // definition tag that the component did, indeed, render, and it should not output the
       // default contents.
       if (isCurrentComponent()) context.setComponent(null);
 

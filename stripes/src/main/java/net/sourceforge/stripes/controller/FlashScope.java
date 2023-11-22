@@ -17,11 +17,11 @@ package net.sourceforge.stripes.controller;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import java.io.Serial;
 import java.lang.reflect.Proxy;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
@@ -39,7 +39,7 @@ import net.sourceforge.stripes.util.Log;
  * then redirects to a JSP to display the outcome. FlashScopes make <i>temporary</i> use of session
  * to store themselves briefly between two requests.
  *
- * <p>In general, use of the FlashScope should be intermediated by the {@link
+ * <p>In general, use of the FlashScope should be mediated by the {@link
  * net.sourceforge.stripes.action.ActionBeanContext}, making it transparent to the rest of the
  * application. Any object that is put into a FlashScope will be immediately exposed in the current
  * request as a request attribute, and under certain conditions will also be exposed in the
@@ -78,7 +78,7 @@ import net.sourceforge.stripes.util.Log;
  * @since Stripes 1.2
  */
 public class FlashScope extends HashMap<String, Object> {
-  private static final long serialVersionUID = 1L;
+  @Serial private static final long serialVersionUID = 1L;
 
   /** The default timeout for a flash scope. */
   public static final int DEFAULT_TIMEOUT_IN_SECONDS = 120;
@@ -88,8 +88,8 @@ public class FlashScope extends HashMap<String, Object> {
   private long startTime;
   private int timeout = DEFAULT_TIMEOUT_IN_SECONDS;
   private transient HttpServletRequest request;
-  private Integer key;
-  private Semaphore semaphore;
+  private final Integer key;
+  private final Semaphore semaphore;
 
   /**
    * Protected constructor to prevent random creation of FlashScopes. Uses the request to generate a
@@ -131,7 +131,7 @@ public class FlashScope extends HashMap<String, Object> {
   /**
    * Used by the StripesFilter to notify the flash scope that the request for which it is used has
    * been completed. The FlashScope uses this notification to start a timer, and also to null out
-   * it's reference to the request so that it can be garbage collected.
+   * its reference to the request so that it can be garbage collected.
    *
    * <p>The timer is used to determine if a flash scope has been orphaned (i.e. the subsequent
    * request was not made) after a period of time, so that it can be removed from session.
@@ -140,12 +140,7 @@ public class FlashScope extends HashMap<String, Object> {
     // Clean up any old-age flash scopes
     Map<Integer, FlashScope> scopes = getContainer(request, false);
     if (scopes != null && !scopes.isEmpty()) {
-      Iterator<FlashScope> iterator = scopes.values().iterator();
-      while (iterator.hasNext()) {
-        if (iterator.next().isExpired()) {
-          iterator.remove();
-        }
-      }
+      scopes.values().removeIf(FlashScope::isExpired);
     }
 
     // Replace the request and response objects for the request cycle that is ending
@@ -175,16 +170,16 @@ public class FlashScope extends HashMap<String, Object> {
 
   /**
    * Called by {@link StripesFilter} to copy all the attributes from this flash scope to the given
-   * {@code request}. {@link #beginRequest(HttpServletRequest)} must never be called before {@link
-   * #completeRequest()} is called. Since the two methods are normally called by different threads,
-   * synchronization of the calls is accomplished through use of a {@link Semaphore}.
+   * {@code request}. This method must never be called before {@link #completeRequest()} is called.
+   * Since the two methods are normally called by different threads, synchronization of the calls is
+   * accomplished through use of a {@link Semaphore}.
    *
    * @param request The request to copy the flash scope attributes to
    */
   public void beginRequest(HttpServletRequest request) {
     boolean acquired = false;
     try {
-      // Acquire the permit from the semaphore with a 1 second timeout for safety
+      // Acquire the permit from the semaphore with a 1-second timeout for safety
       acquired = getSemaphore().tryAcquire(1, TimeUnit.SECONDS);
 
       // If no permit was acquired, then that's bad so log it as an error
@@ -205,10 +200,8 @@ public class FlashScope extends HashMap<String, Object> {
           HttpServletRequest tmp = ((ActionBean) value).getContext().getRequest();
           if (tmp != null) {
             tmp = StripesRequestWrapper.findStripesWrapper(tmp);
-            if (tmp != null) {
-              tmp = (HttpServletRequest) ((StripesRequestWrapper) tmp).getRequest();
-              if (tmp instanceof FlashRequest) ((FlashRequest) tmp).setDelegate(request);
-            }
+            tmp = (HttpServletRequest) ((StripesRequestWrapper) tmp).getRequest();
+            if (tmp instanceof FlashRequest) ((FlashRequest) tmp).setDelegate(request);
           }
         }
         request.setAttribute(entry.getKey(), value);
@@ -234,7 +227,7 @@ public class FlashScope extends HashMap<String, Object> {
   }
 
   /**
-   * Returns true if the flash scope has expired and should be dereferenced to allow garbage
+   * Returns true if the flash scope has expired and should be de-referenced to allow garbage
    * collection. Returns false if the flash scope should be retained.
    *
    * @return true if the flash scope has expired, false otherwise
@@ -244,7 +237,7 @@ public class FlashScope extends HashMap<String, Object> {
   }
 
   /**
-   * Stores the provided value <b>both</b> in the flash scope a under the specified name, and in a
+   * Stores the provided value <b>both</b> in the flash scope and under the specified name, and in a
    * request attribute with the specified name. Allows flash scope attributes to be accessed
    * seamlessly as request attributes during both the current request and the subsequent request.
    *
@@ -297,9 +290,9 @@ public class FlashScope extends HashMap<String, Object> {
   /**
    * Fetch the flash scope that was populated during the previous request, if one exists. This is
    * only really intended for use by the StripesFilter and things which extend it, in order to grab
-   * a flash scope for a previous request and empty it's contents into request attributes.
+   * a flash scope for a previous request and empty its contents into request attributes.
    *
-   * <p>NOTE: calling this method has the side-affect of removing the flash scope from the set of
+   * <p>NOTE: calling this method has the side effect of removing the flash scope from the set of
    * managed flash scopes!
    *
    * @param req the current request
@@ -382,7 +375,7 @@ public class FlashScope extends HashMap<String, Object> {
 
             // if still not there, then create and save it
             if (scopes == null) {
-              scopes = new ConcurrentHashMap<Integer, FlashScope>();
+              scopes = new ConcurrentHashMap<>();
               session.setAttribute(StripesConstants.REQ_ATTR_FLASH_SCOPE_LOCATION, scopes);
             }
           }
@@ -406,7 +399,7 @@ public class FlashScope extends HashMap<String, Object> {
    * Internal helper method to retrieve the container for all the flash scopes. Will return null if
    * the container does not exist.
    *
-   * @param session
+   * @param session HTTP session
    * @return a Map of integer keys to FlashScope objects
    * @throws IllegalStateException if the session has been invalidated
    */

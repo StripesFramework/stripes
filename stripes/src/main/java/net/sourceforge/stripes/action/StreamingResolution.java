@@ -70,7 +70,7 @@ public class StreamingResolution implements Resolution {
   private InputStream inputStream;
   private Reader reader;
   private String filename;
-  private String contentType;
+  private final String contentType;
   private String characterEncoding;
   private long lastModified = -1;
   private long length = -1;
@@ -80,7 +80,7 @@ public class StreamingResolution implements Resolution {
 
   /**
    * Constructor only to be used when subclassing the StreamingResolution (usually using an
-   * anonymous inner class. If this constructor is used, and stream() is not overridden then an
+   * anonymous inner class). If this constructor is used, and stream() is not overridden then an
    * exception will be thrown!
    *
    * @param contentType the content type of the data in the stream (e.g. image/png)
@@ -325,12 +325,14 @@ public class StreamingResolution implements Resolution {
    */
   protected List<Range<Long>> parseRangeHeader(String value) {
     Iterator<Range<Long>> i;
-    String byteRangesSpecifier[], bytesUnit, byteRangeSet[];
+    String[] byteRangesSpecifier;
+    String bytesUnit;
+    String[] byteRangeSet;
     List<Range<Long>> res;
     long lastEnd = -1;
 
     if (value == null) return null;
-    res = new ArrayList<Range<Long>>();
+    res = new ArrayList<>();
     // Parse prelude
     byteRangesSpecifier = value.split("=");
     if (byteRangesSpecifier.length != 2) return null;
@@ -344,8 +346,8 @@ public class StreamingResolution implements Resolution {
 
       bytePos = byteRangeSpec.split("-", -1);
       try {
-        if (bytePos[0].trim().length() > 0) firstBytePos = Long.valueOf(bytePos[0].trim());
-        if (bytePos[1].trim().length() > 0) lastBytePos = Long.valueOf(bytePos[1].trim());
+        if (!bytePos[0].trim().isEmpty()) firstBytePos = Long.valueOf(bytePos[0].trim());
+        if (!bytePos[1].trim().isEmpty()) lastBytePos = Long.valueOf(bytePos[1].trim());
       } catch (NumberFormatException e) {
         log.warn("Unable to parse Range header", e);
       }
@@ -360,7 +362,7 @@ public class StreamingResolution implements Resolution {
       if (firstBytePos > lastBytePos) return null;
       if (firstBytePos < 0) return null;
       if (lastBytePos >= length) return null;
-      res.add(new Range<Long>(firstBytePos, lastBytePos));
+      res.add(new Range<>(firstBytePos, lastBytePos));
     }
     // Sort byte ranges
     Collections.sort(res);
@@ -398,8 +400,9 @@ public class StreamingResolution implements Resolution {
    *     obtained
    * @throws Exception if any problems arise when streaming data
    */
+  @SuppressWarnings("ResultOfMethodCallIgnored")
   protected void stream(HttpServletResponse response) throws Exception {
-    int length = 0;
+    int length;
     if (this.reader != null) {
       char[] buffer = new char[512];
       try {

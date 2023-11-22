@@ -54,7 +54,7 @@ public class LayoutDefinitionTag extends LayoutTag {
   }
 
   /**
-   * Looks up the layout context that has been setup by a {@link LayoutRenderTag}. Uses the context
+   * Looks up the layout context that has been set up by a {@link LayoutRenderTag}. Uses the context
    * to push any dynamic attributes supplied to the render tag in to the page context available
    * during the body of the {@link LayoutDefinitionTag}.
    *

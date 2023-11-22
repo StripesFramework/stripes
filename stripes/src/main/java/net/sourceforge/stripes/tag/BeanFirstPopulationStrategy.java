@@ -29,7 +29,7 @@ import net.sourceforge.stripes.util.bean.ExpressionException;
  * the page next, and finally the value(s) in the request.
  *
  * <p>If the field represented by the tag is determined to be in error (i.e. the ActionBean is
- * present and has validation errors for the matching field) then the repopulation behaviour will
+ * present and has validation errors for the matching field) then the re-population behaviour will
  * revert to the default behaviour of preferring the request parameters.
  *
  * @author Tim Fennell

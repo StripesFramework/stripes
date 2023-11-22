@@ -34,7 +34,7 @@ import java.util.List;
  * @since Stripes 1.1.1
  */
 public class MockFilterChain implements FilterChain {
-  private List<Filter> filters = new ArrayList<Filter>();
+  private final List<Filter> filters = new ArrayList<>();
   private Iterator<Filter> iterator;
   private Servlet servlet;
 

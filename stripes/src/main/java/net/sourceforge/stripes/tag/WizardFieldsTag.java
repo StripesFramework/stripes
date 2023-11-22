@@ -31,10 +31,9 @@ import net.sourceforge.stripes.util.CryptoUtil;
 import net.sourceforge.stripes.util.HtmlUtil;
 
 /**
- * Examines the request and include hidden fields for all parameters that have do not have form
- * fields in the current form. Will include multiple values for parameters that have them. Excludes
- * 'special' parameters like the source page parameter, and the parameter that conveyed the event
- * name.
+ * Examines the request and include hidden fields for all parameters that do not have form fields in
+ * the current form. Will include multiple values for parameters that have them. Excludes 'special'
+ * parameters like the source page parameter, and the parameter that conveyed the event name.
  *
  * <p>Very useful for implementing basic wizard flow without relying on session scoping of
  * ActionBeans, and without having to name all the parameters that should be carried forward in the
@@ -46,8 +45,8 @@ public class WizardFieldsTag extends StripesTagSupport implements TryCatchFinall
   private boolean currentFormOnly = false;
 
   /**
-   * Sets whether or not the parameters should be output only if the form matches the current
-   * request. Defaults to false.
+   * Sets whether the parameters should be output only if the form matches the current request.
+   * Defaults to false.
    */
   public void setCurrentFormOnly(boolean currentFormOnly) {
     this.currentFormOnly = currentFormOnly;
@@ -109,7 +108,7 @@ public class WizardFieldsTag extends StripesTagSupport implements TryCatchFinall
    * Write out a hidden field which contains parameters that should be sent along with the actual
    * form fields.
    */
-  protected void writeWizardFields(FormTag form) throws JspException, StripesJspException {
+  protected void writeWizardFields(FormTag form) throws JspException {
     // Set up a hidden tag to do the writing for us
     InputHiddenTag hidden = new InputHiddenTag();
     hidden.setPageContext(getPageContext());
@@ -130,7 +129,7 @@ public class WizardFieldsTag extends StripesTagSupport implements TryCatchFinall
           hidden.doAfterBody();
           hidden.doEndTag();
         } catch (Throwable t) {
-          /** Catch whatever comes back out of the doCatch() method and deal with it */
+          /* Catch whatever comes back out of the doCatch() method and deal with it */
           try {
             hidden.doCatch(t);
           } catch (Throwable t2) {
@@ -146,13 +145,11 @@ public class WizardFieldsTag extends StripesTagSupport implements TryCatchFinall
   }
 
   /** Returns all the submitted parameters in the current or the former requests. */
-  @SuppressWarnings("unchecked")
   protected Set<String> getParamNames() {
     // Combine actual parameter names with input names from the form, which might not be
     // represented by a real request parameter
-    Set<String> paramNames = new HashSet<String>();
     ServletRequest request = getPageContext().getRequest();
-    paramNames.addAll(request.getParameterMap().keySet());
+    Set<String> paramNames = new HashSet<>(request.getParameterMap().keySet());
     String fieldsPresent = request.getParameter(URL_KEY_FIELDS_PRESENT);
     if (fieldsPresent != null) {
       paramNames.addAll(HtmlUtil.splitValues(CryptoUtil.decrypt(fieldsPresent)));
@@ -162,8 +159,7 @@ public class WizardFieldsTag extends StripesTagSupport implements TryCatchFinall
 
   /** Returns the list of parameters that should be excluded from the hidden tag. */
   protected Set<String> getExcludes(FormTag form) {
-    Set<String> excludes = new HashSet<String>();
-    excludes.addAll(form.getRegisteredFields());
+    Set<String> excludes = new HashSet<>(form.getRegisteredFields());
     excludes.add(StripesConstants.URL_KEY_SOURCE_PAGE);
     excludes.add(StripesConstants.URL_KEY_FIELDS_PRESENT);
     excludes.add(StripesConstants.URL_KEY_EVENT_NAME);

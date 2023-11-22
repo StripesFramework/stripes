@@ -46,7 +46,7 @@ public class InputTextTag extends InputTagSupport implements BodyTag {
     getAttributes().put("type", "text");
   }
 
-  /** Sets the default value of the text field (if no body is present). */
+  /** Sets the default value of the text field (if body content is not present). */
   public void setValue(Object value) {
     this.value = value;
   }
@@ -124,7 +124,7 @@ public class InputTextTag extends InputTagSupport implements BodyTag {
     }
 
     set("maxlength", getEffectiveMaxlength());
-    writeSingletonTag(getPageContext().getOut(), "input");
+    writeSingletonTag(getPageContext().getOut());
 
     // Restore the original state before we mucked with it
     getAttributes().remove("value");

@@ -14,6 +14,7 @@
  */
 package net.sourceforge.stripes.controller;
 
+import java.io.Serial;
 import net.sourceforge.stripes.exception.StripesServletException;
 
 /**
@@ -23,10 +24,10 @@ import net.sourceforge.stripes.exception.StripesServletException;
  * @author Tim Fennell
  */
 public class FileUploadLimitExceededException extends StripesServletException {
-  private static final long serialVersionUID = 1L;
+  @Serial private static final long serialVersionUID = 1L;
 
-  private long maximum;
-  private long posted;
+  private final long maximum;
+  private final long posted;
 
   /**
    * Constructs a new exception that contains the limit that was violated, and the size of the post

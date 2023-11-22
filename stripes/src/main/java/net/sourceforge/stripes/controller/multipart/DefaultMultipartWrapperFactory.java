@@ -14,6 +14,7 @@
  */
 package net.sourceforge.stripes.controller.multipart;
 
+import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
@@ -34,7 +35,7 @@ import net.sourceforge.stripes.util.Log;
  * @since Stripes 1.4
  */
 public class DefaultMultipartWrapperFactory implements MultipartWrapperFactory {
-  /** The configuration key used to lookup the implementation of MultipartWrapper. */
+  /** The configuration key used to look up the implementation of MultipartWrapper. */
   public static final String WRAPPER_CLASS_NAME = "MultipartWrapper.Class";
 
   /** The names of the MultipartWrapper classes that will be tried if no other is specified. */
@@ -42,7 +43,7 @@ public class DefaultMultipartWrapperFactory implements MultipartWrapperFactory {
     "net.sourceforge.stripes.controller.multipart.CommonsMultipartWrapper"
   };
 
-  /** Key used to lookup the name of the maximum post size. */
+  /** Key used to look up the name of the maximum post size. */
   public static final String MAX_POST = "FileUpload.MaximumPostSize";
 
   private static final Log log = Log.getInstance(DefaultMultipartWrapperFactory.class);
@@ -77,7 +78,7 @@ public class DefaultMultipartWrapperFactory implements MultipartWrapperFactory {
             .getClassProperty(WRAPPER_CLASS_NAME, MultipartWrapper.class);
 
     if (this.multipartClass == null) {
-      // It wasn't defined in web.xml so we'll try the bundled MultipartWrappers
+      // It wasn't defined in web.xml, so we'll try the bundled MultipartWrappers
       for (String className : BUNDLED_IMPLEMENTATIONS) {
         try {
           this.multipartClass = ((Class<? extends MultipartWrapper>) Class.forName(className));
@@ -106,7 +107,7 @@ public class DefaultMultipartWrapperFactory implements MultipartWrapperFactory {
     }
 
     // Figure out where the temp directory is, and store that info
-    File tempDir = (File) config.getServletContext().getAttribute("javax.servlet.context.tempdir");
+    File tempDir = (File) config.getServletContext().getAttribute(ServletContext.TEMPDIR);
     if (tempDir != null) {
       this.temporaryDirectory = tempDir;
     } else {
@@ -143,13 +144,13 @@ public class DefaultMultipartWrapperFactory implements MultipartWrapperFactory {
         String suffix = matcher.group(2).toLowerCase();
         long number = Long.parseLong(digits);
 
-        if ("k".equals(suffix)) {
-          number = number * 1024;
-        } else if ("m".equals(suffix)) {
-          number = number * 1024 * 1024;
-        } else if ("g".equals(suffix)) {
-          number = number * 1024 * 1024 * 1024;
-        }
+        number =
+            switch (suffix) {
+              case "k" -> number * 1024;
+              case "m" -> number * 1024 * 1024;
+              case "g" -> number * 1024 * 1024 * 1024;
+              default -> Long.parseLong(digits);
+            };
 
         this.maxPostSizeInBytes = number;
         log.info("Configured file upload post size limit: ", number, " bytes.");
@@ -174,10 +175,8 @@ public class DefaultMultipartWrapperFactory implements MultipartWrapperFactory {
           getConfiguration().getObjectFactory().newInstance(this.multipartClass);
       wrapper.build(request, this.temporaryDirectory, this.maxPostSizeInBytes);
       return wrapper;
-    } catch (IOException ioe) {
+    } catch (IOException | FileUploadLimitExceededException ioe) {
       throw ioe;
-    } catch (FileUploadLimitExceededException fulee) {
-      throw fulee;
     } catch (Exception e) {
       throw new StripesRuntimeException(
           "Could not construct a MultipartWrapper for the current request.", e);

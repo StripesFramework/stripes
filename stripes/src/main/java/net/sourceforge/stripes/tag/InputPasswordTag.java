@@ -29,7 +29,7 @@ import jakarta.servlet.jsp.JspException;
 public class InputPasswordTag extends InputTextTag {
   private boolean repopulate = false;
 
-  /** Sets whether or not the tag will repopulate the value if one is present. */
+  /** Sets whether the tag will repopulate the value if one is present. */
   public void setRepopulate(boolean repopulate) {
     this.repopulate = repopulate;
   }
@@ -64,7 +64,7 @@ public class InputPasswordTag extends InputTextTag {
       }
 
       set("maxlength", getEffectiveMaxlength());
-      writeSingletonTag(getPageContext().getOut(), "input");
+      writeSingletonTag(getPageContext().getOut());
 
       // Restore the original state before we mucked with it
       getAttributes().remove("value");

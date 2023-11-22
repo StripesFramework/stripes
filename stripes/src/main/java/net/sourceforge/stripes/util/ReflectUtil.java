@@ -29,9 +29,9 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -46,7 +46,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
 
 /**
- * Common utilty methods that are useful when working with reflection.
+ * Common utility methods that are useful when working with reflection.
  *
  * @author Tim Fennell
  */
@@ -55,8 +55,8 @@ public class ReflectUtil {
   private static final Log log = Log.getInstance(ReflectUtil.class);
 
   /** A cache of property descriptors by class and property name */
-  private static Map<Class<?>, Map<String, PropertyDescriptor>> propertyDescriptors =
-      new ConcurrentHashMap<Class<?>, Map<String, PropertyDescriptor>>();
+  private static final Map<Class<?>, Map<String, PropertyDescriptor>> propertyDescriptors =
+      new ConcurrentHashMap<>();
 
   /** Static helper class, shouldn't be constructed. */
   private ReflectUtil() {}
@@ -66,14 +66,13 @@ public class ReflectUtil {
    * the interface and will, by default, be instantiated when an instance of the interface is
    * needed.
    */
-  protected static final Map<Class<?>, Class<?>> interfaceImplementations =
-      new HashMap<Class<?>, Class<?>>();
+  protected static final Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<>();
 
   /**
    * Holds a map of primitive type to the default value for that primitive type. Isn't it odd that
    * there's no way to get this programmatically from the Class objects?
    */
-  protected static final Map<Class<?>, Object> primitiveDefaults = new HashMap<Class<?>, Object>();
+  protected static final Map<Class<?>, Object> primitiveDefaults = new HashMap<>();
 
   static {
     interfaceImplementations.put(Collection.class, ArrayList.class);
@@ -104,7 +103,7 @@ public class ReflectUtil {
   /**
    * Utility method used to load a class. Any time that Stripes needs to load of find a class by
    * name it uses this method. As a result any time the classloading strategy needs to change it can
-   * be done in one place! Currently uses {@code
+   * be done in one place! Currently, uses {@code
    * Thread.currentThread().getContextClassLoader().loadClass(String)}.
    *
    * @param name the fully qualified (binary) name of the class to find or load
@@ -124,11 +123,11 @@ public class ReflectUtil {
    * <ul>
    *   <li>Uses the classes simple name instead of it's fully qualified name.
    *   <li>Only outputs attributes that are set to non-default values.
-   *       <p>If, for some unforseen reason, an exception is thrown within this method it will be
+   *       <p>If, for some unforeseen reason, an exception is thrown within this method it will be
    *       caught and the return value will be {@code ann.toString()}.
    *
-   * @param ann the annotation to convert to a human readable String
-   * @return a human readable String form of the annotation and it's attributes
+   * @param ann the annotation to convert to a human-readable String
+   * @return a human-readable String form of the annotation and it's attributes
    */
   public static String toString(Annotation ann) {
     try {
@@ -194,7 +193,7 @@ public class ReflectUtil {
    * @return a collection of methods
    */
   public static Collection<Method> getMethods(Class<?> clazz) {
-    Collection<Method> found = new ArrayList<Method>();
+    Collection<Method> found = new ArrayList<>();
     while (clazz != null) {
       for (Method m1 : clazz.getDeclaredMethods()) {
         boolean overridden = false;
@@ -223,11 +222,9 @@ public class ReflectUtil {
    * @return a collection of fields
    */
   public static Collection<Field> getFields(Class<?> clazz) {
-    List<Field> fields = new ArrayList<Field>();
+    List<Field> fields = new ArrayList<>();
     while (clazz != null) {
-      for (Field field : clazz.getDeclaredFields()) {
-        fields.add(field);
-      }
+      Collections.addAll(fields, clazz.getDeclaredFields());
 
       clazz = clazz.getSuperclass();
     }
@@ -240,7 +237,7 @@ public class ReflectUtil {
    * up a cache is maintained of propertyName to PropertyDescriptor for each class used with this
    * method. If there is no property with the specified name, returns null.
    *
-   * @param clazz the class who's properties to examine
+   * @param clazz the class whose properties to examine
    * @param property the String name of the property to look for
    * @return the PropertyDescriptor or null if none is found with a matching name
    */
@@ -343,11 +340,11 @@ public class ReflectUtil {
    * directly implemented by this class as well as those implemented by superclasses or interface
    * superclasses.
    *
-   * @param clazz
+   * @param clazz the class to examine
    * @return all interfaces implemented by this class
    */
   public static Set<Class<?>> getImplementedInterfaces(Class<?> clazz) {
-    Set<Class<?>> interfaces = new HashSet<Class<?>>();
+    Set<Class<?>> interfaces = new HashSet<>();
 
     if (clazz.isInterface()) interfaces.add(clazz);
 
@@ -369,7 +366,7 @@ public class ReflectUtil {
    * @return an array of Type objects or null
    */
   public static Type[] getActualTypeArguments(Class<?> clazz, Class<?> targetType) {
-    Set<Class<?>> classes = new HashSet<Class<?>>();
+    Set<Class<?>> classes = new HashSet<>();
     classes.add(clazz);
 
     if (targetType.isInterface()) classes.addAll(getImplementedInterfaces(clazz));
@@ -385,8 +382,7 @@ public class ReflectUtil {
           (targetType.isInterface()
               ? search.getGenericInterfaces()
               : new Type[] {search.getGenericSuperclass()})) {
-        if (type instanceof ParameterizedType) {
-          ParameterizedType parameterizedType = (ParameterizedType) type;
+        if (type instanceof ParameterizedType parameterizedType) {
           if (targetType.equals(parameterizedType.getRawType()))
             return parameterizedType.getActualTypeArguments();
         }
@@ -411,13 +407,13 @@ public class ReflectUtil {
     // Look in the cache first
     if (propertyDescriptors.containsKey(clazz)) {
       Collection<PropertyDescriptor> pds = propertyDescriptors.get(clazz).values();
-      return pds.toArray(new PropertyDescriptor[pds.size()]);
+      return pds.toArray(new PropertyDescriptor[0]);
     }
 
     // A subclass that is aware of bridge methods
     class BridgedPropertyDescriptor extends PropertyDescriptor {
       private Method readMethod, writeMethod;
-      private Class<?> propertyType;
+      private final Class<?> propertyType;
 
       public BridgedPropertyDescriptor(PropertyDescriptor pd) throws IntrospectionException {
         super(pd.getName(), pd.getReadMethod(), pd.getWriteMethod());
@@ -454,12 +450,12 @@ public class ReflectUtil {
 
     // Not cached yet. Look it up the normal way.
     try {
-      // Make a copy of the array to avoid poking stuff into Introspector's cache!
+      // Make a copy of the array to avoid poking stuff into the Introspector cache!
       PropertyDescriptor[] pds = Introspector.getBeanInfo(clazz).getPropertyDescriptors();
-      pds = Arrays.asList(pds).toArray(new PropertyDescriptor[pds.length]);
+      pds = pds.clone();
 
       // Make a new local cache entry
-      Map<String, PropertyDescriptor> map = new LinkedHashMap<String, PropertyDescriptor>();
+      Map<String, PropertyDescriptor> map = new LinkedHashMap<>();
 
       // Check each descriptor for bridge methods and handle accordingly
       for (int i = 0; i < pds.length; i++) {
@@ -477,7 +473,7 @@ public class ReflectUtil {
               && pd.getReadMethod().isBridge()) {
             try {
               pd = new PropertyDescriptor(pd.getName(), clazz);
-              log.debug("Working around JVM bug http://bugs.sun.com/view_bug.do?bug_id=6794807");
+              log.debug("Working around JVM bug https://bugs.sun.com/view_bug.do?bug_id=6794807");
             } catch (IntrospectionException e) {
               // This can happen for read-only properties. Ignore it.
             }
@@ -515,9 +511,7 @@ public class ReflectUtil {
     if (getter != null && getter.isBridge()) {
       try {
         getter = getter.getDeclaringClass().getMethod(getter.getName());
-      } catch (SecurityException e) {
-        // Ignore exception and keep whatever was in the property descriptor
-      } catch (NoSuchMethodException e) {
+      } catch (SecurityException | NoSuchMethodException e) {
         // Ignore exception and keep whatever was in the property descriptor
       }
     }
@@ -529,7 +523,7 @@ public class ReflectUtil {
    * Locate and return the bridged write method for a bean property.
    *
    * @param pd The bean property descriptor
-   * @return The bridged method or the property descriptor's write method, if it is not a bridge
+   * @return The bridged method or the PropertyDescriptor's write method, if it is not a bridge
    *     method.
    */
   public static Method resolveBridgedWriteMethod(PropertyDescriptor pd) {
@@ -537,7 +531,7 @@ public class ReflectUtil {
 
     if (setter != null && setter.isBridge()) {
       // Make a list of methods with the same name that take a single parameter
-      List<Method> candidates = new ArrayList<Method>();
+      List<Method> candidates = new ArrayList<>();
       Method[] methods = setter.getDeclaringClass().getMethods();
       for (Method method : methods) {
         if (!method.isBridge()
@@ -554,7 +548,7 @@ public class ReflectUtil {
         log.error("Something has gone awry! I have a bridge to nowhere: ", setter);
       } else {
         // Create a set of all type arguments for all classes declaring the matching methods
-        Set<Type> typeArgs = new HashSet<Type>();
+        Set<Type> typeArgs = new HashSet<>();
         for (Method method : candidates) {
           Class<?> declarer = method.getDeclaringClass();
 
@@ -572,11 +566,8 @@ public class ReflectUtil {
         }
 
         // Now cycle through, collecting only those methods whose return type is a type arg
-        List<Method> primeCandidates = new ArrayList<Method>(candidates);
-        Iterator<Method> iterator = primeCandidates.iterator();
-        while (iterator.hasNext()) {
-          if (!typeArgs.contains(iterator.next().getParameterTypes()[0])) iterator.remove();
-        }
+        List<Method> primeCandidates = new ArrayList<>(candidates);
+        primeCandidates.removeIf(method -> !typeArgs.contains(method.getParameterTypes()[0]));
 
         // If we are left with exactly one match, then go with it
         if (primeCandidates.size() == 1) {

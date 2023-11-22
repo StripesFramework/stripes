@@ -37,7 +37,7 @@ import java.util.Locale;
  * @author Tim Fennell
  */
 public class BooleanTypeConverter implements TypeConverter<Boolean> {
-  private static final Collection<String> truths = new HashSet<String>();
+  private static final Collection<String> truths = new HashSet<>();
 
   static {
     truths.add("true");
@@ -62,21 +62,21 @@ public class BooleanTypeConverter implements TypeConverter<Boolean> {
   public Boolean convert(
       String input, Class<? extends Boolean> targetType, Collection<ValidationError> errors) {
 
-    boolean retval = false;
+    boolean returnValue = false;
 
     for (String truth : truths) {
-      retval = retval || truth.equalsIgnoreCase(input);
+      returnValue = returnValue || truth.equalsIgnoreCase(input);
     }
 
-    if (retval == false) {
+    if (!returnValue) {
       try {
         long number = Long.parseLong(input);
-        retval = (number > 0);
+        returnValue = (number > 0);
       } catch (NumberFormatException nfe) {
         /* Ignore the exception */
       }
     }
 
-    return retval;
+    return returnValue;
   }
 }

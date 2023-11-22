@@ -15,6 +15,7 @@
 package net.sourceforge.stripes.exception;
 
 import jakarta.servlet.ServletException;
+import java.io.Serial;
 
 /**
  * Stripes' implementation of a ServletException that is thrown by Stripes wherever throws clauses
@@ -23,7 +24,7 @@ import jakarta.servlet.ServletException;
  * @author Tim Fennell
  */
 public class StripesServletException extends ServletException {
-  private static final long serialVersionUID = 1L;
+  @Serial private static final long serialVersionUID = 1L;
 
   public StripesServletException(String string) {
     super(string);

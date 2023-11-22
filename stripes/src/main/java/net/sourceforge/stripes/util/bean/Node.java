@@ -17,16 +17,16 @@ package net.sourceforge.stripes.util.bean;
 /**
  * Represents a single node in a {@link PropertyExpression}. Note that Nodes are static and are tied
  * to an expression, <b>not</b> an expression evaluation. Each node stores the original String value
- * of the node as well as a typed value which can also be a String or one of the built in types such
+ * of the node as well as a typed value which can also be a String or one of the built-in types such
  * as Integer, Long, Boolean.
  *
  * @author Tim Fennell
  * @since Stripes 1.4
  */
 public class Node {
-  private String stringValue;
-  private Object typedValue;
-  private boolean bracketed;
+  private final String stringValue;
+  private final Object typedValue;
+  private final boolean bracketed;
   private Node next;
   private Node previous;
 
@@ -42,7 +42,7 @@ public class Node {
    * for the text in this node, not the type of the property/sub-property represented by this node
    * in an evaluation against a specific bean.
    */
-  public Class<? extends Object> getExpresssionNodeType() {
+  public Class<?> getExpresssionNodeType() {
     return typedValue.getClass();
   }
 

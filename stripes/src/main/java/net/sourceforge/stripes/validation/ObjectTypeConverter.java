@@ -29,8 +29,7 @@ public class ObjectTypeConverter implements TypeConverter<Object> {
   public void setLocale(Locale locale) {}
 
   /** Simple returns the input String un-modified in any way. */
-  public Object convert(
-      String input, Class<? extends Object> targetType, Collection<ValidationError> errors) {
+  public Object convert(String input, Class<?> targetType, Collection<ValidationError> errors) {
     return input;
   }
 }

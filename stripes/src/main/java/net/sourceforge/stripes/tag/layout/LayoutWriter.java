@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.LinkedList;
+import java.util.Objects;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
 import net.sourceforge.stripes.util.Log;
 
@@ -41,7 +42,7 @@ public class LayoutWriter extends Writer {
    */
   private static final char TOGGLE = 0;
 
-  private LinkedList<Writer> writers = new LinkedList<Writer>();
+  private final LinkedList<Writer> writers = new LinkedList<>();
   private boolean silent, silentState;
 
   /**
@@ -99,7 +100,7 @@ public class LayoutWriter extends Writer {
   public String closeBuffer(PageContext pageContext) {
     if (getOut() instanceof StringWriter) {
       tryFlush(pageContext);
-      String contents = ((StringWriter) writers.poll()).toString();
+      String contents = Objects.requireNonNull(writers.poll()).toString();
       log.trace("Closed buffer: \"", contents, "\"");
       return contents;
     } else {
@@ -131,7 +132,7 @@ public class LayoutWriter extends Writer {
   /**
    * Calls {@link JspWriter#clear()} on the wrapped JSP writer.
    *
-   * @throws IOException
+   * @throws IOException If an error occurs clearing the writer.
    */
   public void clear() throws IOException {
     Writer out = getOut();
@@ -146,17 +147,15 @@ public class LayoutWriter extends Writer {
   }
 
   @Override
-  public void write(char[] cbuf, int off, int len) throws IOException {
+  public void write(char[] charBuffer, int off, int len) throws IOException {
     for (int i = off, mark = i, n = i + len; i < n; ++i) {
-      switch (cbuf[i]) {
-        case TOGGLE:
-          if (this.silentState) mark = i + 1;
-          else if (i > mark) getOut().write(cbuf, mark, i - mark);
-          this.silentState = !this.silentState;
-          break;
-        default:
-          if (this.silentState) ++mark;
-          else if (i >= mark && i == n - 1) getOut().write(cbuf, mark, i - mark + 1);
+      if (charBuffer[i] == TOGGLE) {
+        if (this.silentState) mark = i + 1;
+        else if (i > mark) getOut().write(charBuffer, mark, i - mark);
+        this.silentState = !this.silentState;
+      } else {
+        if (this.silentState) ++mark;
+        else if (i >= mark && i == n - 1) getOut().write(charBuffer, mark, i - mark + 1);
       }
     }
   }

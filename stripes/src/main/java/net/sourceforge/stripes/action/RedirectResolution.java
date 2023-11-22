@@ -39,8 +39,8 @@ import net.sourceforge.stripes.util.Log;
  *
  * <p>It is also possible to append parameters to the URL to which the user will be redirected. This
  * can be done by manually adding parameters with the addParameter() and addParameters() methods,
- * and by invoking includeRequestParameters() which will cause all of the current request parameters
- * to be included into the URL.
+ * and by invoking includeRequestParameters() which will cause all the current request parameters to
+ * be included into the URL.
  *
  * <p>The redirect type can be switched from a 302 temporary redirect (default) to a 301 permanent
  * redirect using the setPermanent method.
@@ -66,8 +66,8 @@ public class RedirectResolution extends OnwardResolution<RedirectResolution> {
   }
 
   /**
-   * Constructor that allows explicit control over whether or not the context path is prepended to
-   * the URL before redirecting.
+   * Constructor that allows explicit control over whether the context path is prepended to the URL
+   * before redirecting.
    *
    * @param url the URL to which the user's browser should be re-directed.
    * @param prependContext true if the context should be prepended, false otherwise
@@ -118,7 +118,7 @@ public class RedirectResolution extends OnwardResolution<RedirectResolution> {
    * servers cannot handle extremely long URLs, care should be taken when using this method with
    * large form posts.
    *
-   * @param inc whether or not current request parameters should be included in the redirect
+   * @param inc whether current request parameters should be included in the redirect
    * @return RedirectResolution, this resolution so that methods can be chained
    */
   public RedirectResolution includeRequestParameters(boolean inc) {
@@ -135,7 +135,7 @@ public class RedirectResolution extends OnwardResolution<RedirectResolution> {
    */
   public RedirectResolution flash(ActionBean bean) {
     if (this.beans == null) {
-      this.beans = new HashSet<ActionBean>();
+      this.beans = new HashSet<>();
     }
 
     this.beans.add(bean);
@@ -148,7 +148,6 @@ public class RedirectResolution extends OnwardResolution<RedirectResolution> {
    * @throws ServletException thrown when the Servlet container encounters an error
    * @throws IOException thrown when the Servlet container encounters an error
    */
-  @SuppressWarnings("unchecked")
   public void execute(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
 
@@ -161,7 +160,7 @@ public class RedirectResolution extends OnwardResolution<RedirectResolution> {
             public void setStatus(int sc) {}
 
             @Override
-            public void sendRedirect(String location) throws IOException {
+            public void sendRedirect(String location) {
               setHeader("Location", location);
             }
           };
@@ -174,7 +173,9 @@ public class RedirectResolution extends OnwardResolution<RedirectResolution> {
     if (this.beans != null) {
       FlashScope flash = FlashScope.getCurrent(request, true);
       for (ActionBean bean : this.beans) {
-        flash.put(bean);
+        if (flash != null) {
+          flash.put(bean);
+        }
       }
     }
 

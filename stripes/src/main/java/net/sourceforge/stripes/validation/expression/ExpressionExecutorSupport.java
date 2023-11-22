@@ -45,14 +45,14 @@ public abstract class ExpressionExecutorSupport implements ExpressionExecutor {
 
   /**
    * A JSP EL VariableResolver that first attempts to look up the value of the variable as a first
-   * level property on the ActionBean, and if does not exist then delegates to the built in
+   * level property on the ActionBean, and if it does not exist then delegates to the built-in
    * resolver.
    *
    * @author Tim Fennell
    * @since Stripes 1.3
    */
   protected static class BeanVariableResolver implements VariableResolver {
-    private ActionBean bean;
+    private final ActionBean bean;
     private Object currentValue;
 
     /** Constructs a resolver based on the action bean . */
@@ -71,9 +71,8 @@ public abstract class ExpressionExecutorSupport implements ExpressionExecutor {
      *
      * @param property the name of the variable/property being looked for
      * @return the property value or null
-     * @throws jakarta.servlet.jsp.el.ELException
      */
-    public Object resolveVariable(String property) throws ELException {
+    public Object resolveVariable(String property) {
       if (isSelfKeyword(bean, property)) {
         return this.currentValue;
       } else if (StripesConstants.REQ_ATTR_ACTION_BEAN.equals(property)) {

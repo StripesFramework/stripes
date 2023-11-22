@@ -39,7 +39,7 @@ public class NumberTypeConverterSupport {
     // Use the appropriate currency symbol if our locale has a country, otherwise try the dollar
     // sign!
     this.currencySymbol = "$";
-    if (locale.getCountry() != null && !"".equals(locale.getCountry())) {
+    if (locale.getCountry() != null && !locale.getCountry().isEmpty()) {
       try {
         this.currencySymbol = Currency.getInstance(locale).getSymbol(locale);
       } catch (IllegalArgumentException exc) {

@@ -18,6 +18,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.jsp.PageContext;
 import java.io.IOException;
 import java.util.LinkedList;
+import java.util.Objects;
 import net.sourceforge.stripes.controller.StripesConstants;
 import net.sourceforge.stripes.util.Log;
 
@@ -41,7 +42,7 @@ public class LayoutComponentRenderer {
   private static final Log log = Log.getInstance(LayoutComponentRenderer.class);
 
   private LinkedList<PageContext> pageContext;
-  private String component;
+  private final String component;
   private LayoutContext context;
 
   /**
@@ -59,7 +60,7 @@ public class LayoutComponentRenderer {
    */
   public void pushPageContext(PageContext pageContext) {
     if (this.pageContext == null) {
-      this.pageContext = new LinkedList<PageContext>();
+      this.pageContext = new LinkedList<>();
     }
 
     this.pageContext.addFirst(pageContext);
@@ -84,7 +85,7 @@ public class LayoutComponentRenderer {
   /**
    * Write the component to the page context's writer, optionally buffering the output.
    *
-   * @return True if the named component was found and it indicated that it successfully rendered;
+   * @return True if the named component was found, and it indicated that it successfully rendered;
    *     otherwise, false.
    * @throws IOException If thrown by {@link LayoutContext#doInclude(PageContext, String)}
    * @throws ServletException If thrown by {@link LayoutContext#doInclude(PageContext, String)}
@@ -96,7 +97,7 @@ public class LayoutComponentRenderer {
       return false;
     }
 
-    // Grab some values from the current context so they can be restored when we're done
+    // Grab some values from the current context, so they can be restored when we're done
     final LayoutContext savedContext = this.context;
     final LayoutContext currentContext = LayoutContext.lookup(pageContext);
     log.debug("Render component \"", this.component, "\" in ", getCurrentPage());
@@ -174,7 +175,7 @@ public class LayoutComponentRenderer {
         "Component \"",
         this.component,
         "\" evaluated to empty string in context ",
-        currentContext.getRenderPage(),
+        Objects.requireNonNull(currentContext).getRenderPage(),
         " -> ",
         currentContext.getDefinitionPage());
     return false;

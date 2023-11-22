@@ -20,7 +20,7 @@ import net.sourceforge.stripes.config.ConfigurableComponent;
 import net.sourceforge.stripes.controller.FileUploadLimitExceededException;
 
 /**
- * Factory for classes that implement {@link MultipartWrapper}. The factory may chose to always
+ * Factory for classes that implement {@link MultipartWrapper}. The factory may choose to always
  * supply the same kind of wrapper, or vary the implementation request by request as it sees fit.
  *
  * @author Tim Fennell

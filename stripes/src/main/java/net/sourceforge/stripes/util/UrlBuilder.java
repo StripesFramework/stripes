@@ -67,16 +67,16 @@ public class UrlBuilder {
 
     @Override
     public String toString() {
-      return "" + this.name + "=" + this.value;
+      return this.name + "=" + this.value;
     }
   }
 
   private String baseUrl;
   private String anchor;
-  private Locale locale;
+  private final Locale locale;
   private String parameterSeparator;
   private Parameter event;
-  private List<Parameter> parameters = new ArrayList<Parameter>();
+  private final List<Parameter> parameters = new ArrayList<>();
   private String url;
 
   /**
@@ -171,7 +171,7 @@ public class UrlBuilder {
   }
 
   /**
-   * Sets the string that will be used to separate parameters. By default the values is a single
+   * Sets the string that will be used to separate parameters. By default, the values is a single
    * ampersand character. If the URL is to be embedded in a page the value should be set to the XML
    * ampersand entity.
    */
@@ -186,8 +186,8 @@ public class UrlBuilder {
    *
    * <p>If any parameter value passed is a Collection or an Array then this method is called
    * recursively with the contents of the collection or array. As a result you can pass arbitrarily
-   * nested arrays and collections to this method and it will recurse through them adding all scalar
-   * values as parameters to the URL.</p.
+   * nested arrays and collections to this method, and it will recurse through them adding all
+   * scalar values as parameters to the URL.</p.
    *
    * @param name the name of the request parameter being added
    * @param values one or more values for the parameter supplied
@@ -217,12 +217,13 @@ public class UrlBuilder {
    * Appends one or more parameters to the URL. Various assumptions are made about the Map
    * parameter. Firstly, that the keys are all either Strings, or objects that can be safely
    * toString()'d to yield parameter names. Secondly that the values either toString() to form a
-   * single parameter value, or are arrays or collections that contain toString()'able objects.
+   * single parameter value, or are arrays or collections that contain objects with toString()
+   * representations.
    *
    * @param parameters a non-null Map as described above
    */
-  public UrlBuilder addParameters(Map<? extends Object, ? extends Object> parameters) {
-    for (Map.Entry<? extends Object, ? extends Object> parameter : parameters.entrySet()) {
+  public UrlBuilder addParameters(Map<?, ?> parameters) {
+    for (Map.Entry<?, ?> parameter : parameters.entrySet()) {
       String name = parameter.getKey().toString();
       Object valueOrValues = parameter.getValue();
 
@@ -231,7 +232,7 @@ public class UrlBuilder {
       } else if (valueOrValues.getClass().isArray()) {
         addParameter(name, CollectionUtil.asObjectArray(valueOrValues));
       } else if (valueOrValues instanceof Collection<?>) {
-        addParameter(name, (Collection<?>) valueOrValues);
+        addParameter(name, valueOrValues);
       } else {
         addParameter(name, valueOrValues);
       }
@@ -268,7 +269,7 @@ public class UrlBuilder {
   }
 
   /**
-   * Returns the URL composed thus far as a String. All paramter values will have been URL encoded
+   * Returns the URL composed thus far as a String. All parameter values will have been URL encoded
    * and appended to the URL before returning it.
    */
   @Override
@@ -276,7 +277,7 @@ public class UrlBuilder {
     if (url == null) {
       url = build();
     }
-    if (this.anchor != null && this.anchor.length() > 0) {
+    if (this.anchor != null && !this.anchor.isEmpty()) {
       return url + "#" + StringUtil.uriFragmentEncode(this.anchor);
     } else {
       return url;
@@ -353,7 +354,7 @@ public class UrlBuilder {
   /** Build and return the URL */
   protected String build() {
     // special handling for event parameter
-    List<Parameter> parameters = new ArrayList<Parameter>(this.parameters.size() + 1);
+    List<Parameter> parameters = new ArrayList<>(this.parameters.size() + 1);
     if (this.event != null) {
       parameters.add(this.event);
     }
@@ -406,6 +407,7 @@ public class UrlBuilder {
    * @see #UrlBuilder(Locale, Class, boolean)
    * @see #UrlBuilder(Locale, String, boolean)
    */
+  @SuppressWarnings("ClassEscapesDefinedScope")
   protected String getBaseURL(String baseUrl, Collection<Parameter> parameters) {
     ActionResolver resolver = StripesFilter.getConfiguration().getActionResolver();
     if (!(resolver instanceof AnnotatedClassActionResolver)) return baseUrl;
@@ -438,7 +440,7 @@ public class UrlBuilder {
     Map<String, ValidationMetadata> validations = getValidationMetadata();
 
     // map the declared URI parameter names to values
-    Map<String, Parameter> map = new HashMap<String, Parameter>();
+    Map<String, Parameter> map = new HashMap<>();
     for (Parameter p : parameters) {
       if (!map.containsKey(p.name)) map.put(p.name, p);
     }
@@ -450,11 +452,10 @@ public class UrlBuilder {
     for (Object component : binding.getComponents()) {
       if (component instanceof String) {
         nextLiteral = (String) component;
-      } else if (component instanceof UrlBindingParameter) {
+      } else if (component instanceof UrlBindingParameter parameter) {
         boolean ok = false;
 
         // get the value for the parameter, falling back to default value if present
-        UrlBindingParameter parameter = (UrlBindingParameter) component;
         Parameter assigned = map.get(parameter.getName());
         Object value;
         if (assigned != null && (assigned.value != null || assigned.isEvent()))
@@ -469,7 +470,7 @@ public class UrlBuilder {
             formatted = CryptoUtil.encrypt(formatted);
 
           // if after formatting we still have a value then embed it in the URI
-          if (formatted != null && formatted.length() > 0) {
+          if (formatted != null && !formatted.isEmpty()) {
             if (nextLiteral != null) {
               buf.append(nextLiteral);
             }
@@ -503,8 +504,7 @@ public class UrlBuilder {
       UrlBindingConflictException tmp =
           new UrlBindingConflictException(binding.getBeanType(), e.getPath(), e.getMatches());
       tmp.setStackTrace(e.getStackTrace());
-      e = tmp;
-      throw e;
+      throw tmp;
     }
     return url;
   }

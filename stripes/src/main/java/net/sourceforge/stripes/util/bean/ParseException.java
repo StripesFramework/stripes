@@ -14,6 +14,8 @@
  */
 package net.sourceforge.stripes.util.bean;
 
+import java.io.Serial;
+
 /**
  * Exception used to designate that an expression was invalid and could not be parsed. The exception
  * will contain the offending expression (accessible via getExpression()) as well as a String
@@ -23,9 +25,9 @@ package net.sourceforge.stripes.util.bean;
  * @since Stripes 1.4
  */
 public class ParseException extends ExpressionException {
-  private static final long serialVersionUID = 1L;
+  @Serial private static final long serialVersionUID = 1L;
 
-  private String expression;
+  private final String expression;
 
   /** Constructs an exception with the supplied expression and message. */
   public ParseException(String expression, String message) {

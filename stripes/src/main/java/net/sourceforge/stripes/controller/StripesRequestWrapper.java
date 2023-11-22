@@ -28,6 +28,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.Stack;
 import net.sourceforge.stripes.action.FileBean;
@@ -51,10 +52,10 @@ public class StripesRequestWrapper extends HttpServletRequestWrapper {
   private Locale locale;
 
   /** Local copy of the parameter map, into which URI-embedded parameters will be merged. */
-  private MergedParameterMap parameterMap;
+  private final MergedParameterMap parameterMap;
 
   /**
-   * Looks for the StripesRequesetWrapper for the specific request and returns it. This is done by
+   * Looks for the StripesRequestWrapper for the specific request and returns it. This is done by
    * checking to see if the request is a StripesRequestWrapper, and if not, successively unwrapping
    * the request until the StripesRequestWrapper is found.
    *
@@ -65,7 +66,6 @@ public class StripesRequestWrapper extends HttpServletRequestWrapper {
   public static StripesRequestWrapper findStripesWrapper(ServletRequest request) {
     // Loop through any request wrappers looking for the stripes one
     while (!(request instanceof StripesRequestWrapper)
-        && request != null
         && request instanceof HttpServletRequestWrapper) {
       request = ((HttpServletRequestWrapper) request).getRequest();
     }
@@ -85,9 +85,9 @@ public class StripesRequestWrapper extends HttpServletRequestWrapper {
   }
 
   /**
-   * Constructor that will, if the POST is multi-part, parse the POST data and make it available
-   * through the normal channels. If the request is not a multi-part post then it is just wrapped
-   * and the behaviour is unchanged.
+   * Constructor that will, if the POST is multipart, parse the POST data and make it available
+   * through the normal channels. If the request is not a multipart post then it is just wrapped and
+   * the behaviour is unchanged.
    *
    * @param request the HttpServletRequest to wrap this is not a file size limit, but a post size
    *     limit.
@@ -183,6 +183,7 @@ public class StripesRequestWrapper extends HttpServletRequestWrapper {
    * If the request is a clean URL, then extract the parameters from the URI and merge with the
    * parameters from the query string and/or request body.
    */
+  @SuppressWarnings("ClassEscapesDefinedScope")
   @Override
   public MergedParameterMap getParameterMap() {
     return this.parameterMap;
@@ -222,7 +223,7 @@ public class StripesRequestWrapper extends HttpServletRequestWrapper {
    */
   @Override
   public Enumeration<Locale> getLocales() {
-    List<Locale> list = new ArrayList<Locale>();
+    List<Locale> list = new ArrayList<>();
     list.add(this.locale);
     return Collections.enumeration(list);
   }
@@ -270,7 +271,7 @@ public class StripesRequestWrapper extends HttpServletRequestWrapper {
  */
 class MergedParameterMap implements Map<String, String[]> {
   class Entry implements Map.Entry<String, String[]> {
-    private String key;
+    private final String key;
 
     Entry(String key) {
       this.key = key;
@@ -289,9 +290,11 @@ class MergedParameterMap implements Map<String, String[]> {
     }
 
     @Override
-    public boolean equals(Object obj) {
-      Entry that = (Entry) obj;
-      return this.key == that.key;
+    public boolean equals(Object o) {
+      if (this == o) return true;
+      if (o == null || getClass() != o.getClass()) return false;
+      Entry entry = (Entry) o;
+      return Objects.equals(key, entry.key);
     }
 
     @Override
@@ -301,11 +304,11 @@ class MergedParameterMap implements Map<String, String[]> {
 
     @Override
     public String toString() {
-      return "" + key + "=" + Arrays.deepToString(getValue());
+      return key + "=" + Arrays.deepToString(getValue());
     }
   }
 
-  private HttpServletRequestWrapper request;
+  private final HttpServletRequestWrapper request;
   private Map<String, String[]> uriParams;
   private Stack<Map<String, String[]>> uriParamStack;
 
@@ -330,7 +333,7 @@ class MergedParameterMap implements Map<String, String[]> {
     Map<String, String[]> multipartParams = null;
     Enumeration<?> names = multipart.getParameterNames();
     if (names != null && names.hasMoreElements()) {
-      multipartParams = new LinkedHashMap<String, String[]>();
+      multipartParams = new LinkedHashMap<>();
       while (names.hasMoreElements()) {
         String name = (String) names.nextElement();
         multipartParams.put(name, multipart.getParameterValues(name));
@@ -358,7 +361,7 @@ class MergedParameterMap implements Map<String, String[]> {
   }
 
   public Set<Map.Entry<String, String[]>> entrySet() {
-    Set<Map.Entry<String, String[]>> entries = new LinkedHashSet<Map.Entry<String, String[]>>();
+    Set<Map.Entry<String, String[]>> entries = new LinkedHashSet<>();
     for (String key : keySet()) {
       entries.add(new Entry(key));
     }
@@ -375,7 +378,7 @@ class MergedParameterMap implements Map<String, String[]> {
   }
 
   public Set<String> keySet() {
-    Set<String> merged = new LinkedHashSet<String>();
+    Set<String> merged = new LinkedHashSet<>();
     merged.addAll(uriParams.keySet());
     merged.addAll(getParameterMap().keySet());
     return merged;
@@ -399,7 +402,7 @@ class MergedParameterMap implements Map<String, String[]> {
 
   public Collection<String[]> values() {
     Set<String> keys = keySet();
-    List<String[]> merged = new ArrayList<String[]>(keys.size());
+    List<String[]> merged = new ArrayList<>(keys.size());
     for (String key : keys) {
       merged.add(mergeParameters(getParameterMap().get(key), uriParams.get(key)));
     }
@@ -420,7 +423,6 @@ class MergedParameterMap implements Map<String, String[]> {
   /**
    * Get the parameter map from the request that is wrapped by the {@link StripesRequestWrapper}.
    */
-  @SuppressWarnings("unchecked")
   Map<String, String[]> getParameterMap() {
     return request == null ? Collections.emptyMap() : request.getRequest().getParameterMap();
   }
@@ -431,11 +433,11 @@ class MergedParameterMap implements Map<String, String[]> {
    */
   void pushUriParameters(HttpServletRequestWrapper request) {
     if (this.uriParamStack == null) {
-      this.uriParamStack = new Stack<Map<String, String[]>>();
+      this.uriParamStack = new Stack<>();
     }
     Map<String, String[]> map = getUriParameters(request);
     this.uriParamStack.push(this.uriParams);
-    this.uriParams = mergeParameters(new LinkedHashMap<String, String[]>(this.uriParams), map);
+    this.uriParams = mergeParameters(new LinkedHashMap<>(this.uriParams), map);
   }
 
   /**
@@ -467,7 +469,7 @@ class MergedParameterMap implements Map<String, String[]> {
     }
 
     Map<String, String[]> params = null;
-    if (binding != null && binding.getParameters().size() > 0) {
+    if (binding != null && !binding.getParameters().isEmpty()) {
       for (UrlBindingParameter p : binding.getParameters()) {
         String name = p.getName();
         if (name != null) {
@@ -488,7 +490,7 @@ class MergedParameterMap implements Map<String, String[]> {
           }
           if (value != null) {
             if (params == null) {
-              params = new LinkedHashMap<String, String[]>();
+              params = new LinkedHashMap<>();
             }
             String[] values = params.get(name);
             if (values == null) {
@@ -512,7 +514,7 @@ class MergedParameterMap implements Map<String, String[]> {
   Map<String, String[]> mergeParameters(
       Map<String, String[]> target, Map<String, String[]> source) {
     // target must not be null and we must not modify source
-    if (target == null) target = new LinkedHashMap<String, String[]>();
+    if (target == null) target = new LinkedHashMap<>();
 
     // nothing to do if source is null or empty
     if (source == null || source.isEmpty()) return target;

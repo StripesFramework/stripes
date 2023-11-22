@@ -59,7 +59,7 @@ public class DefaultTagErrorRendererFactory implements TagErrorRendererFactory {
   }
 
   /**
-   * Returns a new instance of the configured renderer that is ready for use. By default returns an
+   * Returns a new instance of the configured renderer that is ready for use. By default, returns an
    * instance of {@link DefaultTagErrorRenderer}. If a custom class is configured and cannot be
    * instantiated, an exception will be thrown.
    */

@@ -19,16 +19,16 @@ import jakarta.servlet.jsp.tagext.BodyTag;
 
 /**
  * Implements an HTML tag that generates form fields of type {@literal <input type="checkbox"/>}.
- * Since a single checkbox widget on a HTML page can have only a single value, the value tag
+ * Since a single checkbox widget on an HTML page can have only a single value, the value tag
  * attribute must always resolve to a scalar value which will be converted to a String using the
- * Stripes Formatting system, or by caling toString() if an appropriate Formatter is not found.
+ * Stripes Formatting system, or by calling toString() if an appropriate Formatter is not found.
  *
  * <p>Checkboxes perform automatic (re-)population of state. They prefer, in order, values in the
  * HttpServletRequest, values in the ActionBean and lastly values set using checked="" on the page.
  * The "checked" attribute is a complex attribute and may be a Collection, an Array or a scalar Java
  * Object. In the first two cases a check is performed to see if the value in the value="foo"
  * attribute is one of the elements in the checked collection or array. In the last case, the value
- * is matched directly against the String form of the checked attribute. If in any case a checkbox's
+ * is matched directly against the String form of the checked attribute. If in any case a checkboxes
  * value matches then a checked="checked" attribute will be added to the HTML written.
  *
  * <p>The tag may include a body and if present the body is converted to a String and overrides the
@@ -120,7 +120,7 @@ public class InputCheckBoxTag extends InputTagSupport implements BodyTag {
       getAttributes().put("checked", "checked");
     }
 
-    writeSingletonTag(getPageContext().getOut(), "input");
+    writeSingletonTag(getPageContext().getOut());
 
     // Restore the tags state to before we mucked with it
     getAttributes().remove("checked");

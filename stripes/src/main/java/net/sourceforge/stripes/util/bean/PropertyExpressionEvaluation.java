@@ -28,6 +28,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import net.sourceforge.stripes.controller.StripesFilter;
 import net.sourceforge.stripes.util.ReflectUtil;
 
@@ -36,14 +37,15 @@ import net.sourceforge.stripes.util.ReflectUtil;
  * against a particular bean or starting object. When constructed the evaluation will examine type
  * information on the bean and nested properties to create a chain of type information for the
  * expression. The evaluation can then be used (repeatedly) to determine the type of the expression,
- * retrieve it's value and set it's value - all against the supplied object.
+ * retrieve its value and set its value - all against the supplied object.
  *
  * @author Tim Fennell
  * @since Stripes 1.4
  */
+@SuppressWarnings("rawtypes")
 public class PropertyExpressionEvaluation {
-  private PropertyExpression expression;
-  private Object bean;
+  private final PropertyExpression expression;
+  private final Object bean;
   private NodeEvaluation root, leaf;
 
   /**
@@ -62,12 +64,11 @@ public class PropertyExpressionEvaluation {
       NodeEvaluation evaluation = new NodeEvaluation(this, node);
       if (this.root == null) {
         this.root = evaluation;
-        this.leaf = evaluation;
       } else {
         this.leaf.setNext(evaluation);
         evaluation.setPrevious(this.leaf);
-        this.leaf = evaluation;
       }
+      this.leaf = evaluation;
     }
 
     fillInTypeInformation();
@@ -112,7 +113,7 @@ public class PropertyExpressionEvaluation {
     Type type = this.bean.getClass();
 
     for (NodeEvaluation current = this.root; current != null; current = current.getNext()) {
-      // Firstly if the current type is a wildcard type of a type variable try and
+      // Firstly if the current type is a wildcard type of type variable try and
       // figure out what the real value to use is
       while (type instanceof WildcardType || type instanceof TypeVariable<?>) {
         if (type instanceof WildcardType) {
@@ -137,30 +138,29 @@ public class PropertyExpressionEvaluation {
         continue;
       }
 
-      // Else if it's parameterized and it's a List or Map, get the next type
-      if (type instanceof ParameterizedType) {
-        ParameterizedType ptype = (ParameterizedType) type;
-        Type rawType = convertToClass(type, current);
+      // Else if it's parameterized, and it's a List or Map, get the next type
+      if (type instanceof ParameterizedType parameterizedType) {
+        Class<?> rawType = convertToClass(type, current);
 
-        if (rawType instanceof Class<?>) {
-          Class<?> rawClass = (Class<?>) rawType;
-          if (List.class.isAssignableFrom(rawClass)) {
-            type = ptype.getActualTypeArguments()[0];
+        if (rawType != null) {
+          if (List.class.isAssignableFrom(rawType)) {
+            type = parameterizedType.getActualTypeArguments()[0];
             current.setValueType(type);
             current.setKeyType(Integer.class);
             current.setType(NodeType.ListEntry);
             continue;
-          } else if (Map.class.isAssignableFrom(rawClass)) {
-            type = ptype.getActualTypeArguments()[1];
+          } else if (Map.class.isAssignableFrom(rawType)) {
+            type = parameterizedType.getActualTypeArguments()[1];
             current.setValueType(type);
-            current.setKeyType(convertToClass(ptype.getActualTypeArguments()[0], current));
+            current.setKeyType(
+                convertToClass(parameterizedType.getActualTypeArguments()[0], current));
             current.setType(NodeType.MapEntry);
             continue;
           } else {
             // Since it could be user defined type with a type parameter we'll
             // reassign the current type to be the raw type and let processing
             // fall through to the bean property code
-            type = rawClass;
+            type = rawType;
           }
         } else {
           // XXX Raw type is not a class?  What on earth do we do now?
@@ -170,8 +170,7 @@ public class PropertyExpressionEvaluation {
 
       // Else if it's just a regular class we can try looking for a property on it. If
       // no property exists, just bail out and return null immediately
-      if (type instanceof Class<?>) {
-        Class<?> clazz = (Class<?>) type;
+      if (type instanceof Class<?> clazz) {
         String property = current.getNode().getStringValue();
         type = getBeanPropertyType(clazz, property);
 
@@ -186,7 +185,7 @@ public class PropertyExpressionEvaluation {
       if (type == null) {
         type = getTypeViaInstances(current);
         if (type == null) {
-          // FIXME: What do we do now?
+          // TODO: FIXME: What do we do now?
         }
       }
     }
@@ -211,7 +210,7 @@ public class PropertyExpressionEvaluation {
   }
 
   /**
-   * Fetches the type of a property with the given name on the Class of the specified type. Uses the
+   * Fetches the type of property with the given name on the Class of the specified type. Uses the
    * methods first to fetch the generic type if a PropertyDescriptor can be found, otherwise looks
    * for a public field and returns its generic type.
    *
@@ -337,10 +336,8 @@ public class PropertyExpressionEvaluation {
                 + " and value "
                 + end.getNode().getStringValue());
       }
-    } else if (value instanceof List) {
-      List list = (List) value;
-      if (end.getNode().getTypedValue() instanceof Integer) {
-        Integer index = (Integer) end.getNode().getTypedValue();
+    } else if (value instanceof List list) {
+      if (end.getNode().getTypedValue() instanceof Integer index) {
         if (index < list.size()) {
           value = list.get(index);
           if (value != null) {
@@ -384,10 +381,10 @@ public class PropertyExpressionEvaluation {
   }
 
   /**
-   * Attempts to convert the {@link Type} object into a Class object. Currently will extract the raw
-   * type from a {@link ParameterizedType} and the appropriate bound from a {@link WildcardType}. If
-   * the result after these operations is a Class object it will be cast and returned. Otherwise
-   * will return null.
+   * Attempts to convert the {@link Type} object into a Class object. Currently, will extract the
+   * raw type from a {@link ParameterizedType} and the appropriate bound from a {@link
+   * WildcardType}. If the result after these operations is a Class object it will be cast and
+   * returned. Otherwise, will return null.
    *
    * @param type the Type object to try and render as a Class
    * @return the Class if one can be determined, otherwise null
@@ -417,7 +414,7 @@ public class PropertyExpressionEvaluation {
   /**
    * Scans backwards in the expression for the last node which contained a JavaBean type and
    * attempts to use the type arguments to that class to find a match for the TypeParameter
-   * provided. On it's way also collects information from any parameterized types and their
+   * provided. On its way also collects information from any parameterized types and their
    * super-types.
    *
    * @param evaluation the current NodeEvaluation
@@ -429,8 +426,8 @@ public class PropertyExpressionEvaluation {
     // from parameterized types (and their super-types) discovered while going back up the
     // nodes.  The second map contains information gathered by going up the superclasses
     // from the last concrete Class in the expression
-    List<HashMap<TypeVariable<?>, Type>> typemap1 = new ArrayList<HashMap<TypeVariable<?>, Type>>();
-    List<HashMap<TypeVariable<?>, Type>> typemap2 = new ArrayList<HashMap<TypeVariable<?>, Type>>();
+    List<HashMap<TypeVariable<?>, Type>> typeMap1 = new ArrayList<>();
+    List<HashMap<TypeVariable<?>, Type>> typeMap2 = new ArrayList<>();
 
     // Scan the evaluation chain for the first class or any parameterized types.
     Class<?> lastBean = this.bean.getClass();
@@ -442,29 +439,28 @@ public class PropertyExpressionEvaluation {
         lastBean = (Class<?>) n.getValueType();
         break;
       }
-      // Parameterized type?  Add to the typemap along with parent parameterized types
-      else if (type instanceof ParameterizedType) {
-        ParameterizedType ptype = (ParameterizedType) type;
+      // Parameterized type?  Add to the typeMap along with parent parameterized types
+      else if (type instanceof ParameterizedType parameterizedType) {
 
-        while (ptype != null) {
-          addTypeMappings(typemap1, ptype);
+        while (parameterizedType != null) {
+          addTypeMappings(typeMap1, parameterizedType);
 
-          // Now find the parent of the ptype and see if it's a ptype too!
-          Type rawtype = ptype.getRawType();
-          if (rawtype instanceof Class<?>) {
-            Class<?> superclass = (Class<?>) rawtype;
+          // Now find the parent of the parameterizedType and see if it's a parameterizedType too!
+          Type rawtype = parameterizedType.getRawType();
+          if (rawtype instanceof Class<?> superclass) {
             Type supertype = superclass.getGenericSuperclass();
-            ptype = (supertype instanceof ParameterizedType) ? (ParameterizedType) supertype : null;
+            parameterizedType =
+                (supertype instanceof ParameterizedType) ? (ParameterizedType) supertype : null;
           }
         }
       }
     }
 
-    // Add the bean class and all its superclasses to the typemap.
+    // Add the bean class and all its superclasses to the typeMap.
     for (Class<?> c = lastBean; c != null; c = c.getSuperclass()) {
       Type t = c.getGenericSuperclass();
       if (t instanceof ParameterizedType) {
-        addTypeMappings(typemap2, (ParameterizedType) t);
+        addTypeMappings(typeMap2, (ParameterizedType) t);
       }
     }
 
@@ -472,11 +468,11 @@ public class PropertyExpressionEvaluation {
     Type type = null;
 
     // If the type variable doesn't come from a direct superclass of the
-    // the last bean, check the mappings from parameterized types first
-    if (!declaration.isAssignableFrom(lastBean)) {
-      for (int i = typemap1.size() - 1; i >= 0; i--) {
+    //  last bean, check the mappings from parameterized types first
+    if (!declaration.isAssignableFrom(Objects.requireNonNull(lastBean))) {
+      for (int i = typeMap1.size() - 1; i >= 0; i--) {
         // Map the type variable to a type.
-        if ((type = typemap1.get(i).get(typeVar)) != null) {
+        if ((type = typeMap1.get(i).get(typeVar)) != null) {
           // Reached a real class?  Done.
           if (type instanceof Class<?>) {
             return type;
@@ -489,9 +485,9 @@ public class PropertyExpressionEvaluation {
 
     // If we did the above traverse and still ended up at another type
     // variable, check the last bean (and parents') mappings
-    for (int i = typemap2.size() - 1; i >= 0; i--) {
+    for (int i = typeMap2.size() - 1; i >= 0; i--) {
       // Map the type variable to a type.
-      if ((type = typemap2.get(i).get(typeVar)) != null) {
+      if ((type = typeMap2.get(i).get(typeVar)) != null) {
         // Reached a real class?  Done.
         if (type instanceof Class<?>) {
           return type;
@@ -514,17 +510,16 @@ public class PropertyExpressionEvaluation {
    * @param paramType parameterized type to add to the map.
    */
   private void addTypeMappings(
-      List<HashMap<TypeVariable<?>, Type>> typemap, ParameterizedType paramType) {
+      List<HashMap<TypeVariable<?>, Type>> typeMap, ParameterizedType paramType) {
     Type rawType = paramType.getRawType();
-    if (rawType instanceof Class<?>) {
-      Class<?> rawClass = (Class<?>) rawType;
+    if (rawType instanceof Class<?> rawClass) {
       TypeVariable<?>[] vars = rawClass.getTypeParameters();
       Type[] args = paramType.getActualTypeArguments();
-      HashMap<TypeVariable<?>, Type> entry = new HashMap<TypeVariable<?>, Type>(vars.length);
+      HashMap<TypeVariable<?>, Type> entry = new HashMap<>(vars.length);
       for (int i = 0; i < vars.length && i < args.length; ++i) {
         entry.put(vars[i], args[i]);
       }
-      typemap.add(entry);
+      typeMap.add(entry);
     }
   }
 
@@ -533,13 +528,13 @@ public class PropertyExpressionEvaluation {
    * then 'SomeClass' will be returned. In the case of '? extends AnotherClass' then 'AnotherClass'
    * will be returned.
    *
-   * @param wtype the WildcardType to fetch the bounds of
+   * @param wildcardType the WildcardType to fetch the bounds of
    * @return the appropriate bound type
    */
-  protected Type getWildcardTypeBound(WildcardType wtype) {
-    Type[] bounds = wtype.getLowerBounds();
+  protected Type getWildcardTypeBound(WildcardType wildcardType) {
+    Type[] bounds = wildcardType.getLowerBounds();
     if (bounds.length == 0) {
-      bounds = wtype.getUpperBounds();
+      bounds = wildcardType.getUpperBounds();
     }
 
     if (bounds.length > 0) {
@@ -550,9 +545,9 @@ public class PropertyExpressionEvaluation {
   }
 
   /**
-   * Fetches the type of value that can be get/set with this expression evaluation. This is
-   * equivalent (though more efficient) to calling getValue().getClass(). If the type information on
-   * this expression is not complete then null will be returned.
+   * Fetches the type of value that can be called with get/set with this expression evaluation. This
+   * is equivalent (though more efficient) to calling getValue().getClass(). If the type information
+   * on this expression is not complete then null will be returned.
    *
    * @return the Class of object that can be set/get with this evaluation or null
    */
@@ -565,12 +560,12 @@ public class PropertyExpressionEvaluation {
    * a scalar type then this method will return the identical class. However, when getType() returns
    * an Array, a Collection or a Map this method will attempt to determine the type of element
    * stored in that Array/Collection/Map and return that Class. If getType() returns null due to
-   * insufficient type information this method will also return null. Similarly if the type of item
-   * in the Array/Collection/May cannot be determined then String.class will be returned.
+   * insufficient type information this method will also return null. Similarly, if the type of item
+   * in the Array/Collection/May cannot be determined then a String class will be returned.
    *
    * @return The scalar type to which values should be converted in order to either be set using
-   *     this expression or set into the Array/Collection/Map should this expression point at a non
-   *     scalar property
+   *     this expression or set into the Array/Collection/Map should this expression point at a non-
+   *     * scalar property
    */
   public Class<?> getScalarType() {
     Type type = this.leaf.getValueType();
@@ -649,9 +644,9 @@ public class PropertyExpressionEvaluation {
   }
 
   /**
-   * Attempts to create a default value for a given node by either a) creating a new array instance
-   * for arrays, b) fetching the first enum for enum classes, c) creating a default instance for
-   * interfaces and abstract classes using ReflectUtil or d) calling a default constructor.
+   * Attempts to create a default value for a given node by either a. creating a new array instance
+   * for arrays, b. fetching the first enum for enum classes, c. creating a default instance for
+   * interfaces and abstract classes using ReflectUtil or d. calling a default constructor.
    *
    * @param node the node for which to find a default value
    * @return an instance of the appropriate type
@@ -691,9 +686,9 @@ public class PropertyExpressionEvaluation {
    *
    * <p>If any intermediate properties in the expression are null this method will return
    * immediately. The sole purpose of this method is to blank out a value <i>if one is present</i>.
-   * Therefore if no value is present, nothing will be changed.
+   * Therefore, if no value is present, nothing will be changed.
    *
-   * @throws EvaluationException if any exceptions are thrown during the process of nulling out
+   * @throws EvaluationException if any exceptions are thrown during the process of setting to null
    */
   @SuppressWarnings("unchecked")
   public void setToNull() throws EvaluationException {

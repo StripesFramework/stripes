@@ -26,12 +26,12 @@ import net.sourceforge.stripes.util.Log;
  * web application using a server side forward.
  *
  * <p>There is one case when this resolution will issue an include instead of a forward. The Servlet
- * specification is ambiguous about what should happen when a forward is issued inside of an
- * include. The behaviour varies widely by container, from outputting only the content of the
- * forward, to only the content prior to the include! To make this behaviour more consistent the
- * ForwardResolution will automatically determine if it is executing inside of an include, and if
- * that is the case it will <i>include</i> the appropriate URL instead of <i>forwarding</i> to it.
- * This behaviour can be turned off be calling {@literal autoInclude(false)}.
+ * specification is ambiguous about what should happen when a forward is issued inside an include.
+ * The behaviour varies widely by container, from outputting only the content of the forward, to
+ * only the content prior to include! To make this behaviour more consistent the ForwardResolution
+ * will automatically determine if it is executing inside an include, and if that is the case it
+ * will <i>include</i> the appropriate URL instead of <i>forwarding</i> to it. This behaviour can be
+ * turned off be calling {@literal autoInclude(false)}.
  *
  * <p>You can optionally set an HTTP status code with {@link #setStatus(int)}, in which case a call
  * to {@code response.setStatus(status)} will be made when executing the resolution.
@@ -83,7 +83,7 @@ public class ForwardResolution extends OnwardResolution<ForwardResolution> {
    * server-side Include and <i>include</i> the supplied URL instead of forwarding to it. Defaults
    * to true.
    *
-   * @param auto whether or not to automatically detect and use includes
+   * @param auto whether to automatically detect and use includes
    */
   public void autoInclude(boolean auto) {
     this.autoInclude = auto;

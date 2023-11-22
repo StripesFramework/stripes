@@ -1,12 +1,11 @@
 package net.sourceforge.stripes.util;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import net.sourceforge.stripes.exception.StripesRuntimeException;
 
 /**
  * Provides utility methods for manipulating and parsing Strings.
@@ -65,11 +64,7 @@ public class StringUtil {
    * @see URLEncoder#encode(String, String)
    */
   public static String urlEncode(String value) {
-    try {
-      return URLEncoder.encode(value, "UTF-8");
-    } catch (UnsupportedEncodingException e) {
-      throw new StripesRuntimeException("Unsupported encoding?  UTF-8?  That's unpossible.");
-    }
+    return URLEncoder.encode(value, StandardCharsets.UTF_8);
   }
 
   /**
@@ -79,11 +74,7 @@ public class StringUtil {
    * @see URLDecoder#decode(String, String)
    */
   public static String urlDecode(String value) {
-    try {
-      return URLDecoder.decode(value, "UTF-8");
-    } catch (UnsupportedEncodingException e) {
-      throw new StripesRuntimeException("Unsupported encoding?  UTF-8?  That's unpossible.");
-    }
+    return URLDecoder.decode(value, StandardCharsets.UTF_8);
   }
 
   /**
@@ -104,7 +95,7 @@ public class StringUtil {
         buf = new StringBuilder(value.length() * 2);
       }
 
-      buf.append(value.substring(end, matcher.start()))
+      buf.append(value, end, matcher.start())
           .append(String.format("%%%02X", (int) matcher.group().charAt(0)));
       end = matcher.end();
     }
@@ -126,7 +117,7 @@ public class StringUtil {
    * @return The URL or path without the fragment
    */
   public static String trimFragment(String url) {
-    if (url == null || url.length() < 1) return url;
+    if (url == null || url.isEmpty()) return url;
 
     int index = url.indexOf('#');
     if (index >= 0) return url.substring(0, index);

@@ -17,27 +17,32 @@ package net.sourceforge.stripes.mock;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 /**
  * Mock implementation of an HttpServletResponse. Captures any output is written along with any
  * headers, status information etc. and makes it available through various getter methods.
  *
  * <p>Of major note is the fact that none of the setStatus(), sendError() or sendRedirect() methods
- * have any real effect on the request processing lifecycle. Information is recorded so it can be
+ * have any real effect on the request processing lifecycle. Information is recorded, so it can be
  * verified what was invoked, but that is all.
  *
  * @author Tim Fennell
  * @since Stripes 1.1.1
  */
 public class MockHttpServletResponse implements HttpServletResponse {
-  private MockServletOutputStream out = new MockServletOutputStream();
-  private PrintWriter writer = new PrintWriter(out, true);
+  private final MockServletOutputStream out = new MockServletOutputStream();
+  private final PrintWriter writer = new PrintWriter(out, true);
   private Locale locale = Locale.getDefault();
-  private Map<String, List<Object>> headers = new HashMap<String, List<Object>>();
-  private List<Cookie> cookies = new ArrayList<Cookie>();
+  private final Map<String, List<Object>> headers = new HashMap<>();
+  private final List<Cookie> cookies = new ArrayList<>();
   private int status = 200;
   private String errorMessage;
   private String characterEncoding = "UTF-8";
@@ -52,17 +57,14 @@ public class MockHttpServletResponse implements HttpServletResponse {
   /** Adds a cookie to the set of cookies in the response. */
   public void addCookie(Cookie cookie) {
     // Remove existing cookies with the same name as the new one
-    ListIterator<Cookie> iterator = cookies.listIterator();
-    while (iterator.hasNext()) {
-      if (iterator.next().getName().equals(cookie.getName())) iterator.remove();
-    }
+    cookies.removeIf(cookie1 -> cookie1.getName().equals(cookie.getName()));
 
     this.cookies.add(cookie);
   }
 
   /** Gets the set of cookies stored in the response. */
   public Cookie[] getCookies() {
-    return this.cookies.toArray(new Cookie[this.cookies.size()]);
+    return this.cookies.toArray(new Cookie[0]);
   }
 
   /** Returns true if the specified header was placed in the response. */
@@ -90,14 +92,14 @@ public class MockHttpServletResponse implements HttpServletResponse {
     return url;
   }
 
-  /** Sets the status code and saves the message so it can be retrieved later. */
-  public void sendError(int status, String errorMessage) throws IOException {
+  /** Sets the status code and saves the message, so it can be retrieved later. */
+  public void sendError(int status, String errorMessage) {
     this.status = status;
     this.errorMessage = errorMessage;
   }
 
   /** Sets that status code to the error code provided. */
-  public void sendError(int status) throws IOException {
+  public void sendError(int status) {
     this.status = status;
   }
 
@@ -105,14 +107,14 @@ public class MockHttpServletResponse implements HttpServletResponse {
    * Simply sets the status code and stores the URL that was supplied, so that it can be examined
    * later with getRedirectUrl.
    */
-  public void sendRedirect(String url) throws IOException {
+  public void sendRedirect(String url) {
     this.status = HttpServletResponse.SC_MOVED_TEMPORARILY;
     this.redirectUrl = url;
   }
 
   /**
    * If a call was made to sendRedirect() this method will return the URL that was supplied.
-   * Otherwise it will return null.
+   * Otherwise, it will return null.
    */
   public String getRedirectUrl() {
     return this.redirectUrl;
@@ -126,10 +128,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
 
   /** Adds the specified value for the named header (does not remove/replace existing values). */
   public void addDateHeader(String name, long value) {
-    List<Object> values = this.headers.get(name);
-    if (values == null) {
-      this.headers.put(name, values = new ArrayList<Object>());
-    }
+    List<Object> values = this.headers.computeIfAbsent(name, k -> new ArrayList<>());
     values.add(value);
   }
 
@@ -141,10 +140,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
 
   /** Adds the specified value for the named header (does not remove/replace existing values). */
   public void addHeader(String name, String value) {
-    List<Object> values = this.headers.get(name);
-    if (values == null) {
-      this.headers.put(name, values = new ArrayList<Object>());
-    }
+    List<Object> values = this.headers.computeIfAbsent(name, k -> new ArrayList<>());
     values.add(value);
   }
 
@@ -156,10 +152,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
 
   /** Adds the specified value for the named header (does not remove/replace existing values). */
   public void addIntHeader(String name, int value) {
-    List<Object> values = this.headers.get(name);
-    if (values == null) {
-      this.headers.put(name, values = new ArrayList<Object>());
-    }
+    List<Object> values = this.headers.computeIfAbsent(name, k -> new ArrayList<>());
     values.add(value);
   }
 
@@ -222,7 +215,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
   /** Sets the content type for the response. */
   public void setContentType(String contentType) {
     this.contentType = contentType;
-    getHeaderMap().put("Content-type", Collections.<Object>singletonList(contentType));
+    getHeaderMap().put("Content-type", Collections.singletonList(contentType));
   }
 
   /** Gets the content type for the response. Defaults to text/html. */
@@ -234,7 +227,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
    * Returns a reference to a ServletOutputStream to be used for output. The output is captured and
    * can be examined at the end of a test run by calling getOutputBytes() or getOutputString().
    */
-  public ServletOutputStream getOutputStream() throws IOException {
+  public ServletOutputStream getOutputStream() {
     return this.out;
   }
 
@@ -242,7 +235,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
    * Returns a reference to a PrintWriter to be used for character output. The output is captured
    * and can be examined at the end of a test run by calling getOutputBytes() or getOutputString().
    */
-  public PrintWriter getWriter() throws IOException {
+  public PrintWriter getWriter() {
     return this.writer;
   }
 
@@ -280,7 +273,7 @@ public class MockHttpServletResponse implements HttpServletResponse {
   }
 
   /** Has no effect. */
-  public void flushBuffer() throws IOException {}
+  public void flushBuffer() {}
 
   /** Always throws IllegalStateException. */
   public void resetBuffer() {

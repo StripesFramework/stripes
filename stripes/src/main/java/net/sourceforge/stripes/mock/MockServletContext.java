@@ -14,14 +14,29 @@
  */
 package net.sourceforge.stripes.mock;
 
-import jakarta.servlet.*;
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterRegistration;
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.Servlet;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletContextEvent;
+import jakarta.servlet.ServletContextListener;
+import jakarta.servlet.ServletRegistration;
+import jakarta.servlet.SessionCookieConfig;
+import jakarta.servlet.SessionTrackingMode;
 import jakarta.servlet.descriptor.JspConfigDescriptor;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServlet;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.EventListener;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Mock implementation of a ServletContext. Provides implementation the most commonly used methods,
@@ -43,11 +58,11 @@ import java.util.*;
  * @since Stripes 1.1.1
  */
 public class MockServletContext implements ServletContext {
-  private String contextName;
-  private Map<String, String> initParameters = new HashMap<String, String>();
-  private Map<String, Object> attributes = new HashMap<String, Object>();
-  private List<Filter> filters = new ArrayList<Filter>();
-  private List<ServletContextListener> listeners = new ArrayList<ServletContextListener>();
+  private final String contextName;
+  private final Map<String, String> initParameters = new HashMap<>();
+  private final Map<String, Object> attributes = new HashMap<>();
+  private final List<Filter> filters = new ArrayList<>();
+  private final List<ServletContextListener> listeners = new ArrayList<>();
   private HttpServlet servlet;
 
   /** Simple constructor that creates a new mock ServletContext with the supplied context name. */
@@ -55,7 +70,7 @@ public class MockServletContext implements ServletContext {
     this.contextName = contextName;
   }
 
-  /** If the url is within this servlet context, returns this. Otherwise returns null. */
+  /** If the url is within this servlet context, returns this. Otherwise, returns null. */
   public ServletContext getContext(String url) {
     if (url.startsWith("/" + this.contextName)) {
       return this;
@@ -100,7 +115,7 @@ public class MockServletContext implements ServletContext {
   }
 
   /** Uses the current classloader to fetch the resource if it can. */
-  public URL getResource(String name) throws MalformedURLException {
+  public URL getResource(String name) {
     while (name.startsWith("/")) name = name.substring(1);
     return Thread.currentThread().getContextClassLoader().getResource(name);
   }
@@ -122,7 +137,7 @@ public class MockServletContext implements ServletContext {
   }
 
   /** Deprecated method always returns null. */
-  public Servlet getServlet(String string) throws ServletException {
+  public Servlet getServlet(String string) {
     return null;
   }
 
@@ -234,7 +249,7 @@ public class MockServletContext implements ServletContext {
   }
 
   @Override
-  public <T extends Servlet> T createServlet(Class<T> clazz) throws ServletException {
+  public <T extends Servlet> T createServlet(Class<T> clazz) {
     return null;
   }
 
@@ -265,7 +280,7 @@ public class MockServletContext implements ServletContext {
   }
 
   @Override
-  public <T extends Filter> T createFilter(Class<T> clazz) throws ServletException {
+  public <T extends Filter> T createFilter(Class<T> clazz) {
     return null;
   }
 
@@ -307,7 +322,7 @@ public class MockServletContext implements ServletContext {
   public void addListener(Class<? extends EventListener> listenerClass) {}
 
   @Override
-  public <T extends EventListener> T createListener(Class<T> clazz) throws ServletException {
+  public <T extends EventListener> T createListener(Class<T> clazz) {
     return null;
   }
 
@@ -428,8 +443,8 @@ public class MockServletContext implements ServletContext {
 
   /**
    * Takes a request and response and runs them through the set of filters using a MockFilterChain,
-   * which if everything goes well, will eventually execute the servlet that is registered with this
-   * context.
+   * which, if everything goes well, will eventually execute the servlet that is registered with
+   * this context.
    *
    * <p>Any exceptions that are raised during the processing of the request are simply passed
    * through to the caller. I.e. they will be thrown from this method.

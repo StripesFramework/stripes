@@ -24,14 +24,14 @@ import java.util.regex.Pattern;
  * manipulate validation metadata, the source of which is often validation annotations.
  *
  * <p>However, since this class is not an annotation it has the added benefits of being able to
- * contain behaviour, being subclassable, and of being able to be instantiated at runtime - i.e. it
- * can contain non-static validation information.
+ * contain behaviour, being able to be sub-classed, and of being able to be instantiated at runtime
+ * - i.e. it can contain non-static validation information.
  *
  * @author Tim Fennell
  * @since Stripes 1.5
  */
 public class ValidationMetadata {
-  private String property;
+  private final String property;
   private boolean encrypted;
   private boolean required;
   private boolean trim;
@@ -54,17 +54,17 @@ public class ValidationMetadata {
    * ValidationMetadata("username").minlength(5).maxlength(10);}
    *
    * @param property the name of the property to be validated. If the property is a nested property
-   *     then the fully path should be included, e.g. {@code user.address.city}
+   *     then the full path should be included, e.g. {@code user.address.city}
    */
   public ValidationMetadata(String property) {
     this.property = property;
   }
 
   /**
-   * Essentially a copy constructor that constructs a ValidationMetadata object from an @Validate
+   * Essentially a copy constructor that constructs a ValidationMetadata object from a @Validate
    * annotation declared on a property.
    *
-   * @param validate
+   * @param validate the @Validate annotation to copy values from
    */
   public ValidationMetadata(String property, Validate validate) {
     // Copy over all the simple values
@@ -131,7 +131,7 @@ public class ValidationMetadata {
             || (!this.onIsPositive && !this.on.contains(event)));
   }
 
-  /** Sets whether or not this field should be ignored during binding and validation. */
+  /** Sets whether this field should be ignored during binding and validation. */
   public ValidationMetadata ignore(boolean ignore) {
     this.ignore = ignore;
     return this;
@@ -197,7 +197,7 @@ public class ValidationMetadata {
     return this.mask;
   }
 
-  /** Sets the overridden TypeConveter to use to convert values. */
+  /** Sets the overridden TypeConverter to use to convert values. */
   @SuppressWarnings("rawtypes")
   public ValidationMetadata converter(Class<? extends TypeConverter> converter) {
     this.converter = converter;
@@ -229,13 +229,13 @@ public class ValidationMetadata {
     } else {
       // Check for empty strings in the "on" element
       for (String s : on) {
-        if (s.length() == 0 || "!".equals(s)) {
+        if (s.isEmpty() || "!".equals(s)) {
           throw new IllegalArgumentException(
-              "@Validate's \"on\" element must not contain empty strings");
+              "@Validate annotation's \"on\" element must not contain empty strings");
         }
       }
 
-      this.on = new HashSet<String>();
+      this.on = new HashSet<>();
       this.onIsPositive = !(on[0].charAt(0) == '!');
       for (String s : on) {
         if (this.onIsPositive) {
@@ -265,10 +265,10 @@ public class ValidationMetadata {
   }
 
   /**
-   * Overidden toString() that only outputs the constraints that are specified by the instance of
+   * Overridden toString() that only outputs the constraints that are specified by the instance of
    * validation metadata (i.e. omits nulls, defaults etc.)
    *
-   * @return a human readable string form of the metadata
+   * @return a human-readable string form of the metadata
    */
   @Override
   public String toString() {

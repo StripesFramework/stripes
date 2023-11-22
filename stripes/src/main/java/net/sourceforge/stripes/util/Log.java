@@ -27,7 +27,7 @@ import java.util.logging.Logger;
  * @author Tim Fennell
  */
 public final class Log {
-  private java.util.logging.Logger realLog;
+  private final java.util.logging.Logger realLog;
 
   public java.util.logging.Logger getRealLog() {
     return realLog;
@@ -45,7 +45,7 @@ public final class Log {
   }
 
   /**
-   * Forces Log to cleanup any cached resources. This is called by the StripesFilter when it is
+   * Forces Log to clean up any cached resources. This is called by the StripesFilter when it is
    * destroyed, but can be called from user code as well if necessary.
    */
   public static void cleanup() {}
@@ -65,7 +65,7 @@ public final class Log {
    * @param messageParts zero or more objects which should be combined, by calling toString() to
    *     form the log message.
    */
-  public final void fatal(Throwable throwable, Object... messageParts) {
+  public void fatal(Throwable throwable, Object... messageParts) {
     if (this.realLog.isLoggable(Level.SEVERE)) {
       this.realLog.log(Level.SEVERE, StringUtil.combineParts(messageParts), throwable);
     }
@@ -78,7 +78,7 @@ public final class Log {
    * @param messageParts zero or more objects which should be combined, by calling toString() to
    *     form the log message.
    */
-  public final void error(Throwable throwable, Object... messageParts) {
+  public void error(Throwable throwable, Object... messageParts) {
     fatal(throwable, messageParts);
   }
 
@@ -89,7 +89,7 @@ public final class Log {
    * @param messageParts zero or more objects which should be combined, by calling toString() to
    *     form the log message.
    */
-  public final void warn(Throwable throwable, Object... messageParts) {
+  public void warn(Throwable throwable, Object... messageParts) {
     if (this.realLog.isLoggable(Level.WARNING)) {
       this.realLog.log(Level.WARNING, StringUtil.combineParts(messageParts), throwable);
     }
@@ -102,7 +102,7 @@ public final class Log {
    * @param messageParts zero or more objects which should be combined, by calling toString() to
    *     form the log message.
    */
-  public final void info(Throwable throwable, Object... messageParts) {
+  public void info(Throwable throwable, Object... messageParts) {
     if (this.realLog.isLoggable(Level.INFO)) {
       this.realLog.log(Level.INFO, StringUtil.combineParts(messageParts), throwable);
     }
@@ -115,7 +115,7 @@ public final class Log {
    * @param messageParts zero or more objects which should be combined, by calling toString() to
    *     form the log message.
    */
-  public final void debug(Throwable throwable, Object... messageParts) {
+  public void debug(Throwable throwable, Object... messageParts) {
     if (this.realLog.isLoggable(Level.FINE)) {
       this.realLog.log(Level.FINE, StringUtil.combineParts(messageParts), throwable);
     }
@@ -128,13 +128,13 @@ public final class Log {
    * @param messageParts zero or more objects which should be combined, by calling toString() to
    *     form the log message.
    */
-  public final void trace(Throwable throwable, Object... messageParts) {
+  public void trace(Throwable throwable, Object... messageParts) {
     if (this.realLog.isLoggable(Level.FINER)) {
       this.realLog.log(Level.FINER, StringUtil.combineParts(messageParts), throwable);
     }
   }
 
-  // Similar methods, but without Throwables, follow
+  // Similar methods, but without any throwable parameters follow
 
   /**
    * Logs one or more message parts at level fatal.
@@ -142,7 +142,7 @@ public final class Log {
    * @param messageParts one or more objects which should be combined, by calling toString() to form
    *     the log message.
    */
-  public final void fatal(Object... messageParts) {
+  public void fatal(Object... messageParts) {
     fatal(null, messageParts);
   }
 
@@ -152,7 +152,7 @@ public final class Log {
    * @param messageParts one or more objects which should be combined, by calling toString() to form
    *     the log message.
    */
-  public final void error(Object... messageParts) {
+  public void error(Object... messageParts) {
     error(null, messageParts);
   }
 
@@ -162,7 +162,7 @@ public final class Log {
    * @param messageParts one or more objects which should be combined, by calling toString() to form
    *     the log message.
    */
-  public final void warn(Object... messageParts) {
+  public void warn(Object... messageParts) {
     warn(null, messageParts);
   }
 
@@ -172,7 +172,7 @@ public final class Log {
    * @param messageParts one or more objects which should be combined, by calling toString() to form
    *     the log message.
    */
-  public final void info(Object... messageParts) {
+  public void info(Object... messageParts) {
     info(null, messageParts);
   }
 
@@ -182,7 +182,7 @@ public final class Log {
    * @param messageParts one or more objects which should be combined, by calling toString() to form
    *     the log message.
    */
-  public final void debug(Object... messageParts) {
+  public void debug(Object... messageParts) {
     debug(null, messageParts);
   }
 
@@ -192,7 +192,7 @@ public final class Log {
    * @param messageParts one or more objects which should be combined, by calling toString() to form
    *     the log message.
    */
-  public final void trace(Object... messageParts) {
+  public void trace(Object... messageParts) {
     trace(null, messageParts);
   }
 }

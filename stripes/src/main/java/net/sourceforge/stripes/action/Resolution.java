@@ -32,7 +32,7 @@ public interface Resolution {
    *
    * @param request the current HttpServletRequest
    * @param response the current HttpServletResponse
-   * @throws Exception exceptions of any type may be thrown if the Resolution cannot be executed as
+   * @throws Exception exceptions to any type may be thrown if the Resolution cannot be executed as
    *     intended
    */
   void execute(HttpServletRequest request, HttpServletResponse response) throws Exception;

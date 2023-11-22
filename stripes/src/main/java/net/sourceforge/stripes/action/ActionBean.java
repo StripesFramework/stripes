@@ -97,7 +97,7 @@ public interface ActionBean {
    *
    * @param context ActionBeanContext associated with the current request
    */
-  public void setContext(ActionBeanContext context);
+  void setContext(ActionBeanContext context);
 
   /**
    * Implementations must implement this method to return a reference to the context object provided
@@ -105,5 +105,5 @@ public interface ActionBean {
    *
    * @return ActionBeanContext associated with the current request
    */
-  public ActionBeanContext getContext();
+  ActionBeanContext getContext();
 }

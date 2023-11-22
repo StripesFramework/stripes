@@ -45,7 +45,7 @@ import net.sourceforge.stripes.action.Resolution;
  * by returning a {@link Resolution}. If an interceptor returns a Resolution Stripes will abort
  * processing of the current request and immediately execute the Resolution.
  *
- * <p>Interceptor developers must be careful to ensure that interceptors are well behaved. To
+ * <p>Interceptor developers must be careful to ensure that interceptors are well-behaved. To
  * continue normal processing interceptors <b>must invoke {@code context.proceed()}</b>. Since a
  * given interceptor may be part of a stack of interceptors, or the lifecycle code may return a
  * resolution, the interceptor must return the Resolution produced by {@code context.proceed()}

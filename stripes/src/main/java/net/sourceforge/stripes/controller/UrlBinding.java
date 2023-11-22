@@ -45,7 +45,7 @@ public class UrlBinding {
 
     if (components != null && !components.isEmpty()) {
       this.components = Collections.unmodifiableList(components);
-      this.parameters = new ArrayList<UrlBindingParameter>(components.size());
+      this.parameters = new ArrayList<>(components.size());
 
       for (Object component : components) {
         if (component instanceof UrlBindingParameter) {
@@ -68,8 +68,8 @@ public class UrlBinding {
   /**
    * Create a new instance that takes no parameters.
    *
-   * @param beanType
-   * @param path
+   * @param beanType the {@link ActionBean} class to which this binding applies
+   * @param path the path to which the action is mapped
    */
   public UrlBinding(Class<? extends ActionBean> beanType, String path) {
     this.beanType = beanType;
@@ -114,9 +114,8 @@ public class UrlBinding {
 
   @Override
   public boolean equals(Object obj) {
-    if (!(obj instanceof UrlBinding)) return false;
+    if (!(obj instanceof UrlBinding that)) return false;
 
-    UrlBinding that = (UrlBinding) obj;
     return this.getBeanType() == that.getBeanType()
         && this.getComponents().equals(that.getComponents());
   }
@@ -141,8 +140,8 @@ public class UrlBinding {
 
   /**
    * Ensure the default event name is set if the binding uses the $event parameter. Can only be done
-   * safely after the event mappings have been processed. see
-   * http://www.stripesframework.org/jira/browse/STS-803
+   * safely after the event mappings have been processed. see <a
+   * href="http://www.stripesframework.org/jira/browse/STS-803">...</a>
    */
   public void initDefaultValueWithDefaultHandlerIfNeeded(ActionResolver actionResolver) {
     for (UrlBindingParameter parameter : parameters) {

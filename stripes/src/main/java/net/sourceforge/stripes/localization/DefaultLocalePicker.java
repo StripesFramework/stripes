@@ -45,7 +45,7 @@ import net.sourceforge.stripes.util.StringUtil;
  */
 public class DefaultLocalePicker implements LocalePicker {
   /**
-   * The configuration parameter that is used to lookup a comma separated list of locales that the
+   * The configuration parameter that is used to look up a comma separated list of locales that the
    * system supports.
    */
   public static final String LOCALE_LIST = "LocalePicker.Locales";
@@ -57,16 +57,16 @@ public class DefaultLocalePicker implements LocalePicker {
   protected Configuration configuration;
 
   /** Stores the configured set of Locales that the system supports, looked up at init time. */
-  protected List<Locale> locales = new ArrayList<Locale>();
+  protected List<Locale> locales = new ArrayList<>();
 
   /** Contains a map of Locale to preferred character encoding. */
-  protected Map<Locale, String> encodings = new HashMap<Locale, String>();
+  protected Map<Locale, String> encodings = new HashMap<>();
 
   /**
    * Attempts to read the
    *
-   * @param configuration
-   * @throws Exception
+   * @param configuration the configuration object
+   * @throws Exception if anything goes wrong
    */
   public void init(Configuration configuration) throws Exception {
     this.configuration = configuration;
@@ -74,7 +74,7 @@ public class DefaultLocalePicker implements LocalePicker {
     String configuredLocales =
         configuration.getBootstrapPropertyResolver().getProperty(LOCALE_LIST);
 
-    if (configuredLocales == null || configuredLocales.equals("")) {
+    if (configuredLocales == null || configuredLocales.isEmpty()) {
       log.info("No locale list specified, defaulting to single locale: ", Locale.getDefault());
       this.locales.add(Locale.getDefault());
     } else {
@@ -141,7 +141,6 @@ public class DefaultLocalePicker implements LocalePicker {
    * @param request the request being processed
    * @return a Locale to use in processing the request
    */
-  @SuppressWarnings("unchecked")
   public Locale pickLocale(HttpServletRequest request) {
     Locale oneWayMatch = null;
     Locale twoWayMatch = null;
@@ -160,7 +159,7 @@ public class DefaultLocalePicker implements LocalePicker {
           if ((systemCountry == null && preferredCountry == null)
               || (systemCountry != null && systemCountry.equals(preferredCountry))) {
 
-            // Ooh, we have a two way match, can we make three?
+            // Ooh, we have a two-way match, can we make three?
             twoWayMatch = (twoWayMatch == null ? systemLocale : twoWayMatch);
             String systemVariant = systemLocale.getVariant();
             String preferredVariant = preferredLocale.getVariant();

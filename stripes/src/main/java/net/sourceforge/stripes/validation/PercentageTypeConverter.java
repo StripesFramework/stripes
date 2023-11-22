@@ -32,7 +32,7 @@ public class PercentageTypeConverter extends NumberTypeConverterSupport
     implements TypeConverter<Number> {
 
   /** Pattern used to remove any spaces between the value and the % sign. */
-  public static final Pattern PRE_PROCESS_PATTERN = Pattern.compile("[\\s]+%");
+  public static final Pattern PRE_PROCESS_PATTERN = Pattern.compile("\\s+%");
 
   /** Returns a single percentage instance of NumberFormat. */
   @Override

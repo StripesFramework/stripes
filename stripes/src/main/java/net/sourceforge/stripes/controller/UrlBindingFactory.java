@@ -56,26 +56,22 @@ public class UrlBindingFactory {
   private static final Log log = Log.getInstance(UrlBindingFactory.class);
 
   /** Maps {@link ActionBean} classes to {@link UrlBinding}s */
-  private final Map<Class<? extends ActionBean>, UrlBinding> classCache =
-      new HashMap<Class<? extends ActionBean>, UrlBinding>();
+  private final Map<Class<? extends ActionBean>, UrlBinding> classCache = new HashMap<>();
 
   /** Maps simple paths to {@link UrlBinding}s */
-  private final Map<String, UrlBinding> pathCache = new HashMap<String, UrlBinding>();
+  private final Map<String, UrlBinding> pathCache = new HashMap<>();
 
   /**
    * Keeps a list of all the paths that could not be cached due to conflicts between URL bindings
    */
-  private final Map<String, List<UrlBinding>> pathConflicts =
-      new HashMap<String, List<UrlBinding>>();
+  private final Map<String, List<UrlBinding>> pathConflicts = new HashMap<>();
 
   /** Holds the set of paths that are cached, sorted from longest to shortest */
   private final Map<String, Set<UrlBinding>> prefixCache =
-      new TreeMap<String, Set<UrlBinding>>(
-          new Comparator<String>() {
-            public int compare(String a, String b) {
-              int cmp = b.length() - a.length();
-              return cmp == 0 ? a.compareTo(b) : cmp;
-            }
+      new TreeMap<>(
+          (a, b) -> {
+            int cmp = b.length() - a.length();
+            return cmp == 0 ? a.compareTo(b) : cmp;
           });
 
   /** Get all the classes implementing {@link ActionBean} */
@@ -115,7 +111,7 @@ public class UrlBindingFactory {
       log.debug("Matched ", uri, " to ", prototype);
       return prototype;
     } else if (pathConflicts.containsKey(uri)) {
-      List<String> strings = new ArrayList<String>();
+      List<String> strings = new ArrayList<>();
       for (UrlBinding conflict : pathConflicts.get(uri)) strings.add(conflict.toString());
       throw new UrlBindingConflictException(uri, strings);
     }
@@ -147,9 +143,8 @@ public class UrlBindingFactory {
       int componentCount = components.size(), componentMatch = 0;
 
       for (Object component : components) {
-        if (!(component instanceof String)) continue;
+        if (!(component instanceof String string)) continue;
 
-        String string = (String) component;
         int at = uri.indexOf(string, idx);
         if (at >= 0) {
           idx = at + string.length();
@@ -181,8 +176,8 @@ public class UrlBindingFactory {
         maxComponentMatch = componentMatch;
       } else if (idx == maxIndex && componentCount == minComponentCount) {
         if (conflicts == null) {
-          conflicts = new ArrayList<String>(candidates.size());
-          conflicts.add(prototype.toString());
+          conflicts = new ArrayList<>(candidates.size());
+          conflicts.add(prototype != null ? prototype.toString() : null);
         }
         conflicts.add(binding.toString());
         prototype = null;
@@ -233,16 +228,15 @@ public class UrlBindingFactory {
     while (length > 0 && uri.charAt(length - 1) == '/') --length;
 
     // extract the request parameters and add to new binding object
-    ArrayList<Object> components = new ArrayList<Object>(prototype.getComponents().size());
+    ArrayList<Object> components = new ArrayList<>(prototype.getComponents().size());
     int index = prototype.getPath().length();
     UrlBindingParameter current = null;
     String value = null;
     Iterator<Object> iter = prototype.getComponents().iterator();
     while (index < length && iter.hasNext()) {
       Object component = iter.next();
-      if (component instanceof String) {
+      if (component instanceof String literal) {
         // extract the parameter value from the URI
-        String literal = (String) component;
         int end = uri.indexOf(literal, index);
         if (end >= 0) {
           value = uri.substring(index, end);
@@ -253,7 +247,7 @@ public class UrlBindingFactory {
         }
 
         // add to the binding
-        if (current != null && value != null && value.length() > 0) {
+        if (current != null && !value.isEmpty()) {
           components.add(new UrlBindingParameter(current, value));
           components.add(component);
           current = null;
@@ -270,7 +264,7 @@ public class UrlBindingFactory {
     }
 
     // parameter was last component in list
-    if (current != null && value != null && value.length() > 0) {
+    if (current != null && !value.isEmpty()) {
       components.add(new UrlBindingParameter(current, value));
     }
 
@@ -306,8 +300,7 @@ public class UrlBindingFactory {
    * @return an immutable collection of {@link ActionBean} classes
    */
   public HashMap<String, Class<? extends ActionBean>> getPathMap() {
-    HashMap<String, Class<? extends ActionBean>> map =
-        new HashMap<String, Class<? extends ActionBean>>();
+    HashMap<String, Class<? extends ActionBean>> map = new HashMap<>();
     for (Entry<String, UrlBinding> entry : pathCache.entrySet()) {
       if (entry.getValue() != null) {
         map.put(entry.getKey(), entry.getValue().getBeanType());
@@ -370,7 +363,7 @@ public class UrlBindingFactory {
 
         if (conflicts.size() == 1) {
           if (resolvedConflicts == null) {
-            resolvedConflicts = new LinkedHashSet<UrlBinding>();
+            resolvedConflicts = new LinkedHashSet<>();
           }
 
           resolvedConflicts.add(pathCache.get(conflicts.get(0)));
@@ -408,7 +401,7 @@ public class UrlBindingFactory {
    * logged at startup and an exception will be thrown if the conflicting path is requested.
    */
   protected Set<String> getCachedPaths(UrlBinding binding) {
-    Set<String> paths = new TreeSet<String>();
+    Set<String> paths = new TreeSet<>();
 
     // Wire some paths directly to the ActionBean (path, path + /, path + suffix, etc.)
     paths.add(binding.getPath());
@@ -423,11 +416,11 @@ public class UrlBindingFactory {
    * Get a list of the request path prefixes that <em>could</em> map to an ActionBean. A single
    * prefix may map to multiple ActionBeans. In such a case, we attempt to determine the best match
    * based on the literal strings and parameters defined in the ActionBeans' URL bindings. If no
-   * single ActionBean is determined to be a best match, then an exception is thrown to report the
+   * single ActionBean is determined to be the best match, then an exception is thrown to report the
    * conflict.
    */
   protected Set<String> getCachedPrefixes(UrlBinding binding) {
-    Set<String> prefixes = new TreeSet<String>();
+    Set<String> prefixes = new TreeSet<>();
 
     // Add binding as a candidate for some prefixes (path + /, path + leading literal, etc.)
     if (binding.getPath().endsWith("/")) prefixes.add(binding.getPath());
@@ -456,7 +449,7 @@ public class UrlBindingFactory {
       // Construct a list of conflicting bindings
       List<UrlBinding> conflicts = pathConflicts.get(path);
       if (conflicts == null) {
-        conflicts = new ArrayList<UrlBinding>();
+        conflicts = new ArrayList<>();
         conflicts.add(conflict);
         pathConflicts.put(path, conflicts);
       }
@@ -464,14 +457,14 @@ public class UrlBindingFactory {
 
       // If there is exactly one binding for this path that declares no parameters, then it is
       // a static binding and should take precedence over dynamic ones.
-      UrlBinding statik = null;
+      UrlBinding staticBinding = null;
       if (conflicts.size() > 1) {
         for (UrlBinding ub : conflicts) {
           if (ub.getParameters().isEmpty()) {
-            if (statik == null) {
-              statik = ub;
+            if (staticBinding == null) {
+              staticBinding = ub;
             } else {
-              statik = null;
+              staticBinding = null;
               break;
             }
           }
@@ -479,7 +472,7 @@ public class UrlBindingFactory {
       }
 
       // Replace the path cache entry if necessary and log a warning
-      if (statik == null) {
+      if (staticBinding == null) {
         log.debug(
             "The path ",
             path,
@@ -494,10 +487,10 @@ public class UrlBindingFactory {
             "For path ",
             path,
             ", static binding ",
-            statik,
+            staticBinding,
             " supersedes conflicting bindings ",
             conflicts);
-        pathCache.put(path, statik);
+        pathCache.put(path, staticBinding);
       }
     } else {
       log.debug("Wiring path ", path, " to ", binding.getBeanType().getName(), " @ ", binding);
@@ -515,21 +508,15 @@ public class UrlBindingFactory {
     log.debug("Wiring prefix ", prefix, "* to ", binding.getBeanType().getName(), " @ ", binding);
 
     // Look up existing set of bindings to which the prefix maps
-    Set<UrlBinding> bindings = prefixCache.get(prefix);
+    Set<UrlBinding> bindings =
+        prefixCache.computeIfAbsent(
+            prefix,
+            k ->
+                new TreeSet<>(
+                    Comparator.comparingInt((UrlBinding o) -> o.getComponents().size())
+                        .thenComparing(UrlBinding::toString)));
 
     // If necessary, create and store a new set of bindings
-    if (bindings == null) {
-      bindings =
-          new TreeSet<UrlBinding>(
-              new Comparator<UrlBinding>() {
-                public int compare(UrlBinding o1, UrlBinding o2) {
-                  int cmp = o1.getComponents().size() - o2.getComponents().size();
-                  if (cmp == 0) cmp = o1.toString().compareTo(o2.toString());
-                  return cmp;
-                }
-              });
-      prefixCache.put(prefix, bindings);
-    }
 
     // Add the binding to the set
     bindings.add(binding);
@@ -572,20 +559,20 @@ public class UrlBindingFactory {
 
     // parse the pattern
     String path = null;
-    List<Object> components = new ArrayList<Object>();
+    List<Object> components = new ArrayList<>();
     boolean brace = false, escape = false;
     char[] chars = pattern.toCharArray();
     StringBuilder buf = new StringBuilder(pattern.length());
     char c = 0;
-    for (int i = 0; i < chars.length; i++) {
-      c = chars[i];
+    for (char aChar : chars) {
+      c = aChar;
       if (!escape) {
         switch (c) {
-          case '{':
+          case '{' -> {
             if (!brace) {
               brace = true;
               if (path == null) {
-                // extract trailing non-alphanum chars as a literal to trim the path
+                // extract trailing non-alphanumeric chars as a literal to trim the path
                 int end = buf.length() - 1;
                 while (end >= 0 && !Character.isJavaIdentifierPart(buf.charAt(end))) --end;
                 if (end < 0) {
@@ -601,24 +588,24 @@ public class UrlBindingFactory {
               buf.setLength(0);
               continue;
             }
-            break;
-          case '}':
+          }
+          case '}' -> {
             if (brace) {
               brace = false;
               components.add(parseUrlBindingParameter(beanType, buf.toString()));
               buf.setLength(0);
               continue;
             }
-            break;
-          case '\\':
+          }
+          case '\\' -> {
             escape = true;
 
             // Preserve escape characters for parameter name parser
             if (brace) {
               buf.append(c);
             }
-
             continue;
+          }
         }
       }
 
@@ -633,7 +620,7 @@ public class UrlBindingFactory {
       throw new ParseException(pattern, "Unterminated left brace ('{') in expression");
 
     // handle whatever is left
-    if (buf.length() > 0) {
+    if (!buf.isEmpty()) {
       if (path == null) path = buf.toString();
       else if (c == '}') components.add(parseUrlBindingParameter(beanType, buf.toString()));
       else components.add(buf.toString());
@@ -654,21 +641,23 @@ public class UrlBindingFactory {
   public static UrlBindingParameter parseUrlBindingParameter(
       Class<? extends ActionBean> beanClass, String string) {
     char[] chars = string.toCharArray();
-    char c = 0;
+    char c;
     boolean escape = false;
     StringBuilder name = new StringBuilder();
     StringBuilder defaultValue = new StringBuilder();
     StringBuilder current = name;
-    for (int i = 0; i < chars.length; i++) {
-      c = chars[i];
+    for (char aChar : chars) {
+      c = aChar;
       if (!escape) {
         switch (c) {
-          case '\\':
+          case '\\' -> {
             escape = true;
             continue;
-          case '=':
+          }
+          case '=' -> {
             current = defaultValue;
             continue;
+          }
         }
       }
 
@@ -677,13 +666,13 @@ public class UrlBindingFactory {
     }
 
     // Parameter name must not be empty
-    if (name.length() < 1) {
+    if (name.isEmpty()) {
       throw new ParseException(
           string, "Empty parameter name in URL binding for " + beanClass.getName());
     }
 
-    String dflt = defaultValue.length() < 1 ? null : defaultValue.toString();
-    if (dflt != null && UrlBindingParameter.PARAMETER_NAME_EVENT.equals(name.toString())) {
+    String defaultTmp = defaultValue.isEmpty() ? null : defaultValue.toString();
+    if (defaultTmp != null && UrlBindingParameter.PARAMETER_NAME_EVENT.contentEquals(name)) {
       throw new ParseException(
           string,
           "In ActionBean class "
@@ -693,7 +682,7 @@ public class UrlBindingFactory {
               + " parameter may not be assigned a default value. Its default value is"
               + " determined by the @DefaultHandler annotation.");
     }
-    return new UrlBindingParameter(beanClass, name.toString(), null, dflt) {
+    return new UrlBindingParameter(beanClass, name.toString(), null, defaultTmp) {
       @Override
       public String getValue() {
         throw new UnsupportedOperationException(

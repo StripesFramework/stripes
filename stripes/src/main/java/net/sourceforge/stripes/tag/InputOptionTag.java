@@ -21,9 +21,9 @@ import net.sourceforge.stripes.exception.StripesJspException;
 import net.sourceforge.stripes.util.HtmlUtil;
 
 /**
- * Generates an {@literal <option value="foo">Fooey</option>} HTML tag. Coordinates with an
- * enclosing select tag to determine it's state (i.e. whether or not it is selected.) As a result
- * some of the logic regarding state repopulation is a bit complex.
+ * Generates an {@literal <option value="foo">Foo</option>} HTML tag. Coordinates with an enclosing
+ * select tag to determine it's state (i.e. whether it is selected.) As a result some of the logic
+ * regarding state re-population is a bit complex.
  *
  * <p>Since options can have only a single value per option the value attribute of the tag must be a
  * scalar, which will be converted into a String using a Formatter if an appropriate one can be
@@ -31,7 +31,7 @@ import net.sourceforge.stripes.util.HtmlUtil;
  * used as an indication that this option believes it should be selected by default - the value (as
  * opposed to the presence) of the selected attribute is never used....
  *
- * <p>The option tag delegates to its enclosing select tag to determine whether or not it should be
+ * <p>The option tag delegates to its enclosing select tag to determine whether it should be
  * selected. See the {@link InputSelectTag "select tag"} for documentation on how it determines
  * selection status. If the select tag <em>has no opinion</em> on selection state (note that this is
  * not the same as select tag deeming the option should not be selected) then the presence of the
@@ -58,7 +58,7 @@ public class InputOptionTag extends InputTagSupport implements BodyTag {
     return this.value;
   }
 
-  /** Sets the label that will be used as the option body if no body is supplied. */
+  /** Sets the label that will be used as the option body if body content is not supplied. */
   public void setLabel(String label) {
     this.label = label;
   }
@@ -68,7 +68,7 @@ public class InputOptionTag extends InputTagSupport implements BodyTag {
     return this.label;
   }
 
-  /** Sets whether or not this option believes it should be selected by default. */
+  /** Sets whether this option believes it should be selected by default. */
   public void setSelected(String selected) {
     this.selected = selected;
   }
@@ -160,7 +160,7 @@ public class InputOptionTag extends InputTagSupport implements BodyTag {
    * gets registered).
    */
   @Override
-  protected void registerWithParentForm() throws StripesJspException {
+  protected void registerWithParentForm() {
     // Do nothing, options are not standalone fields and should not register
   }
 }

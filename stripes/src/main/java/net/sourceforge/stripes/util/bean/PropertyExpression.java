@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
  * An expression representing a property, nested property or indexed property of a JavaBean, or a
  * combination of all three. Capable of parsing String property expressions into a series of {@link
  * Node}s representing each sub-property or indexed property. Expression nodes can be separated with
- * periods, or square-bracket indexing. Items inside square brackets can be single or double quoted,
+ * periods, or square-bracket indexing. Items inside square brackets can be single or double-quoted,
  * or bare int/long/float/double/boolean literals in the same manner they appear in Java source code
  * (e.g. 123.6F for a float).
  *
@@ -45,11 +45,10 @@ public class PropertyExpression {
   private static final String TERMINATOR_CHARS = ".[]";
 
   /** A static cache of parse expressions. */
-  private static Map<String, PropertyExpression> expressions =
-      new ConcurrentHashMap<String, PropertyExpression>();
+  private static final Map<String, PropertyExpression> expressions = new ConcurrentHashMap<>();
 
   /** The original property string, or 'source' of the expression. */
-  private String source;
+  private final String source;
 
   private Node root;
   private Node leaf;
@@ -165,7 +164,7 @@ public class PropertyExpression {
       }
       // Deal with square brackets
       else if (!inSquareBrackets && ch == '[') {
-        if (builder.length() > 0) {
+        if (!builder.isEmpty()) {
           addNode(builder.toString(), null, inSquareBrackets);
           builder.setLength(0);
         }
@@ -173,7 +172,7 @@ public class PropertyExpression {
       } else if (inSquareBrackets) {
         // Using the nested IF allows us to consume periods in unquoted strings of digits
         if (ch == ']') {
-          if (builder.length() > 0) {
+          if (!builder.isEmpty()) {
             addNode(builder.toString(), null, inSquareBrackets);
             builder.setLength(0);
           }
@@ -184,7 +183,8 @@ public class PropertyExpression {
       }
       // If it's a bare period, it's the end of the current node
       else if (ch == '.') {
-        if (builder.length() < 1) {
+        //noinspection StatementWithEmptyBody
+        if (builder.isEmpty()) {
           // Ignore pseudo-zero-length nodes
         } else {
           addNode(builder.toString(), null, inSquareBrackets);
@@ -194,7 +194,7 @@ public class PropertyExpression {
         builder.append(ch);
       }
 
-      // If it's the last char and we have stuff in buffer, close out the last node
+      // If it's the last char, and we have stuff in buffer, close out the last node
       if (i == chars.length - 1) {
         if (inSingleQuotedString) {
           throw new ParseException(
@@ -206,7 +206,7 @@ public class PropertyExpression {
           throw new ParseException(
               expression,
               "Expression appears to terminate inside of square bracketed sub-expression.");
-        } else if (builder.length() > 0) {
+        } else if (!builder.isEmpty()) {
           addNode(builder.toString(), null, inSquareBrackets);
         }
       }
@@ -223,6 +223,7 @@ public class PropertyExpression {
    */
   private void addNode(String nodeValue, Object typedValue, boolean bracketed) {
     // Determine the primitive/wrapper type of the node
+    //noinspection StatementWithEmptyBody
     if (typedValue != null) {
       // skip ahead
     } else if (REGEX_INTEGER.matcher(nodeValue).matches()) {

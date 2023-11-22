@@ -19,7 +19,7 @@ import net.sourceforge.stripes.action.Resolution;
  */
 public class DefaultViewActionBean implements ActionBean {
   private ActionBeanContext context;
-  private Resolution view;
+  private final Resolution view;
 
   public DefaultViewActionBean(Resolution view) {
     this.view = view;

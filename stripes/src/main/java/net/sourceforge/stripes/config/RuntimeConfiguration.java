@@ -204,9 +204,9 @@ public class RuntimeConfiguration extends DefaultConfiguration {
    */
   @Override
   protected Map<LifecycleStage, Collection<Interceptor>> initCoreInterceptors() {
-    List<Class<?>> coreInterceptorClasses =
+    List<Class<? extends Interceptor>> coreInterceptorClasses =
         getBootstrapPropertyResolver().getClassPropertyList(CORE_INTERCEPTOR_LIST);
-    if (coreInterceptorClasses.size() == 0) return super.initCoreInterceptors();
+    if (coreInterceptorClasses.isEmpty()) return super.initCoreInterceptors();
     else return initInterceptors(coreInterceptorClasses);
   }
 
@@ -225,25 +225,24 @@ public class RuntimeConfiguration extends DefaultConfiguration {
 
   /**
    * Splits a comma-separated list of class names and maps each {@link LifecycleStage} to the
-   * interceptors in the list that intercept it. Also automatically finds Interceptors in packages
+   * interceptors in the list that intercept it. Also, automatically finds Interceptors in packages
    * listed in {@link BootstrapPropertyResolver#PACKAGES} if searchExtensionPackages is true.
    *
    * @return a Map of {@link LifecycleStage} to Collection of {@link Interceptor}
    */
-  @SuppressWarnings("unchecked")
-  protected Map<LifecycleStage, Collection<Interceptor>> initInterceptors(List classes) {
+  protected Map<LifecycleStage, Collection<Interceptor>> initInterceptors(
+      List<Class<? extends Interceptor>> classes) {
 
-    Map<LifecycleStage, Collection<Interceptor>> map =
-        new HashMap<LifecycleStage, Collection<Interceptor>>();
+    Map<LifecycleStage, Collection<Interceptor>> map = new HashMap<>();
 
-    for (Object type : classes) {
+    for (Class<? extends Interceptor> type : classes) {
       try {
         Interceptor interceptor =
             getObjectFactory().newInstance((Class<? extends Interceptor>) type);
         addInterceptor(map, interceptor);
       } catch (Exception e) {
         throw new StripesRuntimeException(
-            "Could not instantiate configured Interceptor [" + type.getClass().getName() + "].", e);
+            "Could not instantiate configured Interceptor [" + type.getName() + "].", e);
       }
     }
 
@@ -261,7 +260,8 @@ public class RuntimeConfiguration extends DefaultConfiguration {
   @SuppressWarnings("unchecked")
   protected <T extends ConfigurableComponent> T initializeComponent(
       Class<T> componentType, String propertyName) {
-    Class clazz = getBootstrapPropertyResolver().getClassProperty(propertyName, componentType);
+    Class<? extends T> clazz =
+        getBootstrapPropertyResolver().getClassProperty(propertyName, componentType);
     if (clazz != null) {
       try {
         T component;
@@ -270,7 +270,7 @@ public class RuntimeConfiguration extends DefaultConfiguration {
         if (objectFactory != null) {
           component = objectFactory.newInstance((Class<T>) clazz);
         } else {
-          component = (T) clazz.getDeclaredConstructor().newInstance();
+          component = clazz.getDeclaredConstructor().newInstance();
         }
 
         component.init(this);
@@ -294,7 +294,7 @@ public class RuntimeConfiguration extends DefaultConfiguration {
    * Calls super.init() then adds Formatters and TypeConverters found in packages listed in {@link
    * BootstrapPropertyResolver#PACKAGES} to their respective factories.
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"rawtypes"})
   @Override
   public void init() {
     super.init();

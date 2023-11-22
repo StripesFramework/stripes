@@ -27,7 +27,7 @@ import net.sourceforge.stripes.localization.LocalizationUtility;
  * the {@code name} attribute is supplied this will always be used as the lookup key (optionally
  * pre-pended with the form's action path). If the {@code name} field is not supplied, the tag will
  * fall back to using the value supplied for the {@code for} attribute. This is done because the
- * {@code for} attribute is used by HTML as a reference to the {@code id} of the input being
+ * {@code for} attribute is used by HTML as a reference to the {@code id} of the input that will be
  * labeled. In the case where the id is equal to the field name it is unnecessary to specify a
  * {@code name} attribute for the label tag. In cases where the field name (or other localized
  * resource name) does not match an HTML ID, the {@code name} attribute must be used.
@@ -35,8 +35,8 @@ import net.sourceforge.stripes.localization.LocalizationUtility;
  * <p>The value used for the label is the localized field name if one exists. Localized field names
  * are looked up in the field name resource bundle first using {@code formActionPath.fieldName}, and
  * then (if no value is found) using just {@code fieldName}. If no localized String can be found
- * then the body of the label tag is used. If no body is supplied then a warning String will be used
- * instead!
+ * then the body of the label tag is used. If body content is not supplied then a warning String
+ * will be used instead!
  *
  * @author Tim Fennell
  * @since Stripes 1.1
@@ -62,8 +62,8 @@ public class InputLabelTag extends InputTagSupport implements BodyTag {
 
   /**
    * Sets the name of the form element/label to be rendered. Should only be invoked by the JSP
-   * container as it also tracks whether or not the container has set the name, in order to
-   * correctly handle pooling.
+   * container as it also tracks whether the container has set the name, in order to correctly
+   * handle pooling.
    */
   @Override
   public void setName(String name) {
@@ -83,7 +83,7 @@ public class InputLabelTag extends InputTagSupport implements BodyTag {
 
   /** Does nothing. */
   public void doInitBody() throws JspException {
-    /** Do Nothing */
+    /* Do Nothing */
   }
 
   /**
@@ -124,7 +124,7 @@ public class InputLabelTag extends InputTagSupport implements BodyTag {
       getPageContext().getOut().write(label);
       writeCloseTag(getPageContext().getOut(), "label");
 
-      // Reset the field name so as to not screw up tag pooling
+      // Reset the field name to not screw up tag pooling
       if (this.nameSet) {
         super.setName(fieldName);
       }
@@ -140,11 +140,11 @@ public class InputLabelTag extends InputTagSupport implements BodyTag {
 
   /** Overridden to do nothing, since a label isn't really a form field. */
   @Override
-  protected void registerWithParentForm() throws StripesJspException {}
+  protected void registerWithParentForm() {}
 
   /**
-   * Wraps the parent loadErrors() to suppress exceptions when the label is outside of a stripes
-   * form tag.
+   * Wraps the parent loadErrors() to suppress exceptions when the label is outside a stripes form
+   * tag.
    */
   @Override
   protected void loadErrors() {

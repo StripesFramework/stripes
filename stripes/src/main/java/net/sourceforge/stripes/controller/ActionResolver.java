@@ -103,7 +103,7 @@ public interface ActionResolver extends ConfigurableComponent {
   String getUrlBinding(Class<? extends ActionBean> clazz);
 
   /**
-   * Determines the name of the event fired by the front end. Allows implementations to easiliy vary
+   * Determines the name of the event fired by the front end. Allows implementations to easily vary
    * their strategy for specifying event names (e.g. button names, hidden field rewrites via
    * JavaScript etc.).
    *
@@ -140,10 +140,10 @@ public interface ActionResolver extends ConfigurableComponent {
 
   /**
    * Returns the name of the event to which a given handler method responds. Primarily useful when
-   * the default event is fired and it is necessary to figure out if the handler also responds to a
+   * the default event is fired, and it is necessary to figure out if the handler also responds to a
    * named event.
    *
-   * @param handler the handler method who's event name to find
+   * @param handler the handler method whose event name to find
    * @return String the name of the event handled by this method, or null if an event is not mapped
    *     to this method.
    */

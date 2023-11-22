@@ -16,7 +16,7 @@ package net.sourceforge.stripes.util.bean;
 
 /**
  * Interface which is implemented by classes capable of acting as accessors for certain types of
- * classes. Currently this is tied very tightly to the {@link NodeType} enum. Each PropertyAccessor
+ * classes. Currently, this is tied very tightly to the {@link NodeType} enum. Each PropertyAccessor
  * must be able to store and retrieve values from the target type.
  *
  * @author Tim Fennell
@@ -31,7 +31,7 @@ public interface PropertyAccessor<T> {
    * @param target the target object from which the value is to be retrieved
    * @return the value as determined by the accessor, may be null
    */
-  public Object getValue(NodeEvaluation evaluation, T target);
+  Object getValue(NodeEvaluation evaluation, T target);
 
   /**
    * Gets the value specified by the NodeEvaluation in the target object.
@@ -41,5 +41,5 @@ public interface PropertyAccessor<T> {
    * @param target the target object in/on to which the value is to be stored
    * @param value the value to be set, may be null
    */
-  public void setValue(NodeEvaluation evaluation, T target, Object value);
+  void setValue(NodeEvaluation evaluation, T target, Object value);
 }

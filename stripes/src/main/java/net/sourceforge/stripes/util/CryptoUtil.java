@@ -31,30 +31,30 @@ import net.sourceforge.stripes.exception.StripesRuntimeException;
 /**
  * Cryptographic utility that can encrypt and decrypt Strings using a key stored in HttpSession.
  * Strings are encrypted by default using a 168bit DEDede (triple DES) key and then Base 64 encoded
- * in a way that is compatible with being inserte into web pages.
+ * in a way that is compatible with being insert into web pages.
  *
  * <p>A single encryption key is used to encrypt values for all sessions in the web application. The
  * key can come from multiple sources. Without any configuration the key will be generated using a
  * SecureRandom the first time it is needed. <b>Note: this will result in encrypted values that are
- * not decryptable across application restarts or across nodes in a cluster.</b> Alternatively
- * specific key material can be specified using the configuration parameter <code>
+ * not able to be decrypted across application restarts or across nodes in a cluster.</b>
+ * Alternatively, specific key material can be specified using the configuration parameter <code>
  * Stripes.EncryptionKey</code> in web.xml. This key is text that is used to generate a secret key,
  * and ideally should be quite long (at least 20 characters). If a key is configured this way the
  * same key will be used across all nodes in a cluster and across restarts.
  *
- * <p>Finally a key can be specified by calling {@link #setSecretKey(javax.crypto.SecretKey)} and
- * providing your own {@link SecretKey} instance. This method allows the specification of any key
- * from any source. In addition the provided key can be for any algorithm supported by the JVM in
- * which it is constructed. CryptoUtil will then use the algorithm returned by {@link
- * javax.crypto.SecretKey#getAlgorithm()}. If using this method, the key should be set before any
- * requests are made, e.g. in a {@link jakarta.servlet.ServletContextListener}.
+ * <p>Finally a key can be specified by calling {@link #setSecretKey(SecretKey)} and providing your
+ * own {@link SecretKey} instance. This method allows the specification of any key from any source.
+ * In addition, the provided key can be for any algorithm supported by the JVM in which it is
+ * constructed. CryptoUtil will then use the algorithm returned by {@link SecretKey#getAlgorithm()}.
+ * If using this method, the key should be set before any requests are made, e.g. in a {@link
+ * jakarta.servlet.ServletContextListener}.
  *
  * <p>Stripes originally performed a broken authentication scheme. It was rewritten in STS-934 to
- * perform the Encrypt-then-Mac pattern. Also the encryption mode was changed from ECB to CBC.
+ * perform the Encrypt-then-Mac pattern. Also, the encryption mode was changed from ECB to CBC.
  *
  * @author Tim Fennell
  * @since Stripes 1.2
- * @see https://en.wikipedia.org/wiki/Authenticated_encryption
+ * @see <a href="https://en.wikipedia.org/wiki/Authenticated_encryption">...</a>
  */
 public class CryptoUtil {
   private static final Log log = Log.getInstance(CryptoUtil.class);
@@ -136,7 +136,7 @@ public class CryptoUtil {
 
   /**
    * Generates IV, random start bytes required by most block cipher modes, which is intended to
-   * prevent analyzing a cipher mode as an xor substitution cipher.
+   * prevent analyzing a cipher mode as a xor substitution cipher.
    *
    * @return CIPHER_BLOCK_LENGTH bytes of random data
    */
@@ -210,7 +210,7 @@ public class CryptoUtil {
 
     /*
      * HMAC: validate ciphertext integrity.
-     * invalid hmac = choosen ciphertext attack against system.
+     * invalid hmac = chosen ciphertext attack against system.
      *
      * Encrypt-then-Mac (EtM) pattern, HMAC must be validated before the dangerous decrypt operation.
      *
@@ -239,7 +239,7 @@ public class CryptoUtil {
     /*
      * Encrypt-then-Mac pattern;
      * If validation success, ciphertext is assumed to be friendly and safe to process.
-     * Padding attacks, wrong blocklength etc is not expected from this point.
+     * Padding attacks, wrong block length etc. is not expected from this point.
      *
      */
 
@@ -263,7 +263,7 @@ public class CryptoUtil {
 
   /**
    * Compares HMAC in a manner secured against timing attacks, as per NCC Group "Double Hmac
-   * Verification" recepie. Destructive compare, the hmac's will be replaced with the hmac's of
+   * Verification" recipe. Destructive compare, the hmacs will be replaced with the hmacs of
    * themselves as a side effect.
    *
    * @param key the hmac crypto key
@@ -311,7 +311,7 @@ public class CryptoUtil {
   /**
    * Returns the secret key to be used to encrypt and decrypt values. The key will be generated the
    * first time it is requested. Will look for source material for the key in config and use that if
-   * found. Otherwise will generate key material using a SecureRandom and then manufacture the key.
+   * found. Otherwise, will generate key material using a SecureRandom and then manufacture the key.
    * Once the key is created it is cached locally and the same key instance will be returned until
    * the application is shutdown or restarted.
    *

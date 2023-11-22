@@ -24,7 +24,7 @@ import jakarta.servlet.jsp.JspException;
  *
  * <p>Provides a couple of facilities above and beyond using plain HTML tags. The main advantage is
  * a localization capability. The tag looks in the Stripes Field Name message bundle for resources
- * to be used as the src URL for the image and the alt text of the image. In order it will look for
+ * to be used as the src URL for the image and the alt text of the image. In order, it will look for
  * and use:
  *
  * <ul>
@@ -86,7 +86,7 @@ public class InputImageTag extends InputTagSupport {
       setSrc(ctx + src);
     }
 
-    writeSingletonTag(getPageContext().getOut(), "input");
+    writeSingletonTag(getPageContext().getOut());
     return EVAL_PAGE;
   }
 

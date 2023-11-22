@@ -42,8 +42,8 @@ import net.sourceforge.stripes.validation.ValidationError;
 import net.sourceforge.stripes.validation.ValidationErrors;
 
 /**
- * Form tag for use with the Stripes framework. Supports all of the HTML attributes applicable to
- * the form tag, with one exception: due to JSP attribute naming restrictions accept-charset is
+ * Form tag for use with the Stripes framework. Supports all the HTML attributes applicable to the
+ * form tag, with one exception: due to JSP attribute naming restrictions accept-charset is
  * specified as acceptcharset (but will be rendered correctly in the output HTML).
  *
  * @author Tim Fennell
@@ -78,7 +78,7 @@ public class FormTag extends HtmlTagSupport
   private UrlBuilder urlBuilder;
 
   /** A map of field name to field type for all fields registered with the form. */
-  private Map<String, Class<?>> fieldsPresent = new HashMap<String, Class<?>>();
+  private final Map<String, Class<?>> fieldsPresent = new HashMap<>();
 
   /**
    * Sets the action for the form. If the form action begins with a slash, and does not already
@@ -126,7 +126,7 @@ public class FormTag extends HtmlTagSupport
    *
    * @param beanclass the String FQN of the class, or a Class representing the class
    * @throws StripesJspException if the URL cannot be determined for any reason, most likely because
-   *     of a mis-spelled class name, or a class that's not an ActionBean
+   *     of a misspelled class name, or a class that's not an ActionBean
    */
   public void setBeanclass(Object beanclass) throws StripesJspException {
     this.beanclass = beanclass;
@@ -246,7 +246,7 @@ public class FormTag extends HtmlTagSupport
   ////////////////////////////////////////////////////////////
 
   /**
-   * Does sanity checks and returns EVAL_BODY_BUFFERED. Everything else of interest happens in
+   * Does sanity check and returns EVAL_BODY_BUFFERED. Everything else of interest happens in
    * doEndTag.
    */
   @Override
@@ -382,10 +382,10 @@ public class FormTag extends HtmlTagSupport
 
   /**
    * In general writes out a hidden field notifying the server exactly what fields were present on
-   * the page. Exact behaviour depends upon whether or not the current form is a wizard or not. When
-   * the current form is <b>not</b> a wizard this method examines the form tag to determine what
-   * fields present in the form might not get submitted to the server (e.g. checkboxes, selects),
-   * writes out a hidden field that contains the names of all those fields so that we can detect
+   * the page. Exact behaviour depends upon whether the current form is a wizard or not. When the
+   * current form is <b>not</b> a wizard this method examines the form tag to determine what fields
+   * present in the form might not get submitted to the server (e.g. checkboxes, selects), writes
+   * out a hidden field that contains the names of all those fields so that we can detect
    * non-submission when the request comes back.
    *
    * <p>In the case of a wizard form the value output is the full list of all fields that were
@@ -408,7 +408,7 @@ public class FormTag extends HtmlTagSupport
   /** Get the encrypted value of the __fp hidden field. */
   protected String getFieldsPresentValue() {
     // Figure out what set of names to include
-    Set<String> namesToInclude = new HashSet<String>();
+    Set<String> namesToInclude = new HashSet<>();
 
     if (isWizard()) {
       namesToInclude.addAll(this.fieldsPresent.keySet());
@@ -454,7 +454,7 @@ public class FormTag extends HtmlTagSupport
    */
   protected boolean isWizard() {
     ActionBean bean = getActionBean();
-    Class<? extends ActionBean> clazz = null;
+    Class<? extends ActionBean> clazz;
     if (bean == null) {
       clazz = getActionBeanClass();
 
@@ -511,7 +511,7 @@ public class FormTag extends HtmlTagSupport
    * @param tag the input tag being registered with the form
    */
   protected void setFocusOnFieldIfRequired(InputTagSupport tag) {
-    // Decide whether or not this field should be focused
+    // Decide whether this field should be focused
     if (this.focus != null && !this.focusSet) {
       ActionBean bean = getActionBean();
       ValidationErrors errors = bean == null ? null : bean.getContext().getValidationErrors();

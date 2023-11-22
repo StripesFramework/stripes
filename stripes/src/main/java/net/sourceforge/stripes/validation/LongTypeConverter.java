@@ -24,20 +24,20 @@ import java.util.Collection;
  */
 public class LongTypeConverter extends NumberTypeConverterSupport implements TypeConverter<Long> {
   /**
-   * @param input
-   * @param errors
-   * @return Integer an Integer object if one can be parsed from the input
+   * @param input the String to convert into a single Long
+   * @param errors the collection to which validation errors should be added
+   * @return Long a Long object if one can be parsed from the input
    */
   public Long convert(
       String input, Class<? extends Long> targetType, Collection<ValidationError> errors) {
 
     Number number = parse(input, errors);
-    Long retval = null;
+    Long returnValue = null;
     if (errors.isEmpty()) {
-      retval = number.longValue();
+      returnValue = number.longValue();
     }
 
-    return retval;
+    return returnValue;
   }
 
   /** Overridden to return integer instances instead. */

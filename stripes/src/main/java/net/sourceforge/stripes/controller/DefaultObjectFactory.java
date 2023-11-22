@@ -39,21 +39,21 @@ import net.sourceforge.stripes.util.ReflectUtil;
 import net.sourceforge.stripes.util.TypeHandlerCache;
 
 /**
- * An implementation of {@link ObjectFactory} that simply calls {@link Class#newInstance()} to
- * obtain a new instance.
+ * An implementation of {@link ObjectFactory} that simply calls
+ * Class.getDeclaredConstructor().newInstance() to obtain a new instance.
  *
  * @author Ben Gunter
  * @since Stripes 1.5.1
  */
-@SuppressWarnings("unchecked")
+@SuppressWarnings("ALL")
 public class DefaultObjectFactory implements ObjectFactory {
   /**
    * An implementation of {@link ConstructorWrapper} that calls back to {@link
    * DefaultObjectFactory#newInstance(Constructor, Object...)} to instantiate a class.
    */
   public static class DefaultConstructorWrapper<T> implements ConstructorWrapper<T> {
-    private ObjectFactory factory;
-    private Constructor<T> constructor;
+    private final ObjectFactory factory;
+    private final Constructor<T> constructor;
 
     /**
      * Wrap the given constructor.
@@ -85,8 +85,7 @@ public class DefaultObjectFactory implements ObjectFactory {
    * the interface and will, by default, be instantiated when an instance of the interface is
    * needed.
    */
-  protected final Map<Class<?>, Class<?>> interfaceImplementations =
-      new HashMap<Class<?>, Class<?>>();
+  protected final Map<Class<?>, Class<?>> interfaceImplementations = new HashMap<>();
 
   {
     interfaceImplementations.put(Collection.class, ArrayList.class);

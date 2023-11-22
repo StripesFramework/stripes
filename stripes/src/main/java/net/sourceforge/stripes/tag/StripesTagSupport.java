@@ -92,7 +92,7 @@ public abstract class StripesTagSupport implements Tag {
    * #popPageContextAttributes()}.
    */
   public void pushPageContextAttributes(Map<String, Object> attributes) {
-    this.previousAttributeValues = new HashMap<String, Object>();
+    this.previousAttributeValues = new HashMap<>();
 
     for (Map.Entry<String, Object> entry : attributes.entrySet()) {
       String name = entry.getKey();
@@ -138,7 +138,11 @@ public abstract class StripesTagSupport implements Tag {
     // If we can't find it by the normal way, try our own tag stack!
     Stack<StripesTagSupport> stack = getTagStack();
     ListIterator<StripesTagSupport> iterator = stack.listIterator(stack.size());
-    while (iterator.hasPrevious() && iterator.previous() != this) continue;
+    //noinspection StatementWithEmptyBody
+    while (iterator.hasPrevious() && iterator.previous() != this) {
+      // Do nothing, just iterate to the right spot
+    }
+
     while (iterator.hasPrevious()) {
       StripesTagSupport tag = iterator.previous();
       if (tagType.isAssignableFrom(tag.getClass())) {
@@ -161,7 +165,7 @@ public abstract class StripesTagSupport implements Tag {
             getPageContext().getRequest().getAttribute(StripesConstants.REQ_ATTR_TAG_STACK);
 
     if (stack == null) {
-      stack = new Stack<StripesTagSupport>();
+      stack = new Stack<>();
       getPageContext().getRequest().setAttribute(StripesConstants.REQ_ATTR_TAG_STACK, stack);
     }
 
@@ -176,16 +180,16 @@ public abstract class StripesTagSupport implements Tag {
    * @param nameOrClass either the String FQN of an ActionBean class, or a Class object
    * @return the appropriate ActionBean class or null
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "rawtypes"})
   protected Class<? extends ActionBean> getActionBeanType(Object nameOrClass) {
-    Class result = null;
+    Class result;
 
     // Figure out if it's a String of Class (or something else?) and act appropriately
     if (nameOrClass instanceof String) {
       try {
         result = ReflectUtil.findClass((String) nameOrClass);
-      } catch (ClassNotFoundException cnfe) {
-        log.error(cnfe, "Could not find class of type: ", nameOrClass);
+      } catch (ClassNotFoundException classNotFoundException) {
+        log.error(classNotFoundException, "Could not find class of type: ", nameOrClass);
         return null;
       }
     } else if (nameOrClass instanceof Class) {

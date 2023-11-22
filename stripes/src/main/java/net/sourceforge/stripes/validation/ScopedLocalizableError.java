@@ -14,8 +14,10 @@
  */
 package net.sourceforge.stripes.validation;
 
+import java.io.Serial;
 import java.util.Locale;
 import java.util.MissingResourceException;
+import java.util.Objects;
 import net.sourceforge.stripes.localization.LocalizationUtility;
 
 /**
@@ -47,13 +49,13 @@ import net.sourceforge.stripes.localization.LocalizationUtility;
  * @author Tim Fennell
  */
 public class ScopedLocalizableError extends LocalizableError {
-  private static final long serialVersionUID = 1L;
+  @Serial private static final long serialVersionUID = 1L;
 
   /** Default key that is used for looking up error messages. */
   public static final String DEFAULT_NAME = "errorMessage";
 
-  private String defaultScope;
-  private String key;
+  private final String defaultScope;
+  private final String key;
 
   /**
    * Constructs a ScopedLocalizableError with the supplied information.
@@ -93,7 +95,7 @@ public class ScopedLocalizableError extends LocalizableError {
    */
   @Override
   protected String getMessageTemplate(Locale locale) {
-    String name1 = null,
+    String name1,
         name2 = null,
         name3 = null,
         name4 = null,
@@ -212,16 +214,10 @@ public class ScopedLocalizableError extends LocalizableError {
 
     final ScopedLocalizableError that = (ScopedLocalizableError) o;
 
-    if (defaultScope != null
-        ? !defaultScope.equals(that.defaultScope)
-        : that.defaultScope != null) {
+    if (!Objects.equals(defaultScope, that.defaultScope)) {
       return false;
     }
-    if (key != null ? !key.equals(that.key) : that.key != null) {
-      return false;
-    }
-
-    return true;
+    return Objects.equals(key, that.key);
   }
 
   /** Generated hashCode() method. */

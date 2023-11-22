@@ -137,7 +137,7 @@ public class DynamicMappingFilter implements Filter {
    * because if the response has already been committed, they cannot send a 404 error. Since the
    * filter depends on getting a 404 before it attempts to dispatch an {@code ActionBean}, that is
    * problematic. So in using this writer, we assume that the length of the "missing resource"
-   * message will be less than the buffer size and we discard that message if we're able to map the
+   * message will be less than the buffer size, and we discard that message if we're able to map the
    * included URL to an {@code ActionBean}. If there is no 404 then the output will be sent
    * normally. If there is a 404 and the URL does not match an ActionBean then the "missing
    * resource" message is sent through.

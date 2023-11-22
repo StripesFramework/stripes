@@ -158,13 +158,8 @@ public class BootstrapPropertyResolver {
             "Couldn't find class specified in web.xml under param ", paramName, ": ", className);
       }
     } else {
-      // we didn't find it in web.xml so now we check any extension packages
-      ResolverUtil<T> resolver = new ResolverUtil<T>();
-      String[] packages = StringUtil.standardSplit(getProperty(PACKAGES));
-      resolver.findImplementations(targetType, packages);
-      Set<Class<? extends T>> classes = resolver.getClasses();
-      removeDontAutoloadClasses(classes);
-      removeAbstractClasses(classes);
+      // we didn't find it in web.xml, so now we check any extension packages
+      List<Class<? extends T>> classes = getClassPropertyList(targetType);
       if (classes.size() == 1) {
         clazz = classes.iterator().next();
         className = clazz.getName();
@@ -192,8 +187,8 @@ public class BootstrapPropertyResolver {
    * @param paramName the parameter to look for in web.xml
    * @return a List of classes found
    */
-  public List<Class<?>> getClassPropertyList(String paramName) {
-    List<Class<?>> classes = new ArrayList<Class<?>>();
+  public <T> List<Class<? extends T>> getClassPropertyList(String paramName) {
+    List<Class<? extends T>> classes = new ArrayList<>();
 
     String classList = getProperty(paramName);
 
@@ -226,13 +221,13 @@ public class BootstrapPropertyResolver {
    * @return a List of classes found
    */
   public <T> List<Class<? extends T>> getClassPropertyList(Class<T> targetType) {
-    ResolverUtil<T> resolver = new ResolverUtil<T>();
+    ResolverUtil<T> resolver = new ResolverUtil<>();
     String[] packages = StringUtil.standardSplit(getProperty(PACKAGES));
     resolver.findImplementations(targetType, packages);
     Set<Class<? extends T>> classes = resolver.getClasses();
     removeDontAutoloadClasses(classes);
     removeAbstractClasses(classes);
-    return new ArrayList<Class<? extends T>>(classes);
+    return new ArrayList<>(classes);
   }
 
   /**
@@ -245,7 +240,7 @@ public class BootstrapPropertyResolver {
    */
   @SuppressWarnings("unchecked")
   public <T> List<Class<? extends T>> getClassPropertyList(String paramName, Class<T> targetType) {
-    List<Class<? extends T>> classes = new ArrayList<Class<? extends T>>();
+    List<Class<? extends T>> classes = new ArrayList<>();
 
     for (Class<?> clazz : getClassPropertyList(paramName)) {
       // can't use addAll :(

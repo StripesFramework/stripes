@@ -19,7 +19,7 @@ import jakarta.servlet.jsp.tagext.BodyTag;
 
 /**
  * Generates {@literal <input type="radio" value="foo"/>} HTML tags based on the attribute set on
- * the tag and the state of the form. Since a single radio button widget on a HTML page can have
+ * the tag and the state of the form. Since a single radio button widget on an HTML page can have
  * only a single value, the value tag attribute must be a Scalar object. The value will be converted
  * to a String using the Stripes formatting system (with appropriate defaults), or by calling
  * toString if an appropriate Formatter does not exist. Similarly since radio button sets can have
@@ -125,7 +125,7 @@ public class InputRadioButtonTag extends InputTagSupport implements BodyTag {
 
     getAttributes().put("value", format(this.value));
 
-    writeSingletonTag(getPageContext().getOut(), "input");
+    writeSingletonTag(getPageContext().getOut());
 
     // Restore the state of the tag to before we mucked with it
     getAttributes().remove("checked");

@@ -51,14 +51,14 @@ public class DefaultTagErrorRenderer implements TagErrorRenderer {
   /** Ensures that the tag's list of CSS classes includes the "error" class. */
   public void doBeforeStartTag() {
     this.oldCssClass = tag.getCssClass();
-    if (this.oldCssClass != null && this.oldCssClass.length() > 0) {
+    if (this.oldCssClass != null && !this.oldCssClass.isEmpty()) {
       tag.setCssClass("error " + this.oldCssClass);
     } else {
       tag.setCssClass("error");
     }
   }
 
-  /** Resets the tag's class attribute to it's original value in case the tag gets pooled. */
+  /** Resets the tag's class attribute to its original value in case the tag gets pooled. */
   public void doAfterEndTag() {
     tag.setCssClass(oldCssClass);
   }
