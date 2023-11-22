@@ -14,75 +14,76 @@
  */
 package net.sourceforge.stripes.controller;
 
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import net.sourceforge.stripes.action.ActionBeanContext;
 import net.sourceforge.stripes.config.Configuration;
 import net.sourceforge.stripes.exception.StripesServletException;
 import net.sourceforge.stripes.util.Log;
 
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-
 /**
  * Implements an ActionBeanContextFactory that allows for instantiation of application specific
  * ActionBeanContext classes. Looks for a configuration parameters called "ActionBeanContext.Class".
  * If the property is present, the named class with be instantiated and returned from the
- * getContextInstance() method.  If no class is named, then the default class, ActionBeanContext
- * will be instantiated.
+ * getContextInstance() method. If no class is named, then the default class, ActionBeanContext will
+ * be instantiated.
  *
  * @author Tim Fennell
  */
 public class DefaultActionBeanContextFactory implements ActionBeanContextFactory {
-    private static final Log log = Log.getInstance(DefaultActionBeanContextFactory.class);
+  private static final Log log = Log.getInstance(DefaultActionBeanContextFactory.class);
 
-    /** The name of the configuration property used for the context class name. */
-    public static final String CONTEXT_CLASS_NAME = "ActionBeanContext.Class";
+  /** The name of the configuration property used for the context class name. */
+  public static final String CONTEXT_CLASS_NAME = "ActionBeanContext.Class";
 
-    private Configuration configuration;
-    private Class<? extends ActionBeanContext> contextClass;
+  private Configuration configuration;
+  private Class<? extends ActionBeanContext> contextClass;
 
-    /** Stores the configuration, and looks up the ActionBeanContext class specified. */
-    public void init(Configuration configuration) throws Exception {
-        setConfiguration(configuration);
+  /** Stores the configuration, and looks up the ActionBeanContext class specified. */
+  public void init(Configuration configuration) throws Exception {
+    setConfiguration(configuration);
 
-        Class<? extends ActionBeanContext> clazz = configuration.getBootstrapPropertyResolver()
-                .getClassProperty(CONTEXT_CLASS_NAME, ActionBeanContext.class);
-        if (clazz == null) {
-            clazz = ActionBeanContext.class;
-        }
-        else {
-            log.info(DefaultActionBeanContextFactory.class.getSimpleName(), " will use ",
-                    ActionBeanContext.class.getSimpleName(), " subclass ", clazz.getName());
-        }
-        this.contextClass = clazz;
+    Class<? extends ActionBeanContext> clazz =
+        configuration
+            .getBootstrapPropertyResolver()
+            .getClassProperty(CONTEXT_CLASS_NAME, ActionBeanContext.class);
+    if (clazz == null) {
+      clazz = ActionBeanContext.class;
+    } else {
+      log.info(
+          DefaultActionBeanContextFactory.class.getSimpleName(),
+          " will use ",
+          ActionBeanContext.class.getSimpleName(),
+          " subclass ",
+          clazz.getName());
     }
+    this.contextClass = clazz;
+  }
 
-    /**
-     * Returns a new instance of the configured class, or ActionBeanContext if a class is
-     * not specified.
-     */
-    public ActionBeanContext getContextInstance(HttpServletRequest request,
-                                                HttpServletResponse response) throws ServletException {
-        try {
-            ActionBeanContext context = getConfiguration().getObjectFactory().newInstance(
-                    this.contextClass);
-            context.setRequest(request);
-            context.setResponse(response);
-            return context;
-        }
-        catch (Exception e) {
-            throw new StripesServletException("Could not instantiate configured " +
-            "ActionBeanContext class: " + this.contextClass, e);
-        }
+  /**
+   * Returns a new instance of the configured class, or ActionBeanContext if a class is not
+   * specified.
+   */
+  public ActionBeanContext getContextInstance(
+      HttpServletRequest request, HttpServletResponse response) throws ServletException {
+    try {
+      ActionBeanContext context =
+          getConfiguration().getObjectFactory().newInstance(this.contextClass);
+      context.setRequest(request);
+      context.setResponse(response);
+      return context;
+    } catch (Exception e) {
+      throw new StripesServletException(
+          "Could not instantiate configured " + "ActionBeanContext class: " + this.contextClass, e);
     }
+  }
 
-	protected Configuration getConfiguration()
-	{
-		return configuration;
-	}
+  protected Configuration getConfiguration() {
+    return configuration;
+  }
 
-	protected void setConfiguration(Configuration configuration)
-	{
-		this.configuration = configuration;
-	}
+  protected void setConfiguration(Configuration configuration) {
+    this.configuration = configuration;
+  }
 }

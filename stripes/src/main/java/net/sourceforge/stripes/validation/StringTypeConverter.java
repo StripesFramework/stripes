@@ -14,22 +14,23 @@
  */
 package net.sourceforge.stripes.validation;
 
-import java.util.Locale;
 import java.util.Collection;
+import java.util.Locale;
 
 /**
- * A dummy type converter that targets the String type by simply returning the input
- * String without any modifications.
+ * A dummy type converter that targets the String type by simply returning the input String without
+ * any modifications.
  *
  * @author Tim Fennell
  * @since Stripes 1.4
  */
 public class StringTypeConverter implements TypeConverter<String> {
-    /** Does Nothing */
-    public void setLocale(Locale locale) { }
+  /** Does Nothing */
+  public void setLocale(Locale locale) {}
 
-    /** Simply returns the input String un-modified in any way. */
-    public String convert(String input, Class<? extends String> targetType, Collection<ValidationError> errors) {
-        return input;
-    }
+  /** Simply returns the input String un-modified in any way. */
+  public String convert(
+      String input, Class<? extends String> targetType, Collection<ValidationError> errors) {
+    return input;
+  }
 }

@@ -6,5 +6,14 @@ package net.sourceforge.stripes.test;
  * @author Tim Fennell
  */
 public enum TestEnum {
-    First, Second, Third, Fourth, Fifth, Sixth, Seventh, Eight, Ninth, Tenth
+  First,
+  Second,
+  Third,
+  Fourth,
+  Fifth,
+  Sixth,
+  Seventh,
+  Eight,
+  Ninth,
+  Tenth
 }

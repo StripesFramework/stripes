@@ -1,5 +1,5 @@
 /* Copyright 2009 Ben Gunter
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -23,262 +23,263 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.concurrent.atomic.AtomicInteger;
-
 import net.sourceforge.stripes.StripesTestFixture;
 import net.sourceforge.stripes.controller.ObjectFactory.ConstructorWrapper;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
 import net.sourceforge.stripes.util.Log;
-
-import org.junit.Test;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.AfterClass;
-
+import org.junit.Test;
 
 /**
  * Unit tests for {@link ObjectFactory} and {@link DefaultObjectFactory}.
- * 
+ *
  * @author Ben Gunter
  */
 public class ObjectFactoryTests extends StripesTestFixture {
-    public static final class Adder {
-        private int a;
-        private int b;
+  public static final class Adder {
+    private int a;
+    private int b;
 
-        public Adder(int a, int b) {
-            this.a = a;
-            this.b = b;
-        }
-
-        public int sum() {
-            return a + b;
-        }
+    public Adder(int a, int b) {
+      this.a = a;
+      this.b = b;
     }
 
-    public static class MyRunnable implements Runnable {
-        public void run() {
-        }
+    public int sum() {
+      return a + b;
     }
+  }
 
-    private static final Log log = Log.getInstance(ObjectFactoryTests.class);
+  public static class MyRunnable implements Runnable {
+    public void run() {}
+  }
 
-    public void instantiateClasses(ObjectFactory factory, Class<?>... classes) {
-        for (Class<?> clazz : classes) {
-            log.debug("Instantiating ", clazz);
-            Object o = factory.newInstance(clazz);
-            Assert.assertNotNull(o);
-            Assert.assertSame(o.getClass(), clazz);
-        }
+  private static final Log log = Log.getInstance(ObjectFactoryTests.class);
+
+  public void instantiateClasses(ObjectFactory factory, Class<?>... classes) {
+    for (Class<?> clazz : classes) {
+      log.debug("Instantiating ", clazz);
+      Object o = factory.newInstance(clazz);
+      Assert.assertNotNull(o);
+      Assert.assertSame(o.getClass(), clazz);
     }
+  }
 
-    public void instantiateInterfaces(ObjectFactory factory, Class<?>... classes) {
-        for (Class<?> clazz : classes) {
-            log.debug("Instantiating ", clazz);
-            Object o = factory.newInstance(clazz);
-            log.debug("Implementation class is ", o.getClass().getName());
-            Assert.assertNotNull(o);
-            Assert.assertTrue(clazz.isAssignableFrom(o.getClass()));
-        }
+  public void instantiateInterfaces(ObjectFactory factory, Class<?>... classes) {
+    for (Class<?> clazz : classes) {
+      log.debug("Instantiating ", clazz);
+      Object o = factory.newInstance(clazz);
+      log.debug("Implementation class is ", o.getClass().getName());
+      Assert.assertNotNull(o);
+      Assert.assertTrue(clazz.isAssignableFrom(o.getClass()));
     }
+  }
 
-    /** Test basic instantiation of classes. */
-    @Test
-    public void basic() {
-        ObjectFactory factory = super.getDefaultConfiguration().getObjectFactory();
-        instantiateClasses(factory, Object.class, String.class, Exception.class,
-                StringBuilder.class);
+  /** Test basic instantiation of classes. */
+  @Test
+  public void basic() {
+    ObjectFactory factory = super.getDefaultConfiguration().getObjectFactory();
+    instantiateClasses(factory, Object.class, String.class, Exception.class, StringBuilder.class);
+  }
+
+  /** Test instantiation of interfaces. */
+  @Test
+  public void interfaces() {
+    ObjectFactory factory = getDefaultConfiguration().getObjectFactory();
+    instantiateInterfaces(
+        factory,
+        Collection.class,
+        List.class,
+        Set.class,
+        SortedSet.class,
+        Queue.class,
+        Map.class,
+        SortedMap.class);
+  }
+
+  /** Test instantiation via constructor. */
+  @Test
+  public void constructor() {
+    log.info("Instantiating ", Adder.class, " via constructor call");
+    ConstructorWrapper<Adder> constructor =
+        getDefaultConfiguration()
+            .getObjectFactory()
+            .constructor(Adder.class, Integer.TYPE, Integer.TYPE);
+
+    int a = 37, b = 91;
+    Adder adder = constructor.newInstance(a, b);
+    Assert.assertNotNull(adder);
+    Assert.assertSame(adder.getClass(), Adder.class);
+    Assert.assertEquals(adder.sum(), a + b);
+  }
+
+  /** Attempt to instantiate an interface that does not have a known implementing class. */
+  @Test(expected = InstantiationException.class)
+  public void missingInterfaceImpl() throws Throwable {
+    try {
+      log.debug("Attempting to instantiate ", Runnable.class, " expecting failure");
+      getDefaultConfiguration().getObjectFactory().newInstance(Runnable.class);
+    } catch (StripesRuntimeException e) {
+      throw e.getCause();
     }
+  }
 
-    /** Test instantiation of interfaces. */
-    @Test
-    public void interfaces() {
-        ObjectFactory factory = getDefaultConfiguration().getObjectFactory();
-        instantiateInterfaces(factory, Collection.class, List.class, Set.class, SortedSet.class,
-                Queue.class, Map.class, SortedMap.class);
+  @Test
+  public void customInterfaceImpl() {
+    DefaultObjectFactory factory = new DefaultObjectFactory();
+    factory.addImplementingClass(CharSequence.class, String.class);
+    factory.addImplementingClass(List.class, LinkedList.class);
+    factory.addImplementingClass(Runnable.class, MyRunnable.class);
+    instantiateInterfaces(factory, CharSequence.class, List.class, Runnable.class);
+    Assert.assertSame(factory.newInstance(List.class).getClass(), LinkedList.class);
+  }
+
+  /** Attempt to instantiate a class that does not have a no-arg constructor. */
+  @Test(expected = NoSuchMethodException.class)
+  public void missingNoArgsConstructor() throws Throwable {
+    try {
+      log.debug("Attempting to instantiate ", Adder.class, " expecting failure");
+      getDefaultConfiguration().getObjectFactory().newInstance(Adder.class);
+    } catch (StripesRuntimeException e) {
+      throw e.getCause();
     }
+  }
 
-    /** Test instantiation via constructor. */
-    @Test
-    public void constructor() {
-        log.info("Instantiating ", Adder.class, " via constructor call");
-        ConstructorWrapper<Adder> constructor = getDefaultConfiguration().getObjectFactory()
-                .constructor(Adder.class, Integer.TYPE, Integer.TYPE);
+  /** Alter an instance via {@link DefaultObjectFactory#postProcess(Object)}. */
+  @Test
+  public void postProcessMethod() {
+    final String prefix = "Stripey!";
+    DefaultObjectFactory factory =
+        new DefaultObjectFactory() {
+          @SuppressWarnings("unchecked")
+          @Override
+          protected <T> T postProcess(T object) {
+            if (object instanceof String) object = (T) (prefix + object);
 
-        int a = 37, b = 91;
-        Adder adder = constructor.newInstance(a, b);
-        Assert.assertNotNull(adder);
-        Assert.assertSame(adder.getClass(), Adder.class);
-        Assert.assertEquals(adder.sum(), a + b);
-    }
-
-    /** Attempt to instantiate an interface that does not have a known implementing class. */
-    @Test(expected = InstantiationException.class)
-    public void missingInterfaceImpl() throws Throwable {
-        try {
-            log.debug("Attempting to instantiate ", Runnable.class, " expecting failure");
-            getDefaultConfiguration().getObjectFactory().newInstance(Runnable.class);
-        }
-        catch (StripesRuntimeException e) {
-            throw e.getCause();
-        }
-    }
-
-    @Test
-    public void customInterfaceImpl() {
-        DefaultObjectFactory factory = new DefaultObjectFactory();
-        factory.addImplementingClass(CharSequence.class, String.class);
-        factory.addImplementingClass(List.class, LinkedList.class);
-        factory.addImplementingClass(Runnable.class, MyRunnable.class);
-        instantiateInterfaces(factory, CharSequence.class, List.class, Runnable.class);
-        Assert.assertSame(factory.newInstance(List.class).getClass(), LinkedList.class);
-    }
-
-    /** Attempt to instantiate a class that does not have a no-arg constructor. */
-    @Test(expected = NoSuchMethodException.class)
-    public void missingNoArgsConstructor() throws Throwable {
-        try {
-            log.debug("Attempting to instantiate ", Adder.class, " expecting failure");
-            getDefaultConfiguration().getObjectFactory().newInstance(Adder.class);
-        }
-        catch (StripesRuntimeException e) {
-            throw e.getCause();
-        }
-    }
-
-    /** Alter an instance via {@link DefaultObjectFactory#postProcess(Object)}. */
-    @Test
-    public void postProcessMethod() {
-        final String prefix = "Stripey!";
-        DefaultObjectFactory factory = new DefaultObjectFactory() {
-            @SuppressWarnings("unchecked")
-            @Override
-            protected <T> T postProcess(T object) {
-                if (object instanceof String)
-                    object = (T) (prefix + object);
-
-                return object;
-            }
+            return object;
+          }
         };
 
-        final String expect = "TEST";
-        String string;
+    final String expect = "TEST";
+    String string;
 
-        log.debug("Testing post-process method skips StringBuilder");
-        string = factory.constructor(StringBuilder.class, String.class).newInstance(expect)
-                .toString();
-        log.debug("Got " + string);
-        Assert.assertEquals(string, expect);
+    log.debug("Testing post-process method skips StringBuilder");
+    string = factory.constructor(StringBuilder.class, String.class).newInstance(expect).toString();
+    log.debug("Got " + string);
+    Assert.assertEquals(string, expect);
 
-        log.debug("Testing post-process method via no-arg constructor");
-        string = factory.newInstance(String.class);
-        log.debug("Got " + string);
-        Assert.assertEquals(string, prefix);
+    log.debug("Testing post-process method via no-arg constructor");
+    string = factory.newInstance(String.class);
+    log.debug("Got " + string);
+    Assert.assertEquals(string, prefix);
 
-        log.debug("Testing post-process method via constructor with args");
-        string = factory.constructor(String.class, String.class).newInstance(expect);
-        log.debug("Got " + string);
-        Assert.assertEquals(string, prefix + expect);
+    log.debug("Testing post-process method via constructor with args");
+    string = factory.constructor(String.class, String.class).newInstance(expect);
+    log.debug("Got " + string);
+    Assert.assertEquals(string, prefix + expect);
+  }
+
+  /** Alter an instance via {@link DefaultObjectFactory#postProcess(Object)}. */
+  @Test
+  public void classPostProcessor() {
+    final String prefix = "Stripey!";
+    class MyObjectPostProcessor implements ObjectPostProcessor<String> {
+      public void setObjectFactory(DefaultObjectFactory factory) {}
+
+      public String postProcess(String object) {
+        log.debug("Altering '", object, "'");
+        return (prefix + object);
+      }
     }
 
-    /** Alter an instance via {@link DefaultObjectFactory#postProcess(Object)}. */
-    @Test
-    public void classPostProcessor() {
-        final String prefix = "Stripey!";
-        class MyObjectPostProcessor implements ObjectPostProcessor<String> {
-            public void setObjectFactory(DefaultObjectFactory factory) {}
+    DefaultObjectFactory factory = new DefaultObjectFactory();
+    factory.addPostProcessor(new MyObjectPostProcessor());
 
-            public String postProcess(String object) {
-                log.debug("Altering '", object, "'");
-                return (prefix + object);
-            }
-        }
+    final String expect = "TEST";
+    String string;
 
-        DefaultObjectFactory factory = new DefaultObjectFactory();
-        factory.addPostProcessor(new MyObjectPostProcessor());
+    log.debug("Testing post-processor impl skips StringBuilder");
+    string = factory.constructor(StringBuilder.class, String.class).newInstance(expect).toString();
+    log.debug("Got " + string);
+    Assert.assertEquals(string, expect);
 
-        final String expect = "TEST";
-        String string;
+    log.debug("Testing post-processor impl via no-arg constructor");
+    string = factory.newInstance(String.class);
+    log.debug("Got " + string);
+    Assert.assertEquals(string, prefix);
 
-        log.debug("Testing post-processor impl skips StringBuilder");
-        string = factory.constructor(StringBuilder.class, String.class).newInstance(expect)
-                .toString();
-        log.debug("Got " + string);
-        Assert.assertEquals(string, expect);
+    log.debug("Testing post-processor impl via constructor with args");
+    string = factory.constructor(String.class, String.class).newInstance(expect);
+    log.debug("Got " + string);
+    Assert.assertEquals(string, prefix + expect);
+  }
 
-        log.debug("Testing post-processor impl via no-arg constructor");
-        string = factory.newInstance(String.class);
-        log.debug("Got " + string);
-        Assert.assertEquals(string, prefix);
+  /** Alter an instance via {@link DefaultObjectFactory#postProcess(Object)}. */
+  @Test
+  public void interfacePostProcessor() {
+    final String prefix = "Stripey!";
+    class MyObjectPostProcessor implements ObjectPostProcessor<CharSequence> {
+      public void setObjectFactory(DefaultObjectFactory factory) {}
 
-        log.debug("Testing post-processor impl via constructor with args");
-        string = factory.constructor(String.class, String.class).newInstance(expect);
-        log.debug("Got " + string);
-        Assert.assertEquals(string, prefix + expect);
+      public CharSequence postProcess(CharSequence object) {
+        log.debug("Altering '", object, "'");
+        return (prefix + object);
+      }
     }
 
-    /** Alter an instance via {@link DefaultObjectFactory#postProcess(Object)}. */
-    @Test
-    public void interfacePostProcessor() {
-        final String prefix = "Stripey!";
-        class MyObjectPostProcessor implements ObjectPostProcessor<CharSequence> {
-            public void setObjectFactory(DefaultObjectFactory factory) {}
+    DefaultObjectFactory factory = new DefaultObjectFactory();
+    factory.addImplementingClass(Runnable.class, MyRunnable.class);
+    factory.addPostProcessor(new MyObjectPostProcessor());
 
-            public CharSequence postProcess(CharSequence object) {
-                log.debug("Altering '", object, "'");
-                return (prefix + object);
-            }
-        }
+    final String expect = "TEST";
+    String string;
 
-        DefaultObjectFactory factory = new DefaultObjectFactory();
-        factory.addImplementingClass(Runnable.class, MyRunnable.class);
-        factory.addPostProcessor(new MyObjectPostProcessor());
+    log.debug("Testing post-processor impl handles StringBuilder");
+    string =
+        String.valueOf(factory.constructor(StringBuilder.class, String.class).newInstance(expect));
+    log.debug("Got " + string);
+    Assert.assertEquals(string, prefix + expect);
 
-        final String expect = "TEST";
-        String string;
+    log.debug("Testing post-processor impl via no-arg constructor");
+    string = factory.newInstance(String.class);
+    log.debug("Got " + string);
+    Assert.assertEquals(string, prefix);
 
-        log.debug("Testing post-processor impl handles StringBuilder");
-        string = String.valueOf(factory.constructor(StringBuilder.class, String.class).newInstance(
-                expect));
-        log.debug("Got " + string);
-        Assert.assertEquals(string, prefix + expect);
+    log.debug("Testing post-processor impl via constructor with args");
+    string = factory.constructor(String.class, String.class).newInstance(expect);
+    log.debug("Got " + string);
+    Assert.assertEquals(string, prefix + expect);
 
-        log.debug("Testing post-processor impl via no-arg constructor");
-        string = factory.newInstance(String.class);
-        log.debug("Got " + string);
-        Assert.assertEquals(string, prefix);
+    log.debug("Testing post-processor does not handle Runnable");
+    string = factory.newInstance(Runnable.class).getClass().getName();
+    log.debug("Got " + string);
+    Assert.assertEquals(string, MyRunnable.class.getName());
+  }
 
-        log.debug("Testing post-processor impl via constructor with args");
-        string = factory.constructor(String.class, String.class).newInstance(expect);
-        log.debug("Got " + string);
-        Assert.assertEquals(string, prefix + expect);
+  @Test
+  public void multipleSequentialPostProcessors() {
+    final AtomicInteger counter = new AtomicInteger(0);
+    class MyObjectPostProcessor implements ObjectPostProcessor<StringBuilder> {
+      public void setObjectFactory(DefaultObjectFactory factory) {}
 
-        log.debug("Testing post-processor does not handle Runnable");
-        string = factory.newInstance(Runnable.class).getClass().getName();
-        log.debug("Got " + string);
-        Assert.assertEquals(string, MyRunnable.class.getName());
+      public StringBuilder postProcess(StringBuilder object) {
+        log.debug("Altering '", object, "'");
+        return object
+            .append("Touched by ")
+            .append(this.toString().replaceAll(".*@", ""))
+            .append(" (counter=")
+            .append(counter.addAndGet(1))
+            .append(") ... ");
+      }
     }
 
-    @Test
-    public void multipleSequentialPostProcessors() {
-        final AtomicInteger counter = new AtomicInteger(0);
-        class MyObjectPostProcessor implements ObjectPostProcessor<StringBuilder> {
-            public void setObjectFactory(DefaultObjectFactory factory) {}
-
-            public StringBuilder postProcess(StringBuilder object) {
-                log.debug("Altering '", object, "'");
-                return object.append("Touched by ").append(this.toString().replaceAll(".*@", ""))
-                        .append(" (counter=").append(counter.addAndGet(1)).append(") ... ");
-            }
-        }
-
-        DefaultObjectFactory factory = new DefaultObjectFactory();
-        for (int i = 0; i < 5; i++) {
-            factory.addPostProcessor(new MyObjectPostProcessor());
-        }
-        log.debug("Testing multiple post-processors");
-        StringBuilder buf = factory.newInstance(StringBuilder.class);
-        log.debug("Got ", buf);
-        Assert.assertEquals(counter.intValue(), 5);
+    DefaultObjectFactory factory = new DefaultObjectFactory();
+    for (int i = 0; i < 5; i++) {
+      factory.addPostProcessor(new MyObjectPostProcessor());
     }
+    log.debug("Testing multiple post-processors");
+    StringBuilder buf = factory.newInstance(StringBuilder.class);
+    log.debug("Got ", buf);
+    Assert.assertEquals(counter.intValue(), 5);
+  }
 }

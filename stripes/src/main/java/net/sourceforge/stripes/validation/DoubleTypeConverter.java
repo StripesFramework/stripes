@@ -21,21 +21,19 @@ import java.util.Collection;
  *
  * @author Tim Fennell
  */
-public class DoubleTypeConverter extends NumberTypeConverterSupport implements TypeConverter<Double> {
+public class DoubleTypeConverter extends NumberTypeConverterSupport
+    implements TypeConverter<Double> {
 
-    /**
-     * Converts the input to an object of type Double.
-     */
-    public Double convert(String input,
-                          Class<? extends Double> targetType,
-                          Collection<ValidationError> errors) {
+  /** Converts the input to an object of type Double. */
+  public Double convert(
+      String input, Class<? extends Double> targetType, Collection<ValidationError> errors) {
 
-        Number number = parse(input, errors);
-        Double retval = null;
-        if (errors.isEmpty()) {
-            retval = number.doubleValue();
-        }
-
-        return retval;
+    Number number = parse(input, errors);
+    Double retval = null;
+    if (errors.isEmpty()) {
+      retval = number.doubleValue();
     }
+
+    return retval;
+  }
 }

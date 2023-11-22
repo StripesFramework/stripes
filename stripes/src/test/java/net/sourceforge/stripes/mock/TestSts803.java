@@ -1,10 +1,9 @@
 package net.sourceforge.stripes.mock;
 
-
 import net.sourceforge.stripes.FilterEnabledTestBase;
 import net.sourceforge.stripes.action.*;
-import org.junit.Test;
 import org.junit.Assert;
+import org.junit.Test;
 
 public class TestSts803 extends FilterEnabledTestBase {
 

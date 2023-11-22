@@ -14,61 +14,51 @@
  */
 package net.sourceforge.stripes.tag;
 
+import jakarta.servlet.jsp.JspException;
 import java.util.Map;
 
-import jakarta.servlet.jsp.JspException;
-
 /**
- * <p>Extracts the {@link java.util.Set} of {@link java.util.Map.Entry} from the
- * specified {@link java.util.Map} and uses it as the {@link java.util.Collection}
- * for the superclass {@link net.sourceforge.stripes.tag.InputOptionsCollectionTag}.</p>
- * 
- * <p>The value and label parameters will be set to "key" and "value" respectively
- * if they are null.</p>
- *  
- * @author Aaron Porter
+ * Extracts the {@link java.util.Set} of {@link java.util.Map.Entry} from the specified {@link
+ * java.util.Map} and uses it as the {@link java.util.Collection} for the superclass {@link
+ * net.sourceforge.stripes.tag.InputOptionsCollectionTag}.
  *
+ * <p>The value and label parameters will be set to "key" and "value" respectively if they are null.
+ *
+ * @author Aaron Porter
  */
-public class InputOptionsMapTag extends InputOptionsCollectionTag
-{
-    private Map<? extends Object,? extends Object> map;
+public class InputOptionsMapTag extends InputOptionsCollectionTag {
+  private Map<? extends Object, ? extends Object> map;
 
-    /**
-     * <p>Returns the {@link java.util.Map} that was passed in via setMap().</p>
-     * 
-     * @return the {@link java.util.Map} passed in via setMap().
-     */
-    public Map<? extends Object, ? extends Object> getMap() {
-        return map;
-    }
+  /**
+   * Returns the {@link java.util.Map} that was passed in via setMap().
+   *
+   * @return the {@link java.util.Map} passed in via setMap().
+   */
+  public Map<? extends Object, ? extends Object> getMap() {
+    return map;
+  }
 
-    /**
-     * <p>This function simply passes the result of Map.entrySet()
-     * as the collection to be used by the superclass and sets the value and label
-     * variables if they have not already been set.</p>
-     *
-     * @param map a Map
-     */
-    public void setMap(Map<? extends Object, ? extends Object> map)    {
-        this.map = map;
+  /**
+   * This function simply passes the result of Map.entrySet() as the collection to be used by the
+   * superclass and sets the value and label variables if they have not already been set.
+   *
+   * @param map a Map
+   */
+  public void setMap(Map<? extends Object, ? extends Object> map) {
+    this.map = map;
 
-        setCollection(map.entrySet());
+    setCollection(map.entrySet());
 
-        if (getValue() == null)
-            setValue("key");
+    if (getValue() == null) setValue("key");
 
-        if (getLabel() == null)
-            setLabel("value");
-    }
+    if (getLabel() == null) setLabel("value");
+  }
 
-    /**
-     * Calls super.doEndTag() and cleans up instance variables so this instance
-     * may be reused.
-     */
-    @Override
-    public int doEndTag() throws JspException {
-        int result = super.doEndTag();
+  /** Calls super.doEndTag() and cleans up instance variables so this instance may be reused. */
+  @Override
+  public int doEndTag() throws JspException {
+    int result = super.doEndTag();
 
-        return result;
-    }
+    return result;
+  }
 }

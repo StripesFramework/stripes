@@ -23,15 +23,15 @@ import jakarta.servlet.ServletConfig;
  * @since Stripes 1.1.1
  */
 public class MockServletConfig extends MockBaseConfig implements ServletConfig {
-    private String servletName;
+  private String servletName;
 
-    /** Returns the name of the servlet for which this is the config. */
-    public String getServletName() {
-        return this.servletName;
-    }
+  /** Returns the name of the servlet for which this is the config. */
+  public String getServletName() {
+    return this.servletName;
+  }
 
-    /** Sets the name of the servlet for which this is the config. */
-    public void setServletName(String name) {
-        this.servletName = name;
-    }
+  /** Sets the name of the servlet for which this is the config. */
+  public void setServletName(String name) {
+    this.servletName = name;
+  }
 }

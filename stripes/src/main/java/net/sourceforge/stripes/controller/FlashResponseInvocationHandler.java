@@ -9,17 +9,19 @@ import java.lang.reflect.Method;
  * {@link jakarta.servlet.http.HttpServletResponse} on {@link
  * net.sourceforge.stripes.action.ActionBeanContext}s in the flash scope after the current request
  * cycle has completed.
- * 
+ *
  * @author Ben Gunter
  * @since Stripes 1.4.3
  */
 public class FlashResponseInvocationHandler implements InvocationHandler, Serializable {
-	private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    public Object invoke(Object object, Method method, Object[] objects) throws Throwable {
-        throw new IllegalStateException(
-                "Attempt to call " + method + " after the request cycle has completed. " +
-                "This is most likely due to misuse of a flashed ActionBean or ActionBeanContext " +
-                "on the ensuing request.");
-    }
+  public Object invoke(Object object, Method method, Object[] objects) throws Throwable {
+    throw new IllegalStateException(
+        "Attempt to call "
+            + method
+            + " after the request cycle has completed. "
+            + "This is most likely due to misuse of a flashed ActionBean or ActionBeanContext "
+            + "on the ensuing request.");
+  }
 }

@@ -17,8 +17,8 @@
 			<type>war</type>
 		</dependency>
 		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>servlet-api</artifactId>
+			<groupId>jakarta.servlet</groupId>
+			<artifactId>jakarta.servlet-api</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.canoo.webtest</groupId>
@@ -28,7 +28,7 @@
 		<dependency>
 			<groupId>org.codehaus.groovy</groupId>
 			<artifactId>groovy-all</artifactId>
-			<version>2.2.2</version>
+			<version>3.0.18</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
@@ -49,7 +49,8 @@
                 <version>1.4</version>
                 <configuration>
                     <providerSelection>2.0</providerSelection>
-                </configuration>
+					<source/>
+				</configuration>
 				<executions>
 					<execution>
 						<goals>
@@ -82,7 +83,7 @@
 			<plugin>
 				<groupId>org.codehaus.cargo</groupId>
 				<artifactId>cargo-maven2-plugin</artifactId>
-                <version>1.4.7</version>
+                <version>1.9.0</version>
 				<configuration>
                     <configuration>
                         <properties>

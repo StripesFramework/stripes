@@ -14,62 +14,62 @@
  */
 package net.sourceforge.stripes.tag;
 
-import net.sourceforge.stripes.util.Log;
-import net.sourceforge.stripes.validation.ValidationError;
-
 import jakarta.servlet.jsp.JspException;
 import jakarta.servlet.jsp.JspWriter;
 import java.io.IOException;
 import java.util.Locale;
+import net.sourceforge.stripes.util.Log;
+import net.sourceforge.stripes.validation.ValidationError;
 
 /**
- * The individual-error tag works in concert with a parent errors tag to control the
- * output of each iteration of an error. Placed within a parent errors tag,
- * the body output of the parent will be displayed for each matching error
- * to output iterate the body of that parent displaying each error in turn.
+ * The individual-error tag works in concert with a parent errors tag to control the output of each
+ * iteration of an error. Placed within a parent errors tag, the body output of the parent will be
+ * displayed for each matching error to output iterate the body of that parent displaying each error
+ * in turn.
  *
  * @author Greg Hinkle
  */
 public class IndividualErrorTag extends HtmlTagSupport {
 
-    private static final Log log = Log.getInstance(IndividualErrorTag.class);
+  private static final Log log = Log.getInstance(IndividualErrorTag.class);
 
-    /**
-     * Does nothing
-     * @return SKIP_BODY always
-     * @throws JspException
-     */
-    @Override
-    public int doStartTag() throws JspException {
-        return SKIP_BODY;
+  /**
+   * Does nothing
+   *
+   * @return SKIP_BODY always
+   * @throws JspException
+   */
+  @Override
+  public int doStartTag() throws JspException {
+    return SKIP_BODY;
+  }
+
+  /**
+   * Outputs the error for the current iteration of the parent ErrorsTag.
+   *
+   * @return EVAL_PAGE in all circumstances
+   */
+  @Override
+  public int doEndTag() throws JspException {
+
+    Locale locale = getPageContext().getRequest().getLocale();
+    JspWriter writer = getPageContext().getOut();
+
+    ErrorsTag parentErrorsTag = getParentTag(ErrorsTag.class);
+    if (parentErrorsTag != null) {
+      // Mode: sub-tag inside an errors tag
+      try {
+        ValidationError error = parentErrorsTag.getCurrentError();
+        writer.write(error.getMessage(locale));
+      } catch (IOException ioe) {
+        JspException jspe =
+            new JspException(
+                "IOException encountered while writing " + "error tag to the JspWriter.", ioe);
+        log.warn(jspe);
+        throw jspe;
+      }
     }
 
-    /**
-     * Outputs the error for the current iteration of the parent ErrorsTag.
-     *
-     * @return EVAL_PAGE in all circumstances
-     */
-    @Override
-    public int doEndTag() throws JspException {
-
-        Locale locale = getPageContext().getRequest().getLocale();
-        JspWriter writer = getPageContext().getOut();
-
-        ErrorsTag parentErrorsTag = getParentTag(ErrorsTag.class);
-        if (parentErrorsTag != null) {
-            // Mode: sub-tag inside an errors tag
-            try {
-                ValidationError error = parentErrorsTag.getCurrentError();
-                writer.write( error.getMessage(locale) );
-            }
-            catch (IOException ioe) {
-                JspException jspe = new JspException("IOException encountered while writing " +
-                    "error tag to the JspWriter.", ioe);
-                log.warn(jspe);
-                throw jspe;
-            }
-        }
-
-        return EVAL_PAGE;
-    }
+    return EVAL_PAGE;
+  }
 }
