@@ -80,7 +80,7 @@ public class InputOptionsEnumerationTag extends InputOptionsCollectionTag {
    *
    * @return SKIP_BODY in all cases.
    * @throws JspException if the class name supplied is not a valid class, or cannot be cast to
-   *     Class<Enum>.
+   *     {@code Class<Enum>}.
    */
   @Override
   @SuppressWarnings({"unchecked", "rawtypes"})

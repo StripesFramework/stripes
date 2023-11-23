@@ -41,16 +41,26 @@ public interface ObjectFactory extends ConfigurableComponent {
    * </code>
    */
   interface ConstructorWrapper<T> {
-    /** Get the {@link Constructor} object wrapped by this instance. */
+    /**
+     * Get the {@link Constructor} object wrapped by this instance.
+     *
+     * @return The constructor object wrapped by this instance.
+     */
     Constructor<T> getConstructor();
 
-    /** Invoke the constructor with the specified arguments and return the new object. */
+    /**
+     * Invoke the constructor with the specified arguments and return the new object.
+     *
+     * @param args The arguments to pass to the constructor.
+     * @return A new object instantiated by invoking the constructor.
+     */
     T newInstance(Object... args);
   }
 
   /**
    * Create a new instance of {@code clazz} and return it.
    *
+   * @param <T> The type of the class to instantiate.
    * @param clazz The class to instantiate.
    * @return A new instances of the class.
    */
@@ -59,6 +69,9 @@ public interface ObjectFactory extends ConfigurableComponent {
   /**
    * Create a new instances of {@code T} by invoking the given constructor.
    *
+   * @param <T> The type of the class to instantiate.
+   * @param constructor The constructor to invoke.
+   * @param args The arguments to pass to the constructor.
    * @return A new object instantiated by invoking the constructor.
    */
   <T> T newInstance(Constructor<T> constructor, Object... args);
@@ -66,6 +79,7 @@ public interface ObjectFactory extends ConfigurableComponent {
   /**
    * Create a new instance of {@code clazz} by calling a specific constructor.
    *
+   * @param <T> The type of the class to instantiate.
    * @param clazz The class to instantiate.
    * @param constructorArgTypes The type arguments of the constructor to be invoked. (See {@link
    *     Class#getConstructor(Class...)}.)
@@ -81,6 +95,7 @@ public interface ObjectFactory extends ConfigurableComponent {
    * configuration.getObjectFactory().constructor(targetType, String.class).newInstance("FOO");
    * </code>
    *
+   * @param <T> The type of the class to instantiate.
    * @param clazz The class whose constructor is to be looked up.
    * @param parameterTypes The types of the parameters to the constructor.
    * @return A {@link ConstructorWrapper} that allows for invoking the constructor.

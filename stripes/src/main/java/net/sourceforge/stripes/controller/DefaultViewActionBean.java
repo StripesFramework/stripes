@@ -21,18 +21,30 @@ public class DefaultViewActionBean implements ActionBean {
   private ActionBeanContext context;
   private final Resolution view;
 
+  /**
+   * Constructs a new DefaultViewActionBean that will forward to the supplied JSP.
+   *
+   * @param view the JSP to forward to
+   */
   public DefaultViewActionBean(Resolution view) {
     this.view = view;
   }
 
+  @Override
   public void setContext(ActionBeanContext context) {
     this.context = context;
   }
 
+  @Override
   public ActionBeanContext getContext() {
     return this.context;
   }
 
+  /**
+   * Returns the Resolution that will forward to the JSP.
+   *
+   * @return the Resolution that will forward to the JSP
+   */
   public Resolution view() {
     return view;
   }

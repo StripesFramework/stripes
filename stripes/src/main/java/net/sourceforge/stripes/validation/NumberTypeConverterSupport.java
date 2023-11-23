@@ -31,7 +31,11 @@ public class NumberTypeConverterSupport {
   private NumberFormat[] formats;
   private String currencySymbol;
 
-  /** Used by Stripes to tell the converter what locale the incoming text is in. */
+  /**
+   * Used by Stripes to tell the converter what locale the incoming text is in.
+   *
+   * @param locale the locale that should be used by the type converter
+   */
   public void setLocale(Locale locale) {
     this.locale = locale;
     this.formats = getNumberFormats();
@@ -48,7 +52,11 @@ public class NumberTypeConverterSupport {
     }
   }
 
-  /** Returns the Locale set on the object using setLocale(). */
+  /**
+   * Returns the Locale set on the object using setLocale().
+   *
+   * @return the Locale used by the type converter
+   */
   public Locale getLocale() {
     return locale;
   }
@@ -67,6 +75,10 @@ public class NumberTypeConverterSupport {
   /**
    * Parse the input using a NumberFormatter. If the number cannot be parsed, the error key
    * <em>number.invalidNumber</em> will be added to the errors.
+   *
+   * @param input the String to be parsed
+   * @param errors the collection of errors to add to if the number cannot be parsed
+   * @return the parsed number, or null if the number could not be parsed
    */
   protected Number parse(String input, Collection<ValidationError> errors) {
     input = preprocess(input);

@@ -34,13 +34,25 @@ import java.util.Locale;
  */
 public interface Formatter<T> {
 
-  /** Sets the type of format that should be created. */
+  /**
+   * Sets the type of format that should be created.
+   *
+   * @param formatType the type of format to create
+   */
   void setFormatType(String formatType);
 
-  /** Sets a named format, or format pattern to use in formatting objects. */
+  /**
+   * Sets a named format, or format pattern to use in formatting objects.
+   *
+   * @param formatPattern the format pattern to use
+   */
   void setFormatPattern(String formatPattern);
 
-  /** Sets the Locale into which the object should be formatted. */
+  /**
+   * Sets the Locale into which the object should be formatted.
+   *
+   * @param locale the locale to use
+   */
   void setLocale(Locale locale);
 
   /** Called once all setters have been invoked, to allow Formatter to prepare itself. */

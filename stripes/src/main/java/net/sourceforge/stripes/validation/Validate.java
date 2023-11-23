@@ -37,6 +37,8 @@ public @interface Validate {
    * The name of the field to validate. This attribute is ignored when the validation is attached to
    * a simple (one form field to one ActionBean field) property, and is used only when specifying
    * nested validations.
+   *
+   * @return the name of the field to validate
    */
   String field() default "";
 
@@ -45,16 +47,23 @@ public @interface Validate {
    * implies that when the value of this field is rendered by certain tags (e.g., {@link
    * InputHiddenTag}) that it is to be rendered as an encrypted string. This prevents clients from
    * injecting random values. Encryption is disabled in debug mode.
+   *
+   * @return true if the field is encrypted
    */
   boolean encrypted() default false;
 
-  /** If set to true, requires that a non-null, non-empty value must be submitted for the field. */
+  /**
+   * If set to true, requires that a non-null, non-empty value must be submitted for the field.
+   *
+   * @return true if the field is required
+   */
   boolean required() default false;
 
   /**
    * Trim white space from the beginning and end of request parameter values before attempting
    * validation, type conversion or binding.
    *
+   * @return true if the field should be trimmed
    * @see String#trim()
    */
   boolean trim() default true;
@@ -68,6 +77,8 @@ public @interface Validate {
    * required check will be performed only on the listed events. Can also be specified as an
    * inverted list (e.g. on="!new") in which case the check will be performed on all events that are
    * not listed. Cannot contain a mix of "!event" and "event" since it does not make sense!
+   *
+   * @return the events on which the validation should be applied
    */
   String[] on() default {};
 
@@ -75,6 +86,7 @@ public @interface Validate {
    * If set to true will cause the property to be ignored by binding and validation even if it was
    * somehow submitted in the request.
    *
+   * @return true if the field should be ignored
    * @since Stripes 1.1
    */
   boolean ignore() default false;
@@ -82,12 +94,16 @@ public @interface Validate {
   /**
    * Specifies a minimum length of characters that must be submitted. This validation is performed
    * on the String value before any other validations or conversions are made.
+   *
+   * @return the minimum length of characters that must be submitted
    */
   int minlength() default -1;
 
   /**
    * Specifies a maximum length of characters that must be submitted. This validation is performed
    * on the String value before any other validations or conversions are made.
+   *
+   * @return the maximum length of characters that must be submitted
    */
   int maxlength() default -1;
 
@@ -95,6 +111,8 @@ public @interface Validate {
    * Specifies the minimum numeric value acceptable for a numeric field. This validation is
    * performed after the field has been converted to its java type. This validation is only valid on
    * numeric types (including BigInteger and BigDecimal).
+   *
+   * @return the minimum numeric value acceptable for a numeric field
    */
   double minvalue() default Double.MIN_VALUE;
 
@@ -102,12 +120,16 @@ public @interface Validate {
    * Specifies the maximum numeric value acceptable for a numeric field. This validation is
    * performed after the field has been converted to its java type. This validation is only valid on
    * numeric types (including BigInteger and BigDecimal).
+   *
+   * @return the maximum numeric value acceptable for a numeric field
    */
   double maxvalue() default Double.MAX_VALUE;
 
   /**
    * Specifies a regular expression mask to be used to check the format of the String value
    * submitted. The mask will be compiled into a java.util.regex.Pattern for use.
+   *
+   * @return a regular expression mask to be used to check the format of the String value submitted
    */
   String mask() default "";
 
@@ -122,6 +144,8 @@ public @interface Validate {
    * session scope if necessary.
    *
    * <p>Note: it is not necessary to encapsulate the expression in ${} as on a JSP page.
+   *
+   * @return an expression in the JSP expression language that should be evaluated to check the
    */
   String expression() default "";
 
@@ -129,6 +153,8 @@ public @interface Validate {
    * A type converter to use to convert this field from String to its rich object type. If none is
    * specified (which should be very common) then the default converter for the target type of
    * object will be used.
+   *
+   * @return a type converter to use to convert this field from String to its rich object type
    */
   Class<? extends TypeConverter> converter() default TypeConverter.class;
 
@@ -137,6 +163,7 @@ public @interface Validate {
    * form input labels, etc. This will only be used if a localized field name cannot be found in the
    * resource bundle.
    *
+   * @return the natural language name to use for the field when reporting validation errors,
    * @see LocalizationUtility#getLocalizedFieldName(String, String, Class, java.util.Locale)
    */
   String label() default "";

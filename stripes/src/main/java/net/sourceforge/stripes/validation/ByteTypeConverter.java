@@ -20,7 +20,7 @@ import java.util.Collection;
 /**
  * Basic type converter for converting strings to bytes. Will produce one error if the String
  * supplied is not a parsable number, and another error if the number is parseable but outside the
- * range Byte.MIN_VALUE =< X =< Byte.MAX_VALUE.
+ * range {@code Byte.MIN_VALUE =< X =< Byte.MAX_VALUE}.
  *
  * @author Tim Fennell
  */

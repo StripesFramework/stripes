@@ -160,7 +160,7 @@ public class MessagesTag extends HtmlTagSupport {
    * Gets the list of messages that will be displayed by the tag. Looks first in the request under
    * the specified key, and if none are found, then looks in session under the same key.
    *
-   * @return List<Message> a possibly null list of messages to display
+   * @return a possibly null list of messages to display
    */
   @SuppressWarnings("unchecked")
   protected List<Message> getMessages() {

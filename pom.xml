@@ -2,11 +2,6 @@
 <!-- Parent pom for Stripes project. We use multiple module projects in order to avoid directory refactorings and thereby breaking of the currently used and build. -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<parent>
-		<groupId>org.sonatype.oss</groupId>
-		<artifactId>oss-parent</artifactId>
-		<version>9</version>
-	</parent>
 	<groupId>net.sourceforge.stripes</groupId>
 	<artifactId>stripes-parent</artifactId>
 	<version>1.6.0</version>
@@ -244,9 +239,10 @@
 								<use>true</use>
 								<version>true</version>
 								<links>
-									<link>https://docs.oracle.com/en/java/javase/17/docs/api/index.html</link>
+									<link>https://docs.oracle.com/en/java/javase/17/docs/api/</link>
 									<link>https://jakarta.ee/specifications/servlet/5.0/apidocs/</link>
 									<link>https://docs.spring.io/spring-framework/docs/6.1.0/javadoc-api/</link>
+									<link>https://jakarta.ee/specifications/expression-language/4.0/apidocs/</link>
 								</links>
 							</configuration>
 						</execution>

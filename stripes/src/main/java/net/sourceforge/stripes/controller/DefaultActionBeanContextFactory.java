@@ -40,7 +40,11 @@ public class DefaultActionBeanContextFactory implements ActionBeanContextFactory
   private Configuration configuration;
   private Class<? extends ActionBeanContext> contextClass;
 
-  /** Stores the configuration, and looks up the ActionBeanContext class specified. */
+  /**
+   * Stores the configuration, and looks up the ActionBeanContext class specified.
+   *
+   * @param configuration the configuration object
+   */
   public void init(Configuration configuration) throws Exception {
     setConfiguration(configuration);
 
@@ -64,6 +68,10 @@ public class DefaultActionBeanContextFactory implements ActionBeanContextFactory
   /**
    * Returns a new instance of the configured class, or ActionBeanContext if a class is not
    * specified.
+   *
+   * @param request the request
+   * @param response the response
+   * @return a new instance of the configured class, or ActionBeanContext if a class is not
    */
   public ActionBeanContext getContextInstance(
       HttpServletRequest request, HttpServletResponse response) throws ServletException {
@@ -79,10 +87,20 @@ public class DefaultActionBeanContextFactory implements ActionBeanContextFactory
     }
   }
 
+  /**
+   * Gets the configuration object.
+   *
+   * @return the configuration object
+   */
   protected Configuration getConfiguration() {
     return configuration;
   }
 
+  /**
+   * Sets the configuration object.
+   *
+   * @param configuration the configuration object
+   */
   protected void setConfiguration(Configuration configuration) {
     this.configuration = configuration;
   }

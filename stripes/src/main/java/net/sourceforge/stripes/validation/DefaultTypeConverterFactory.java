@@ -71,7 +71,11 @@ public class DefaultTypeConverterFactory implements TypeConverterFactory {
     cache.add(Character.TYPE, CharacterTypeConverter.class);
   }
 
-  /** Provides subclasses with access to the configuration provided at initialization. */
+  /**
+   * Provides subclasses with access to the configuration provided at initialization
+   *
+   * @return the Configuration object passed in at initialization time
+   */
   protected Configuration getConfiguration() {
     return this.configuration;
   }
@@ -105,6 +109,7 @@ public class DefaultTypeConverterFactory implements TypeConverterFactory {
    * @param forType the type/Class that is the target type of the conversion. It is assumed that the
    *     input type is String, so to convert a String to a Date object you would supply
    *     java.util.Date.class.
+   * @param locale the locale to use when converting
    * @return an instance of a TypeConverter which will convert Strings to the desired type
    */
   @SuppressWarnings("rawtypes")
@@ -127,6 +132,7 @@ public class DefaultTypeConverterFactory implements TypeConverterFactory {
    * Gets an instance of the TypeConverter class specified.
    *
    * @param clazz the TypeConverter type that is desired
+   * @param locale the Locale into which the object should be converted
    * @return an instance of the TypeConverter specified
    * @throws Exception if there is a problem instantiating the TypeConverter
    */

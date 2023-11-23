@@ -44,6 +44,7 @@ public interface ActionBeanPropertyBinder extends ConfigurableComponent {
    * @param context the ActionBeanContext containing the current request
    * @param validate true indicates that validation should be run, false indicates that only type
    *     conversion should occur
+   * @return a ValidationErrors object containing any errors that occurred during binding
    */
   ValidationErrors bind(ActionBean bean, ActionBeanContext context, boolean validate);
 

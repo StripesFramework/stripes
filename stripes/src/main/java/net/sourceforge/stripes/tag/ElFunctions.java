@@ -30,12 +30,23 @@ import net.sourceforge.stripes.validation.ValidationErrors;
  */
 public class ElFunctions {
 
-  /** Gets the name of the supplied enumerated value. */
+  /**
+   * Gets the name of the supplied enumerated value.
+   *
+   * @param e the enumerated value
+   * @return the name of the enumerated value
+   */
   public static String name(Enum<?> e) {
     return e.name();
   }
 
-  /** Indicates if validation errors exist for the given field of the given {@link ActionBean}. */
+  /**
+   * Indicates if validation errors exist for the given field of the given {@link ActionBean}.
+   *
+   * @param actionBean the action bean
+   * @param field the field
+   * @return true if validation errors exist for the given field of the given {@link ActionBean}
+   */
   public static boolean hasErrors(ActionBean actionBean, String field) {
     if (actionBean == null || field == null) return false;
 

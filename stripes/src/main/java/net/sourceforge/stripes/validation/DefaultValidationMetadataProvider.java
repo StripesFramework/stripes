@@ -57,11 +57,21 @@ public class DefaultValidationMetadataProvider implements ValidationMetadataProv
     this.configuration = configuration;
   }
 
-  /** Get the {@link Configuration} object that was passed into {@link #init(Configuration)}. */
+  /**
+   * Get the {@link Configuration} object that was passed into {@link #init(Configuration)}.
+   *
+   * @return the configuration object
+   */
   public Configuration getConfiguration() {
     return configuration;
   }
 
+  /**
+   * Get validation information for all the properties and nested properties of the given class.
+   *
+   * @param beanType Type of bean to get validation information for
+   * @return A map of (possibly nested) property names to {@link ValidationMetadata} for the
+   */
   public Map<String, ValidationMetadata> getValidationMetadata(Class<?> beanType) {
     Map<String, ValidationMetadata> meta = cache.get(beanType);
     if (meta == null) {
@@ -73,6 +83,14 @@ public class DefaultValidationMetadataProvider implements ValidationMetadataProv
     return meta;
   }
 
+  /**
+   * Get validation information for the given property of the given class. The {@link Validate} and/
+   * or {@link ValidateNestedProperties} annotations may be applied to the property's read method,
+   *
+   * @param beanType Type of bean to get validation information for
+   * @param field a (possibly nested) property of {@code beanType}
+   * @return {@link ValidationMetadata} for the property
+   */
   public ValidationMetadata getValidationMetadata(Class<?> beanType, ParameterName field) {
     return getValidationMetadata(beanType).get(field.getStrippedName());
   }
@@ -310,7 +328,12 @@ public class DefaultValidationMetadataProvider implements ValidationMetadataProv
     return null;
   }
 
-  /** Prints out a pretty debug message showing what validations got configured. */
+  /**
+   * Prints out a pretty debug message showing what validations got configured.
+   *
+   * @param beanType the class on which validations were configured
+   * @param meta the validations that were configured
+   */
   protected void logDebugMessageForConfiguredValidations(
       Class<?> beanType, Map<String, ValidationMetadata> meta) {
     StringBuilder builder = new StringBuilder(128);
@@ -337,23 +360,50 @@ public class DefaultValidationMetadataProvider implements ValidationMetadataProv
     private final Class<?> targetClass;
     private Map<Class<? extends Annotation>, Annotation> annotationMap;
 
+    /**
+     * Create a new AnnotationInfo object.
+     *
+     * @param targetClass the class on which the annotations were found
+     */
     public AnnotationInfo(Class<?> targetClass) {
       this.targetClass = targetClass;
     }
 
+    /**
+     * Gets the class on which the annotations were found.
+     *
+     * @return the class on which the annotations were found
+     */
     public Class<?> getTargetClass() {
       return targetClass;
     }
 
+    /**
+     * Sets the annotation objects that correspond to the annotation classes.
+     *
+     * @param annotationMap the annotation objects that correspond to the annotation classes
+     */
     public void setAnnotationMap(Map<Class<? extends Annotation>, Annotation> annotationMap) {
       this.annotationMap = annotationMap;
     }
 
+    /**
+     * Gets the annotation objects that correspond to the annotation classes.
+     *
+     * @param <T> the type of the annotation
+     * @param annotationClass the annotation class
+     * @return the annotation object that corresponds to the annotation class
+     */
     @SuppressWarnings("unchecked")
     public <T extends Annotation> T getAnnotation(Class<T> annotationClass) {
       return (T) annotationMap.get(annotationClass);
     }
 
+    /**
+     * Returns true if at least one annotation was found.
+     *
+     * @return true if at least one annotation was found
+     */
     public boolean atLeastOneAnnotationFound() {
       return !(annotationMap == null || annotationMap.isEmpty());
     }
@@ -368,32 +418,67 @@ public class DefaultValidationMetadataProvider implements ValidationMetadataProv
     private Method method;
     private final String type;
 
+    /**
+     * Create a new PropertyWrapper object.
+     *
+     * @param field the field to wrap
+     */
     public PropertyWrapper(Field field) {
       this.field = field;
       this.type = "Field";
     }
 
+    /**
+     * Create a new PropertyWrapper object.
+     *
+     * @param method the method to wrap
+     */
     public PropertyWrapper(Method method) {
       this.method = method;
       this.type = "Method";
     }
 
+    /**
+     * Gets the object wrapped by this wrapper.
+     *
+     * @return the object wrapped by this wrapper
+     */
     public AccessibleObject getAccessibleObject() {
       return field != null ? field : method;
     }
 
+    /**
+     * Gets the name of the object wrapped by this wrapper.
+     *
+     * @return the name of the object wrapped by this wrapper
+     */
     public String getName() {
       return field != null ? field.getName() : method.getName();
     }
 
+    /**
+     * Gets the type of the object wrapped by this wrapper.
+     *
+     * @return the type of the object wrapped by this wrapper
+     */
     public Class<?> getDeclaringClass() {
       return field != null ? field.getDeclaringClass() : method.getDeclaringClass();
     }
 
+    /**
+     * Gets the modifiers of the object wrapped by this wrapper.
+     *
+     * @return the modifiers of the object wrapped by this wrapper
+     */
     public int getModifiers() {
       return field != null ? field.getModifiers() : method.getModifiers();
     }
 
+    /**
+     * Gets the type of the object wrapped by this wrapper.
+     *
+     * @return the type of the object wrapped by this wrapper
+     */
     public String getType() {
       return type;
     }

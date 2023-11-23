@@ -122,9 +122,10 @@ public class ReflectUtil {
    *
    * <ul>
    *   <li>Uses the classes simple name instead of it's fully qualified name.
-   *   <li>Only outputs attributes that are set to non-default values.
-   *       <p>If, for some unforeseen reason, an exception is thrown within this method it will be
-   *       caught and the return value will be {@code ann.toString()}.
+   *   <li>Only outputs attributes that are set to non-default values. If, for some unforeseen
+   *       reason, an exception is thrown within this method it will be caught and the return value
+   *       will be {@code ann.toString()}.
+   * </ul>
    *
    * @param ann the annotation to convert to a human-readable String
    * @return a human-readable String form of the annotation and it's attributes

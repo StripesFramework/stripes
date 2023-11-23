@@ -200,6 +200,8 @@ public class DispatcherServlet extends HttpServlet {
   /**
    * Calls interceptors listening for RequestInit. There is no Stripes code that executes for this
    * lifecycle stage.
+   *
+   * @param ctx the current ExecutionContext
    */
   private Resolution requestInit(ExecutionContext ctx) throws Exception {
     ctx.setLifecycleStage(LifecycleStage.RequestInit);
@@ -212,6 +214,8 @@ public class DispatcherServlet extends HttpServlet {
    * Calls interceptors listening for RequestComplete. There is no Stripes code that executes for
    * this lifecycle stage. In addition, any response from interceptors is ignored because it is too
    * late to execute a Resolution at this point.
+   *
+   * @param ctx the current ExecutionContext
    */
   private void requestComplete(ExecutionContext ctx) {
     ctx.setLifecycleStage(LifecycleStage.RequestComplete);
@@ -232,6 +236,9 @@ public class DispatcherServlet extends HttpServlet {
   /**
    * Responsible for resolving the ActionBean for the current request. Delegates to {@link
    * DispatcherHelper#resolveActionBean(ExecutionContext)}.
+   *
+   * @param ctx the current ExecutionContext
+   * @return a Resolution after the action bean is resolved
    */
   protected Resolution resolveActionBean(ExecutionContext ctx) throws Exception {
     return DispatcherHelper.resolveActionBean(ctx);
@@ -240,6 +247,9 @@ public class DispatcherServlet extends HttpServlet {
   /**
    * Responsible for resolving the event handler method for the current request. Delegates to {@link
    * DispatcherHelper#resolveHandler(ExecutionContext)}.
+   *
+   * @param ctx the current ExecutionContext
+   * @return a Resolution after the handler is resolved
    */
   protected Resolution resolveHandler(ExecutionContext ctx) throws Exception {
     return DispatcherHelper.resolveHandler(ctx);
@@ -248,6 +258,9 @@ public class DispatcherServlet extends HttpServlet {
   /**
    * Responsible for executing binding and validation for the current request. Delegates to {@link
    * DispatcherHelper#doBindingAndValidation(ExecutionContext, boolean)}.
+   *
+   * @param ctx the current ExecutionContext
+   * @return a Resolution after binding and validation
    */
   protected Resolution doBindingAndValidation(ExecutionContext ctx) throws Exception {
     return DispatcherHelper.doBindingAndValidation(ctx, true);
@@ -256,6 +269,9 @@ public class DispatcherServlet extends HttpServlet {
   /**
    * Responsible for executing custom validation methods for the current request. Delegates to
    * {@link DispatcherHelper#doCustomValidation(ExecutionContext, boolean)}.
+   *
+   * @param ctx the current ExecutionContext
+   * @return a Resolution after custom validation
    */
   protected Resolution doCustomValidation(ExecutionContext ctx) throws Exception {
     return DispatcherHelper.doCustomValidation(ctx, alwaysInvokeValidate);
@@ -264,6 +280,9 @@ public class DispatcherServlet extends HttpServlet {
   /**
    * Responsible for handling any validation errors that arise during validation. Delegates to
    * {@link DispatcherHelper#handleValidationErrors(ExecutionContext)}.
+   *
+   * @param ctx the current ExecutionContext
+   * @return a Resolution after handling validation errors
    */
   protected Resolution handleValidationErrors(ExecutionContext ctx) throws Exception {
     return DispatcherHelper.handleValidationErrors(ctx);
@@ -272,6 +291,9 @@ public class DispatcherServlet extends HttpServlet {
   /**
    * Responsible for invoking the event handler if no validation errors occur. Delegates to {@link
    * DispatcherHelper#invokeEventHandler(ExecutionContext)}.
+   *
+   * @param ctx the current ExecutionContext
+   * @return a resolution after invoking the event handler
    */
   protected Resolution invokeEventHandler(ExecutionContext ctx) throws Exception {
     return DispatcherHelper.invokeEventHandler(ctx);
@@ -280,6 +302,8 @@ public class DispatcherServlet extends HttpServlet {
   /**
    * Responsible for executing the Resolution for the current request. Delegates to {@link
    * DispatcherHelper#executeResolution(ExecutionContext, Resolution)}.
+   *
+   * @param ctx the current ExecutionContext
    */
   protected void executeResolution(ExecutionContext ctx, Resolution resolution) throws Exception {
     DispatcherHelper.executeResolution(ctx, resolution);
@@ -312,6 +336,7 @@ public class DispatcherServlet extends HttpServlet {
    * current request involve forwards or includes to other ActionBeans.
    *
    * @param request the current HttpServletRequest
+   * @param create whether to create the action bean if it is not present
    * @return the Stack if present, or if creation is requested
    */
   @SuppressWarnings("unchecked")

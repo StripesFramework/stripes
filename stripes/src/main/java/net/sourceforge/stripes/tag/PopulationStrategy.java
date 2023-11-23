@@ -26,5 +26,12 @@ import net.sourceforge.stripes.exception.StripesJspException;
  * @author Tim Fennell
  */
 public interface PopulationStrategy extends ConfigurableComponent {
+  /**
+   * Method that will be called by the tag to determine the value to be used to populate the tag.
+   *
+   * @param tag the tag that is requesting a value
+   * @return the value to be used to populate the tag
+   * @throws StripesJspException if an error occurs while determining the value
+   */
   Object getValue(InputTagSupport tag) throws StripesJspException;
 }

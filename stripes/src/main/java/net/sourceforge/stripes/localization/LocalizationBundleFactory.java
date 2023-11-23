@@ -33,6 +33,7 @@ public interface LocalizationBundleFactory extends ConfigurableComponent {
    * Returns the ResourceBundle from which to draw error messages for the specified locale.
    *
    * @param locale the locale that is in use for the current request
+   * @return the ResourceBundle from which to draw error messages for the specified locale
    * @throws MissingResourceException when a bundle that is expected to be present cannot be
    *     located.
    */
@@ -43,6 +44,7 @@ public interface LocalizationBundleFactory extends ConfigurableComponent {
    * locale.
    *
    * @param locale the locale that is in use for the current request
+   * @return the ResourceBundle from which to draw the names of form fields for the specified locale
    * @throws MissingResourceException when a bundle that is expected to be present cannot be
    *     located.
    */

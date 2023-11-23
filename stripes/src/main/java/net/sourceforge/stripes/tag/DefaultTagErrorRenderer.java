@@ -33,7 +33,11 @@ public class DefaultTagErrorRenderer implements TagErrorRenderer {
   private InputTagSupport tag;
   private String oldCssClass;
 
-  /** Simply stores the tag passed in. */
+  /**
+   * Simply stores the tag passed in.
+   *
+   * @param tag the tag which is being rendered
+   */
   public void init(InputTagSupport tag) {
     this.tag = tag;
   }

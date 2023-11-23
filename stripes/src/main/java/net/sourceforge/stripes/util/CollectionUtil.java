@@ -49,6 +49,9 @@ public class CollectionUtil {
    * Checks to see if the array contains any values that are non-null non empty-string values. If it
    * does, returns false. Returns true for null arrays and zero length arrays, as well as for arrays
    * consisting only of nulls and empty strings.
+   *
+   * @param arr the array to check for emptiness
+   * @return true if the array is null, zero length, or contains only nulls and empty strings
    */
   public static boolean empty(String[] arr) {
     if (arr == null) return true;
@@ -61,7 +64,7 @@ public class CollectionUtil {
 
   /**
    * Checks to see if an event is applicable given an array of event names. The array is usually
-   * derived from the <tt>on</tt> attribute of one of the Stripes annotations (e.g. {@link
+   * derived from the <code>on</code> attribute of one of the Stripes annotations (e.g. {@link
    * net.sourceforge.stripes.validation.ValidationMethod}). The array can be composed of
    * <i>positive</i> event names (e.g. {"foo", "bar"}) in which case the event must be contained in
    * the array, or negative event names (e.g. {"!splat", "!whee"}) in which case the event must not
@@ -140,6 +143,7 @@ public class CollectionUtil {
    * the underlying implementation of the Iterable is a List, it is cast to List and returned.
    * Otherwise, it is iterated and the items placed, in order, into a new List.
    *
+   * @param <T> the type of the elements in the Iterable
    * @param in an Iterable to serve as the source for a List
    * @return either the Iterable itself if it is a List, or a new List with the same elements
    */

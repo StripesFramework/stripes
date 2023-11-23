@@ -146,6 +146,7 @@ public interface ActionResolver extends ConfigurableComponent {
    * @param handler the handler method whose event name to find
    * @return String the name of the event handled by this method, or null if an event is not mapped
    *     to this method.
+   * @throws StripesServletException thrown if the handler method is not a valid event handler
    */
   String getHandledEvent(Method handler) throws StripesServletException;
 
@@ -153,6 +154,9 @@ public interface ActionResolver extends ConfigurableComponent {
    * Get all the classes implementing {@link ActionBean} that are recognized by this {@link
    * ActionResolver}. This method must return the full set of {@link ActionBean} classes after the
    * call to init().
+   *
+   * @return the set of {@link ActionBean} classes that are recognized by this {@link
+   *     ActionResolver}
    */
   Collection<Class<? extends ActionBean>> getActionBeanClasses();
 

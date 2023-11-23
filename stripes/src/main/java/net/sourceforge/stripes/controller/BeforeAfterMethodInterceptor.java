@@ -144,6 +144,13 @@ public class BeforeAfterMethodInterceptor implements Interceptor {
    * the object. Specifically it will log any exceptions except for InvocationTargetExceptions which
    * it will attempt to unwrap and rethrow. If the method returns a Resolution it will be returned;
    * returns of other types will be ignored.
+   *
+   * @param bean The ActionBean instance to invoke the method on
+   * @param m The method to invoke
+   * @param stage The LifecycleStage that the method is being invoked at
+   * @param when The annotation that the method is annotated with
+   * @return A Resolution if the method returns one, or null otherwise
+   * @throws Exception if the method throws an exception
    */
   protected Resolution invoke(
       ActionBean bean, Method m, LifecycleStage stage, Class<? extends Annotation> when)

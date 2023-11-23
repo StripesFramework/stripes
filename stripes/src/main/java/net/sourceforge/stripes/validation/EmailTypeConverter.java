@@ -26,8 +26,8 @@ import java.util.Locale;
  *
  * <p>If the String cannot be parsed, or it represents a "local" address (one with no @domain) a
  * single error message will be generated. The error message is a scoped message with a default
- * scope of <tt>converter.email</tt> and name <tt>invalidEmail</tt>. As a result error messages will
- * be looked for in the following order:
+ * scope of <code>converter.email</code> and name <code>invalidEmail</code>. As a result error
+ * messages will be looked for in the following order:
  *
  * <ul>
  *   <li>beanClassFQN.fieldName.invalidEmail

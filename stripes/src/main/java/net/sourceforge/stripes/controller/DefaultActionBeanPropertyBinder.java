@@ -82,7 +82,11 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
     this.configuration = configuration;
   }
 
-  /** Returns the Configuration object that was passed to the init() method. */
+  /**
+   * Returns the Configuration object that was passed to the init() method.
+   *
+   * @return the Configuration object that was passed to the init() method
+   */
   protected Configuration getConfiguration() {
     return configuration;
   }
@@ -100,6 +104,7 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
    * @param context the ActionBeanContext of the current request
    * @param validate true indicates that validation should be run, false indicates that only type
    *     conversion should occur
+   * @return a ValidationErrors object containing any errors that occurred during binding
    */
   public ValidationErrors bind(ActionBean bean, ActionBeanContext context, boolean validate) {
     ValidationErrors fieldErrors = context.getValidationErrors();
@@ -363,6 +368,7 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
    * @param propertyEvaluation the property evaluation to be used to set the property
    * @param valueOrValues a List containing one or more values
    * @param targetType the declared type of the property on the ActionBean
+   * @param scalarType the scalar type of the property on the ActionBean
    */
   @SuppressWarnings({"unchecked", "rawtypes"})
   protected void bindNonNullValue(
@@ -421,6 +427,9 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
    * Converts the map of parameters in the request into a Map of ParameterName to String[]. Returns
    * a SortedMap so that when iterated over parameter names are accessed in order of length of
    * parameter name.
+   *
+   * @param bean the ActionBean to get parameters for
+   * @return a SortedMap of ParameterName to String[] containing all parameters in the request
    */
   protected SortedMap<ParameterName, String[]> getParameters(ActionBean bean) {
     Map<String, String[]> requestParameters = bean.getContext().getRequest().getParameterMap();
@@ -456,6 +465,10 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
    * Validates that all required fields have been submitted. This is done by looping through the set
    * of validation annotations and checking that each field marked as required was submitted in the
    * request and submitted with a non-empty value.
+   *
+   * @param parameters the map of parameters in the request
+   * @param bean the ActionBean
+   * @param errors the ValidationErrors object to which errors should be added
    */
   protected void validateRequiredFields(
       Map<ParameterName, String[]> parameters, ActionBean bean, ValidationErrors errors) {
@@ -559,8 +572,6 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
    * one or more values, and where each value is a non-empty String after it has had white space
    * trimmed from each end.
    *
-   * <p>
-   *
    * <p>For any fields that fail validation, creates a ScopedLocalizableError that uses the stripped
    * name of the field to find localized info (e.g. foo.bar instead of foo[1].bar). The error is
    * bound to the actual field on the form though, e.g. foo[1].bar.
@@ -568,6 +579,7 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
    * @param name the name of the parameter verbatim from the request
    * @param strippedName the name of the parameter with any indexing removed from it
    * @param values the String[] of values that was submitted in the request
+   * @param req the StripesRequestWrapper for the current request
    * @param errors a ValidationErrors object into which errors can be placed
    */
   protected void checkSingleRequiredField(
@@ -750,8 +762,9 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
    * @param validationInfo the validation metadata for the property if defined
    * @param errors a List into which ValidationError objects will be populated for any errors
    *     discovered during conversion.
-   * @return List<Object> a List of objects containing only objects of the desired type. It is not
-   *     guaranteed to be the same length as the values array passed in.
+   * @return a List of objects containing only objects of the desired type. It is not guaranteed to
+   *     be the same length as the values array passed in.
+   * @throws Exception if anything goes wrong during conversion
    */
   @SuppressWarnings({"unchecked", "rawtypes"})
   protected List<Object> convert(
@@ -862,6 +875,10 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
    * should be trimmed. If so, then the trimmed values are returned. Otherwise, the values are
    * returned unchanged. If {@code meta} is null, then the default action is taken, and the values
    * are trimmed. Either {@code values} or {@code meta} (or both) may be null.
+   *
+   * @param values the values to trim
+   * @param meta the validation metadata for the property
+   * @return the trimmed values, or the original values if trimming is not required
    */
   protected String[] trim(String[] values, ValidationMetadata meta) {
     if (values != null && values.length > 0 && (meta == null || meta.trim())) {
@@ -887,6 +904,9 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
     /**
      * Adds the value to the map, along the way checking to see if there are any non-null values for
      * the row so far.
+     *
+     * @param key the key to add
+     * @param values the values to add
      */
     @Override
     public String[] put(ParameterName key, String[] values) {
@@ -900,7 +920,11 @@ public class DefaultActionBeanPropertyBinder implements ActionBeanPropertyBinder
       return super.put(key, values);
     }
 
-    /** Returns true if the row had any non-empty values in it, otherwise false. */
+    /**
+     * Returns true if the row had any non-empty values in it, otherwise false.
+     *
+     * @return true if the row had any non-empty values in it, otherwise false
+     */
     public boolean hasNonEmptyValues() {
       return this.hasNonEmptyValues;
     }

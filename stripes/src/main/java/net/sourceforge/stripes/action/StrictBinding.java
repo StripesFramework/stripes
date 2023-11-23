@@ -67,6 +67,8 @@ public @interface StrictBinding {
   /**
    * The policy to observe when a property name matches both the deny and allow lists, or when a
    * property name does not match either list.
+   *
+   * @return the default policy
    */
   Policy defaultPolicy() default Policy.DENY;
 

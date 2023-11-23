@@ -238,7 +238,11 @@ public class DefaultConfiguration implements Configuration {
     }
   }
 
-  /** Returns a reference to the resolver supplied at initialization time. */
+  /**
+   * Returns a reference to the resolver supplied at initialization time.
+   *
+   * @return BootstrapPropertyResolver reference to the resolver supplied at initialization time
+   */
   public BootstrapPropertyResolver getBootstrapPropertyResolver() {
     return this.resolver;
   }
@@ -252,17 +256,29 @@ public class DefaultConfiguration implements Configuration {
     return getBootstrapPropertyResolver().getFilterConfig().getServletContext();
   }
 
-  /** Enable or disable debug mode. */
+  /**
+   * Enable or disable debug mode.
+   *
+   * @param debugMode true to enable debug mode, false to disable it
+   */
   public void setDebugMode(boolean debugMode) {
     this.debugMode = debugMode;
   }
 
-  /** Returns true if the Stripes application is running in debug mode. */
+  /**
+   * Returns true if the Stripes application is running in debug mode.
+   *
+   * @return true if the Stripes application is running in debug mode
+   */
   public boolean isDebugMode() {
     return debugMode;
   }
 
-  /** Allows subclasses to initialize a non-default debug mode value. */
+  /**
+   * Allows subclasses to initialize a non-default debug mode value.
+   *
+   * @return true to enable debug mode, false to disable it
+   */
   protected Boolean initDebugMode() {
     return null;
   }
@@ -277,7 +293,11 @@ public class DefaultConfiguration implements Configuration {
     return this.objectFactory;
   }
 
-  /** Allows subclasses to initialize a non-default {@link ObjectFactory}. */
+  /**
+   * Allows subclasses to initialize a non-default {@link ObjectFactory}.
+   *
+   * @return an instance of {@link ObjectFactory}.
+   */
   protected ObjectFactory initObjectFactory() {
     return null;
   }
@@ -292,7 +312,11 @@ public class DefaultConfiguration implements Configuration {
     return this.actionResolver;
   }
 
-  /** Allows subclasses to initialize a non-default ActionResolver. */
+  /**
+   * Allows subclasses to initialize a non-default ActionResolver.
+   *
+   * @return ActionResolver an instance of the configured resolver
+   */
   protected ActionResolver initActionResolver() {
     return null;
   }
@@ -307,7 +331,11 @@ public class DefaultConfiguration implements Configuration {
     return this.actionBeanPropertyBinder;
   }
 
-  /** Allows subclasses to initialize a non-default ActionBeanPropertyBinder. */
+  /**
+   * Allows subclasses to initialize a non-default ActionBeanPropertyBinder.
+   *
+   * @return ActionBeanPropertyBinder an instance of the configured binder
+   */
   protected ActionBeanPropertyBinder initActionBeanPropertyBinder() {
     return null;
   }
@@ -322,7 +350,11 @@ public class DefaultConfiguration implements Configuration {
     return this.actionBeanContextFactory;
   }
 
-  /** Allows subclasses to initialize a non-default ActionBeanContextFactory. */
+  /**
+   * Allows subclasses to initialize a non-default ActionBeanContextFactory.
+   *
+   * @return ActionBeanContextFactory an instance of a factory for creating ActionBeanContexts
+   */
   protected ActionBeanContextFactory initActionBeanContextFactory() {
     return null;
   }
@@ -337,7 +369,11 @@ public class DefaultConfiguration implements Configuration {
     return this.typeConverterFactory;
   }
 
-  /** Allows subclasses to initialize a non-default TypeConverterFactory. */
+  /**
+   * Allows subclasses to initialize a non-default TypeConverterFactory.
+   *
+   * @return TypeConverterFactory an instance of the configured factory.
+   */
   protected TypeConverterFactory initTypeConverterFactory() {
     return null;
   }
@@ -345,12 +381,18 @@ public class DefaultConfiguration implements Configuration {
   /**
    * Returns an instance of a LocalizationBundleFactory. By default, this will be an instance of
    * DefaultLocalizationBundleFactory unless another type has been configured.
+   *
+   * @return LocalizationBundleFactory an instance of the configured factory.
    */
   public LocalizationBundleFactory getLocalizationBundleFactory() {
     return this.localizationBundleFactory;
   }
 
-  /** Allows subclasses to initialize a non-default LocalizationBundleFactory. */
+  /**
+   * Allows subclasses to initialize a non-default LocalizationBundleFactory.
+   *
+   * @return LocalizationBundleFactory an instance of the configured factory.
+   */
   protected LocalizationBundleFactory initLocalizationBundleFactory() {
     return null;
   }
@@ -358,12 +400,18 @@ public class DefaultConfiguration implements Configuration {
   /**
    * Returns an instance of a LocalePicker. Unless a subclass has picked another implementation will
    * return an instance of DefaultLocalePicker.
+   *
+   * @return LocalePicker an instance of the configured LocalePicker.
    */
   public LocalePicker getLocalePicker() {
     return this.localePicker;
   }
 
-  /** Allows subclasses to initialize a non-default LocalePicker. */
+  /**
+   * Allows subclasses to initialize a non-default LocalePicker.
+   *
+   * @return LocalePicker an instance of the configured LocalePicker.
+   */
   protected LocalePicker initLocalePicker() {
     return null;
   }
@@ -371,12 +419,18 @@ public class DefaultConfiguration implements Configuration {
   /**
    * Returns an instance of a FormatterFactory. Unless a subclass has picked another implementation
    * will return an instance of DefaultFormatterFactory.
+   *
+   * @return FormatterFactory an instance of the configured FormatterFactory.
    */
   public FormatterFactory getFormatterFactory() {
     return this.formatterFactory;
   }
 
-  /** Allows subclasses to initialize a non-default FormatterFactory. */
+  /**
+   * Allows subclasses to initialize a non-default FormatterFactory.
+   *
+   * @return FormatterFactory an instance of the configured FormatterFactory.
+   */
   protected FormatterFactory initFormatterFactory() {
     return null;
   }
@@ -384,12 +438,18 @@ public class DefaultConfiguration implements Configuration {
   /**
    * Returns an instance of a TagErrorRendererFactory. Unless a subclass has picked another
    * implementation, will return an instance of DefaultTagErrorRendererFactory.
+   *
+   * @return TagErrorRendererFactory an instance of the configured TagErrorRendererFactory.
    */
   public TagErrorRendererFactory getTagErrorRendererFactory() {
     return tagErrorRendererFactory;
   }
 
-  /** Allows subclasses to initialize a non-default TagErrorRendererFactory instance to be used. */
+  /**
+   * Allows subclasses to initialize a non-default TagErrorRendererFactory instance to be used.
+   *
+   * @return TagErrorRendererFactory an instance of the configured TagErrorRendererFactory.
+   */
   protected TagErrorRendererFactory initTagErrorRendererFactory() {
     return null;
   }
@@ -399,13 +459,18 @@ public class DefaultConfiguration implements Configuration {
    * implementation, will return an instance of {@link
    * net.sourceforge.stripes.tag.BeanFirstPopulationStrategy}.
    *
+   * @return PopulationStrategy an instance of the configured PopulationStrategy.
    * @since Stripes 1.6
    */
   public PopulationStrategy getPopulationStrategy() {
     return this.populationStrategy;
   }
 
-  /** Allows subclasses to initialize a non-default PopulationStrategy instance to be used. */
+  /**
+   * Allows subclasses to initialize a non-default PopulationStrategy instance to be used.
+   *
+   * @return PopulationStrategy an instance of the configured PopulationStrategy.
+   */
   protected PopulationStrategy initPopulationStrategy() {
     return null;
   }
@@ -414,12 +479,18 @@ public class DefaultConfiguration implements Configuration {
    * Returns an instance of an ExceptionHandler. Unless a subclass has picked another
    * implementation, will return an instance of {@link
    * net.sourceforge.stripes.exception.DefaultExceptionHandler}.
+   *
+   * @return ExceptionHandler an instance of the configured ExceptionHandler.
    */
   public ExceptionHandler getExceptionHandler() {
     return this.exceptionHandler;
   }
 
-  /** Allows subclasses to initialize a non-default ExceptionHandler instance to be used. */
+  /**
+   * Allows subclasses to initialize a non-default ExceptionHandler instance to be used.
+   *
+   * @return ExceptionHandler an instance of the configured ExceptionHandler.
+   */
   protected ExceptionHandler initExceptionHandler() {
     return null;
   }
@@ -434,7 +505,11 @@ public class DefaultConfiguration implements Configuration {
     return this.multipartWrapperFactory;
   }
 
-  /** Allows subclasses to initialize a non-default MultipartWrapperFactory. */
+  /**
+   * Allows subclasses to initialize a non-default MultipartWrapperFactory.
+   *
+   * @return MultipartWrapperFactory an instance of the wrapper factory
+   */
   protected MultipartWrapperFactory initMultipartWrapperFactory() {
     return null;
   }
@@ -450,7 +525,11 @@ public class DefaultConfiguration implements Configuration {
     return this.validationMetadataProvider;
   }
 
-  /** Allows subclasses to initialize a non-default {@link ValidationMetadataProvider}. */
+  /**
+   * Allows subclasses to initialize a non-default {@link ValidationMetadataProvider}.
+   *
+   * @return an instance of {@link ValidationMetadataProvider}
+   */
   protected ValidationMetadataProvider initValidationMetadataProvider() {
     return null;
   }
@@ -458,6 +537,9 @@ public class DefaultConfiguration implements Configuration {
   /**
    * Returns a list of interceptors that should be executed around the lifecycle stage indicated. By
    * default, returns a single element list containing the {@link BeforeAfterMethodInterceptor}.
+   *
+   * @param stage the lifecycle stage for which to fetch interceptors
+   * @return a list of interceptors to be executed around the given lifecycle stage.
    */
   public Collection<Interceptor> getInterceptors(LifecycleStage stage) {
     Collection<Interceptor> interceptors = this.interceptors.get(stage);
@@ -471,6 +553,9 @@ public class DefaultConfiguration implements Configuration {
    * Merges the two {@link Map}s of {@link LifecycleStage} to {@link Collection} of {@link
    * Interceptor}. A simple {@link Map#putAll(Map)} does not work because it overwrites the
    * collections in the map instead of adding to them.
+   *
+   * @param dst the destination map
+   * @param src the source map
    */
   protected void mergeInterceptorMaps(
       Map<LifecycleStage, Collection<Interceptor>> dst,
@@ -486,6 +571,9 @@ public class DefaultConfiguration implements Configuration {
    * Adds the interceptor to the map, associating it with the {@link LifecycleStage}s indicated by
    * the {@link Intercepts} annotation. If the interceptor implements {@link ConfigurableComponent},
    * then its init() method will be called.
+   *
+   * @param map the map to add the interceptor to
+   * @param interceptor the interceptor to add
    */
   protected void addInterceptor(
       Map<LifecycleStage, Collection<Interceptor>> map, Interceptor interceptor) {
@@ -525,7 +613,11 @@ public class DefaultConfiguration implements Configuration {
     }
   }
 
-  /** Instantiates the core interceptors, allowing subclasses to override the default behavior */
+  /**
+   * Instantiates the core interceptors, allowing subclasses to override the default behavior
+   *
+   * @return a map of interceptors
+   */
   protected Map<LifecycleStage, Collection<Interceptor>> initCoreInterceptors() {
     Map<LifecycleStage, Collection<Interceptor>> interceptors = new HashMap<>();
     addInterceptor(interceptors, new BeforeAfterMethodInterceptor());
@@ -533,7 +625,11 @@ public class DefaultConfiguration implements Configuration {
     return interceptors;
   }
 
-  /** Allows subclasses to initialize a non-default Map of Interceptor instances. */
+  /**
+   * Allows subclasses to initialize a non-default Map of Interceptor instances.
+   *
+   * @return a map of interceptors
+   */
   protected Map<LifecycleStage, Collection<Interceptor>> initInterceptors() {
     return null;
   }

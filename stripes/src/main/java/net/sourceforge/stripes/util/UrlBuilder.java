@@ -164,7 +164,8 @@ public class UrlBuilder {
 
   /**
    * Returns the string that will be used to separate parameters in the query string. Will usually
-   * be either '&amp;' for query strings that will be embedded in HTML pages and '&' otherwise.
+   * be either {@code '&amp;'} for query strings that will be embedded in HTML pages and {@code '&'}
+   * otherwise.
    */
   public String getParameterSeparator() {
     return parameterSeparator;
@@ -187,10 +188,11 @@ public class UrlBuilder {
    * <p>If any parameter value passed is a Collection or an Array then this method is called
    * recursively with the contents of the collection or array. As a result you can pass arbitrarily
    * nested arrays and collections to this method, and it will recurse through them adding all
-   * scalar values as parameters to the URL.</p.
+   * scalar values as parameters to the URL.
    *
    * @param name the name of the request parameter being added
    * @param values one or more values for the parameter supplied
+   * @return this UrlBuilder, for chaining
    */
   public UrlBuilder addParameter(String name, Object... values) {
     // If values is null or empty, then simply sub in a single empty string

@@ -49,7 +49,11 @@ public class DefaultPopulationStrategy implements PopulationStrategy {
     this.config = configuration;
   }
 
-  /** Accessor for the configuration supplied when the population strategy is initialized. */
+  /**
+   * Accessor for the configuration supplied when the population strategy is initialized.
+   *
+   * @return the configuration object
+   */
   protected Configuration getConfiguration() {
     return this.config;
   }
@@ -85,6 +89,7 @@ public class DefaultPopulationStrategy implements PopulationStrategy {
    *
    * @param tag the tag whose values to look for
    * @return a String[] if values are found, null otherwise
+   * @throws StripesJspException if an error occurs while retrieving the values
    */
   protected String[] getValuesFromRequest(InputTagSupport tag) throws StripesJspException {
     String[] value = tag.getPageContext().getRequest().getParameterValues(tag.getName());
@@ -120,6 +125,7 @@ public class DefaultPopulationStrategy implements PopulationStrategy {
    *
    * @param tag the tag whose values to look for
    * @return an Object, possibly null, representing the tag's value
+   * @throws StripesJspException if an error occurs while retrieving the value
    */
   protected Object getValueFromActionBean(InputTagSupport tag) throws StripesJspException {
     ActionBean actionBean = tag.getParentFormTag().getActionBean();
@@ -158,6 +164,7 @@ public class DefaultPopulationStrategy implements PopulationStrategy {
    *
    * @param tag the tag that is being repopulated
    * @return boolean true if the form is in error, false otherwise
+   * @throws StripesJspException if an error occurs while checking for form errors
    */
   protected boolean isFormInError(InputTagSupport tag) throws StripesJspException {
     boolean inError = false;

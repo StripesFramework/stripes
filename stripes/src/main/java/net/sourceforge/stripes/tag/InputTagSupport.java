@@ -362,7 +362,7 @@ public abstract class InputTagSupport extends HtmlTagSupport implements TryCatch
   /**
    * Access for the field errors that occurred on the form input this tag represents
    *
-   * @return List<ValidationError> the list of validation errors for this field
+   * @return the list of validation errors for this field
    */
   public List<ValidationError> getFieldErrors() throws StripesJspException {
     if (!fieldErrorsLoaded) {

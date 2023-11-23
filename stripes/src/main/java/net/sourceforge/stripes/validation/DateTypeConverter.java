@@ -85,6 +85,8 @@ public class DateTypeConverter implements TypeConverter<Date> {
   /**
    * Used by Stripes to set the input locale. Once the locale is set a number of DateFormat
    * instances are created ready to convert any input.
+   *
+   * @param locale the locale to use when parsing dates
    */
   public void setLocale(Locale locale) {
     this.locale = locale;
@@ -92,6 +94,8 @@ public class DateTypeConverter implements TypeConverter<Date> {
   }
 
   /**
+   * Returns the current input locale.
+   *
    * @return the current input locale.
    */
   public Locale getLocale() {
@@ -127,6 +131,8 @@ public class DateTypeConverter implements TypeConverter<Date> {
    * method can be overridden to make DateTypeConverter use a different set of format Strings. Given
    * that pre-processing converts most common separator characters into spaces, patterns should be
    * expressed with spaces as separators, not slashes, hyphens etc.
+   *
+   * @return an array of format strings to be used to construct SimpleDateFormat instances
    */
   protected String[] getFormatStrings() {
     try {
@@ -160,6 +166,8 @@ public class DateTypeConverter implements TypeConverter<Date> {
    * String. This method will be called once when the DateTypeConverter instance is initialized. It
    * first calls getFormatStrings() to obtain the format strings that are used to construct
    * SimpleDateFormat instances.
+   *
+   * @return an array of DateFormat objects to be used with this type converter
    */
   protected DateFormat[] getDateFormats() {
     String[] formatStrings = getFormatStrings();
@@ -177,6 +185,10 @@ public class DateTypeConverter implements TypeConverter<Date> {
    * Attempts to convert a String to a Date object. Pre-processes the input by invoking the method
    * preProcessInput(), then uses an ordered list of DateFormat objects (supplied by
    * getDateFormats()) to try and parse the String into a Date.
+   *
+   * @param input the String to be converted
+   * @param targetType the type of the target property
+   * @param errors a collection to which validation errors should be added
    */
   public Date convert(
       String input, Class<? extends Date> targetType, Collection<ValidationError> errors) {
@@ -210,6 +222,8 @@ public class DateTypeConverter implements TypeConverter<Date> {
    * the resource bundle under the key 'stripes.dateTypeConverter.preProcessPattern'. If no value is
    * found, the pattern <code>(?&lt;!GMT)[\\s,-/\\.]+</code> is used by default. The pattern is used
    * by preProcessInput() to replace all matches by single spaces.
+   *
+   * @return the regular expression pattern used to pre-process the input
    */
   protected Pattern getPreProcessPattern() {
     try {
@@ -225,6 +239,9 @@ public class DateTypeConverter implements TypeConverter<Date> {
    * that components are separated by single spaces. Then invokes {@link
    * #checkAndAppendYear(String)} to append the year to the date in case the date is in a format
    * like "12/25" which would otherwise fail to parse.
+   *
+   * @param input the input string to be pre-processed
+   * @return the pre-processed input string
    */
   protected String preProcessInput(String input) {
     input = getPreProcessPattern().matcher(input.trim()).replaceAll(" ");
@@ -254,7 +271,12 @@ public class DateTypeConverter implements TypeConverter<Date> {
     return input;
   }
 
-  /** Convenience method to fetch a property from the resource bundle. */
+  /**
+   * Convenience method to fetch a property from the resource bundle.
+   *
+   * @param key the key to look up in the resource bundle
+   * @return the value of the property in the resource bundle
+   */
   protected String getResourceString(String key) throws MissingResourceException {
     return StripesFilter.getConfiguration()
         .getLocalizationBundleFactory()

@@ -23,8 +23,9 @@ import java.util.Locale;
  * the specified number exists, only that it appears to be a valid card number.
  *
  * <p>If the credit card number is not valid a single error message will be generated. The error
- * message is a scoped message with a default scope of <tt>converter.creditCard</tt> and name
- * <tt>invalidCreditCard</tt>. As a result error messages will be looked for in the following order:
+ * message is a scoped message with a default scope of <code>converter.creditCard</code> and name
+ * <code>invalidCreditCard</code>. As a result error messages will be looked for in the following
+ * order:
  *
  * <ul>
  *   <li>beanClassFQN.fieldName.invalidCreditCard
@@ -39,14 +40,21 @@ import java.util.Locale;
  * @since Stripes 1.5
  */
 public class CreditCardTypeConverter implements TypeConverter<String> {
-  // Recognized card types
+  /** The types of credit cards that are supported by this converter. */
   public enum Type {
+    /** American Express */
     AMEX,
+    /** Diners Club */
     DinersClub,
+    /** Discover */
     Discover,
+    /** enRoute */
     enRoute,
+    /** JCB */
     JCB,
+    /** MasterCard */
     MasterCard,
+    /** Visa */
     VISA
   }
 

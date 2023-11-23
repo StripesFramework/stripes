@@ -28,9 +28,10 @@ import net.sourceforge.stripes.util.HtmlUtil;
  * value in the following list:
  *
  * <ul>
- *   <il>A value with the same name in the HttpServletRequest <il>A value on the ActionBean if an
- *   ActionBean instance is present <il>The contents of the body of the textarea <il>The value
- *   attribute of the tag
+ *   <li>A value with the same name in the HttpServletRequest
+ *   <li>A value on the ActionBean if an ActionBean instance is present
+ *   <li>The contents of the body of the textarea
+ *   <li>The value attribute of the tag
  * </ul>
  *
  * @author Tim Fennell

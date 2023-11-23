@@ -54,7 +54,11 @@ public class DefaultMultipartWrapperFactory implements MultipartWrapperFactory {
   private long maxPostSizeInBytes = 1024 * 1024 * 10; // Defaults to 10MB
   private File temporaryDirectory;
 
-  /** Get the configuration object that was passed into {@link #init(Configuration)}. */
+  /**
+   * Get the configuration object that was passed into {@link #init(Configuration)}.
+   *
+   * @return the configuration object
+   */
   protected Configuration getConfiguration() {
     return configuration;
   }

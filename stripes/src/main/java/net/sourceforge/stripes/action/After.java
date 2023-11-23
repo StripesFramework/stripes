@@ -67,7 +67,11 @@ import net.sourceforge.stripes.controller.LifecycleStage;
 @Inherited
 @Documented
 public @interface After {
-  /** One or more lifecycle stages after which the method should be called. */
+  /**
+   * One or more lifecycle stages after which the method should be called.
+   *
+   * @return the lifecycle stages after which the method should be called
+   */
   LifecycleStage[] stages() default LifecycleStage.EventHandling;
 
   /**
@@ -75,6 +79,8 @@ public @interface After {
    * executed on all events. Can be used to specify one or more events to apply the method to (e.g.
    * on={"save", "update"}), or to specify one or more events <i>not</i> to apply the method to
    * (e.g. on="!delete").
+   *
+   * @return the events to apply the method to, or not to apply the method to
    */
   String[] on() default {};
 }

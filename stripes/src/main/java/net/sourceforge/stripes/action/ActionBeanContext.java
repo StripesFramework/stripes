@@ -182,6 +182,7 @@ public class ActionBeanContext {
    * current request. This means that they are available in request scope using the supplied key
    * during both this request, and the subsequent request if it is the result of a redirect.
    *
+   * @param key the key under which the messages are stored
    * @return a List of Message objects associated with the current request, never null.
    */
   @SuppressWarnings("unchecked")

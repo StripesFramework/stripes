@@ -62,8 +62,11 @@ public class CryptoUtil {
   /** The algorithm that is used to encrypt values. */
   protected static final String ALGORITHM = "DESede";
 
+  /** The cipher mode modifier that is used to encrypt values. */
   protected static final String CIPHER_MODE_MODIFIER = "/CBC/PKCS5Padding";
+  /** The block length of the cipher. */
   protected static final int CIPHER_BLOCK_LENGTH = 8;
+
   private static final String CIPHER_HMAC_ALGORITHM = "HmacSHA256";
   private static final int CIPHER_HMAC_LENGTH = 32;
 
@@ -76,7 +79,7 @@ public class CryptoUtil {
   /** The options used for Base64 Encoding. */
   private static final int BASE64_OPTIONS = Base64.URL_SAFE | Base64.DONT_BREAK_LINES;
 
-  /** Secret key to be used o encrypt and decrypt values. */
+  /** Secret key to be used to encrypt and decrypt values. */
   private static SecretKey secretKey;
 
   /**

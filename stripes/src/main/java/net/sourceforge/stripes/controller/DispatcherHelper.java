@@ -93,6 +93,7 @@ public class DispatcherHelper {
    * @param ctx the ExecutionContext being used to process the current request
    * @return a Resolution if any interceptor determines that the request processing should be
    *     aborted in favor of another Resolution, null otherwise.
+   * @throws Exception if the ActionBean cannot be resolved
    */
   public static Resolution resolveActionBean(final ExecutionContext ctx) throws Exception {
     final Configuration config = StripesFilter.getConfiguration();
@@ -133,6 +134,7 @@ public class DispatcherHelper {
    * @param ctx the ExecutionContext being used to process the current request
    * @return a Resolution if any interceptor determines that the request processing should be
    *     aborted in favor of another Resolution, null otherwise.
+   * @throws Exception if the event name cannot be resolved
    */
   public static Resolution resolveHandler(final ExecutionContext ctx) throws Exception {
     final Configuration config = StripesFilter.getConfiguration();
@@ -190,8 +192,10 @@ public class DispatcherHelper {
    * generated or not).
    *
    * @param ctx the ExecutionContext being used to process the current request
+   * @param validate whether validation should be performed
    * @return a Resolution if any interceptor determines that the request processing should be
    *     aborted in favor of another Resolution, null otherwise.
+   * @throws Exception if binding or validation fails
    */
   public static Resolution doBindingAndValidation(
       final ExecutionContext ctx, final boolean validate) throws Exception {
@@ -224,8 +228,10 @@ public class DispatcherHelper {
    * errors, or the always call validate flag is set etc.).
    *
    * @param ctx the ExecutionContext being used to process the current request
+   * @param alwaysInvokeValidate whether validation should be performed even if there are errors
    * @return a Resolution if any interceptor determines that the request processing should be
    *     aborted in favor of another Resolution, null otherwise.
+   * @throws Exception if validation fails
    */
   public static Resolution doCustomValidation(
       final ExecutionContext ctx, final boolean alwaysInvokeValidate) throws Exception {
@@ -366,6 +372,7 @@ public class DispatcherHelper {
    * @param ctx the ExecutionContext being used to process the current request
    * @return a Resolution if the error handling code determines that some kind of resolution should
    *     be processed in favor of continuing on to handler invocation
+   * @throws Exception if the error handling code fails
    */
   public static Resolution handleValidationErrors(ExecutionContext ctx) throws Exception {
     DontValidate annotation = ctx.getHandler().getAnnotation(DontValidate.class);
@@ -446,6 +453,7 @@ public class DispatcherHelper {
    *     should occur
    * @return a Resolution if the error handling code determines that some kind of resolution should
    *     be processed in favor of continuing on to handler invocation
+   * @throws Exception if the event handler fails
    */
   public static Resolution invokeEventHandler(ExecutionContext ctx) throws Exception {
     final Configuration config = StripesFilter.getConfiguration();
@@ -488,6 +496,7 @@ public class DispatcherHelper {
    * @param ctx the current execution context representing the request
    * @param resolution the resolution to be executed unless another is substituted by an interceptor
    *     before calling ctx.proceed()
+   * @throws Exception if the resolution fails
    */
   public static void executeResolution(ExecutionContext ctx, Resolution resolution)
       throws Exception {
@@ -526,7 +535,11 @@ public class DispatcherHelper {
     }
   }
 
-  /** Log validation errors at DEBUG to help during development. */
+  /**
+   * Log validation errors at DEBUG to help during development.
+   *
+   * @param context the ActionBeanContext to log errors for
+   */
   public static void logValidationErrors(ActionBeanContext context) {
     StringBuilder buf = new StringBuilder("The following validation errors need to be fixed:");
 

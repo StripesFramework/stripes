@@ -93,13 +93,24 @@ public class DefaultExceptionHandler implements ExceptionHandler {
     private final Object handler;
     private final Method handlerMethod;
 
-    /** Constructs a new HandlerProxy that will tie together the instance and method used. */
+    /**
+     * Constructs a new HandlerProxy that will tie together the instance and method used.
+     *
+     * @param handler the instance on which the method will be invoked
+     * @param handlerMethod the method to invoke
+     */
     public HandlerProxy(Object handler, Method handlerMethod) {
       this.handler = handler;
       this.handlerMethod = handlerMethod;
     }
 
-    /** Invokes the handler and executes the resolution if one is returned. */
+    /**
+     * Invokes the handler and executes the resolution if one is returned.
+     *
+     * @param t the exception being handled
+     * @param req the current request being processed
+     * @param res the response paired with the current request
+     */
     public void handle(Throwable t, HttpServletRequest req, HttpServletResponse res)
         throws Exception {
       try {
@@ -115,6 +126,11 @@ public class DefaultExceptionHandler implements ExceptionHandler {
       }
     }
 
+    /**
+     * Gets the handler instance.
+     *
+     * @return the handler instance
+     */
     Method getHandlerMethod() {
       return handlerMethod;
     }
@@ -129,6 +145,8 @@ public class DefaultExceptionHandler implements ExceptionHandler {
    * @param throwable the exception being handled
    * @param request the current request being processed
    * @param response the response paired with the current request
+   * @throws ServletException if the exception passed in cannot be handled
+   * @throws IOException if the exception passed in cannot be handled
    */
   public void handle(Throwable throwable, HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
@@ -183,6 +201,7 @@ public class DefaultExceptionHandler implements ExceptionHandler {
    * @param request The servlet request.
    * @param response The servlet response.
    * @return A {@link ValidationErrorReportResolution}
+   * @throws Exception If anything goes wrong.
    */
   protected Resolution handle(
       SourcePageNotFoundException exception,
@@ -222,8 +241,6 @@ public class DefaultExceptionHandler implements ExceptionHandler {
    * <p>A simple way to provide a single, global error page for this type of exception is to
    * override {@link #getFileUploadExceededExceptionPath(HttpServletRequest)} to return the path to
    * your global error page.
-   *
-   * <p>
    *
    * @param exception The exception that needs to be handled
    * @param request The servlet request
@@ -418,7 +435,11 @@ public class DefaultExceptionHandler implements ExceptionHandler {
     }
   }
 
-  /** Provides subclasses with access to the configuration. */
+  /**
+   * Provides subclasses with access to the configuration.
+   *
+   * @return the configuration object
+   */
   protected Configuration getConfiguration() {
     return configuration;
   }

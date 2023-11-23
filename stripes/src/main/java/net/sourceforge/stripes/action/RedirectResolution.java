@@ -31,8 +31,6 @@ import net.sourceforge.stripes.util.Log;
  * any URL anywhere on the web - though it is more commonly used to send the user to a location
  * within the same application.
  *
- * <p>
- *
  * <p>By default the RedirectResolution will prepend the context path of the web application to any
  * URL before redirecting the request. To prevent the context path from being prepended use the
  * constructor: {@code RedirectResolution(String,boolean)}.

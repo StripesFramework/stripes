@@ -78,10 +78,18 @@ public interface Configuration {
    */
   ServletContext getServletContext();
 
-  /** Enable or disable debug mode. */
+  /**
+   * Enable or disable debug mode.
+   *
+   * @param debugMode true to enable debug mode, false to disable it
+   */
   void setDebugMode(boolean debugMode);
 
-  /** Returns true if the Stripes application is running in debug mode. */
+  /**
+   * Returns true if the Stripes application is running in debug mode.
+   *
+   * @return true if the Stripes application is running in debug mode
+   */
   boolean isDebugMode();
 
   /**
@@ -178,8 +186,8 @@ public interface Configuration {
    * around the code which executes the given lifecycle function (e.g. ActionBeanResolution), and as
    * a result can execute code both before and after it.
    *
-   * @return Collection<Interceptor> an ordered collection of interceptors to be executed around the
-   *     given lifecycle stage.
+   * @param stage the lifecycle stage for which to fetch interceptors
+   * @return an ordered collection of interceptors to be executed around the given lifecycle stage.
    */
   Collection<Interceptor> getInterceptors(LifecycleStage stage);
 

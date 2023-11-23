@@ -39,7 +39,11 @@ public class DefaultFormatterFactory implements FormatterFactory {
   /** Stores a reference to the Configuration passed in at initialization time. */
   private Configuration configuration;
 
-  /** Stores a reference to the configuration and configures the default formatters. */
+  /**
+   * Stores a reference to the configuration and configures the default formatters.
+   *
+   * @param configuration the configuration object
+   */
   public void init(Configuration configuration) throws Exception {
     this.configuration = configuration;
     this.cache = new TypeHandlerCache<>();
@@ -50,7 +54,11 @@ public class DefaultFormatterFactory implements FormatterFactory {
     add(Enum.class, EnumFormatter.class);
   }
 
-  /** Allows subclasses to access the stored configuration if needed. */
+  /**
+   * Allows subclasses to access the stored configuration if needed.
+   *
+   * @return the Configuration object passed in at initialization time
+   */
   protected Configuration getConfiguration() {
     return this.configuration;
   }
@@ -106,6 +114,9 @@ public class DefaultFormatterFactory implements FormatterFactory {
    * Gets an instance of the Formatter class specified.
    *
    * @param clazz the Formatter type that is desired
+   * @param formatType the type of output to produce (e.g. date, time etc.)
+   * @param formatPattern a named format string, or a format pattern
+   * @param locale the Locale into which the object should be formatted
    * @return an instance of the Formatter specified
    * @throws Exception if there is a problem instantiating the Formatter
    */

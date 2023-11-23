@@ -37,6 +37,7 @@ import net.sourceforge.stripes.exception.StripesRuntimeException;
  * @author Greg Hinkle, Tim Fennell
  */
 public class DefaultTagErrorRendererFactory implements TagErrorRendererFactory {
+  /** The configuration key that is used to look up the name of the renderer class. */
   public static final String RENDERER_CLASS_KEY = "TagErrorRenderer.Class";
 
   private Configuration configuration;
@@ -46,6 +47,8 @@ public class DefaultTagErrorRendererFactory implements TagErrorRendererFactory {
    * Looks up the name of the configured renderer class in the configuration and attempts to find
    * the Class object for it. If one isn't provided then the default class is used. If the
    * configured class cannot be found an exception will be thrown and the factory is deemed invalid.
+   *
+   * @param configuration the configuration object
    */
   public void init(Configuration configuration) throws Exception {
     setConfiguration(configuration);
@@ -62,6 +65,9 @@ public class DefaultTagErrorRendererFactory implements TagErrorRendererFactory {
    * Returns a new instance of the configured renderer that is ready for use. By default, returns an
    * instance of {@link DefaultTagErrorRenderer}. If a custom class is configured and cannot be
    * instantiated, an exception will be thrown.
+   *
+   * @param tag the tag which is being rendered
+   * @return a new instance of the configured renderer
    */
   public TagErrorRenderer getTagErrorRenderer(InputTagSupport tag) {
     try {
@@ -80,10 +86,20 @@ public class DefaultTagErrorRendererFactory implements TagErrorRendererFactory {
     }
   }
 
+  /**
+   * Returns the Configuration object that was passed in at initialization time.
+   *
+   * @return the Configuration object passed in at initialization time
+   */
   protected Configuration getConfiguration() {
     return configuration;
   }
 
+  /**
+   * Sets the Configuration object
+   *
+   * @param configuration the Configuration object
+   */
   protected void setConfiguration(Configuration configuration) {
     this.configuration = configuration;
   }

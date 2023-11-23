@@ -115,6 +115,7 @@ public class AnnotatedClassActionResolver implements ActionResolver {
     addBeanNameMappings();
   }
 
+  /** Adds the bean name to action bean class mappings to the actionBeansByName map. */
   protected void addBeanNameMappings() {
     Set<String> foundBeanNames = new HashSet<>();
     for (Class<? extends ActionBean> clazz : getActionBeanClasses()) {
@@ -132,7 +133,11 @@ public class AnnotatedClassActionResolver implements ActionResolver {
     }
   }
 
-  /** Get the {@link UrlBindingFactory} that is being used by this action resolver. */
+  /**
+   * Get the {@link UrlBindingFactory} that is being used by this action resolver.
+   *
+   * @return the {@link UrlBindingFactory} that is being used by this action resolver.
+   */
   public UrlBindingFactory getUrlBindingFactory() {
     return urlBindingFactory;
   }
@@ -233,6 +238,9 @@ public class AnnotatedClassActionResolver implements ActionResolver {
   /**
    * Helper method that examines a class, starting at it's highest super class and working it's way
    * down again, to find method annotations and ensure that child class annotations take precedence.
+   *
+   * @param clazz the class to examine
+   * @param classMappings the map of event names to methods
    */
   protected void processMethods(Class<?> clazz, Map<String, Method> classMappings) {
     // Do the super class first if there is one
@@ -333,7 +341,7 @@ public class AnnotatedClassActionResolver implements ActionResolver {
    * @param path a URL to which an ActionBean is bound, or a path starting with the URL to which an
    *     ActionBean has been bound.
    * @param context the current ActionBeanContext
-   * @return a Class<ActionBean> for the ActionBean requested
+   * @return a new or existing ActionBean instance
    * @throws StripesServletException if the UrlBinding does not match an ActionBean binding
    */
   public ActionBean getActionBean(ActionBeanContext context, String path)
@@ -638,7 +646,11 @@ public class AnnotatedClassActionResolver implements ActionResolver {
         "No default handler could be found for ActionBean of " + "type: " + bean.getName());
   }
 
-  /** Provides subclasses with access to the configuration object. */
+  /**
+   * Provides subclasses with access to the configuration object.
+   *
+   * @return the configuration object
+   */
   protected Configuration getConfiguration() {
     return this.configuration;
   }

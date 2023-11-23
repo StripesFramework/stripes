@@ -14,7 +14,17 @@
  */
 package net.sourceforge.stripes.controller;
 
-import jakarta.servlet.*;
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.FilterConfig;
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.WriteListener;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletRequestWrapper;
 import jakarta.servlet.http.HttpServletResponse;
@@ -205,7 +215,11 @@ public class DynamicMappingFilter implements Filter {
     private PrintWriter printWriter;
     private TempBufferWriter tempBufferWriter;
 
-    /** Wrap the given {@code response}. */
+    /**
+     * Wrap the given {@code response}.
+     *
+     * @param response The response to wrap
+     */
     public ErrorTrappingResponseWrapper(HttpServletResponse response) {
       super(response);
     }
@@ -235,17 +249,29 @@ public class DynamicMappingFilter implements Filter {
       }
     }
 
-    /** True if the currently executing request is an include. */
+    /**
+     * True if the currently executing request is an include.
+     *
+     * @return True if the currently executing request is an include.
+     */
     public boolean isInclude() {
       return include;
     }
 
-    /** Indicate if the currently executing request is an include. */
+    /**
+     * Indicate if the currently executing request is an include.
+     *
+     * @param include True if the currently executing request is an include.
+     */
     public void setInclude(boolean include) {
       this.include = include;
     }
 
-    /** Get the error code that was passed into {@code sendError(int, ..)} */
+    /**
+     * Get the error code that was passed into {@code sendError(int, ..)}
+     *
+     * @return The error code that was passed into {@code sendError(int, ..)}
+     */
     public Integer getErrorCode() {
       return errorCode;
     }
@@ -253,6 +279,8 @@ public class DynamicMappingFilter implements Filter {
     /**
      * Send the error, if any, to the client. If {@code sendError(int, ..)} has not previously been
      * called, then do nothing.
+     *
+     * @throws IOException If thrown by {@link #sendError(int)} or {@link #sendError(int, String)}
      */
     public void proceed() throws IOException {
       // Explicitly overflow the buffer so the output gets written
@@ -443,6 +471,8 @@ public class DynamicMappingFilter implements Filter {
   /**
    * Get a reference to {@link StripesFilter}. The first time this method is called, the reference
    * will be looked up in the servlet context and cached in the {@link #stripesFilter} field.
+   *
+   * @return A reference to {@link StripesFilter} or {@code null} if it could not be found.
    */
   protected StripesFilter getStripesFilter() {
     if (stripesFilter == null) {
@@ -546,6 +576,7 @@ public class DynamicMappingFilter implements Filter {
   /**
    * Parse the application's {@code web.xml} file and return a DOM {@link Document}.
    *
+   * @return The DOM {@link Document} representing {@code web.xml}
    * @throws ParserConfigurationException If thrown by the XML parser
    * @throws IOException If thrown by the XML parser
    * @throws SAXException If thrown by the XML parser
@@ -559,6 +590,7 @@ public class DynamicMappingFilter implements Filter {
   /**
    * Evaluate a xpath expression against a DOM {@link Node} and return the result.
    *
+   * @param <T> The type of the result
    * @param expression The expression to evaluate
    * @param source The node against which the expression will be evaluated
    * @param returnType One of the constants defined in {@link XPathConstants}

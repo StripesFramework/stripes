@@ -1,11 +1,18 @@
 package net.sourceforge.stripes.util;
 
+import jakarta.servlet.ServletException;
+import java.io.IOException;
 import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Base64;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
+import net.sourceforge.stripes.FilterEnabledTestBase;
+import net.sourceforge.stripes.action.RedirectResolution;
+import net.sourceforge.stripes.mock.MockHttpServletRequest;
+import net.sourceforge.stripes.mock.MockHttpServletResponse;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -14,7 +21,18 @@ import org.junit.Test;
  *
  * @author Tim Fennell
  */
-public class CryptoUtilTest {
+public class CryptoUtilTest extends FilterEnabledTestBase {
+
+  @BeforeClass
+  public static void init() throws ServletException, IOException {
+    // Make a fake request so that the StripesConfiguration is set up. This prevents
+    // irrelevant error-level logging from StripesFilter.
+    MockHttpServletRequest request = new MockHttpServletRequest("/context", "/whatever");
+    RedirectResolution resolution =
+        new RedirectResolution("https://www.stripesframework.org", false).setPermanent(true);
+    MockHttpServletResponse response = new MockHttpServletResponse();
+    resolution.execute(request, response);
+  }
 
   @Test
   public void basicEncryptionTest() throws Exception {

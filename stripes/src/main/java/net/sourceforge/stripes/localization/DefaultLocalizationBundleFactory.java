@@ -128,10 +128,20 @@ public class DefaultLocalizationBundleFactory implements LocalizationBundleFacto
     }
   }
 
+  /**
+   * Gets the configuration object that was passed in at initialization time.
+   *
+   * @return the Configuration object passed in at initialization time
+   */
   protected Configuration getConfiguration() {
     return configuration;
   }
 
+  /**
+   * Sets the configuration object
+   *
+   * @param configuration the configuration object
+   */
   protected void setConfiguration(Configuration configuration) {
     this.configuration = configuration;
   }

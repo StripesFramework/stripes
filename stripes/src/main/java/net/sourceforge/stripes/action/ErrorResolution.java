@@ -49,27 +49,44 @@ public class ErrorResolution implements Resolution {
     this.errorMessage = errorMessage;
   }
 
+  @Override
   public void execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
     if (errorMessage != null) response.sendError(errorCode, errorMessage);
     else response.sendError(errorCode);
   }
 
-  /** Accessor for the HTTP status code. */
+  /**
+   * Accessor for the HTTP status code.
+   *
+   * @return the HTTP status code
+   */
   public int getErrorCode() {
     return errorCode;
   }
 
-  /** Setter for the HTTP status code. */
+  /**
+   * Setter for the HTTP status code.
+   *
+   * @param errorCode the HTTP status code
+   */
   public void setErrorCode(int errorCode) {
     this.errorCode = errorCode;
   }
 
-  /** Accessor for the descriptive error message. */
+  /**
+   * Accessor for the descriptive error message.
+   *
+   * @return the descriptive error message
+   */
   public String getErrorMessage() {
     return errorMessage;
   }
 
-  /** Setter for the descriptive error message. */
+  /**
+   * Setter for the descriptive error message.
+   *
+   * @param errorMessage the descriptive error message
+   */
   public void setErrorMessage(String errorMessage) {
     this.errorMessage = errorMessage;
   }

@@ -56,18 +56,30 @@ public class BootstrapPropertyResolver {
   /** The Configuration Key for looking up the comma separated list of extension packages. */
   public static final String PACKAGES = "Extension.Packages";
 
-  /** Constructs a new BootstrapPropertyResolver with the given ServletConfig. */
+  /**
+   * Constructs a new BootstrapPropertyResolver with the given ServletConfig.
+   *
+   * @param filterConfig the FilterConfig to use for this bootstrap property resolver.
+   */
   public BootstrapPropertyResolver(FilterConfig filterConfig) {
     setFilterConfig(filterConfig);
     initVFS();
   }
 
-  /** Stores a reference to the filter's FilterConfig object. */
+  /**
+   * Stores a reference to the filter's FilterConfig object.
+   *
+   * @param filterConfig the FilterConfig to use for this bootstrap property resolver.
+   */
   public void setFilterConfig(FilterConfig filterConfig) {
     this.filterConfig = filterConfig;
   }
 
-  /** Returns a reference to the StripesFilter's FilterConfig object. */
+  /**
+   * Returns a reference to the StripesFilter's FilterConfig object.
+   *
+   * @return the FilterConfig used by this bootstrap property resolver.
+   */
   public FilterConfig getFilterConfig() {
     return this.filterConfig;
   }
@@ -134,6 +146,7 @@ public class BootstrapPropertyResolver {
    * Attempts to find a class the user has specified in web.xml or by auto-discovery in packages
    * listed in web.xml under Extension.Packages. Classes specified in web.xml take precedence.
    *
+   * @param <T> the type that we're looking for
    * @param paramName the parameter to look for in web.xml
    * @param targetType the type that we're looking for
    * @return the Class that was found
@@ -184,6 +197,7 @@ public class BootstrapPropertyResolver {
   /**
    * Attempts to find all classes the user has specified in web.xml.
    *
+   * @param <T> the type that we're looking for
    * @param paramName the parameter to look for in web.xml
    * @return a List of classes found
    */
@@ -217,6 +231,7 @@ public class BootstrapPropertyResolver {
    * Attempts to find classes by auto-discovery in packages listed in web.xml under
    * Extension.Packages.
    *
+   * @param <T> the type that we're looking for
    * @param targetType the type that we're looking for
    * @return a List of classes found
    */
@@ -234,6 +249,7 @@ public class BootstrapPropertyResolver {
    * Attempts to find all matching classes the user has specified in web.xml or by auto-discovery in
    * packages listed in web.xml under Extension.Packages.
    *
+   * @param <T> the type that we're looking for
    * @param paramName the parameter to look for in web.xml
    * @param targetType the type that we're looking for
    * @return the Class that was found
@@ -252,7 +268,12 @@ public class BootstrapPropertyResolver {
     return classes;
   }
 
-  /** Removes any classes from the collection that are marked with {@link DontAutoLoad}. */
+  /**
+   * Removes any classes from the collection that are marked with {@link DontAutoLoad}.
+   *
+   * @param <T> the type of class to remove
+   * @param classes the collection of classes to remove from
+   */
   protected <T> void removeDontAutoloadClasses(Collection<Class<? extends T>> classes) {
     Iterator<Class<? extends T>> iterator = classes.iterator();
     while (iterator.hasNext()) {
@@ -264,7 +285,12 @@ public class BootstrapPropertyResolver {
     }
   }
 
-  /** Removes any classes from the collection that are abstract or interfaces. */
+  /**
+   * Removes any classes from the collection that are abstract or interfaces.
+   *
+   * @param <T> the type of class to remove
+   * @param classes the collection of classes to remove from
+   */
   protected <T> void removeAbstractClasses(Collection<Class<? extends T>> classes) {
     Iterator<Class<? extends T>> iterator = classes.iterator();
     while (iterator.hasNext()) {

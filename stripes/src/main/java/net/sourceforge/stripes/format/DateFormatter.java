@@ -70,27 +70,47 @@ public class DateFormatter implements Formatter<Date> {
     this.formatType = formatType;
   }
 
-  /** Gets the format type to be used to render dates as Strings. */
+  /**
+   * Gets the format type to be used to render dates as Strings.
+   *
+   * @return the format type
+   */
   public String getFormatType() {
     return formatType;
   }
 
-  /** Sets the named format string or date pattern to use to format the date. */
+  /**
+   * Sets the named format string or date pattern to use to format the date.
+   *
+   * @param formatPattern the format pattern to use
+   */
   public void setFormatPattern(String formatPattern) {
     this.formatPattern = formatPattern;
   }
 
-  /** Gets the named format string or date pattern to use to format the date. */
+  /**
+   * Gets the named format string or date pattern to use to format the date.
+   *
+   * @return the format pattern
+   */
   public String getFormatPattern() {
     return formatPattern;
   }
 
-  /** Sets the locale that output String should be in. */
+  /**
+   * Sets the locale that output String should be in.
+   *
+   * @param locale the locale to use
+   */
   public void setLocale(Locale locale) {
     this.locale = locale;
   }
 
-  /** Gets the locale that output String should be in. */
+  /**
+   * Gets the locale that output String should be in.
+   *
+   * @return the locale
+   */
   public Locale getLocale() {
     return locale;
   }
@@ -140,6 +160,8 @@ public class DateFormatter implements Formatter<Date> {
   /**
    * Gets the date format that will format the date. Subclasses that wish to alter the date format
    * should override init(), call super.init(), and then obtain the date format object.
+   *
+   * @return the date format
    */
   public DateFormat getDateFormat() {
     return this.format;
@@ -148,12 +170,18 @@ public class DateFormatter implements Formatter<Date> {
   /**
    * Sets the date format that will format the date. Subclasses that wish to set the date format
    * should override init() and then set the date format object.
+   *
+   * @param dateFormat the date format
    */
   public void setDateFormat(DateFormat dateFormat) {
     this.format = dateFormat;
   }
 
-  /** Formats a Date as a String using the rules supplied when the formatter was built. */
+  /**
+   * Formats a Date as a String using the rules supplied when the formatter was built.
+   *
+   * @return the formatted date
+   */
   public String format(Date input) {
     return this.format.format(input);
   }

@@ -51,6 +51,7 @@ public interface ExceptionHandler extends ConfigurableComponent {
    *     request.getAttribute(StripesConstants.REQ_ATTR_ACTION_BEAN)}.
    * @param response the current response.
    * @throws ServletException if the exception passed in cannot be handled
+   * @throws IOException if the exception passed in cannot be handled
    */
   void handle(Throwable throwable, HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException;

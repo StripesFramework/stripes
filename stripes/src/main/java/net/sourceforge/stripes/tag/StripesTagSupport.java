@@ -48,22 +48,41 @@ public abstract class StripesTagSupport implements Tag {
    */
   private Map<String, Object> previousAttributeValues;
 
-  /** Called by the Servlet container to set the page context on the tag. */
+  /**
+   * Called by the Servlet container to set the page context on the tag.
+   *
+   * @param pageContext the page context
+   */
+  @Override
   public void setPageContext(PageContext pageContext) {
     this.pageContext = pageContext;
   }
 
-  /** Retrieves the pageContext handed to the tag by the container. */
+  /**
+   * Retrieves the pageContext handed to the tag by the container.
+   *
+   * @return the page context
+   */
   public PageContext getPageContext() {
     return this.pageContext;
   }
 
-  /** From the Tag interface - allows the container to set the parent tag on the JSP. */
+  /**
+   * From the Tag interface - allows the container to set the parent tag on the JSP.
+   *
+   * @param tag the parent tag
+   */
+  @Override
   public void setParent(Tag tag) {
     this.parentTag = tag;
   }
 
-  /** From the Tag interface - allows fetching the parent tag on the JSP. */
+  /**
+   * From the Tag interface - allows fetching the parent tag on the JSP.
+   *
+   * @return the parent tag
+   */
+  @Override
   public Tag getParent() {
     return this.parentTag;
   }
@@ -72,17 +91,24 @@ public abstract class StripesTagSupport implements Tag {
    * Abstract method from the Tag interface. Abstract because it seems to make the child tags more
    * readable if they implement their own do() methods, even when they just return one of the
    * constants and do nothing else.
+   *
+   * @return the result of the start tag
    */
+  @Override
   public abstract int doStartTag() throws JspException;
 
   /**
    * Abstract method from the Tag interface. Abstract because it seems to make the child tags more
    * readable if they implement their own do() methods, even when they just return one of the
    * constants and do nothing else.
+   *
+   * @return the result of the end tag
    */
+  @Override
   public abstract int doEndTag() throws JspException;
 
   /** No-op implementation of release(). */
+  @Override
   public void release() {}
 
   /**
@@ -90,6 +116,8 @@ public abstract class StripesTagSupport implements Tag {
    * so that they can be put back into page context end of the tag's execution (usually in
    * doEndTag). If this method is called, the tag <b>must</b> also call{@link
    * #popPageContextAttributes()}.
+   *
+   * @param attributes the attributes to push
    */
   public void pushPageContextAttributes(Map<String, Object> attributes) {
     this.previousAttributeValues = new HashMap<>();
@@ -123,6 +151,8 @@ public abstract class StripesTagSupport implements Tag {
    * Locates the enclosing tag of the type supplied. If no enclosing tag of the type supplied can be
    * found anywhere in the ancestry of this tag, null is returned.
    *
+   * @param <T> the type of tag to look for
+   * @param tagType the type of tag to look for
    * @return T Tag of the type supplied, or null if none can be found
    */
   @SuppressWarnings("unchecked")
@@ -157,6 +187,8 @@ public abstract class StripesTagSupport implements Tag {
    * Fetches a tag stack that is stored in the request. This tag stack is used to help Stripes tags
    * find one another when they are spread across multiple included JSPs and/or tag files -
    * situations in which the usual parent tag relationship fails.
+   *
+   * @return a Stack of StripesTagSupport objects
    */
   @SuppressWarnings("unchecked")
   protected Stack<StripesTagSupport> getTagStack() {

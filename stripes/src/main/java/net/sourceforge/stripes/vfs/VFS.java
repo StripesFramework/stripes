@@ -38,8 +38,7 @@ public abstract class VFS {
   public static final Class<?>[] IMPLEMENTATIONS = {JBoss6VFS.class, DefaultVFS.class};
 
   /** The list to which implementations are added by {@link #addImplClass(Class)}. */
-  public static final List<Class<? extends VFS>> USER_IMPLEMENTATIONS =
-      new ArrayList<Class<? extends VFS>>();
+  public static final List<Class<? extends VFS>> USER_IMPLEMENTATIONS = new ArrayList<>();
 
   /** Singleton instance. */
   private static VFS instance;
@@ -47,13 +46,15 @@ public abstract class VFS {
   /**
    * Get the singleton {@link VFS} instance. If no {@link VFS} implementation can be found for the
    * current environment, then this method returns null.
+   *
+   * @return The singleton {@link VFS} instance
    */
   @SuppressWarnings("unchecked")
   public static VFS getInstance() {
     if (instance != null) return instance;
 
     // Try the user implementations first, then the built-ins
-    List<Class<? extends VFS>> impls = new ArrayList<Class<? extends VFS>>();
+    List<Class<? extends VFS>> impls = new ArrayList<>();
     impls.addAll(USER_IMPLEMENTATIONS);
     impls.addAll(Arrays.asList((Class<? extends VFS>[]) IMPLEMENTATIONS));
 
@@ -89,7 +90,12 @@ public abstract class VFS {
     if (clazz != null) USER_IMPLEMENTATIONS.add(clazz);
   }
 
-  /** Get a class by name. If the class is not found then return null. */
+  /**
+   * Get a class by name. If the class is not found then return null.
+   *
+   * @param className The name of the class to get.
+   * @return The class, or null if it is not found.
+   */
   protected static Class<?> getClass(String className) {
     try {
       return ReflectUtil.findClass(className);
@@ -105,6 +111,7 @@ public abstract class VFS {
    * @param clazz The class to which the method belongs.
    * @param methodName The name of the method.
    * @param parameterTypes The types of the parameters accepted by the method.
+   * @return The method, or null if it is not found.
    */
   protected static Method getMethod(Class<?> clazz, String methodName, Class<?>... parameterTypes) {
     try {
@@ -122,6 +129,7 @@ public abstract class VFS {
   /**
    * Invoke a method on an object and return whatever it returns.
    *
+   * @param <T> The method return type.
    * @param method The method to invoke.
    * @param object The instance or class (for static methods) on which to invoke the method.
    * @param parameters The parameters to pass to the method.
@@ -134,9 +142,7 @@ public abstract class VFS {
       throws IOException, StripesRuntimeException {
     try {
       return (T) method.invoke(object, parameters);
-    } catch (IllegalArgumentException e) {
-      throw new StripesRuntimeException(e);
-    } catch (IllegalAccessException e) {
+    } catch (IllegalArgumentException | IllegalAccessException e) {
       throw new StripesRuntimeException(e);
     } catch (InvocationTargetException e) {
       if (e.getTargetException() instanceof IOException) throw (IOException) e.getTargetException();
@@ -156,7 +162,11 @@ public abstract class VFS {
     return Collections.list(Thread.currentThread().getContextClassLoader().getResources(path));
   }
 
-  /** Return true if the {@link VFS} implementation is valid for the current environment. */
+  /**
+   * Return true if the {@link VFS} implementation is valid for the current environment.
+   *
+   * @return True if the {@link VFS} implementation is valid for the current environment.
+   */
   public abstract boolean isValid();
 
   /**
@@ -180,7 +190,7 @@ public abstract class VFS {
    * @throws IOException If I/O errors occur
    */
   public List<String> list(String path) throws IOException {
-    List<String> names = new ArrayList<String>();
+    List<String> names = new ArrayList<>();
     for (URL url : getResources(path)) {
       names.addAll(list(url, path));
     }

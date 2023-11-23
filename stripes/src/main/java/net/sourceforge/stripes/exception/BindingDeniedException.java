@@ -16,6 +16,11 @@ import net.sourceforge.stripes.validation.Validate;
  * @since Stripes 1.6
  */
 public class BindingDeniedException extends RuntimeException {
+  /**
+   * Constructs a new exception with the specified parameter name that was denied binding.
+   *
+   * @param parameterName the name of the parameter that was denied binding
+   */
   public BindingDeniedException(String parameterName) {
     super(
         "Binding denied for parameter ["
