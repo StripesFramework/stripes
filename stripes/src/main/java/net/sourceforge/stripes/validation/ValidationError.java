@@ -14,8 +14,8 @@
  */
 package net.sourceforge.stripes.validation;
 
-import net.sourceforge.stripes.action.Message;
 import net.sourceforge.stripes.action.ActionBean;
+import net.sourceforge.stripes.action.Message;
 
 /**
  * Interface to which all error objects in Stripes should conform.
@@ -23,40 +23,37 @@ import net.sourceforge.stripes.action.ActionBean;
  * @author Tim Fennell
  */
 public interface ValidationError extends Message {
-    /**
-     * Provides the message with access to the name of the field in which the error occurred. This
-     * is the name the system uses for the field (e.g. cat.name) and not necessarily something that
-     * the user should see!
-     */
-    void setFieldName(String name);
+  /**
+   * Provides the message with access to the name of the field in which the error occurred. This is
+   * the name the system uses for the field (e.g. cat.name) and not necessarily something that the
+   * user should see!
+   */
+  void setFieldName(String name);
 
-    /**
-     * Provides the message with access to the value of the field in which the error occurred
-     */
-    void setFieldValue(String value);
+  /** Provides the message with access to the value of the field in which the error occurred */
+  void setFieldValue(String value);
 
-    /**
-     * Provides the message with access to the unique action path associated with the
-     * ActionBean bound to the current request.
-     */
-    void setActionPath(String actionPath);
+  /**
+   * Provides the message with access to the unique action path associated with the ActionBean bound
+   * to the current request.
+   */
+  void setActionPath(String actionPath);
 
-    /**
-     * Provides the message with access to the class of the ActionBean that is bound
-     * to the current request.
-     */
-    void setBeanclass(Class<? extends ActionBean> clazz);
+  /**
+   * Provides the message with access to the class of the ActionBean that is bound to the current
+   * request.
+   */
+  void setBeanclass(Class<? extends ActionBean> clazz);
 
-    /** Returns the name of the field in error, if one was supplied. */
-    String getFieldName();
+  /** Returns the name of the field in error, if one was supplied. */
+  String getFieldName();
 
-    /** Returns the value that is in error, if one was supplied. */
-    String getFieldValue();
+  /** Returns the value that is in error, if one was supplied. */
+  String getFieldValue();
 
-    /** Returns the action path of the form/ActionBean, if one was supplied. */
-    String getActionPath();
+  /** Returns the action path of the form/ActionBean, if one was supplied. */
+  String getActionPath();
 
-    /** Returns the class of the ActionBean associated to the request. */
-    Class<? extends ActionBean> getBeanclass();
+  /** Returns the class of the ActionBean associated to the request. */
+  Class<? extends ActionBean> getBeanclass();
 }
-

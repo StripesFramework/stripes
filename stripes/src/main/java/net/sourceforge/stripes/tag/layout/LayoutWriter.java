@@ -14,14 +14,12 @@
  */
 package net.sourceforge.stripes.tag.layout;
 
+import jakarta.servlet.jsp.JspWriter;
+import jakarta.servlet.jsp.PageContext;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.LinkedList;
-
-import javax.servlet.jsp.JspWriter;
-import javax.servlet.jsp.PageContext;
-
 import net.sourceforge.stripes.exception.StripesRuntimeException;
 import net.sourceforge.stripes.util.Log;
 
@@ -31,142 +29,135 @@ import net.sourceforge.stripes.util.Log;
  * from rendering more than once when {@link LayoutRenderTag}s and {@link LayoutComponentTag}s are
  * nested within it. The definition tag silences output during a component render phase, and the
  * component that wishes to render turns output back on during its body evaluation.
- * 
+ *
  * @author Ben Gunter
  * @since Stripes 1.5.4
  */
 public class LayoutWriter extends Writer {
-    private static final Log log = Log.getInstance(LayoutWriter.class);
+  private static final Log log = Log.getInstance(LayoutWriter.class);
 
-    /** The control character that, when encountered in the output stream, toggles the silent state. */
-    private static final char TOGGLE = 0;
+  /**
+   * The control character that, when encountered in the output stream, toggles the silent state.
+   */
+  private static final char TOGGLE = 0;
 
-    private LinkedList<Writer> writers = new LinkedList<Writer>();
-    private boolean silent, silentState;
+  private LinkedList<Writer> writers = new LinkedList<Writer>();
+  private boolean silent, silentState;
 
-    /**
-     * Create a new layout writer that wraps the given JSP writer.
-     * 
-     * @param out The JSP writer to which output will be written.
-     */
-    public LayoutWriter(JspWriter out) {
-        log.debug("Create layout writer wrapped around ", out);
-        this.writers.addFirst(out);
+  /**
+   * Create a new layout writer that wraps the given JSP writer.
+   *
+   * @param out The JSP writer to which output will be written.
+   */
+  public LayoutWriter(JspWriter out) {
+    log.debug("Create layout writer wrapped around ", out);
+    this.writers.addFirst(out);
+  }
+
+  /** Get the writer to which output is currently being written. */
+  protected Writer getOut() {
+    return writers.peek();
+  }
+
+  /** If true, then discard all output. If false, then resume sending output to the JSP writer. */
+  public boolean isSilent() {
+    return silent;
+  }
+
+  /**
+   * Enable or disable silent mode. The output buffer for the given page context will be flushed
+   * before silent mode is enabled to ensure all buffered data are written.
+   *
+   * @param silent True to silence output, false to enable output.
+   * @param pageContext The page context in use at the time output is to be silenced.
+   * @throws IOException If an error occurs writing to output.
+   */
+  public void setSilent(boolean silent, PageContext pageContext) throws IOException {
+    if (silent != this.silent) {
+      pageContext.getOut().write(TOGGLE);
+      this.silent = silent;
+      log.trace("Output is ", (silent ? "DISABLED" : "ENABLED"));
     }
+  }
 
-    /** Get the writer to which output is currently being written. */
-    protected Writer getOut() {
-        return writers.peek();
-    }
+  /**
+   * Flush the page context's output buffer and redirect output into a buffer. The buffer can be
+   * closed and its contents retrieved by calling {@link #closeBuffer(PageContext)}.
+   */
+  public void openBuffer(PageContext pageContext) {
+    log.trace("Open buffer");
+    tryFlush(pageContext);
+    writers.addFirst(new StringWriter(1024));
+  }
 
-    /** If true, then discard all output. If false, then resume sending output to the JSP writer. */
-    public boolean isSilent() {
-        return silent;
+  /**
+   * Flush the page context's output buffer and resume sending output to the writer that was
+   * receiving output prior to calling {@link #openBuffer(PageContext)}.
+   *
+   * @return The buffer's contents.
+   */
+  public String closeBuffer(PageContext pageContext) {
+    if (getOut() instanceof StringWriter) {
+      tryFlush(pageContext);
+      String contents = ((StringWriter) writers.poll()).toString();
+      log.trace("Closed buffer: \"", contents, "\"");
+      return contents;
+    } else {
+      throw new StripesRuntimeException(
+          "Attempt to close a buffer without having first called openBuffer(..)!");
     }
+  }
 
-    /**
-     * Enable or disable silent mode. The output buffer for the given page context will be flushed
-     * before silent mode is enabled to ensure all buffered data are written.
-     * 
-     * @param silent True to silence output, false to enable output.
-     * @param pageContext The page context in use at the time output is to be silenced.
-     * @throws IOException If an error occurs writing to output.
-     */
-    public void setSilent(boolean silent, PageContext pageContext) throws IOException {
-        if (silent != this.silent) {
-            pageContext.getOut().write(TOGGLE);
-            this.silent = silent;
-            log.trace("Output is ", (silent ? "DISABLED" : "ENABLED"));
-        }
+  /** Try to flush the page context's output buffer. If an exception is thrown, just log it. */
+  protected void tryFlush(PageContext pageContext) {
+    try {
+      if (pageContext != null) pageContext.getOut().flush();
+    } catch (IOException e) {
+      // This seems to happen once at the beginning and once at the end. Don't know why.
+      log.debug("Failed to flush buffer: ", e.getMessage());
     }
+  }
 
-    /**
-     * Flush the page context's output buffer and redirect output into a buffer. The buffer can be
-     * closed and its contents retrieved by calling {@link #closeBuffer(PageContext)}.
-     */
-    public void openBuffer(PageContext pageContext) {
-        log.trace("Open buffer");
-        tryFlush(pageContext);
-        writers.addFirst(new StringWriter(1024));
-    }
+  @Override
+  public void close() throws IOException {
+    getOut().close();
+  }
 
-    /**
-     * Flush the page context's output buffer and resume sending output to the writer that was
-     * receiving output prior to calling {@link #openBuffer(PageContext)}.
-     * 
-     * @return The buffer's contents.
-     */
-    public String closeBuffer(PageContext pageContext) {
-        if (getOut() instanceof StringWriter) {
-            tryFlush(pageContext);
-            String contents = ((StringWriter) writers.poll()).toString();
-            log.trace("Closed buffer: \"", contents, "\"");
-            return contents;
-        }
-        else {
-            throw new StripesRuntimeException(
-                    "Attempt to close a buffer without having first called openBuffer(..)!");
-        }
-    }
+  @Override
+  public void flush() throws IOException {
+    getOut().flush();
+  }
 
-    /** Try to flush the page context's output buffer. If an exception is thrown, just log it. */
-    protected void tryFlush(PageContext pageContext) {
-        try {
-            if (pageContext != null)
-                pageContext.getOut().flush();
-        }
-        catch (IOException e) {
-            // This seems to happen once at the beginning and once at the end. Don't know why.
-            log.debug("Failed to flush buffer: ", e.getMessage());
-        }
+  /**
+   * Calls {@link JspWriter#clear()} on the wrapped JSP writer.
+   *
+   * @throws IOException
+   */
+  public void clear() throws IOException {
+    Writer out = getOut();
+    if (out instanceof JspWriter) {
+      ((JspWriter) out).clear();
+    } else if (out instanceof StringWriter) {
+      ((StringWriter) out).getBuffer().setLength(0);
+    } else {
+      throw new StripesRuntimeException(
+          "How did I get a writer of type " + out.getClass().getName() + "??");
     }
+  }
 
-    @Override
-    public void close() throws IOException {
-        getOut().close();
+  @Override
+  public void write(char[] cbuf, int off, int len) throws IOException {
+    for (int i = off, mark = i, n = i + len; i < n; ++i) {
+      switch (cbuf[i]) {
+        case TOGGLE:
+          if (this.silentState) mark = i + 1;
+          else if (i > mark) getOut().write(cbuf, mark, i - mark);
+          this.silentState = !this.silentState;
+          break;
+        default:
+          if (this.silentState) ++mark;
+          else if (i >= mark && i == n - 1) getOut().write(cbuf, mark, i - mark + 1);
+      }
     }
-
-    @Override
-    public void flush() throws IOException {
-        getOut().flush();
-    }
-
-    /**
-     * Calls {@link JspWriter#clear()} on the wrapped JSP writer.
-     * 
-     * @throws IOException
-     */
-    public void clear() throws IOException {
-        Writer out = getOut();
-        if (out instanceof JspWriter) {
-            ((JspWriter) out).clear();
-        }
-        else if (out instanceof StringWriter) {
-            ((StringWriter) out).getBuffer().setLength(0);
-        }
-        else {
-            throw new StripesRuntimeException("How did I get a writer of type "
-                    + out.getClass().getName() + "??");
-        }
-    }
-
-    @Override
-    public void write(char[] cbuf, int off, int len) throws IOException {
-        for (int i = off, mark = i, n = i + len; i < n; ++i) {
-            switch (cbuf[i]) {
-            case TOGGLE:
-                if (this.silentState)
-                    mark = i + 1;
-                else if (i > mark)
-                    getOut().write(cbuf, mark, i - mark);
-                this.silentState = !this.silentState;
-                break;
-            default:
-                if (this.silentState)
-                    ++mark;
-                else if (i >= mark && i == n - 1)
-                    getOut().write(cbuf, mark, i - mark + 1);
-            }
-        }
-    }
+  }
 }

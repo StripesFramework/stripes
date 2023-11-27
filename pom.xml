@@ -1,15 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Parent pom for Stripes project. We use multi-module project in order to avoid directory refactorings and thereby breaking of the currently used and build. -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<!-- Parent pom for Stripes project. We use multiple module projects in order to avoid directory refactorings and thereby breaking of the currently used and build. -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<parent>
-		<groupId>org.sonatype.oss</groupId>
-		<artifactId>oss-parent</artifactId>
-		<version>9</version>
-	</parent>
 	<groupId>net.sourceforge.stripes</groupId>
 	<artifactId>stripes-parent</artifactId>
-	<version>1.6.0</version>
+	<version>1.6.0-JakartaEE10</version>
 	<packaging>pom</packaging>
 
 	<modules>
@@ -19,18 +14,18 @@
 	</modules>
 
 	<name>Stripes Parent</name>
-	<url>http://stripesframework.org/</url>
+	<url>https://stripesframework.org/</url>
 	<description>Stripes web framework parent project.</description>
 
 	<organization>
 		<name>Stripes Framework</name>
-		<url>http://www.stripesframework.org/</url>
+		<url>https://www.stripesframework.org/</url>
 	</organization>
 
 	<licenses>
 		<license>
 			<name>The Apache Software License, Version 2.0</name>
-			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+			<url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
 			<distribution>repo</distribution>
 		</license>
 	</licenses>
@@ -43,126 +38,90 @@
 
 	<issueManagement>
 		<system>JIRA</system>
-		<url>http://stripesframework.org/jira/browse/STS</url>
+		<url>https://stripesframework.org/jira/browse/STS</url>
 	</issueManagement>
 
 	<ciManagement>
 		<system>Jenkins</system>
-		<url>http://www.stripesframework.org/jenkins</url>
+		<url>https://www.stripesframework.org/jenkins</url>
 	</ciManagement>
 
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
-				<groupId>javax.servlet</groupId>
-				<artifactId>servlet-api</artifactId>
-				<version>2.5</version>
+				<groupId>jakarta.servlet</groupId>
+				<artifactId>jakarta.servlet-api</artifactId>
+				<version>6.0.0</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
-				<groupId>javax.servlet.jsp</groupId>
-				<artifactId>jsp-api</artifactId>
-				<version>2.2</version>
+				<groupId>jakarta.servlet.jsp</groupId>
+				<artifactId>jakarta.servlet.jsp-api</artifactId>
+				<version>3.1.1</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
-				<groupId>javax.el</groupId>
-				<artifactId>el-api</artifactId>
-				<version>2.2</version>
+				<groupId>jakarta.el</groupId>
+				<artifactId>jakarta.el-api</artifactId>
+				<version>5.0.1</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
-				<groupId>javax.servlet</groupId>
-				<artifactId>jstl</artifactId>
-				<version>1.2</version>
+				<groupId>jakarta.servlet.jsp.jstl</groupId>
+				<artifactId>jakarta.servlet.jsp.jstl-api</artifactId>
+				<version>3.0.0</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
-				<groupId>taglibs</groupId>
+				<groupId>jakarta-taglibs</groupId>
 				<artifactId>standard</artifactId>
 				<version>1.1.2</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
-				<groupId>javax.mail</groupId>
-				<artifactId>mail</artifactId>
-				<version>1.4.7</version>
+				<groupId>jakarta.mail</groupId>
+				<artifactId>jakarta.mail-api</artifactId>
+				<version>2.1.2</version>
 				<scope>provided</scope>
 				<optional>true</optional>
 				<exclusions>
 					<exclusion>
-						<groupId>javax.activation</groupId>
-						<artifactId>activation</artifactId>
+						<groupId>jakarta.activation</groupId>
+						<artifactId>jakarta.activation-api</artifactId>
 					</exclusion>
 				</exclusions>
 			</dependency>
-			<dependency>
-				<groupId>org.testng</groupId>
-				<artifactId>testng</artifactId>
-				<version>6.8.8</version>
-				<scope>test</scope>
-			</dependency>
+
 			<dependency>
 				<groupId>commons-logging</groupId>
 				<artifactId>commons-logging</artifactId>
-				<version>1.1.3</version>
-				<exclusions>
-					<exclusion>
-						<groupId>javax.servlet</groupId>
-						<artifactId>servlet-api</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>log4j</groupId>
-						<artifactId>log4j</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>logkit</groupId>
-						<artifactId>logkit</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>avalon-framework</groupId>
-						<artifactId>avalon-framework</artifactId>
-					</exclusion>
-				</exclusions>
-			</dependency>
-			<dependency>
-				<groupId>log4j</groupId>
-				<artifactId>log4j</artifactId>
-				<version>1.2.17</version>
-				<!-- define those exlusions otherwise we get annoying zip corruption errors -->
-				<exclusions>
-					<exclusion>
-						<artifactId>jms</artifactId>
-						<groupId>javax.jms</groupId>
-					</exclusion>
-					<exclusion>
-						<artifactId>jmxtools</artifactId>
-						<groupId>com.sun.jdmk</groupId>
-					</exclusion>
-					<exclusion>
-						<artifactId>jmxri</artifactId>
-						<groupId>com.sun.jmx</groupId>
-					</exclusion>
-				</exclusions>
+				<version>1.2</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
-				<artifactId>spring</artifactId>
-				<version>1.2.6</version>
+				<artifactId>spring-core</artifactId>
+				<version>5.3.29</version>
 				<scope>provided</scope>
 				<optional>true</optional>
 			</dependency>
 			<dependency>
-				<groupId>servlets.com</groupId>
-				<artifactId>cos</artifactId>
-				<version>05Nov2002</version>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-context</artifactId>
+				<version>5.3.29</version>
 				<scope>provided</scope>
 				<optional>true</optional>
 			</dependency>
 			<dependency>
-				<groupId>commons-fileupload</groupId>
-				<artifactId>commons-fileupload</artifactId>
-				<version>1.3.1</version>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-web</artifactId>
+				<version>5.3.29</version>
+				<scope>provided</scope>
+				<optional>true</optional>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.commons</groupId>
+				<artifactId>commons-fileupload2-jakarta</artifactId>
+				<version>2.0.0-M1</version>
 				<scope>provided</scope>
 				<optional>true</optional>
 			</dependency>
@@ -175,26 +134,26 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
-					<version>3.1</version>
+					<version>3.11.0</version>
 					<configuration>
-						<source>1.5</source>
-						<target>1.5</target>
+						<source>11</source>
+						<target>11</target>
 					</configuration>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-surefire-plugin</artifactId>
-					<version>2.17</version>
+					<version>3.1.2</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-jar-plugin</artifactId>
-					<version>2.1</version>
+					<version>3.3.0</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-assembly-plugin</artifactId>
-					<version>2.4</version>
+					<version>3.6.0</version>
 				</plugin>
 				<plugin>
 					<groupId>net.sourceforge.maven-taglib</groupId>
@@ -204,7 +163,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-source-plugin</artifactId>
-					<version>2.1.2</version>
+					<version>3.3.0</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
@@ -214,12 +173,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-deploy-plugin</artifactId>
-					<version>2.8.1</version>
-				</plugin>
-				<plugin>
-					<groupId>org.apache.tomcat.maven</groupId>
-					<artifactId>tomcat7-maven-plugin</artifactId>
-					<version>2.2</version>
+					<version>3.1.1</version>
 				</plugin>
 				<plugin>
 					<groupId>org.codehaus.gmaven</groupId>
@@ -229,12 +183,12 @@
 				<plugin>
 					<groupId>org.codehaus.cargo</groupId>
 					<artifactId>cargo-maven2-plugin</artifactId>
-					<version>1.4.7</version>
+					<version>1.9.0</version>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-javadoc-plugin</artifactId>
-					<version>2.9.1</version>
+					<version>3.5.0</version>
 					<executions>
 						<execution>
 							<id>generate-javadoc</id>
@@ -244,16 +198,15 @@
 							</goals>
 							<configuration>
 								<overview>${basedir}/src/main/resources/overview.html</overview>
-								<bottom>© Copyright 2005-2014, Stripes Development Team.</bottom>
+								<bottom>© Copyright 2005-2023, Stripes Development Team.</bottom>
 								<author>true</author>
-								<protected>true</protected>
 								<use>true</use>
 								<version>true</version>
 								<links>
-									<link>http://docs.oracle.com/javase/1.5.0/docs/api/</link>
-									<link>http://docs.oracle.com/javaee/5/api/</link>
-									<link>http://docs.spring.io/spring/docs/1.2.x/api/</link>
-									<link>http://commons.apache.org/proper/commons-logging/apidocs/</link>
+									<link>https://docs.oracle.com/en/java/javase/11/docs/api/</link>
+									<link>https://jakarta.ee/specifications/servlet/5.0/apidocs/</link>
+									<link>https://docs.spring.io/spring-framework/docs/5.3.29/javadoc-api/</link>
+									<link>https://jakarta.ee/specifications/expression-language/4.0/apidocs/</link>
 								</links>
 							</configuration>
 						</execution>

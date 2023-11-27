@@ -14,11 +14,11 @@
  */
 package net.sourceforge.stripes.mock;
 
-import javax.servlet.ServletContext;
-import java.util.Map;
-import java.util.Enumeration;
+import jakarta.servlet.ServletContext;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Common parent class for both MockServletConfig and MockFilterConfig since they are both
@@ -28,32 +28,36 @@ import java.util.HashMap;
  * @since Stripes 1.1.1
  */
 public class MockBaseConfig {
-    private ServletContext servletContext;
-    private Map<String,String> initParameters = new HashMap<String,String>();
+  private ServletContext servletContext;
+  private final Map<String, String> initParameters = new HashMap<>();
 
-    /** Sets the ServletContext that will be returned by getServletContext(). */
-    public void setServletContext(ServletContext ctx) { this.servletContext = ctx; }
+  /** Sets the ServletContext that will be returned by getServletContext(). */
+  public void setServletContext(ServletContext ctx) {
+    this.servletContext = ctx;
+  }
 
-    /** Gets the ServletContext in whiich the filter is running. */
-    public ServletContext getServletContext() { return this.servletContext; }
+  /** Gets the ServletContext in which the filter is running. */
+  public ServletContext getServletContext() {
+    return this.servletContext;
+  }
 
-    /** Adds a value to the set of init parameters. */
-    public void addInitParameter(String name, String value) {
-        this.initParameters.put(name, value);
-    }
+  /** Adds a value to the set of init parameters. */
+  public void addInitParameter(String name, String value) {
+    this.initParameters.put(name, value);
+  }
 
-    /** Adds all the values in the provided Map to the set of init parameters. */
-    public void addAllInitParameters(Map<String,String> parameters) {
-        this.initParameters.putAll(parameters);
-    }
+  /** Adds all the values in the provided Map to the set of init parameters. */
+  public void addAllInitParameters(Map<String, String> parameters) {
+    this.initParameters.putAll(parameters);
+  }
 
-    /** Gets the named init parameter if it exists, or null if it doesn't. */
-    public String getInitParameter(String name) {
-        return this.initParameters.get(name);
-    }
+  /** Gets the named init parameter if it exists, or null if it doesn't. */
+  public String getInitParameter(String name) {
+    return this.initParameters.get(name);
+  }
 
-    /** Gets an enumeration of all the init parameter names present. */
-    public Enumeration<String> getInitParameterNames() {
-        return Collections.enumeration( this.initParameters.keySet() );
-    }
+  /** Gets an enumeration of all the init parameter names present. */
+  public Enumeration<String> getInitParameterNames() {
+    return Collections.enumeration(this.initParameters.keySet());
+  }
 }

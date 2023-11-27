@@ -4,7 +4,7 @@ import net.sourceforge.stripes.webtests.WebtestCaseFixed
 
 class CalcTest extends WebtestCaseFixed {
 
-  def homeUrl = 'http://localhost:9999/webtests/quickstart/index.jsp'
+  def homeUrl = 'http://localhost:19999/webtests/quickstart/index.jsp'
 
   void testCalcHome() {
     webtest('testCalcHome') {

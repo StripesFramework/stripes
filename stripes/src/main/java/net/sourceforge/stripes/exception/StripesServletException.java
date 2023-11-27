@@ -14,26 +14,26 @@
  */
 package net.sourceforge.stripes.exception;
 
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletException;
 
 /**
- * Stripes' implementation of a ServletException that is thrown by Stripes
- * wherever throws clauses are limited to ServletExceptions.
+ * Stripes' implementation of a ServletException that is thrown by Stripes wherever throws clauses
+ * are limited to ServletExceptions.
  *
  * @author Tim Fennell
  */
 public class StripesServletException extends ServletException {
-	private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    public StripesServletException(String string) {
-        super(string);
-    }
+  public StripesServletException(String string) {
+    super(string);
+  }
 
-    public StripesServletException(String string, Throwable throwable) {
-        super(string, throwable);
-    }
+  public StripesServletException(String string, Throwable throwable) {
+    super(string, throwable);
+  }
 
-    public StripesServletException(Throwable throwable) {
-        super(throwable);
-    }
+  public StripesServletException(Throwable throwable) {
+    super(throwable);
+  }
 }

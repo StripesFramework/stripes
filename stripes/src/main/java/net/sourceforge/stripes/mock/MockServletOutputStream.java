@@ -14,31 +14,42 @@
  */
 package net.sourceforge.stripes.mock;
 
-import javax.servlet.ServletOutputStream;
-import java.io.IOException;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.WriteListener;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 /**
- * Mock implementation of a ServletOutputStream that just uses a byte array output stream to
- * capture any output and make it available after the test is done.
+ * Mock implementation of a ServletOutputStream that just uses a byte array output stream to capture
+ * any output and make it available after the test is done.
  *
  * @author Tim Fennell
  * @since Stripes 1.1
  */
 public class MockServletOutputStream extends ServletOutputStream {
-    private ByteArrayOutputStream out = new ByteArrayOutputStream();
+  private final ByteArrayOutputStream out = new ByteArrayOutputStream();
 
-    /** Pass through method calls ByteArrayOutputStream.write(int b). */
-    @Override
-    public void write(int b) throws IOException { out.write(b); }
+  /** Pass through method calls ByteArrayOutputStream.write(int b). */
+  @Override
+  public void write(int b) throws IOException {
+    out.write(b);
+  }
 
-    /** Returns the array of bytes that have been written to the output stream. */
-    public byte[] getBytes() {
-        return out.toByteArray();
-    }
+  /** Returns the array of bytes that have been written to the output stream. */
+  public byte[] getBytes() {
+    return out.toByteArray();
+  }
 
-    /** Returns, as a character string, the output that was written to the output stream. */
-    public String getString() {
-        return out.toString();
-    }
+  /** Returns, as a character string, the output that was written to the output stream. */
+  public String getString() {
+    return out.toString();
+  }
+
+  @Override
+  public boolean isReady() {
+    return false;
+  }
+
+  @Override
+  public void setWriteListener(WriteListener writeListener) {}
 }

@@ -14,26 +14,26 @@
  */
 package net.sourceforge.stripes.exception;
 
-
 /**
- * <p>A marker interface for delegate exception handlers to be used with the
- * {@link DelegatingExceptionHandler}.  Note that the DelegatingExceptionHandler must be
- * configured as the {@link ExceptionHandler} for the application in order for AutoExceptionHandlers
- * to be discovered and used.</p>
+ * A marker interface for delegate exception handlers to be used with the {@link
+ * DelegatingExceptionHandler}. Note that the DelegatingExceptionHandler must be configured as the
+ * {@link ExceptionHandler} for the application in order for AutoExceptionHandlers to be discovered
+ * and used.
  *
  * <p>AutoExceptionHandlers can define one or more methods to handle different kinds of exceptions.
- * Each method must have the following signature:</p>
+ * Each method must have the following signature:
  *
- *<pre>public Resolution handle(Type exception, HttpServletRequest req, HttpServletResponse res);</pre>
+ * <pre>public Resolution handle(Type exception, HttpServletRequest req, HttpServletResponse res);
+ * </pre>
  *
- * <p>where <tt>Type</tt> can be any subclass of {@link java.lang.Throwable}.  Handler methods do
- * not have to follow any naming convention. In the above example 'handle' is used, but any
- * other name, e.g. 'run', 'handleException' etc. would have worked as well. The return type is only
- * loosely enforced; if the method returns an object and it is a
- * {@link net.sourceforge.stripes.action.Resolution} then it will be executed, otherwise it
- * will be ignored.</p>
+ * <p>where <tt>Type</tt> can be any subclass of {@link java.lang.Throwable}. Handler methods do not
+ * have to follow any naming convention. In the above example 'handle' is used, but any other name,
+ * e.g. 'run', 'handleException' etc. would have worked as well. The return type is only loosely
+ * enforced; if the method returns an object and it is a {@link
+ * net.sourceforge.stripes.action.Resolution} then it will be executed, otherwise it will be
+ * ignored.
  *
  * @author Jeppe Cramon
  * @since Stripes 1.3
  */
-public interface AutoExceptionHandler { }
+public interface AutoExceptionHandler {}

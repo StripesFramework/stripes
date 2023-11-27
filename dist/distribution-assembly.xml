@@ -20,7 +20,7 @@
 					<dependencySet>
 						<scope>provided</scope>
 						<includes>
-							<include>servlets.com:cos</include>
+							<include>org.apache.commons.fileupload2:commons-fileupload2-jakarta</include>
 						</includes>
 					</dependencySet>
 					<dependencySet>

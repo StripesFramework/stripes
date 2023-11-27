@@ -14,26 +14,25 @@
  */
 package net.sourceforge.stripes.exception;
 
-import javax.servlet.jsp.JspException;
+import jakarta.servlet.jsp.JspException;
 
 /**
- * Stripes' version of the JspException that is used where only JspExceptions
- * can be thrown.
+ * Stripes' version of the JspException that is used where only JspExceptions can be thrown.
  *
  * @author Tim Fennell
  */
 public class StripesJspException extends JspException {
-	private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    public StripesJspException(String string) {
-        super(string);
-    }
+  public StripesJspException(String string) {
+    super(string);
+  }
 
-    public StripesJspException(String string, Throwable throwable) {
-        super(string, throwable);
-    }
+  public StripesJspException(String string, Throwable throwable) {
+    super(string, throwable);
+  }
 
-    public StripesJspException(Throwable throwable) {
-        super(throwable);
-    }
+  public StripesJspException(Throwable throwable) {
+    super(throwable);
+  }
 }

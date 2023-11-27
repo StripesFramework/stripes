@@ -6,10 +6,10 @@ package net.sourceforge.stripes.examples.bugzooky.biz;
  * @author Tim Fennell
  */
 public enum Priority {
-    Blocker,
-    Critical,
-    High,
-    Medium,
-    Low,
-    Trivial;
+  Blocker,
+  Critical,
+  High,
+  Medium,
+  Low,
+  Trivial;
 }

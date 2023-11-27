@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>net.sourceforge.stripes</groupId>
 		<artifactId>stripes-parent</artifactId>
-		<version>1.6.0</version>
+		<version>1.6.0-JakartaEE10</version>
 		<relativePath>..</relativePath>
 	</parent>
 	<artifactId>stripes</artifactId>
@@ -23,45 +23,49 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>servlet-api</artifactId>
+			<groupId>jakarta.servlet</groupId>
+			<artifactId>jakarta.servlet-api</artifactId>
+			<version>6.0.0</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>javax.servlet.jsp</groupId>
-			<artifactId>jsp-api</artifactId>
+			<groupId>jakarta.servlet.jsp</groupId>
+			<artifactId>jakarta.servlet.jsp-api</artifactId>
+			<version>3.1.1</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>javax.el</groupId>
-			<artifactId>el-api</artifactId>
+			<groupId>jakarta.el</groupId>
+			<artifactId>jakarta.el-api</artifactId>
+			<version>5.0.1</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>javax.mail</groupId>
-			<artifactId>mail</artifactId>
+			<groupId>jakarta.mail</groupId>
+			<artifactId>jakarta.mail-api</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.testng</groupId>
-			<artifactId>testng</artifactId>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.13.2</version>
+			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>commons-logging</groupId>
-			<artifactId>commons-logging</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>servlets.com</groupId>
-			<artifactId>cos</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>commons-fileupload</groupId>
-			<artifactId>commons-fileupload</artifactId>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-fileupload2-jakarta</artifactId>
+			<version>2.0.0-M1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
-			<artifactId>spring</artifactId>
+			<artifactId>spring-core</artifactId>
+			<version>5.3.29</version>
 		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context</artifactId>
+			<version>5.3.29</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>
@@ -76,7 +80,7 @@
 		<plugins>
 			<plugin>
 				<artifactId>maven-antrun-plugin</artifactId>
-				<version>1.7</version>
+				<version>3.1.0</version>
 				<executions>
 					<execution>
 						<phase>generate-resources</phase>
@@ -90,6 +94,7 @@
 								<filter token="dynattrs" value="true" />
 								<copy file="${tld.source}/stripes.tld" tofile="${tld.target}/stripes-dynattr.tld" filtering="true" />
 								<replace file="${tld.target}/stripes-dynattr.tld" token="${tld.uri}" value="${tld.dynuri}" />
+								<replace file="${tld.target}/stripes-dynattr.tld" token="&lt;short-name&gt;stripes&lt;/short-name&gt;" value="&lt;short-name&gt;stripes-dynattr&lt;/short-name&gt;" />
 							</target>
 						</configuration>
 						<goals>
@@ -102,6 +107,7 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<configuration>
+					<argLine>-Dfile.encoding=UTF-8</argLine>
 					<includes>
 						<include>**/*.java</include>
 					</includes>
@@ -123,6 +129,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>3.5.0</version>
 				<executions>
 					<execution>
 						<id>generate-javadoc</id>
@@ -131,6 +138,7 @@
 							<goal>jar</goal>
 						</goals>
 						<configuration>
+							<doclint>none</doclint>
 							<groups>
 								<group>
 									<title>Core API</title>
@@ -184,6 +192,23 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>cobertura-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>com.coveo</groupId>
+				<artifactId>fmt-maven-plugin</artifactId>
+				<version>2.13</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>format</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-checkstyle-plugin</artifactId>
+				<version>3.3.0</version>
 			</plugin>
 		</plugins>
 	</build>

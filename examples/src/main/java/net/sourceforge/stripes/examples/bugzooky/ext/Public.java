@@ -19,7 +19,6 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-
 import net.sourceforge.stripes.action.ActionBean;
 
 /**
@@ -28,11 +27,10 @@ import net.sourceforge.stripes.action.ActionBean;
  * class to indicate that users are allowed to access it even if they are not authenticated. Most of
  * this application's {@link ActionBean}s require authentication so it's easier to flag those that
  * do <em>not</em> require authentication.
- * 
+ *
  * @author Ben Gunter
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface Public {
-}
+public @interface Public {}

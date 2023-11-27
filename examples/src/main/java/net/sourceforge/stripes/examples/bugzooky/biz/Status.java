@@ -6,8 +6,8 @@ package net.sourceforge.stripes.examples.bugzooky.biz;
  * @author Tim Fennell
  */
 public enum Status {
-    New,
-    Assigned,
-    Resolved,
-    Closed;
+  New,
+  Assigned,
+  Resolved,
+  Closed;
 }

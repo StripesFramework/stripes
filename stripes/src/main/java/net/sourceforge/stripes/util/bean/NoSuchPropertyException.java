@@ -15,23 +15,23 @@
 package net.sourceforge.stripes.util.bean;
 
 /**
- * Exception indicating that an expression could not be evaluated against a bean because
- * the bean (or some sub-property of the bean) did not have a property matching the name
- * supplied in the expression.
+ * Exception indicating that an expression could not be evaluated against a bean because the bean
+ * (or some sub-property of the bean) did not have a property matching the name supplied in the
+ * expression.
  *
  * @author Tim Fennell
  * @since Stripes 1.4
  */
 public class NoSuchPropertyException extends EvaluationException {
-	private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    /** Constructs an exception with the supplied message. */
-    public NoSuchPropertyException(String message) {
-        super(message);
-    }
+  /** Constructs an exception with the supplied message. */
+  public NoSuchPropertyException(String message) {
+    super(message);
+  }
 
-    /** Constructs an exception with the supplied message and causing exception. */
-    public NoSuchPropertyException(String message, Throwable cause) {
-        super(message, cause);
-    }
+  /** Constructs an exception with the supplied message and causing exception. */
+  public NoSuchPropertyException(String message, Throwable cause) {
+    super(message, cause);
+  }
 }

@@ -14,90 +14,114 @@
  */
 package net.sourceforge.stripes.tag;
 
-import javax.servlet.jsp.JspException;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.jsp.JspException;
 
 /**
- * <p>Tag class that generates an image button for use in HTML forms, e.g:</p>
+ * Tag class that generates an image button for use in HTML forms, e.g:
  *
- *<pre>{@literal <input name="foo" type="image" src="/app/foo.gif" alt="foo"/>}</pre>
+ * <pre>{@literal <input name="foo" type="image" src="/app/foo.gif" alt="foo"/>}</pre>
  *
- * <p>Provides a couple of facilities above and beyond using plain HTML tags. The main
- * advantage is a localization capability. The tag looks in the Stripes Field Name
- * message bundle for resources to be used as the src URL for the image and the alt
- * text of the image.  In order it will look for and use:</p>
+ * <p>Provides a couple of facilities above and beyond using plain HTML tags. The main advantage is
+ * a localization capability. The tag looks in the Stripes Field Name message bundle for resources
+ * to be used as the src URL for the image and the alt text of the image. In order it will look for
+ * and use:
  *
  * <ul>
- *   <li>resource: actionPath.inputName.[src|alt]</li>
- *   <li>resource: inputName.[src|alt]</li>
+ *   <li>resource: actionPath.inputName.[src|alt]
+ *   <li>resource: inputName.[src|alt]
  *   <li>tag attributes: src and alt
  * </ul>
  *
- * <p>If localized values exist these are preferred over the values specified directly
- * on the tag.</p>
+ * <p>If localized values exist these are preferred over the values specified directly on the tag.
  *
- * <p>Additionally if the 'src' URL (whether acquired from the tag attribute or the
- * resource bundle) starts with a slash, the tag will prepend the context path of the
- * web application.</p>
+ * <p>Additionally if the 'src' URL (whether acquired from the tag attribute or the resource bundle)
+ * starts with a slash, the tag will prepend the context path of the web application.
  *
  * @author Tim Fennell
  * @since Stripes 1.3
  */
 public class InputImageTag extends InputTagSupport {
 
-    /** Sets the tag's type to be an image input. */
-    public InputImageTag() {
-        set("type", "image");
+  /** Sets the tag's type to be an image input. */
+  public InputImageTag() {
+    set("type", "image");
+  }
+
+  /**
+   * Does nothing.
+   *
+   * @return SKIP_BODY in all cases
+   */
+  @Override
+  public int doStartInputTag() throws JspException {
+    return SKIP_BODY;
+  }
+
+  /**
+   * Does the major work of the tag as described in the class level javadoc. Checks for localized
+   * src and alt attributes and prepends the context path to any src URL that starts with a slash.
+   *
+   * @return EVAL_PAGE always
+   */
+  @Override
+  public int doEndInputTag() throws JspException {
+    // See if we should use a URL to a localized image
+    String name = getAttributes().get("name");
+    String src = getLocalizedFieldName(name + ".src");
+    if (src != null) {
+      setSrc(src);
     }
 
-    /**
-     * Does nothing.
-     * @return SKIP_BODY in all cases
-     */
-    @Override
-    public int doStartInputTag() throws JspException { return SKIP_BODY; }
-
-    /**
-     * Does the major work of the tag as described in the class level javadoc. Checks for
-     * localized src and alt attributes and prepends the context path to any src URL that
-     * starts with a slash.
-     *
-     * @return EVAL_PAGE always
-     */
-    @Override
-    public int doEndInputTag() throws JspException {
-        // See if we should use a URL to a localized image
-        String name = getAttributes().get("name");
-        String src = getLocalizedFieldName(name + ".src");
-        if (src != null) { setSrc(src); }
-
-        // And see if we have localized alt text too
-        String alt = getLocalizedFieldName(name + ".alt");
-        if (alt != null) { setAlt(alt); }
-
-        // Prepend the context path to the src URL
-        src = getSrc();
-        if (src != null && src.startsWith("/")) {
-            String ctx = ((HttpServletRequest) getPageContext().getRequest()).getContextPath();
-            setSrc(ctx + src);
-        }
-
-        writeSingletonTag(getPageContext().getOut(), "input");
-        return EVAL_PAGE;
+    // And see if we have localized alt text too
+    String alt = getLocalizedFieldName(name + ".alt");
+    if (alt != null) {
+      setAlt(alt);
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-    // Getter/Setter methods for additional attributes
-    ///////////////////////////////////////////////////////////////////////////
-    public void setAlign(String align) { set("align", align); }
-    public String getAlign() { return get("align"); }
+    // Prepend the context path to the src URL
+    src = getSrc();
+    if (src != null && src.startsWith("/")) {
+      String ctx = ((HttpServletRequest) getPageContext().getRequest()).getContextPath();
+      setSrc(ctx + src);
+    }
 
-    public void setAlt(String alt) { set("alt", alt); }
-    public String getAlt() { return get("alt"); }
+    writeSingletonTag(getPageContext().getOut(), "input");
+    return EVAL_PAGE;
+  }
 
-    public void setSrc(String src) { set("src", src); }
-    public String getSrc() { return get("src"); }
+  ///////////////////////////////////////////////////////////////////////////
+  // Getter/Setter methods for additional attributes
+  ///////////////////////////////////////////////////////////////////////////
+  public void setAlign(String align) {
+    set("align", align);
+  }
 
-    public void setValue(String value) { set("value", value); }
-    public String getValue() { return get("value"); }
+  public String getAlign() {
+    return get("align");
+  }
+
+  public void setAlt(String alt) {
+    set("alt", alt);
+  }
+
+  public String getAlt() {
+    return get("alt");
+  }
+
+  public void setSrc(String src) {
+    set("src", src);
+  }
+
+  public String getSrc() {
+    return get("src");
+  }
+
+  public void setValue(String value) {
+    set("value", value);
+  }
+
+  public String getValue() {
+    return get("value");
+  }
 }

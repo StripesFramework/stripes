@@ -5,8 +5,7 @@
 	<stripes:layout-component name="contents">
 
 		<stripes:errors globalErrorsOnly="true" />
-
-		<stripes:form beanclass="${actionBean.class}" focus="">
+		<stripes:form beanclass="${actionBean.getClass()}" focus="">
 			<p>Please provide the following information:</p>
 
 			<table class="leftRightForm">

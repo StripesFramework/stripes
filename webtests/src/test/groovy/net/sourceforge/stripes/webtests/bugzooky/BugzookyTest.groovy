@@ -4,7 +4,7 @@ import net.sourceforge.stripes.webtests.WebtestCaseFixed
 
 class BugzookyTest extends WebtestCaseFixed {
 
-  def homeUrl = 'http://localhost:9999/webtests/examples/bugzooky'
+  def homeUrl = 'http://localhost:19999/webtests/examples/bugzooky'
 
   static int count = 10 //System.currentTimeMillis()
 

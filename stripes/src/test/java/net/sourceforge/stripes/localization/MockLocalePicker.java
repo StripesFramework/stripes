@@ -14,27 +14,24 @@
  */
 package net.sourceforge.stripes.localization;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.Locale;
-
-import javax.servlet.http.HttpServletRequest;
-
 import net.sourceforge.stripes.config.Configuration;
 
 /**
  * Simple locale picker that just uses the locale of the passed HttpServletRequest. This should be
  * used for locale dependent test cases.
- * 
+ *
  * @author Marcus Krassmann
  */
 public class MockLocalePicker implements LocalePicker {
-    public Locale pickLocale(HttpServletRequest request) {
-        return request.getLocale() == null ? Locale.getDefault() : request.getLocale();
-    }
+  public Locale pickLocale(HttpServletRequest request) {
+    return request.getLocale() == null ? Locale.getDefault() : request.getLocale();
+  }
 
-    public String pickCharacterEncoding(HttpServletRequest request, Locale locale) {
-        return "UTF-8";
-    }
+  public String pickCharacterEncoding(HttpServletRequest request, Locale locale) {
+    return "UTF-8";
+  }
 
-    public void init(Configuration configuration) throws Exception {
-    }
+  public void init(Configuration configuration) throws Exception {}
 }

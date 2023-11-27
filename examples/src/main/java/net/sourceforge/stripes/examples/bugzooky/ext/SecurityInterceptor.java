@@ -14,8 +14,7 @@
  */
 package net.sourceforge.stripes.examples.bugzooky.ext;
 
-import javax.servlet.http.HttpServletRequest;
-
+import jakarta.servlet.http.HttpServletRequest;
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.action.RedirectResolution;
 import net.sourceforge.stripes.action.Resolution;
@@ -31,33 +30,32 @@ import net.sourceforge.stripes.util.Log;
  * After the {@link LifecycleStage#ActionBeanResolution} stage, this interceptor checks the resolved
  * {@link ActionBean} class for a {@link Public} annotation. If none is present, then the client is
  * redirected to the login page.
- * 
+ *
  * @author Ben Gunter
  */
 @Intercepts(LifecycleStage.ActionBeanResolution)
 public class SecurityInterceptor implements Interceptor {
-    private Log log = Log.getInstance(SecurityInterceptor.class);
+  private Log log = Log.getInstance(SecurityInterceptor.class);
 
-    public Resolution intercept(ExecutionContext context) throws Exception {
-        HttpServletRequest request = context.getActionBeanContext().getRequest();
-        String url = HttpUtil.getRequestedPath(request);
-        if (request.getQueryString() != null)
-            url = url + '?' + request.getQueryString();
-        log.debug("Intercepting request: ", url);
+  public Resolution intercept(ExecutionContext context) throws Exception {
+    HttpServletRequest request = context.getActionBeanContext().getRequest();
+    String url = HttpUtil.getRequestedPath(request);
+    if (request.getQueryString() != null) url = url + '?' + request.getQueryString();
+    log.debug("Intercepting request: ", url);
 
-        Resolution resolution = context.proceed();
+    Resolution resolution = context.proceed();
 
-        // A null resolution here indicates a normal flow to the next stage
-        boolean authed = ((BugzookyActionBeanContext) context.getActionBeanContext()).getUser() != null;
-        if (!authed && resolution == null) {
-            ActionBean bean = context.getActionBean();
-            if (bean != null && !bean.getClass().isAnnotationPresent(Public.class)) {
-                log.warn("Thwarted attempted to access ", bean.getClass().getSimpleName());
-                return new RedirectResolution(LoginActionBean.class).addParameter("targetUrl", url);
-            }
-        }
-
-        log.debug("Allowing public access to ", context.getActionBean().getClass().getSimpleName());
-        return resolution;
+    // A null resolution here indicates a normal flow to the next stage
+    boolean authed = ((BugzookyActionBeanContext) context.getActionBeanContext()).getUser() != null;
+    if (!authed && resolution == null) {
+      ActionBean bean = context.getActionBean();
+      if (bean != null && !bean.getClass().isAnnotationPresent(Public.class)) {
+        log.warn("Thwarted attempted to access ", bean.getClass().getSimpleName());
+        return new RedirectResolution(LoginActionBean.class).addParameter("targetUrl", url);
+      }
     }
+
+    log.debug("Allowing public access to ", context.getActionBean().getClass().getSimpleName());
+    return resolution;
+  }
 }

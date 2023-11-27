@@ -17,7 +17,6 @@ package net.sourceforge.stripes.examples.bugzooky.ext;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import net.sourceforge.stripes.examples.bugzooky.biz.Person;
 import net.sourceforge.stripes.format.Formatter;
 
@@ -28,80 +27,77 @@ import net.sourceforge.stripes.format.Formatter;
  * returns the {@link Person}'s username. The "full" format type returns the person's name in a form
  * specified by the format pattern, where %F means first name, %L means last name, %U means username
  * and %E means email address.
- * 
+ *
  * @author Ben Gunter
  */
 public class PersonFormatter implements Formatter<Person> {
-    /** The default format pattern to use if no format pattern is specified. */
-    private static final String DEFAULT_FORMAT_PATTTERN = "%L, %F (%U)";
+  /** The default format pattern to use if no format pattern is specified. */
+  private static final String DEFAULT_FORMAT_PATTTERN = "%L, %F (%U)";
 
-    private String formatType, formatPattern;
+  private String formatType, formatPattern;
 
-    /** Format the {@link Person} object according to the format type and pattern. */
-    public String format(Person person) {
-        if (person == null) {
-            return "";
+  /** Format the {@link Person} object according to the format type and pattern. */
+  public String format(Person person) {
+    if (person == null) {
+      return "";
+    } else if ("short".equals(formatType)) {
+      return checkNull(person.getUsername());
+    } else if ("full".equals(formatType)) {
+      Pattern pattern = Pattern.compile("%[EFLU]");
+      String fp = formatPattern == null ? DEFAULT_FORMAT_PATTTERN : formatPattern;
+
+      StringBuffer buf = new StringBuffer();
+      Matcher matcher = pattern.matcher(fp);
+      while (matcher.find()) {
+        char spec = matcher.group().charAt(1);
+        switch (spec) {
+          case 'E':
+            matcher.appendReplacement(buf, checkNull(person.getEmail()));
+            break;
+          case 'F':
+            matcher.appendReplacement(buf, checkNull(person.getFirstName()));
+            break;
+          case 'L':
+            matcher.appendReplacement(buf, checkNull(person.getLastName()));
+            break;
+          case 'U':
+            matcher.appendReplacement(buf, checkNull(person.getUsername()));
+            break;
+          default:
+            buf.append(matcher.group());
         }
-        else if ("short".equals(formatType)) {
-            return checkNull(person.getUsername());
-        }
-        else if ("full".equals(formatType)) {
-            Pattern pattern = Pattern.compile("%[EFLU]");
-            String fp = formatPattern == null ? DEFAULT_FORMAT_PATTTERN : formatPattern;
+      }
+      matcher.appendTail(buf);
 
-            StringBuffer buf = new StringBuffer();
-            Matcher matcher = pattern.matcher(fp);
-            while (matcher.find()) {
-                char spec = matcher.group().charAt(1);
-                switch (spec) {
-                case 'E':
-                    matcher.appendReplacement(buf, checkNull(person.getEmail()));
-                    break;
-                case 'F':
-                    matcher.appendReplacement(buf, checkNull(person.getFirstName()));
-                    break;
-                case 'L':
-                    matcher.appendReplacement(buf, checkNull(person.getLastName()));
-                    break;
-                case 'U':
-                    matcher.appendReplacement(buf, checkNull(person.getUsername()));
-                    break;
-                default:
-                    buf.append(matcher.group());
-                }
-            }
-            matcher.appendTail(buf);
-
-            return buf.toString();
-        }
-        else {
-            return String.valueOf(person.getId());
-        }
+      return buf.toString();
+    } else {
+      return String.valueOf(person.getId());
     }
+  }
 
-    protected String checkNull(String s) {
-        return s == null ? "" : s;
-    }
+  protected String checkNull(String s) {
+    return s == null ? "" : s;
+  }
 
-    /** Set the format type, which specifies the general format type: default (null), short or full. */
-    public void setFormatType(String formatType) {
-        this.formatType = formatType;
-    }
+  /**
+   * Set the format type, which specifies the general format type: default (null), short or full.
+   */
+  public void setFormatType(String formatType) {
+    this.formatType = formatType;
+  }
 
-    /**
-     * Set the format pattern to be used by the "full" format type. In this pattern, %F will be
-     * replaced with the first name, %L by the last name, %U by the username and %E by the email
-     * address.
-     */
-    public void setFormatPattern(String formatPattern) {
-        this.formatPattern = formatPattern;
-    }
+  /**
+   * Set the format pattern to be used by the "full" format type. In this pattern, %F will be
+   * replaced with the first name, %L by the last name, %U by the username and %E by the email
+   * address.
+   */
+  public void setFormatPattern(String formatPattern) {
+    this.formatPattern = formatPattern;
+  }
 
-    /** This method is specified by the {@link Formatter} interface, but it is not used here. */
-    public void init() {
-    }
+  /** This method is specified by the {@link Formatter} interface, but it is not used here. */
+  public void init() {}
 
-    /** This method is specified by the {@link Formatter} interface, but it is not used here. */
-    public void setLocale(Locale locale) {
-    }
+  /** This method is specified by the {@link Formatter} interface, but it is not used here. */
+  public void setLocale(Locale locale) {}
 }
