@@ -1,6 +1,0 @@
-language: java
-
-jdk:
-  - oraclejdk7
-
-script: mvn -Pwebtests verify

@@ -14,17 +14,17 @@
  */
 package net.sourceforge.stripes.tag;
 
-import net.sourceforge.stripes.exception.StripesJspException;
 import net.sourceforge.stripes.config.ConfigurableComponent;
+import net.sourceforge.stripes.exception.StripesJspException;
 
 /**
  * Interface that implements the logic to determine how to populate/repopulate an input tag.
- * Generally, population strategies will need to determine whether to pull the tag's value from
- * the current request's parameters, from an ActionBean (if one is present), or from a value
- * provided for the tag on the JSP.
+ * Generally, population strategies will need to determine whether to pull the tag's value from the
+ * current request's parameters, from an ActionBean (if one is present), or from a value provided
+ * for the tag on the JSP.
  *
- * @author Tim Fennell 
+ * @author Tim Fennell
  */
 public interface PopulationStrategy extends ConfigurableComponent {
-    Object getValue(InputTagSupport tag) throws StripesJspException ;
+  Object getValue(InputTagSupport tag) throws StripesJspException;
 }

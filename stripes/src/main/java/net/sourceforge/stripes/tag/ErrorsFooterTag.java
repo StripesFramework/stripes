@@ -14,30 +14,26 @@
  */
 package net.sourceforge.stripes.tag;
 
-import javax.servlet.jsp.JspException;
+import jakarta.servlet.jsp.JspException;
 
 /**
- * Can be used within a stripes:errors tag to show a footer on an error list.
- * The contents of this tag will only be displayed on the last iteration of an
- * errors list.
+ * Can be used within a stripes:errors tag to show a footer on an error list. The contents of this
+ * tag will only be displayed on the last iteration of an errors list.
  *
  * @author Greg Hinkle
  */
 public class ErrorsFooterTag extends HtmlTagSupport {
 
-    @Override
-    public int doStartTag() throws JspException {
-        ErrorsTag errorsTag = getParentTag(ErrorsTag.class);
+  @Override
+  public int doStartTag() throws JspException {
+    ErrorsTag errorsTag = getParentTag(ErrorsTag.class);
 
-        if (errorsTag.isLast())
-            return EVAL_BODY_INCLUDE;
-        else
-            return SKIP_BODY;
-    }
+    if (errorsTag.isLast()) return EVAL_BODY_INCLUDE;
+    else return SKIP_BODY;
+  }
 
-    @Override
-    public int doEndTag() throws JspException {
-        return EVAL_PAGE;
-    }
-
+  @Override
+  public int doEndTag() throws JspException {
+    return EVAL_PAGE;
+  }
 }

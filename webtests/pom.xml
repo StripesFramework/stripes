@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>net.sourceforge.stripes</groupId>
 		<artifactId>stripes-parent</artifactId>
-		<version>1.6.0</version>
+		<version>1.6.0-JakartaEE10</version>
 		<relativePath>..</relativePath>
 	</parent>
 	<artifactId>stripes-webtests</artifactId>
@@ -17,8 +17,21 @@
 			<type>war</type>
 		</dependency>
 		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>servlet-api</artifactId>
+			<groupId>jakarta.servlet</groupId>
+			<artifactId>jakarta.servlet-api</artifactId>
+			<version>6.0.0</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>jakarta.mail</groupId>
+			<artifactId>jakarta.mail-api</artifactId>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+			<version>1.2</version>
+			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.canoo.webtest</groupId>
@@ -49,6 +62,7 @@
                 <version>1.4</version>
                 <configuration>
                     <providerSelection>2.0</providerSelection>
+					<source/>
                 </configuration>
 				<executions>
 					<execution>
@@ -74,6 +88,12 @@
 						</goals>
 						<configuration>
 							<skip>false</skip>
+							<argLine>
+								--illegal-access=permit
+								--add-opens java.base/java.lang=ALL-UNNAMED
+								--add-opens java.base/jdk.internal.loader=ALL-UNNAMED
+								--add-opens jdk.management/com.sun.management.internal=ALL-UNNAMED
+							</argLine>
 						</configuration>
 					</execution>
 				</executions>
@@ -81,23 +101,26 @@
 			<!-- Use Cargo plugin to start/stop tomcat and deploy examples for integration tests -->
 			<plugin>
 				<groupId>org.codehaus.cargo</groupId>
-				<artifactId>cargo-maven2-plugin</artifactId>
-                <version>1.4.7</version>
+				<artifactId>cargo-maven3-plugin</artifactId>
+				<version>1.10.8</version>
 				<configuration>
-                    <configuration>
-                        <properties>
-                            <cargo.servlet.port>9999</cargo.servlet.port>
-                        </properties>
-                    </configuration>
-                    <deployables>
-                        <deployable>
-                            <groupId>net.sourceforge.stripes</groupId>
-                            <artifactId>stripes-examples</artifactId>
-                            <properties>
-                                <context>webtests</context>
-                            </properties>
-                        </deployable>
-                    </deployables>
+					<container>
+						<containerId>tomcat10x</containerId>
+					</container>
+					<configuration>
+						<properties>
+							<cargo.servlet.port>19999</cargo.servlet.port>
+						</properties>
+					</configuration>
+					<deployables>
+						<deployable>
+							<groupId>net.sourceforge.stripes</groupId>
+							<artifactId>stripes-examples</artifactId>
+							<properties>
+								<context>webtests</context>
+							</properties>
+						</deployable>
+					</deployables>
 				</configuration>
 				<executions>
 					<execution>

@@ -8,15 +8,15 @@
                 <c:if test="${not empty user}">
                     Welcome: <stripes:format value="${user}" formatType="full" formatPattern="%F %L" />
                     |
-                    <stripes:link beanclass="LogoutActionBean">Logout</stripes:link>
+                    <stripes:link beanclass="net.sourceforge.stripes.examples.bugzooky.LogoutActionBean">Logout</stripes:link>
                 </c:if>
             </td>
         </tr>
     </table>
     <div id="navLinks">
-        <stripes:link beanclass="BugListActionBean">Bug List</stripes:link>
-        <stripes:link beanclass="SingleBugActionBean">Add Bug</stripes:link>
-        <stripes:link beanclass="MultiBugActionBean">Bulk Add</stripes:link>
-        <stripes:link beanclass="AdministerComponentsActionBean">Administer</stripes:link>
+        <stripes:link beanclass="net.sourceforge.stripes.examples.bugzooky.BugListActionBean">Bug List</stripes:link>
+        <stripes:link beanclass="net.sourceforge.stripes.examples.bugzooky.SingleBugActionBean">Add Bug</stripes:link>
+        <stripes:link beanclass="net.sourceforge.stripes.examples.bugzooky.MultiBugActionBean">Bulk Add</stripes:link>
+        <stripes:link beanclass="net.sourceforge.stripes.examples.bugzooky.AdministerComponentsActionBean">Administer</stripes:link>
     </div>
 </div>

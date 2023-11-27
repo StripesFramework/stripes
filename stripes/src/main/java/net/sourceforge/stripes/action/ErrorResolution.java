@@ -14,65 +14,63 @@
  */
 package net.sourceforge.stripes.action;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * Resolution for sending HTTP error messages back to the client. errorCode is the HTTP status code
  * to be sent. errorMessage is a descriptive message.
- * 
+ *
  * @author Aaron Porter
  * @since Stripes 1.5
  */
 public class ErrorResolution implements Resolution {
-    private int errorCode;
-    private String errorMessage;
+  private int errorCode;
+  private String errorMessage;
 
-    /**
-     * Sends an error response to the client using the specified status code and clears the buffer.
-     * 
-     * @param errorCode the HTTP status code
-     */
-    public ErrorResolution(int errorCode) {
-        this.errorCode = errorCode;
-    }
+  /**
+   * Sends an error response to the client using the specified status code and clears the buffer.
+   *
+   * @param errorCode the HTTP status code
+   */
+  public ErrorResolution(int errorCode) {
+    this.errorCode = errorCode;
+  }
 
-    /**
-     * Sends an error response to the client using the specified status code and message and clears
-     * the buffer.
-     * 
-     * @param errorCode the HTTP status code
-     * @param errorMessage a descriptive message
-     */
-    public ErrorResolution(int errorCode, String errorMessage) {
-        this.errorCode = errorCode;
-        this.errorMessage = errorMessage;
-    }
+  /**
+   * Sends an error response to the client using the specified status code and message and clears
+   * the buffer.
+   *
+   * @param errorCode the HTTP status code
+   * @param errorMessage a descriptive message
+   */
+  public ErrorResolution(int errorCode, String errorMessage) {
+    this.errorCode = errorCode;
+    this.errorMessage = errorMessage;
+  }
 
-    public void execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        if (errorMessage != null)
-            response.sendError(errorCode, errorMessage);
-        else
-            response.sendError(errorCode);
-    }
+  public void execute(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    if (errorMessage != null) response.sendError(errorCode, errorMessage);
+    else response.sendError(errorCode);
+  }
 
-    /** Accessor for the HTTP status code. */
-    public int getErrorCode() {
-        return errorCode;
-    }
+  /** Accessor for the HTTP status code. */
+  public int getErrorCode() {
+    return errorCode;
+  }
 
-    /** Setter for the HTTP status code. */
-    public void setErrorCode(int errorCode) {
-        this.errorCode = errorCode;
-    }
+  /** Setter for the HTTP status code. */
+  public void setErrorCode(int errorCode) {
+    this.errorCode = errorCode;
+  }
 
-    /** Accessor for the descriptive error message. */
-    public String getErrorMessage() {
-        return errorMessage;
-    }
+  /** Accessor for the descriptive error message. */
+  public String getErrorMessage() {
+    return errorMessage;
+  }
 
-    /** Setter for the descriptive error message. */
-    public void setErrorMessage(String errorMessage) {
-        this.errorMessage = errorMessage;
-    }
+  /** Setter for the descriptive error message. */
+  public void setErrorMessage(String errorMessage) {
+    this.errorMessage = errorMessage;
+  }
 }

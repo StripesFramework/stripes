@@ -6,12 +6,13 @@ import net.sourceforge.stripes.examples.bugzooky.ext.Public;
 
 /**
  * Straightforward logout action that logs the user out and then sends to an exit page.
+ *
  * @author Tim Fennell
  */
 @Public
 public class LogoutActionBean extends BugzookyActionBean {
-    public Resolution logout() throws Exception {
-        getContext().logout();
-        return new ForwardResolution("/bugzooky/Exit.jsp");
-    }
+  public Resolution logout() throws Exception {
+    getContext().logout();
+    return new ForwardResolution("/bugzooky/Exit.jsp");
+  }
 }

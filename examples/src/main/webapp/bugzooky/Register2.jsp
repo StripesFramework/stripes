@@ -4,7 +4,7 @@
 <stripes:layout-render name="/bugzooky/layout/standard.jsp" title="Register">
 	<stripes:layout-component name="contents">
 
-		<stripes:form beanclass="${actionBean.class}" focus="user.password">
+		<stripes:form beanclass="${actionBean.getClass()}" focus="user.password">
 			<stripes:errors />
 
 			<p>Welcome ${actionBean.user.firstName}, please pick a password:</p>

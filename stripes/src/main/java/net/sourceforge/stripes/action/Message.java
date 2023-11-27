@@ -14,23 +14,23 @@
  */
 package net.sourceforge.stripes.action;
 
-import java.util.Locale;
 import java.io.Serializable;
+import java.util.Locale;
 
 /**
- * Represents a message that can be displayed to the user.  Encapsulates commonalities
- * between error messages produced as part of validation and other types of user messages
- * such as warnings or feedback messages.
+ * Represents a message that can be displayed to the user. Encapsulates commonalities between error
+ * messages produced as part of validation and other types of user messages such as warnings or
+ * feedback messages.
  *
  * @author Tim Fennell
  */
 public interface Message extends Serializable {
-    /**
-     * Provides a message that can be displayed to the user. The message must be a String,
-     * and should be in the language and locale appropriate for the user.
-     *
-     * @param locale the Locale picked for the current interaction with the user
-     * @return String the String message that will be displayed to the user
-     */
-    String getMessage(Locale locale);
+  /**
+   * Provides a message that can be displayed to the user. The message must be a String, and should
+   * be in the language and locale appropriate for the user.
+   *
+   * @param locale the Locale picked for the current interaction with the user
+   * @return String the String message that will be displayed to the user
+   */
+  String getMessage(Locale locale);
 }

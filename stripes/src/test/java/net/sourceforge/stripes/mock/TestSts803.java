@@ -1,11 +1,9 @@
 package net.sourceforge.stripes.mock;
 
-
 import net.sourceforge.stripes.FilterEnabledTestBase;
 import net.sourceforge.stripes.action.*;
-import org.testng.annotations.Test;
-
-import static org.testng.Assert.assertNotNull;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class TestSts803 extends FilterEnabledTestBase {
 
@@ -53,11 +51,11 @@ public class TestSts803 extends FilterEnabledTestBase {
     }
   }
 
-  @Test(groups = "fast")
+  @Test
   public void testActionBeanGetsResolved() throws Exception {
     MockRoundtrip trip = new MockRoundtrip(getMockServletContext(), "/teststs803/first/_/edit");
     trip.execute();
     Sts803ActionBean bean = trip.getActionBean(Sts803ActionBean.class);
-    assertNotNull(bean);
+    Assert.assertNotNull(bean);
   }
 }

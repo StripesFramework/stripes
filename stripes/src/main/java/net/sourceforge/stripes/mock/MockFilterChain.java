@@ -14,12 +14,12 @@
  */
 package net.sourceforge.stripes.mock;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.Servlet;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.Servlet;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -27,43 +27,43 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Mock implementation of a filter chain that allows a number of filters to be called
- * before finally invoking the servlet that is the target of the request.
+ * Mock implementation of a filter chain that allows a number of filters to be called before finally
+ * invoking the servlet that is the target of the request.
  *
  * @author Tim Fennell
  * @since Stripes 1.1.1
  */
 public class MockFilterChain implements FilterChain {
-    private List<Filter> filters = new ArrayList<Filter>();
-    private Iterator<Filter> iterator;
-    private Servlet servlet;
+  private final List<Filter> filters = new ArrayList<>();
+  private Iterator<Filter> iterator;
+  private Servlet servlet;
 
-    /** Adds a filter to the set of filters to be run. */
-    public void addFilter(Filter filter) {
-        this.filters.add(filter);
+  /** Adds a filter to the set of filters to be run. */
+  public void addFilter(Filter filter) {
+    this.filters.add(filter);
+  }
+
+  /** Adds an ordered list of filters to the filter chain. */
+  public void addFilters(Collection<Filter> filters) {
+    this.filters.addAll(filters);
+  }
+
+  /** Sets the servlet that will receive the request after all filters are processed. */
+  public void setServlet(Servlet servlet) {
+    this.servlet = servlet;
+  }
+
+  /** Used to coordinate the execution of the filters. */
+  public void doFilter(ServletRequest request, ServletResponse response)
+      throws IOException, ServletException {
+    if (this.iterator == null) {
+      this.iterator = this.filters.iterator();
     }
 
-    /** Adds an ordered list of filters to the filter chain. */
-    public void addFilters(Collection<Filter> filters) {
-        this.filters.addAll(filters);
+    if (this.iterator.hasNext()) {
+      this.iterator.next().doFilter(request, response, this);
+    } else {
+      this.servlet.service(request, response);
     }
-
-    /** Sets the servlet that will receive the request after all filters are processed. */
-    public void setServlet(Servlet servlet) {
-        this.servlet = servlet;
-    }
-
-    /** Used to coordinate the execution of the filters. */
-    public void doFilter(ServletRequest request, ServletResponse response) throws IOException, ServletException {
-        if (this.iterator == null) {
-            this.iterator = this.filters.iterator();
-        }
-
-        if (this.iterator.hasNext()) {
-            this.iterator.next().doFilter(request, response, this);
-        }
-        else {
-            this.servlet.service(request, response);
-        }
-    }
+  }
 }

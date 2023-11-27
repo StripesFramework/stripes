@@ -14,36 +14,29 @@
  */
 package net.sourceforge.stripes.tag;
 
+import jakarta.servlet.jsp.tagext.TagData;
+import jakarta.servlet.jsp.tagext.TagExtraInfo;
+import jakarta.servlet.jsp.tagext.VariableInfo;
 import net.sourceforge.stripes.validation.ValidationError;
 
-import javax.servlet.jsp.tagext.TagExtraInfo;
-import javax.servlet.jsp.tagext.VariableInfo;
-import javax.servlet.jsp.tagext.TagData;
-
 /**
- * This tag extra info exposes index and error context variables for the body
- * of the errors tag.
+ * This tag extra info exposes index and error context variables for the body of the errors tag.
  *
  * @author Greg Hinkle
  */
 public class ErrorsTagExtraInfo extends TagExtraInfo {
 
-    /** Returns an array of length two, for the variables exposed. */
-    @Override
-    public VariableInfo[] getVariableInfo(TagData data) {
-        VariableInfo[]  scriptVars = new VariableInfo[2];
+  /** Returns an array of length two, for the variables exposed. */
+  @Override
+  public VariableInfo[] getVariableInfo(TagData data) {
+    VariableInfo[] scriptVars = new VariableInfo[2];
 
-        scriptVars[0] = new VariableInfo("index",
-                                         "java.lang.Number",
-                                         true,
-                                         VariableInfo.NESTED);
+    scriptVars[0] = new VariableInfo("index", "java.lang.Number", true, VariableInfo.NESTED);
 
-        // TODO: ValidationError should expose properties like field name
-        scriptVars[1] = new VariableInfo("error",
-                                         ValidationError.class.getName(),
-                                         true,
-                                         VariableInfo.NESTED);
+    // TODO: ValidationError should expose properties like field name
+    scriptVars[1] =
+        new VariableInfo("error", ValidationError.class.getName(), true, VariableInfo.NESTED);
 
-        return scriptVars;
-    }
+    return scriptVars;
+  }
 }

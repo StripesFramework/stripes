@@ -19,19 +19,17 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-
 import net.sourceforge.stripes.controller.LifecycleStage;
 
 /**
- * Marker annotation to specify that the event handled by the annotated method should skip
- * {@link LifecycleStage#BindingAndValidation} altogether. This is useful for events which ignore
- * user input, such as cancel events. Note that the presence of this annotation on an event handler
+ * Marker annotation to specify that the event handled by the annotated method should skip {@link
+ * LifecycleStage#BindingAndValidation} altogether. This is useful for events which ignore user
+ * input, such as cancel events. Note that the presence of this annotation on an event handler
  * implies {@link DontValidate} as well.
- * 
+ *
  * @author Ben Gunter
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target( { ElementType.METHOD })
+@Target({ElementType.METHOD})
 @Documented
-public @interface DontBind {
-}
+public @interface DontBind {}

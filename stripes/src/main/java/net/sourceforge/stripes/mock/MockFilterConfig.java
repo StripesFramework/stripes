@@ -14,7 +14,7 @@
  */
 package net.sourceforge.stripes.mock;
 
-import javax.servlet.FilterConfig;
+import jakarta.servlet.FilterConfig;
 
 /**
  * Mock implementation of the FilterConfig interface from the Http Servlet spec.
@@ -23,11 +23,15 @@ import javax.servlet.FilterConfig;
  * @since Stripes 1.1.1
  */
 public class MockFilterConfig extends MockBaseConfig implements FilterConfig {
-    private String filterName;
+  private String filterName;
 
-    /** Sets the filter name that will be retrieved by getFilterName(). */
-    public void setFilterName(String filterName) { this.filterName = filterName; }
+  /** Sets the filter name that will be retrieved by getFilterName(). */
+  public void setFilterName(String filterName) {
+    this.filterName = filterName;
+  }
 
-    /** Returns the name of the filter for which this is the config. */
-    public String getFilterName() { return this.filterName; }
+  /** Returns the name of the filter for which this is the config. */
+  public String getFilterName() {
+    return this.filterName;
+  }
 }

@@ -17,40 +17,35 @@ package net.sourceforge.stripes.validation;
 import java.util.Collection;
 
 /**
- * Basic TypeConverter that converts Strings to Numbers of type Float.  If the
- * String is a valid number, but the number is out of the range representable
- * by the Float class, a validation error of 'converter.float.outOfRange' will
- * be produced.
+ * Basic TypeConverter that converts Strings to Numbers of type Float. If the String is a valid
+ * number, but the number is out of the range representable by the Float class, a validation error
+ * of 'converter.float.outOfRange' will be produced.
  *
  * @author Tim Fennell
  */
 public class FloatTypeConverter extends NumberTypeConverterSupport implements TypeConverter<Float> {
-    /** The minimum value that can assigned to a float or Float. */
-    public static final float MIN_VALUE = -Float.MAX_VALUE;
-    /** The maximum value that can assigned to a float or Float. */
-    public static final float MAX_VALUE = Float.MAX_VALUE;
+  /** The minimum value that can assigned to a float or Float. */
+  public static final float MIN_VALUE = -Float.MAX_VALUE;
+  /** The maximum value that can assigned to a float or Float. */
+  public static final float MAX_VALUE = Float.MAX_VALUE;
 
-    /**
-     * Converts the input to an object of type Double.
-     */
-    public Float convert(String input,
-                          Class<? extends Float> targetType,
-                          Collection<ValidationError> errors) {
+  /** Converts the input to an object of type Double. */
+  public Float convert(
+      String input, Class<? extends Float> targetType, Collection<ValidationError> errors) {
 
-        Number number = parse(input, errors);
-        Float retval = null;
+    Number number = parse(input, errors);
+    Float retval = null;
 
-        if (errors.size() == 0) {
-            double output = number.doubleValue();
-            if (output > MAX_VALUE || output < MIN_VALUE) {
-                errors.add( new ScopedLocalizableError("converter.float", "outOfRange",
-                                                       MIN_VALUE, MAX_VALUE));
-            }
-            else {
-                retval = new Float(number.floatValue());
-            }
-        }
-
-        return retval;
+    if (errors.size() == 0) {
+      double output = number.doubleValue();
+      if (output > MAX_VALUE || output < MIN_VALUE) {
+        errors.add(
+            new ScopedLocalizableError("converter.float", "outOfRange", MIN_VALUE, MAX_VALUE));
+      } else {
+        retval = new Float(number.floatValue());
+      }
     }
+
+    return retval;
+  }
 }

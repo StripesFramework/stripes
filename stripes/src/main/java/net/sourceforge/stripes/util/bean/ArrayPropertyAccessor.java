@@ -17,47 +17,48 @@ package net.sourceforge.stripes.util.bean;
 import java.lang.reflect.Array;
 
 /**
- * Implementation of the {@link PropertyAccessor} interface for interacting with arrays.
- * Throws exceptions if the index is not an integer or if the index is out of range
- * for the current array.
+ * Implementation of the {@link PropertyAccessor} interface for interacting with arrays. Throws
+ * exceptions if the index is not an integer or if the index is out of range for the current array.
  *
  * @author Tim Fennell
  * @since Stripes 1.4
  */
-public class ArrayPropertyAccessor implements PropertyAccessor<Object>{
-    /**
-     * Gets the index specified by the current node from the target array.
-     * @param evaluation the current NodeEvaluation containing the array index
-     * @param target the target array
-     * @return the element stored at that index
-     */
-    public Object getValue(NodeEvaluation evaluation, Object target) {
-        int index = getKey(evaluation);
-        return Array.get(target, index);
+public class ArrayPropertyAccessor implements PropertyAccessor<Object> {
+  /**
+   * Gets the index specified by the current node from the target array.
+   *
+   * @param evaluation the current NodeEvaluation containing the array index
+   * @param target the target array
+   * @return the element stored at that index
+   */
+  public Object getValue(NodeEvaluation evaluation, Object target) {
+    int index = getKey(evaluation);
+    return Array.get(target, index);
+  }
+
+  /**
+   * Sets the value at the index specified by the current node to the supplied value.
+   *
+   * @param evaluation the current NodeEvaluation containing the array index
+   * @param target the target array
+   * @param value the value to set, possibly null
+   */
+  public void setValue(NodeEvaluation evaluation, Object target, Object value) {
+    int index = getKey(evaluation);
+    Array.set(target, index, value);
+  }
+
+  /**
+   * Fetches the key and casts/unboxes it to an int. If the key is not an int, it will throw an
+   * Evaluation Exception.
+   */
+  private int getKey(NodeEvaluation eval) {
+    Object key = eval.getNode().getTypedValue();
+    if (key.getClass() != Integer.class) {
+      throw new EvaluationException(
+          "Attempting to index into an array using a non-integer index: " + key);
     }
 
-    /**
-     * Sets the value at the index specified by the current node to the supplied value.
-     * @param evaluation the current NodeEvaluation containing the array index
-     * @param target the target array
-     * @param value the value to set, possibly null
-     */
-    public void setValue(NodeEvaluation evaluation, Object target, Object value) {
-        int index = getKey(evaluation);
-        Array.set(target, index, value);
-    }
-
-    /**
-     * Fetches the key and casts/unboxes it to an int. If the key is not an int, it
-     * will throw an Evaluation Exception.
-     */
-    private int getKey(NodeEvaluation eval) {
-        Object key = eval.getNode().getTypedValue();
-        if (key.getClass() != Integer.class) {
-            throw new EvaluationException
-                    ("Attempting to index into an array using a non-integer index: " + key);
-        }
-
-        return (Integer) key;
-    }
+    return (Integer) key;
+  }
 }

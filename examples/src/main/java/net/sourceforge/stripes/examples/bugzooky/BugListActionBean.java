@@ -21,13 +21,13 @@ import net.sourceforge.stripes.action.Resolution;
 
 /**
  * Forwards to the view and provides some help displaying the bug list.
- * 
+ *
  * @author Ben Gunter
  */
 public class BugListActionBean extends BugzookyActionBean {
-    @DefaultHandler
-    @DontBind
-    public Resolution list() {
-        return new ForwardResolution("/bugzooky/BugList.jsp");
-    }
+  @DefaultHandler
+  @DontBind
+  public Resolution list() {
+    return new ForwardResolution("/bugzooky/BugList.jsp");
+  }
 }

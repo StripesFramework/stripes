@@ -15,40 +15,32 @@
 package net.sourceforge.stripes.examples.bugzooky.ext;
 
 import java.util.Locale;
-
 import net.sourceforge.stripes.examples.bugzooky.biz.Bug;
 import net.sourceforge.stripes.format.Formatter;
 
 /**
  * A simple {@link Formatter} that formats a {@link Bug} object to text by returning its integer ID
  * in string form. For a more advanced formatter implementation, see {@link PersonFormatter}.
- * 
+ *
  * @author Ben Gunter
  */
 public class BugFormatter implements Formatter<Bug> {
-    /** Format the {@link Bug} object. */
-    public String format(Bug bug) {
-        if (bug == null)
-            return "";
-        else if (bug.getId() == null)
-            return "";
-        else
-            return String.valueOf(bug.getId());
-    }
+  /** Format the {@link Bug} object. */
+  public String format(Bug bug) {
+    if (bug == null) return "";
+    else if (bug.getId() == null) return "";
+    else return String.valueOf(bug.getId());
+  }
 
-    /** This method is specified by the {@link Formatter} interface, but it is not used here. */
-    public void init() {
-    }
+  /** This method is specified by the {@link Formatter} interface, but it is not used here. */
+  public void init() {}
 
-    /** This method is specified by the {@link Formatter} interface, but it is not used here. */
-    public void setFormatPattern(String formatPattern) {
-    }
+  /** This method is specified by the {@link Formatter} interface, but it is not used here. */
+  public void setFormatPattern(String formatPattern) {}
 
-    /** This method is specified by the {@link Formatter} interface, but it is not used here. */
-    public void setFormatType(String formatType) {
-    }
+  /** This method is specified by the {@link Formatter} interface, but it is not used here. */
+  public void setFormatType(String formatType) {}
 
-    /** This method is specified by the {@link Formatter} interface, but it is not used here. */
-    public void setLocale(Locale locale) {
-    }
+  /** This method is specified by the {@link Formatter} interface, but it is not used here. */
+  public void setLocale(Locale locale) {}
 }

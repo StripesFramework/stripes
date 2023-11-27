@@ -15,21 +15,21 @@
 package net.sourceforge.stripes.tag;
 
 /**
- * Interface to be implemented by tags which wish to be able to receive parameters from
- * nested {@literal <stripes:param>} tags.
+ * Interface to be implemented by tags which wish to be able to receive parameters from nested
+ * {@literal <stripes:param>} tags.
  *
  * @author Tim Fennell
  * @since Stripes 1.4
  * @see ParamTag
  */
 public interface ParameterizableTag {
-    /**
-     * Adds a parameter to the tag.  It is up to the tag to determine whether the new value(s)
-     * supplied supercede or add to previous values.  The value can be of any type, and tags
-     * should handle Arrays and Collections gracefully.
-     *
-     * @param name the name of the parameter
-     * @param valueOrValues either a scalar value, an array or a collection
-     */
-    void addParameter(String name, Object valueOrValues);
+  /**
+   * Adds a parameter to the tag. It is up to the tag to determine whether the new value(s) supplied
+   * supercede or add to previous values. The value can be of any type, and tags should handle
+   * Arrays and Collections gracefully.
+   *
+   * @param name the name of the parameter
+   * @param valueOrValues either a scalar value, an array or a collection
+   */
+  void addParameter(String name, Object valueOrValues);
 }
