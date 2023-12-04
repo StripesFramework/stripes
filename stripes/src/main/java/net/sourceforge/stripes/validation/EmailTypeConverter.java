@@ -14,10 +14,9 @@
  */
 package net.sourceforge.stripes.validation;
 
-import jakarta.mail.internet.AddressException;
-import jakarta.mail.internet.InternetAddress;
 import java.util.Collection;
 import java.util.Locale;
+import java.util.regex.Pattern;
 
 /**
  * A faux TypeConverter that validates that the String supplied is a valid email address. Relies on
@@ -42,6 +41,14 @@ import java.util.Locale;
  * @since Stripes 1.2
  */
 public class EmailTypeConverter implements TypeConverter<String> {
+
+  /**
+   * This RegEx is taken from the HTML5 <a
+   * href="https://html.spec.whatwg.org/multipage/input.html#valid-e-mail-address">spec</a>.
+   */
+  private static final Pattern EMAIL_VALIDATION_REGEX =
+      Pattern.compile(
+          "[ \\a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[[\\[]a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[]a-zA-Z0-9])?)*");
   /** Accepts the Locale provided, but does nothing with it since emails are Locale-less. */
   public void setLocale(Locale locale) {
     /** Doesn't matter for email. */
@@ -59,19 +66,31 @@ public class EmailTypeConverter implements TypeConverter<String> {
   public String convert(
       String input, Class<? extends String> targetType, Collection<ValidationError> errors) {
 
-    String result = null;
+    // Used to test for more than one @ symbol
+    int atSymbolOccurrences = (input.length() - input.replace("@", "").length());
 
-    try {
-      InternetAddress address = new InternetAddress(input, true);
-      result = address.getAddress();
-      if (!result.contains("@")) {
-        result = null;
-        throw new AddressException();
-      }
-    } catch (AddressException ae) {
+    // Used to test for no dots after the last @ sign
+    boolean noDotsAfterLastAtSign =
+        input.contains("@") && !input.substring(input.lastIndexOf("@")).contains(".");
+
+    // Used to test for starts with a dot
+    boolean startsWithDot = input.split("@")[0].startsWith(".");
+
+    // Used to test for ends with a dot
+    boolean endsWithDot = input.split("@")[0].endsWith(".");
+
+    // Used to test for two consecutive dots
+    boolean twoConsecutiveDots = input.split("@")[0].contains("..");
+
+    if (atSymbolOccurrences > 1
+        || noDotsAfterLastAtSign
+        || startsWithDot
+        || endsWithDot
+        || twoConsecutiveDots
+        || !EMAIL_VALIDATION_REGEX.matcher(input).matches()) {
       errors.add(new ScopedLocalizableError("converter.email", "invalidEmail"));
     }
 
-    return result;
+    return input;
   }
 }
