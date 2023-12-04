@@ -14,13 +14,13 @@
  */
 package net.sourceforge.stripes.action;
 
-import jakarta.mail.internet.ContentDisposition;
-import jakarta.mail.internet.ParseException;
 import java.io.ByteArrayInputStream;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import net.sourceforge.stripes.mock.MockHttpServletResponse;
+import org.apache.commons.fileupload2.core.ParameterParser;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -34,7 +34,7 @@ public class TestStreamingResolution {
   }
 
   private void doTestContentDisposition(boolean attachment, String filename) throws Exception {
-    byte[] data = UUID.randomUUID().toString().getBytes(Charset.forName("UTF-8"));
+    byte[] data = UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8);
     ByteArrayInputStream is = new ByteArrayInputStream(data);
 
     StreamingResolution resolution = new StreamingResolution("application/octet-stream", is);
@@ -48,32 +48,35 @@ public class TestStreamingResolution {
     resolution.stream(response);
     Assert.assertArrayEquals(data, response.getOutputBytes());
 
-    ContentDisposition disposition = getContentDisposition(response);
+    // Use commons-fileupload to parse the Content-Disposition header
+    String disposition = null;
+    String cdAttachment = null;
+    String cdFilename = null;
+    final List<Object> list = response.getHeaderMap().get("Content-Disposition");
+    if (list != null && !list.isEmpty()) {
+      disposition = list.get(0).toString();
+      final ParameterParser parser = new ParameterParser();
+      parser.setLowerCaseNames(true);
+      final Map<String, String> params = parser.parse(disposition, ';');
+      cdAttachment = params.containsKey("attachment") ? "attachment" : null;
+      cdFilename = params.getOrDefault("filename", null);
+    }
     if (attachment) {
+      Assert.assertNotNull(disposition);
+      Assert.assertEquals("attachment", cdAttachment);
       if (filename == null) {
-        Assert.assertNotNull(disposition);
-        Assert.assertEquals("attachment", disposition.getDisposition());
-        Assert.assertNull(disposition.getParameter("filename"));
+        Assert.assertNull(cdFilename);
       } else {
-        Assert.assertNotNull(disposition);
-        Assert.assertEquals("attachment", disposition.getDisposition());
-        Assert.assertNotNull(disposition.getParameter("filename"));
+        Assert.assertNotNull(cdFilename);
       }
     } else {
       if (filename == null) {
         Assert.assertNull(disposition);
       } else {
         Assert.assertNotNull(disposition);
-        Assert.assertEquals("attachment", disposition.getDisposition());
-        Assert.assertNotNull(disposition.getParameter("filename"));
+        Assert.assertEquals("attachment", cdAttachment);
+        Assert.assertNotNull(cdFilename);
       }
     }
-  }
-
-  private ContentDisposition getContentDisposition(MockHttpServletResponse response)
-      throws ParseException {
-    final List<Object> list = response.getHeaderMap().get("Content-Disposition");
-    if (list == null || list.isEmpty()) return null;
-    else return new ContentDisposition(list.get(0).toString());
   }
 }
