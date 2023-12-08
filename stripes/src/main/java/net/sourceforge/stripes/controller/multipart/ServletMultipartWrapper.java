@@ -75,10 +75,9 @@ public class ServletMultipartWrapper implements MultipartWrapper {
 
     final Part part = this.uploadParts.get(name);
 
-    if (part == null) {
+    if (part == null || ((part.getName() == null || part.getName().isEmpty()) && part.getSize() == 0)) {
       return null;
     }
-
 
     return new FileBean(null, part.getContentType(), part.getSubmittedFileName(),  this.charset) {
       @Override
