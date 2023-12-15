@@ -75,7 +75,7 @@ public class ServletMultipartWrapper implements MultipartWrapper {
 
     final Part part = this.uploadParts.get(name);
 
-    if (part == null || ((part.getName() == null || part.getName().isEmpty()) && part.getSize() == 0)) {
+    if (part == null || ((part.getSubmittedFileName() == null || part.getSubmittedFileName().isEmpty()) && part.getSize() == 0)) {
       return null;
     }
 
