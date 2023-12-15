@@ -14,8 +14,8 @@
  */
 package net.sourceforge.stripes.mock;
 
-import javax.servlet.ServletOutputStream;
-import javax.servlet.WriteListener;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.WriteListener;
 import java.io.IOException;
 import java.io.ByteArrayOutputStream;
 

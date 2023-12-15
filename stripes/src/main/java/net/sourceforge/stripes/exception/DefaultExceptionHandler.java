@@ -24,9 +24,9 @@ import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.action.ActionBeanContext;
@@ -155,7 +155,7 @@ public class DefaultExceptionHandler implements ExceptionHandler {
      * @param throwable the exception being handled
      * @param request the current request being processed
      * @param response the response paired with the current request
-     * @throws javax.servlet.ServletException If an error occurs handling the
+     * @throws jakarta.servlet.ServletException If an error occurs handling the
      * exception
      */
     @Override
@@ -270,7 +270,7 @@ public class DefaultExceptionHandler implements ExceptionHandler {
      * exception is to override
      * {@link #getFileUploadExceededExceptionPath(HttpServletRequest)} to return
      * the path to your global error page.
-     * <p>
+     * </p>
      *
      * @param exception The exception that needs to be handled
      * @param request The servlet request

@@ -16,7 +16,7 @@ package net.sourceforge.stripes.tag.layout;
 
 import java.util.Map.Entry;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import net.sourceforge.stripes.controller.StripesConstants;
 import net.sourceforge.stripes.tag.StripesTagSupport;

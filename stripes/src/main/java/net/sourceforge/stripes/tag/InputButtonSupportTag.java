@@ -14,8 +14,8 @@
  */
 package net.sourceforge.stripes.tag;
 
-import javax.servlet.jsp.tagext.BodyTag;
-import javax.servlet.jsp.JspException;
+import jakarta.servlet.jsp.tagext.BodyTag;
+import jakarta.servlet.jsp.JspException;
 
 /**
  * <p>
@@ -60,7 +60,7 @@ public class InputButtonSupportTag extends InputTagSupport implements BodyTag {
      * Does nothing.
      *
      * @return EVAL_BODY_BUFFERED in all cases.
-     * @throws javax.servlet.jsp.JspException
+     * @throws jakarta.servlet.jsp.JspException
      */
     @Override
     public int doStartInputTag() throws JspException {
@@ -69,7 +69,7 @@ public class InputButtonSupportTag extends InputTagSupport implements BodyTag {
 
     /**
      * Does nothing.
-     * @throws javax.servlet.jsp.JspException
+     * @throws jakarta.servlet.jsp.JspException
      */
     public void doInitBody() throws JspException {
     }
@@ -78,7 +78,7 @@ public class InputButtonSupportTag extends InputTagSupport implements BodyTag {
      * Does nothing.
      *
      * @return SKIP_BODY in all cases.
-     * @throws javax.servlet.jsp.JspException
+     * @throws jakarta.servlet.jsp.JspException
      */
     public int doAfterBody() throws JspException {
         return SKIP_BODY;
@@ -89,7 +89,7 @@ public class InputButtonSupportTag extends InputTagSupport implements BodyTag {
      * writes the tag out to the page.
      *
      * @return EVAL_PAGE in all cases.
-     * @throws javax.servlet.jsp.JspException if output cannot be written.
+     * @throws jakarta.servlet.jsp.JspException if output cannot be written.
      */
     @Override
     public int doEndInputTag() throws JspException {

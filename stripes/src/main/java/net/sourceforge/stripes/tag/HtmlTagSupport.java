@@ -18,10 +18,10 @@ import net.sourceforge.stripes.exception.StripesJspException;
 import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.util.HtmlUtil;
 
-import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.JspWriter;
-import javax.servlet.jsp.tagext.BodyContent;
-import javax.servlet.jsp.tagext.DynamicAttributes;
+import jakarta.servlet.jsp.JspException;
+import jakarta.servlet.jsp.JspWriter;
+import jakarta.servlet.jsp.tagext.BodyContent;
+import jakarta.servlet.jsp.tagext.DynamicAttributes;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -55,8 +55,8 @@ public abstract class HtmlTagSupport extends StripesTagSupport implements Dynami
 
     /**
      * Sets the named attribute to the supplied value.
-     * @param name
-     * @param value
+     * @param name the name of the attribute
+     * @param value the value of the attribute
      */
     protected final void set(String name, String value) {
         if (value == null) {
@@ -68,8 +68,8 @@ public abstract class HtmlTagSupport extends StripesTagSupport implements Dynami
 
     /**
      * Gets the value of the named attribute, or null if it is not set.
-     * @param name
-     * @return 
+     * @param name the name of the attribute to get the value for
+     * @return  the value found for the given name
      */
     protected final String get(String name) {
         return this.attributes.get(name);
@@ -77,7 +77,7 @@ public abstract class HtmlTagSupport extends StripesTagSupport implements Dynami
 
     /**
      * Gets the map containing the attributes of the tag.
-     * @return 
+     * @return the attributes map
      */
     protected final Map<String, String> getAttributes() {
         return this.attributes;
@@ -101,7 +101,7 @@ public abstract class HtmlTagSupport extends StripesTagSupport implements Dynami
     /**
      * Returns the BodyContent of the tag if one has been provided by the JSP
      * container.
-     * @return 
+     * @return the content of the body
      */
     public BodyContent getBodyContent() {
         return bodyContent;
@@ -109,7 +109,7 @@ public abstract class HtmlTagSupport extends StripesTagSupport implements Dynami
 
     /**
      * Called by the JSP container to set the BodyContent on the tag.
-     * @param bodyContent
+     * @param bodyContent the content of the body to set
      */
     public void setBodyContent(BodyContent bodyContent) {
         this.bodyContent = bodyContent;
@@ -152,7 +152,7 @@ public abstract class HtmlTagSupport extends StripesTagSupport implements Dynami
      * tags, with "/&gt;". False if such HTML tags should be closed in the style
      * of HTML4, with just a "&gt;".
      *
-     * @return 
+     * @return true when it is a xml tag
      * @see PageOptionsTag#setHtmlMode(String)
      */
     protected boolean isXmlTags() {
@@ -255,11 +255,11 @@ public abstract class HtmlTagSupport extends StripesTagSupport implements Dynami
      * cannot be evaluated then an ELException is caught, wrapped in a
      * JspException and re-thrown.
      *
-     * @param <R>
+     * @param <R> the type which is to return when the expression is evaluated
      * @param expression the expression to be evaluated
      * @param resultType the Class representing the desired return type from the
      * expression
-     * @return 
+     * @return the result
      * @throws StripesJspException when an ELException occurs trying to evaluate
      * the expression
      */
@@ -268,7 +268,7 @@ public abstract class HtmlTagSupport extends StripesTagSupport implements Dynami
         try {
             return (R) this.pageContext.getExpressionEvaluator().
                     evaluate(expression, resultType, this.pageContext.getVariableResolver(), null);
-        } catch (javax.servlet.jsp.el.ELException ele) {
+        } catch (jakarta.servlet.jsp.el.ELException ele) {
             throw new StripesJspException("Could not evaluate EL expression  [" + expression + "] with result type ["
                     + resultType.getName() + "] in tag class of type: " + getClass().getName(), ele);
         }
@@ -289,96 +289,96 @@ public abstract class HtmlTagSupport extends StripesTagSupport implements Dynami
     }
 
     /**
-     *
-     * @param id
+     * Sets the id of the tag
+     * @param id the id to set
      */
     public void setId(String id) {
         set("id", id);
     }
 
     /**
-     *
-     * @return
+     * Returns the id of the tag
+     * @return the id
      */
     public String getId() {
         return get("id");
     }
 
     /**
-     *
-     * @param cssClass
+     * Sets the css class
+     * @param cssClass the css class to set
      */
     public void setClass(String cssClass) {
         set("class", cssClass);
     }
 
     /**
-     *
-     * @param cssClass
+     * Sets the css class
+     * @param cssClass the css class to set
      */
     public void setCssClass(String cssClass) {
         set("class", cssClass);
     }
 
     /**
-     *
-     * @return
+     * Getter for the css class
+     * @return the css class
      */
     public String getCssClass() {
         return get("class");
     }
 
     /**
-     *
-     * @param title
+     * Sets the title
+     * @param title the title to set
      */
     public void setTitle(String title) {
         set("title", title);
     }
 
     /**
-     *
-     * @return
+     * The title
+     * @return the title attribute
      */
     public String getTitle() {
         return get("title");
     }
 
     /**
-     *
-     * @param style
+     * Sets the style attribute
+     * @param style the style to set
      */
     public void setStyle(String style) {
         set("style", style);
     }
 
     /**
-     *
-     * @return
+     * The style
+     * @return the style attribute
      */
     public String getStyle() {
         return get("style");
     }
 
     /**
-     *
-     * @param dir
+     * Sets the dir attribute
+     * @param dir the dir to set
      */
     public void setDir(String dir) {
         set("dir", dir);
     }
 
     /**
-     *
-     * @return
+     * The dir
+     * @return the dir attribute
      */
     public String getDir() {
         return get("dir");
     }
 
     /**
-     *
-     * @param lang
+     * Sets the lang attribute
+     * @param lang the lang attribute to set
      */
     public void setLang(String lang) {
         set("lang", lang);

@@ -13,10 +13,10 @@ import net.sourceforge.stripes.tag.TagErrorRenderer;
 import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.validation.TypeConverter;
 
-import javax.servlet.ServletContainerInitializer;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.annotation.HandlesTypes;
+import jakarta.servlet.ServletContainerInitializer;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.HandlesTypes;
 import java.util.HashSet;
 import java.util.Set;
 

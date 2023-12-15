@@ -14,7 +14,7 @@
  */
 package net.sourceforge.stripes.tag;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * Provides support for tags that allow assigning a value in a named scope. The

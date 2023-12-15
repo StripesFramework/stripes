@@ -14,24 +14,25 @@
  */
 package net.sourceforge.stripes.controller.multipart;
 
+import jakarta.servlet.http.HttpServletRequest;
 import net.sourceforge.stripes.action.FileBean;
 import net.sourceforge.stripes.controller.FileUploadLimitExceededException;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.FileUploadException;
-import org.apache.commons.fileupload.FileUploadBase;
+import org.apache.commons.fileupload2.core.DiskFileItemFactory;
+import org.apache.commons.fileupload2.core.FileItem;
+import org.apache.commons.fileupload2.core.FileUploadException;
+import org.apache.commons.fileupload2.core.FileUploadSizeException;
+import org.apache.commons.fileupload2.jakarta.JakartaServletFileUpload;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.regex.Pattern;
 
 /**
@@ -85,9 +86,8 @@ public class CommonsMultipartWrapper implements MultipartWrapper {
             throws IOException, FileUploadLimitExceededException {
         try {
             this.charset = request.getCharacterEncoding();
-            DiskFileItemFactory factory = new DiskFileItemFactory();
-            factory.setRepository(tempDir);
-            ServletFileUpload upload = new ServletFileUpload(factory);
+            DiskFileItemFactory factory = DiskFileItemFactory.builder().setPath(tempDir.toPath()).get();
+            JakartaServletFileUpload upload = new JakartaServletFileUpload(factory);
             upload.setSizeMax(maxPostSize);
             List<FileItem> items = upload.parseRequest(request);
             Map<String, List<String>> params = new HashMap<String, List<String>>();
@@ -100,7 +100,7 @@ public class CommonsMultipartWrapper implements MultipartWrapper {
                         values = new ArrayList<String>();
                         params.put(item.getFieldName(), values);
                     }
-                    values.add(charset == null ? item.getString() : item.getString(charset));
+                    values.add(charset == null ? item.getString() : item.getString(Charset.forName(charset)));
                 } // Else store the file param
                 else {
                     files.put(item.getFieldName(), item);
@@ -112,8 +112,8 @@ public class CommonsMultipartWrapper implements MultipartWrapper {
                 List<String> values = entry.getValue();
                 this.parameters.put(entry.getKey(), values.toArray(new String[values.size()]));
             }
-        } catch (FileUploadBase.SizeLimitExceededException slee) {
-            throw new FileUploadLimitExceededException(maxPostSize, slee.getActualSize());
+        } catch (FileUploadSizeException fuse) {
+            throw new FileUploadLimitExceededException(maxPostSize, fuse.getActualSize());
         } catch (FileUploadException fue) {
             IOException ioe = new IOException("Could not parse and cache file upload data.");
             ioe.initCause(fue);
@@ -200,7 +200,7 @@ public class CommonsMultipartWrapper implements MultipartWrapper {
                 @Override
                 public void save(File toFile) throws IOException {
                     try {
-                        item.write(toFile);
+                        item.write(toFile.toPath());
                         delete();
                     } catch (Exception e) {
                         if (e instanceof IOException) {

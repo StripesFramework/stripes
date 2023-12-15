@@ -17,8 +17,8 @@ package net.sourceforge.stripes.tag;
 import net.sourceforge.stripes.exception.StripesJspException;
 import net.sourceforge.stripes.util.HtmlUtil;
 
-import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.tagext.BodyTag;
+import jakarta.servlet.jsp.JspException;
+import jakarta.servlet.jsp.tagext.BodyTag;
 import java.io.IOException;
 
 /**
@@ -114,7 +114,7 @@ public class InputOptionTag extends InputTagSupport implements BodyTag {
      * Does nothing.
      *
      * @return EVAL_BODY_BUFFERED in all cases.
-     * @throws javax.servlet.jsp.JspException
+     * @throws jakarta.servlet.jsp.JspException
      */
     @Override
     public int doStartInputTag() throws JspException {
@@ -123,7 +123,7 @@ public class InputOptionTag extends InputTagSupport implements BodyTag {
 
     /**
      * Does nothing.
-     * @throws javax.servlet.jsp.JspException
+     * @throws jakarta.servlet.jsp.JspException
      */
     public void doInitBody() throws JspException {
     }
@@ -132,7 +132,7 @@ public class InputOptionTag extends InputTagSupport implements BodyTag {
      * Does nothing.
      *
      * @return SKIP_BODY in all cases.
-     * @throws javax.servlet.jsp.JspException
+     * @throws jakarta.servlet.jsp.JspException
      */
     public int doAfterBody() throws JspException {
         return SKIP_BODY;
@@ -196,7 +196,7 @@ public class InputOptionTag extends InputTagSupport implements BodyTag {
      * Overridden to make sure that options do not try and register themselves
      * with the form tag. This is done because options are not standalone input
      * tags, but always part of a select tag (which gets registered).
-     * @throws net.sourceforge.stripes.exception.StripesJspException
+     * @throws net.sourceforge.stripes.exception.StripesJspException when an error happened
      */
     @Override
     protected void registerWithParentForm() throws StripesJspException {

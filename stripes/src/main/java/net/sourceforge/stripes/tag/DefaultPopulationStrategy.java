@@ -79,7 +79,7 @@ public class DefaultPopulationStrategy implements PopulationStrategy {
      * @return Object will be one of null, a single Object or an Array of
      * Objects depending upon what was submitted in the prior request, and what
      * is declared on the ActionBean
-     * @throws net.sourceforge.stripes.exception.StripesJspException
+     * @throws net.sourceforge.stripes.exception.StripesJspException when an error happened
      */
     public Object getValue(InputTagSupport tag) throws StripesJspException {
         // Look first for something that the user submitted in the current request
@@ -105,7 +105,7 @@ public class DefaultPopulationStrategy implements PopulationStrategy {
      *
      * @param tag the tag whose values to look for
      * @return a String[] if values are found, null otherwise
-     * @throws net.sourceforge.stripes.exception.StripesJspException
+     * @throws net.sourceforge.stripes.exception.StripesJspException when an error happened
      */
     protected String[] getValuesFromRequest(InputTagSupport tag) throws StripesJspException {
         String[] value = tag.getPageContext().getRequest().getParameterValues(tag.getName());
@@ -140,7 +140,7 @@ public class DefaultPopulationStrategy implements PopulationStrategy {
      *
      * @param tag the tag whose values to look for
      * @return an Object, possibly null, representing the tag's value
-     * @throws net.sourceforge.stripes.exception.StripesJspException
+     * @throws net.sourceforge.stripes.exception.StripesJspException when an error happened
      */
     protected Object getValueFromActionBean(InputTagSupport tag) throws StripesJspException {
         ActionBean actionBean = tag.getParentFormTag().getActionBean();
@@ -180,7 +180,7 @@ public class DefaultPopulationStrategy implements PopulationStrategy {
      *
      * @param tag the tag that is being repopulated
      * @return boolean true if the form is in error, false otherwise
-     * @throws net.sourceforge.stripes.exception.StripesJspException
+     * @throws net.sourceforge.stripes.exception.StripesJspException when an error happened
      */
     protected boolean isFormInError(InputTagSupport tag) throws StripesJspException {
         boolean inError = false;

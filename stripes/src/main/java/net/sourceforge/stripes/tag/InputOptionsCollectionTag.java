@@ -22,8 +22,8 @@ import net.sourceforge.stripes.util.bean.BeanComparator;
 import net.sourceforge.stripes.util.StringUtil;
 import net.sourceforge.stripes.util.CollectionUtil;
 
-import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.JspWriter;
+import jakarta.servlet.jsp.JspException;
+import jakarta.servlet.jsp.JspWriter;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.Collections;
@@ -399,7 +399,7 @@ public class InputOptionsCollectionTag extends HtmlTagSupport {
      * rendering work.
      *
      * @return EVAL_PAGE in all cases.
-     * @throws javax.servlet.jsp.JspException
+     * @throws jakarta.servlet.jsp.JspException
      */
     @Override
     public int doEndTag() throws JspException {

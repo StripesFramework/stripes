@@ -20,9 +20,9 @@ import net.sourceforge.stripes.controller.StripesFilter;
 import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.util.ReflectUtil;
 
-import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.PageContext;
-import javax.servlet.jsp.tagext.Tag;
+import jakarta.servlet.jsp.JspException;
+import jakarta.servlet.jsp.PageContext;
+import jakarta.servlet.jsp.tagext.Tag;
 import java.util.HashMap;
 import java.util.ListIterator;
 import java.util.Map;
@@ -55,7 +55,7 @@ public abstract class StripesTagSupport implements Tag {
 
     /**
      * Called by the Servlet container to set the page context on the tag.
-     * @param pageContext
+     * @param pageContext the context of the current page
      */
     public void setPageContext(PageContext pageContext) {
         this.pageContext = pageContext;
@@ -63,7 +63,7 @@ public abstract class StripesTagSupport implements Tag {
 
     /**
      * Retrieves the pageContext handed to the tag by the container.
-     * @return 
+     * @return  the page context
      */
     public PageContext getPageContext() {
         return this.pageContext;
@@ -72,7 +72,7 @@ public abstract class StripesTagSupport implements Tag {
     /**
      * From the Tag interface - allows the container to set the parent tag on
      * the JSP.
-     * @param tag
+     * @param tag the parent tag to set
      */
     public void setParent(Tag tag) {
         this.parentTag = tag;
@@ -80,7 +80,7 @@ public abstract class StripesTagSupport implements Tag {
 
     /**
      * From the Tag interface - allows fetching the parent tag on the JSP.
-     * @return 
+     * @return the parent tag
      */
     public Tag getParent() {
         return this.parentTag;
@@ -90,8 +90,8 @@ public abstract class StripesTagSupport implements Tag {
      * Abstract method from the Tag interface. Abstract because it seems to make
      * the child tags more readable if they implement their own do() methods,
      * even when they just return one of the constants and do nothing else.
-     * @return 
-     * @throws javax.servlet.jsp.JspException
+     * @return the number
+     * @throws jakarta.servlet.jsp.JspException
      */
     public abstract int doStartTag() throws JspException;
 
@@ -99,8 +99,8 @@ public abstract class StripesTagSupport implements Tag {
      * Abstract method from the Tag interface. Abstract because it seems to make
      * the child tags more readable if they implement their own do() methods,
      * even when they just return one of the constants and do nothing else.
-     * @return 
-     * @throws javax.servlet.jsp.JspException
+     * @return the number
+     * @throws jakarta.servlet.jsp.JspException
      */
     public abstract int doEndTag() throws JspException;
 
@@ -116,7 +116,7 @@ public abstract class StripesTagSupport implements Tag {
      * end of the tag's execution (usually in doEndTag). If this method is
      * called, the tag <b>must</b>
      * also call{@link #popPageContextAttributes()}.
-     * @param attributes
+     * @param attributes the attributes to push onto the page context
      */
     public void pushPageContextAttributes(Map<String, Object> attributes) {
         this.previousAttributeValues = new HashMap<String, Object>();
@@ -153,8 +153,8 @@ public abstract class StripesTagSupport implements Tag {
      * the type supplied can be found anywhere in the ancestry of this tag, null
      * is returned.</p>
      *
-     * @param <T>
-     * @param tagType
+     * @param <T> the type of the parent tag
+     * @param tagType the class of the parent tag to get
      * @return T Tag of the type supplied, or null if none can be found
      */
     @SuppressWarnings("unchecked")
@@ -188,7 +188,7 @@ public abstract class StripesTagSupport implements Tag {
      * to help Stripes tags find one another when they are spread across
      * multiple included JSPs and/or tag files - situations in which the usual
      * parent tag relationship fails.
-     * @return 
+     * @return gets the stack for the tag
      */
     @SuppressWarnings("unchecked")
     protected Stack<StripesTagSupport> getTagStack() {

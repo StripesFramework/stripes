@@ -16,7 +16,7 @@ package net.sourceforge.stripes.tag;
 
 import java.util.Map;
 
-import javax.servlet.jsp.JspException;
+import jakarta.servlet.jsp.JspException;
 
 import net.sourceforge.stripes.tag.InputOptionsCollectionTag;
 
@@ -74,7 +74,7 @@ public class InputOptionsMapTag extends InputOptionsCollectionTag {
      * Calls super.doEndTag() and cleans up instance variables so this instance
      * may be reused.
      * @return 
-     * @throws javax.servlet.jsp.JspException 
+     * @throws jakarta.servlet.jsp.JspException 
      */
     @Override
     public int doEndTag() throws JspException {

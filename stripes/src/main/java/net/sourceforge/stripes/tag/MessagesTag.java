@@ -18,10 +18,10 @@ import net.sourceforge.stripes.action.Message;
 import net.sourceforge.stripes.controller.StripesConstants;
 import net.sourceforge.stripes.controller.StripesFilter;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.JspWriter;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.jsp.JspException;
+import jakarta.servlet.jsp.JspWriter;
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
@@ -94,7 +94,7 @@ public class MessagesTag extends HtmlTagSupport {
      * Does nothing, all processing is performed in doEndTag().
      *
      * @return SKIP_BODY in all cases.
-     * @throws javax.servlet.jsp.JspException
+     * @throws jakarta.servlet.jsp.JspException
      */
     @Override
     public int doStartTag() throws JspException {
@@ -105,7 +105,7 @@ public class MessagesTag extends HtmlTagSupport {
      * Outputs the set of messages appropriate for this tag.
      *
      * @return EVAL_PAGE always
-     * @throws javax.servlet.jsp.JspException
+     * @throws jakarta.servlet.jsp.JspException
      */
     @Override
     public int doEndTag() throws JspException {

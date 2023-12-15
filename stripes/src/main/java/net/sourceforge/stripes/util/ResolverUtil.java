@@ -59,7 +59,7 @@ import net.sourceforge.stripes.vfs.VFS;
  * </pre>
  *
  * @author Tim Fennell
- * @param <T>
+ * @param <T> the type to resolve
  */
 public class ResolverUtil<T> {
 

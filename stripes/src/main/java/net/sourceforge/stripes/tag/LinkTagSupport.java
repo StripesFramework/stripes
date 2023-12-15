@@ -20,8 +20,8 @@ import net.sourceforge.stripes.util.Log;
 import net.sourceforge.stripes.util.UrlBuilder;
 import net.sourceforge.stripes.controller.StripesConstants;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.util.Map;
 import java.util.HashMap;
 

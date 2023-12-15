@@ -16,8 +16,8 @@ package net.sourceforge.stripes.tag;
 
 import net.sourceforge.stripes.validation.BooleanTypeConverter;
 
-import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.tagext.BodyTag;
+import jakarta.servlet.jsp.JspException;
+import jakarta.servlet.jsp.tagext.BodyTag;
 
 /**
  * <p>
@@ -146,7 +146,7 @@ public class InputSelectTag extends InputTagSupport implements BodyTag {
 
     /**
      * Does nothing.
-     * @throws javax.servlet.jsp.JspException
+     * @throws jakarta.servlet.jsp.JspException
      */
     public void doInitBody() throws JspException {
     }
@@ -155,7 +155,7 @@ public class InputSelectTag extends InputTagSupport implements BodyTag {
      * Does nothing.
      *
      * @return SKIP_BODY in all cases.
-     * @throws javax.servlet.jsp.JspException
+     * @throws jakarta.servlet.jsp.JspException
      */
     public int doAfterBody() throws JspException {
         return SKIP_BODY;

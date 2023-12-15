@@ -56,7 +56,7 @@ public abstract class VFS {
     /**
      * Get the singleton {@link VFS} instance. If no {@link VFS} implementation
      * can be found for the current environment, then this method returns null.
-     * @return 
+     * @return the instance
      */
     @SuppressWarnings("unchecked")
     public static VFS getInstance() {
@@ -107,8 +107,8 @@ public abstract class VFS {
 
     /**
      * Get a class by name. If the class is not found then return null.
-     * @param className
-     * @return 
+     * @param className the name of the class
+     * @return the class which was found
      */
     protected static Class<?> getClass(String className) {
         try {
@@ -126,7 +126,7 @@ public abstract class VFS {
      * @param clazz The class to which the method belongs.
      * @param methodName The name of the method.
      * @param parameterTypes The types of the parameters accepted by the method.
-     * @return 
+     * @return the method which was found
      */
     protected static Method getMethod(Class<?> clazz, String methodName, Class<?>... parameterTypes) {
         try {
@@ -147,7 +147,7 @@ public abstract class VFS {
     /**
      * Invoke a method on an object and return whatever it returns.
      *
-     * @param <T>
+     * @param <T> the type which the invoked method returned
      * @param method The method to invoke.
      * @param object The instance or class (for static methods) on which to
      * invoke the method.
@@ -161,9 +161,7 @@ public abstract class VFS {
             throws IOException, StripesRuntimeException {
         try {
             return (T) method.invoke(object, parameters);
-        } catch (IllegalArgumentException e) {
-            throw new StripesRuntimeException(e);
-        } catch (IllegalAccessException e) {
+        } catch (IllegalArgumentException | IllegalAccessException e) {
             throw new StripesRuntimeException(e);
         } catch (InvocationTargetException e) {
             if (e.getTargetException() instanceof IOException) {
@@ -190,7 +188,7 @@ public abstract class VFS {
     /**
      * Return true if the {@link VFS} implementation is valid for the current
      * environment.
-     * @return 
+     * @return true when valid
      */
     public abstract boolean isValid();
 

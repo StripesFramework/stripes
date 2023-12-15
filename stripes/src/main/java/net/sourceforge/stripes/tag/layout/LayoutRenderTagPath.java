@@ -18,7 +18,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.servlet.jsp.PageContext;
+import jakarta.servlet.jsp.PageContext;
 
 import net.sourceforge.stripes.exception.StripesJspException;
 
@@ -114,7 +114,7 @@ public class LayoutRenderTagPath {
      *
      * @param tag The tag to check to see if it is part of this path.
      * @return 
-     * @throws net.sourceforge.stripes.exception.StripesJspException 
+     * @throws net.sourceforge.stripes.exception.StripesJspException when an error happened 
      */
     public boolean isPathComponent(LayoutComponentTag tag) throws StripesJspException {
         List<String> path = getComponentPath();

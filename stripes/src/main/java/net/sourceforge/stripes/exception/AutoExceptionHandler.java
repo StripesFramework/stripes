@@ -28,7 +28,7 @@ package net.sourceforge.stripes.exception;
  * <pre>public Resolution handle(Type exception, HttpServletRequest req, HttpServletResponse res);</pre>
  *
  * <p>
- * where <tt>Type</tt> can be any subclass of {@link java.lang.Throwable}.
+ * where <code>Type</code> can be any subclass of {@link java.lang.Throwable}.
  * Handler methods do not have to follow any naming convention. In the above
  * example 'handle' is used, but any other name, e.g. 'run', 'handleException'
  * etc. would have worked as well. The return type is only loosely enforced; if

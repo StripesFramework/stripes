@@ -14,8 +14,8 @@
  */
 package net.sourceforge.stripes.tag;
 
-import javax.servlet.jsp.JspException;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.jsp.JspException;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * <p>
@@ -60,7 +60,7 @@ public class InputImageTag extends InputTagSupport {
      * Does nothing.
      *
      * @return SKIP_BODY in all cases
-     * @throws javax.servlet.jsp.JspException
+     * @throws jakarta.servlet.jsp.JspException
      */
     @Override
     public int doStartInputTag() throws JspException {
@@ -73,7 +73,7 @@ public class InputImageTag extends InputTagSupport {
      * to any src URL that starts with a slash.
      *
      * @return EVAL_PAGE always
-     * @throws javax.servlet.jsp.JspException
+     * @throws jakarta.servlet.jsp.JspException
      */
     @Override
     public int doEndInputTag() throws JspException {

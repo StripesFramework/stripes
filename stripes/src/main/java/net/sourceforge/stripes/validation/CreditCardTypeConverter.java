@@ -27,8 +27,8 @@ import java.util.Locale;
  * <p>
  * If the credit card number is not valid a single error message will be
  * generated. The error message is a scoped message with a default scope of
- * <tt>converter.creditCard</tt> and name
- * <tt>invalidCreditCard</tt>. As a result error messages will be looked for in
+ * <code>converter.creditCard</code> and name
+ * <code>invalidCreditCard</code>. As a result error messages will be looked for in
  * the following order:</p>
  *
  * <ul>

@@ -14,7 +14,7 @@
  */
 package net.sourceforge.stripes.mock;
 
-import javax.servlet.FilterConfig;
+import jakarta.servlet.FilterConfig;
 
 /**
  * Mock implementation of the FilterConfig interface from the Http Servlet spec.

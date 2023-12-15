@@ -6,15 +6,15 @@ import java.io.Serializable;
 import java.security.Principal;
 import java.util.*;
 
-import javax.servlet.*;
-import javax.servlet.http.*;
+import jakarta.servlet.*;
+import jakarta.servlet.http.*;
 
 /**
- * Captures the state of an {@link javax.servlet.http.HttpServletRequest} so
+ * Captures the state of an {@link jakarta.servlet.http.HttpServletRequest} so
  * that the information contained therein can be carried over to the next
  * request for use by the flash scope. There are several methods in here that
  * cannot be faked and so must delegate to an active {@link
- * javax.servlet.http.HttpServletRequest} object, the {@link #delegate}. If one
+ * jakarta.servlet.http.HttpServletRequest} object, the {@link #delegate}. If one
  * of these methods is called and there is no delegate object set on the
  * instance, they will throw a {@link
  * net.sourceforge.stripes.exception.StripesRuntimeException}. Unless this class
@@ -58,7 +58,6 @@ public class FlashRequest implements HttpServletRequest, Serializable {
     private StringBuffer requestURL;
     private boolean requestedSessionIdFromCookie;
     private boolean requestedSessionIdFromURL;
-    private boolean requestedSessionIdFromUrl;
     private boolean requestedSessionIdValid;
     private boolean secure;
     private int localPort;
@@ -111,7 +110,6 @@ public class FlashRequest implements HttpServletRequest, Serializable {
         requestedSessionId = prototype.getRequestedSessionId();
         requestedSessionIdFromCookie = prototype.isRequestedSessionIdFromCookie();
         requestedSessionIdFromURL = prototype.isRequestedSessionIdFromURL();
-        requestedSessionIdFromUrl = prototype.isRequestedSessionIdFromUrl();
         requestedSessionIdValid = prototype.isRequestedSessionIdValid();
         scheme = prototype.getScheme();
         secure = prototype.isSecure();
@@ -407,17 +405,6 @@ public class FlashRequest implements HttpServletRequest, Serializable {
     }
 
     /**
-     * Returns whether or not the session ID is from the URL
-     * @return whether or not the session ID is from the URL
-     * @deprecated
-     */
-    @Deprecated
-    @Override
-    public boolean isRequestedSessionIdFromUrl() {
-        return requestedSessionIdFromUrl;
-    }
-
-    /**
      * Returns the attribute value associated with the passed attribute name.
      * 
      * @param name - Name to return attribute value for.
@@ -661,18 +648,6 @@ public class FlashRequest implements HttpServletRequest, Serializable {
         return getDelegate().getRequestDispatcher(name);
     }
 
-    /**
-     * Returns the real path for the passed resource name.
-     * 
-     * @param name - Name of resource to return real path for
-     * @return the real path for the passed resource name.
-     * @deprecated
-     */
-    @Override
-    @Deprecated
-    public String getRealPath(String name) {
-        return getDelegate().getRealPath(name);
-    }
 
     /**
      * Returns the remote port for the request.
@@ -879,5 +854,20 @@ public class FlashRequest implements HttpServletRequest, Serializable {
     @Override
     public DispatcherType getDispatcherType() {
         return delegate.getDispatcherType();
+    }
+
+    @Override
+    public String getRequestId() {
+        return delegate.getRequestId();
+    }
+
+    @Override
+    public String getProtocolRequestId() {
+        return delegate.getProtocolRequestId();
+    }
+
+    @Override
+    public ServletConnection getServletConnection() {
+        return delegate.getServletConnection();
     }
 }

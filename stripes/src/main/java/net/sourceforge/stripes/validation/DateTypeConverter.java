@@ -158,7 +158,7 @@ public class DateTypeConverter implements TypeConverter<Date> {
      * pre-processing converts most common separator characters into spaces,
      * patterns should be expressed with spaces as separators, not slashes,
      * hyphens etc.
-     * @return 
+     * @return the strings
      */
     protected String[] getFormatStrings() {
         try {
@@ -188,7 +188,7 @@ public class DateTypeConverter implements TypeConverter<Date> {
      * DateTypeConverter instance is initialized. It first calls
      * getFormatStrings() to obtain the format strings that are used to
      * construct SimpleDateFormat instances.
-     * @return 
+     * @return the date formats
      */
     protected DateFormat[] getDateFormats() {
         String[] formatStrings = getFormatStrings();
@@ -242,7 +242,7 @@ public class DateTypeConverter implements TypeConverter<Date> {
      * pattern <code>(?&lt;!GMT)[\\s,-/\\.]+</code> is used by default. The
      * pattern is used by preProcessInput() to replace all matches by single
      * spaces.
-     * @return 
+     * @return the pattern
      */
     protected Pattern getPreProcessPattern() {
         try {
@@ -260,8 +260,8 @@ public class DateTypeConverter implements TypeConverter<Date> {
      * {@link #checkAndAppendYear(String)} to append the year to the date in
      * case the date is in a format like "12/25" which would otherwise fail to
      * parse.
-     * @param input
-     * @return 
+     * @param input the input string to process
+     * @return the processed input
      */
     protected String preProcessInput(String input) {
         input = getPreProcessPattern().matcher(input.trim()).replaceAll(" ");
@@ -297,8 +297,8 @@ public class DateTypeConverter implements TypeConverter<Date> {
 
     /**
      * Convenience method to fetch a property from the resource bundle.
-     * @param key
-     * @return 
+     * @param key the key of the property to fetch
+     * @return the property for the given key
      */
     protected String getResourceString(String key) throws MissingResourceException {
         return StripesFilter.getConfiguration().getLocalizationBundleFactory()

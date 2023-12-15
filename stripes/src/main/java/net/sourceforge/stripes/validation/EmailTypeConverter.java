@@ -14,23 +14,23 @@
  */
 package net.sourceforge.stripes.validation;
 
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
+import jakarta.mail.internet.AddressException;
+import jakarta.mail.internet.InternetAddress;
 import java.util.Collection;
 import java.util.Locale;
 
 /**
  * <p>
  * A faux TypeConverter that validates that the String supplied is a valid email
- * address. Relies on javax.mail.internet.InternetAddress for the bulk of the
+ * address. Relies on jakarta.mail.internet.InternetAddress for the bulk of the
  * work (note that this means in order to use this type converter you must have
  * JavaMail available in your classpath).</p>
  *
  * <p>
  * If the String cannot be parsed, or it represents a "local" address (one with
  * no @domain) a single error message will be generated. The error message is a
- * scoped message with a default scope of <tt>converter.email</tt> and name
- * <tt>invalidEmail</tt>. As a result error messages will be looked for in the
+ * scoped message with a default scope of <code>converter.email</code> and name
+ * <code>invalidEmail</code>. As a result error messages will be looked for in the
  * following order:</p>
  *
  * <ul>

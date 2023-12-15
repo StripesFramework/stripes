@@ -30,11 +30,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import javax.servlet.*;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpServletResponseWrapper;
+import jakarta.servlet.*;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequestWrapper;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponseWrapper;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -367,20 +367,6 @@ public class DynamicMappingFilter implements Filter {
             }
         }
 
-        /**
-         * Sets the status and message of the response.
-         * 
-         * @param sc - HTTP status code
-         * @param sm - Status message
-         */
-        @Override
-        public void setStatus(int sc, String sm) {
-            super.setStatus(sc, sm);
-            if (isError(sc)) {
-                this.errorCode = sc;
-                this.errorMessage = sm;
-            }
-        }
     }
 
     /**

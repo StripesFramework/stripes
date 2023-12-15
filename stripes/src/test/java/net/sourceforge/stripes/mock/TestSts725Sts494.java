@@ -6,8 +6,8 @@ import net.sourceforge.stripes.controller.StripesFilter;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
+import jakarta.servlet.ServletContextEvent;
+import jakarta.servlet.ServletContextListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

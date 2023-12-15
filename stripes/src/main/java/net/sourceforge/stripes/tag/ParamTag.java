@@ -14,11 +14,11 @@
  */
 package net.sourceforge.stripes.tag;
 
-import javax.servlet.jsp.tagext.BodyTag;
-import javax.servlet.jsp.tagext.BodyContent;
-import javax.servlet.jsp.tagext.Tag;
-import javax.servlet.jsp.PageContext;
-import javax.servlet.jsp.JspException;
+import jakarta.servlet.jsp.tagext.BodyTag;
+import jakarta.servlet.jsp.tagext.BodyContent;
+import jakarta.servlet.jsp.tagext.Tag;
+import jakarta.servlet.jsp.PageContext;
+import jakarta.servlet.jsp.JspException;
 
 /**
  * <p>
@@ -112,7 +112,7 @@ public class ParamTag implements BodyTag {
 
     /**
      * Does nothing.
-     * @throws javax.servlet.jsp.JspException
+     * @throws jakarta.servlet.jsp.JspException
      */
     public void doInitBody() throws JspException {
         /* Do Nothing */ }
@@ -121,7 +121,7 @@ public class ParamTag implements BodyTag {
      * Does nothing.
      *
      * @return SKIP_BODY in all cases.
-     * @throws javax.servlet.jsp.JspException
+     * @throws jakarta.servlet.jsp.JspException
      */
     public int doAfterBody() throws JspException {
         return SKIP_BODY;
@@ -131,7 +131,7 @@ public class ParamTag implements BodyTag {
      * Does nothing.
      *
      * @return EVAL_BODY_BUFFERED in all cases.
-     * @throws javax.servlet.jsp.JspException
+     * @throws jakarta.servlet.jsp.JspException
      */
     public int doStartTag() throws JspException {
         return EVAL_BODY_BUFFERED;
@@ -142,7 +142,7 @@ public class ParamTag implements BodyTag {
      * adds the parameter.
      *
      * @return EVAL_PAGE in all cases.
-     * @throws javax.servlet.jsp.JspException
+     * @throws jakarta.servlet.jsp.JspException
      */
     public int doEndTag() throws JspException {
         Object valueToSet = value;

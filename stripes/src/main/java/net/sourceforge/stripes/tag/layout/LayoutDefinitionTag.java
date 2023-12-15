@@ -17,8 +17,8 @@ package net.sourceforge.stripes.tag.layout;
 import java.io.IOException;
 import java.util.Map;
 
-import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.PageContext;
+import jakarta.servlet.jsp.JspException;
+import jakarta.servlet.jsp.PageContext;
 
 import net.sourceforge.stripes.exception.StripesRuntimeException;
 
@@ -62,7 +62,7 @@ public class LayoutDefinitionTag extends LayoutTag {
      * body of the {@link LayoutDefinitionTag}.
      *
      * @return {@code EVAL_BODY_INCLUDE} in all cases.
-     * @throws javax.servlet.jsp.JspException
+     * @throws jakarta.servlet.jsp.JspException
      */
     @Override
     public int doStartTag() throws JspException {
@@ -94,7 +94,7 @@ public class LayoutDefinitionTag extends LayoutTag {
      * reached.
      *
      * @return SKIP_PAGE in all cases
-     * @throws javax.servlet.jsp.JspException
+     * @throws jakarta.servlet.jsp.JspException
      */
     @Override
     public int doEndTag() throws JspException {

@@ -25,10 +25,10 @@ import net.sourceforge.stripes.validation.ValidationError;
 import net.sourceforge.stripes.validation.ScopedLocalizableError;
 import net.sourceforge.stripes.exception.StripesRuntimeException;
 
-import javax.servlet.jsp.el.VariableResolver;
-import javax.servlet.jsp.el.ELException;
-import javax.servlet.jsp.el.Expression;
-import javax.servlet.jsp.el.ExpressionEvaluator;
+import jakarta.servlet.jsp.el.VariableResolver;
+import jakarta.servlet.jsp.el.ELException;
+import jakarta.servlet.jsp.el.Expression;
+import jakarta.servlet.jsp.el.ExpressionEvaluator;
 import java.util.List;
 
 /**
@@ -79,7 +79,7 @@ public abstract class ExpressionExecutorSupport implements ExpressionExecutor {
          *
          * @param property the name of the variable/property being looked for
          * @return the property value or null
-         * @throws javax.servlet.jsp.el.ELException
+         * @throws jakarta.servlet.jsp.el.ELException
          */
         public Object resolveVariable(String property) throws ELException {
             if (isSelfKeyword(bean, property)) {

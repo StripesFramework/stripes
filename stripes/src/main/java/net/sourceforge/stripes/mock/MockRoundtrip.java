@@ -22,7 +22,7 @@ import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import javax.servlet.Filter;
+import jakarta.servlet.Filter;
 
 import net.sourceforge.stripes.action.ActionBean;
 import net.sourceforge.stripes.action.Message;
@@ -176,6 +176,7 @@ public class MockRoundtrip {
         this.context = context;
         this.request = new MockHttpServletRequest("/" + context.getServletContextName(), path);
         this.request.setSession(session);
+        this.request.setServletContext(context);
         this.response = new MockHttpServletResponse();
         setSourcePage(DEFAULT_SOURCE_PAGE);
 
@@ -191,7 +192,7 @@ public class MockRoundtrip {
 
     /**
      * Get the servlet request object to be used by this round trip
-     * @return 
+     * @return
      */
     public MockHttpServletRequest getRequest() {
         return request;
@@ -207,7 +208,7 @@ public class MockRoundtrip {
 
     /**
      * Get the servlet response object to be used by this round trip
-     * @return 
+     * @return
      */
     public MockHttpServletResponse getResponse() {
         return response;
@@ -223,7 +224,7 @@ public class MockRoundtrip {
 
     /**
      * Get the ActionBean context to be used by this round trip
-     * @return 
+     * @return
      */
     public MockServletContext getContext() {
         return context;
@@ -327,7 +328,7 @@ public class MockRoundtrip {
     /**
      * Gets the (potentially empty) set of Validation Errors that were produced
      * by the request.
-     * @return 
+     * @return
      */
     public ValidationErrors getValidationErrors() {
         ActionBean bean = (ActionBean) this.request.getAttribute(StripesConstants.REQ_ATTR_ACTION_BEAN);
@@ -356,7 +357,7 @@ public class MockRoundtrip {
      * with the request. Note that since the Mock system does not write standard
      * HTTP response information (headers etc.) to the output stream, this will
      * be exactly what was written by the ActionBean.
-     * @return 
+     * @return
      */
     public byte[] getOutputBytes() {
         return this.response.getOutputBytes();
@@ -367,7 +368,7 @@ public class MockRoundtrip {
      * associated with the request. Note that since the Mock system does not
      * write standard HTTP response information (headers etc.) to the output
      * stream, this will be exactly what was written by the ActionBean.
-     * @return 
+     * @return
      */
     public String getOutputString() {
         return this.response.getOutputString();
@@ -381,7 +382,7 @@ public class MockRoundtrip {
      * the same web application, then the URL returned will exclude the context
      * path. I.e. the URL returned will be the same regardless of whether the
      * page was forwarded to or redirected to.
-     * @return 
+     * @return
      */
     public String getDestination() {
         String forward = this.request.getForwardUrl();
@@ -402,7 +403,7 @@ public class MockRoundtrip {
     /**
      * If the request resulted in a forward, returns the URL that was forwarded
      * to.
-     * @return 
+     * @return
      */
     public String getForwardUrl() {
         return this.request.getForwardUrl();
@@ -413,7 +414,7 @@ public class MockRoundtrip {
      * redirected to. Unlike getDestination(), the URL in this case will be the
      * exact URL that would have been sent to the browser (i.e. including the
      * servlet context).
-     * @return 
+     * @return
      */
     public String getRedirectUrl() {
         return this.response.getRedirectUrl();

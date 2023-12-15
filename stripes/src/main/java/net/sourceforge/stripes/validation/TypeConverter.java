@@ -22,7 +22,7 @@ import java.util.Locale;
  * facilities for converting from String to a specific object type.
  *
  * @author Tim Fennell
- * @param <T>
+ * @param <T> the type for the converter to handel
  */
 public interface TypeConverter<T> {
 

@@ -78,7 +78,7 @@ public class CollectionUtil {
     /**
      * <p>
      * Checks to see if an event is applicable given an array of event names.
-     * The array is usually derived from the <tt>on</tt> attribute of one of the
+     * The array is usually derived from the <code>on</code> attribute of one of the
      * Stripes annotations (e.g.
      * {@link net.sourceforge.stripes.validation.ValidationMethod}). The array
      * can be composed of <i>positive</i> event names (e.g. {"foo", "bar"}) in

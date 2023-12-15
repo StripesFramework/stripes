@@ -22,10 +22,10 @@ import net.sourceforge.stripes.validation.ValidationError;
 import net.sourceforge.stripes.validation.ValidationErrors;
 import net.sourceforge.stripes.exception.StripesJspException;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.JspWriter;
-import javax.servlet.jsp.tagext.BodyTag;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.jsp.JspException;
+import jakarta.servlet.jsp.JspWriter;
+import jakarta.servlet.jsp.tagext.BodyTag;
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -210,7 +210,7 @@ public class ErrorsTag extends HtmlTagSupport implements BodyTag {
      *
      * @param beanclass the FQN of an ActionBean class, or a Class object for
      * one.
-     * @throws net.sourceforge.stripes.exception.StripesJspException
+     * @throws net.sourceforge.stripes.exception.StripesJspException when an error happened
      */
     public void setBeanclass(Object beanclass) throws StripesJspException {
         String url = getActionBeanUrl(beanclass);
@@ -265,7 +265,7 @@ public class ErrorsTag extends HtmlTagSupport implements BodyTag {
      * @return SKIP_BODY if the errors are not to be output, or there aren't
      * any<br>
      * EVAL_BODY_TAG if there are errors to display
-     * @throws javax.servlet.jsp.JspException
+     * @throws jakarta.servlet.jsp.JspException
      */
     @Override
     public int doStartTag() throws JspException {
@@ -339,7 +339,7 @@ public class ErrorsTag extends HtmlTagSupport implements BodyTag {
 
     /**
      * Sets the context variables for the current error and index
-     * @throws javax.servlet.jsp.JspException
+     * @throws jakarta.servlet.jsp.JspException
      */
     public void doInitBody() throws JspException {
         // Apply TEI attributes
@@ -354,7 +354,7 @@ public class ErrorsTag extends HtmlTagSupport implements BodyTag {
      *
      * @return EVAL_BODY_TAG if there are more errors to display, SKIP_BODY
      * otherwise
-     * @throws javax.servlet.jsp.JspException
+     * @throws jakarta.servlet.jsp.JspException
      */
     public int doAfterBody() throws JspException {
         if (this.display && this.nestedErrorTagPresent && this.errorIterator.hasNext()) {
