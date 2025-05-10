@@ -236,7 +236,7 @@ public abstract class HtmlTagSupport extends StripesTagSupport implements Dynami
           this.pageContext
               .getExpressionEvaluator()
               .evaluate(expression, resultType, this.pageContext.getVariableResolver(), null);
-    } catch (jakarta.servlet.jsp.el.ELException ele) {
+    } catch (Exception ele) {
       throw new StripesJspException(
           "Could not evaluate EL expression  ["
               + expression

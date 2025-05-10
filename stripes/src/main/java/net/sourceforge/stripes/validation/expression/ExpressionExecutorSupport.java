@@ -14,7 +14,7 @@
  */
 package net.sourceforge.stripes.validation.expression;
 
-import jakarta.servlet.jsp.el.ELException;
+import jakarta.el.ELException;
 import jakarta.servlet.jsp.el.Expression;
 import jakarta.servlet.jsp.el.ExpressionEvaluator;
 import jakarta.servlet.jsp.el.VariableResolver;
@@ -71,7 +71,7 @@ public abstract class ExpressionExecutorSupport implements ExpressionExecutor {
      *
      * @param property the name of the variable/property being looked for
      * @return the property value or null
-     * @throws jakarta.servlet.jsp.el.ELException
+     * @throws jakarta.el.ELException
      */
     public Object resolveVariable(String property) throws ELException {
       if (isSelfKeyword(bean, property)) {
@@ -108,7 +108,7 @@ public abstract class ExpressionExecutorSupport implements ExpressionExecutor {
         String expression = validationInfo.expression();
         expr = evaluator.parseExpression(expression, Boolean.class, null);
         resolver = new BeanVariableResolver(bean);
-      } catch (ELException ele) {
+      } catch (Exception ele) {
         throw new StripesRuntimeException(
             "Could not parse the EL expression being used to validate field "
                 + name.getName()
@@ -131,7 +131,7 @@ public abstract class ExpressionExecutorSupport implements ExpressionExecutor {
             error.setFieldValue(String.valueOf(value));
             errors.add(name.getName(), error);
           }
-        } catch (ELException ele) {
+        } catch (Exception ele) {
           log.error(
               "Error evaluating expression for property ",
               name.getName(),
