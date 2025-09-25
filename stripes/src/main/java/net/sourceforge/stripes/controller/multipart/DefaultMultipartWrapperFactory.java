@@ -27,7 +27,7 @@ import net.sourceforge.stripes.util.Log;
 /**
  * Default implementation of a factory for MultipartWrappers. Looks up a class name in Configuration
  * under the key specified by {@link #WRAPPER_CLASS_NAME}. If no class name is configured, defaults
- * to the {@link CosMultipartWrapper}. An additional configuration parameter is supported to specify
+ * to the {@link CommonsMultipartWrapper}. An additional configuration parameter is supported to specify
  * the maximum post size allowable.
  *
  * @author Tim Fennell
@@ -106,7 +106,8 @@ public class DefaultMultipartWrapperFactory implements MultipartWrapperFactory {
     }
 
     // Figure out where the temp directory is, and store that info
-    File tempDir = (File) config.getServletContext().getAttribute("javax.servlet.context.tempdir");
+    File tempDir =
+        (File) config.getServletContext().getAttribute("jakarta.servlet.context.tempdir");
     if (tempDir != null) {
       this.temporaryDirectory = tempDir;
     } else {
